@@ -1,0 +1,79 @@
+<div class="gantt">
+    <div class="gantt-fixed">
+        <div class="gantt-fixed-header">
+            <div class="gantt-header-desc gantt-header-row-height"
+                 ng-show="columns.length > 0"
+                 ng-style="{'margin-top': (viewScale === 'hour' && (3*2) || (2*2))+'em'}">
+                <span>Description</span>
+            </div>
+        </div>
+        <div class="gantt-header-entry gantt-row-height"
+             ng-class-odd="'gantt-grid-row'"
+             ng-class-even="'gantt-grid-row-alt'"
+             ng-repeat="entry in entries">
+            <gantt-sortable swap="swapEntries(a,b)" ng-model="entry">
+                <span>{{ entry.description }}</span>
+            </gantt-sortable>
+        </div>
+    </div>
+    <div class="gantt-scroll-container"
+         ng-style="{'overflow-x': (entries.length == 0 && 'hidden' || 'scroll')}">
+        <div class="gantt-scrollable"
+             ng-style="{'width': ganttInnerWidth+'em'}">
+            <div class="gantt-scrollable-header">
+                <div class="gantt-header-month gantt-header-row-height">
+                    <span ng-style="{'width': c.widthMonth+'em'}"
+                          ng-repeat="c in columns | filter:viewMonthFilter">
+                        {{ c.date | date:'MMMM yyyy' }}
+                    </span>
+                </div>
+                <div class="gantt-header-week gantt-header-row-height">
+                    <span ng-style="{'width': c.widthWeek+'em'}"
+                          ng-repeat="c in columns | filter:viewWeekFilter">
+                        {{ c.date | dateWeek }}
+                    </span>
+                </div>
+                <div class="gantt-header-day gantt-header-row-height">
+                    <span ng-style="{'width': c.widthDay+'em'}"
+                          ng-repeat="c in columns | filter:viewDayFilter">
+                        {{ viewScale === "day" && (c.date | date:'dd') || (c.date | date:'dd EEEE') }}
+                    </span>
+                </div>
+                <div class="gantt-header-hour gantt-header-row-height"
+                     ng-show="viewScale === 'hour'">
+                    <span ng-style="{'width': viewScaleFactor+'em'}"
+                          ng-repeat="c in columns">
+                        {{ c.date | date:'HH' }}
+                    </span>
+                </div>
+            </div>
+            <div class="gantt-body">
+                <div class="gantt-body-background">
+                    <div class="gantt-row-height"
+                         ng-class-odd="'gantt-grid-row'"
+                         ng-class-even="'gantt-grid-row-alt'"
+                         ng-repeat="entry in entries">
+                    </div>
+                </div>
+                <div class="gantt-body-foreground">
+                    <div ng-class="(c.isWeekend && 'gantt-grid-col-weekend' || 'gantt-grid-col')"
+                         ng-style="{'width': viewScaleFactor+'em'}"
+                         ng-repeat="c in columns | filter: viewColumnFilter">
+                    </div>
+                </div>
+                <div class="gantt-body-content">
+                    <div class="gantt-entry gantt-row-height"
+                         ng-repeat="entry in entries">
+                        <div ng-class="(item.to-item.from === 0 && 'gantt-item-milestone' || 'gantt-item')"
+                             ng-style="{'left': (item.to-item.from === 0 && (item.x-0.3) || item.x)+'em', 'width': item.width+'em', 'background-color': item.color}"
+                             ng-repeat="item in entry.items">
+                            <gantt-info ng-model="item">
+                                <div class="gantt-item-content"><span>{{ (item.to-item.from === 0 && '&nbsp;' || item.subject) }}</span></div>
+                            </gantt-info>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
