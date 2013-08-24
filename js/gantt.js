@@ -25,6 +25,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  firstDayOfWeek: "=?",
                  weekendDays: "=?",
                  loadData: "&",
+                 removeData: "&",
                  onEntryAdded: "&",
                  onEntryUpdated: "&",
                  onScroll: "&"
@@ -101,13 +102,13 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     var item = entry.items[i];
                     $scope.addItem(ganttEntry, item);
                     $scope.expandColumnRange(item.from, item.to);
-                    $scope.findEarliestFromDate(entry, item);
+                    $scope.findEarliestFromDate(ganttEntry, item);
                 }
 
                 if (isAdd === true) {
-                    $scope.raiseEntryAdded(entry);
+                    $scope.raiseEntryAdded(ganttEntry);
                 } else {
-                    $scope.raiseEntryUpdated(entry);
+                    $scope.raiseEntryUpdated(ganttEntry);
                 }
             };
 
@@ -127,6 +128,43 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 ganttItem.color = item.color;
                 ganttItem.from = item.from;
                 ganttItem.to = item.to;
+            }
+
+            // Removes the complete entry including all items
+            $scope.removeEntry = function(entryId) {
+                if (entryId in $scope.entryMap) {
+                    delete $scope.entryMap[entryId]; // Remove from map
+
+                    for (var i = 0, l = $scope.entries.length; i < l; i++) {
+                        if ($scope.entries[i].id === entryId) {
+                            $scope.entries.splice(i, 1); // Remove from array
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Remove the specified item from the entry
+            $scope.removeItem = function(entryId, itemId) {
+                if (entryId in $scope.entryMap) {
+                    var entry = $scope.entryMap[entryId];
+                    if (itemId in entry.itemMap) {
+                        delete entry.itemMap[itemId]; // Remove from map
+
+                        for (var i = 0, l = entry.items.length; i < l; i++) {
+                            if (entry.items[i].id === itemId) {
+                                entry.items.splice(i, 1); // Remove from array
+                                break;
+                            }
+                        }
+
+                        // Update earliest date info as this may have changed
+                        entry.minFromDate = undefined;
+                        for (var i = 0, l = entry.items.length; i < l; i++) {
+                            $scope.findEarliestFromDate(entry, entry.items[i]);
+                        }
+                    }
+                }
             }
 
             // Calculate the earliest from date of all entry items
@@ -423,6 +461,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Gantt is initialized. Load data.
+            // The Gantt chart will keep the current view position if this function is called during scrolling.
             $scope.loadData({ fn: function(entries) {
                 var el = $scope.ganttScroll[0];
                 var oldRange = $scope.columns.length > 0 ? $scope.columns[$scope.columns.length-1].date - $scope.columns[0].date: 1;
@@ -439,6 +478,26 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 var oldScrollLeft = el.scrollLeft == 0 ? (($scope.columns[$scope.columns.length-1].date - $scope.columns[0].date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
                 el.scrollLeft = oldScrollLeft;
             }});
+
+            // Remove data. If an entry has no items inside the complete entry will be deleted.
+            $scope.removeData({ fn: function(entries) {
+                for (var i = 0, l = entries.length; i < l; i++) {
+                    var entry = entries[i];
+
+                    if (entry.items !== undefined && entry.items.length > 0) {
+                        // Only delete the specified items but not the entries and the other items
+                        for (var j = 0, k = entry.items.length; j < k; j++) {
+                            $scope.removeItem(entry.id, entry.items[j].id);
+                        }
+                    } else {
+                        // Delete the complete entry
+                        $scope.removeEntry(entry.id);
+                    }
+                }
+
+                $scope.updateBounds();
+                $scope.sortEntries();
+            }})
         }
     ]};
 }]);

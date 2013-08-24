@@ -17,6 +17,7 @@
             <span class="help-block">Action</span>
             <div class="btn-group">
                 <button class="btn btn-default" ng-click="addSamples()">Load data</button>
+                <button class="btn btn-default" ng-click="removeSomeSamples()">Remove some</button>
             </div>
         </div>
         <div class="form-group">
@@ -34,6 +35,7 @@
     <hr>
     <gantt first-day-of-week="firstDay"
            load-data="setLoadDataFn(fn)"
+           remove-data="setRemoveDataFn(fn)"
            sort-mode="mode"
            view-scale="scale"
            weekend-days="weekendDays"
