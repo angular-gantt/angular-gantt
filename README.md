@@ -1,7 +1,7 @@
 # Gantt chart for Angular.js
 A Gantt chart directive for Angular.js without any other dependencies.
 
-####<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">DEMO</a>
+####<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">TRY THE DEMO</a>
 
 ### Features
 - Usable with or without Bootstrap 3
@@ -13,7 +13,6 @@ A Gantt chart directive for Angular.js without any other dependencies.
 - Configurable
 
 ### Missing / To improve
-- Removing of loaded data (coming soon)
 - Possibility for the user to add or update rows / items (drag&drop)
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
 - If new rows / items are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
@@ -56,6 +55,11 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 - **on-scroll**
 
   This event is raised if the user scrolls to the left or right side of the Gantt chart. Use this event to load more data on the fly.
+
+- **remove-data**
+
+  Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific items.
+  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
 
 - **sort-mode** (default: `name`)
 

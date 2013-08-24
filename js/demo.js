@@ -14,8 +14,26 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
         $scope.addSamples();
     };
 
+    $scope.setRemoveDataFn = function(fn) {
+        $scope.removeData = fn;
+    };
+
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
+    }
+
+    $scope.removeSomeSamples = function () {
+        $scope.removeData([
+            {"id": "c65c2672-445d-4297-a7f2-30de241b3145"}, // Remove all Kickoff meetings
+            {"id": "2f85dbeb-0845-404e-934e-218bf39750c0", "items": [
+                {"id": "f55549b5-e449-4b0c-9f4b-8b33381f7d76"},
+                {"id": "5e997eb3-4311-46b1-a1b4-7e8663ea8b0b"},
+                {"id": "6fdfd775-7b22-42ec-a12c-21a64c9e7a9e"}
+            ]}, // Remove some Milestones
+            {"id": "cfb29cd5-1737-4027-9778-bb3058fbed9c", "items": [
+                {"id": "57638ba3-dfff-476d-ab9a-30fda1e44b50"}
+            ]} // Remove order basket from Sprint 2
+        ]);
     }
 
     $scope.entryEvent = function(event) {
