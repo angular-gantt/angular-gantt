@@ -1,7 +1,7 @@
 # Gantt chart for Angular.js
 A Gantt chart directive for Angular.js without any other dependencies.
 
-[Live demo](http://schweigi.github.io/angular-gantt/index.html)
+####<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">DEMO</a>
 
 ### Features
 - Usable with or without Bootstrap 3
