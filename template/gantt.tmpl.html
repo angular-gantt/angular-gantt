@@ -7,17 +7,17 @@
                 <span>Description</span>
             </div>
         </div>
-        <div class="gantt-header-entry gantt-row-height"
-             ng-class-odd="'gantt-grid-row'"
-             ng-class-even="'gantt-grid-row-alt'"
-             ng-repeat="entry in entries">
-            <gantt-sortable swap="swapEntries(a,b)" ng-model="entry">
-                <span>{{ entry.description }}</span>
+        <div class="gantt-header-row gantt-row-height"
+             ng-class-odd="'gantt-grid-background-row'"
+             ng-class-even="'gantt-grid-background-row-alt'"
+             ng-repeat="row in rows">
+            <gantt-sortable swap="swapRows(a,b)" ng-model="row">
+                <span>{{ row.description }}</span>
             </gantt-sortable>
         </div>
     </div>
     <div class="gantt-scroll-container"
-         ng-style="{'overflow-x': (entries.length == 0 && 'hidden' || 'scroll')}">
+         ng-style="{'overflow-x': (rows.length == 0 && 'hidden' || 'scroll')}">
         <div class="gantt-scrollable"
              ng-style="{'width': ganttInnerWidth+'em'}">
             <div class="gantt-scrollable-header">
@@ -50,25 +50,25 @@
             <div class="gantt-body">
                 <div class="gantt-body-background">
                     <div class="gantt-row-height"
-                         ng-class-odd="'gantt-grid-row'"
-                         ng-class-even="'gantt-grid-row-alt'"
-                         ng-repeat="entry in entries">
+                         ng-class-odd="'gantt-grid-background-row'"
+                         ng-class-even="'gantt-grid-background-row-alt'"
+                         ng-repeat="row in rows">
                     </div>
                 </div>
                 <div class="gantt-body-foreground">
-                    <div ng-class="(c.isWeekend && 'gantt-grid-col-weekend' || 'gantt-grid-col')"
+                    <div ng-class="(c.isWeekend && 'gantt-grid-foreground-col-weekend' || 'gantt-grid-foreground-col')"
                          ng-style="{'width': viewScaleFactor+'em'}"
                          ng-repeat="c in columns | filter: viewColumnFilter">
                     </div>
                 </div>
                 <div class="gantt-body-content">
-                    <div class="gantt-entry gantt-row-height"
-                         ng-repeat="entry in entries">
-                        <div ng-class="(item.to-item.from === 0 && 'gantt-item-milestone' || 'gantt-item')"
-                             ng-style="{'left': (item.to-item.from === 0 && (item.x-0.3) || item.x)+'em', 'width': item.width+'em', 'background-color': item.color}"
-                             ng-repeat="item in entry.items">
-                            <gantt-info ng-model="item">
-                                <div class="gantt-item-content"><span>{{ (item.to-item.from === 0 && '&nbsp;' || item.subject) }}</span></div>
+                    <div class="gantt-row gantt-row-height"
+                         ng-repeat="row in rows">
+                        <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
+                             ng-style="{'left': (task.to-task.from === 0 && (task.x-0.3) || task.x)+'em', 'width': task.width+'em', 'background-color': task.color}"
+                             ng-repeat="task in row.tasks">
+                            <gantt-info ng-model="task">
+                                <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
                             </gantt-info>
                         </div>
                     </div>

@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/gantt.css"/>
-    <title>Gantt Demo</title>
+    <title>Gantt chart for Angular.js</title>
 </head>
 <body style="margin: 10px">
 <a href="https://github.com/Schweigi/angular-gantt" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 <div ng-controller="ctrl">
-    <h1>Gantt Demo</h1>
+    <h1>Gantt chart demo</h1>
 
     <form role="form" class="form-inline">
         <div class="form-group">
@@ -39,9 +39,9 @@
            sort-mode="mode"
            view-scale="scale"
            weekend-days="weekendDays"
-           on-entry-added="entryEvent(event)"
-           on-entry-updated="entryEvent(event)"
-           on-scroll="scroll(event)"
+           on-row-added="rowEvent(event)"
+           on-row-updated="rowEvent(event)"
+           on-scroll="scrollEvent(event)"
             >
      </gantt>
     <hr>

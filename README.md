@@ -5,17 +5,17 @@ A Gantt chart directive for Angular.js without any other dependencies.
 
 ### Features
 - Usable with or without Bootstrap 3
-- Every item has its own color, text, date (from, to)
-- Rows combine multiple items and can have independent descriptions
+- Every task has its own color, subject, date (from, to)
+- Rows combine multiple tasks and can have independent descriptions
 - Rows can be sorted by description, date and custom order
 - A user can drag&drop a row to sort it in custom mode
 - Events on scroll, add or update
 - Configurable
 
 ### Missing / To improve
-- Possibility for the user to add or update rows / items (drag&drop)
+- Possibility for the user to add or update rows / tasks (by drag&drop)
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
-- If new rows / items are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
+- If new rows / tasks are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
 
 ### Usage
 Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [demo.js](js/demo.js).
@@ -48,7 +48,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
   Returns a function (`fn`) which can be called to load more data to the Gantt.
   Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
 
-- **on-entry-added** and **on-entry-updated**
+- **on-row-added** and **on-row-updated**
 
   Those events are raised if a new row is added or updated. A row is updated if the custom sort order has been changed by the user.
 
@@ -58,14 +58,14 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **remove-data**
 
-  Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific items.
+  Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
 
 - **sort-mode** (default: `name`)
 
   Sorts the rows by the given value.
   - `name`: Sort by row description
-  - `date`: Sort by the earliest item.from date of each row
+  - `date`: Sort by the earliest task `from` date of each row
   - `custom`: Custom sort order using a property called **order** on each row
 
 - **template-url** (default: `template/gantt.tmpl.html`)
