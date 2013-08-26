@@ -26,13 +26,13 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  weekendDays: "=?",
                  loadData: "&",
                  removeData: "&",
-                 onEntryAdded: "&",
-                 onEntryUpdated: "&",
+                 onRowAdded: "&",
+                 onRowUpdated: "&",
                  onScroll: "&"
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
-            $scope.entries = [];    // Provides a sortable list with access to the Gantt entries
-            $scope.entryMap = {};   // Gantt entries data
+            $scope.rows = [];    // Provides a sortable list with access to the Gantt rows
+            $scope.rowsMap = {};   // Gantt rows data
             $scope.columns = [];
             $scope.viewScaleFactor = 2;
             $scope.ganttInnerWidth = 0;
@@ -80,99 +80,99 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 }
             }
 
-            // Adds a entry to the list of entry. Merges the entry and it items if there is already one with the same id
-            $scope.addEntry = function (entry) {
-                // Copy to new entry (add) or merge with existing (update)
-                var ganttEntry;
+            // Adds a row to the list of rows. Merges the row and it tasks if there is already one with the same id
+            $scope.addRow = function (row) {
+                // Copy to new row (add) or merge with existing (update)
+                var ganttRow;
                 var isAdd = false;
 
-                if (entry.id in $scope.entryMap) {
-                    ganttEntry = $scope.entryMap[entry.id];
+                if (row.id in $scope.rowsMap) {
+                    ganttRow = $scope.rowsMap[row.id];
                 } else {
                     isAdd = true;
-                    ganttEntry = { id: entry.id, itemMap: {}, items: [] };
-                    $scope.entryMap[ganttEntry.id] = ganttEntry;
-                    $scope.entries.push(ganttEntry);
+                    ganttRow = { id: row.id, tasksMap: {}, tasks: [] };
+                    $scope.rowsMap[ganttRow.id] = ganttRow;
+                    $scope.rows.push(ganttRow);
                 }
 
-                ganttEntry.description = entry.description;
-                ganttEntry.order = entry.order;
+                ganttRow.description = row.description;
+                ganttRow.order = row.order;
 
-                for (var i = 0, l = entry.items.length; i < l; i++) {
-                    var item = entry.items[i];
-                    $scope.addItem(ganttEntry, item);
-                    $scope.expandColumnRange(item.from, item.to);
-                    $scope.findEarliestFromDate(ganttEntry, item);
+                for (var i = 0, l = row.tasks.length; i < l; i++) {
+                    var task = row.tasks[i];
+                    $scope.addTask(ganttRow, task);
+                    $scope.expandColumnRange(task.from, task.to);
+                    $scope.findEarliestFromDate(ganttRow, task);
                 }
 
                 if (isAdd === true) {
-                    $scope.raiseEntryAdded(ganttEntry);
+                    $scope.raiseRowAdded(ganttRow);
                 } else {
-                    $scope.raiseEntryUpdated(ganttEntry);
+                    $scope.raiseRowUpdated(ganttRow);
                 }
             };
 
-            // Adds an item to a specific entry. Merge the item if there is already one with the same id
-            $scope.addItem = function (entry, item) {
-                // Copy to new item (add) or merge with existing (update)
-                var ganttItem;
-                if (item.id in entry.itemMap) {
-                    ganttItem = entry.itemMap[item.id];
+            // Adds a task to a specific row. Merges the task if there is already one with the same id
+            $scope.addTask = function (row, task) {
+                // Copy to new task (add) or merge with existing (update)
+                var ganttTask;
+                if (task.id in row.tasksMap) {
+                    ganttTask = row.tasksMap[task.id];
                 } else {
-                    ganttItem = { id: item.id };
-                    entry.itemMap[ganttItem.id] = ganttItem;
-                    entry.items.push(ganttItem);
+                    ganttTask = { id: task.id };
+                    row.tasksMap[ganttTask.id] = ganttTask;
+                    row.tasks.push(ganttTask);
                 }
 
-                ganttItem.subject = item.subject;
-                ganttItem.color = item.color;
-                ganttItem.from = item.from;
-                ganttItem.to = item.to;
+                ganttTask.subject = task.subject;
+                ganttTask.color = task.color;
+                ganttTask.from = task.from;
+                ganttTask.to = task.to;
             }
 
-            // Removes the complete entry including all items
-            $scope.removeEntry = function(entryId) {
-                if (entryId in $scope.entryMap) {
-                    delete $scope.entryMap[entryId]; // Remove from map
+            // Removes the complete row including all tasks
+            $scope.removeRow = function(rowId) {
+                if (rowId in $scope.rowsMap) {
+                    delete $scope.rowsMap[rowId]; // Remove from map
 
-                    for (var i = 0, l = $scope.entries.length; i < l; i++) {
-                        if ($scope.entries[i].id === entryId) {
-                            $scope.entries.splice(i, 1); // Remove from array
+                    for (var i = 0, l = $scope.rows.length; i < l; i++) {
+                        if ($scope.rows[i].id === rowId) {
+                            $scope.rows.splice(i, 1); // Remove from array
                             break;
                         }
                     }
                 }
             }
 
-            // Remove the specified item from the entry
-            $scope.removeItem = function(entryId, itemId) {
-                if (entryId in $scope.entryMap) {
-                    var entry = $scope.entryMap[entryId];
-                    if (itemId in entry.itemMap) {
-                        delete entry.itemMap[itemId]; // Remove from map
+            // Remove the specified task from the row
+            $scope.removeTask = function(rowId, taskId) {
+                if (rowId in $scope.rowsMap) {
+                    var row = $scope.rowsMap[rowId];
+                    if (taskId in row.tasksMap) {
+                        delete row.tasksMap[taskId]; // Remove from map
 
-                        for (var i = 0, l = entry.items.length; i < l; i++) {
-                            if (entry.items[i].id === itemId) {
-                                entry.items.splice(i, 1); // Remove from array
+                        for (var i = 0, l = row.tasks.length; i < l; i++) {
+                            if (row.tasks[i].id === taskId) {
+                                row.tasks.splice(i, 1); // Remove from array
                                 break;
                             }
                         }
 
                         // Update earliest date info as this may have changed
-                        entry.minFromDate = undefined;
-                        for (var i = 0, l = entry.items.length; i < l; i++) {
-                            $scope.findEarliestFromDate(entry, entry.items[i]);
+                        row.minFromDate = undefined;
+                        for (var i = 0, l = row.tasks.length; i < l; i++) {
+                            $scope.findEarliestFromDate(row, row.tasks[i]);
                         }
                     }
                 }
             }
 
-            // Calculate the earliest from date of all entry items
-            $scope.findEarliestFromDate = function (entry, item) {
-                if (entry.minFromDate === undefined) {
-                    entry.minFromDate = item.from;
-                } else if (item.from < entry.minFromDate) {
-                    entry.minFromDate = item.from;
+            // Calculate the earliest from date of all tasks in a row
+            $scope.findEarliestFromDate = function (row, task) {
+                if (row.minFromDate === undefined) {
+                    row.minFromDate = task.from;
+                } else if (task.from < row.minFromDate) {
+                    row.minFromDate = task.from;
                 }
             }
 
@@ -206,48 +206,47 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 });
             }
 
-            // Swaps two entries and changes the sort order to custom to display the swapped entries
-            $scope.swapEntries = function (a, b) {
-                // Assign to all entries an order
-                for (var i = 0, l = $scope.entries.length; i < l; i++) {
-                    var entry = $scope.entries[i];
-                    entry.order = i;
+            // Swaps two rows and changes the sort order to custom to display the swapped rows
+            $scope.swapRows = function (a, b) {
+                // Assign to all rows an order
+                for (var i = 0, l = $scope.rows.length; i < l; i++) {
+                    $scope.rows[i].order = i;
                 }
 
-                // Swap the two entries
+                // Swap the two rows
                 var order = a.order;
                 a.order = b.order;
                 b.order = order;
 
-                // Raise changed events
-                $scope.raiseEntryUpdated(a);
-                $scope.raiseEntryUpdated(b);
+                // Raise change events
+                $scope.raiseRowUpdated(a);
+                $scope.raiseRowUpdated(b);
 
-                // Switch to custom mode and trigger sort
+                // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== "custom") {
-                    $scope.sortMode = "custom";
+                    $scope.sortMode = "custom"; // Sort will be triggered by the watcher
                 } else {
-                    $scope.sortEntries();
+                    $scope.sortRows();
                 }
             }
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.sortEntries();
+                    $scope.sortRows();
                 }
             });
 
-            // Sort entries by the current sort mode
-            $scope.sortEntries = function () {
+            // Sort rows by the current sort mode
+            $scope.sortRows = function () {
                 switch ($scope.sortMode) {
                     case "name":
-                        $scope.entries.sort($scope.sortByName);
+                        $scope.rows.sort($scope.sortByName);
                         break;
                     case "custom":
-                        $scope.entries.sort($scope.sortByCustom);
+                        $scope.rows.sort($scope.sortByCustom);
                         break;
                     default:
-                        $scope.entries.sort($scope.sortByDate);
+                        $scope.rows.sort($scope.sortByDate);
                         break;
                 }
             }
@@ -262,7 +261,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
 
             // Sort helper to sort by order.
-            // If an element has no order put it at the end. Elements with no order will be sorted by name
+            // If a row has no order move it at the end. If both rows have no order they will be sorted by name.
             $scope.sortByCustom = function (a, b) {
                 if (a.order === undefined && b.order === undefined) {
                     return $scope.sortByName(a, b);
@@ -275,8 +274,8 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 }
             }
 
-            // Sort helper to sort by the date of the item with the earliest from date.
-            // Elements with no min date will be sorted by name
+            // Sort helper to sort by the date of the task with the earliest from date.
+            // Rows with no min date will be sorted by name
             $scope.sortByDate = function (a, b) {
                 if (a.minFromDate === undefined && b.minFromDate === undefined) {
                     return $scope.sortByName(a, b)
@@ -295,16 +294,16 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 }
             });
 
-            // Update all item and column bounds.
+            // Update all task and column bounds.
             $scope.updateBounds = function() {
                 for (var i = 0, l = $scope.columns.length; i < l; i++) {
                     $scope.updateColumnBounds($scope.columns[i]);
                 }
 
-                for (var i = 0, l = $scope.entries.length; i < l; i++) {
-                    var entry = $scope.entries[i];
-                    for (var j = 0, k = entry.items.length; j < k; j++) {
-                        $scope.updateItemBounds(entry.items[j]);
+                for (var i = 0, l = $scope.rows.length; i < l; i++) {
+                    var row = $scope.rows[i];
+                    for (var j = 0, k = row.tasks.length; j < k; j++) {
+                        $scope.updateTaskBounds(row.tasks[j]);
                     }
                 }
 
@@ -320,37 +319,37 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 }
             }
 
-            // Calculate the bounds of an item and publishes it as properties
-            $scope.updateItemBounds = function(item) {
-                item.x = $scope.calcItemX(item);
-                item.width = $scope.calcItemWidth(item);
+            // Calculate the bounds of a task and publishes it as properties
+            $scope.updateTaskBounds = function(task) {
+                task.x = $scope.calcTaskX(task);
+                task.width = $scope.calcTaskWidth(task);
             }
 
-            // Returns the x position of a specific item
-            $scope.calcItemX = function (item) {
-                return $scope.calcWidth(item.from - $scope.columns[0].date);
+            // Returns the x position of a specific task
+            $scope.calcTaskX = function (task) {
+                return $scope.calcWidth(task.from - $scope.columns[0].date);
             }
 
-            // Returns the width of a specific item
-            $scope.calcItemWidth = function (item) {
+            // Returns the width of a specific task
+            $scope.calcTaskWidth = function (task) {
                 var width;
 
-                if (item.from === item.to) {
-                    // If milestone then make 1h wide
+                if (task.from === task.to) {
+                    // If task is  milestone make 1h wide
                     width = $scope.isViewDay() ? $scope.viewScaleFactor / 24 : $scope.viewScaleFactor;
                 } else {
                     // Else calculate width according to dates
-                    width = $scope.calcWidth(item.to - item.from);
+                    width = $scope.calcWidth(task.to - task.from);
 
                     if ($scope.isViewDay()) {
-                        // Make sure every entry is at least half a day
+                        // Make sure every task is at least half a day wide (for better visibility)
                         if (width < $scope.viewScaleFactor / 2) {
-                            var adjTo = df.addHours(item.to, 12, true);
-                            var nextDay = df.setTimeZero(df.addDays(item.to, 1, true));
+                            var adjTo = df.addHours(task.to, 12, true);
+                            var nextDay = df.setTimeZero(df.addDays(task.to, 1, true));
 
-                            // Make sure the extended entry does not overflow to the next day
+                            // Make sure the extended task does not overflow to the next day
                             if (adjTo - nextDay > 0) {
-                                width = $scope.calcWidth(nextDay - item.from);
+                                width = $scope.calcWidth(nextDay - task.from);
                             } else {
                                 width = $scope.viewScaleFactor / 2;
                             }
@@ -415,12 +414,12 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 el.scrollLeft = oldScrollLeft;
             }
 
-            $scope.raiseEntryAdded = function(entry) {
-                $scope.onEntryAdded({ event: entry });
+            $scope.raiseRowAdded = function(row) {
+                $scope.onRowAdded({ event: row });
             }
 
-            $scope.raiseEntryUpdated = function(entry) {
-                $scope.onEntryUpdated({ event: entry });
+            $scope.raiseRowUpdated = function(row) {
+                $scope.onRowUpdated({ event: row });
             }
 
             $scope.raiseScrollEvent = function() {
@@ -462,41 +461,41 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
             // Gantt is initialized. Load data.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: function(entries) {
+            $scope.loadData({ fn: function(rows) {
                 var el = $scope.ganttScroll[0];
                 var oldRange = $scope.columns.length > 0 ? $scope.columns[$scope.columns.length-1].date - $scope.columns[0].date: 1;
                 var oldWidth = el.scrollWidth;
 
-                for (var i = 0, l = entries.length; i < l; i++) {
-                    $scope.addEntry(entries[i]);
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    $scope.addRow(rows[i]);
                 }
 
                 $scope.updateBounds();
-                $scope.sortEntries();
+                $scope.sortRows();
 
                 // Show Gantt at the same position as it was before adding the new data
                 var oldScrollLeft = el.scrollLeft == 0 ? (($scope.columns[$scope.columns.length-1].date - $scope.columns[0].date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
                 el.scrollLeft = oldScrollLeft;
             }});
 
-            // Remove data. If an entry has no items inside the complete entry will be deleted.
-            $scope.removeData({ fn: function(entries) {
-                for (var i = 0, l = entries.length; i < l; i++) {
-                    var entry = entries[i];
+            // Remove data. If a row has no tasks inside the complete row will be deleted.
+            $scope.removeData({ fn: function(rows) {
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
 
-                    if (entry.items !== undefined && entry.items.length > 0) {
-                        // Only delete the specified items but not the entries and the other items
-                        for (var j = 0, k = entry.items.length; j < k; j++) {
-                            $scope.removeItem(entry.id, entry.items[j].id);
+                    if (row.tasks !== undefined && row.tasks.length > 0) {
+                        // Only delete the specified tasks but not the row and the other tasks
+                        for (var j = 0, k = row.tasks.length; j < k; j++) {
+                            $scope.removeTask(row.id, row.tasks[j].id);
                         }
                     } else {
-                        // Delete the complete entry
-                        $scope.removeEntry(entry.id);
+                        // Delete the complete row
+                        $scope.removeRow(row.id);
                     }
                 }
 
                 $scope.updateBounds();
-                $scope.sortEntries();
+                $scope.sortRows();
             }})
         }
     ]};
@@ -616,13 +615,13 @@ gantt.directive('ganttInfo', ['dateFilter', '$timeout', '$document', function (d
     return {
         restrict: "E",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
-            "<div ng-show='visible' class='gantt-info' ng-style='css'>" +
-            "<div class='gantt-info-content'>" +
-            "{{ item.subject }}</br>" +
+            "<div ng-show='visible' class='gantt-task-info' ng-style='css'>" +
+            "<div class='gantt-task-info-content'>" +
+            "{{ task.subject }}</br>" +
             "<small>" +
-            "{{ item.to - item.from === 0 &&" +
-            " (item.from | date:'MMM d, HH:mm') ||" +
-            " (item.from | date:'MMM d, HH:mm') + ' - ' + (item.to | date:'MMM d, HH:mm') }}" +
+            "{{ task.to - task.from === 0 &&" +
+            " (task.from | date:'MMM d, HH:mm') ||" +
+            " (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}" +
             "</small>" +
             "</div>" +
             "</div>" +
@@ -630,7 +629,7 @@ gantt.directive('ganttInfo', ['dateFilter', '$timeout', '$document', function (d
             "</div>",
         replace: true,
         transclude: true,
-        scope: { item: "=ngModel" },
+        scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
             $scope.visible = false;
             $scope.css = {};
@@ -641,16 +640,16 @@ gantt.directive('ganttInfo', ['dateFilter', '$timeout', '$document', function (d
                 $timeout(function(){
                     var elTip = angular.element($element.children()[0]);
 
-                    elTip.removeClass('gantt-infoArrow');
-                    elTip.removeClass('gantt-infoArrowR');
+                    elTip.removeClass('gantt-task-infoArrow');
+                    elTip.removeClass('gantt-task-infoArrowR');
 
                     // Check if info is overlapping with view port
                     if (e.clientX + elTip[0].offsetWidth > $scope.getViewPortWidth()) {
                         $scope.css.left = (e.clientX + 20 - elTip[0].offsetWidth) + "px";
-                        elTip.addClass('gantt-infoArrowR'); // Right aligned info
+                        elTip.addClass('gantt-task-infoArrowR'); // Right aligned info
                     } else {
                         $scope.css.left = (e.clientX - 20) + "px";
-                        elTip.addClass('gantt-infoArrow');
+                        elTip.addClass('gantt-task-infoArrow');
                     }
                     $scope.css.top = $element[0].getBoundingClientRect().top + "px";
                     $scope.css.marginTop = -elTip[0].offsetHeight - 8 + "px";
@@ -672,7 +671,7 @@ gantt.directive('ganttInfo', ['dateFilter', '$timeout', '$document', function (d
 }]);
 
 gantt.service('sortableState', [ function () {
-    return { startEntry: undefined };
+    return { startRow: undefined };
 }]);
 
 gantt.directive('ganttSortable', ['$document', 'sortableState', function ($document, sortableState) {
@@ -681,7 +680,7 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,
-        scope: { entry: "=ngModel", swap: "&" },
+        scope: { row: "=ngModel", swap: "&" },
         controller: ['$scope', '$element', function ($scope, $element) {
             $element.bind("mousedown", function (e) {
                 enableDragMode();
@@ -696,20 +695,20 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
             $element.bind("mousemove", function (e) {
                 if (isInDragMode()) {
                     var elementBelowMouse = angular.element($document[0].elementFromPoint(e.clientX, e.clientY));
-                    var targetEntry = elementBelowMouse.controller("ngModel").$modelValue;
+                    var targetRow = elementBelowMouse.controller("ngModel").$modelValue;
 
                     $scope.$apply(function() {
-                        $scope.swap({a: targetEntry, b: sortableState.startEntry});
+                        $scope.swap({a: targetRow, b: sortableState.startRow});
                     });
                 }
             });
 
             var isInDragMode = function () {
-                return sortableState.startEntry !== undefined && !angular.equals($scope.entry, sortableState.startEntry);
+                return sortableState.startRow !== undefined && !angular.equals($scope.row, sortableState.startRow);
             }
 
             var enableDragMode = function () {
-                sortableState.startEntry = $scope.entry;
+                sortableState.startRow = $scope.row;
                 $element.css("cursor", "move");
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
@@ -721,7 +720,7 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
             };
 
             var disableDragMode = function () {
-                sortableState.startEntry = undefined;
+                sortableState.startRow = undefined;
                 $element.css("cursor", "pointer");
                 angular.element($document[0].body).css({
                     '-moz-user-select': '',
