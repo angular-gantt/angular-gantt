@@ -26,9 +26,12 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  weekendDays: "=?",
                  loadData: "&",
                  removeData: "&",
+                 onGanttReady: "&",
                  onRowAdded: "&",
+                 onRowClicked: "&",
                  onRowUpdated: "&",
-                 onScroll: "&"
+                 onScroll: "&",
+                 onTaskClicked: "&"
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             $scope.rows = [];    // Provides a sortable list with access to the Gantt rows
@@ -126,8 +129,8 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
                 ganttTask.subject = task.subject;
                 ganttTask.color = task.color;
-                ganttTask.from = task.from;
-                ganttTask.to = task.to;
+                ganttTask.from = df.clone(task.from);
+                ganttTask.to = df.clone(task.to);
             }
 
             // Removes the complete row including all tasks
@@ -415,11 +418,18 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
 
             $scope.raiseRowAdded = function(row) {
-                $scope.onRowAdded({ event: row });
+                $scope.onRowAdded({ event: { row: row } });
+            }
+
+            $scope.raiseRowClicked = function(e, row) {
+                $scope.onRowClicked({ event: { row: row } });
+
+                e.stopPropagation();
+                e.preventDefault();
             }
 
             $scope.raiseRowUpdated = function(row) {
-                $scope.onRowUpdated({ event: row });
+                $scope.onRowUpdated({ event: { row: row } });
             }
 
             $scope.raiseScrollEvent = function() {
@@ -446,6 +456,13 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                         $scope.onScroll({ event: { date: date, position: pos }});
                     }, 500, true);
                 }
+            }
+
+            $scope.raiseTaskClicked = function(e, row, task) {
+                $scope.onTaskClicked({ event: {row: row, task: task } });
+
+                e.stopPropagation();
+                e.preventDefault();
             }
 
             // Add a watcher if the week day settings are changed from outside of the Gantt. Update the grid accordingly if so.
@@ -497,6 +514,9 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 $scope.updateBounds();
                 $scope.sortRows();
             }})
+
+            // Signal that the Gantt is ready
+            $scope.onGanttReady();
         }
     ]};
 }]);

@@ -63,9 +63,11 @@
                 </div>
                 <div class="gantt-body-content">
                     <div class="gantt-row gantt-row-height"
+                         ng-click="raiseRowClicked($event, row)"
                          ng-repeat="row in rows">
                         <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
                              ng-style="{'left': (task.to-task.from === 0 && (task.x-0.3) || task.x)+'em', 'width': task.width+'em', 'background-color': task.color}"
+                             ng-click="raiseTaskClicked($event, row, task)"
                              ng-repeat="task in row.tasks">
                             <gantt-info ng-model="task">
                                 <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>

@@ -34,15 +34,17 @@
     </form>
     <hr>
     <gantt first-day-of-week="firstDay"
-           load-data="setLoadDataFn(fn)"
-           remove-data="setRemoveDataFn(fn)"
+           load-data="loadData = fn"
+           remove-data="removeData = fn"
            sort-mode="mode"
            view-scale="scale"
            weekend-days="weekendDays"
+           on-gantt-ready="addSamples()"
            on-row-added="rowEvent(event)"
+           on-row-clicked="rowEvent(event)"
            on-row-updated="rowEvent(event)"
            on-scroll="scrollEvent(event)"
-            >
+           on-task-clicked="taskEvent(event)">
      </gantt>
     <hr>
     <small>Gantt chart for Angular.js by Marco Schweighauser (2013) | MIT License</small>

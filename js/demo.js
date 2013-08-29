@@ -7,17 +7,6 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.firstDay = 1;
     $scope.weekendDays = [0,6];
 
-    $scope.setLoadDataFn = function(fn) {
-        $scope.loadData = fn;
-
-        // Load data after Gantt has been initialized
-        $scope.addSamples();
-    };
-
-    $scope.setRemoveDataFn = function(fn) {
-        $scope.removeData = fn;
-    };
-
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
     }
@@ -37,14 +26,22 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     }
 
     $scope.rowEvent = function(event) {
-        // A row has been added or updated. Use this event to save back the updated row.
+        // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
+        //console.log('Row event: ' + event.row.description);
     }
 
     $scope.scrollEvent = function(event) {
         if (angular.equals(event.position, "left")) {
             // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
+            //console.log('Scroll event: Left');
         } else if (angular.equals(event.position, "right")) {
             // Raised if the user scrolled to the right side of the Gantt. Use this event to load more data.
+            //console.log('Scroll event: Right');
         }
+    }
+
+    $scope.taskEvent = function(event) {
+        // A row has been added, updated or clicked.
+        //console.log('Task event: ' + event.row.description + " | " + event.task.subject);
     }
 }]);
