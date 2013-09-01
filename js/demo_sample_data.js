@@ -1,4 +1,6 @@
 function getSampleData() {
+    // Order is optional. If not specified it will be assigned automatically
+
     return {
         "data1": [
             {"id": "2f85dbeb-0845-404e-934e-218bf39750c0", "description": "Milestones", "order": 0, "tasks": [
