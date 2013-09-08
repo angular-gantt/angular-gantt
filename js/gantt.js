@@ -178,9 +178,11 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 self.rows.push(row);
             }
 
-            for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                var task = row.addTask(rowData.tasks[i]);
-                self.expandColumnRange(task.from, task.to);
+            if (rowData.tasks !== undefined) {
+                for (var i = 0, l = rowData.tasks.length; i < l; i++) {
+                    var task = row.addTask(rowData.tasks[i]);
+                    self.expandColumnRange(task.from, task.to);
+                }
             }
 
             return isUpdate;
@@ -573,7 +575,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 $scope.sortRows();
 
                 // Show Gantt at the same position as it was before adding the new data
-                var oldScrollLeft = el.scrollLeft == 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
+                var oldScrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
                 el.scrollLeft = oldScrollLeft;
             }});
 
