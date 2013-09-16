@@ -203,6 +203,14 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
         }
 
+        // Removes all rows and tasks
+        self.removeRows = function() {
+            self.columns = [];
+            self.rowsMap = {};
+            self.rows = [];
+            self.highestRowOrder = 0;
+        }
+
         // Swaps two rows and changes the sort order to custom to display the swapped rows
         self.swapRows = function (a, b) {
             // Swap the two rows
@@ -283,6 +291,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  weekendDays: "=?",
                  loadData: "&",
                  removeData: "&",
+                 clearData: "&",
                  onGanttReady: "&",
                  onRowAdded: "&",
                  onRowClicked: "&",
@@ -604,7 +613,13 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
                 $scope.updateBounds();
                 $scope.sortRows();
-            }})
+            }});
+
+            // Clear all existing rows and tasks
+            $scope.clearData({ fn: function() {
+               $scope.gantt.removeRows();
+               $scope.updateBounds();
+            }});
 
             // Signal that the Gantt is ready
             $scope.onGanttReady();

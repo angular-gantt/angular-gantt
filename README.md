@@ -32,6 +32,11 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
         <gantt></gantt>
 
 ### Attributes
+- **clear-data**
+
+  Returns a function (`fn`) which can be called to removes all rows and tasks at once.
+  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
+
 - **first-day-of-week** (default: `1`)
 
   Specifies the first day of the week.

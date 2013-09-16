@@ -25,6 +25,10 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
         ]);
     }
 
+    $scope.removeSamples = function () {
+        $scope.clearData();
+    }
+
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
         //console.log('Row event: ' + event.row.description);
