@@ -15,8 +15,8 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         self.id = id;
         self.subject = subject;
         self.color = color;
-        self.from = from;
-        self.to = to;
+        self.from = df.clone(from);
+        self.to = df.clone(to);
 
         self.copy = function(task) {
             self.subject = task.subject;
@@ -54,6 +54,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
 
             self.findEarliestFromDate(task);
+            return task;
         }
 
         // Remove the specified task from the row
@@ -74,7 +75,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                             }
                         }
 
-                        break;
+                        return task;
                     }
                 }
             }
@@ -177,10 +178,11 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 self.rows.push(row);
             }
 
-            for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                var task = rowData.tasks[i];
-                row.addTask(task);
-                self.expandColumnRange(task.from, task.to);
+            if (rowData.tasks !== undefined) {
+                for (var i = 0, l = rowData.tasks.length; i < l; i++) {
+                    var task = row.addTask(rowData.tasks[i]);
+                    self.expandColumnRange(task.from, task.to);
+                }
             }
 
             return isUpdate;
@@ -192,12 +194,21 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 delete self.rowsMap[rowId]; // Remove from map
 
                 for (var i = 0, l = self.rows.length; i < l; i++) {
-                    if (self.rows[i].id === rowId) {
+                    var row = self.rows[i];
+                    if (row.id === rowId) {
                         self.rows.splice(i, 1); // Remove from array
-                        break;
+                        return row;
                     }
                 }
             }
+        }
+
+        // Removes all rows and tasks
+        self.removeRows = function() {
+            self.columns = [];
+            self.rowsMap = {};
+            self.rows = [];
+            self.highestRowOrder = 0;
         }
 
         // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -280,6 +291,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  weekendDays: "=?",
                  loadData: "&",
                  removeData: "&",
+                 clearData: "&",
                  onGanttReady: "&",
                  onRowAdded: "&",
                  onRowClicked: "&",
@@ -572,7 +584,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 $scope.sortRows();
 
                 // Show Gantt at the same position as it was before adding the new data
-                var oldScrollLeft = el.scrollLeft == 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
+                var oldScrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
                 el.scrollLeft = oldScrollLeft;
             }});
 
@@ -601,7 +613,13 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
                 $scope.updateBounds();
                 $scope.sortRows();
-            }})
+            }});
+
+            // Clear all existing rows and tasks
+            $scope.clearData({ fn: function() {
+               $scope.gantt.removeRows();
+               $scope.updateBounds();
+            }});
 
             // Signal that the Gantt is ready
             $scope.onGanttReady();
@@ -613,8 +631,16 @@ gantt.service('dateFunctions', [ function () {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
         firstDayOfWeek: 1,
+        isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
+        isString: function(o) { return typeof o == "string" || (typeof o == "object" && o.constructor === String);},
         clone: function(date) {
-            return new Date(date.getTime());
+            if (this.isString(date)) {
+                return new Date(Date.parse(date));
+            } else if (this.isNumber(date)) {
+                return new Date(date);
+            } else {
+                return new Date(date.getTime());
+            }
         },
         setTimeZero: function(date, clone) {
             var res = clone === true ? this.clone(date) : date;
