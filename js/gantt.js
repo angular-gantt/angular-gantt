@@ -170,7 +170,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 }
 
                 if (order >= self.highestRowOrder) {
-                    self.highestRowOrder++;
+                    self.highestRowOrder = order + 1;
                 }
 
                 row = new Row(rowData.id, rowData.description, order);
