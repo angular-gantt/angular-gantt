@@ -70,8 +70,8 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                         // Update earliest date info as this may change
                         if (self.minFromDate - task.from == 0) {
                             self.minFromDate = undefined;
-                            for (var i = 0, l = self.tasks.length; i < l; i++) {
-                                self.findEarliestFromDate(self.tasks[i]);
+                            for (var j = 0, k = self.tasks.length; j < k; j++) {
+                                self.findEarliestFromDate(self.tasks[j]);
                             }
                         }
 
@@ -584,8 +584,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 $scope.sortRows();
 
                 // Show Gantt at the same position as it was before adding the new data
-                var oldScrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
-                el.scrollLeft = oldScrollLeft;
+                el.scrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
             }});
 
             // Remove data. If a row has no tasks inside the complete row will be deleted.
