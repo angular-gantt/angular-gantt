@@ -15,6 +15,7 @@ A Gantt chart directive for Angular.js without any other dependencies.
 ### Missing / To improve
 - Possibility for the user to update tasks (by drag&drop)
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
+- Support for virtual scrolling to be able to handle many years of data.
 - If new rows / tasks are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
 
 ### Usage
