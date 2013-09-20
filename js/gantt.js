@@ -558,7 +558,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
 
             // Bind scroll event
-            $scope.ganttScroll = angular.element($element.children()[1]);
+            $scope.ganttScroll = angular.element($element.children()[2]);
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Gantt is initialized. Load data.
