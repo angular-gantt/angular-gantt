@@ -289,6 +289,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  autoExpand: "=?",
                  firstDayOfWeek: "=?",
                  weekendDays: "=?",
+                 data: "=?",
                  loadData: "&",
                  removeData: "&",
                  clearData: "&",
@@ -369,6 +370,11 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 }
             });
 
+            $scope.$watch("data", function (newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue)) {
+                    $scope.setData(newValue);
+                }
+            });
             // Sort rows by the current sort mode
             $scope.sortRows = function () {
                 $scope.gantt.sortRows($scope.sortMode);
@@ -560,12 +566,9 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             // Bind scroll event
             $scope.ganttScroll = angular.element($element.children()[1]);
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
-
-            // Gantt is initialized. Load data.
-            // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: function(data) {
+            $scope.setData = function (data) {
                 var el = $scope.ganttScroll[0];
-                var oldRange = $scope.gantt.columns.length > 0 ? $scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date: 1;
+                var oldRange = $scope.gantt.columns.length > 0 ? $scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date : 1;
                 var oldWidth = el.scrollWidth;
 
                 for (var i = 0, l = data.length; i < l; i++) {
@@ -585,7 +588,10 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
                 // Show Gantt at the same position as it was before adding the new data
                 el.scrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
-            }});
+            };
+            // Gantt is initialized. Load data.
+            // The Gantt chart will keep the current view position if this function is called during scrolling.
+            $scope.loadData({ fn: $scope.setData});
 
             // Remove data. If a row has no tasks inside the complete row will be deleted.
             $scope.removeData({ fn: function(data) {
