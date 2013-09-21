@@ -12,6 +12,10 @@
     border-bottom: 1px solid #dddddd;
 }
 
+.gantt-fixed-left-body {
+    overflow: hidden;
+}
+
 .gantt-fixed-top {
     overflow: hidden;
     border-bottom: 1px solid #dddddd;

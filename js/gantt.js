@@ -289,6 +289,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  autoExpand: "=?",
                  firstDayOfWeek: "=?",
                  weekendDays: "=?",
+                 maxHeight: "=?",
                  loadData: "&",
                  removeData: "&",
                  clearData: "&",
@@ -308,6 +309,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             if ($scope.viewScale === undefined) $scope.viewScale = "day"; // hour, day
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1; // 0=Sunday, 1=Monday, ..
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6]; // Array: 0=Sunday, 1=Monday, ..
+            if ($scope.maxHeight === undefined) $scope.maxHeight = 0; // > 0 to activate max height behaviour
 
             $scope.isViewHour = function () {
                 return $scope.viewScale === "hour";
@@ -741,6 +743,48 @@ gantt.service('dateFunctions', [ function () {
 gantt.filter('dateWeek', ['dateFunctions', function (df) {
     return function (date) {
         return df.getWeek(date);
+    }
+}]);
+
+gantt.service('scroller', [ function () {
+    return { vertical: [], horizontal: [] };
+}]);
+
+gantt.directive('verticalScroller', ['scroller', function (scroller) {
+    return {
+        restrict: "A",
+        controller: ['$scope', '$element', function ($scope, $element) {
+            scroller.vertical.push($element[0]);
+        }]
+    }
+}]);
+
+gantt.directive('horizontalScroller', ['scroller', function (scroller) {
+    return {
+        restrict: "A",
+        controller: ['$scope', '$element', function ($scope, $element) {
+            scroller.horizontal.push($element[0]);
+        }]
+    }
+}]);
+
+gantt.directive('scrollSender', ['scroller', function (scroller) {
+    return {
+        restrict: "A",
+        controller: ['$scope', '$element', function ($scope, $element) {
+            $scope.el = $element[0];
+            $scope.updateListeners = function(e) {
+                for (var i = 0, l = scroller.vertical.length; i < l; i++) {
+                    scroller.vertical[i].style.top = -$scope.el.scrollTop + 'px';
+                }
+
+                for (var i = 0, l = scroller.vertical.length; i < l; i++) {
+                    scroller.horizontal[i].style.left = -$scope.el.scrollLeft + 'px';
+                }
+            }
+
+            $element.bind('scroll', $scope.updateListeners);
+        }]
     }
 }]);
 
