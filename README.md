@@ -49,6 +49,22 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
   - `5`: Friday
   - `6`: Saturday
 
+- **from-date**
+
+  If specified ensures that the chart is rendered starts at the from-date. This is useful for showing the chart even without any tasks or empty time before the first task.
+
+  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+
+- **to-date**
+
+  If specified ensures that the chart is rendered goes at least to the end-date. This is useful for showing the chart even without any tasks or empty time after the last task.
+
+  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+
+- **data**
+
+  Allows you to specify the data model for the gantt chart.
+
 - **load-data**
 
   Returns a function (`fn`) which can be called to load more data to the Gantt.
@@ -62,9 +78,13 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
   Those events are raised if a new row is added or updated. A row is updated if the custom sort order has been changed by the user.
 
+- **on-column-clicked**
+
+  This event is raised if the user clicks on a column. The event has a row and column property you can use to detect the date range clicked.
+
 - **on-row-clicked**
 
-  This event is raised if the user clicks on a row. You can use this event for example to add a new task.
+  Same as on-column click. Left for backwards compatibility
 
 - **on-scroll**
 
