@@ -30,6 +30,20 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         }
     }
 
+    var Column = function(fromDate, toDate) {
+        var self = this;
+        self.fromDate = fromDate;
+        self.toDate = toDate;
+        self.clone = function() {
+            var column = new Column(self.fromDate, self.toDate);
+            column.isWeekend = self.isWeekend;
+            column.widthDay = self.widthDay;
+            column.widthWeek = self.widthWeek;
+            column.widthMonth = self.widthMonth;
+            return  column;
+        }
+    }
+
     var Row = function(id, description, order) {
         var self = this;
 
@@ -107,6 +121,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             return clone;
         }
     }
+    
 
     var Gantt = function() {
         var self = this;
@@ -128,27 +143,27 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             var date = df.clone(from);
             while (date <= to) {
                 for (var i = 0; i < 24; i++) {
-                    var column = { date: df.clone(date) };
+                    var column = new Column(df.clone(date), df.addHours(date, 1, true));
                     self.columns.push(column);
 
                     df.addHours(date, 1);
                 }
             }
 
-            self.columns.sort(function (a, b) {
-                return a.date > b.date ? 1 : -1;
+            self.columns.sort(function (col1, col2) {
+                return col1.fromDate > col2.fromDate ? 1 : -1;
             });
         }
 
         // Expands the range of columns according to the form - to date.
         // Its save to call this function twice with the same or an overlapping range.
         self.expandColumnRange = function (from, to) {
-            if (self.columns.length == 0 || from < self.getFirstColumn().date) {
-                addColumns(df.setTimeZero(from, true), self.columns.length == 0 ? df.setTimeZero(to, true) : df.addMilliseconds(self.getFirstColumn().date, -1, true));
+            if (self.columns.length == 0 || from < self.getFirstColumn().fromDate) {
+                addColumns(df.setTimeZero(from, true), self.columns.length == 0 ? df.setTimeZero(to, true) : df.addMilliseconds(self.getFirstColumn().fromDate, -1, true));
             }
 
-            if (to > self.getLastColumn().date) {
-                addColumns(df.addHours(self.getLastColumn().date, 1, true), df.setTimeZero(to, true));
+            if (to > self.getLastColumn().fromDate) {
+                addColumns(df.addHours(self.getLastColumn().fromDate, 1, true), df.setTimeZero(to, true));
             }
         }
 
@@ -287,6 +302,8 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         scope: { viewScale: "=?",
                  sortMode: "=?",
                  autoExpand: "=?",
+                 fromDate: "=?", //if not specified will use the earliest task date (note: as of now this can only expand not shrink)
+                 toDate: "=?", //if not specified will use the latest task date (note: as of now this can only expand not shrink)
                  firstDayOfWeek: "=?",
                  weekendDays: "=?",
                  data: "=?",
@@ -295,7 +312,8 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  clearData: "&",
                  onGanttReady: "&",
                  onRowAdded: "&",
-                 onRowClicked: "&",
+                 onRowClicked: "&", //synonymous to onColumnClicked
+                 onColumnClicked: "&",
                  onRowUpdated: "&",
                  onScroll: "&",
                  onTaskClicked: "&"
@@ -328,16 +346,16 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 return false;
             }
 
-            $scope.viewMonthFilter = function (a) {
-                return (a.date.getDate() == 1 || a === $scope.gantt.getFirstColumn()) && a.date.getHours() == 0;
+            $scope.viewMonthFilter = function (column) {
+                return (column.fromDate.getDate() == 1 || column === $scope.gantt.getFirstColumn()) && column.fromDate.getHours() == 0;
             }
 
-            $scope.viewWeekFilter = function (a) {
-                return (a.date.getDay() == $scope.firstDayOfWeek || a === $scope.gantt.getFirstColumn()) && a.date.getHours() == 0;
+            $scope.viewWeekFilter = function (column) {
+                return (column.fromDate.getDay() == $scope.firstDayOfWeek || column === $scope.gantt.getFirstColumn()) && column.fromDate.getHours() == 0;
             }
 
-            $scope.viewDayFilter = function (a) {
-                return a.date.getHours() == 0 || a === $scope.gantt.getFirstColumn();
+            $scope.viewDayFilter = function (column) {
+                return column.fromDate.getHours() == 0 || column === $scope.gantt.getFirstColumn();
             }
 
             $scope.viewColumnFilter = function (a) {
@@ -372,9 +390,11 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
             $scope.$watch("data", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
+                    $scope.clearData();
                     $scope.setData(newValue);
                 }
             });
+
             // Sort rows by the current sort mode
             $scope.sortRows = function () {
                 $scope.gantt.sortRows($scope.sortMode);
@@ -406,6 +426,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     }
                 }
 
+
                 $scope.ganttInnerWidth = ($scope.isViewDay() ? $scope.gantt.columns.length / 24: $scope.gantt.columns.length) * $scope.viewScaleFactor;
             }
 
@@ -426,7 +447,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
             // Returns the x position of a specific task
             $scope.calcTaskX = function (task) {
-                return $scope.calcWidth(task.from - $scope.gantt.getFirstColumn().date);
+                return $scope.calcWidth(task.from - $scope.gantt.getFirstColumn().fromDate);
             }
 
             // Returns the width of a specific task
@@ -461,37 +482,39 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
             // Calculate the bounds of a column and publishes it as properties
             $scope.updateColumnBounds = function(column) {
+                //these properties are used for styling the headers
                 if ($scope.viewMonthFilter(column)) column.widthMonth = $scope.calcColWidth(column, 'month');
                 if ($scope.viewWeekFilter(column)) column.widthWeek = $scope.calcColWidth(column, 'week');
                 column.widthDay = $scope.isViewHour() ? $scope.calcColWidth(column, 'day') : $scope.viewScaleFactor;
-                column.isWeekend = $scope.isWeekend(column.date.getDay());
+                column.isWeekend = $scope.isWeekend(column.fromDate.getDay());
+                column.toDate = $scope.isViewHour() ? df.addHours(column.fromDate, 1, true) : df.addDays(column.fromDate, 1, true);
             }
 
             // Returns the width of a column. Scale = 'hour', 'day', 'week', 'month'
             $scope.calcColWidth = function (column, scale) {
-                var width = $scope.calcWidth(df.addHours(column.date, 1, true) - column.date);
-                var lastColumnDate = $scope.gantt.getLastColumn().date;
+                var width = $scope.calcWidth(df.addHours(column.fromDate, 1, true) - column.fromDate);
+                var lastColumnDate = $scope.gantt.getLastColumn().fromDate;
 
                 if (scale === "hour") {
                     return width; // Hour header shall be 1 hour wide
                 } else if (scale === "day") {
                     if ($scope.isViewHour()) {
                         // Day header shall be 24 hours wide but no longer than the last hour shown
-                        var endHour = df.addHours(column.date, 24, true) > lastColumnDate ? lastColumnDate.getHours() + 1 : 24.0;
+                        var endHour = df.addHours(column.fromDate, 24, true) > lastColumnDate ? lastColumnDate.getHours() + 1 : 24.0;
                         return width * endHour;
                     } else if ($scope.isViewDay()) {
                         return width * 24; // Day header shall be one day wide
                     }
                 } else if (scale === "week") {
                     // Week header shall be as wide as there are days in the week but no longer as the last date shown
-                    var startDay = column.date;
+                    var startDay = column.fromDate;
                     var firstDayInWeek = df.setToDayOfWeek(startDay, $scope.firstDayOfWeek, true);
                     var lastDayInWeek = df.addWeeks(firstDayInWeek, 1);
                     var endDay = lastDayInWeek > lastColumnDate ? df.addHours(lastColumnDate, 1, true) : lastDayInWeek;
                     return $scope.calcWidth(endDay - startDay);
                 } else if (scale === "month") {
                     // Month header shall be as wide as there are days in the month but no longer as the last date shown
-                    var startDay = column.date;
+                    var startDay = column.fromDate;
                     var lastDayInMonth = df.addMonths(df.setToFirstDayOfMonth(startDay, true), 1);
                     var endDay = lastDayInMonth > lastColumnDate ? df.addHours(lastColumnDate, 1, true) : lastDayInMonth;
                     return $scope.calcWidth(endDay - startDay);
@@ -505,7 +528,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     return;
                 }
 
-                var oldScrollLeft = el.scrollLeft == 0 ? ((to - from) * el.scrollWidth) / ($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) : el.scrollLeft;
+                var oldScrollLeft = el.scrollLeft == 0 ? ((to - from) * el.scrollWidth) / ($scope.gantt.getLastColumn().fromDate - $scope.gantt.getFirstColumn().fromDate) : el.scrollLeft;
                 $scope.expandColumnRange(from, to);
                 $scope.updateBounds();
 
@@ -515,13 +538,6 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
             $scope.raiseRowAdded = function(row) {
                 $scope.onRowAdded({ event: { row: row.clone() } });
-            }
-
-            $scope.raiseRowClicked = function(e, row) {
-                $scope.onRowClicked({ event: { row: row.clone() } });
-
-                e.stopPropagation();
-                e.preventDefault();
             }
 
             $scope.raiseRowUpdated = function(row) {
@@ -536,10 +552,10 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
                 if (el.scrollLeft == 0) {
                     pos = 'left';
-                    date = df.clone($scope.gantt.getFirstColumn().date);
+                    date = df.clone($scope.gantt.getFirstColumn().fromDate);
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     pos = 'right';
-                    date = df.clone($scope.gantt.getLastColumn().date);
+                    date = df.clone($scope.gantt.getLastColumn().fromDate);
                 }
 
                 if (pos !== undefined) {
@@ -552,6 +568,17 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                         $scope.onScroll({ event: { date: date, position: pos }});
                     }, 500, true);
                 }
+            }
+            $scope.raiseColumnClicked = function(e, row, column) {
+                var columnClone = column.clone();
+                var newEvent = { event: {row: row.clone(), column: columnClone } };
+                $scope.onColumnClicked(newEvent);
+
+                //for legacy support, not sure in what case you would only want the row but not the column
+                $scope.onRowClicked(newEvent);
+
+                e.stopPropagation();
+                e.preventDefault();
             }
 
             $scope.raiseTaskClicked = function(e, row, task) {
@@ -568,7 +595,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
             $scope.setData = function (data) {
                 var el = $scope.ganttScroll[0];
-                var oldRange = $scope.gantt.columns.length > 0 ? $scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date : 1;
+                var oldRange = $scope.gantt.columns.length > 0 ? $scope.gantt.getLastColumn().fromDate - $scope.gantt.getFirstColumn().fromDate : 1;
                 var oldWidth = el.scrollWidth;
 
                 for (var i = 0, l = data.length; i < l; i++) {
@@ -583,11 +610,18 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     }
                 }
 
+
+                //this currently will only expand the range it doesn't have the ability to "shrink" it at this point
+                if($scope.fromDate || $scope.toDate) {
+                    var firstDate = $scope.fromDate ? $scope.fromDate : $scope.gantt.getFirstColumn().fromDate;
+                    var lastDate =  $scope.toDate ? $scope.toDate : $scope.gantt.getLastColumn().fromDate;
+                    $scope.gantt.expandColumnRange(firstDate, lastDate);
+                }
                 $scope.updateBounds();
                 $scope.sortRows();
 
                 // Show Gantt at the same position as it was before adding the new data
-                el.scrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
+                el.scrollLeft = el.scrollLeft == 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().fromDate - $scope.gantt.getFirstColumn().fromDate) * oldWidth) / oldRange - oldWidth : el.scrollLeft;
             };
             // Gantt is initialized. Load data.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
