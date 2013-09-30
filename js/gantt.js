@@ -44,7 +44,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         }
     }
 
-    var Row = function(id, description, order) {
+    var Row = function(id, description, order, data) {
         var self = this;
 
         self.id = id;
@@ -52,6 +52,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         self.order= order;
         self.tasksMap = {};
         self.tasks = [];
+        self.data = data;
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id
         self.addTask = function(taskData) {
@@ -188,7 +189,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, rowData.description, order);
+                row = new Row(rowData.id, rowData.description, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
             }
@@ -320,7 +321,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             $scope.gantt = new Gantt();
-            $scope.viewScaleFactor = 2;
+            $scope.viewScaleFactor = 3;
             $scope.ganttInnerWidth = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name"; // name, date, custom
@@ -390,7 +391,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
             $scope.$watch("data", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.clearData();
+                    $scope.removeAllData();
                     $scope.setData(newValue);
                 }
             });
@@ -536,6 +537,12 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 el.scrollLeft = oldScrollLeft;
             }
 
+
+            $scope.isColorLight = function(color) {
+                color = color.substring(color.indexOf('#') + 1);
+                return (parseInt(color, 16) > 0xffffff/2.5);
+            }
+
             $scope.raiseRowAdded = function(row) {
                 $scope.onRowAdded({ event: { row: row.clone() } });
             }
@@ -655,10 +662,11 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }});
 
             // Clear all existing rows and tasks
-            $scope.clearData({ fn: function() {
-               $scope.gantt.removeRows();
-               $scope.updateBounds();
-            }});
+            $scope.removeAllData=  function() {
+                $scope.gantt.removeRows();
+                $scope.updateBounds();
+            };
+            $scope.clearData({ fn: $scope.removeAllData});
 
             // Signal that the Gantt is ready
             $scope.onGanttReady();
