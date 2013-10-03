@@ -312,6 +312,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
         },
         scope: { viewScale: "=?",
+				 viewScaleFactor: "=?", //how wide are the columns, 1 being 1em per unit (hour or day depending on scale),
                  sortMode: "=?",
                  autoExpand: "=?",
                  fromDate: "=?", //if not specified will use the earliest task date (note: as of now this can only expand not shrink)
@@ -332,11 +333,11 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             $scope.gantt = new Gantt();
-            $scope.viewScaleFactor = 3;
             $scope.ganttInnerWidth = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name"; // name, date, custom
             if ($scope.viewScale === undefined) $scope.viewScale = "day"; // hour, day
+			if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 2; // hour, day
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1; // 0=Sunday, 1=Monday, ..
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6]; // Array: 0=Sunday, 1=Monday, ..
 
@@ -399,7 +400,12 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     $scope.sortRows();
                 }
             });
-
+			$scope.$watch("viewScaleFactor", function (newValue, oldValue) {
+				if (!angular.equals(newValue, oldValue)) {
+					$scope.viewScaleFactor = newValue;
+					$scope.updateBounds();
+				}
+			});
             $scope.$watch("data", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.removeAllData();
