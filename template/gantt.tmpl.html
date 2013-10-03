@@ -64,14 +64,9 @@
                 </div>
                 <div class="gantt-body-content">
                     <div class="gantt-row gantt-row-height"
+                         ng-click="raiseRowClicked($event, row)"
                          ng-repeat="row in gantt.rows">
-                        <!-- create a cell for each column for click events-->
-                        <div ng-class="(c.isWeekend && 'gantt-grid-foreground-col-weekend' || 'gantt-grid-foreground-col')"
-                             ng-style="{'width': viewScaleFactor+'em'}"
-                             ng-click="raiseColumnClicked($event, row, c)"
-                             ng-repeat="c in gantt.columns | filter: viewColumnFilter">
-                        </div>
-                        <!--a task will override the cell event -->
+                        <!--a task will override the row event -->
                         <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
                              ng-style="{'left': (task.to-task.from === 0 && (task.x-0.3) || task.x)+'em', 'width': task.width+'em', 'background-color': task.color}"
                              ng-click="raiseTaskClicked($event, row, task)"
@@ -79,6 +74,7 @@
                             <gantt-info ng-model="task">
                                 <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
                             </gantt-info>
+
                         </div>
                     </div>
                 </div>

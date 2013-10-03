@@ -136,6 +136,17 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             return self.columns[0];
         }
 
+		self.getColumn = function (date) {
+			for (var i = 0; i < self.columns.length; i++) {
+				var column = self.columns[i];
+				if(column.fromDate <= date && column.toDate >= date) {
+					return column;
+				}
+			}
+			//no column match found
+			return null;
+		}
+
         self.getLastColumn = function() {
             return self.columns[self.columns.length-1];
         }
@@ -291,7 +302,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
 
     return {
-        restrict: "E",
+        restrict: "EA",
         replace: true,
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
@@ -546,6 +557,46 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             $scope.raiseRowAdded = function(row) {
                 $scope.onRowAdded({ event: { row: row.clone() } });
             }
+
+			// calculate date from the given x position
+			$scope.calcDate = function (x) {
+				var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.ganttInnerWidth;
+				var timespan;
+
+				if ($scope.isViewHour()) {
+					timespan = x / ($scope.viewScaleFactor*emPxFactor / 3600000.0);
+				} else {
+					timespan = x / ($scope.viewScaleFactor*emPxFactor / 86400000.0);
+				}
+				var date = df.addMilliseconds($scope.gantt.getFirstColumn().fromDate, timespan, true);
+				return date;
+			}
+
+			//support for lesser browsers (read IE 8)
+			$scope.getOffset = function getOffset(evt) {
+				if(evt.layerX && evt.layerY) {
+					return {x: evt.layerX, y: evt.layerY};
+				}
+				else {
+					var el = evt.target, x,y;
+					x=y=0;
+					while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+						x += el.offsetLeft - el.scrollLeft;
+						y += el.offsetTop - el.scrollTop;
+						el = el.offsetParent;
+					}
+					x = evt.clientX - x;
+					y = evt.clientY - y;
+					return { x: x, y: y };
+				}
+			}
+			$scope.raiseRowClicked = function(e, row) {
+				var clickedDate = $scope.calcDate($scope.getOffset(e).x);
+				$scope.onRowClicked({ event: { row: row.clone(), column: $scope.gantt.getColumn(clickedDate), date: clickedDate } });
+
+				e.stopPropagation();
+				e.preventDefault();
+			}
 
             $scope.raiseRowUpdated = function(row) {
                 $scope.onRowUpdated({ event: { row: row.clone() } });
