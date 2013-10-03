@@ -78,13 +78,9 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
   Those events are raised if a new row is added or updated. A row is updated if the custom sort order has been changed by the user.
 
-- **on-column-clicked**
-
-  This event is raised if the user clicks on a column. The event has a row and column property you can use to detect the date range clicked.
-
 - **on-row-clicked**
 
-  Same as on-column click. Left for backwards compatibility
+  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked (or use `event.column.fromDate`/`event.column.toDate`)
 
 - **on-scroll**
 
