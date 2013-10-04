@@ -851,7 +851,7 @@ gantt.filter('dateWeek', ['dateFunctions', function (df) {
 
 gantt.directive('ganttInfo', ['dateFilter', '$timeout', '$document', function (dateFilter, $timeout, $document) {
     return {
-        restrict: "E",
+        restrict: "EA",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
             "<div ng-show='visible' class='gantt-task-info' ng-style='css'>" +
             "<div class='gantt-task-info-content'>" +
@@ -914,7 +914,7 @@ gantt.service('sortableState', [ function () {
 
 gantt.directive('ganttSortable', ['$document', 'sortableState', function ($document, sortableState) {
     return {
-        restrict: "E",
+        restrict: "EA",
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,
