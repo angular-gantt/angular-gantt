@@ -46,6 +46,6 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
 
     $scope.taskEvent = function(event) {
         // A row has been added, updated or clicked.
-        console.log('Task event: ' + event.row.description + " | " + event.task.subject);
+        //console.log('Task event: ' + event.row.description + " | " + event.task.subject + " | " + event.task.data);
     }
 }]);

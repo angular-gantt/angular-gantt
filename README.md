@@ -63,7 +63,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **data**
 
-  Allows you to specify the data model for the gantt chart.
+  Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
 
 - **load-data**
 

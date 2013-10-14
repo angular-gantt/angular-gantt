@@ -9,7 +9,7 @@
 var gantt = angular.module('gantt', []);
 
 gantt.directive('gantt', ['dateFunctions', function (df) {
-    var Task = function(id, subject, color, from, to) {
+    var Task = function(id, subject, color, from, to, data) {
         var self = this;
 
         self.id = id;
@@ -17,16 +17,18 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         self.color = color;
         self.from = df.clone(from);
         self.to = df.clone(to);
+        self.data = data;
 
         self.copy = function(task) {
             self.subject = task.subject;
             self.color = task.color;
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
+            self.data = task.data;
         }
 
         self.clone = function() {
-            return new Task(self.id, self.subject, self.color, self.from, self.to);
+            return new Task(self.id, self.subject, self.color, self.from, self.to, self.data);
         }
     }
 
@@ -63,7 +65,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, taskData.subject, taskData.color, taskData.from, taskData.to);
+                task = new Task(taskData.id, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
