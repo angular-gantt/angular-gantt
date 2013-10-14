@@ -114,6 +114,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **view-scale-factor** (default 2)
   How wide are the columns, 1 being 1em per unit (hour or day depending on scale). This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours
+
 - **weekend-days** (default: `[0,6]`)
 
   Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. Example:

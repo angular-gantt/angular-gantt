@@ -56,6 +56,12 @@
 
                     </div>
                 </div>
+                <div class="gantt-body-foreground">
+                    <div ng-class="(c.isWeekend && 'gantt-grid-foreground-col-weekend' || 'gantt-grid-foreground-col')"
+                         ng-style="{'width': viewScaleFactor+'em'}"
+                         ng-repeat="c in gantt.columns | filter: viewColumnFilter">
+                    </div>
+                </div>
                 <div class="gantt-body-content">
                     <div class="gantt-row gantt-row-height"
                          ng-click="raiseRowClicked($event, row)"

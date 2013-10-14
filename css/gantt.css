@@ -83,6 +83,11 @@
     width: 100%;
 }
 
+.gantt-body-foreground {
+    position: absolute;
+    height: 100%;
+}
+
 .gantt-grid-foreground-col, .gantt-grid-foreground-col-weekend {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
