@@ -49,6 +49,22 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
   - `5`: Friday
   - `6`: Saturday
 
+- **from-date**
+
+  If specified ensures that the chart is rendered starts at the from-date. This is useful for showing the chart even without any tasks or empty time before the first task.
+
+  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+
+- **to-date**
+
+  If specified ensures that the chart is rendered goes at least to the end-date. This is useful for showing the chart even without any tasks or empty time after the last task.
+
+  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+
+- **data**
+
+  Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
+
 - **load-data**
 
   Returns a function (`fn`) which can be called to load more data to the Gantt.
@@ -64,7 +80,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **on-row-clicked**
 
-  This event is raised if the user clicks on a row. You can use this event for example to add a new task.
+  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked (or use `event.column.fromDate`/`event.column.toDate`)
 
 - **on-scroll**
 
@@ -95,6 +111,9 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
   Defines the Gantt column scale.
   - `day`: Each column is one day wide
   - `hour`: Each column is one hour wide
+
+- **view-scale-factor** (default 2)
+  How wide are the columns, 1 being 1em per unit (hour or day depending on scale). This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours
 
 - **weekend-days** (default: `[0,6]`)
 
