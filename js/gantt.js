@@ -107,6 +107,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
 
         self.copy = function(row) {
             self.description = row.description;
+            self.data = row.data;
 
             if (row.order !== undefined) {
                 self.order = row.order;
@@ -114,7 +115,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         }
 
         self.clone = function() {
-            var clone = new Row(self.id, self.description, self.order);
+            var clone = new Row(self.id, self.description, self.order, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
