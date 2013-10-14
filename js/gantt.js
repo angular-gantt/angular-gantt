@@ -326,8 +326,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  clearData: "&",
                  onGanttReady: "&",
                  onRowAdded: "&",
-                 onRowClicked: "&", //synonymous to onColumnClicked
-                 onColumnClicked: "&",
+                 onRowClicked: "&",
                  onRowUpdated: "&",
                  onScroll: "&",
                  onTaskClicked: "&"
@@ -627,18 +626,6 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                         $scope.onScroll({ event: { date: date, position: pos }});
                     }, 500, true);
                 }
-            }
-
-            $scope.raiseColumnClicked = function(e, row, column) {
-                var columnClone = column.clone();
-                var newEvent = { event: {row: row.clone(), column: columnClone } };
-                $scope.onColumnClicked(newEvent);
-
-                //for legacy support, not sure in what case you would only want the row but not the column
-                $scope.onRowClicked(newEvent);
-
-                e.stopPropagation();
-                e.preventDefault();
             }
 
             $scope.raiseTaskClicked = function(e, row, task) {
