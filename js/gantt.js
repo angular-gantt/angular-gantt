@@ -125,7 +125,6 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             return clone;
         }
     }
-    
 
     var Gantt = function() {
         var self = this;
@@ -322,6 +321,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                  toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
                  firstDayOfWeek: "=?",
                  weekendDays: "=?",
+                 maxHeight: "=?",
                  data: "=?",
                  loadData: "&",
                  removeData: "&",
@@ -335,12 +335,14 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             $scope.gantt = new Gantt();
+            $scope.viewScaleFactor = 2;
             $scope.ganttInnerWidth = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name"; // name, date, custom
             if ($scope.viewScale === undefined) $scope.viewScale = "day"; // hour, day
             if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 2; // hour, day
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1; // 0=Sunday, 1=Monday, ..
+            if ($scope.maxHeight === undefined) $scope.maxHeight = 0; // > 0 to activate max height behaviour
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6]; // Array: 0=Sunday, 1=Monday, ..
 
             $scope.isViewHour = function () {
@@ -652,7 +654,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             }
 
             // Bind scroll event
-            $scope.ganttScroll = angular.element($element.children()[1]);
+            $scope.ganttScroll = angular.element($element.children()[2]);
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
             $scope.setData = function (data) {
                 var el = $scope.ganttScroll[0];
@@ -846,9 +848,51 @@ gantt.filter('dateWeek', ['dateFunctions', function (df) {
     }
 }]);
 
+gantt.service('scroller', [ function () {
+    return { vertical: [], horizontal: [] };
+}]);
+
+gantt.directive('verticalScroller', ['scroller', function (scroller) {
+    return {
+        restrict: "A",
+        controller: ['$scope', '$element', function ($scope, $element) {
+            scroller.vertical.push($element[0]);
+        }]
+    }
+}]);
+
+gantt.directive('horizontalScroller', ['scroller', function (scroller) {
+    return {
+        restrict: "A",
+        controller: ['$scope', '$element', function ($scope, $element) {
+            scroller.horizontal.push($element[0]);
+        }]
+    }
+}]);
+
+gantt.directive('scrollSender', ['scroller', function (scroller) {
+    return {
+        restrict: "A",
+        controller: ['$scope', '$element', function ($scope, $element) {
+            $scope.el = $element[0];
+            $scope.updateListeners = function(e) {
+                for (var i = 0, l = scroller.vertical.length; i < l; i++) {
+                    scroller.vertical[i].style.top = -$scope.el.scrollTop + 'px';
+                }
+
+                for (var i = 0, l = scroller.vertical.length; i < l; i++) {
+                    scroller.horizontal[i].style.left = -$scope.el.scrollLeft + 'px';
+                }
+            }
+
+            $element.bind('scroll', $scope.updateListeners);
+        }]
+    }
+}]);
+
 gantt.directive('ganttInfo', ['dateFilter', '$timeout', '$document', function (dateFilter, $timeout, $document) {
     return {
-        restrict: "EA",
+        restrict: "E",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
             "<div ng-show='visible' class='gantt-task-info' ng-style='css'>" +
             "<div class='gantt-task-info-content'>" +
@@ -911,7 +955,7 @@ gantt.service('sortableState', [ function () {
 
 gantt.directive('ganttSortable', ['$document', 'sortableState', function ($document, sortableState) {
     return {
-        restrict: "EA",
+        restrict: "E",
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,

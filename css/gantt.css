@@ -3,30 +3,30 @@
     line-height: 1;
 }
 
-.gantt-fixed {
+.gantt-fixed-left {
     float: left;
     border-right: 1px solid #dddddd;
 }
 
-.gantt-fixed-header {
+.gantt-fixed-left-top {
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-scroll-container {
+.gantt-fixed-left-body {
+    overflow: hidden;
+}
+
+.gantt-fixed-top {
+    overflow: hidden;
+    border-bottom: 1px solid #dddddd;
+}
+
+.gantt-scrollable {
     overflow-y: hidden;
     overflow-x: scroll;
 }
 
-.gantt-scrollable {
-    position: relative;
-    width: 100%;
-}
-
-.gantt-scrollable-header {
-    border-bottom: 1px solid #dddddd;
-}
-
-.gantt-header-row-height {
+.gantt-header-height {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;

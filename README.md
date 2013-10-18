@@ -70,6 +70,10 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
   Returns a function (`fn`) which can be called to load more data to the Gantt.
   Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
 
+- **max-height** (default: `0`)
+
+  If max height is set bigger than 0 the Gantt will be set to this height and show a vertical scroll bar if the content does not fit inside.
+
 - **on-gantt-ready**
 
   This event is raised when the Gantt is initialized and ready to load data.
