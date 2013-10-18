@@ -6,6 +6,7 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.mode = "custom";
     $scope.firstDay = 1;
     $scope.weekendDays = [0,6];
+    $scope.maxHeight = 300;
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);

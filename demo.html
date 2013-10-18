@@ -24,13 +24,22 @@
         <div class="form-group">
             <span class="help-block">View mode</span>
             <div class="btn-group">
-                <button class="btn btn-primary" ng-click="scale = 'day'">View 'Day'</button>
-                <button class="btn btn-primary" ng-click="scale = 'hour'">View 'Hour'</button>
+                <button ng-class="(scale === 'day' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'day'">View 'Day'</button>
+                <button ng-class="(scale === 'hour' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'hour'">View 'Hour'</button>
             </div>
         </div>
         <div class="form-group">
             <span class="help-block">Sort order</span>
             <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
+        </div>
+        <div class="form-group">
+            <span class="help-block">Max height</span>
+            <div ng-show="maxHeight > 0">
+                <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
+            </div>
+            <div ng-show="maxHeight === 0">
+                <button class="btn btn-default" ng-click="maxHeight = 300">Activate</button>
+            </div>
         </div>
     </form>
     <hr>
@@ -41,7 +50,7 @@
            sort-mode="mode"
            view-scale="scale"
            weekend-days="weekendDays"
-           max-height="300"
+           max-height="maxHeight"
            on-gantt-ready="addSamples()"
            on-row-added="rowEvent(event)"
            on-row-clicked="rowEvent(event)"
