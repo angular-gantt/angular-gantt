@@ -160,7 +160,13 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     var column = new Column(df.clone(date), df.addMilliseconds(df.addHours(date, 1, true), -1, false));
                     self.columns.push(column);
 
+                    var old = date.getTime();
                     df.addHours(date, 1);
+
+                    if (date.getTime() === old) {
+                        // Issue with Chrome when there is the change to summer time. +1h will not change the time, do +2h.
+                        df.addHours(date, 2);
+                    }
                 }
             }
 
