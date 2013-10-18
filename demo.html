@@ -40,6 +40,7 @@
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
+           view-scale-factor="scale === 'hour' && 5 || 2"
            weekend-days="weekendDays"
            on-gantt-ready="addSamples()"
            on-row-added="rowEvent(event)"
