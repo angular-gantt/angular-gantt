@@ -158,7 +158,7 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             var date = df.clone(from);
             while (date <= to) {
                 for (var i = 0; i < 24; i++) {
-                    var column = new Column(df.clone(date), df.addHours(date, 1, true));
+                    var column = new Column(df.clone(date), df.addMilliseconds(df.addHours(date, 1, true), -1, false));
                     self.columns.push(column);
 
                     df.addHours(date, 1);
@@ -530,12 +530,24 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
                     var firstDayInWeek = df.setToDayOfWeek(startDay, $scope.firstDayOfWeek, true);
                     var lastDayInWeek = df.addWeeks(firstDayInWeek, 1);
                     var endDay = lastDayInWeek > lastColumnDate ? df.addHours(lastColumnDate, 1, true) : lastDayInWeek;
+
+                    if (startDay.getTimezoneOffset() !== endDay.getTimezoneOffset()) {
+                        // There is a time zone difference in between, e.g. summer time change. Skip it.
+                        df.addMinutes(endDay, startDay.getTimezoneOffset() - endDay.getTimezoneOffset());
+                    }
+
                     return $scope.calcWidth(endDay - startDay);
                 } else if (scale === "month") {
                     // Month header shall be as wide as there are days in the month but no longer as the last date shown
                     var startDay = column.fromDate;
                     var lastDayInMonth = df.addMonths(df.setToFirstDayOfMonth(startDay, true), 1);
                     var endDay = lastDayInMonth > lastColumnDate ? df.addHours(lastColumnDate, 1, true) : lastDayInMonth;
+
+                    if (startDay.getTimezoneOffset() !== endDay.getTimezoneOffset()) {
+                        // There is a time zone difference in between, e.g. summer time change. Skip it.
+                        df.addMinutes(endDay, startDay.getTimezoneOffset() - endDay.getTimezoneOffset());
+                    }
+
                     return $scope.calcWidth(endDay - startDay);
                 }
             }
