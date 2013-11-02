@@ -19,12 +19,12 @@ A Gantt chart directive for Angular.js without any other dependencies.
 - If new rows / tasks are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
 
 ### Usage
-Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [demo.js](js/demo.js).
+Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
 
-1. Add the [gantt.js](js/gantt.js) and [gantt.css](css/gantt.css) files to your HTML code.
+1. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
 
-        <head><link rel="stylesheet" href="css/gantt.css"/></head>
-        <body><script src="js/gantt.js"></script></body>
+        <head><link rel="stylesheet" href="assets/gantt.css"/></head>
+        <body><script src="assets/angular-gantt.js"></script></body>
 2. Include the module `gantt` to your Angular app modules.
 
         var myApp = angular.module('myApp', ['gantt']);
@@ -36,7 +36,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 - **clear-data**
 
   Returns a function (`fn`) which can be called to removes all rows and tasks at once.
-  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
 - **first-day-of-week** (default: `1`)
 
@@ -63,12 +63,12 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **data**
 
-  Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
+  Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
 - **load-data**
 
   Returns a function (`fn`) which can be called to load more data to the Gantt.
-  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
 - **max-height** (default: `0`)
 
@@ -97,7 +97,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 - **remove-data**
 
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
-  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
 - **sort-mode** (default: `name`)
 
