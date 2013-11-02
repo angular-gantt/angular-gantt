@@ -10,7 +10,7 @@
         <div class="gantt-fixed-left-body"
              ng-style="(maxHeight > 0 && {'max-height': maxHeight+'px'} || {})"
              ng-show="gantt.columns.length > 0">
-            <div vertical-scroller
+            <div gantt-vertical-scroll-receiver
                  ng-style="{'position': 'relative'}">
                 <div class="gantt-header-row gantt-row-height"
                      ng-class-odd="'gantt-grid-background-row'"
@@ -25,7 +25,7 @@
     </div>
     <div class="gantt-fixed-top"
          ng-show="gantt.columns.length > 0">
-        <div horizontal-scroller
+        <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': ganttInnerWidth+'em'}">
             <div class="gantt-header-month gantt-header-height">
                 <span ng-style="{'width': c.widthMonth+'em'}"
@@ -36,7 +36,7 @@
             <div class="gantt-header-week gantt-header-height">
                 <span ng-style="{'width': c.widthWeek+'em'}"
                       ng-repeat="c in gantt.columns | filter:viewWeekFilter">
-                    {{ c.fromDate | dateWeek }}
+                    {{ c.fromDate | ganttDateWeek }}
                 </span>
             </div>
             <div class="gantt-header-day gantt-header-height">
@@ -55,7 +55,7 @@
         </div>
     </div>
     <div class="gantt-scrollable"
-         scroll-sender
+         gantt-scroll-sender
          ng-style="(maxHeight > 0 && {'max-height': maxHeight+'px', 'overflow-y': 'scroll'} || {'overflow-y': 'hidden'})"
          ng-style="{'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'scroll')}">
         <div class="gantt-body"
@@ -82,9 +82,9 @@
                          ng-style="{'left': (task.to-task.from === 0 && (task.x-0.3) || task.x)+'em', 'width': task.width+'em', 'background-color': task.color}"
                          ng-click="raiseTaskClicked($event, row, task)"
                          ng-repeat="task in row.tasks">
-                        <gantt-info ng-model="task">
+                        <gantt-tooltip ng-model="task">
                             <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
-                        </gantt-info>
+                        </gantt-tooltip>
                     </div>
                 </div>
             </div>
