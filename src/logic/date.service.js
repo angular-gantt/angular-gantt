@@ -53,17 +53,17 @@ gantt.service('dateFunctions', [ function () {
         },
         addHours: function(date, val, clone) {
             var res = clone === true ? this.clone(date) : date;
-            res.setHours(date.getHours() + val);
+            res.setHours(res.getHours() + val);
             return res;
         },
         addMinutes: function(date, val, clone) {
             var res = clone === true ? this.clone(date) : date;
-            res.setMinutes(date.getMinutes() + val);
+            res.setMinutes(res.getMinutes() + val);
             return res;
         },
         addMilliseconds: function(date, val, clone) {
             var res = clone === true ? this.clone(date) : date;
-            res.setMilliseconds(date.getMilliseconds() + val);
+            res.setMilliseconds(res.getMilliseconds() + val);
             return res;
         },
         getWeek: function(date) {
