@@ -1,4 +1,7 @@
 gantt.directive('ganttSortable', ['$document', 'sortableState', function ($document, sortableState) {
+    // Provides the row sort functionality to any Gantt row
+    // Uses the sortableState to share the current row
+
     return {
         restrict: "E",
         template: "<div ng-transclude></div>",
@@ -6,7 +9,7 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
         transclude: true,
         scope: { row: "=ngModel", swap: "&" },
         controller: ['$scope', '$element', function ($scope, $element) {
-            $element.bind("mousedown", function (e) {
+            $element.bind("mousedown", function () {
                 enableDragMode();
 
                 var disableHandler = function () {

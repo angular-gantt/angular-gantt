@@ -1,4 +1,6 @@
 gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function (dateFilter, $timeout, $document) {
+    // This tooltip displays more information about a task
+
     return {
         restrict: "E",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
@@ -44,7 +46,7 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
                 },1, true);
             };
 
-            $scope.mouseLeave = function (e) {
+            $scope.mouseLeave = function () {
                 $scope.css.opacity = 0;
                 $scope.visible = false;
             };

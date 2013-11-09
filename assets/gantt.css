@@ -3,20 +3,20 @@
     line-height: 1;
 }
 
-.gantt-fixed-left {
+.gantt-labels {
     float: left;
     border-right: 1px solid #dddddd;
 }
 
-.gantt-fixed-left-top {
+.gantt-labels-header {
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-fixed-left-body {
+.gantt-labels-body {
     overflow: hidden;
 }
 
-.gantt-fixed-top {
+.gantt-header {
     overflow: hidden;
     border-bottom: 1px solid #dddddd;
 }
@@ -37,31 +37,35 @@
     white-space: nowrap;
 }
 
+.gantt-header-hour span, .gantt-header-day span, .gantt-header-week span, .gantt-header-month span {
+    position: absolute;
+}
+
 .gantt-header-month {
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-header-row {
+.gantt-header-row, .gant-labels-row {
     cursor: pointer;
 }
 
-.gantt-header-desc span, .gantt-header-row span {
+.gantt-labels-desc span, .gantt-header-row span, .gantt-labels-row span {
     padding-left: 12px;
     padding-right: 12px;
 }
 
-.gantt-header-desc span, .gantt-header-hour span, .gantt-header-day span, .gantt-header-week span, .gantt-header-month span {
+.gantt-labels-desc span, .gantt-header-hour span, .gantt-header-day span, .gantt-header-week span, .gantt-header-month span {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
     display: inline-block;
-    height: 100%;
+    height: 2em;
     text-align: center;
     padding-top: 0.5em;
 }
 
-.gantt-header-row span {
+.gantt-header-row span, .gantt-labels-row span {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
@@ -88,7 +92,7 @@
     height: 100%;
 }
 
-.gantt-grid-foreground-col, .gantt-grid-foreground-col-weekend {
+.gantt-grid-foreground-col, .gantt-grid-foreground-col-weekend, .gantt-grid-foreground-col-nonworkhour {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
@@ -97,9 +101,14 @@
     border-right: 1px solid #dddddd;
 }
 
-.gantt-grid-foreground-col-weekend {
+.gantt-grid-foreground-col-weekend, .gantt-grid-foreground-col-nonworkhour {
     background-color: rgba(200, 200, 200, 0.3);
 }
+
+.gantt-body-column {
+    position: absolute;
+}
+
 
 .gantt-grid-background-row, .gantt-grid-background-row-alt {
 
