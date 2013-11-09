@@ -81,7 +81,7 @@
                      ng-repeat="row in gantt.rows">
                     <!--a task will override the row event -->
                     <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
-                         ng-style="{'left': (task.to-task.from === 0 && (task.x-0.3) || task.x)+'em', 'width': task.width+'em', 'background-color': task.color}"
+                         ng-style="{'left': (task.to-task.from === 0 && (task.left-0.3) || task.left)+'em', 'width': task.width+'em', 'background-color': task.color}"
                          ng-click="raiseTaskClicked($event, row, task)"
                          ng-repeat="task in row.tasks">
                         <gantt-tooltip ng-model="task">

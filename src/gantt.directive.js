@@ -143,38 +143,27 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                 var cmp =  function(c) { return c.date; };
                 var cFrom = $scope.calcClosestColumns(task.from, cmp);
                 var cTo = $scope.calcClosestColumns(task.to, cmp);
-                task.x = cFrom[0].left;
-                task.width = cTo[0].left - cFrom[0].left;
-            };
 
-            // Returns the width of a specific task
-            $scope.calcTaskWidth = function (task) {
-                var width;
+                // Tasks are as wide as a day or hour column
+                //task.left = cFrom[0].left;
+                //task.width = ($scope.viewScale === "hour" || cTo[1] === undefined ? cTo[0].left : cTo[1].left) - cFrom[0].left;
 
-                if (task.from === task.to) {
-                    // If task is  milestone make 1h wide
-                    width = $scope.isViewDay() ? $scope.viewScaleFactor / 24 : $scope.viewScaleFactor;
+                // Task bounds are calculated according to their time
+                if (cFrom[1] === undefined) {
+                    task.left = cFrom[0].left;
                 } else {
-                    // Else calculate width according to dates
-                    width = $scope.calcWidth(task.to - task.from);
-
-                    if ($scope.isViewDay()) {
-                        // Make sure every task is at least half a day wide (for better visibility)
-                        if (width < $scope.viewScaleFactor / 2) {
-                            var adjTo = df.addHours(task.to, 12, true);
-                            var nextDay = df.setTimeZero(df.addDays(task.to, 1, true));
-
-                            // Make sure the extended task does not overflow to the next day
-                            if (adjTo - nextDay > 0) {
-                                width = $scope.calcWidth(nextDay - task.from);
-                            } else {
-                                width = $scope.viewScaleFactor / 2;
-                            }
-                        }
-                    }
+                    task.left = cFrom[0].left + (cFrom[1].left - cFrom[0].left) * getTaskExactPosition(task.from);
                 }
 
-                return width;
+                if (cTo[1] === undefined) {
+                    task.width = cTo[0].left - task.left;
+                } else {
+                    task.width = (cTo[0].left - task.left) + (cTo[1].left - cTo[0].left) * getTaskExactPosition(task.to);
+                }
+            };
+
+            var getTaskExactPosition = function(date) {
+                return $scope.viewScale === "hour" ? date.getMinutes() / 60 : date.getHours() / 24;
             };
 
             // Calculate the bounds of a column and publishes it as properties
