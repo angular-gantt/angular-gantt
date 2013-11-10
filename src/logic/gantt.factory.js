@@ -36,10 +36,10 @@ gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column,
             // Prepends columns to existing columns
             self.prepend = function(columns) {
                 // Remove overlapping week or month column
-                if (self.weeks[0].week === columns.weeks[columns.weeks.length-1].week) {
+                if (columns.weeks.length > 0 && self.weeks[0].week === columns.weeks[columns.weeks.length-1].week) {
                     columns.weeks.splice(columns.weeks.length-1, 1);
                 }
-                if (self.months[0].date.getMonth() === columns.months[columns.months.length-1].date.getMonth()) {
+                if (columns.months.length > 0 && self.months[0].date.getMonth() === columns.months[columns.months.length-1].date.getMonth()) {
                     columns.months.splice(columns.months.length-1, 1);
                 }
 

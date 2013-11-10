@@ -44,7 +44,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             // Initialize defaults
-            if ($scope.autoExpand === undefined) $scope.autoExpand = true;
+            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
             if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 0.1;

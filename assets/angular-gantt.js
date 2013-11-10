@@ -44,7 +44,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             // Initialize defaults
-            if ($scope.autoExpand === undefined) $scope.autoExpand = true;
+            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
             if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 0.1;
@@ -619,10 +619,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             // Prepends columns to existing columns
             self.prepend = function(columns) {
                 // Remove overlapping week or month column
-                if (self.weeks[0].week === columns.weeks[columns.weeks.length-1].week) {
+                if (columns.weeks.length > 0 && self.weeks[0].week === columns.weeks[columns.weeks.length-1].week) {
                     columns.weeks.splice(columns.weeks.length-1, 1);
                 }
-                if (self.months[0].date.getMonth() === columns.months[columns.months.length-1].date.getMonth()) {
+                if (columns.months.length > 0 && self.months[0].date.getMonth() === columns.months[columns.months.length-1].date.getMonth()) {
                     columns.months.splice(columns.months.length-1, 1);
                 }
 
