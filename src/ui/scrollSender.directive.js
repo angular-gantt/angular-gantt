@@ -1,4 +1,4 @@
-gantt.directive('ganttScrollSender', ['scroller', function (scroller) {
+gantt.directive('ganttScrollSender', ['scroller', '$timeout', function (scroller, $timeout) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -22,6 +22,14 @@ gantt.directive('ganttScrollSender', ['scroller', function (scroller) {
             };
 
             $element.bind('scroll', updateListeners);
+
+            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+                if (newValue === 0) {
+                    $timeout(function() {
+                        updateListeners();
+                    }, 20, true);
+                }
+            });
         }]
     };
 }]);

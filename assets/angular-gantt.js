@@ -44,7 +44,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             // Initialize defaults
-            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
+            if ($scope.autoExpand === undefined) $scope.autoExpand = true;
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
             if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 0.1;
@@ -1011,7 +1011,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             scroller.horizontal.push($element[0]);
         }]
     };
-}]);;gantt.directive('ganttLimitUpdater', [function () {
+}]);;gantt.directive('ganttLimitUpdater', ['$timeout', function ($timeout) {
     return {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
@@ -1023,10 +1023,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             };
 
             $element.bind('scroll', function() { $scope.$apply(function() { update(); }); });
-            update();
+
+            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+                $timeout(function() {
+                    update();
+                }, 20, true);
+            });
         }]
     };
-}]);;gantt.directive('ganttScrollSender', ['scroller', function (scroller) {
+}]);;gantt.directive('ganttScrollSender', ['scroller', '$timeout', function (scroller, $timeout) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -1050,6 +1055,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             };
 
             $element.bind('scroll', updateListeners);
+
+            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+                if (newValue === 0) {
+                    $timeout(function() {
+                        updateListeners();
+                    }, 20, true);
+                }
+            });
         }]
     };
 }]);;gantt.service('scroller', [ function () {
@@ -1127,9 +1140,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         var res = [];
         for(var i = 0, l = input.length; i<l; i++) {
             var task = input[i];
-            // If task start visible on screen or end visible on screen
-            if (task.left > scroll_left && task.left < scroll_left + scroll_width ||
-                task.left + task.width > scroll_left && task.left + task.width < scroll_left + scroll_width) {
+            // If task has a visible part on the screen
+            if (task.left >= scroll_left && task.left <= scroll_left + scroll_width ||
+                task.left + task.width >= scroll_left && task.left + task.width <= scroll_left + scroll_width ||
+                task.left < scroll_left && task.left + task.width > scroll_left + scroll_width) {
                     res.push(task);
             }
         }

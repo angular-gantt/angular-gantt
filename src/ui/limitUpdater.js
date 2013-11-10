@@ -1,4 +1,4 @@
-gantt.directive('ganttLimitUpdater', [function () {
+gantt.directive('ganttLimitUpdater', ['$timeout', function ($timeout) {
     return {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
@@ -10,7 +10,12 @@ gantt.directive('ganttLimitUpdater', [function () {
             };
 
             $element.bind('scroll', function() { $scope.$apply(function() { update(); }); });
-            update();
+
+            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+                $timeout(function() {
+                    update();
+                }, 20, true);
+            });
         }]
     };
 }]);
