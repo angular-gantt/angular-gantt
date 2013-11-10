@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/gantt.css"/>
+    <link rel="stylesheet" href="assets/gantt.css"/>
     <title>Gantt chart for Angular.js</title>
 </head>
 <body style="margin: 10px">
@@ -33,6 +33,15 @@
             <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
         </div>
         <div class="form-group">
+            <span class="help-block">Weekends</span>
+            <div ng-show="showWeekends">
+                <button class="btn btn-default" ng-click="showWeekends = false">Hide</button>
+            </div>
+            <div ng-hide="showWeekends">
+                <button class="btn btn-default" ng-click="showWeekends = true">Show</button>
+            </div>
+        </div>
+        <div class="form-group">
             <span class="help-block">Max height</span>
             <div ng-show="maxHeight > 0">
                 <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
@@ -49,8 +58,9 @@
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
-           view-scale-factor="scale === 'hour' && 5 || 2"
+           view-scale-factor="scale === 'hour' && 3 || 0.1"
            weekend-days="weekendDays"
+           show-weekends="showWeekends"
            max-height="maxHeight"
            on-gantt-ready="addSamples()"
            on-row-added="rowEvent(event)"
@@ -63,9 +73,9 @@
     <small>Gantt chart for Angular.js by Marco Schweighauser (2013) | MIT License</small>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.js"></script>
-<script src="js/demo_sample_data.js"></script>
-<script src="js/demo.js"></script>
-<script src="js/gantt.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.js"></script>
+<script src="assets/demo_sample_data.js"></script>
+<script src="assets/demo.js"></script>
+<script src="assets/angular-gantt.js"></script>
 </body>
 </html>

@@ -7,10 +7,11 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.firstDay = 1;
     $scope.weekendDays = [0,6];
     $scope.maxHeight = 0;
+    $scope.showWeekends = true;
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
-    }
+    };
 
     $scope.removeSomeSamples = function () {
         $scope.removeData([
@@ -24,29 +25,29 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
                 {"id": "57638ba3-dfff-476d-ab9a-30fda1e44b50"}
             ]} // Remove order basket from Sprint 2
         ]);
-    }
+    };
 
     $scope.removeSamples = function () {
         $scope.clearData();
-    }
+    };
 
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
-        //console.log('Row event: ' + event.row.description + ', ' + event.row.data);
-    }
+        //console.log('Row event: ' + event.date + ', ' + event.row.description + ', ' + event.row.data);
+    };
 
     $scope.scrollEvent = function(event) {
-        if (angular.equals(event.position, "left")) {
+        if (angular.equals(event.direction, "left")) {
             // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
             //console.log('Scroll event: Left');
-        } else if (angular.equals(event.position, "right")) {
+        } else if (angular.equals(event.direction, "right")) {
             // Raised if the user scrolled to the right side of the Gantt. Use this event to load more data.
             //console.log('Scroll event: Right');
         }
-    }
+    };
 
     $scope.taskEvent = function(event) {
         // A row has been added, updated or clicked.
         //console.log('Task event: ' + event.row.description + " | " + event.task.subject + " | " + event.task.data);
-    }
+    };
 }]);
