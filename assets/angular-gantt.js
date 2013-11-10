@@ -21,7 +21,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             viewScale: "=?", // Possible scales: 'hour', 'day'
             viewScaleFactor: "=?", // How wide are the columns, 1 being 1em per unit (hour or day depending on scale),
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
-            autoExpand: "=?",
+            taskPrecision: "=?", // Defines how precise tasks should be positioned. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
+            autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
@@ -47,6 +48,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
             if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 0.1;
+            if ($scope.taskPrecision === undefined) $scope.taskPrecision = 4;
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
@@ -144,26 +146,28 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                 var cFrom = $scope.calcClosestColumns(task.from, cmp);
                 var cTo = $scope.calcClosestColumns(task.to, cmp);
 
-                // Tasks are as wide as a day or hour column
-                //task.left = cFrom[0].left;
-                //task.width = ($scope.viewScale === "hour" || cTo[1] === undefined ? cTo[0].left : cTo[1].left) - cFrom[0].left;
-
                 // Task bounds are calculated according to their time
-                if (cFrom[1] === undefined) {
-                    task.left = cFrom[0].left;
-                } else {
-                    task.left = cFrom[0].left + (cFrom[1].left - cFrom[0].left) * getTaskExactPosition(task.from);
-                }
+                task.left = calculateTaskPos(cFrom[0], task);
+                task.width = Math.round( (calculateTaskPos(cTo[0], task) - task.left) * 10) / 10;
 
-                if (cTo[1] === undefined) {
-                    task.width = cTo[0].left - task.left;
-                } else {
-                    task.width = (cTo[0].left - task.left) + (cTo[1].left - cTo[0].left) * getTaskExactPosition(task.to);
+                // Set minimal width
+                if (task.width === 0) {
+                    task.width = cFrom[0].width / $scope.taskPrecision;
                 }
             };
 
-            var getTaskExactPosition = function(date) {
-                return $scope.viewScale === "hour" ? date.getMinutes() / 60 : date.getHours() / 24;
+            // Calculates the position of the task start or end
+            // The position is based on the column which is closest to the start (or end).
+            // This column has a width which is used to calculate the exact position within this column.
+            var calculateTaskPos = function(column, task) {
+                return Math.round( (column.left + column.width * getTaskPrecisionFactor(task.from, $scope.taskPrecision)) * 10) / 10;
+            };
+
+            // Returns the position factor of a task between two columns.
+            // Use the precision parameter to specify if task shall be displayed e.g. in quarter steps
+            // precision: 4 = in quarter steps, 2 = in half steps, ..
+            var getTaskPrecisionFactor = function(date, precision) {
+                return $scope.viewScale === "hour" ? Math.round(date.getMinutes()/60 * precision) / precision : Math.round(date.getHours()/24 * precision) / precision;
             };
 
             // Calculate the bounds of a column and publishes it as properties
@@ -1115,6 +1119,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
     // Contains the row which the user wants to sort (the one he started to drag)
 
     return { startRow: undefined };
+}]);;gantt.filter('ganttTaskLimit', [function () {
+    // Returns only the tasks which are visible on the screen
+    // Use the task width and position to decide if a task is still visible
+
+    return function(input, scroll_left, scroll_width) {
+        var res = [];
+        for(var i = 0, l = input.length; i<l; i++) {
+            var task = input[i];
+            // If task start visible on screen or end visible on screen
+            if (task.left > scroll_left && task.left < scroll_left + scroll_width ||
+                task.left + task.width > scroll_left && task.left + task.width < scroll_left + scroll_width) {
+                    res.push(task);
+            }
+        }
+
+        return res;
+    };
 }]);;gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function (dateFilter, $timeout, $document) {
     // This tooltip displays more information about a task
 

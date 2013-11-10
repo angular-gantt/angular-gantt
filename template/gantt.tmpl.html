@@ -83,7 +83,7 @@
                     <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
                          ng-style="{'left': (task.to-task.from === 0 && (task.left-0.3) || task.left)+'em', 'width': task.width+'em', 'background-color': task.color}"
                          ng-click="raiseTaskClicked($event, row, task)"
-                         ng-repeat="task in row.tasks">
+                         ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width">
                         <gantt-tooltip ng-model="task">
                             <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
                         </gantt-tooltip>
