@@ -10,13 +10,11 @@ A Gantt chart directive for Angular.js without any other dependencies.
 - Rows can be sorted by description, date and custom order
 - A user can drag&drop a row to sort it in custom mode
 - Events on scroll, click, add or update
-- Configurable
+- Configurable (e.g. day or hour scale, weekend days, ..)
 
 ### Missing / To improve
 - Possibility for the user to update tasks (by drag&drop)
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
-- Support for virtual scrolling to be able to handle many years of data.
-- If new rows / tasks are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
 
 ### Usage
 Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
@@ -99,6 +97,22 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
+- **task-precision** (default: `4`)
+
+  Defines how precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
+  Some examples:
+  - 4 = in quarter steps
+  - 2 = in half steps
+  - 24 or 60 (if view-scale = hour) to display them very accurate
+
+- **show-weekend** (default: `true`)
+
+  Display the weekend days if enabled. Weekend days are displayed different than non weekend days.
+
+- **show-non-work-hours** (default: `true`)
+
+  Display the non work hours if enabled. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you disable this parameter and use view-scale = day as there are less hours displayed per day.
+
 - **sort-mode** (default: `name`)
 
   Sorts the rows by the given value.
@@ -116,13 +130,18 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
   - `day`: Each column is one day wide
   - `hour`: Each column is one hour wide
 
-- **view-scale-factor** (default 2)
-  How wide are the columns, 1 being 1em per unit (hour or day depending on scale). This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours
+- **view-scale-factor** (default `2`)
+  How wide are the columns, 1 being 1em per hour. This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours
 
 - **weekend-days** (default: `[0,6]`)
 
   Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. Example:
   - `[0,6]`: Sunday, Saturday
+
+- **work-hours** (default: `[8,9,10,11,12,13,14,15,16]`)
+
+  Array containing all working hours. Non working hours are displayed differently than working hours. Example:
+  - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
 ### License
 **The MIT License**
