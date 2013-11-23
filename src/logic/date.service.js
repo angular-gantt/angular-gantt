@@ -8,7 +8,7 @@ gantt.service('dateFunctions', [ function () {
             if (this.isString(date)) {
                 return new Date(Date.parse(date));
             } else if (this.isNumber(date)) {
-                return new Date(date);
+                return new Date(date * 1000);
             } else {
                 return new Date(date.getTime());
             }
