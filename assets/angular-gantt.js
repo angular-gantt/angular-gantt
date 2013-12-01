@@ -147,8 +147,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                 var cTo = $scope.calcClosestColumns(task.to, cmp);
 
                 // Task bounds are calculated according to their time
-                task.left = calculateTaskPos(cFrom[0], task);
-                task.width = Math.round( (calculateTaskPos(cTo[0], task) - task.left) * 10) / 10;
+                task.left = calculateTaskPos(cFrom[0], task.from);
+                task.width = Math.round( (calculateTaskPos(cTo[0], task.to) - task.left) * 10) / 10;
 
                 // Set minimal width
                 if (task.width === 0) {
@@ -157,10 +157,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             };
 
             // Calculates the position of the task start or end
-            // The position is based on the column which is closest to the start (or end).
+            // The position is based on the column which is closest to the start (or end) date.
             // This column has a width which is used to calculate the exact position within this column.
-            var calculateTaskPos = function(column, task) {
-                return Math.round( (column.left + column.width * getTaskPrecisionFactor(task.from, $scope.taskPrecision)) * 10) / 10;
+            var calculateTaskPos = function(column, date) {
+                return Math.round( (column.left + column.width * getTaskPrecisionFactor(date, $scope.taskPrecision)) * 10) / 10;
             };
 
             // Returns the position factor of a task between two columns.
