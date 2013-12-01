@@ -481,7 +481,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             if (this.isString(date)) {
                 return new Date(Date.parse(date));
             } else if (this.isNumber(date)) {
-                return new Date(date * 1000);
+                return new Date(date);
             } else {
                 return new Date(date.getTime());
             }
