@@ -290,23 +290,24 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
 
             $scope.raiseScrollEvent = function() {
                 var el = $scope.ganttScroll[0];
-                var direction = null;
-                var date;
+                var direction;
+                var column;
 
                 if (el.scrollLeft === 0) {
                     direction = 'left';
-                    date = df.clone($scope.gantt.columns.getFirst().date);
+                    column = $scope.gantt.columns.getFirst();
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     direction = 'right';
-                    date = df.clone($scope.gantt.columns.getLast().date);
+                    column = $scope.gantt.columns.getLast();
                 }
 
-                if (direction !== null) {
+                if (column !== undefined) {
                     // Timeout is a workaround to because of the horizontal scroll wheel problem on OSX.
                     // It seems that there is a scroll momentum which will continue the scroll when we add new data
                     // left or right of the Gantt directly in the scroll event.
                     // => Tips how to improve this are appreciated :)
                     $timeout(function() {
+                        var date = df.clone(column.date);
                         $scope.autoExpandColumns(el, date, direction);
                         $scope.onScroll({ event: { date: date, direction: direction }});
                     }, 500, true);
