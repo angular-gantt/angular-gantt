@@ -7,29 +7,26 @@ gantt.factory('Column', [ function () {
         self.date = date;
         self.left = 0;
         self.width = 0;
-        self.copy = function() {
+        self.clone = function() {
             var copy = new Column(self.date);
             copy.left = self.left;
             copy.width = self.width;
             return copy;
         };
-    };
-
-    var MonthColumn = function(date) {
-        var column = new Column(date);
-        column.clone = function() {
-            return column.copy();
+        self.equals = function(other) {
+            return self.date === other.date;
         };
-        return column;
     };
 
     var WeekColumn = function(date, week) {
         var column = new Column(date);
         column.week = week;
         column.clone = function() {
-            var clone = column.copy();
-            clone.week = column.week;
-            return clone;
+            var copy = new Column(self.date);
+            copy.left = column.left;
+            copy.width = column.width;
+            copy.week = column.week;
+            return copy;
         };
         return column;
     };
@@ -38,9 +35,11 @@ gantt.factory('Column', [ function () {
         var column = new Column(date);
         column.isWeekend = isWeekend;
         column.clone = function() {
-            var clone = column.copy();
-            clone.isWeekend = column.isWeekend;
-            return clone;
+            var copy = new Column(self.date);
+            copy.left = column.left;
+            copy.width = column.width;
+            copy.isWeekend = column.isWeekend;
+            return copy;
         };
         return column;
     };
@@ -50,10 +49,12 @@ gantt.factory('Column', [ function () {
         column.isWeekend = isWeekend;
         column.isWorkHour = isWorkHour;
         column.clone = function() {
-            var clone = column.copy();
-            clone.isWeekend = column.isWeekend;
-            clone.isWorkHour = column.isWorkHour;
-            return clone;
+            var copy = new Column(self.date);
+            copy.left = column.left;
+            copy.width = column.width;
+            copy.isWeekend = column.isWeekend;
+            copy.isWorkHour = column.isWorkHour;
+            return copy;
         };
         return column;
     };
@@ -62,6 +63,7 @@ gantt.factory('Column', [ function () {
         Hour: HourColumn,
         Day: DayColumn,
         Week: WeekColumn,
-        Month: MonthColumn
+        Month: Column,
+        Year: Column
     };
 }]);

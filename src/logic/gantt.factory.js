@@ -1,139 +1,75 @@
-gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column, df) {
-    // Gantt logic. Manages the columns, rows and sorting functionality.
+gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row, ColumnGenerator, df) {
 
-    var Gantt = function(weekendDays, showWeekends, workHours, showNonWorkHours) {
+    // Gantt logic. Manages the columns, rows and sorting functionality.
+    var Gantt = function(viewScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
         self.rows = [];
+        self.columns = [];
         self.highestRowOrder = 0;
         self.weekendDays = weekendDays;
         self.showWeekends = showWeekends;
         self.workHours = workHours;
         self.showNonWorkHours = showNonWorkHours;
 
-        var EmptyColumns = function() {
-            var self = this;
+        // TODO:
+        // Calculate columns (most detailed level which is visible in Gantt, e.g. days)
+        // Make lowest header level same as gantt columns
+        // Calculate all other header based on the columns
 
-            self.months = [];
-            self.weeks = [];
-            self.days = [];
-            self.hours = [];
-            self.getLast = function() {
-                if (self.hours.length > 0) {
-                    return self.hours[self.hours.length-1];
-                } else {
-                    return null;
-                }
-            };
-            self.getFirst = function() {
-                if (self.hours.length > 0) {
-                    return self.hours[0];
-                } else {
-                    return null;
-                }
-            };
-            // Prepends columns to existing columns
-            self.prepend = function(columns) {
-                // Remove overlapping week or month column
-                if (columns.weeks.length > 0 && self.weeks[0].week === columns.weeks[columns.weeks.length-1].week) {
-                    columns.weeks.splice(columns.weeks.length-1, 1);
-                }
-                if (columns.months.length > 0 && self.months[0].date.getMonth() === columns.months[columns.months.length-1].date.getMonth()) {
-                    columns.months.splice(columns.months.length-1, 1);
-                }
-
-                self.hours.unshift.apply(self.hours, columns.hours);
-                self.days.unshift.apply(self.days, columns.days);
-                self.weeks.unshift.apply(self.weeks, columns.weeks);
-                self.months.unshift.apply(self.months, columns.months);
-            };
+        self.setViewScale = function(viewScale) {
+            switch(viewScale) {
+                case "hour": self.columnGenerator = new ColumnGenerator.HourGenerator(workHours, showNonWorkHours, weekendDays, showWeekends); break;
+                case "day": self.columnGenerator = new ColumnGenerator.DayGenerator(weekendDays, showWeekends); break;
+                case "week": self.columnGenerator = new ColumnGenerator.WeekGenerator(1); break; // TODO day of week must be dynamic
+                case "month": self.columnGenerator = new ColumnGenerator.MonthGenerator(); break;
+                default:
+                    throw "Unsupported view scale: " + viewScale;
+            }
         };
 
-        self.columns = new EmptyColumns();
+        self.setViewScale(viewScale);
 
-        // Adds new a header columns specified by a from, to range.
-        // Only new, non existing columns for a specific date will be added.
+        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
-            var first = self.columns.getFirst();
-            var last = self.columns.getLast();
+            if (from === undefined || to === undefined) {
+                throw "From and to date range cannot be undefined"
+            }
 
-            from = df.setTimeZero(from, true);
-            to = df.setTimeZero(to, true);
+            // Only expand if expand is necessary
+            if (self.columns.length === 0) {
+                self.columns = self.columnGenerator.generate(from, to);
+            } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
+                var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
+                var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
 
-            if (self.columns.hours.length === 0) {
-                generateColumns(from, to);
-            } else {
-                if (from < first.date) {
-                    generateColumns(from, df.addDays(df.setTimeZero(first.date, true), -1));
-                } else if (to > last.date) {
-                    generateColumns(df.addDays(df.setTimeZero(last.date, true), 1), to);
-                }
+                self.columns = self.columnGenerator.generate(minFrom, maxTo);
             }
         };
 
-        // Generates the header column according to the specified from and to date.
-        // Attention:
-        // This function shall not be called if the dates between from - do already exist.
-        // Use expandColumns to quickly add a range;
-        var generateColumns = function(from, to) {
-            var date = df.clone(from);
-            var columns;
-
-            if (self.columns.hours.length === 0 || from > self.columns.getFirst().date) {
-                columns = self.columns; // Append. New columns are after existing
+        self.getLastColumn = function() {
+            if (self.columns.length > 0) {
+                return self.columns[self.columns.length-1];
             } else {
-                columns = new EmptyColumns(); // Prepend columns.
+                return null;
             }
+        };
 
-            while(to - date >= 0) {
-                var isWeekend = self.isWeekend(date.getDay());
-                var hourAdded = false;
-                for (var i = 0; i<24; i++) {
-                    var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
-                    var isWorkHour = self.isWorkHour(i);
-
-                    if ((isWeekend && self.showWeekends || !isWeekend) && (!isWorkHour && self.showNonWorkHours || isWorkHour)) {
-                        columns.hours.push(new Column.Hour(cDate, isWeekend, isWorkHour));
-                        hourAdded = true;
-                    }
-                }
-
-                if (hourAdded) {
-                    // Add day to days column if it wasn't already
-                    var days = columns.days;
-                    if (days.length === 0 || days[days.length-1].date.getDate() !== date.getDate()) {
-                        days.push(new Column.Day(new Date(date.getFullYear(), date.getMonth(), date.getDate(),0,0,0), isWeekend));
-                    }
-
-                    // Add week to weeks column if it wasn't already
-                    var weeks = columns.weeks;
-                    var currentWeek = df.getWeek(date);
-                    if (weeks.length === 0 || weeks[weeks.length-1].week !== currentWeek) {
-                        weeks.push(new Column.Week(new Date(date.getFullYear(), date.getMonth(), date.getDate(),0,0,0), currentWeek));
-                    }
-
-                    // Add month to months column if it wasn't already
-                    var months = columns.months;
-                    if (months.length === 0 || months[months.length-1].date.getMonth() !== date.getMonth()) {
-                        months.push(new Column.Month(new Date(date.getFullYear(), date.getMonth(), date.getDate(),0,0,0)));
-                    }
-                }
-
-                date = df.addDays(date, 1);
-            }
-
-            if (self.columns != columns) {
-                self.columns.prepend(columns);
+        self.getFirstColumn = function() {
+            if (self.columns.length > 0) {
+                return self.columns[0];
+            } else {
+                return null;
             }
         };
 
         // Removes all existing columns and re-generates them
         self.reGenerateColumns = function() {
-            var from = self.columns.getFirst().date;
-            var to = self.columns.getLast().date;
+            var from = self.getFirstColumn().date;
+            var to = self.getLastColumn().date;
 
-            self.columns = new EmptyColumns();
+            self.columns = [];
             if (from !== undefined && to !== undefined) {
                 self.expandColumns(from, to);
             }
@@ -256,28 +192,6 @@ gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column,
                     self.rows.sort(sortByDate);
                     break;
             }
-        };
-
-        // Returns true if the given day is a weekend day
-        self.isWeekend = function(day) {
-            for (var i = 0, l = self.weekendDays.length; i < l; i++) {
-                if (self.weekendDays[i] === day) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        // Returns true if the given hour is a work hour
-        self.isWorkHour = function(hour) {
-            for (var i = 0, l = self.workHours.length; i < l; i++) {
-                if (self.workHours[i] === hour) {
-                    return true;
-                }
-            }
-
-            return false;
         };
     };
 

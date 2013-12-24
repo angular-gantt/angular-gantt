@@ -24,34 +24,34 @@
         </div>
     </div>
     <div class="gantt-header"
-         ng-show="gantt.columns.hours.length > 0">
+         ng-show="gantt.columns.length > 0">
         <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': ganttInnerWidth+'em'}">
             <div class="gantt-header-month gantt-header-height">
                         <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                              ng-repeat="c in gantt.columns.months | ganttColumnLimit:scroll_start:scroll_width">
+                              ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
                             {{ c.date | date:'MMMM yyyy' }}
                         </span>
             </div>
-            <div class="gantt-header-week gantt-header-height">
+            <!--<div class="gantt-header-week gantt-header-height">
                         <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                              ng-repeat="c in gantt.columns.weeks | ganttColumnLimit:scroll_start:scroll_width">
+                              ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
                             {{ c.date | ganttDateWeek }}
                         </span>
             </div>
             <div class="gantt-header-day gantt-header-height">
                         <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                              ng-repeat="c in gantt.columns.days | ganttColumnLimit:scroll_start:scroll_width">
+                              ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
                             {{ viewScale === "day" && (c.date | date:'dd') || (c.date | date:'dd EEEE') }}
                         </span>
             </div>
             <div class="gantt-header-hour gantt-header-height"
                  ng-show="viewScale === 'hour'">
                         <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                              ng-repeat="c in gantt.columns.hours | ganttColumnLimit:scroll_start:scroll_width:viewScale !== 'hour'">
+                              ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width:viewScale !== 'hour'">
                             {{ c.date | date:'HH' }}
                         </span>
-            </div>
+            </div>-->
         </div>
     </div>
     <div class="gantt-scrollable"
@@ -72,7 +72,7 @@
                 <div class="gantt-body-column"
                      ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-grid-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-grid-foreground-col-weekend' || 'gantt-grid-foreground-col'))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                     ng-repeat="c in getBodyColumns() | ganttColumnLimit:scroll_start:scroll_width">
+                     ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
                 </div>
             </div>
             <div class="gantt-body-content">
