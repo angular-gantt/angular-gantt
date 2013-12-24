@@ -34,7 +34,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
             if (from === undefined || to === undefined) {
-                throw "From and to date range cannot be undefined"
+                throw "From and to date range cannot be undefined";
             }
 
             // Only expand if expand is necessary

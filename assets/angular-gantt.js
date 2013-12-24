@@ -737,6 +737,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
+            if (from === undefined || to === undefined) {
+                throw "From and to date range cannot be undefined";
+            }
+
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
                 self.columns = self.columnGenerator.generate(from, to);
@@ -1187,7 +1191,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
     return {
         restrict: "E",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
-            "<div ng-show='visible' class='gantt-task-info' ng-style='css'>" +
+            "<div ng-if='visible' class='gantt-task-info' ng-style='css'>" +
             "<div class='gantt-task-info-content'>" +
             "{{ task.subject }}</br>" +
             "<small>" +
