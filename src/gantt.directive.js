@@ -58,7 +58,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             $scope.ganttInnerWidth = 0;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
@@ -95,21 +95,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             });
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the grid accordingly if so.
-            $scope.$watch('viewScaleFactor+firstDayOfWeek', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.updateBounds();
-                }
-            });
-
-            // Add a watcher if a view related setting changed from outside of the Gantt. Update the grid accordingly if so.
             // Those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+viewScaleFactor+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.weekendDays = $scope.weekendDays;
                     $scope.gantt.showWeekends = $scope.showWeekends;
                     $scope.gantt.workHours = $scope.workHours;
                     $scope.gantt.showNonWorkHours = $scope.showNonWorkHours;
-                    $scope.gantt.setViewScale($scope.viewScale);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor);
                     $scope.gantt.reGenerateColumns();
                     $scope.updateBounds();
                 }
@@ -119,7 +112,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             $scope.updateBounds = function() {
                 var i, l;
 
-                $scope.updateColumnBounds();
+                //$scope.updateColumnBounds();
 
                 for (i = 0, l = $scope.gantt.rows.length; i < l; i++) {
                     var row = $scope.gantt.rows[i];

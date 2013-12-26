@@ -23,13 +23,14 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
     };
 
 
-    var HourColumnGenerator = function(workHours, showNonWorkHours, showWeekends, weekendDays) {
+    var HourColumnGenerator = function(viewScaleFactor, workHours, showNonWorkHours, showWeekends, weekendDays) {
         this.generate = function(from, to) {
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
             var date = df.clone(from);
             var generatedCols = [];
+            var left = 0;
 
             while(to - date >= 0) {
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
@@ -39,7 +40,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                     var isWorkHour = checkIsWorkHour(workHours, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
-                        generatedCols.push(new Column.Hour(cDate, isWeekend, isWorkHour));
+                        generatedCols.push(new Column.Hour(cDate, left, viewScaleFactor, isWeekend, isWorkHour));
+                        left += viewScaleFactor;
                     }
                 }
 
@@ -50,19 +52,21 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var DayColumnGenerator = function(showWeekends, weekendDays) {
+    var DayColumnGenerator = function(viewScaleFactor, showWeekends, weekendDays) {
         this.generate = function(from, to) {
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
             var date = df.clone(from);
             var generatedCols = [];
+            var left = 0;
 
             while(to - date >= 0) {
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
 
                 if (isWeekend && showWeekends || !isWeekend) {
-                    generatedCols.push(new Column.Day(df.clone(date), isWeekend));
+                    generatedCols.push(new Column.Day(df.clone(date), left, viewScaleFactor, isWeekend));
+                    left += viewScaleFactor;
                 }
 
                 date = df.addDays(date, 1);
@@ -72,16 +76,18 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var WeekColumnGenerator = function(firstDayOfWeek) {
+    var WeekColumnGenerator = function(viewScaleFactor, firstDayOfWeek) {
         this.generate = function(from, to) {
             from = df.setToDayOfWeek(df.setTimeZero(from, true), firstDayOfWeek, false);
             to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
 
             var date = df.clone(from);
             var generatedCols = [];
+            var left = 0;
 
             while(to - date >= 0) {
-                generatedCols.push(new Column.Month(df.clone(date)));
+                generatedCols.push(new Column.Month(df.clone(date), left, viewScaleFactor));
+                left += viewScaleFactor;
 
                 date = df.addWeeks(date, 1);
             }
@@ -90,16 +96,18 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var MonthColumnGenerator = function() {
+    var MonthColumnGenerator = function(viewScaleFactor) {
         this.generate = function(from, to) {
             from = df.setToFirstDayOfMonth(df.setTimeZero(from, true), false);
             to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
 
             var date = df.clone(from);
             var generatedCols = [];
+            var left = 0;
 
             while(to - date >= 0) {
-                generatedCols.push(new Column.Month(df.clone(date)));
+                generatedCols.push(new Column.Month(df.clone(date), left, viewScaleFactor));
+                left += viewScaleFactor;
 
                 date = df.addMonths(date, 1);
             }

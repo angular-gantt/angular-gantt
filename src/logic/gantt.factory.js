@@ -1,7 +1,7 @@
 gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row, ColumnGenerator, df) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var Gantt = function(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
@@ -18,18 +18,18 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row
         // Make lowest header level same as gantt columns
         // Calculate all other header based on the columns
 
-        self.setViewScale = function(viewScale) {
+        self.setViewScale = function(viewScale, viewScaleFactor) {
             switch(viewScale) {
-                case "hour": self.columnGenerator = new ColumnGenerator.HourGenerator(workHours, showNonWorkHours, weekendDays, showWeekends); break;
-                case "day": self.columnGenerator = new ColumnGenerator.DayGenerator(weekendDays, showWeekends); break;
-                case "week": self.columnGenerator = new ColumnGenerator.WeekGenerator(1); break; // TODO day of week must be dynamic
-                case "month": self.columnGenerator = new ColumnGenerator.MonthGenerator(); break;
+                case "hour": self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, workHours, showNonWorkHours, weekendDays, showWeekends); break;
+                case "day": self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
+                case "week": self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, 1); break; // TODO day of week must be dynamic
+                case "month": self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
         };
 
-        self.setViewScale(viewScale);
+        self.setViewScale(viewScale, viewScaleFactor);
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
