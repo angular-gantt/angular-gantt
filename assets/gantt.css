@@ -3,6 +3,11 @@
     line-height: 1;
 }
 
+.gantt-scrollable {
+    overflow-y: hidden;
+    overflow-x: scroll;
+}
+
 .gantt-labels {
     float: left;
     border-right: 1px solid #dddddd;
@@ -21,11 +26,6 @@
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-scrollable {
-    overflow-y: hidden;
-    overflow-x: scroll;
-}
-
 .gantt-header-height {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
@@ -33,15 +33,16 @@
     height: 2em;
 }
 
-.gantt-header-hour, .gantt-header-day, .gantt-header-week, .gantt-header-month {
+.gantt-header-simple, .gantt-header-box {
     white-space: nowrap;
 }
 
-.gantt-header-hour span, .gantt-header-day span, .gantt-header-week span, .gantt-header-month span {
+.gantt-header-simple span, .gantt-header-box span {
     position: absolute;
+    border-right: 1px solid #dddddd;
 }
 
-.gantt-header-month {
+.gantt-header-box {
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
 }
@@ -55,7 +56,7 @@
     padding-right: 12px;
 }
 
-.gantt-labels-desc span, .gantt-header-hour span, .gantt-header-day span, .gantt-header-week span, .gantt-header-month span {
+.gantt-labels-desc span, .gantt-header-simple span, .gantt-header-box span {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
@@ -71,10 +72,6 @@
     -webkit-box-sizing:border-box;
     display: inline-block;
     padding-top: 0.5em;
-}
-
-.gantt-header-hour span, .gantt-header-day span, .gantt-header-week span, .gantt-header-month span {
-    border-right: 1px solid #dddddd;
 }
 
 .gantt-body {

@@ -7,29 +7,17 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         self.rowsMap = {};
         self.rows = [];
         self.columns = [];
-        self.headers = {
-            hour: undefined,
-            day: undefined,
-            week: undefined,
-            month: undefined
-        };
-        self.highestRowOrder = 0;
-        self.weekendDays = weekendDays;
-        self.showWeekends = showWeekends;
-        self.workHours = workHours;
-        self.showNonWorkHours = showNonWorkHours;
+        self.headers = {};
+        var defaultColumnRange;
 
-        // TODO:
-        // Calculate columns (most detailed level which is visible in Gantt, e.g. days)
-        // Make lowest header level same as gantt columns
-        // Calculate all other header based on the columns
-
-        self.setViewScale = function(viewScale, viewScaleFactor) {
+        // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
+        // The headers are shown depending on the defined view scale.
+        self.setViewScale = function(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
             switch(viewScale) {
-                case "hour": self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, workHours, showNonWorkHours, weekendDays, showWeekends); break;
-                case "day": self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
-                case "week": self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, 1); break; // TODO day of week must be dynamic
-                case "month": self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, workHours, showNonWorkHours, weekendDays, showWeekends); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, 1); break; // TODO day of week must be dynamic
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
@@ -37,7 +25,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
-        self.setViewScale(viewScale, viewScaleFactor);
+        self.setViewScale(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
@@ -58,6 +46,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
+        // Returns the first Gantt column or null
         self.getLastColumn = function() {
             if (self.columns.length > 0) {
                 return self.columns[self.columns.length-1];
@@ -66,6 +55,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
+        // Returns the last Gantt column or null
         self.getFirstColumn = function() {
             if (self.columns.length > 0) {
                 return self.columns[0];
@@ -74,13 +64,80 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
+        // Sets the default column range. Even if there tasks are smaller the default range is shown.
+        self.setDefaultColumnDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+                defaultColumnRange.from = from;
+                defaultColumnRange.to = to;
+            } else {
+                defaultColumnRange = undefined;
+            }
+        };
+
+        // Returns the default Gantt column date range or undefined if it has not been defined
+        self.getDefaultColumnDateRange = function() {
+            if (defaultColumnRange === undefined) {
+                return undefined;
+            } else {
+                return {
+                    from: df.clone(defaultColumnRange.from),
+                    to: df.clone(defaultColumnRange.to)
+                };
+            }
+        };
+
+        // Returns the min and max date of all loaded tasks or undefined if there are no tasks loaded
+        self.getTasksDateRange = function() {
+            if (self.rows.length === 0) {
+                return undefined;
+            } else {
+                var minDate, maxDate;
+
+                for (var i = 0, l = self.rows.length; i < l; i++) {
+                    for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
+                        var task = self.rows[i].tasks[j];
+
+                        if (minDate === undefined || task.from < minDate) {
+                            minDate = task.from;
+                        }
+
+                        if (maxDate === undefined || task.to > maxDate) {
+                            maxDate = task.to;
+                        }
+                    }
+                }
+
+                return {
+                    from: minDate,
+                    to: maxDate
+                };
+            }
+        };
+
+        // Returns the number of active headers
+        self.activeHeadersCount = function() {
+            var size = 0, key;
+            for (key in self.headers) {
+                if (self.headers.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
+
         // Removes all existing columns and re-generates them
         self.reGenerateColumns = function() {
-            var from = self.getFirstColumn().date;
-            var to = self.getLastColumn().date;
-
             self.columns = [];
-            if (from !== undefined && to !== undefined) {
+
+            var taskRange = self.getTasksDateRange();
+            if (taskRange !== undefined) {
+                var from, to;
+                if (defaultColumnRange !== undefined) {
+                    from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
+                    to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
+                } else {
+                    from = taskRange.from;
+                    to = taskRange.to;
+                }
+
                 self.expandColumns(from, to);
             }
         };

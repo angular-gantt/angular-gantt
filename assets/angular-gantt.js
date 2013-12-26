@@ -59,6 +59,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
@@ -98,11 +99,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             // Those changes need a recalculation of the header columns
             $scope.$watch('viewScale+viewScaleFactor+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.weekendDays = $scope.weekendDays;
-                    $scope.gantt.showWeekends = $scope.showWeekends;
-                    $scope.gantt.workHours = $scope.workHours;
-                    $scope.gantt.showNonWorkHours = $scope.showNonWorkHours;
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     $scope.gantt.reGenerateColumns();
                     $scope.updateBounds();
                 }
@@ -291,16 +288,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                         $scope.raiseRowUpdated(row);
                     } else {
                         $scope.raiseRowAdded(row);
-                    }
-                }
-
-                // This currently will only expand the range it doesn't have the ability to "shrink" it at this point
-                if($scope.fromDate || $scope.toDate) {
-                    var firstDate = $scope.fromDate ? $scope.fromDate : $scope.gantt.getFirstColumn().date;
-                    var lastDate =  $scope.toDate ? $scope.toDate : $scope.gantt.getLastColumn().date;
-
-                    if (firstDate !== undefined && lastDate !== undefined) {
-                        $scope.gantt.expandColumns(firstDate, lastDate);
                     }
                 }
 
@@ -653,29 +640,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         self.rowsMap = {};
         self.rows = [];
         self.columns = [];
-        self.headers = {
-            hour: undefined,
-            day: undefined,
-            week: undefined,
-            month: undefined
-        };
-        self.highestRowOrder = 0;
-        self.weekendDays = weekendDays;
-        self.showWeekends = showWeekends;
-        self.workHours = workHours;
-        self.showNonWorkHours = showNonWorkHours;
+        self.headers = {};
+        var defaultColumnRange;
 
-        // TODO:
-        // Calculate columns (most detailed level which is visible in Gantt, e.g. days)
-        // Make lowest header level same as gantt columns
-        // Calculate all other header based on the columns
-
-        self.setViewScale = function(viewScale, viewScaleFactor) {
+        // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
+        // The headers are shown depending on the defined view scale.
+        self.setViewScale = function(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
             switch(viewScale) {
-                case "hour": self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, workHours, showNonWorkHours, weekendDays, showWeekends); break;
-                case "day": self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
-                case "week": self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, 1); break; // TODO day of week must be dynamic
-                case "month": self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, workHours, showNonWorkHours, weekendDays, showWeekends); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, 1); break; // TODO day of week must be dynamic
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
@@ -683,7 +658,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
-        self.setViewScale(viewScale, viewScaleFactor);
+        self.setViewScale(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
@@ -704,6 +679,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             }
         };
 
+        // Returns the first Gantt column or null
         self.getLastColumn = function() {
             if (self.columns.length > 0) {
                 return self.columns[self.columns.length-1];
@@ -712,6 +688,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             }
         };
 
+        // Returns the last Gantt column or null
         self.getFirstColumn = function() {
             if (self.columns.length > 0) {
                 return self.columns[0];
@@ -720,13 +697,80 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             }
         };
 
+        // Sets the default column range. Even if there tasks are smaller the default range is shown.
+        self.setDefaultColumnDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+                defaultColumnRange.from = from;
+                defaultColumnRange.to = to;
+            } else {
+                defaultColumnRange = undefined;
+            }
+        };
+
+        // Returns the default Gantt column date range or undefined if it has not been defined
+        self.getDefaultColumnDateRange = function() {
+            if (defaultColumnRange === undefined) {
+                return undefined;
+            } else {
+                return {
+                    from: df.clone(defaultColumnRange.from),
+                    to: df.clone(defaultColumnRange.to)
+                };
+            }
+        };
+
+        // Returns the min and max date of all loaded tasks or undefined if there are no tasks loaded
+        self.getTasksDateRange = function() {
+            if (self.rows.length === 0) {
+                return undefined;
+            } else {
+                var minDate, maxDate;
+
+                for (var i = 0, l = self.rows.length; i < l; i++) {
+                    for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
+                        var task = self.rows[i].tasks[j];
+
+                        if (minDate === undefined || task.from < minDate) {
+                            minDate = task.from;
+                        }
+
+                        if (maxDate === undefined || task.to > maxDate) {
+                            maxDate = task.to;
+                        }
+                    }
+                }
+
+                return {
+                    from: minDate,
+                    to: maxDate
+                };
+            }
+        };
+
+        // Returns the number of active headers
+        self.activeHeadersCount = function() {
+            var size = 0, key;
+            for (key in self.headers) {
+                if (self.headers.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
+
         // Removes all existing columns and re-generates them
         self.reGenerateColumns = function() {
-            var from = self.getFirstColumn().date;
-            var to = self.getLastColumn().date;
-
             self.columns = [];
-            if (from !== undefined && to !== undefined) {
+
+            var taskRange = self.getTasksDateRange();
+            if (taskRange !== undefined) {
+                var from, to;
+                if (defaultColumnRange !== undefined) {
+                    from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
+                    to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
+                } else {
+                    from = taskRange.from;
+                    to = taskRange.to;
+                }
+
                 self.expandColumns(from, to);
             }
         };
@@ -925,12 +969,34 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
     return {
         instance: function(viewScale) {
             this.generate = function(columns) {
-                return {
-                    hour: viewScale === 'hour' ? generateHourHeader(columns): undefined,
-                    day: viewScale === 'day' ? generateDayHeader(columns): undefined,
-                    week: viewScale === 'day' || viewScale === 'week' ? generateWeekHeader(columns): undefined,
-                    month: viewScale === 'day' || viewScale === 'week' || viewScale === 'month' ? generateMonthHeader(columns): undefined
-                };
+                var headers = {};
+
+                switch(viewScale) {
+                    case 'hour':
+                        headers.hour = generateHourHeader(columns);
+                        headers.day = generateDayHeader(columns);
+
+                        break;
+                    case 'day':
+                        headers.day = generateDayHeader(columns);
+                        headers.week = generateWeekHeader(columns);
+                        headers.month = generateMonthHeader(columns);
+
+                        break;
+                    case 'week':
+                        headers.week = generateWeekHeader(columns);
+                        headers.month = generateMonthHeader(columns);
+
+                        break;
+                    case 'month':
+                        headers.month = generateMonthHeader(columns);
+
+                        break;
+                    default:
+                        throw "Unsupported view scale: " + viewScale;
+                }
+
+                return headers;
             };
         }
     };
@@ -959,7 +1025,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                 self.tasks.push(task);
             }
 
-            self.findEarliestFromDate(task);
+            setMinMaxDateByTask(task);
             return task;
         };
 
@@ -973,12 +1039,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                     if (task.id === taskId) {
                         self.tasks.splice(i, 1); // Remove from array
 
-                        // Update earliest date info as this may change
-                        if (self.minFromDate - task.from === 0) {
-                            self.minFromDate = undefined;
-                            for (var j = 0, k = self.tasks.length; j < k; j++) {
-                                self.findEarliestFromDate(self.tasks[j]);
-                            }
+                        // Update earliest or latest date info as this may change
+                        if (self.minFromDate - task.from === 0 || self.maxToDate - task.to === 0) {
+                            setTasksMinMaxDate();
                         }
 
                         return task;
@@ -987,12 +1050,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             }
         };
 
-        // Calculate the earliest from date of all tasks in a row
-        self.findEarliestFromDate = function (task) {
+        // Calculate the earliest from and latest to date of all tasks in a row
+        var setTasksMinMaxDate = function() {
+            self.minFromDate = undefined;
+            self.maxToDate = undefined;
+            for (var j = 0, k = self.tasks.length; j < k; j++) {
+                setMinMaxDateByTask(self.tasks[j]);
+            }
+        };
+
+        var setMinMaxDateByTask = function (task) {
             if (self.minFromDate === undefined) {
                 self.minFromDate = df.clone(task.from);
             } else if (task.from < self.minFromDate) {
                 self.minFromDate = df.clone(task.from);
+            }
+
+            if (self.maxToDate === undefined) {
+                self.maxToDate = df.clone(task.to);
+            } else if (task.to > self.maxToDate) {
+                self.maxToDate = df.clone(task.to);
             }
         };
 

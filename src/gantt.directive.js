@@ -59,6 +59,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
@@ -98,11 +99,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             // Those changes need a recalculation of the header columns
             $scope.$watch('viewScale+viewScaleFactor+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.weekendDays = $scope.weekendDays;
-                    $scope.gantt.showWeekends = $scope.showWeekends;
-                    $scope.gantt.workHours = $scope.workHours;
-                    $scope.gantt.showNonWorkHours = $scope.showNonWorkHours;
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     $scope.gantt.reGenerateColumns();
                     $scope.updateBounds();
                 }
@@ -291,16 +288,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
                         $scope.raiseRowUpdated(row);
                     } else {
                         $scope.raiseRowAdded(row);
-                    }
-                }
-
-                // This currently will only expand the range it doesn't have the ability to "shrink" it at this point
-                if($scope.fromDate || $scope.toDate) {
-                    var firstDate = $scope.fromDate ? $scope.fromDate : $scope.gantt.getFirstColumn().date;
-                    var lastDate =  $scope.toDate ? $scope.toDate : $scope.gantt.getLastColumn().date;
-
-                    if (firstDate !== undefined && lastDate !== undefined) {
-                        $scope.gantt.expandColumns(firstDate, lastDate);
                     }
                 }
 

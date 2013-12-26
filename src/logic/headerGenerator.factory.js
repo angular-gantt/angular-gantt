@@ -71,12 +71,34 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
     return {
         instance: function(viewScale) {
             this.generate = function(columns) {
-                return {
-                    hour: viewScale === 'hour' ? generateHourHeader(columns): undefined,
-                    day: viewScale === 'day' ? generateDayHeader(columns): undefined,
-                    week: viewScale === 'day' || viewScale === 'week' ? generateWeekHeader(columns): undefined,
-                    month: viewScale === 'day' || viewScale === 'week' || viewScale === 'month' ? generateMonthHeader(columns): undefined
-                };
+                var headers = {};
+
+                switch(viewScale) {
+                    case 'hour':
+                        headers.hour = generateHourHeader(columns);
+                        headers.day = generateDayHeader(columns);
+
+                        break;
+                    case 'day':
+                        headers.day = generateDayHeader(columns);
+                        headers.week = generateWeekHeader(columns);
+                        headers.month = generateMonthHeader(columns);
+
+                        break;
+                    case 'week':
+                        headers.week = generateWeekHeader(columns);
+                        headers.month = generateMonthHeader(columns);
+
+                        break;
+                    case 'month':
+                        headers.month = generateMonthHeader(columns);
+
+                        break;
+                    default:
+                        throw "Unsupported view scale: " + viewScale;
+                }
+
+                return headers;
             };
         }
     };
