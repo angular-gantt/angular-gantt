@@ -24,8 +24,10 @@
         <div class="form-group">
             <span class="help-block">View mode</span>
             <div class="btn-group">
-                <button ng-class="(scale === 'day' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'day'">View 'Day'</button>
-                <button ng-class="(scale === 'hour' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'hour'">View 'Hour'</button>
+                <button ng-class="(scale === 'hour' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'hour'">Hour</button>
+                <button ng-class="(scale === 'day' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'day'">Day</button>
+                <button ng-class="(scale === 'week' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'week'">Week</button>
+                <button ng-class="(scale === 'month' && 'btn btn-primary' || 'btn btn-default')" ng-click="scale = 'month'">Month</button>
             </div>
         </div>
         <div class="form-group">
@@ -58,7 +60,7 @@
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
-           view-scale-factor="scale === 'hour' && 3 || 2"
+           view-scale-factor="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
            weekend-days="weekendDays"
            show-weekends="showWeekends"
            max-height="maxHeight"

@@ -1,4 +1,4 @@
-gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row, ColumnGenerator, df) {
+gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, df) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -7,6 +7,12 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row
         self.rowsMap = {};
         self.rows = [];
         self.columns = [];
+        self.headers = {
+            hour: undefined,
+            day: undefined,
+            week: undefined,
+            month: undefined
+        };
         self.highestRowOrder = 0;
         self.weekendDays = weekendDays;
         self.showWeekends = showWeekends;
@@ -27,6 +33,8 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
+
+            self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
         self.setViewScale(viewScale, viewScaleFactor);
@@ -40,11 +48,13 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'dateFunctions', function (Row
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
                 self.columns = self.columnGenerator.generate(from, to);
+                self.headers = self.headerGenerator.generate(self.columns);
             } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
                 var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
 
                 self.columns = self.columnGenerator.generate(minFrom, maxTo);
+                self.headers = self.headerGenerator.generate(self.columns);
             }
         };
 

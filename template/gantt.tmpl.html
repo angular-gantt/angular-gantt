@@ -52,15 +52,27 @@
                             {{ c.date | date:'HH' }}
                         </span>
             </div>//-->
-            <div class="gantt-header-day gantt-header-height" ng-if="viewScale === 'day'">
+            <div class="gantt-header-month gantt-header-height" ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
+                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width">
+                    {{ c.date | date:'MMMM yyyy' }}
+                </span>
+            </div>
+            <div class="gantt-header-week gantt-header-height" ng-if="gantt.headers.week !== undefined">
+                <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
+                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width">
+                    {{ c.date | ganttDateWeek }}
+                </span>
+            </div>
+            <div class="gantt-header-day gantt-header-height" ng-if="gantt.headers.day !== undefined">
+                <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
+                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width">
                     {{ c.date | date:'dd' }}
                 </span>
             </div>
-            <div class="gantt-header-hour gantt-header-height" ng-if="viewScale === 'hour'">
+            <div class="gantt-header-hour gantt-header-height" ng-if="gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
+                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width">
                     {{ c.date | date:'HH' }}
                 </span>
             </div>

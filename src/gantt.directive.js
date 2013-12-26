@@ -112,8 +112,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             $scope.updateBounds = function() {
                 var i, l;
 
-                //$scope.updateColumnBounds();
-
                 for (i = 0, l = $scope.gantt.rows.length; i < l; i++) {
                     var row = $scope.gantt.rows[i];
                     for (var j = 0, k = row.tasks.length; j < k; j++) {
@@ -153,54 +151,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
             // precision: 4 = in quarter steps, 2 = in half steps, ..
             var getTaskPrecisionFactor = function(date, precision) {
                 return $scope.viewScale === "hour" ? Math.round(date.getMinutes()/60 * precision) / precision : Math.round(date.getHours()/24 * precision) / precision;
-            };
-
-            // Calculate the bounds of a column and publishes it as properties
-            $scope.updateColumnBounds = function() {
-                var i, l, left = 0;
-
-                for (i = 0, l = $scope.gantt.columns.length; i < l; i++) {
-                    var column = $scope.gantt.columns[i];
-
-                    column.width = $scope.viewScaleFactor;
-                    column.left = left;
-                    left = Math.round((left + column.width) * 10) / 10;
-                }
-
-                /*var i, l, left = 0;
-                var currentDay = -1, currentWeek = -1, currentMonth = -1;
-
-                for (i = 0, l = $scope.gantt.columns.hours.length; i < l; i++) {
-                    var hourColumn = $scope.gantt.columns.hours[i];
-
-                    // Possible enhancement: Column may have different width if weekend or non work hour
-                    hourColumn.width = $scope.viewScaleFactor;
-                    hourColumn.left = left;
-                    left = Math.round((left + hourColumn.width) * 10) / 10;
-
-                    // Set day column left and width (if not already)
-                    currentDay = setColumnBound($scope.gantt.columns.days, currentDay, hourColumn.width, currentDay > -1 ? $scope.gantt.columns.days[currentDay].date.getDate() !== hourColumn.date.getDate(): true);
-
-                    // Set month column left and width (if not already)
-                    currentWeek = setColumnBound($scope.gantt.columns.weeks, currentWeek, hourColumn.width, currentWeek > -1 ? $scope.gantt.columns.weeks[currentWeek].week !== df.getWeek(hourColumn.date): true);
-
-                    // Set month column left and width (if not already)
-                    currentMonth = setColumnBound($scope.gantt.columns.months, currentMonth, hourColumn.width, currentMonth > -1 ? $scope.gantt.columns.months[currentMonth].date.getMonth() !== hourColumn.date.getMonth(): true);
-                }*/
-            };
-
-            var setColumnBound = function(cols, curIndex, width, goToNextCol) {
-                var col = cols[curIndex];
-                if (col === undefined || goToNextCol) {
-                    curIndex += 1;
-                    col = cols[curIndex];
-                    col.left = Math.round((curIndex > 0 ? cols[curIndex-1].left + cols[curIndex-1].width: 0)*10)/10;
-                    col.width = width;
-                } else {
-                    col.width = Math.round((col.width + width) * 10)/10;
-                }
-
-                return curIndex;
             };
 
             // Expands the date area when the user scroll to either left or right end.
