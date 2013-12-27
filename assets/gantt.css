@@ -8,7 +8,7 @@
     overflow-x: scroll;
 }
 
-.gantt-headers, .gantt-labels {
+.gantt-head, .gantt-labels {
     cursor: default;
 }
 
@@ -17,7 +17,8 @@
     border-right: 1px solid #dddddd;
 }
 
-.gantt-labels-header {
+.gantt-labels-head {
+    border-top: 1px solid transparent;
     border-bottom: 1px solid #dddddd;
 }
 
@@ -25,32 +26,30 @@
     overflow: hidden;
 }
 
-.gantt-headers {
+.gantt-head {
     overflow: hidden;
+    border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-header-row-height {
+.gantt-head-row, .gantt-labels-head-row {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
     height: 2em;
-}
-
-.gantt-headers-default, .gantt-headers-final {
     white-space: nowrap;
 }
 
-.gantt-headers-final {
-    border-top: 1px solid #dddddd;
+.gantt-head-row-bottom {
+    border-bottom: 1px solid #dddddd;
 }
 
-.gantt-headers-default span, .gantt-headers-final span {
+.gantt-head-row span {
     position: absolute;
     border-right: 1px solid #dddddd;
 }
 
-.gantt-labels-header-default span, .gantt-labels-desc span, .gantt-headers-default span, .gantt-headers-final span {
+.gantt-labels-row span, .gantt-labels-head-row span, .gantt-head-row span {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
@@ -60,21 +59,13 @@
     padding-top: 0.5em;
 }
 
-.gantt-labels-header-default span, .gantt-labels-desc span {
+.gantt-labels-row span, .gantt-labels-head-row {
     padding-left: 12px;
     padding-right: 12px;
 }
 
 .gantt-labels-row {
     cursor: pointer;
-}
-
-.gantt-labels-row span {
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    display: inline-block;
-    padding-top: 0.5em;
 }
 
 .gantt-body {
@@ -92,7 +83,8 @@
     height: 100%;
 }
 
-.gantt-grid-foreground-col, .gantt-grid-foreground-col-weekend, .gantt-grid-foreground-col-nonworkhour {
+.gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour {
+    position: absolute;
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
@@ -101,24 +93,12 @@
     border-right: 1px solid #dddddd;
 }
 
-.gantt-grid-foreground-col-weekend, .gantt-grid-foreground-col-nonworkhour {
+.gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour {
     background-color: rgba(200, 200, 200, 0.3);
 }
 
-.gantt-body-column {
-    position: absolute;
-}
-
-
-.gantt-grid-background-row, .gantt-grid-background-row-alt {
-
-}
-
-.gantt-grid-background-row-alt {
+.gantt-background-row-alt {
 	background-color: #EFEFEF;
-}
-
-.gantt-body-content {
 }
 
 .gantt-row {

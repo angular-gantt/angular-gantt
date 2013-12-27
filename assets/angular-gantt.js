@@ -422,7 +422,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
     };
 
 
-    var HourColumnGenerator = function(viewScaleFactor, workHours, showNonWorkHours, showWeekends, weekendDays) {
+    var HourColumnGenerator = function(viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
         this.generate = function(from, to) {
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
@@ -451,7 +451,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         };
     };
 
-    var DayColumnGenerator = function(viewScaleFactor, showWeekends, weekendDays) {
+    var DayColumnGenerator = function(viewScaleFactor, weekendDays, showWeekends) {
         this.generate = function(from, to) {
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
@@ -647,7 +647,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', function (Gantt, df) {
         // The headers are shown depending on the defined view scale.
         self.setViewScale = function(viewScale, viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
             switch(viewScale) {
-                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, workHours, showNonWorkHours, weekendDays, showWeekends); break;
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours); break;
                 case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
                 case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, 1); break; // TODO day of week must be dynamic
                 case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;

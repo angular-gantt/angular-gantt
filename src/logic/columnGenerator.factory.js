@@ -23,7 +23,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
     };
 
 
-    var HourColumnGenerator = function(viewScaleFactor, workHours, showNonWorkHours, showWeekends, weekendDays) {
+    var HourColumnGenerator = function(viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours) {
         this.generate = function(from, to) {
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
@@ -52,7 +52,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var DayColumnGenerator = function(viewScaleFactor, showWeekends, weekendDays) {
+    var DayColumnGenerator = function(viewScaleFactor, weekendDays, showWeekends) {
         this.generate = function(from, to) {
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);

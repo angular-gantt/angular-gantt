@@ -1,8 +1,8 @@
 <div class="gantt">
     <div class="gantt-labels">
-        <div class="gantt-labels-header"
+        <div class="gantt-labels-head"
              ng-show="gantt.columns.length > 0">
-            <div class="gantt-labels-header-default gantt-header-row-height"
+            <div class="gantt-labels-head-row"
                  ng-style="{'margin-top': ((gantt.activeHeadersCount()-1)*2)+'em'}">
                 <span>Description</span>
             </div>
@@ -12,9 +12,9 @@
              ng-show="gantt.columns.length > 0">
             <div gantt-vertical-scroll-receiver
                  ng-style="{'position': 'relative'}">
-                <div class="gantt-labels-desc gantt-row-height"
-                     ng-class-odd="'gantt-grid-background-row'"
-                     ng-class-even="'gantt-grid-background-row-alt'"
+                <div class="gantt-labels-row gantt-row-height"
+                     ng-class-odd="'gantt-background-row'"
+                     ng-class-even="'gantt-background-row-alt'"
                      ng-repeat="row in gantt.rows">
                     <gantt-sortable swap="swapRows(a,b)" ng-model="row">
                         <span>{{ row.description }}</span>
@@ -23,29 +23,31 @@
             </div>
         </div>
     </div>
-    <div class="gantt-headers"
+    <div class="gantt-head"
          ng-show="gantt.columns.length > 0">
         <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': ganttInnerWidth+'em'}">
-            <div class="gantt-header-row-height" ng-class="(viewScale === 'month' && 'gantt-headers-default' || 'gantt-headers-final')" ng-if="gantt.headers.month !== undefined">
+            <div class="gantt-head-row"
+                 ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
+                 ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width">
                     {{ c.date | date:'MMMM yyyy' }}
                 </span>
             </div>
-            <div class="gantt-headers-final gantt-header-row-height" ng-if="gantt.headers.week !== undefined">
+            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width">
                     {{ c.date | ganttDateWeek }}
                 </span>
             </div>
-            <div class="gantt-headers-default gantt-header-row-height" ng-if="gantt.headers.day !== undefined">
+            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width">
                     {{ viewScale === 'hour' && (c.date | date:'dd EEEE') || (c.date | date:'dd') }}
                 </span>
             </div>
-            <div class="gantt-headers-default gantt-header-row-height" ng-if="gantt.headers.hour !== undefined">
+            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width">
                     {{ c.date | date:'HH' }}
@@ -62,14 +64,13 @@
              ng-style="{'width': ganttInnerWidth+'em'}">
             <div class="gantt-body-background">
                 <div class="gantt-row-height"
-                     ng-class-odd="'gantt-grid-background-row'"
-                     ng-class-even="'gantt-grid-background-row-alt'"
+                     ng-class-odd="'gantt-background-row'"
+                     ng-class-even="'gantt-background-row-alt'"
                      ng-repeat="row in gantt.rows">
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div class="gantt-body-column"
-                     ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-grid-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-grid-foreground-col-weekend' || 'gantt-grid-foreground-col'))"
+                <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || 'gantt-foreground-col'))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
                 </div>
