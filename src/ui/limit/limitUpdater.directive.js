@@ -1,4 +1,6 @@
 gantt.directive('ganttLimitUpdater', ['$timeout', function ($timeout) {
+    // Updates the limit filters if the user scrolls the gantt chart
+
     return {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {

@@ -66,6 +66,9 @@ gantt.service('dateFunctions', [ function () {
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
         },
+        getDaysInMonth: function(date) {
+            return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
+        },
         getWeek: function(date) {
             /* Returns the number of the week. The number is calculated according to ISO 8106 */
             var $y, $m, $d;

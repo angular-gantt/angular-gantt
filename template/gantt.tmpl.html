@@ -38,7 +38,7 @@
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width">
-                    {{ c.date | ganttDateWeek }}
+                    {{ c.week }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
@@ -77,12 +77,12 @@
             </div>
             <div class="gantt-body-content">
                 <div class="gantt-row gantt-row-height"
-                     ng-click="raiseRowClicked($event, row)"
+                     ng-click="raiseRowClickedEvent($event, row)"
                      ng-repeat="row in gantt.rows">
                     <!--a task will override the row event -->
                     <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
                          ng-style="{'left': (task.to-task.from === 0 && (task.left-0.3) || task.left)+'em', 'width': task.width+'em', 'background-color': task.color}"
-                         ng-click="raiseTaskClicked($event, row, task)"
+                         ng-click="raiseTaskClickedEvent($event, row, task)"
                          ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width">
                         <gantt-tooltip ng-model="task">
                             <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
