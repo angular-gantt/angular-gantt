@@ -21,7 +21,7 @@ gantt.factory('Task', ['dateFunctions', 'binarySearch', function (df, bs) {
 
             // Set minimal width
             if (self.width === 0) {
-                self.width = cFrom[0].width / taskPlacement.getPrecision;
+                self.width = cFrom[0].width / taskPlacement.getPrecision();
             }
         };
 

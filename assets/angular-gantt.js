@@ -972,7 +972,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
             // Set minimal width
             if (self.width === 0) {
-                self.width = cFrom[0].width / taskPlacement.getPrecision;
+                self.width = cFrom[0].width / taskPlacement.getPrecision();
             }
         };
 
