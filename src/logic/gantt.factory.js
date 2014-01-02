@@ -189,6 +189,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
                     self.expandColumns(task.from, task.to);
+                    self.taskPlacement.placeTask(task, self.columns); // Set placement of new task
                 }
             }
 
