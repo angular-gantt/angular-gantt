@@ -1,7 +1,6 @@
 gantt.service('dateFunctions', [ function () {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
-        firstDayOfWeek: 1,
         isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
         isString: function(o) { return typeof o == "string" || (typeof o == "object" && o.constructor === String);},
         clone: function(date) {

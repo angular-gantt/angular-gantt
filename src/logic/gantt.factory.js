@@ -1,4 +1,4 @@
-gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacement', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df) {
+gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacementStrategy', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -28,6 +28,19 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
 
         self.setViewScale(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
+        // Sets the default column range. Even if there tasks are smaller the default range is shown.
+        self.setDefaultColumnDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+                defaultColumnRange = {};
+                defaultColumnRange.from = df.clone(from);
+                defaultColumnRange.to = df.clone(to);
+
+                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
+            } else {
+                defaultColumnRange = undefined;
+            }
+        };
+
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
             if (from === undefined || to === undefined) {
@@ -38,14 +51,40 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
             if (self.columns.length === 0) {
                 self.columns = self.columnGenerator.generate(from, to);
                 self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTasksBounds();
+                self.updateTaskPlacement();
             } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
                 var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
 
                 self.columns = self.columnGenerator.generate(minFrom, maxTo);
                 self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTasksBounds();
+                self.updateTaskPlacement();
+            }
+        };
+
+        // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        self.reGenerateColumns = function() {
+            self.columns = [];
+
+            var taskRange = self.getTasksDateRange();
+            if (taskRange !== undefined && defaultColumnRange === undefined) {
+                self.expandColumns(taskRange.from, taskRange.to);
+            } else if (taskRange === undefined && defaultColumnRange !== undefined) {
+                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
+            } else if (taskRange !== undefined && defaultColumnRange !== undefined) {
+                var from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
+                var to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
+                self.expandColumns(from, to);
+            }
+        };
+
+        // Update the position/size of all tasks in the Gantt
+        self.updateTaskPlacement = function() {
+            for (var i = 0, l = self.rows.length; i < l; i++) {
+                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
+                    var task = self.rows[i].tasks[j];
+                    self.taskPlacement.placeTask(task, self.columns);
+                }
             }
         };
 
@@ -64,17 +103,6 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
                 return self.columns[0];
             } else {
                 return null;
-            }
-        };
-
-        // Sets the default column range. Even if there tasks are smaller the default range is shown.
-        self.setDefaultColumnDateRange = function(from, to) {
-            if (from !== undefined && to !== undefined) {
-                defaultColumnRange = {};
-                defaultColumnRange.from = df.clone(from);
-                defaultColumnRange.to = df.clone(to);
-            } else {
-                defaultColumnRange = undefined;
             }
         };
 
@@ -117,37 +145,12 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
         };
 
         // Returns the number of active headers
-        self.activeHeadersCount = function() {
+        self.getActiveHeadersCount = function() {
             var size = 0, key;
             for (key in self.headers) {
                 if (self.headers.hasOwnProperty(key)) size++;
             }
             return size;
-        };
-
-        // Removes all existing columns and re-generates them
-        self.reGenerateColumns = function() {
-            self.columns = [];
-
-            var taskRange = self.getTasksDateRange();
-            if (taskRange !== undefined && defaultColumnRange === undefined) {
-                self.expandColumns(taskRange.from, taskRange.to);
-            } else if (taskRange === undefined && defaultColumnRange !== undefined) {
-                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
-            } else if (taskRange !== undefined && defaultColumnRange !== undefined) {
-                var from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
-                var to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
-                self.expandColumns(from, to);
-            }
-        };
-
-        self.updateTasksBounds = function() {
-            for (var i = 0, l = self.rows.length; i < l; i++) {
-                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
-                    var task = self.rows[i].tasks[j];
-                    task.updateTaskBounds(self.columns, self.taskPlacement);
-                }
-            }
         };
 
         // Adds a row to the list of rows. Merges the row and it tasks if there is already one with the same id

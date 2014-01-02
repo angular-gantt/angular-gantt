@@ -60,7 +60,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
-            $scope.gantt.reGenerateColumns();
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
@@ -116,7 +115,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
             $scope.$watch('taskPrecision', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.updateTasksBounds();
+                    $scope.gantt.updateTaskPlacement();
                 }
             });
 
@@ -479,7 +478,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
         WeekGenerator: WeekColumnGenerator,
         MonthGenerator: MonthColumnGenerator
     };
-}]);;gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacement', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df) {
+}]);;gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacementStrategy', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -509,6 +508,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
         self.setViewScale(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
+        // Sets the default column range. Even if there tasks are smaller the default range is shown.
+        self.setDefaultColumnDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+                defaultColumnRange = {};
+                defaultColumnRange.from = df.clone(from);
+                defaultColumnRange.to = df.clone(to);
+
+                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
+            } else {
+                defaultColumnRange = undefined;
+            }
+        };
+
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         self.expandColumns = function(from, to) {
             if (from === undefined || to === undefined) {
@@ -519,14 +531,40 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             if (self.columns.length === 0) {
                 self.columns = self.columnGenerator.generate(from, to);
                 self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTasksBounds();
+                self.updateTaskPlacement();
             } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
                 var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
 
                 self.columns = self.columnGenerator.generate(minFrom, maxTo);
                 self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTasksBounds();
+                self.updateTaskPlacement();
+            }
+        };
+
+        // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        self.reGenerateColumns = function() {
+            self.columns = [];
+
+            var taskRange = self.getTasksDateRange();
+            if (taskRange !== undefined && defaultColumnRange === undefined) {
+                self.expandColumns(taskRange.from, taskRange.to);
+            } else if (taskRange === undefined && defaultColumnRange !== undefined) {
+                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
+            } else if (taskRange !== undefined && defaultColumnRange !== undefined) {
+                var from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
+                var to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
+                self.expandColumns(from, to);
+            }
+        };
+
+        // Update the position/size of all tasks in the Gantt
+        self.updateTaskPlacement = function() {
+            for (var i = 0, l = self.rows.length; i < l; i++) {
+                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
+                    var task = self.rows[i].tasks[j];
+                    self.taskPlacement.placeTask(task, self.columns);
+                }
             }
         };
 
@@ -545,17 +583,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                 return self.columns[0];
             } else {
                 return null;
-            }
-        };
-
-        // Sets the default column range. Even if there tasks are smaller the default range is shown.
-        self.setDefaultColumnDateRange = function(from, to) {
-            if (from !== undefined && to !== undefined) {
-                defaultColumnRange = {};
-                defaultColumnRange.from = df.clone(from);
-                defaultColumnRange.to = df.clone(to);
-            } else {
-                defaultColumnRange = undefined;
             }
         };
 
@@ -598,37 +625,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
         };
 
         // Returns the number of active headers
-        self.activeHeadersCount = function() {
+        self.getActiveHeadersCount = function() {
             var size = 0, key;
             for (key in self.headers) {
                 if (self.headers.hasOwnProperty(key)) size++;
             }
             return size;
-        };
-
-        // Removes all existing columns and re-generates them
-        self.reGenerateColumns = function() {
-            self.columns = [];
-
-            var taskRange = self.getTasksDateRange();
-            if (taskRange !== undefined && defaultColumnRange === undefined) {
-                self.expandColumns(taskRange.from, taskRange.to);
-            } else if (taskRange === undefined && defaultColumnRange !== undefined) {
-                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
-            } else if (taskRange !== undefined && defaultColumnRange !== undefined) {
-                var from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
-                var to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
-                self.expandColumns(from, to);
-            }
-        };
-
-        self.updateTasksBounds = function() {
-            for (var i = 0, l = self.rows.length; i < l; i++) {
-                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
-                    var task = self.rows[i].tasks[j];
-                    task.updateTaskBounds(self.columns, self.taskPlacement);
-                }
-            }
         };
 
         // Adds a row to the list of rows. Merges the row and it tasks if there is already one with the same id
@@ -949,7 +951,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
     };
 
     return Row;
-}]);;gantt.factory('Task', ['dateFunctions', 'binarySearch', function (df, bs) {
+}]);;gantt.factory('Task', ['dateFunctions', function (df) {
     var Task = function(id, subject, color, from, to, data) {
         var self = this;
 
@@ -959,29 +961,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
-
-        // Calculate the bounds of a task and publishes it as properties
-        self.updateTaskBounds = function(columns, taskPlacement) {
-            var cmp =  function(c) { return c.date; };
-            var cFrom = bs.get(columns, self.from, cmp);
-            var cTo = bs.get(columns, self.to, cmp);
-
-            // Task bounds are calculated according to their time
-            self.left = calculateTaskPos(cFrom[0], self.from, taskPlacement);
-            self.width = Math.round( (calculateTaskPos(cTo[0], self.to, taskPlacement) - self.left) * 10) / 10;
-
-            // Set minimal width
-            if (self.width === 0) {
-                self.width = cFrom[0].width / taskPlacement.getPrecision();
-            }
-        };
-
-        // Calculates the position of the task start or end
-        // The position is based on the column which is closest to the start (or end) date.
-        // This column has a width which is used to calculate the exact position within this column.
-        var calculateTaskPos = function(column, date, taskPlacement) {
-            return Math.round( (column.left + column.width * taskPlacement.getPrecisionFactor(date)) * 10) / 10;
-        };
 
         self.copy = function(task) {
             self.subject = task.subject;
@@ -997,14 +976,36 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
     };
 
     return Task;
-}]);;gantt.factory('TaskPlacement', [ 'dateFunctions', function (df) {
-    // Returns the position factor of a task between two columns.
-    // Use the precision parameter to specify if task shall be displayed e.g. in quarter steps
-    // precision: 4 = in quarter steps, 2 = in half steps, ..
-
+}]);;gantt.factory('TaskPlacementStrategy', [ 'dateFunctions', 'binarySearch', function (df, bs) {
     return {
         instance: function(viewScale, precision) {
-            this.getPrecisionFactor = function(date) {
+            // Calculate the position and size of a task inside the Gantt
+            this.placeTask = function(task, columns) {
+                var cmp =  function(c) { return c.date; };
+                var cFrom = bs.get(columns, task.from, cmp);
+                var cTo = bs.get(columns, task.to, cmp);
+
+                // Task bounds are calculated according to their time
+                task.left = calculateTaskPos(cFrom[0], task.from);
+                task.width = Math.round( (calculateTaskPos(cTo[0], task.to) - task.left) * 10) / 10;
+
+                // Set minimal width
+                if (task.width === 0) {
+                    task.width = cFrom[0].width / precision;
+                }
+            };
+
+            // Calculates the position of the task start or end
+            // The position is based on the column which is closest to the start (or end) date.
+            // This column has a width which is used to calculate the exact position within this column.
+            var calculateTaskPos = function(column, date) {
+                return Math.round( (column.left + column.width * getPrecisionFactor(date)) * 10) / 10;
+            };
+
+            // Returns the position factor of a task between two columns.
+            // Use the precision parameter to specify if task shall be displayed e.g. in quarter steps
+            // precision: 4 = in quarter steps, 2 = in half steps, ..
+            var getPrecisionFactor = function(date) {
                 switch(viewScale) {
                     case 'hour':
                         return Math.round(date.getMinutes()/60 * precision) / precision;
@@ -1018,10 +1019,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                         throw "Unsupported view scale: " + viewScale;
                 }
             };
-
-            this.getPrecision = function() {
-                return precision;
-            };
         }
     };
 }]);;gantt.service('binarySearch', [ function () {
@@ -1029,19 +1026,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
     // The compare function defined which property of the value to compare (e.g.: c => c.left)
 
     return {
-        get: function(input, value, comparer) {
-            var lo = -1, hi = input.length;
-            while (hi - lo > 1) {
-                var mid = Math.floor((lo + hi)/2);
-                if (comparer(input[mid]) <= value) {
-                    lo = mid;
-                } else {
-                    hi = mid;
-                }
-            }
-            if (input[lo] !== undefined && comparer(input[lo]) === value) hi = lo;
-            return [input[lo], input[hi]];
-        },
         getIndicesOnly: function(input, value, comparer) {
             var lo = -1, hi = input.length;
             while (hi - lo > 1) {
@@ -1054,12 +1038,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             }
             if (input[lo] !== undefined && comparer(input[lo]) === value) hi = lo;
             return [lo, hi];
+        },
+        get: function(input, value, comparer) {
+            var res = this.getIndicesOnly(input, value, comparer);
+            return [input[res[0]], input[res[1]]];
         }
     };
 }]);;gantt.service('dateFunctions', [ function () {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
-        firstDayOfWeek: 1,
         isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
         isString: function(o) { return typeof o == "string" || (typeof o == "object" && o.constructor === String);},
         clone: function(date) {

@@ -60,7 +60,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
-            $scope.gantt.reGenerateColumns();
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
@@ -116,7 +115,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
             $scope.$watch('taskPrecision', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.updateTasksBounds();
+                    $scope.gantt.updateTaskPlacement();
                 }
             });
 
