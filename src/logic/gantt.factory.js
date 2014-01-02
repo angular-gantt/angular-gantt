@@ -8,6 +8,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
         self.rows = [];
         self.columns = [];
         self.headers = {};
+        self.width = 0;
         var defaultColumnRange;
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
@@ -49,17 +50,22 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
 
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
-                self.columns = self.columnGenerator.generate(from, to);
-                self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTaskPlacement();
+                expandColumnsNoCheck(from, to);
             } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
                 var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
 
-                self.columns = self.columnGenerator.generate(minFrom, maxTo);
-                self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTaskPlacement();
+                expandColumnsNoCheck(minFrom, maxTo);
             }
+        };
+
+        var expandColumnsNoCheck = function(from ,to) {
+            self.columns = self.columnGenerator.generate(from, to);
+            self.headers = self.headerGenerator.generate(self.columns);
+            self.updateTaskPlacement();
+
+            var lastColumn = self.getLastColumn();
+            self.width = lastColumn !== null ? lastColumn.left + lastColumn.width: 0;
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.

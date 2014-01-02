@@ -26,7 +26,7 @@
     <div class="gantt-head"
          ng-show="gantt.columns.length > 0">
         <div gantt-horizontal-scroll-receiver
-             ng-style="{'position': 'relative', 'width': ganttInnerWidth+'em'}">
+             ng-style="{'position': 'relative', 'width': gantt.width+'em'}">
             <div class="gantt-head-row"
                  ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
@@ -61,7 +61,7 @@
          ng-style="(maxHeight > 0 && {'max-height': maxHeight+'px', 'overflow-y': 'scroll'} || {'overflow-y': 'hidden'})"
          ng-style="{'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'scroll')}">
         <div class="gantt-body"
-             ng-style="{'width': ganttInnerWidth+'em'}">
+             ng-style="{'width': gantt.width+'em'}">
             <div class="gantt-body-background">
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"

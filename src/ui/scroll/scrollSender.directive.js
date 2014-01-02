@@ -23,7 +23,7 @@ gantt.directive('ganttScrollSender', ['scrollManager', '$timeout', function (scr
 
             $element.bind('scroll', updateListeners);
 
-            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+            $scope.$watch('gantt.width', function(newValue, oldValue) {
                 if (newValue === 0) {
                     $timeout(function() {
                         updateListeners();

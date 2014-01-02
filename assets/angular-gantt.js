@@ -55,7 +55,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
-            $scope.ganttInnerWidth = 0;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
@@ -101,7 +100,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     $scope.gantt.reGenerateColumns();
-                    $scope.updateBounds();
                 }
             });
 
@@ -109,7 +107,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
                     $scope.gantt.reGenerateColumns();
-                    $scope.updateBounds();
                 }
             });
 
@@ -118,12 +115,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                     $scope.gantt.updateTaskPlacement();
                 }
             });
-
-            // Update all task and gantt bounds.
-            $scope.updateBounds = function() {
-                var last = $scope.gantt.getLastColumn();
-                $scope.ganttInnerWidth = last !== null ? last.left + last.width: 0;
-            };
 
             // Expands the date area when the user scroll to either left or right end.
             // May be used for the write mode in the future.
@@ -145,7 +136,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
                 var oldScrollLeft = el.scrollLeft === 0 ? ((to - from) * el.scrollWidth) / ($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) : el.scrollLeft;
                 $scope.gantt.expandColumns(from, to);
-                $scope.updateBounds();
 
                 // Show Gantt at the same position as it was before expanding the date area
                 el.scrollLeft = oldScrollLeft;
@@ -175,7 +165,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             };
 
             $scope.raiseRowClickedEvent = function(e, row) {
-                var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.ganttInnerWidth;
+                var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
                 var clickedColumn = bs.get($scope.gantt.columns, getOffset(e).x / emPxFactor, function(c) { return c.left; })[0];
                 $scope.onRowClicked({ event: { row: row.clone(), column: clickedColumn.clone(), date: df.clone(clickedColumn.date) } });
 
@@ -225,7 +215,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             // Clear all existing rows and tasks
             $scope.removeAllData = function() {
                 $scope.gantt.removeRows();
-                $scope.updateBounds();
             };
 
             // Bind scroll event
@@ -248,7 +237,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                     }
                 }
 
-                $scope.updateBounds();
                 $scope.sortRows();
 
                 // Show Gantt at the same position as it was before adding the new data
@@ -283,7 +271,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                     }
                 }
 
-                $scope.updateBounds();
                 $scope.sortRows();
             }});
 
@@ -488,6 +475,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
         self.rows = [];
         self.columns = [];
         self.headers = {};
+        self.width = 0;
         var defaultColumnRange;
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
@@ -529,17 +517,22 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
-                self.columns = self.columnGenerator.generate(from, to);
-                self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTaskPlacement();
+                expandColumnsNoCheck(from, to);
             } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
                 var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
 
-                self.columns = self.columnGenerator.generate(minFrom, maxTo);
-                self.headers = self.headerGenerator.generate(self.columns);
-                self.updateTaskPlacement();
+                expandColumnsNoCheck(minFrom, maxTo);
             }
+        };
+
+        var expandColumnsNoCheck = function(from ,to) {
+            self.columns = self.columnGenerator.generate(from, to);
+            self.headers = self.headerGenerator.generate(self.columns);
+            self.updateTaskPlacement();
+
+            var lastColumn = self.getLastColumn();
+            self.width = lastColumn !== null ? lastColumn.left + lastColumn.width: 0;
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
@@ -1173,14 +1166,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
         controller: ['$scope', '$element', function ($scope, $element) {
             var el = $element[0];
             var update = function() {
-                var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.ganttInnerWidth;
+                var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
                 $scope.scroll_start = el.scrollLeft / emPxFactor;
                 $scope.scroll_width = el.offsetWidth / emPxFactor;
             };
 
             $element.bind('scroll', function() { $scope.$apply(function() { update(); }); });
 
-            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+            $scope.$watch('gantt.width', function(newValue, oldValue) {
                 $timeout(function() {
                     update();
                 }, 20, true);
@@ -1241,7 +1234,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
             $element.bind('scroll', updateListeners);
 
-            $scope.$watch('ganttInnerWidth', function(newValue, oldValue) {
+            $scope.$watch('gantt.width', function(newValue, oldValue) {
                 if (newValue === 0) {
                     $timeout(function() {
                         updateListeners();
