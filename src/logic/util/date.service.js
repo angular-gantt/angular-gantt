@@ -1,7 +1,6 @@
 gantt.service('dateFunctions', [ function () {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
-        firstDayOfWeek: 1,
         isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
         isString: function(o) { return typeof o == "string" || (typeof o == "object" && o.constructor === String);},
         clone: function(date) {
@@ -65,6 +64,9 @@ gantt.service('dateFunctions', [ function () {
             var res = clone === true ? this.clone(date) : date;
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
+        },
+        getDaysInMonth: function(date) {
+            return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
         },
         getWeek: function(date) {
             /* Returns the number of the week. The number is calculated according to ISO 8106 */

@@ -1,142 +1,162 @@
-gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column, df) {
-    // Gantt logic. Manages the columns, rows and sorting functionality.
+gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacementStrategy', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df) {
 
-    var Gantt = function(weekendDays, showWeekends, workHours, showNonWorkHours) {
+    // Gantt logic. Manages the columns, rows and sorting functionality.
+    var Gantt = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
         self.rows = [];
-        self.highestRowOrder = 0;
-        self.weekendDays = weekendDays;
-        self.showWeekends = showWeekends;
-        self.workHours = workHours;
-        self.showNonWorkHours = showNonWorkHours;
+        self.columns = [];
+        self.headers = {};
+        self.width = 0;
+        var defaultColumnRange;
 
-        var EmptyColumns = function() {
-            var self = this;
+        // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
+        // The headers are shown depending on the defined view scale.
+        self.setViewScale = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            switch(viewScale) {
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, firstDayOfWeek); break; // TODO day of week must be dynamic
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
+                default:
+                    throw "Unsupported view scale: " + viewScale;
+            }
 
-            self.months = [];
-            self.weeks = [];
-            self.days = [];
-            self.hours = [];
-            self.getLast = function() {
-                if (self.hours.length > 0) {
-                    return self.hours[self.hours.length-1];
-                } else {
-                    return null;
-                }
-            };
-            self.getFirst = function() {
-                if (self.hours.length > 0) {
-                    return self.hours[0];
-                } else {
-                    return null;
-                }
-            };
-            // Prepends columns to existing columns
-            self.prepend = function(columns) {
-                // Remove overlapping week or month column
-                if (columns.weeks.length > 0 && self.weeks[0].week === columns.weeks[columns.weeks.length-1].week) {
-                    columns.weeks.splice(columns.weeks.length-1, 1);
-                }
-                if (columns.months.length > 0 && self.months[0].date.getMonth() === columns.months[columns.months.length-1].date.getMonth()) {
-                    columns.months.splice(columns.months.length-1, 1);
-                }
-
-                self.hours.unshift.apply(self.hours, columns.hours);
-                self.days.unshift.apply(self.days, columns.days);
-                self.weeks.unshift.apply(self.weeks, columns.weeks);
-                self.months.unshift.apply(self.months, columns.months);
-            };
+            self.headerGenerator = new HeaderGenerator.instance(viewScale);
+            self.taskPlacement = new TaskPlacement.instance(viewScale, 4);
         };
 
-        self.columns = new EmptyColumns();
+        self.setViewScale(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
-        // Adds new a header columns specified by a from, to range.
-        // Only new, non existing columns for a specific date will be added.
-        self.expandColumns = function(from, to) {
-            var first = self.columns.getFirst();
-            var last = self.columns.getLast();
-
-            from = df.setTimeZero(from, true);
-            to = df.setTimeZero(to, true);
-
-            if (self.columns.hours.length === 0) {
-                generateColumns(from, to);
-            } else {
-                if (from < first.date) {
-                    generateColumns(from, df.addDays(df.setTimeZero(first.date, true), -1));
-                } else if (to > last.date) {
-                    generateColumns(df.addDays(df.setTimeZero(last.date, true), 1), to);
-                }
-            }
-        };
-
-        // Generates the header column according to the specified from and to date.
-        // Attention:
-        // This function shall not be called if the dates between from - do already exist.
-        // Use expandColumns to quickly add a range;
-        var generateColumns = function(from, to) {
-            var date = df.clone(from);
-            var columns;
-
-            if (self.columns.hours.length === 0 || from > self.columns.getFirst().date) {
-                columns = self.columns; // Append. New columns are after existing
-            } else {
-                columns = new EmptyColumns(); // Prepend columns.
-            }
-
-            while(to - date >= 0) {
-                var isWeekend = self.isWeekend(date.getDay());
-                var hourAdded = false;
-                for (var i = 0; i<24; i++) {
-                    var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
-                    var isWorkHour = self.isWorkHour(i);
-
-                    if ((isWeekend && self.showWeekends || !isWeekend) && (!isWorkHour && self.showNonWorkHours || isWorkHour)) {
-                        columns.hours.push(new Column.Hour(cDate, isWeekend, isWorkHour));
-                        hourAdded = true;
-                    }
-                }
-
-                if (hourAdded) {
-                    // Add day to days column if it wasn't already
-                    var days = columns.days;
-                    if (days.length === 0 || days[days.length-1].date.getDate() !== date.getDate()) {
-                        days.push(new Column.Day(new Date(date.getFullYear(), date.getMonth(), date.getDate(),0,0,0), isWeekend));
-                    }
-
-                    // Add week to weeks column if it wasn't already
-                    var weeks = columns.weeks;
-                    var currentWeek = df.getWeek(date);
-                    if (weeks.length === 0 || weeks[weeks.length-1].week !== currentWeek) {
-                        weeks.push(new Column.Week(new Date(date.getFullYear(), date.getMonth(), date.getDate(),0,0,0), currentWeek));
-                    }
-
-                    // Add month to months column if it wasn't already
-                    var months = columns.months;
-                    if (months.length === 0 || months[months.length-1].date.getMonth() !== date.getMonth()) {
-                        months.push(new Column.Month(new Date(date.getFullYear(), date.getMonth(), date.getDate(),0,0,0)));
-                    }
-                }
-
-                date = df.addDays(date, 1);
-            }
-
-            if (self.columns != columns) {
-                self.columns.prepend(columns);
-            }
-        };
-
-        // Removes all existing columns and re-generates them
-        self.reGenerateColumns = function() {
-            var from = self.columns.getFirst().date;
-            var to = self.columns.getLast().date;
-
-            self.columns = new EmptyColumns();
+        // Sets the default column range. Even if there tasks are smaller the default range is shown.
+        self.setDefaultColumnDateRange = function(from, to) {
             if (from !== undefined && to !== undefined) {
+                defaultColumnRange = {};
+                defaultColumnRange.from = df.clone(from);
+                defaultColumnRange.to = df.clone(to);
+
+                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
+            } else {
+                defaultColumnRange = undefined;
+            }
+        };
+
+        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
+        self.expandColumns = function(from, to) {
+            if (from === undefined || to === undefined) {
+                throw "From and to date range cannot be undefined";
+            }
+
+            // Only expand if expand is necessary
+            if (self.columns.length === 0) {
+                expandColumnsNoCheck(from, to);
+            } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
+                var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
+                var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
+
+                expandColumnsNoCheck(minFrom, maxTo);
+            }
+        };
+
+        var expandColumnsNoCheck = function(from ,to) {
+            self.columns = self.columnGenerator.generate(from, to);
+            self.headers = self.headerGenerator.generate(self.columns);
+            self.updateTaskPlacement();
+
+            var lastColumn = self.getLastColumn();
+            self.width = lastColumn !== null ? lastColumn.left + lastColumn.width: 0;
+        };
+
+        // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        self.reGenerateColumns = function() {
+            self.columns = [];
+
+            var taskRange = self.getTasksDateRange();
+            if (taskRange !== undefined && defaultColumnRange === undefined) {
+                self.expandColumns(taskRange.from, taskRange.to);
+            } else if (taskRange === undefined && defaultColumnRange !== undefined) {
+                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
+            } else if (taskRange !== undefined && defaultColumnRange !== undefined) {
+                var from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
+                var to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
                 self.expandColumns(from, to);
             }
+        };
+
+        // Update the position/size of all tasks in the Gantt
+        self.updateTaskPlacement = function() {
+            for (var i = 0, l = self.rows.length; i < l; i++) {
+                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
+                    var task = self.rows[i].tasks[j];
+                    self.taskPlacement.placeTask(task, self.columns);
+                }
+            }
+        };
+
+        // Returns the first Gantt column or null
+        self.getLastColumn = function() {
+            if (self.columns.length > 0) {
+                return self.columns[self.columns.length-1];
+            } else {
+                return null;
+            }
+        };
+
+        // Returns the last Gantt column or null
+        self.getFirstColumn = function() {
+            if (self.columns.length > 0) {
+                return self.columns[0];
+            } else {
+                return null;
+            }
+        };
+
+        // Returns the default Gantt column date range or undefined if it has not been defined
+        self.getDefaultColumnDateRange = function() {
+            if (defaultColumnRange === undefined) {
+                return undefined;
+            } else {
+                return {
+                    from: df.clone(defaultColumnRange.from),
+                    to: df.clone(defaultColumnRange.to)
+                };
+            }
+        };
+
+        // Returns the min and max date of all loaded tasks or undefined if there are no tasks loaded
+        self.getTasksDateRange = function() {
+            if (self.rows.length === 0) {
+                return undefined;
+            } else {
+                var minDate, maxDate;
+
+                for (var i = 0, l = self.rows.length; i < l; i++) {
+                    var row = self.rows[i];
+
+                    if (minDate === undefined || row.minFromDate < minDate) {
+                        minDate = row.minFromDate;
+                    }
+
+                    if (maxDate === undefined || row.maxToDate > maxDate) {
+                        maxDate = row.maxToDate;
+                    }
+                }
+
+                return {
+                    from: minDate,
+                    to: maxDate
+                };
+            }
+        };
+
+        // Returns the number of active headers
+        self.getActiveHeadersCount = function() {
+            var size = 0, key;
+            for (key in self.headers) {
+                if (self.headers.hasOwnProperty(key)) size++;
+            }
+            return size;
         };
 
         // Adds a row to the list of rows. Merges the row and it tasks if there is already one with the same id
@@ -169,6 +189,7 @@ gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column,
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
                     self.expandColumns(task.from, task.to);
+                    self.taskPlacement.placeTask(task, self.columns); // Set placement of new task
                 }
             }
 
@@ -195,7 +216,7 @@ gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column,
             self.rowsMap = {};
             self.rows = [];
             self.highestRowOrder = 0;
-            self.columns = new EmptyColumns();
+            self.columns = [];
         };
 
         // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -256,28 +277,6 @@ gantt.factory('Gantt', ['Row', 'Column', 'dateFunctions', function (Row, Column,
                     self.rows.sort(sortByDate);
                     break;
             }
-        };
-
-        // Returns true if the given day is a weekend day
-        self.isWeekend = function(day) {
-            for (var i = 0, l = self.weekendDays.length; i < l; i++) {
-                if (self.weekendDays[i] === day) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        // Returns true if the given hour is a work hour
-        self.isWorkHour = function(hour) {
-            for (var i = 0, l = self.workHours.length; i < l; i++) {
-                if (self.workHours[i] === hour) {
-                    return true;
-                }
-            }
-
-            return false;
         };
     };
 

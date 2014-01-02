@@ -127,8 +127,10 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 - **view-scale** (default: `day`)
 
   Defines the Gantt column scale.
-  - `day`: Each column is one day wide
   - `hour`: Each column is one hour wide
+  - `day`: Each column is one day wide
+  - `week`: Each column is one week wide
+  - `month`: Each column is one month wide
 
 - **view-scale-factor** (default `2`)
   How wide are the columns, 1 being 1em per hour. This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours

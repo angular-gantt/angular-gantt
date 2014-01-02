@@ -1,3 +1,3 @@
-gantt.service('scroller', [ function () {
+gantt.service('scrollManager', [ function () {
     return { vertical: [], horizontal: [] };
 }]);

@@ -23,7 +23,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
                 self.tasks.push(task);
             }
 
-            self.findEarliestFromDate(task);
+            setMinMaxDateByTask(task);
             return task;
         };
 
@@ -37,12 +37,9 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
                     if (task.id === taskId) {
                         self.tasks.splice(i, 1); // Remove from array
 
-                        // Update earliest date info as this may change
-                        if (self.minFromDate - task.from === 0) {
-                            self.minFromDate = undefined;
-                            for (var j = 0, k = self.tasks.length; j < k; j++) {
-                                self.findEarliestFromDate(self.tasks[j]);
-                            }
+                        // Update earliest or latest date info as this may change
+                        if (self.minFromDate - task.from === 0 || self.maxToDate - task.to === 0) {
+                            setTasksMinMaxDate();
                         }
 
                         return task;
@@ -51,12 +48,26 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
             }
         };
 
-        // Calculate the earliest from date of all tasks in a row
-        self.findEarliestFromDate = function (task) {
+        // Calculate the earliest from and latest to date of all tasks in a row
+        var setTasksMinMaxDate = function() {
+            self.minFromDate = undefined;
+            self.maxToDate = undefined;
+            for (var j = 0, k = self.tasks.length; j < k; j++) {
+                setMinMaxDateByTask(self.tasks[j]);
+            }
+        };
+
+        var setMinMaxDateByTask = function (task) {
             if (self.minFromDate === undefined) {
                 self.minFromDate = df.clone(task.from);
             } else if (task.from < self.minFromDate) {
                 self.minFromDate = df.clone(task.from);
+            }
+
+            if (self.maxToDate === undefined) {
+                self.maxToDate = df.clone(task.to);
+            } else if (task.to > self.maxToDate) {
+                self.maxToDate = df.clone(task.to);
             }
         };
 

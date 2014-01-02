@@ -4,7 +4,7 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
     return {
         restrict: "E",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
-            "<div ng-show='visible' class='gantt-task-info' ng-style='css'>" +
+            "<div ng-if='visible' class='gantt-task-info' ng-style='css'>" +
             "<div class='gantt-task-info-content'>" +
             "{{ task.subject }}</br>" +
             "<small>" +
