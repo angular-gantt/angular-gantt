@@ -6,7 +6,7 @@
 
 var gantt = angular.module('gantt', []);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Gantt, df, bs) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset', function (Gantt, df, bs, mouseOffset) {
     return {
         restrict: "EA",
         replace: true,
@@ -55,6 +55,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
+            $scope.labelsWidth = 100;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
@@ -145,28 +146,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                 $scope.onRowAdded({ event: { row: row.clone() } });
             };
 
-            // Support for lesser browsers (read IE 8)
-            var getOffset = function getOffset(evt) {
-                if(evt.layerX && evt.layerY) {
-                    return {x: evt.layerX, y: evt.layerY};
-                }
-                else {
-                    var el = evt.target, x,y;
-                    x=y=0;
-                    while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
-                        x += el.offsetLeft - el.scrollLeft;
-                        y += el.offsetTop - el.scrollTop;
-                        el = el.offsetParent;
-                    }
-                    x = evt.clientX - x;
-                    y = evt.clientY - y;
-                    return { x: x, y: y };
-                }
-            };
-
             $scope.raiseRowClickedEvent = function(e, row) {
                 var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
-                var clickedColumn = bs.get($scope.gantt.columns, getOffset(e).x / emPxFactor, function(c) { return c.left; })[0];
+                var clickedColumn = bs.get($scope.gantt.columns, mouseOffset.getOffset(e).x / emPxFactor, function(c) { return c.left; })[0];
                 $scope.onRowClicked({ event: { row: row.clone(), column: clickedColumn.clone(), date: df.clone(clickedColumn.date) } });
 
                 e.stopPropagation();

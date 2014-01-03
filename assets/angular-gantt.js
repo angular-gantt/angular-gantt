@@ -6,7 +6,7 @@
 
 var gantt = angular.module('gantt', []);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Gantt, df, bs) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset', function (Gantt, df, bs, mouseOffset) {
     return {
         restrict: "EA",
         replace: true,
@@ -55,6 +55,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
+            $scope.labelsWidth = 100;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
@@ -145,28 +146,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                 $scope.onRowAdded({ event: { row: row.clone() } });
             };
 
-            // Support for lesser browsers (read IE 8)
-            var getOffset = function getOffset(evt) {
-                if(evt.layerX && evt.layerY) {
-                    return {x: evt.layerX, y: evt.layerY};
-                }
-                else {
-                    var el = evt.target, x,y;
-                    x=y=0;
-                    while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
-                        x += el.offsetLeft - el.scrollLeft;
-                        y += el.offsetTop - el.scrollTop;
-                        el = el.offsetParent;
-                    }
-                    x = evt.clientX - x;
-                    y = evt.clientY - y;
-                    return { x: x, y: y };
-                }
-            };
-
             $scope.raiseRowClickedEvent = function(e, row) {
                 var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
-                var clickedColumn = bs.get($scope.gantt.columns, getOffset(e).x / emPxFactor, function(c) { return c.left; })[0];
+                var clickedColumn = bs.get($scope.gantt.columns, mouseOffset.getOffset(e).x / emPxFactor, function(c) { return c.left; })[0];
                 $scope.onRowClicked({ event: { row: row.clone(), column: clickedColumn.clone(), date: df.clone(clickedColumn.date) } });
 
                 e.stopPropagation();
@@ -1199,6 +1181,121 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
 
         return res;
     };
+}]);;gantt.directive('ganttResizable', ['$document', 'mouseOffset', function ($document, mouseOffset) {
+
+    return {
+        restrict: "A",
+        scope: { modes: "=resizeModes",
+                 width: "=resizeWidth",
+                 height: "=resizeHeight",
+                 minWidth: "=resizeMinWidth",
+                 minHeight: "=resizeMinHeight" },
+        controller: ['$scope', '$element', function ($scope, $element) {
+            $scope.modes = $scope.modes.toUpperCase();
+            var originalPos;
+
+            $element.bind("mousedown", function (e) {
+                var mode = getMode(e);
+                if (mode !== "") {
+                    enableResizeMode(mode, e);
+
+                    var moveHandler = function(e) {
+                        $scope.$apply(function() {
+
+                            if (mode === "N" || mode === "S") {
+                                $scope.height += e.screenY - originalPos;
+                                if ($scope.height < $scope.minHeight) {
+                                    $scope.height  = $scope.minHeight;
+                                }
+
+                                originalPos = e.screenY;
+                            } else {
+                                $scope.width += e.screenX - originalPos;
+                                if ($scope.width < $scope.minWidth) {
+                                    $scope.width  = $scope.minWidth;
+                                }
+
+                                originalPos = e.screenX;
+                            }
+                        });
+                    };
+
+                    angular.element($document[0].body).bind("mousemove", moveHandler);
+
+                    var disableHandler = function () {
+                        angular.element($document[0].body).unbind('mousemove', moveHandler);
+                        angular.element($document[0].body).unbind('mouseup', disableHandler);
+                        disableResizeMode();
+                    };
+
+                    angular.element($document[0].body).bind("mouseup", disableHandler);
+
+                    e.preventDefault();
+                }
+            });
+
+            $element.bind("mousemove", function (e) {
+                var mode = getMode(e);
+
+                if (mode !== "") {
+                    $element.css("cursor", getCursor(mode));
+                } else {
+                    $element.css("cursor", '');
+                }
+            });
+
+            var getMode = function (e) {
+                var offset = mouseOffset.getOffset(e);
+                var x = offset.x, y = offset.y;
+                var distance = 5;
+
+                if ($scope.modes.indexOf('E') !== -1 && x > $element[0].offsetWidth - distance) {
+                    return "E";
+                } else if ($scope.modes.indexOf('W') !== -1 && x < distance) {
+                    return "W";
+                } else  if ($scope.modes.indexOf('S') !== -1 && y > $element[0].offsetHeight - distance) {
+                    return "S";
+                } else if ($scope.modes.indexOf('N') !== -1 && y < distance) {
+                    return "N";
+                } else {
+                    return "";
+                }
+            };
+
+            var getCursor = function(mode) {
+                switch(mode) {
+                    case "N": return 'n-resize';
+                    case "E": return 'e-resize';
+                    case "S": return 's-resize';
+                    case "W": return 'w-resize';
+                }
+            };
+
+            var enableResizeMode = function (mode, e) {
+                originalPos = mode === "N" || mode === "S" ? e.screenY: e.screenX;
+
+                angular.element($document[0].body).css({
+                    '-moz-user-select': '-moz-none',
+                    '-webkit-user-select': 'none',
+                    '-ms-user-select': 'none',
+                    'user-select': 'none',
+                    'cursor': getCursor(mode)
+                });
+            };
+
+            var disableResizeMode = function () {
+                $element.css("cursor", '');
+
+                angular.element($document[0].body).css({
+                    '-moz-user-select': '',
+                    '-webkit-user-select': '',
+                    '-ms-user-select': '',
+                    'user-select': '',
+                    'cursor': ''
+                });
+            };
+        }]
+    };
 }]);;gantt.directive('ganttHorizontalScrollReceiver', ['scrollManager', function (scrollManager) {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
@@ -1376,5 +1473,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', function (Ga
                 return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
             };
         }]
+    };
+}]);;gantt.service('mouseOffset', [ function () {
+    // Mouse offset support for lesser browsers (read IE 8)
+
+    return {
+        getOffset: function(evt) {
+            if(evt.layerX && evt.layerY) {
+                return {x: evt.layerX, y: evt.layerY};
+            } else {
+                var el = evt.target, x,y;
+                x=y=0;
+                while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+                    x += el.offsetLeft - el.scrollLeft;
+                    y += el.offsetTop - el.scrollTop;
+                    el = el.offsetParent;
+                }
+                x = evt.clientX - x;
+                y = evt.clientY - y;
+                return { x: x, y: y };
+            }
+        }
     };
 }]);
