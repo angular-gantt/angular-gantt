@@ -12,9 +12,34 @@ gantt.factory('TaskPlacementStrategy', [ 'dateFunctions', 'binarySearch', functi
                 task.width = Math.round( (calculateTaskPos(cTo[0], task.to) - task.left) * 10) / 10;
 
                 // Set minimal width
+                // TODO check if left+width exceeds the Gantt width
                 if (task.width === 0) {
                     task.width = cFrom[0].width / precision;
                 }
+            };
+
+            // TODO: Refactor & rename this function
+            this.calculateDate = function(date) {
+                var res = df.clone(date);
+
+                switch(viewScale) {
+                    case 'hour':
+                        res.setMinutes(60 * getPrecisionFactor(date));
+                        break;
+                    case 'day':
+                        res.setHours(24 * getPrecisionFactor(date));
+                        break;
+                    case 'week':
+                        df.setToDayOfWeek(res, 7 * getPrecisionFactor(date), false);
+                        break;
+                    case 'month':
+                        res.setDate(1 + df.getDaysInMonth(date) * getPrecisionFactor(date));
+                        break;
+                    default:
+                        throw "Unsupported view scale: " + viewScale;
+                }
+
+                return res;
             };
 
             // Calculates the position of the task start or end

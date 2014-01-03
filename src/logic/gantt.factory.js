@@ -1,4 +1,4 @@
-gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacementStrategy', 'dateFunctions', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df) {
+gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacementStrategy', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -62,7 +62,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
-            self.updateTaskPlacement();
+            self.updateTasksPosAndSize();
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== null ? lastColumn.left + lastColumn.width: 0;
@@ -85,11 +85,10 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
         };
 
         // Update the position/size of all tasks in the Gantt
-        self.updateTaskPlacement = function() {
+        self.updateTasksPosAndSize = function() {
             for (var i = 0, l = self.rows.length; i < l; i++) {
                 for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
-                    var task = self.rows[i].tasks[j];
-                    self.taskPlacement.placeTask(task, self.columns);
+                    self.rows[i].tasks[j].updatePosAndSize();
                 }
             }
         };
@@ -110,6 +109,17 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
             } else {
                 return null;
             }
+        };
+
+        // Returns the column at the given position (in em)
+        self.getColumnByPosition = function(position) {
+            return bs.get(self.columns, position, function(c) { return c.left; })[0];
+        };
+
+        // Returns the exact column date at the given position (in em)
+        self.getDateByPosition = function(position) {
+            var column = self.getColumnByPosition(position);
+            return column !== undefined ? column.getDateByPosition(position - column.left): undefined;
         };
 
         // Returns the default Gantt column date range or undefined if it has not been defined
@@ -180,7 +190,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, rowData.description, order, rowData.data);
+                row = new Row(rowData.id, self, rowData.description, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
             }

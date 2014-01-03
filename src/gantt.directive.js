@@ -113,7 +113,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
 
             $scope.$watch('taskPrecision', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.updateTaskPlacement();
+                    $scope.gantt.updateTasksPosAndSize();
                 }
             });
 
@@ -148,7 +148,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
 
             $scope.raiseRowClickedEvent = function(e, row) {
                 var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
-                var clickedColumn = bs.get($scope.gantt.columns, mouseOffset.getOffset(e).x / emPxFactor, function(c) { return c.left; })[0];
+                var xInEm = mouseOffset.getOffset(e).x / emPxFactor;
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
                 $scope.onRowClicked({ event: { row: row.clone(), column: clickedColumn.clone(), date: df.clone(clickedColumn.date) } });
 
                 e.stopPropagation();
