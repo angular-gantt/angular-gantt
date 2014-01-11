@@ -19,7 +19,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self.gantt, self, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data);
+                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }

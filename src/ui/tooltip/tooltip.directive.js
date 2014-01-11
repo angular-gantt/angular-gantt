@@ -24,6 +24,19 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
             $scope.css = {};
 
             $scope.mouseEnter = function (e) {
+                showTooltip(e.clientX);
+            };
+
+            $scope.mouseLeave = function () {
+                hideTooltip();
+            };
+
+            var getViewPortWidth = function() {
+                var d = $document[0];
+                return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
+            };
+
+            var showTooltip = function(x) {
                 $scope.visible = true;
 
                 $timeout(function(){
@@ -33,11 +46,11 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
                     elTip.removeClass('gantt-task-infoArrowR');
 
                     // Check if info is overlapping with view port
-                    if (e.clientX + elTip[0].offsetWidth > $scope.getViewPortWidth()) {
-                        $scope.css.left = (e.clientX + 20 - elTip[0].offsetWidth) + "px";
+                    if (x + elTip[0].offsetWidth > getViewPortWidth()) {
+                        $scope.css.left = (x + 20 - elTip[0].offsetWidth) + "px";
                         elTip.addClass('gantt-task-infoArrowR'); // Right aligned info
                     } else {
-                        $scope.css.left = (e.clientX - 20) + "px";
+                        $scope.css.left = (x - 20) + "px";
                         elTip.addClass('gantt-task-infoArrow');
                     }
                     $scope.css.top = $element[0].getBoundingClientRect().top + "px";
@@ -46,14 +59,9 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
                 },1, true);
             };
 
-            $scope.mouseLeave = function () {
+            var hideTooltip = function() {
                 $scope.css.opacity = 0;
                 $scope.visible = false;
-            };
-
-            $scope.getViewPortWidth = function() {
-                var d = $document[0];
-                return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
             };
         }]
     };

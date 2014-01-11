@@ -2,9 +2,10 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
 
     return {
         restrict: "A",
-        scope: { task: "=taskRef", gantt: "=ganttRef"},
+        scope: { task: "=ganttTaskResizable", onTaskResized: "&taskResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var ganttBodyElement = $element.parent().parent();
+            var taskHasBeenResized = false;
 
             $element.bind("mousedown", function (e) {
                 var mode = getMode(e);
@@ -22,6 +23,7 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
                                     }
 
                                     $scope.task.setTo(date);
+
                                 } else {
                                     if (date > $scope.task.to) {
                                         date = df.clone($scope.task.to);
@@ -29,6 +31,8 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
 
                                     $scope.task.setFrom(date);
                                 }
+
+                                taskHasBeenResized = true;
                             }
                         });
                     };
@@ -60,7 +64,7 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
             var getDate = function(e) {
                 var emPxFactor = $element[0].offsetWidth / $scope.task.width;
                 var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / emPxFactor;
-                return $scope.gantt.getDateByPosition(xInEm);
+                return $scope.task.row.gantt.getDateByPosition(xInEm);
             };
 
             var getMode = function (e) {
@@ -94,6 +98,11 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
             };
 
             var disableResizeMode = function () {
+                if (taskHasBeenResized === true) {
+                    $scope.onTaskResized();
+                    taskHasBeenResized = false;
+                }
+
                 $element.css("cursor", '');
 
                 angular.element($document[0].body).css({

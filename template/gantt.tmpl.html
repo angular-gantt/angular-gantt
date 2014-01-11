@@ -1,7 +1,7 @@
 <div class="gantt">
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
-         gantt-resizable resize-Modes="'E'" resize-Width="labelsWidth" resize-min-Width="50">
+         gantt-label-resizable="labelsWidth" resize-min="50">
         <div class="gantt-labels-head"
              ng-show="gantt.columns.length > 0">
             <div class="gantt-labels-head-row"
@@ -79,14 +79,14 @@
             </div>
             <div class="gantt-body-content">
                 <div class="gantt-row gantt-row-height"
-                     ng-click="raiseRowClickedEvent($event, row)"
+                     ng-click="raiseDOMRowClickedEvent($event, row)"
                      ng-repeat="row in gantt.rows">
                     <!--a task will override the row event -->
                     <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
                          ng-style="{'left': (task.to-task.from === 0 && (task.left-0.3) || task.left)+'em', 'width': task.width+'em', 'background-color': task.color}"
-                         ng-click="raiseTaskClickedEvent($event, row, task)"
+                         ng-click="raiseDOMTaskClickedEvent($event, task)"
                          ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width"
-                         gantt-task-resizable task-ref="task" gantt-ref="gantt">
+                         gantt-task-resizable="task" task-resized="raiseTaskUpdatedEvent(task)">
                         <gantt-tooltip ng-model="task">
                             <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
                         </gantt-tooltip>

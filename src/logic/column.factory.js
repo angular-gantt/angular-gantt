@@ -97,7 +97,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setMinutes(59, 60/column.width * position);
+            res.setMinutes(60/column.width * position);
             return res;
         };
 

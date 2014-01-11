@@ -1,7 +1,7 @@
-gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacementStrategy', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, TaskPlacement, df, bs) {
+gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
@@ -13,21 +13,20 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
-        self.setViewScale = function(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+        self.setViewScale = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
             switch(viewScale) {
-                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(viewScaleFactor, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(viewScaleFactor, weekendDays, showWeekends); break;
-                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(viewScaleFactor, firstDayOfWeek); break;
-                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(viewScaleFactor); break;
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(columnWidth, columnSubScale, firstDayOfWeek); break;
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(columnWidth, columnSubScale); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
 
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
-            self.taskPlacement = new TaskPlacement.instance(viewScale, 4);
         };
 
-        self.setViewScale(viewScale, viewScaleFactor, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
+        self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         // Sets the default column range. Even if there tasks are smaller the default range is shown.
         self.setDefaultColumnDateRange = function(from, to) {
@@ -199,7 +198,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'TaskPlacem
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
                     self.expandColumns(task.from, task.to);
-                    self.taskPlacement.placeTask(task, self.columns); // Set placement of new task
+                    task.updatePosAndSize();
                 }
             }
 

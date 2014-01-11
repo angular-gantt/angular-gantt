@@ -55,7 +55,7 @@
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
-           view-scale-factor="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
+           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
            weekend-days="weekendDays"
            show-weekends="showWeekends"
            max-height="maxHeight"
@@ -64,7 +64,8 @@
            on-row-clicked="rowEvent(event)"
            on-row-updated="rowEvent(event)"
            on-scroll="scrollEvent(event)"
-           on-task-clicked="taskEvent(event)">
+           on-task-clicked="taskEvent(event)"
+           on-task-updated="taskEvent(event)">
      </gantt>
     <hr>
     <small>Gantt chart for Angular.js by Marco Schweighauser (2013) | MIT License</small>

@@ -19,9 +19,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
         },
         scope: {
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
-            viewScaleFactor: "=?", // How wide are the columns, 1 being 1em per unit (hour or day, .. depending on scale),
+            columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
+            columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
-            taskPrecision: "=?", // Defines how precise tasks should be positioned. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
@@ -31,6 +31,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             workHours: "=?", // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
             showNonWorkHours: "=?", // True if the non work hours shall be displayed Default (true)
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
+            labelsWidth: "=?", // Define the width of the labels section. Changes when the user resizes the labels width
             data: "=?",
             loadData: "&",
             removeData: "&",
@@ -40,25 +41,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             onRowClicked: "&",
             onRowUpdated: "&",
             onScroll: "&",
-            onTaskClicked: "&"
+            onTaskClicked: "&",
+            onTaskUpdated: "&"
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             // Initialize defaults
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
-            if ($scope.viewScaleFactor === undefined) $scope.viewScaleFactor = 0.1;
-            if ($scope.taskPrecision === undefined) $scope.taskPrecision = 4;
+            if ($scope.columnWidth === undefined) $scope.columnWidth = 2;
+            if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
+            if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
-            $scope.labelsWidth = 100;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -97,9 +99,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+viewScaleFactor+fromDate+toDate+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+columnWidth+columnSubScale+fromDate+toDate+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.viewScaleFactor, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     $scope.gantt.reGenerateColumns();
                 }
             });
@@ -108,12 +110,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
                     $scope.gantt.reGenerateColumns();
-                }
-            });
-
-            $scope.$watch('taskPrecision', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.updateTasksPosAndSize();
                 }
             });
 
@@ -143,21 +139,29 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             };
 
             $scope.raiseRowAddedEvent = function(row) {
-                $scope.onRowAdded({ event: { row: row.clone() } });
+                $scope.onRowAdded({ event: { row: row } });
             };
 
-            $scope.raiseRowClickedEvent = function(e, row) {
+            $scope.raiseDOMRowClickedEvent = function(e, row) {
                 var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
-                var xInEm = mouseOffset.getOffset(e).x / emPxFactor;
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / emPxFactor;
                 var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                $scope.onRowClicked({ event: { row: row.clone(), column: clickedColumn.clone(), date: df.clone(clickedColumn.date) } });
+                var date = clickedColumn.getDateByPosition(xInEm - clickedColumn.left);
+
+                $scope.raiseRowClickedEvent(row, clickedColumn, date);
 
                 e.stopPropagation();
                 e.preventDefault();
             };
 
+            $scope.raiseRowClickedEvent = function(row, column, date) {
+                date = $scope.gantt.columnGenerator.adjustDateToSubScale(date);
+                $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date } });
+            };
+
             $scope.raiseRowUpdatedEvent = function(row) {
-                $scope.onRowUpdated({ event: { row: row.clone() } });
+                $scope.onRowUpdated({ event: { row: row } });
             };
 
             $scope.raiseScrollEvent = function() {
@@ -186,13 +190,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
                 }
             };
 
-            $scope.raiseTaskClickedEvent = function(e, row, task) {
-                var rClone = row.clone();
-
-                $scope.onTaskClicked({ event: {row: rClone, task: rClone.tasksMap[task.id] } });
+            $scope.raiseDOMTaskClickedEvent = function(e, task) {
+                $scope.raiseTaskClickedEvent(task);
 
                 e.stopPropagation();
                 e.preventDefault();
+            };
+
+            $scope.raiseTaskClickedEvent = function(task) {
+                $scope.onTaskClicked({ event: { task: task } });
+            };
+
+            $scope.raiseTaskUpdatedEvent = function(task) {
+                $scope.onTaskUpdated({ event: { task: task } });
             };
 
             // Clear all existing rows and tasks
