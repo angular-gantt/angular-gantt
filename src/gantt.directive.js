@@ -63,6 +63,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
 
+            $scope.getPxToEmFactor = function() {
+                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
+            };
+
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
                 $scope.gantt.swapRows(a, b);
@@ -143,9 +147,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             };
 
             $scope.raiseDOMRowClickedEvent = function(e, row) {
-                var emPxFactor = $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
                 var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / emPxFactor;
+                var xInEm = x / $scope.getPxToEmFactor();
                 var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
                 var date = clickedColumn.getDateByPosition(xInEm - clickedColumn.left);
 

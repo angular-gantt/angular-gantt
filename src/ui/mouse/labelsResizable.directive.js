@@ -54,11 +54,7 @@ gantt.directive('ganttLabelResizable', ['$document', 'mouseOffset', function ($d
             var isInResizeArea = function (e) {
                 var x = mouseOffset.getOffset(e).x;
 
-                if (x > $element[0].offsetWidth - resizeAreaWidth) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return x > $element[0].offsetWidth - resizeAreaWidth;
             };
 
             var enableResizeMode = function (e) {

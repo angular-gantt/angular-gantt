@@ -1,23 +1,27 @@
-gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffset', function ($document, df, mouseOffset) {
+gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset', function ($document, df, mouseOffset) {
 
     return {
         restrict: "A",
-        scope: { task: "=ganttTaskResizable", onTaskResized: "&taskResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var ganttBodyElement = $element.parent().parent();
-            var taskHasBeenResized = false;
+            var moveOffset = null;
+            var taskHasBeenMoved = false;
 
             $element.bind("mousedown", function (e) {
                 var mode = getMode(e);
                 if (mode !== "") {
-                    enableResizeMode(mode);
+                    enableMoveMode(mode, e);
 
                     var moveHandler = function(e) {
                         $scope.$apply(function() {
-                            var date = getDate(e);
 
+                            var date = getDate(e);
                             if (date !== undefined) {
-                                if (mode === "E") {
+
+                                if (mode === "M") {
+                                    var newFromDate = df.addMilliseconds(date, -moveOffset, true);
+                                    $scope.task.moveTo(newFromDate);
+                                } else if (mode === "E") {
                                     if (date < $scope.task.from) {
                                         date = df.clone($scope.task.from);
                                     }
@@ -32,8 +36,9 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
                                     $scope.task.setFrom(date);
                                 }
 
-                                taskHasBeenResized = true;
+                                taskHasBeenMoved = true;
                             }
+
                         });
                     };
 
@@ -42,7 +47,7 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
                     var disableHandler = function () {
                         ganttBodyElement.unbind('mousemove', moveHandler);
                         angular.element($document[0].body).unbind('mouseup', disableHandler);
-                        disableResizeMode();
+                        disableMoveMode();
                     };
 
                     angular.element($document[0].body).bind("mouseup", disableHandler);
@@ -53,8 +58,7 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
 
             $element.bind("mousemove", function (e) {
                 var mode = getMode(e);
-
-                if (mode !== "") {
+                if (mode !== "" && mode !== "M") {
                     $element.css("cursor", getCursor(mode));
                 } else {
                     $element.css("cursor", '');
@@ -62,19 +66,23 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
             });
 
             var getDate = function(e) {
-                var emPxFactor = $element[0].offsetWidth / $scope.task.width;
-                var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / emPxFactor;
+                //var emPxFactor = ganttBodyElement[0].offsetWidth / $scope.gantw //$element[0].offsetWidth / $scope.task.width;
+                var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
                 return $scope.task.row.gantt.getDateByPosition(xInEm);
             };
 
             var getMode = function (e) {
                 var x = mouseOffset.getOffset(e).x;
-                var distance = 5;
+
+                // Define resize&move area. Make sure the move area does not get too small.
+                var distance = $element[0].offsetWidth < 10 ? 3: 5;
 
                 if (x > $element[0].offsetWidth - distance) {
                     return "E";
                 } else if (x < distance) {
                     return "W";
+                } else if (x >= distance && x <= $element[0].offsetWidth - distance) {
+                    return "M";
                 } else {
                     return "";
                 }
@@ -84,10 +92,13 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
                 switch(mode) {
                     case "E": return 'e-resize';
                     case "W": return 'w-resize';
+                    case "M": return 'move';
                 }
             };
 
-            var enableResizeMode = function (mode) {
+            var enableMoveMode = function (mode, e) {
+                moveOffset = getDate(e) - $scope.task.from;
+
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
                     '-webkit-user-select': 'none',
@@ -97,10 +108,10 @@ gantt.directive('ganttTaskResizable', ['$document', 'dateFunctions', 'mouseOffse
                 });
             };
 
-            var disableResizeMode = function () {
-                if (taskHasBeenResized === true) {
-                    $scope.onTaskResized();
-                    taskHasBeenResized = false;
+            var disableMoveMode = function () {
+                if (taskHasBeenMoved === true) {
+                    $scope.raiseTaskUpdatedEvent($scope.task);
+                    taskHasBeenMoved = false;
                 }
 
                 $element.css("cursor", '');

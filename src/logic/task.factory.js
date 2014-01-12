@@ -51,6 +51,22 @@ gantt.factory('Task', ['dateFunctions', 'binarySearch', function (df, bs) {
             self.updatePosAndSize();
         };
 
+        // Sets the task from date to the specified date and is keeping the existing task length
+        self.moveTo = function(date) {
+            var taskLength = self.to - self.from;
+            self.from = self.gantt.columnGenerator.adjustDateToSubScale(date);
+            self.to = df.addMilliseconds(self.from, taskLength, true);
+            self.row.setMinMaxDateByTask(self);
+            self.gantt.expandColumns(self.from, self.to);
+            self.updatePosAndSize();
+        };
+
+        // Moves the task from date by the specified time span and keeps the existing task length
+        self.moveBy = function(timespan) {
+            var newFromDate = df.addMilliseconds(self.from, timespan, true);
+            self.moveTo(newFromDate);
+        };
+
         self.copy = function(task) {
             self.gantt = task.gantt;
             self.row = task.row;

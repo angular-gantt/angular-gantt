@@ -86,7 +86,7 @@
                          ng-style="{'left': (task.to-task.from === 0 && (task.left-0.3) || task.left)+'em', 'width': task.width+'em', 'background-color': task.color}"
                          ng-click="raiseDOMTaskClickedEvent($event, task)"
                          ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width"
-                         gantt-task-resizable="task" task-resized="raiseTaskUpdatedEvent(task)">
+                         gantt-task-moveable>
                         <gantt-tooltip ng-model="task">
                             <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
                         </gantt-tooltip>
