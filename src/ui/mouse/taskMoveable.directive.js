@@ -74,14 +74,18 @@ gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset
             var getMode = function (e) {
                 var x = mouseOffset.getOffset(e).x;
 
-                // Define resize&move area. Make sure the move area does not get too small.
-                var distance = $element[0].offsetWidth < 10 ? 3: 5;
+                var distance = 0;
 
-                if (x > $element[0].offsetWidth - distance) {
+                // Define resize&move area. Make sure the move area does not get too small.
+                if ($scope.allowTaskResizing) {
+                    distance = $element[0].offsetWidth < 10 ? 3: 5;
+                }
+
+                if ($scope.allowTaskResizing && x > $element[0].offsetWidth - distance) {
                     return "E";
-                } else if (x < distance) {
+                } else if ($scope.allowTaskResizing && x < distance) {
                     return "W";
-                } else if (x >= distance && x <= $element[0].offsetWidth - distance) {
+                } else if ($scope.allowTaskMoving && x >= distance && x <= $element[0].offsetWidth - distance) {
                     return "M";
                 } else {
                     return "";

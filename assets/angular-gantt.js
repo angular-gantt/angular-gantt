@@ -18,11 +18,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             }
         },
         scope: {
+            sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
-            sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
-            autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
+            allowTaskMoving: "=?", // Set to true if tasks should be moveable by the user.
+            allowTaskResizing: "=?", // Set to true if tasks should be resizable by the user.
+            allowRowOrdering: "=?", // Set to true if the user should be able to re-order rows.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
@@ -30,6 +32,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             showWeekends: "=?", // True if the weekends shall be displayed Default (true)
             workHours: "=?", // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
             showNonWorkHours: "=?", // True if the non work hours shall be displayed Default (true)
+            autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user resizes the labels width
             data: "=?",
@@ -46,18 +49,21 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
         },
         controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
             // Initialize defaults
-            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
             if ($scope.columnWidth === undefined) $scope.columnWidth = 2;
             if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
+            if ($scope.allowTaskMoving === undefined) $scope.allowTaskMoving = true;
+            if ($scope.allowTaskResizing === undefined) $scope.allowTaskResizing = true;
+            if ($scope.allowRowOrdering === undefined) $scope.allowRowOrdering = true;
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
-            if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
-            if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
+            if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
+            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
+            if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
@@ -447,7 +453,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
         // Takes a date and adjusts it to the current column sub scale. E.g. if subScale=4 and date is 13:40 result will be 13:45
         this.adjustDateToSubScale = function(date) {
             var res = df.clone(date);
-            res.setMinutes(60 * this.getSubScaleFactor(date));
+            res.setMinutes(60 * this.getSubScaleFactor(res));
             return res;
         };
 
@@ -488,7 +494,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
 
         this.adjustDateToSubScale = function(date) {
             var res = df.clone(date);
-            res.setHours(24 * this.getSubScaleFactor(date));
+            res.setHours(24 * this.getSubScaleFactor(res));
             return res;
         };
 
@@ -522,7 +528,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
 
         this.adjustDateToSubScale = function(date) {
             var res = df.clone(date);
-            df.setToDayOfWeek(res, 7 * this.getSubScaleFactor(date), false);
+            df.setToDayOfWeek(res, 7 * this.getSubScaleFactor(res), false);
             return res;
         };
 
@@ -556,7 +562,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
 
         this.adjustDateToSubScale = function(date) {
             var res = df.clone(date);
-            res.setDate(1 + df.getDaysInMonth(date) * this.getSubScaleFactor(date));
+            res.setDate(1 + df.getDaysInMonth(res) * this.getSubScaleFactor(res));
             return res;
         };
 
@@ -1494,14 +1500,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             var getMode = function (e) {
                 var x = mouseOffset.getOffset(e).x;
 
-                // Define resize&move area. Make sure the move area does not get too small.
-                var distance = $element[0].offsetWidth < 10 ? 3: 5;
+                var distance = 0;
 
-                if (x > $element[0].offsetWidth - distance) {
+                // Define resize&move area. Make sure the move area does not get too small.
+                if ($scope.allowTaskResizing) {
+                    distance = $element[0].offsetWidth < 10 ? 3: 5;
+                }
+
+                if ($scope.allowTaskResizing && x > $element[0].offsetWidth - distance) {
                     return "E";
-                } else if (x < distance) {
+                } else if ($scope.allowTaskResizing && x < distance) {
                     return "W";
-                } else if (x >= distance && x <= $element[0].offsetWidth - distance) {
+                } else if ($scope.allowTaskMoving && x >= distance && x <= $element[0].offsetWidth - distance) {
                     return "M";
                 } else {
                     return "";
@@ -1613,9 +1623,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,
-        scope: { row: "=ngModel", swap: "&" },
+        scope: { row: "=ngModel", swap: "&", active: "=?" },
         controller: ['$scope', '$element', function ($scope, $element) {
             $element.bind("mousedown", function () {
+                if ($scope.active !== true) {
+                    return;
+                }
+
                 enableDragMode();
 
                 var disableHandler = function () {
