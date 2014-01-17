@@ -36,9 +36,9 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         return column;
     };
 
-    var WeekColumn = function(date, left, width, week) {
+    var WeekColumn = function(date, left, width) {
         var column = new Column(date, left, width);
-        column.week = week;
+        column.week = df.getWeek(date);
 
         column.clone = function() {
             var copy = new Column(column.date, column.left, column.width);

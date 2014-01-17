@@ -20,12 +20,6 @@ gantt.factory('Task', ['dateFunctions', 'binarySearch', function (df, bs) {
             // Task bounds are calculated according to their time
             self.left = calculateTaskPos(cFrom[0], self.from);
             self.width = Math.round( (calculateTaskPos(cTo[0], self.to) - self.left) * 10) / 10;
-
-            // Set minimal width
-            // TODO check if width exceeds the Gantt width
-            if (self.width === 0) {
-                self.width = cFrom[0].width / self.gantt.columnGenerator.getSubScale();
-            }
         };
 
         // Calculates the position of the task start or end
@@ -35,36 +29,48 @@ gantt.factory('Task', ['dateFunctions', 'binarySearch', function (df, bs) {
             return Math.round( (column.left + column.width * self.gantt.columnGenerator.getSubScaleFactor(date)) * 10) / 10;
         };
 
-        // Sets the task from date. The from date is adjusted to the current task placement rounding rule
-        self.setFrom = function(date) {
-            self.from = self.gantt.columnGenerator.adjustDateToSubScale(date);
+        // Expands the start of the task to the specified position (in em)
+        self.setFrom = function(x) {
+            if (x > self.left + self.width) {
+                x = self.left + self.width;
+            }
+
+            self.from = self.row.gantt.getDateByPosition(x);
             self.row.setMinMaxDateByTask(self);
             self.gantt.expandColumns(self.from, self.to);
             self.updatePosAndSize();
         };
 
-        // Sets the task to date. The from date is adjusted to the current task placement rounding rule
-        self.setTo = function(date) {
-            self.to = self.gantt.columnGenerator.adjustDateToSubScale(date);
+        // Expands the end of the task to the specified position (in em)
+        self.setTo = function(x) {
+            if (x < self.left) {
+                x = self.left;
+            }
+
+            self.to = self.row.gantt.getDateByPosition(x);
             self.row.setMinMaxDateByTask(self);
             self.gantt.expandColumns(self.from, self.to);
             self.updatePosAndSize();
         };
 
-        // Sets the task from date to the specified date and is keeping the existing task length
-        self.moveTo = function(date) {
-            var taskLength = self.to - self.from;
-            self.from = self.gantt.columnGenerator.adjustDateToSubScale(date);
-            self.to = df.addMilliseconds(self.from, taskLength, true);
+        // Moves the task to the specified position (in em)
+        self.moveTo = function(x) {
+            if (x < 0 || x + self.width >= self.row.gantt.width) {
+                return;
+            }
+
+            var cmp =  function(c) { return c.date; };
+
+            self.from = self.row.gantt.getDateByPosition(x);
+            var cFrom = bs.get(self.gantt.columns, self.from, cmp);
+            self.left = calculateTaskPos(cFrom[0], self.from);
+
+            self.to = self.row.gantt.getDateByPosition(self.left + self.width);
+            var cTo = bs.get(self.gantt.columns, self.to, cmp);
+            self.width = Math.round( (calculateTaskPos(cTo[0], self.to) - self.left) * 10) / 10;
+
             self.row.setMinMaxDateByTask(self);
             self.gantt.expandColumns(self.from, self.to);
-            self.updatePosAndSize();
-        };
-
-        // Moves the task from date by the specified time span and keeps the existing task length
-        self.moveBy = function(timespan) {
-            var newFromDate = df.addMilliseconds(self.from, timespan, true);
-            self.moveTo(newFromDate);
         };
 
         self.copy = function(task) {

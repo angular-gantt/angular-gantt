@@ -32,9 +32,11 @@ gantt.directive('ganttLabelResizable', ['$document', 'mouseOffset', function ($d
                     angular.element($document[0].body).bind("mousemove", moveHandler);
 
                     var disableHandler = function () {
-                        angular.element($document[0].body).unbind('mousemove', moveHandler);
-                        angular.element($document[0].body).unbind('mouseup', disableHandler);
-                        disableResizeMode();
+                        $scope.$apply(function(){
+                            angular.element($document[0].body).unbind('mousemove', moveHandler);
+                            angular.element($document[0].body).unbind('mouseup', disableHandler);
+                            disableResizeMode();
+                        });
                     };
 
                     angular.element($document[0].body).bind("mouseup", disableHandler);

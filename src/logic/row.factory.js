@@ -24,8 +24,19 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
                 self.tasks.push(task);
             }
 
+            self.sortTasks();
             self.setMinMaxDateByTask(task);
             return task;
+        };
+
+        // Removes the task from the existing row and adds it to he current one
+        self.moveTaskToRow = function(task) {
+            task.row.removeTask(task.id);
+            self.tasksMap[task.id] = task;
+            self.tasks.push(task);
+            self.setTasksMinMaxDate();
+            task.row = self;
+            task.updatePosAndSize();
         };
 
         // Remove the specified task from the row
@@ -40,7 +51,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
 
                         // Update earliest or latest date info as this may change
                         if (self.minFromDate - task.from === 0 || self.maxToDate - task.to === 0) {
-                            setTasksMinMaxDate();
+                            self.setTasksMinMaxDate();
                         }
 
                         return task;
@@ -70,6 +81,10 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
             } else if (task.to > self.maxToDate) {
                 self.maxToDate = df.clone(task.to);
             }
+        };
+
+        self.sortTasks = function() {
+            self.tasks.sort(function(t1, t2) { return t1.left - t2.left; });
         };
 
         self.copy = function(row) {

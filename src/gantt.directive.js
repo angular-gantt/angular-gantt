@@ -156,7 +156,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
                 var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = clickedColumn.getDateByPosition(xInEm - clickedColumn.left);
+                var date = $scope.gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowClickedEvent(row, clickedColumn, date);
 
@@ -165,7 +165,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset
             };
 
             $scope.raiseRowClickedEvent = function(row, column, date) {
-                date = $scope.gantt.columnGenerator.adjustDateToSubScale(date);
                 $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date } });
             };
 

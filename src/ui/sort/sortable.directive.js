@@ -17,8 +17,10 @@ gantt.directive('ganttSortable', ['$document', 'sortManager', function ($documen
                 enableDragMode();
 
                 var disableHandler = function () {
-                    angular.element($document[0].body).unbind('mouseup', disableHandler);
-                    disableDragMode();
+                    $scope.$apply(function() {
+                        angular.element($document[0].body).unbind('mouseup', disableHandler);
+                        disableDragMode();
+                    });
                 };
                 angular.element($document[0].body).bind("mouseup", disableHandler);
             });

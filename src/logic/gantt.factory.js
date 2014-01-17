@@ -110,15 +110,19 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
-        // Returns the column at the given position (in em)
-        self.getColumnByPosition = function(position) {
-            return bs.get(self.columns, position, function(c) { return c.left; })[0];
+        // Returns the column at the given position x (in em)
+        self.getColumnByPosition = function(x) {
+            return bs.get(self.columns, x, function(c) { return c.left; })[0];
         };
 
-        // Returns the exact column date at the given position (in em)
-        self.getDateByPosition = function(position) {
-            var column = self.getColumnByPosition(position);
-            return column !== undefined ? column.getDateByPosition(position - column.left): undefined;
+        // Returns the exact column date at the given position x (in em)
+        self.getDateByPosition = function(x) {
+            var column = self.getColumnByPosition(x);
+            if (column !== undefined) {
+                return self.columnGenerator.adjustDateToSubScale(column.getDateByPosition(x - column.left));
+            } else {
+                return undefined;
+            }
         };
 
         // Returns the default Gantt column date range or undefined if it has not been defined

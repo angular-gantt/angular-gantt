@@ -24,12 +24,31 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
             $scope.css = {};
 
             $scope.mouseEnter = function (e) {
-                showTooltip(e.clientX);
+                if (!$scope.task.isMoving) {
+                    showTooltip(e.clientX);
+                }
             };
 
-            $scope.mouseLeave = function () {
-                hideTooltip();
+            $scope.mouseLeave = function (e) {
+                if (!$scope.task.isMoving) {
+                    hideTooltip();
+                }
             };
+
+            var moveHandler = function (e) {
+                $scope.$apply(function() {
+                    showTooltip(e.clientX);
+                });
+            };
+
+            $scope.$watch("task.isMoving", function(newValue, oldValue) {
+                if (newValue === true) {
+                    angular.element($document[0].body).bind('mousemove', moveHandler);
+                } else if (newValue === false ) {
+                    angular.element($document[0].body).unbind('mousemove', moveHandler);
+                    hideTooltip();
+                }
+            });
 
             var getViewPortWidth = function() {
                 var d = $document[0];
@@ -39,7 +58,7 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
             var showTooltip = function(x) {
                 $scope.visible = true;
 
-                $timeout(function(){
+                $timeout(function() {
                     var elTip = angular.element($element.children()[0]);
 
                     elTip.removeClass('gantt-task-infoArrow');
@@ -53,10 +72,11 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
                         $scope.css.left = (x - 20) + "px";
                         elTip.addClass('gantt-task-infoArrow');
                     }
+
                     $scope.css.top = $element[0].getBoundingClientRect().top + "px";
                     $scope.css.marginTop = -elTip[0].offsetHeight - 8 + "px";
                     $scope.css.opacity = 1;
-                },1, true);
+                }, 1, true);
             };
 
             var hideTooltip = function() {

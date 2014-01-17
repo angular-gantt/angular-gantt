@@ -54,9 +54,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
 
         // Takes a date and adjusts it to the current column sub scale. E.g. if subScale=4 and date is 13:40 result will be 13:45
         this.adjustDateToSubScale = function(date) {
-            var res = df.clone(date);
-            res.setMinutes(60 * this.getSubScaleFactor(res));
-            return res;
+            date = df.clone(date);
+            return df.setTimeComponent(date, date.getHours() * 3600 * 1000 +  60 * this.getSubScaleFactor(date) * 60 * 1000);
         };
 
         this.getSubScale = function() {
@@ -95,9 +94,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
 
         this.adjustDateToSubScale = function(date) {
-            var res = df.clone(date);
-            res.setHours(24 * this.getSubScaleFactor(res));
-            return res;
+            date = df.clone(date);
+            return df.setTimeComponent(date, 24 * this.getSubScaleFactor(date) * 3600 * 1000);
         };
 
         this.getSubScale = function() {
@@ -119,7 +117,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var left = 0;
 
             while(to - date >= 0) {
-                generatedCols.push(new Column.Month(df.clone(date), left, columnWidth));
+                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth));
                 left += columnWidth;
 
                 date = df.addWeeks(date, 1);
@@ -128,9 +126,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             return generatedCols;
         };
 
+        // TODO week date is not calculated correctly
         this.adjustDateToSubScale = function(date) {
             var res = df.clone(date);
-            df.setToDayOfWeek(res, 7 * this.getSubScaleFactor(res), false);
+
+            //var newDay = 7 * this.getSubScaleFactor(res) - 1;
+            //var orient = newDay < res.getDay() ? -1: 1;
+            df.setToDayOfWeek(res, 7 * this.getSubScaleFactor(res) + 1, false);
             return res;
         };
 
@@ -139,7 +141,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
 
         this.getSubScaleFactor = function(date) {
-            return Math.round(date.getDay()/7 * columnSubScale) / columnSubScale;
+            return Math.round((date.getDay()-1)/7 * columnSubScale) / columnSubScale;
         };
     };
 
@@ -163,9 +165,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
 
         this.adjustDateToSubScale = function(date) {
-            var res = df.clone(date);
-            res.setDate(1 + df.getDaysInMonth(res) * this.getSubScaleFactor(res));
-            return res;
+            date = df.clone(date);
+            return new Date(date.getFullYear(), date.getMonth(), 1 + df.getDaysInMonth(date) * this.getSubScaleFactor(date));
         };
 
         this.getSubScale = function() {

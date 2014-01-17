@@ -15,39 +15,32 @@ gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset
                     var moveHandler = function(e) {
                         $scope.$apply(function() {
 
-                            var date = getDate(e);
-                            if (date !== undefined) {
-
-                                if (mode === "M") {
-                                    var newFromDate = df.addMilliseconds(date, -moveOffset, true);
-                                    $scope.task.moveTo(newFromDate);
-                                } else if (mode === "E") {
-                                    if (date < $scope.task.from) {
-                                        date = df.clone($scope.task.from);
-                                    }
-
-                                    $scope.task.setTo(date);
-
-                                } else {
-                                    if (date > $scope.task.to) {
-                                        date = df.clone($scope.task.to);
-                                    }
-
-                                    $scope.task.setFrom(date);
+                            var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
+                            if (mode === "M") {
+                                var targetRow = getRow(e);
+                                if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
+                                    targetRow.moveTaskToRow($scope.task);
                                 }
 
-                                taskHasBeenMoved = true;
+                                $scope.task.moveTo(xInEm - moveOffset);
+                            } else if (mode === "E") {
+                                $scope.task.setTo(xInEm);
+                            } else {
+                                $scope.task.setFrom(xInEm);
                             }
 
+                            taskHasBeenMoved = true;
                         });
                     };
 
                     ganttBodyElement.bind("mousemove", moveHandler);
 
                     var disableHandler = function () {
-                        ganttBodyElement.unbind('mousemove', moveHandler);
-                        angular.element($document[0].body).unbind('mouseup', disableHandler);
-                        disableMoveMode();
+                        $scope.$apply(function() {
+                            ganttBodyElement.unbind('mousemove', moveHandler);
+                            angular.element($document[0].body).unbind('mouseup', disableHandler);
+                            disableMoveMode();
+                        });
                     };
 
                     angular.element($document[0].body).bind("mouseup", disableHandler);
@@ -65,10 +58,11 @@ gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset
                 }
             });
 
-            var getDate = function(e) {
-                //var emPxFactor = ganttBodyElement[0].offsetWidth / $scope.gantw //$element[0].offsetWidth / $scope.task.width;
-                var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
-                return $scope.task.row.gantt.getDateByPosition(xInEm);
+            var getRow = function(e) {
+                var y = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).y;
+                var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
+                var pos = Math.floor(y / rowHeight);
+                return $scope.task.row.gantt.rows[pos];
             };
 
             var getMode = function (e) {
@@ -101,7 +95,10 @@ gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset
             };
 
             var enableMoveMode = function (mode, e) {
-                moveOffset = getDate(e) - $scope.task.from;
+                $scope.task.isMoving = true;
+
+                var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
+                moveOffset = xInEm - $scope.task.left;
 
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
@@ -113,7 +110,10 @@ gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset
             };
 
             var disableMoveMode = function () {
+                $scope.task.isMoving = false;
+
                 if (taskHasBeenMoved === true) {
+                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
                     $scope.raiseTaskUpdatedEvent($scope.task);
                     taskHasBeenMoved = false;
                 }
