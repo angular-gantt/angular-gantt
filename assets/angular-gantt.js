@@ -460,6 +460,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
     var HourColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates the columns between from and to date. The task will later be places between the matching columns.
         this.generate = function(from, to) {
+            var excludeTo = df.isTimeZero(to);
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
@@ -467,7 +468,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             var generatedCols = [];
             var left = 0;
 
-            while(to - date >= 0) {
+            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
 
                 for (var i = 0; i<24; i++) {
@@ -489,8 +490,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
     var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends) {
         this.generate = function(from, to) {
-            var t = df.isTimeZero(to);
-
+            var excludeTo = df.isTimeZero(to);
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
@@ -498,7 +498,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             var generatedCols = [];
             var left = 0;
 
-            while(t && to - date > 0 || !t && to - date >= 0) {
+            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
 
                 if (isWeekend && showWeekends || !isWeekend) {
@@ -515,6 +515,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
     var WeekColumnGenerator = function(columnWidth, columnSubScale, firstDayOfWeek) {
         this.generate = function(from, to) {
+            var excludeTo = to.getDay() === firstDayOfWeek && df.isTimeZero(to);
             from = df.setToDayOfWeek(df.setTimeZero(from, true), firstDayOfWeek, false);
             to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
 
@@ -522,7 +523,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             var generatedCols = [];
             var left = 0;
 
-            while(to - date >= 0) {
+            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
                 generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale));
                 left += columnWidth;
 
@@ -535,6 +536,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
     var MonthColumnGenerator = function(columnWidth, columnSubScale) {
         this.generate = function(from, to) {
+            var excludeTo = to.getDate() === 1 && df.isTimeZero(to);
             from = df.setToFirstDayOfMonth(df.setTimeZero(from, true), false);
             to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
 
@@ -542,7 +544,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             var generatedCols = [];
             var left = 0;
 
-            while(to - date >= 0) {
+            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
                 generatedCols.push(new Column.Month(df.clone(date), left, columnWidth, columnSubScale));
                 left += columnWidth;
 
