@@ -41,7 +41,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                     var isWorkHour = checkIsWorkHour(workHours, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
-                        generatedCols.push(new Column.Hour(cDate, left, columnWidth, isWeekend, isWorkHour));
+                        generatedCols.push(new Column.Hour(cDate, left, columnWidth, columnSubScale, isWeekend, isWorkHour));
                         left += columnWidth;
                     }
                 }
@@ -51,27 +51,12 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
 
             return generatedCols;
         };
-
-        // Takes a date and adjusts it to the current column sub scale. E.g. if subScale=4 and date is 13:40 result will be 13:45
-        this.adjustDateToSubScale = function(date) {
-            date = df.clone(date);
-            return df.setTimeComponent(date, date.getHours() * 3600 * 1000 +  60 * this.getSubScaleFactor(date) * 60 * 1000);
-        };
-
-        this.getSubScale = function() {
-            return columnSubScale;
-        };
-
-        // Returns the column sub scale factor from the specified date.
-        // Use the  parameter to specify if task shall be displayed e.g. in quarter steps
-        // columnSubScale: 4 = in quarter steps, 2 = in half steps, ..
-        this.getSubScaleFactor = function(date) {
-            return Math.round(date.getMinutes()/60 * columnSubScale) / columnSubScale;
-        };
     };
 
     var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends) {
         this.generate = function(from, to) {
+            var t = df.isTimeZero(to);
+
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
@@ -79,11 +64,11 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var generatedCols = [];
             var left = 0;
 
-            while(to - date >= 0) {
+            while(t && to - date > 0 || !t && to - date >= 0) {
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
 
                 if (isWeekend && showWeekends || !isWeekend) {
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, isWeekend));
+                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend));
                     left += columnWidth;
                 }
 
@@ -91,19 +76,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             }
 
             return generatedCols;
-        };
-
-        this.adjustDateToSubScale = function(date) {
-            date = df.clone(date);
-            return df.setTimeComponent(date, 24 * this.getSubScaleFactor(date) * 3600 * 1000);
-        };
-
-        this.getSubScale = function() {
-            return columnSubScale;
-        };
-
-        this.getSubScaleFactor = function(date) {
-            return Math.round(date.getHours()/24 * columnSubScale) / columnSubScale;
         };
     };
 
@@ -117,31 +89,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var left = 0;
 
             while(to - date >= 0) {
-                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth));
+                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale));
                 left += columnWidth;
 
                 date = df.addWeeks(date, 1);
             }
 
             return generatedCols;
-        };
-
-        // TODO week date is not calculated correctly
-        this.adjustDateToSubScale = function(date) {
-            var res = df.clone(date);
-
-            //var newDay = 7 * this.getSubScaleFactor(res) - 1;
-            //var orient = newDay < res.getDay() ? -1: 1;
-            df.setToDayOfWeek(res, 7 * this.getSubScaleFactor(res) + 1, false);
-            return res;
-        };
-
-        this.getSubScale = function() {
-            return columnSubScale;
-        };
-
-        this.getSubScaleFactor = function(date) {
-            return Math.round((date.getDay()-1)/7 * columnSubScale) / columnSubScale;
         };
     };
 
@@ -155,26 +109,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var left = 0;
 
             while(to - date >= 0) {
-                generatedCols.push(new Column.Month(df.clone(date), left, columnWidth));
+                generatedCols.push(new Column.Month(df.clone(date), left, columnWidth, columnSubScale));
                 left += columnWidth;
 
                 date = df.addMonths(date, 1);
             }
 
             return generatedCols;
-        };
-
-        this.adjustDateToSubScale = function(date) {
-            date = df.clone(date);
-            return new Date(date.getFullYear(), date.getMonth(), 1 + df.getDaysInMonth(date) * this.getSubScaleFactor(date));
-        };
-
-        this.getSubScale = function() {
-            return columnSubScale;
-        };
-
-        this.getSubScaleFactor = function(date) {
-            return Math.round(date.getDate()/df.getDaysInMonth(date) * columnSubScale) / columnSubScale;
         };
     };
 

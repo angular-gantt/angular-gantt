@@ -75,6 +75,9 @@ gantt.service('dateFunctions', [ function () {
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
         },
+        isTimeZero: function(date) {
+            return date.getHours() === 0 && date.getMinutes() === 0 && date.getMinutes() === 0 && date.getMilliseconds() === 0;
+        },
         getDaysInMonth: function(date) {
             return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
         },

@@ -110,6 +110,11 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
+        // Returns the column at the given date
+        self.getColumnByDate = function(date) {
+            return bs.get(self.columns, date, function(c) { return c.date; })[0];
+        };
+
         // Returns the column at the given position x (in em)
         self.getColumnByPosition = function(x) {
             return bs.get(self.columns, x, function(c) { return c.left; })[0];
@@ -119,7 +124,17 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         self.getDateByPosition = function(x) {
             var column = self.getColumnByPosition(x);
             if (column !== undefined) {
-                return self.columnGenerator.adjustDateToSubScale(column.getDateByPosition(x - column.left));
+                return column.getDateByPosition(x - column.left);
+            } else {
+                return undefined;
+            }
+        };
+
+        // Returns the position inside the Gantt calculated by the given date
+        self.getPositionByDate = function(date) {
+            var column = self.getColumnByDate(date);
+            if (column !== undefined) {
+                return column.getPositionByDate(date);
             } else {
                 return undefined;
             }

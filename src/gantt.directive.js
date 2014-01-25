@@ -6,7 +6,7 @@
 
 var gantt = angular.module('gantt', []);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'binarySearch', 'mouseOffset', function (Gantt, df, bs, mouseOffset) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gantt, df, mouseOffset) {
     return {
         restrict: "EA",
         replace: true,
