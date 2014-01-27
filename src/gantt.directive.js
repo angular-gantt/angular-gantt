@@ -123,6 +123,25 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
             });
 
+            // Scroll to the left side by specified x
+            $scope.scrollLeft = function(xInEM) {
+                $scope.ganttScroll[0].scrollLeft -= xInEM * $scope.getPxToEmFactor();
+            };
+
+            // Scroll to the right side by specified x
+            $scope.scrollRight = function(xInEM) {
+                $scope.ganttScroll[0].scrollLeft += xInEM * $scope.getPxToEmFactor();
+            };
+
+            // Tries to center the specified date
+            $scope.scrollToDate = function(date) {
+                var column = $scope.gantt.getColumnByDate(date);
+                if (column !== undefined) {
+                    var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
+                    $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
+                }
+            };
+
             // Expands the date area when the user scroll to either left or right end.
             // May be used for the write mode in the future.
             $scope.autoExpandColumns = function(el, date, direction) {
