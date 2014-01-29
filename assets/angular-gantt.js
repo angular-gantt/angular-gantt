@@ -39,6 +39,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             loadData: "&",
             removeData: "&",
             clearData: "&",
+            centerDate: "&",
             onGanttReady: "&",
             onRowAdded: "&",
             onRowClicked: "&",
@@ -123,14 +124,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
             });
 
+            // Scroll to the specified x
+            $scope.scrollTo = function(x) {
+                $scope.ganttScroll[0].scrollLeft = x;
+            };
+
             // Scroll to the left side by specified x
-            $scope.scrollLeft = function(xInEM) {
-                $scope.ganttScroll[0].scrollLeft -= xInEM * $scope.getPxToEmFactor();
+            $scope.scrollLeft = function(x) {
+                $scope.ganttScroll[0].scrollLeft -= x;
             };
 
             // Scroll to the right side by specified x
-            $scope.scrollRight = function(xInEM) {
-                $scope.ganttScroll[0].scrollLeft += xInEM * $scope.getPxToEmFactor();
+            $scope.scrollRight = function(x) {
+                $scope.ganttScroll[0].scrollLeft += x;
             };
 
             // Tries to center the specified date
@@ -141,6 +147,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                     $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
                 }
             };
+
+            $scope.centerDate({ fn: $scope.scrollToDate});
 
             // Expands the date area when the user scroll to either left or right end.
             // May be used for the write mode in the future.
@@ -1148,8 +1156,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
-            if (x < 0 || x + self.width >= self.gantt.width) {
-                return;
+            if (x < 0) {
+                x = 0;
+            } else if (x + self.width >= self.gantt.width) {
+                x = self.gantt.width - self.width;
             }
 
             self.from = self.gantt.getDateByPosition(x);
@@ -1373,7 +1383,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
         return res;
     };
-}]);;gantt.directive('ganttLabelResizable', ['$document', 'mouseOffset', function ($document, mouseOffset) {
+}]);;gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
 
     return {
         restrict: "A",
@@ -1388,7 +1398,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 if (isInResizeArea(e)) {
                     enableResizeMode(e);
 
-                    var moveHandler = function(e) {
+                    var moveHandler = debounce(function(e) {
                         $scope.$apply(function() {
 
                             if ($scope.width === 0) {
@@ -1402,7 +1412,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
                             originalPos = e.screenX;
                         });
-                    };
+                    }, 5);
 
                     angular.element($document[0].body).bind("mousemove", moveHandler);
 
@@ -1459,12 +1469,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             };
         }]
     };
-}]);;gantt.directive('ganttTaskMoveable', ['$document', 'dateFunctions', 'mouseOffset', function ($document, df, mouseOffset) {
+}]);;gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'dateFunctions', 'mouseOffset', function ($document, debounce, df, mouseOffset) {
 
     return {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
             var ganttBodyElement = $element.parent().parent();
+            var ganttScrollElement = ganttBodyElement.parent().parent();
             var moveOffset = null;
             var taskHasBeenMoved = false;
 
@@ -1473,26 +1484,24 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 if (mode !== "") {
                     enableMoveMode(mode, e);
 
-                    var moveHandler = function(e) {
-                        $scope.$apply(function() {
-
-                            var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
-                            if (mode === "M") {
-                                var targetRow = getRow(e);
-                                if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
-                                    targetRow.moveTaskToRow($scope.task);
-                                }
-
-                                $scope.task.moveTo(xInEm - moveOffset);
-                            } else if (mode === "E") {
-                                $scope.task.setTo(xInEm);
-                            } else {
-                                $scope.task.setFrom(xInEm);
+                    var moveHandler = debounce(function(e) {
+                        var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
+                        if (mode === "M") {
+                            var targetRow = getRow(e);
+                            if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
+                                targetRow.moveTaskToRow($scope.task);
                             }
 
-                            taskHasBeenMoved = true;
-                        });
-                    };
+                            $scope.task.moveTo(xInEm - moveOffset);
+                        } else if (mode === "E") {
+                            $scope.task.setTo(xInEm);
+                        } else {
+                            $scope.task.setFrom(xInEm);
+                        }
+
+                        scrollIfNeeded();
+                        taskHasBeenMoved = true;
+                    }, 5);
 
                     ganttBodyElement.bind("mousemove", moveHandler);
 
@@ -1518,6 +1527,21 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                     $element.css("cursor", '');
                 }
             });
+
+            var scrollIfNeeded = function() {
+                var leftBorder = ganttScrollElement[0].scrollLeft;
+                var rightBorder = leftBorder + ganttScrollElement[0].offsetWidth;
+                var distance = 20;
+
+                var tLeft = $scope.task.left * $scope.getPxToEmFactor();
+                var tRight = ($scope.task.left + $scope.task.width) * $scope.getPxToEmFactor();
+
+                if (tLeft - leftBorder < distance) {
+                    $scope.scrollTo(tLeft - distance);
+                } else if (rightBorder - tRight < distance) {
+                    $scope.scrollTo(tRight - ganttScrollElement[0].offsetWidth + distance);
+                }
+            };
 
             var getRow = function(e) {
                 var y = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).y;
@@ -1716,7 +1740,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             };
         }]
     };
-}]);;gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function (dateFilter, $timeout, $document) {
+}]);;gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', function ($timeout, $document, debounce) {
     // This tooltip displays more information about a task
 
     return {
@@ -1753,11 +1777,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
             };
 
-            var moveHandler = function (e) {
-                $scope.$apply(function() {
-                    showTooltip(e.clientX);
-                });
-            };
+            var moveHandler = debounce(function (e) {
+                showTooltip(e.clientX);
+            }, 1);
 
             $scope.$watch("task.isMoving", function(newValue, oldValue) {
                 if (newValue === true) {
@@ -1803,6 +1825,25 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             };
         }]
     };
+}]);;gantt.factory('debounce',['$timeout', function ($timeout) {
+    function debounce(fn, timeout) {
+        var nthCall = 0;
+        return function() {
+            var self = this;
+            var argz = arguments;
+            nthCall++;
+            var later = (function(version) {
+                return function() {
+                    if (version === nthCall) {
+                        return fn.apply(self, argz);
+                    }
+                };
+            })(nthCall);
+            return $timeout(later, timeout, true);
+        };
+    }
+
+    return debounce;
 }]);;gantt.service('mouseOffset', [ function () {
     // Mouse offset support for lesser browsers (read IE 8)
 

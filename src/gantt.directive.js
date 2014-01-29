@@ -39,6 +39,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             loadData: "&",
             removeData: "&",
             clearData: "&",
+            centerDate: "&",
             onGanttReady: "&",
             onRowAdded: "&",
             onRowClicked: "&",
@@ -123,14 +124,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
             });
 
+            // Scroll to the specified x
+            $scope.scrollTo = function(x) {
+                $scope.ganttScroll[0].scrollLeft = x;
+            };
+
             // Scroll to the left side by specified x
-            $scope.scrollLeft = function(xInEM) {
-                $scope.ganttScroll[0].scrollLeft -= xInEM * $scope.getPxToEmFactor();
+            $scope.scrollLeft = function(x) {
+                $scope.ganttScroll[0].scrollLeft -= x;
             };
 
             // Scroll to the right side by specified x
-            $scope.scrollRight = function(xInEM) {
-                $scope.ganttScroll[0].scrollLeft += xInEM * $scope.getPxToEmFactor();
+            $scope.scrollRight = function(x) {
+                $scope.ganttScroll[0].scrollLeft += x;
             };
 
             // Tries to center the specified date
@@ -141,6 +147,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                     $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
                 }
             };
+
+            $scope.centerDate({ fn: $scope.scrollToDate});
 
             // Expands the date area when the user scroll to either left or right end.
             // May be used for the write mode in the future.

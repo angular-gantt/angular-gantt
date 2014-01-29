@@ -41,8 +41,10 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
-            if (x < 0 || x + self.width >= self.gantt.width) {
-                return;
+            if (x < 0) {
+                x = 0;
+            } else if (x + self.width >= self.gantt.width) {
+                x = self.gantt.width - self.width;
             }
 
             self.from = self.gantt.getDateByPosition(x);
