@@ -1,4 +1,4 @@
-gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function (dateFilter, $timeout, $document) {
+gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', function ($timeout, $document, debounce) {
     // This tooltip displays more information about a task
 
     return {
@@ -35,11 +35,9 @@ gantt.directive('ganttTooltip', ['dateFilter', '$timeout', '$document', function
                 }
             };
 
-            var moveHandler = function (e) {
-                $scope.$apply(function() {
-                    showTooltip(e.clientX);
-                });
-            };
+            var moveHandler = debounce(function (e) {
+                showTooltip(e.clientX);
+            }, 1);
 
             $scope.$watch("task.isMoving", function(newValue, oldValue) {
                 if (newValue === true) {
