@@ -1,4 +1,4 @@
-gantt.directive('ganttLabelResizable', ['$document', 'mouseOffset', function ($document, mouseOffset) {
+gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
 
     return {
         restrict: "A",
@@ -13,7 +13,7 @@ gantt.directive('ganttLabelResizable', ['$document', 'mouseOffset', function ($d
                 if (isInResizeArea(e)) {
                     enableResizeMode(e);
 
-                    var moveHandler = function(e) {
+                    var moveHandler = debounce(function(e) {
                         $scope.$apply(function() {
 
                             if ($scope.width === 0) {
@@ -27,7 +27,7 @@ gantt.directive('ganttLabelResizable', ['$document', 'mouseOffset', function ($d
 
                             originalPos = e.screenX;
                         });
-                    };
+                    }, 5);
 
                     angular.element($document[0].body).bind("mousemove", moveHandler);
 
