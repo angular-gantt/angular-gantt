@@ -6,7 +6,7 @@
 
 var gantt = angular.module('gantt', []);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gantt, df, mouseOffset) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', function (Gantt, df, mouseOffset, debounce) {
     return {
         restrict: "EA",
         replace: true,
@@ -70,31 +70,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
 
-            $scope.getPxToEmFactor = function() {
-                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
-            };
-
-            // Swaps two rows and changes the sort order to custom to display the swapped rows
-            $scope.swapRows = function (a, b) {
-                $scope.gantt.swapRows(a, b);
-
-                // Raise change events
-                $scope.raiseRowUpdatedEvent(a);
-                $scope.raiseRowUpdatedEvent(b);
-
-                // Switch to custom sort mode and trigger sort
-                if ($scope.sortMode !== "custom") {
-                    $scope.sortMode = "custom"; // Sort will be triggered by the watcher
-                } else {
-                    $scope.sortRows();
-                }
-            };
-
-            // Sort rows by the current sort mode
-            $scope.sortRows = function () {
-                $scope.gantt.sortRows($scope.sortMode);
-            };
-
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.sortRows();
@@ -124,6 +99,31 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
             });
 
+            $scope.getPxToEmFactor = function() {
+                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
+            };
+
+            // Swaps two rows and changes the sort order to custom to display the swapped rows
+            $scope.swapRows = function (a, b) {
+                $scope.gantt.swapRows(a, b);
+
+                // Raise change events
+                $scope.raiseRowUpdatedEvent(a);
+                $scope.raiseRowUpdatedEvent(b);
+
+                // Switch to custom sort mode and trigger sort
+                if ($scope.sortMode !== "custom") {
+                    $scope.sortMode = "custom"; // Sort will be triggered by the watcher
+                } else {
+                    $scope.sortRows();
+                }
+            };
+
+            // Sort rows by the current sort mode
+            $scope.sortRows = function () {
+                $scope.gantt.sortRows($scope.sortMode);
+            };
+
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
                 $scope.ganttScroll[0].scrollLeft = x;
@@ -148,10 +148,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
             };
 
-            $scope.centerDate({ fn: $scope.scrollToDate});
-
-            // Expands the date area when the user scroll to either left or right end.
-            // May be used for the write mode in the future.
             $scope.autoExpandColumns = function(el, date, direction) {
                 if ($scope.autoExpand !== true) {
                     return;
@@ -199,7 +195,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 $scope.onRowUpdated({ event: { row: row } });
             };
 
-            $scope.raiseScrollEvent = function() {
+            $scope.raiseScrollEvent = debounce(function() {
                 var el = $scope.ganttScroll[0];
                 var direction;
                 var column;
@@ -213,17 +209,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 }
 
                 if (column !== undefined) {
-                    // Timeout is a workaround to because of the horizontal scroll wheel problem on OSX.
-                    // It seems that there is a scroll momentum which will continue the scroll when we add new data
-                    // left or right of the Gantt directly in the scroll event.
-                    // => Tips how to improve this are appreciated :)
-                    $timeout(function() {
-                        var date = df.clone(column.date);
-                        $scope.autoExpandColumns(el, date, direction);
-                        $scope.onScroll({ event: { date: date, direction: direction }});
-                    }, 500, true);
+                    var date = df.clone(column.date);
+                    $scope.autoExpandColumns(el, date, direction);
+                    $scope.onScroll({ event: { date: date, direction: direction }});
                 }
-            };
+            }, 5);
 
             $scope.raiseDOMTaskClickedEvent = function(e, task) {
                 $scope.raiseTaskClickedEvent(task);
@@ -238,11 +228,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
 
             $scope.raiseTaskUpdatedEvent = function(task) {
                 $scope.onTaskUpdated({ event: { task: task } });
-            };
-
-            // Clear all existing rows and tasks
-            $scope.removeAllData = function() {
-                $scope.gantt.removeRows();
             };
 
             // Bind scroll event
@@ -271,10 +256,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 el.scrollLeft = el.scrollLeft === 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldDateRange - oldWidth : el.scrollLeft;
             };
 
-            // Load data handler.
-            // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: $scope.setData});
-
             // Remove data handler.
             // If a row has no tasks inside the complete row will be deleted.
             $scope.removeData({ fn: function(data) {
@@ -302,8 +283,20 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', function (Gan
                 $scope.sortRows();
             }});
 
+            // Clear all existing rows and tasks
+            $scope.removeAllData = function() {
+                $scope.gantt.removeRows();
+            };
+
+            // Load data handler.
+            // The Gantt chart will keep the current view position if this function is called during scrolling.
+            $scope.loadData({ fn: $scope.setData});
+
             // Clear data handler.
             $scope.clearData({ fn: $scope.removeAllData});
+
+            // Scroll to specified date handler.
+            $scope.centerDate({ fn: $scope.scrollToDate});
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.onGanttReady();
