@@ -1,4 +1,4 @@
-gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', function ($timeout, $document, debounce) {
+gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function ($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
     return {
@@ -20,6 +20,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', function (
         transclude: true,
         scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
+            var bodyElement = angular.element($document[0].body);
             $scope.visible = false;
             $scope.css = {};
 
@@ -35,15 +36,19 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', function (
                 }
             };
 
-            var moveHandler = debounce(function (e) {
-                showTooltip(e.clientX);
-            }, 1);
+            var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function (e) {
+                if ($scope.visible === true) {
+                    updateTooltip(e.clientX);
+                } else {
+                    showTooltip(e.clientX);
+                }
+            }, 1));
 
             $scope.$watch("task.isMoving", function(newValue, oldValue) {
                 if (newValue === true) {
-                    angular.element($document[0].body).bind('mousemove', moveHandler);
+                    mouseMoveHandler.bind();
                 } else if (newValue === false ) {
-                    angular.element($document[0].body).unbind('mousemove', moveHandler);
+                    mouseMoveHandler.unbind();
                     hideTooltip();
                 }
             });
@@ -59,22 +64,28 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', function (
                 $timeout(function() {
                     var elTip = angular.element($element.children()[0]);
 
-                    elTip.removeClass('gantt-task-infoArrow');
-                    elTip.removeClass('gantt-task-infoArrowR');
-
-                    // Check if info is overlapping with view port
-                    if (x + elTip[0].offsetWidth > getViewPortWidth()) {
-                        $scope.css.left = (x + 20 - elTip[0].offsetWidth) + "px";
-                        elTip.addClass('gantt-task-infoArrowR'); // Right aligned info
-                    } else {
-                        $scope.css.left = (x - 20) + "px";
-                        elTip.addClass('gantt-task-infoArrow');
-                    }
+                    updateTooltip(x);
 
                     $scope.css.top = $element[0].getBoundingClientRect().top + "px";
                     $scope.css.marginTop = -elTip[0].offsetHeight - 8 + "px";
                     $scope.css.opacity = 1;
                 }, 1, true);
+            };
+
+            var updateTooltip = function(x) {
+                var elTip = angular.element($element.children()[0]);
+
+                elTip.removeClass('gantt-task-infoArrow');
+                elTip.removeClass('gantt-task-infoArrowR');
+
+                // Check if info is overlapping with view port
+                if (x + elTip[0].offsetWidth > getViewPortWidth()) {
+                    $scope.css.left = (x + 20 - elTip[0].offsetWidth) + "px";
+                    elTip.addClass('gantt-task-infoArrowR'); // Right aligned info
+                } else {
+                    $scope.css.left = (x - 20) + "px";
+                    elTip.addClass('gantt-task-infoArrow');
+                }
             };
 
             var hideTooltip = function() {

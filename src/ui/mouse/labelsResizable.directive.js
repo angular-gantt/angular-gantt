@@ -13,34 +13,6 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
                 if (isInResizeArea(e)) {
                     enableResizeMode(e);
 
-                    var moveHandler = debounce(function(e) {
-                        $scope.$apply(function() {
-
-                            if ($scope.width === 0) {
-                                $scope.width = $element[0].offsetWidth;
-                            }
-
-                            $scope.width += e.screenX - originalPos;
-                            if ($scope.width < $scope.minWidth) {
-                                $scope.width  = $scope.minWidth;
-                            }
-
-                            originalPos = e.screenX;
-                        });
-                    }, 5);
-
-                    angular.element($document[0].body).bind("mousemove", moveHandler);
-
-                    var disableHandler = function () {
-                        $scope.$apply(function(){
-                            angular.element($document[0].body).unbind('mousemove', moveHandler);
-                            angular.element($document[0].body).unbind('mouseup', disableHandler);
-                            disableResizeMode();
-                        });
-                    };
-
-                    angular.element($document[0].body).bind("mouseup", disableHandler);
-
                     e.preventDefault();
                 }
             });
@@ -52,6 +24,19 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
                     $element.css("cursor", '');
                 }
             });
+
+            var resize = function(x) {
+                if ($scope.width === 0) {
+                    $scope.width = $element[0].offsetWidth;
+                }
+
+                $scope.width += x - originalPos;
+                if ($scope.width < $scope.minWidth) {
+                    $scope.width  = $scope.minWidth;
+                }
+
+                originalPos = x;
+            };
 
             var isInResizeArea = function (e) {
                 var x = mouseOffset.getOffset(e).x;
@@ -68,6 +53,17 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
                     '-ms-user-select': 'none',
                     'user-select': 'none',
                     'cursor': cursor
+                });
+
+                var moveHandler = debounce(function(e) {
+                    resize(e.screenX);
+                }, 5);
+
+                angular.element($document[0].body).bind("mousemove", moveHandler);
+
+                angular.element($document[0].body).one("mouseup", function() {
+                    angular.element($document[0].body).unbind('mousemove', moveHandler);
+                    disableResizeMode();
                 });
             };
 
