@@ -5,14 +5,13 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
         scope: { width: "=ganttLabelResizable",
                  minWidth: "=resizeMin" },
         controller: ['$scope', '$element', function ($scope, $element) {
-            var originalPos;
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
+            var originalPos;
 
             $element.bind("mousedown", function (e) {
                 if (isInResizeArea(e)) {
                     enableResizeMode(e);
-
                     e.preventDefault();
                 }
             });

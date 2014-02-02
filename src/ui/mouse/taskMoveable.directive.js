@@ -1,24 +1,28 @@
-gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'smartEvent', 'dateFunctions', 'mouseOffset', function ($document, debounce, smartEvent, df, mouseOffset) {
+gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'dateFunctions', 'mouseOffset', function ($document, $timeout, debounce, df, mouseOffset) {
 
     return {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
+            var resizeAreaWidthBig = 5;
+            var resizeAreaWidthSmall = 3;
+            var scrollSpeed = 15;
+            var scrollTriggerDistance = 10;
             var bodyElement = angular.element($document[0].body);
             var ganttBodyElement = $element.parent().parent();
             var ganttScrollElement = ganttBodyElement.parent().parent();
-            var moveOffset = null;
             var taskHasBeenMoved = false;
+            var mouseOffsetInEm = null;
+            var moveStartX = null;
 
-           var mouseDownHandler = smartEvent($scope, $element, 'mousedown', function (e) {
+           $element.bind('mousedown', function (e) {
                 var mode = getMode(e);
                 if (mode !== "") {
                     enableMoveMode(mode, e);
                     e.preventDefault();
                 }
             });
-            mouseDownHandler.bind();
 
-            var mouseMoveHandler = smartEvent($scope, $element, "mousemove", function (e) {
+            $element.bind("mousemove", function (e) {
                 var mode = getMode(e);
                 if (mode !== "" && mode !== "M") {
                     $element.css("cursor", getCursor(mode));
@@ -26,9 +30,12 @@ gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'smartEvent', 'da
                     $element.css("cursor", '');
                 }
             });
-            mouseMoveHandler.bind();
 
             var moveTask = function(mode, x, y) {
+                if ($scope.task.isMoving === false) {
+                    return;
+                }
+
                 var xInEm = x / $scope.getPxToEmFactor();
                 if (mode === "M") {
                     var targetRow = getRow(y);
@@ -36,29 +43,45 @@ gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'smartEvent', 'da
                         targetRow.moveTaskToRow($scope.task);
                     }
 
-                    $scope.task.moveTo(xInEm - moveOffset);
+                    $scope.task.moveTo(xInEm - mouseOffsetInEm);
                 } else if (mode === "E") {
                     $scope.task.setTo(xInEm);
                 } else {
                     $scope.task.setFrom(xInEm);
                 }
 
-                scrollIfNeeded();
                 taskHasBeenMoved = true;
+                scrollIfNeeded(mode, x, y);
             };
 
-            var scrollIfNeeded = function() {
-                var leftBorder = ganttScrollElement[0].scrollLeft;
-                var rightBorder = leftBorder + ganttScrollElement[0].offsetWidth;
-                var distance = 20;
+            var scrollIfNeeded = function(mode, x, y) {
+                var leftScreenBorder = ganttScrollElement[0].scrollLeft;
 
-                var tLeft = $scope.task.left * $scope.getPxToEmFactor();
-                var tRight = ($scope.task.left + $scope.task.width) * $scope.getPxToEmFactor();
+                if (x < moveStartX) {
+                    // Scroll to the left
+                    var taskLeft = $scope.task.left * $scope.getPxToEmFactor();
 
-                if (tLeft - leftBorder < distance) {
-                    $scope.scrollTo(tLeft - distance/2);
-                } else if (rightBorder - tRight < distance) {
-                    $scope.scrollTo(tRight - ganttScrollElement[0].offsetWidth + distance/2);
+                    if (taskLeft - leftScreenBorder < scrollTriggerDistance && // Task touches left screen border
+                        taskLeft  > 0 && // Task is still inside Gantt
+                        leftScreenBorder - scrollSpeed > -scrollSpeed) { // Do not scroll if already reached the left side of the Gantt
+
+                        $scope.scrollLeft(scrollSpeed);
+                        $timeout(function() { moveTask(mode, x - scrollSpeed, y); }, 10, true); // Keep on scrolling
+                    }
+                } else {
+                    // Scroll to the right
+                    var screenWidth = ganttScrollElement[0].offsetWidth;
+                    var rightScreenBorder = leftScreenBorder + screenWidth;
+                    var ganttWidth = $scope.gantt.width * $scope.getPxToEmFactor();
+                    var taskRight = ($scope.task.left + $scope.task.width) * $scope.getPxToEmFactor();
+
+                    if (rightScreenBorder - taskRight < scrollTriggerDistance && // Task touches right screen border
+                        taskRight < ganttWidth && // Task is still inside Gantt
+                        rightScreenBorder + scrollSpeed < ganttWidth + scrollSpeed) { // Do not scroll if already reached the right side of the Gantt
+
+                        $scope.scrollTo(taskRight - screenWidth + scrollSpeed);
+                        $timeout(function() { moveTask(mode, x + scrollSpeed, y); }, 10, true); // Keep on scrolling
+                    }
                 }
             };
 
@@ -75,7 +98,7 @@ gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'smartEvent', 'da
 
                 // Define resize&move area. Make sure the move area does not get too small.
                 if ($scope.allowTaskResizing) {
-                    distance = $element[0].offsetWidth < 10 ? 3: 5;
+                    distance = $element[0].offsetWidth < 10 ? resizeAreaWidthSmall: resizeAreaWidthBig;
                 }
 
                 if ($scope.allowTaskResizing && x > $element[0].offsetWidth - distance) {
@@ -100,8 +123,9 @@ gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'smartEvent', 'da
             var enableMoveMode = function (mode, e) {
                 $scope.task.isMoving = true;
 
-                var xInEm = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x / $scope.getPxToEmFactor();
-                moveOffset = xInEm - $scope.task.left;
+                moveStartX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
+                var xInEm = moveStartX / $scope.getPxToEmFactor();
+                mouseOffsetInEm = xInEm - $scope.task.left;
 
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
@@ -117,11 +141,10 @@ gantt.directive('ganttTaskMoveable', ['$document', 'debounce', 'smartEvent', 'da
                 }, 5);
                 ganttBodyElement.bind('mousemove', taskMoveHandler);
 
-                var taskMoveDisableHandler = function() {
+                bodyElement.one('mouseup', function() {
                     ganttBodyElement.unbind('mousemove', taskMoveHandler);
                     disableMoveMode();
-                };
-                bodyElement.one('mouseup', taskMoveDisableHandler);
+                });
             };
 
             var disableMoveMode = function () {
