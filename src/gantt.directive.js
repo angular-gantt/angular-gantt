@@ -164,11 +164,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                var oldScrollLeft = el.scrollLeft === 0 ? ((to - from) * el.scrollWidth) / ($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) : el.scrollLeft;
-                $scope.gantt.expandColumns(from, to);
+                // Expand columns and keep current scroll position
+                $timeout(function() {
+                    var oldWidth = el.scrollWidth;
+                    var oldScrollLeft = el.scrollLeft;
 
-                // Show Gantt at the same position as it was before expanding the date area
-                el.scrollLeft = oldScrollLeft;
+                    $scope.$apply(function() {
+                        $scope.gantt.expandColumns(from, to);
+                    });
+
+                    el.scrollLeft = el.scrollLeft === 0 ? el.scrollWidth - oldWidth : oldScrollLeft;
+                }, 0, false);
             };
 
             $scope.raiseRowAddedEvent = function(row) {
