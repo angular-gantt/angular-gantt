@@ -369,9 +369,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
         return column;
     };
 
-    var WeekColumn = function(date, left, width, subScale) {
+    var WeekColumn = function(date, left, width, subScale, firstDayOfWeek) {
         var column = new Column(date, left, width, subScale);
         column.week = df.getWeek(date);
+        column.firstDayOfWeek = firstDayOfWeek;
         column.daysInWeek = 7;
 
         column.clone = function() {
@@ -380,19 +381,32 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
             return copy;
         };
 
-        // TODO week date is not calculated correctly
+        // Adjusts the day so that the specified first day of week is index = 0
+        var firstDayIs0 = function(day) {
+            return ((column.daysInWeek - column.firstDayOfWeek) + day) % column.daysInWeek;
+        };
+
+        // Adjusts the day so that Sunday= 0, Monday = 1, ...
+        var firstDayIsSunday = function(day) {
+            return (column.firstDayOfWeek + day) % column.daysInWeek;
+        };
+
         column.getDateByPosition = function(position) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            df.setToDayOfWeek(res, calcDbyP(column, column.daysInWeek, position), false);
+            var day = Math.round(calcDbyP(column, column.daysInWeek, position));
+
+            // If day === 7, then jump forward to next week
+            var direction = day !== 7 && day < column.firstDayOfWeek ? -1: 1; // -1: <<<<< | 1: >>>>>
+
+            df.setToDayOfWeek(res, day !== 7 ? firstDayIsSunday(day): firstDayIsSunday(day) + 7, false, direction);
             return res;
         };
 
-        // TODO week date is not calculated correctly
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, date.getDay(), df.getWeek(date), df.getWeek(column.date));
+            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()), df.getWeek(date), df.getWeek(column.date));
         };
 
         return column;
@@ -550,7 +564,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
             var left = 0;
 
             while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale, firstDayOfWeek));
                 left += columnWidth;
 
                 date = df.addWeeks(date, 1);

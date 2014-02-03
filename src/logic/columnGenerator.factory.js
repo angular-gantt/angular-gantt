@@ -90,7 +90,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var left = 0;
 
             while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale, firstDayOfWeek));
                 left += columnWidth;
 
                 date = df.addWeeks(date, 1);
