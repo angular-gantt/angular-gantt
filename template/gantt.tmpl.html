@@ -18,7 +18,7 @@
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
                      ng-repeat="row in gantt.rows">
-                    <gantt-sortable swap="swapRows(a,b)" active="allowRowOrdering" ng-model="row">
+                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
                     </gantt-sortable>
                 </div>
