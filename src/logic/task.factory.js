@@ -57,8 +57,6 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         };
 
         self.copy = function(task) {
-            self.gantt = task.gantt;
-            self.row = task.row;
             self.subject = task.subject;
             self.color = task.color;
             self.from = df.clone(task.from);

@@ -88,7 +88,6 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
         };
 
         self.copy = function(row) {
-            self.gantt = row.gantt;
             self.description = row.description;
             self.data = row.data;
 
