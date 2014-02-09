@@ -6,7 +6,7 @@
 
 var gantt = angular.module('gantt', []);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', function (Gantt, df, mouseOffset, debounce) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function (Gantt, df, mouseOffset, debounce, keepScrollPos) {
     return {
         restrict: "EA",
         replace: true,
@@ -48,7 +48,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
             onTaskClicked: "&",
             onTaskUpdated: "&"
         },
-        controller: ['$scope', '$element', '$timeout', function ($scope, $element, $timeout) {
+        controller: ['$scope', '$element', function ($scope, $element) {
             // Initialize defaults
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
@@ -68,7 +68,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
+            $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            $scope.ganttScroll = angular.element($element.children()[2]);
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -94,8 +95,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
 
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setDefaultColumnDateRange($scope.fromDate, $scope.toDate);
-                    $scope.gantt.reGenerateColumns();
+                    $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
                 }
             });
 
@@ -148,7 +148,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
                 }
             };
 
-            $scope.autoExpandColumns = function(el, date, direction) {
+            $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
                 if ($scope.autoExpand !== true) {
                     return;
                 }
@@ -164,18 +164,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                // Expand columns and keep current scroll position
-                $timeout(function() {
-                    var oldWidth = el.scrollWidth;
-                    var oldScrollLeft = el.scrollLeft;
-
-                    $scope.$apply(function() {
-                        $scope.gantt.expandColumns(from, to);
-                    });
-
-                    el.scrollLeft = el.scrollLeft === 0 ? el.scrollWidth - oldWidth : oldScrollLeft;
-                }, 0, false);
-            };
+                $scope.gantt.expandDefaultDateRange(from, to);
+            });
 
             $scope.raiseRowAddedEvent = function(row) {
                 $scope.onRowAdded({ event: { row: row } });
@@ -204,18 +194,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
             $scope.raiseScrollEvent = debounce(function() {
                 var el = $scope.ganttScroll[0];
                 var direction;
-                var column;
+                var date;
 
                 if (el.scrollLeft === 0) {
                     direction = 'left';
-                    column = $scope.gantt.getFirstColumn();
+                    date = $scope.gantt.getDateRange().from;
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     direction = 'right';
-                    column = $scope.gantt.getLastColumn();
+                    date = $scope.gantt.getDateRange().to;
                 }
 
-                if (column !== undefined) {
-                    var date = df.clone(column.date);
+                if (date !== undefined) {
                     $scope.autoExpandColumns(el, date, direction);
                     $scope.onScroll({ event: { date: date, direction: direction }});
                 }
@@ -236,14 +225,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
                 $scope.onTaskUpdated({ event: { task: task } });
             };
 
-            // Bind scroll event
-            $scope.ganttScroll = angular.element($element.children()[2]);
-            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
-            $scope.setData = function (data) {
-                var el = $scope.ganttScroll[0];
-                var oldDateRange = $scope.gantt.columns.length > 0 ? $scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date : 1;
-                var oldWidth = el.scrollWidth;
-
+            $scope.setData = keepScrollPos($scope, function (data) {
                 for (var i = 0, l = data.length; i < l; i++) {
                     var rowData = data[i];
                     var isUpdate = $scope.gantt.addRow(rowData);
@@ -257,10 +239,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
                 }
 
                 $scope.sortRows();
-
-                // Show Gantt at the same position as it was before adding the new data
-                el.scrollLeft = el.scrollLeft === 0 && $scope.gantt.columns.length > 0 ? (($scope.gantt.getLastColumn().date - $scope.gantt.getFirstColumn().date) * oldWidth) / oldDateRange - oldWidth : el.scrollLeft;
-            };
+            });
 
             // Remove data handler.
             // If a row has no tasks inside the complete row will be deleted.
@@ -293,6 +272,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', f
             $scope.removeAllData = function() {
                 $scope.gantt.removeRows();
             };
+
+            // Bind scroll event
+            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.

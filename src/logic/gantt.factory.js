@@ -9,7 +9,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         self.columns = [];
         self.headers = {};
         self.width = 0;
-        var defaultColumnRange;
+        var dateRange;
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
@@ -28,59 +28,64 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
 
         self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
-        // Sets the default column range. Even if there tasks are smaller the default range is shown.
-        self.setDefaultColumnDateRange = function(from, to) {
+        // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
+        self.expandDefaultDateRange = function(from, to) {
             if (from !== undefined && to !== undefined) {
-                defaultColumnRange = {};
-                defaultColumnRange.from = df.clone(from);
-                defaultColumnRange.to = df.clone(to);
-
-                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
-            } else {
-                defaultColumnRange = undefined;
+                expandDateRange(from, to);
+                expandColumns();
             }
         };
 
-        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
-        self.expandColumns = function(from, to) {
-            if (from === undefined || to === undefined) {
+        var expandDateRange = function(from, to) {
+            from = df.clone(from);
+            to = df.clone(to);
+
+            if (dateRange === undefined) {
+                dateRange = {};
+                dateRange.from = from;
+                dateRange.to = to;
+            } else {
+                if (from < dateRange.from) {
+                    dateRange.from = from;
+                }
+
+                if (to > dateRange.to) {
+                    dateRange.to = to;
+                }
+            }
+        };
+
+        // Generates the Gantt columns according to the current dateRange. The columns are generated if necessary only.
+        var expandColumns = function() {
+            if (dateRange === undefined) {
                 throw "From and to date range cannot be undefined";
             }
 
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
-                expandColumnsNoCheck(from, to);
-            } else if (self.getFirstColumn().date > from || self.getLastColumn().date < to) {
-                var minFrom = self.getFirstColumn().date > from ? from: self.getFirstColumn().date;
-                var maxTo = self.getLastColumn().date < to ? to: self.getLastColumn().date;
+                expandColumnsNoCheck(dateRange.from, dateRange.to);
+            } else if (self.getFirstColumn().date > dateRange.from || self.getLastColumn().date < dateRange.to) {
+                var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from: self.getFirstColumn().date;
+                var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
 
                 expandColumnsNoCheck(minFrom, maxTo);
             }
         };
 
+        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
             self.updateTasksPosAndSize();
 
             var lastColumn = self.getLastColumn();
-            self.width = lastColumn !== null ? lastColumn.left + lastColumn.width: 0;
+            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         self.reGenerateColumns = function() {
             self.columns = [];
-
-            var taskRange = self.getTasksDateRange();
-            if (taskRange !== undefined && defaultColumnRange === undefined) {
-                self.expandColumns(taskRange.from, taskRange.to);
-            } else if (taskRange === undefined && defaultColumnRange !== undefined) {
-                self.expandColumns(defaultColumnRange.from, defaultColumnRange.to);
-            } else if (taskRange !== undefined && defaultColumnRange !== undefined) {
-                var from = defaultColumnRange.from < taskRange.from ? defaultColumnRange.from: taskRange.from;
-                var to = defaultColumnRange.to > taskRange.to ? defaultColumnRange.to: taskRange.to;
-                self.expandColumns(from, to);
-            }
+            expandColumns();
         };
 
         // Update the position/size of all tasks in the Gantt
@@ -92,21 +97,21 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
-        // Returns the first Gantt column or null
+        // Returns the first Gantt column or undefined
         self.getLastColumn = function() {
             if (self.columns.length > 0) {
                 return self.columns[self.columns.length-1];
             } else {
-                return null;
+                return undefined;
             }
         };
 
-        // Returns the last Gantt column or null
+        // Returns the last Gantt column or undefined
         self.getFirstColumn = function() {
             if (self.columns.length > 0) {
                 return self.columns[0];
             } else {
-                return null;
+                return undefined;
             }
         };
 
@@ -140,14 +145,14 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
-        // Returns the default Gantt column date range or undefined if it has not been defined
-        self.getDefaultColumnDateRange = function() {
-            if (defaultColumnRange === undefined) {
+        // Returns the current Gantt date range or undefined if it has not been defined
+        self.getDateRange = function() {
+            if (dateRange === undefined) {
                 return undefined;
             } else {
                 return {
-                    from: df.clone(defaultColumnRange.from),
-                    to: df.clone(defaultColumnRange.to)
+                    from: df.clone(dateRange.from),
+                    to: df.clone(dateRange.to)
                 };
             }
         };
@@ -216,9 +221,11 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             if (rowData.tasks !== undefined) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
-                    self.expandColumns(task.from, task.to);
+                    expandDateRange(task.from, task.to);
                     task.updatePosAndSize();
                 }
+
+                expandColumns();
             }
 
             return isUpdate;
@@ -237,6 +244,8 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                     }
                 }
             }
+
+            return undefined;
         };
 
         // Removes all rows and tasks
@@ -245,6 +254,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             self.rows = [];
             self.highestRowOrder = 0;
             self.columns = [];
+            dateRange = undefined;
         };
 
         // Swaps two rows and changes the sort order to custom to display the swapped rows
