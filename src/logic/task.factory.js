@@ -21,6 +21,8 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.setFrom = function(x) {
             if (x > self.left + self.width) {
                 x = self.left + self.width;
+            } else if (x < 0) {
+                x = 0;
             }
 
             self.from = self.gantt.getDateByPosition(x);
@@ -32,6 +34,8 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.setTo = function(x) {
             if (x < self.left) {
                 x = self.left;
+            } else if (x > self.gantt.width) {
+                x = self.gantt.width;
             }
 
             self.to = self.gantt.getDateByPosition(x);

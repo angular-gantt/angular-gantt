@@ -3,21 +3,26 @@ gantt.factory('keepScrollPos',['$timeout', function ($timeout) {
 
     function keepScrollPos($scope, fn) {
         return function() {
-            var self = this;
-            var argz = arguments;
+            var el = $scope.ganttScroll[0];
 
-            $timeout(function() {
-                var el = $scope.ganttScroll[0];
-                var oldScrollLeft = el.scrollLeft;
-                var left = $scope.gantt.getFirstColumn();
+            // Save scroll position
+            var oldScrollLeft = el.scrollLeft;
+            var left = $scope.gantt.getFirstColumn();
+            var pxToEmFactor = $scope.getPxToEmFactor();
 
-                $scope.$apply(function() {
-                    fn.apply(self, argz);
-                });
+            // Execute Gantt changes
+            fn.apply(this, arguments);
 
-                left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * $scope.getPxToEmFactor();
-                el.scrollLeft = left + oldScrollLeft;
-            }, 0, false);
+            // Re-apply scroll position
+            left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
+            el.scrollLeft = left + oldScrollLeft;
+
+            // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.
+            if (el.scrollLeft != left + oldScrollLeft) {
+                $timeout(function() {
+                    el.scrollLeft = left + oldScrollLeft;
+                }, 0, false);
+            }
         };
     }
 

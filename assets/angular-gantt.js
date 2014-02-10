@@ -1140,6 +1140,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.setFrom = function(x) {
             if (x > self.left + self.width) {
                 x = self.left + self.width;
+            } else if (x < 0) {
+                x = 0;
             }
 
             self.from = self.gantt.getDateByPosition(x);
@@ -1151,6 +1153,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.setTo = function(x) {
             if (x < self.left) {
                 x = self.left;
+            } else if (x > self.gantt.width) {
+                x = self.gantt.width;
             }
 
             self.to = self.gantt.getDateByPosition(x);
@@ -1474,13 +1478,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var resizeAreaWidthBig = 5;
             var resizeAreaWidthSmall = 3;
             var scrollSpeed = 15;
-            var scrollTriggerDistance = 10;
+            var scrollTriggerDistance = 1;
+
             var bodyElement = angular.element($document[0].body);
             var ganttBodyElement = $element.parent().parent();
             var ganttScrollElement = ganttBodyElement.parent().parent();
             var taskHasBeenMoved = false;
-            var mouseOffsetInEm = null;
-            var moveStartX = null;
+            var mouseOffsetInEm;
+            var moveStartX;
+            var scrollInterval;
 
            $element.bind('mousedown', function (e) {
                 var mode = getMode(e);
@@ -1499,14 +1505,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             });
 
-            var moveTask = function(mode, x, y) {
+            var handleMove = function(mode, mousePos) {
                 if ($scope.task.isMoving === false) {
                     return;
                 }
 
-                var xInEm = x / $scope.getPxToEmFactor();
+                moveTask(mode, mousePos);
+                scrollScreen(mode, mousePos);
+            };
+
+            var moveTask = function(mode, mousePos) {
+                var xInEm = mousePos.x / $scope.getPxToEmFactor();
                 if (mode === "M") {
-                    var targetRow = getRow(y);
+                    var targetRow = getRow(mousePos.y);
                     if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
                         targetRow.moveTaskToRow($scope.task);
                     }
@@ -1519,37 +1530,35 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
 
                 taskHasBeenMoved = true;
-                scrollIfNeeded(mode, x, y);
             };
 
-            var scrollIfNeeded = function(mode, x, y) {
+            var scrollScreen = function(mode, mousePos) {
                 var leftScreenBorder = ganttScrollElement[0].scrollLeft;
 
-                if (x < moveStartX) {
+                if (mousePos.x < moveStartX) {
                     // Scroll to the left
-                    var taskLeft = $scope.task.left * $scope.getPxToEmFactor();
-
-                    if (taskLeft - leftScreenBorder < scrollTriggerDistance && // Task touches left screen border
-                        taskLeft  > 0 && // Task is still inside Gantt
-                        leftScreenBorder - scrollSpeed > -scrollSpeed) { // Do not scroll if already reached the left side of the Gantt
-
+                    if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
+                        mousePos.x -= scrollSpeed;
                         $scope.scrollLeft(scrollSpeed);
-                        $timeout(function() { moveTask(mode, x - scrollSpeed, y); }, 10, true); // Keep on scrolling
+                        scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true); // Keep on scrolling
                     }
                 } else {
                     // Scroll to the right
                     var screenWidth = ganttScrollElement[0].offsetWidth;
                     var rightScreenBorder = leftScreenBorder + screenWidth;
-                    var ganttWidth = $scope.gantt.width * $scope.getPxToEmFactor();
-                    var taskRight = ($scope.task.left + $scope.task.width) * $scope.getPxToEmFactor();
 
-                    if (rightScreenBorder - taskRight < scrollTriggerDistance && // Task touches right screen border
-                        taskRight < ganttWidth && // Task is still inside Gantt
-                        rightScreenBorder + scrollSpeed < ganttWidth + scrollSpeed) { // Do not scroll if already reached the right side of the Gantt
-
-                        $scope.scrollTo(taskRight - screenWidth + scrollSpeed);
-                        $timeout(function() { moveTask(mode, x + scrollSpeed, y); }, 10, true); // Keep on scrolling
+                    if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
+                        mousePos.x += scrollSpeed;
+                        $scope.scrollRight(scrollSpeed);
+                        scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true); // Keep on scrolling
                     }
+                }
+            };
+
+            var clearScrollInterval = function() {
+                if (scrollInterval !== undefined) {
+                    $timeout.cancel(scrollInterval);
+                    scrollInterval = undefined;
                 }
             };
 
@@ -1604,19 +1613,21 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 });
 
                 var taskMoveHandler = debounce(function(e) {
-                    var pos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
-                    moveTask(mode, pos.x, pos.y);
+                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
+                    clearScrollInterval();
+                    handleMove(mode, mousePos);
                 }, 5);
-                ganttBodyElement.bind('mousemove', taskMoveHandler);
+                bodyElement.bind('mousemove', taskMoveHandler);
 
                 bodyElement.one('mouseup', function() {
-                    ganttBodyElement.unbind('mousemove', taskMoveHandler);
+                    bodyElement.unbind('mousemove', taskMoveHandler);
                     disableMoveMode();
                 });
             };
 
             var disableMoveMode = function () {
                 $scope.task.isMoving = false;
+                clearScrollInterval();
 
                 if (taskHasBeenMoved === true) {
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
@@ -1881,21 +1892,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     function keepScrollPos($scope, fn) {
         return function() {
-            var self = this;
-            var argz = arguments;
+            var el = $scope.ganttScroll[0];
 
-            $timeout(function() {
-                var el = $scope.ganttScroll[0];
-                var oldScrollLeft = el.scrollLeft;
-                var left = $scope.gantt.getFirstColumn();
+            // Save scroll position
+            var oldScrollLeft = el.scrollLeft;
+            var left = $scope.gantt.getFirstColumn();
+            var pxToEmFactor = $scope.getPxToEmFactor();
 
-                $scope.$apply(function() {
-                    fn.apply(self, argz);
-                });
+            // Execute Gantt changes
+            fn.apply(this, arguments);
 
-                left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * $scope.getPxToEmFactor();
-                el.scrollLeft = left + oldScrollLeft;
-            }, 0, false);
+            // Re-apply scroll position
+            left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
+            el.scrollLeft = left + oldScrollLeft;
+
+            // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.
+            if (el.scrollLeft != left + oldScrollLeft) {
+                $timeout(function() {
+                    el.scrollLeft = left + oldScrollLeft;
+                }, 0, false);
+            }
         };
     }
 
