@@ -11,6 +11,12 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.to = df.clone(to);
         self.data = data;
 
+        self.checkIfMilestone = function() {
+            self.isMilestone = self.from - self.to === 0;
+        };
+
+        self.checkIfMilestone();
+
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
@@ -28,6 +34,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
             self.from = self.gantt.getDateByPosition(x);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
+            self.checkIfMilestone();
         };
 
         // Expands the end of the task to the specified position (in em)
@@ -41,6 +48,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
             self.to = self.gantt.getDateByPosition(x);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
+            self.checkIfMilestone();
         };
 
         // Moves the task to the specified position (in em)
@@ -66,6 +74,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
             self.data = task.data;
+            self.isMilestone = task.isMilestone;
         };
 
         self.clone = function() {

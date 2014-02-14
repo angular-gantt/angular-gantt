@@ -127,16 +127,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
                 $scope.ganttScroll[0].scrollLeft = x;
+                $scope.ganttScroll.triggerHandler('scroll');
             };
 
             // Scroll to the left side by specified x
             $scope.scrollLeft = function(x) {
                 $scope.ganttScroll[0].scrollLeft -= x;
+                $scope.ganttScroll.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
             $scope.scrollRight = function(x) {
                 $scope.ganttScroll[0].scrollLeft += x;
+                $scope.ganttScroll.triggerHandler('scroll');
             };
 
             // Tries to center the specified date
@@ -1130,6 +1133,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.to = df.clone(to);
         self.data = data;
 
+        self.checkIfMilestone = function() {
+            self.isMilestone = self.from - self.to === 0;
+        };
+
+        self.checkIfMilestone();
+
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
@@ -1147,6 +1156,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.from = self.gantt.getDateByPosition(x);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
+            self.checkIfMilestone();
         };
 
         // Expands the end of the task to the specified position (in em)
@@ -1160,6 +1170,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.to = self.gantt.getDateByPosition(x);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
+            self.checkIfMilestone();
         };
 
         // Moves the task to the specified position (in em)
@@ -1185,6 +1196,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
             self.data = task.data;
+            self.isMilestone = task.isMilestone;
         };
 
         self.clone = function() {
@@ -1782,7 +1794,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             "<div class='gantt-task-info-content'>" +
             "{{ task.subject }}</br>" +
             "<small>" +
-            "{{ task.to - task.from === 0 &&" +
+            "{{ task.isMilestone === true &&" +
             " (task.from | date:'MMM d, HH:mm') ||" +
             " (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}" +
             "</small>" +

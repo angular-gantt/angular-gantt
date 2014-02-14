@@ -8,7 +8,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
             "<div class='gantt-task-info-content'>" +
             "{{ task.subject }}</br>" +
             "<small>" +
-            "{{ task.to - task.from === 0 &&" +
+            "{{ task.isMilestone === true &&" +
             " (task.from | date:'MMM d, HH:mm') ||" +
             " (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}" +
             "</small>" +
