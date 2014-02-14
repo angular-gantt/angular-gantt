@@ -127,16 +127,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
                 $scope.ganttScroll[0].scrollLeft = x;
+                $scope.ganttScroll.triggerHandler('scroll');
             };
 
             // Scroll to the left side by specified x
             $scope.scrollLeft = function(x) {
                 $scope.ganttScroll[0].scrollLeft -= x;
+                $scope.ganttScroll.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
             $scope.scrollRight = function(x) {
                 $scope.ganttScroll[0].scrollLeft += x;
+                $scope.ganttScroll.triggerHandler('scroll');
             };
 
             // Tries to center the specified date
