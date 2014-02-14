@@ -7,14 +7,20 @@ gantt.directive('ganttSortable', ['$document', 'sortManager', function ($documen
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,
-        scope: { row: "=ngModel", swap: "&" },
+        scope: { row: "=ngModel", swap: "&", active: "=?" },
         controller: ['$scope', '$element', function ($scope, $element) {
             $element.bind("mousedown", function () {
+                if ($scope.active !== true) {
+                    return;
+                }
+
                 enableDragMode();
 
                 var disableHandler = function () {
-                    angular.element($document[0].body).unbind('mouseup', disableHandler);
-                    disableDragMode();
+                    $scope.$apply(function() {
+                        angular.element($document[0].body).unbind('mouseup', disableHandler);
+                        disableDragMode();
+                    });
                 };
                 angular.element($document[0].body).bind("mouseup", disableHandler);
             });

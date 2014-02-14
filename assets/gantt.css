@@ -64,8 +64,15 @@
     padding-right: 12px;
 }
 
+.gantt-labels-head-row {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .gantt-labels-row {
     cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .gantt-body {
@@ -113,6 +120,7 @@
 	position: absolute;
     margin: auto;
     top: 0; bottom: 0;
+    min-width: 0.6em;
     height: 80%;
     background-color: grey;
     border-radius: 2px;

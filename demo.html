@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="assets/gantt.css"/>
     <title>Gantt chart for Angular.js</title>
 </head>
-<body style="margin: 10px">
+<body style="padding: 10px">
 <a href="https://github.com/Schweigi/angular-gantt" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 <div ng-controller="ctrl">
     <h1>Gantt chart demo</h1>
@@ -55,7 +55,8 @@
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
-           view-scale-factor="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
+           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
+           column-sub-scale="scale === 'week' && 7 || 4"
            weekend-days="weekendDays"
            show-weekends="showWeekends"
            max-height="maxHeight"
@@ -64,13 +65,14 @@
            on-row-clicked="rowEvent(event)"
            on-row-updated="rowEvent(event)"
            on-scroll="scrollEvent(event)"
-           on-task-clicked="taskEvent(event)">
+           on-task-clicked="taskEvent(event)"
+           on-task-updated="taskEvent(event)">
      </gantt>
     <hr>
     <small>Gantt chart for Angular.js by Marco Schweighauser (2013) | MIT License</small>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js"></script>
 <script src="assets/demo_sample_data.js"></script>
 <script src="assets/demo.js"></script>
 <script src="assets/angular-gantt.js"></script>

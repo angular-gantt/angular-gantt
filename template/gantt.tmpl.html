@@ -1,5 +1,7 @@
 <div class="gantt">
-    <div class="gantt-labels">
+    <div class="gantt-labels"
+         ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
+         gantt-label-resizable="labelsWidth" resize-min="50">
         <div class="gantt-labels-head"
              ng-show="gantt.columns.length > 0">
             <div class="gantt-labels-head-row"
@@ -16,7 +18,7 @@
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
                      ng-repeat="row in gantt.rows">
-                    <gantt-sortable swap="swapRows(a,b)" ng-model="row">
+                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
                     </gantt-sortable>
                 </div>
@@ -77,15 +79,16 @@
             </div>
             <div class="gantt-body-content">
                 <div class="gantt-row gantt-row-height"
-                     ng-click="raiseRowClickedEvent($event, row)"
-                     ng-repeat="row in gantt.rows">
+                     ng-click="raiseDOMRowClickedEvent($event, row)"
+                     ng-repeat="row in gantt.rows track by row.id">
                     <!--a task will override the row event -->
-                    <div ng-class="(task.to-task.from === 0 && 'gantt-task-milestone' || 'gantt-task')"
-                         ng-style="{'left': (task.to-task.from === 0 && (task.left-0.3) || task.left)+'em', 'width': task.width+'em', 'background-color': task.color}"
-                         ng-click="raiseTaskClickedEvent($event, row, task)"
-                         ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width">
+                    <div ng-class="(task.isMilestone === true && 'gantt-task-milestone' || 'gantt-task')"
+                         ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1 || ''), 'background-color': task.color}"
+                         ng-click="raiseDOMTaskClickedEvent($event, task)"
+                         ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"
+                         gantt-task-moveable>
                         <gantt-tooltip ng-model="task">
-                            <div class="gantt-task-content"><span>{{ (task.to-task.from === 0 && '&nbsp;' || task.subject) }}</span></div>
+                            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
                         </gantt-tooltip>
                     </div>
                 </div>

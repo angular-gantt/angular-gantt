@@ -19,17 +19,27 @@ gantt.service('dateFunctions', [ function () {
             res.setMilliseconds(0);
             return res;
         },
+        setTimeComponent: function(date, milliseconds) {
+            return new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                0,
+                0,
+                0,
+                milliseconds);
+        },
         setToFirstDayOfMonth: function(date, clone) {
             var res = clone === true ? this.clone(date) : date;
             res.setDate(1);
             return res;
         },
-        setToDayOfWeek: function(date, dayOfWeek, clone) {
+        setToDayOfWeek: function(date, dayOfWeek, clone, orient) {
             var res = clone === true ? this.clone(date) : date;
             if (res.getDay() === dayOfWeek) {
                 return res;
             } else {
-                var orient = -1;
+                orient = orient || -1;
                 var diff = (dayOfWeek - res.getDay() + 7 * (orient || +1)) % 7;
                 return this.addDays(res, (diff === 0) ? diff += 7 * (orient || +1) : diff);
             }
@@ -64,6 +74,9 @@ gantt.service('dateFunctions', [ function () {
             var res = clone === true ? this.clone(date) : date;
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
+        },
+        isTimeZero: function(date) {
+            return date.getHours() === 0 && date.getMinutes() === 0 && date.getMinutes() === 0 && date.getMilliseconds() === 0;
         },
         getDaysInMonth: function(date) {
             return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
