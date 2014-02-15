@@ -6,6 +6,7 @@ A Gantt chart directive for Angular.js without any other dependencies.
 ### Features
 - Usable with or without Bootstrap 3
 - Every task has its own color, subject, date (from, to)
+- Tasks can be moved and are resizable
 - Rows combine multiple tasks and can have independent descriptions
 - Rows can be sorted by description, date and custom order
 - A user can drag&drop a row to sort it in custom mode
@@ -13,7 +14,6 @@ A Gantt chart directive for Angular.js without any other dependencies.
 - Configurable (e.g. day or hour scale, weekend days, ..)
 
 ### Missing / To improve
-- Possibility for the user to update tasks (by drag&drop)
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
 
 ### Usage
@@ -31,10 +31,49 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
         <gantt></gantt>
 
 ### Attributes
+- **auto-expand** (default `false`)
+
+  The Gantt date range will be extended if the user scroll to the left or right edge.
+
+- **allow-task-moving** (default `true`)
+
+  Defines if tasks can be moved inside and between rows.
+
+- **allow-task-resizing** (default `true`)
+
+  Defines if tasks can be resized.
+
+- **allow-row-sorting** (default `true`)
+
+  Defines if the user can sort the rows by himself. This will switch the `view-mode` to `custom` as soon as the user starts with the sort.
+
+- **center-date**
+
+  Returns a function (`fn`) which can be called to center the specified date.
+
+  Usage:
+  Specify the gantt property:
+    `center-date="scrollToToday = fn"`
+
+  In your code call:
+    `$scope.scrollToToday(new Date());`
+
 - **clear-data**
 
   Returns a function (`fn`) which can be called to removes all rows and tasks at once.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
+
+- **column-width** (default `2`)
+
+  How wide are the columns, 1 being 1em. This allows you add logic like `column-width="scale == 'day' ?  5 : 2"` to have wider columns for days than for other column scales.
+
+- **column-sub-scale** (default: `4`)
+
+  Defines how precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
+  Some examples:
+  - 4 = in quarter steps
+  - 2 = in half steps
+  - 24 (if view-scale = day) to display them very accurate
 
 - **first-day-of-week** (default: `1`)
 
@@ -63,12 +102,18 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
   Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
+- **labels-width** (default: `0` = Auto)
+
+  This property defines the width of the label section on the left side of the Gantt. This property support two way binding. Therefore if the user resizes the label section any assigned scope variable will be updated too.
+
 - **load-data**
 
   Returns a function (`fn`) which can be called to load more data to the Gantt.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
-- **max-height** (default: `0`)
+  As an alternative you can use the `data` property to directly assign the data model.
+
+- **max-height** (default: `0` = Disabled)
 
   If max height is set bigger than 0 the Gantt will be set to this height and show a vertical scroll bar if the content does not fit inside.
 
@@ -82,7 +127,7 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
 - **on-row-clicked**
 
-  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked (or use `event.column.fromDate`/`event.column.toDate`)
+  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked.
 
 - **on-scroll**
 
@@ -92,18 +137,14 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
   This event is raised if the user clicks on a task.
 
+- **on-task-updated**
+
+  This event is raised if the user moves or resizes a task.
+
 - **remove-data**
 
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
-
-- **task-precision** (default: `4`)
-
-  Defines how precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
-  Some examples:
-  - 4 = in quarter steps
-  - 2 = in half steps
-  - 24 or 60 (if view-scale = hour) to display them very accurate
 
 - **show-weekend** (default: `true`)
 
@@ -127,11 +168,10 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 - **view-scale** (default: `day`)
 
   Defines the Gantt column scale.
-  - `day`: Each column is one day wide
   - `hour`: Each column is one hour wide
-
-- **view-scale-factor** (default `2`)
-  How wide are the columns, 1 being 1em per hour. This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours
+  - `day`: Each column is one day wide
+  - `week`: Each column is one week wide
+  - `month`: Each column is one month wide
 
 - **weekend-days** (default: `[0,6]`)
 
@@ -146,7 +186,7 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 ### License
 **The MIT License**
 
-Copyright (c) 2013 Marco Schweighauser
+Copyright (c) 2014 Marco Schweighauser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

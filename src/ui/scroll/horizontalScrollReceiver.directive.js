@@ -1,10 +1,10 @@
-gantt.directive('ganttHorizontalScrollReceiver', ['scroller', function (scroller) {
+gantt.directive('ganttHorizontalScrollReceiver', ['scrollManager', function (scrollManager) {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
     return {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
-            scroller.horizontal.push($element[0]);
+            scrollManager.horizontal.push($element[0]);
         }]
     };
 }]);

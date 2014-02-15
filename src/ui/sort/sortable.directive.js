@@ -1,4 +1,4 @@
-gantt.directive('ganttSortable', ['$document', 'sortableState', function ($document, sortableState) {
+gantt.directive('ganttSortable', ['$document', 'sortManager', function ($document, sortManager) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
@@ -7,14 +7,20 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,
-        scope: { row: "=ngModel", swap: "&" },
+        scope: { row: "=ngModel", swap: "&", active: "=?" },
         controller: ['$scope', '$element', function ($scope, $element) {
             $element.bind("mousedown", function () {
+                if ($scope.active !== true) {
+                    return;
+                }
+
                 enableDragMode();
 
                 var disableHandler = function () {
-                    angular.element($document[0].body).unbind('mouseup', disableHandler);
-                    disableDragMode();
+                    $scope.$apply(function() {
+                        angular.element($document[0].body).unbind('mouseup', disableHandler);
+                        disableDragMode();
+                    });
                 };
                 angular.element($document[0].body).bind("mouseup", disableHandler);
             });
@@ -25,17 +31,17 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
                     var targetRow = elementBelowMouse.controller("ngModel").$modelValue;
 
                     $scope.$apply(function() {
-                        $scope.swap({a: targetRow, b: sortableState.startRow});
+                        $scope.swap({a: targetRow, b: sortManager.startRow});
                     });
                 }
             });
 
             var isInDragMode = function () {
-                return sortableState.startRow !== undefined && !angular.equals($scope.row, sortableState.startRow);
+                return sortManager.startRow !== undefined && !angular.equals($scope.row, sortManager.startRow);
             };
 
             var enableDragMode = function () {
-                sortableState.startRow = $scope.row;
+                sortManager.startRow = $scope.row;
                 $element.css("cursor", "move");
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
@@ -47,7 +53,7 @@ gantt.directive('ganttSortable', ['$document', 'sortableState', function ($docum
             };
 
             var disableDragMode = function () {
-                sortableState.startRow = undefined;
+                sortManager.startRow = undefined;
                 $element.css("cursor", "pointer");
                 angular.element($document[0].body).css({
                     '-moz-user-select': '',
