@@ -53,10 +53,10 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
   Usage:
   Specify the gantt property:
-    `center-date="goToToday = fn"`
+    `center-date="scrollToToday = fn"`
 
   In your code call:
-    `$scope.goToToday(new Date());`
+    `$scope.scrollToToday(new Date());`
 
 - **clear-data**
 
@@ -111,6 +111,8 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
   Returns a function (`fn`) which can be called to load more data to the Gantt.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
+  As an alternative you can use the `data` property to directly assign the data model.
+
 - **max-height** (default: `0` = Disabled)
 
   If max height is set bigger than 0 the Gantt will be set to this height and show a vertical scroll bar if the content does not fit inside.
@@ -125,7 +127,7 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
 - **on-row-clicked**
 
-  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked (or use `event.column.fromDate`/`event.column.toDate`)
+  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked.
 
 - **on-scroll**
 
