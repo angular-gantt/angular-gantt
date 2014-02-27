@@ -151,21 +151,20 @@ gantt.directive('gantt', ['dateFunctions', function (df) {
             return self.columns[self.columns.length-1];
         }
 
-        var addColumns = function (from, to) {
-            var date = df.clone(from);
-            while (date <= to) {
-                for (var i = 0; i < 24; i++) {
-                    var column = new Column(df.clone(date), df.addHours(date, 1, true));
-                    self.columns.push(column);
+		    var addColumns = function (from, to) {
+			    var date = moment(from);
+			    while (date <= to) {
+				    for (var i = 0; i < 24; i++) {
+					    var column = new Column(new Date(date.toISOString()), new Date(date.add('h', 1).toISOString()));
+					    self.columns.push(column);
+					    date.add('h', 1);
+				    }
+			    }
 
-                    df.addHours(date, 1);
-                }
-            }
-
-            self.columns.sort(function (col1, col2) {
-                return col1.fromDate > col2.fromDate ? 1 : -1;
-            });
-        }
+			    self.columns.sort(function (col1, col2) {
+				    return col1.fromDate > col2.fromDate ? 1 : -1;
+			    });
+		    }
 
         // Expands the range of columns according to the form - to date.
         // Its save to call this function twice with the same or an overlapping range.
