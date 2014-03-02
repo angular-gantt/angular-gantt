@@ -397,9 +397,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         return column;
     };
 
-    var DayColumn = function(date, left, width, subScale, isWeekend) {
+    var DayColumn = function(date, left, width, subScale, isWeekend, workHours, showNonWorkHours) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
+        
+        var startHour = 0;
+        var endHour = 24;
+
+        if(arguments.length == 7 && !showNonWorkHours && workHours.length > 1){
+            startHour = workHours[0];
+            endHour = workHours[workHours.length-1] + 1;
+        }
 
         column.clone = function() {
             var copy = new Column(column.date, column.left, column.width, column.subScale);
@@ -412,12 +420,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setHours(calcDbyP(column, 24, position));
+            res.setHours(startHour + calcDbyP(column, (endHour-startHour), position));
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, 24, date.getHours(), date.getDate(), column.date.getDate());
+            var maxDateValue = endHour-startHour;
+            var currentDateValue = date.getHours()-startHour;
+            if (currentDateValue < 0) return column.left;
+            else if (currentDateValue > maxDateValue) return column.left + column.width;
+            else return calcPbyD(column, date, maxDateValue, currentDateValue, date.getDate(), column.date.getDate());
         };
 
         return column;
@@ -513,7 +525,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends) {
+    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         this.generate = function(from, to) {
             var excludeTo = df.isTimeZero(to);
             from = df.setTimeZero(from, true);
@@ -527,8 +539,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
 
                 if (isWeekend && showWeekends || !isWeekend) {
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend));
-                    left += columnWidth;
+                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, workHours, showNonWorkHours));                    left += columnWidth;
                 }
 
                 date = df.addDays(date, 1);
@@ -604,7 +615,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.setViewScale = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
             switch(viewScale) {
                 case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
                 case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(columnWidth, columnSubScale, firstDayOfWeek); break;
                 case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(columnWidth, columnSubScale); break;
                 default:

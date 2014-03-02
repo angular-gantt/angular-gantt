@@ -54,7 +54,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends) {
+    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         this.generate = function(from, to) {
             var excludeTo = df.isTimeZero(to);
             from = df.setTimeZero(from, true);
@@ -68,8 +68,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
 
                 if (isWeekend && showWeekends || !isWeekend) {
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend));
-                    left += columnWidth;
+                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, workHours, showNonWorkHours));                    left += columnWidth;
                 }
 
                 date = df.addDays(date, 1);
