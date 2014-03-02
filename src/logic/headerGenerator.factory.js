@@ -24,7 +24,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i-1].date.getDay() !== col.date.getDay()) {
-                header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend);
+                header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
