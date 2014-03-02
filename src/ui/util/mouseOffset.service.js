@@ -3,10 +3,10 @@ gantt.service('mouseOffset', [ function () {
 
     return {
         getOffset: function(evt) {
-            if (evt.layerX && evt.layerY) {
-                return { x: evt.layerX, y: evt.layerY };
-            } else if (evt.offsetX && evt.offsetY) {
+            if (evt.offsetX && evt.offsetY) {
                 return { x: evt.offsetX, y: evt.offsetY };
+            } if (evt.layerX && evt.layerY) {
+                return { x: evt.layerX, y: evt.layerY };
             } else {
                 return this.getOffsetForElement(evt.target, evt);
             }
