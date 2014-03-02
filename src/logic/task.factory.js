@@ -31,7 +31,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
                 x = 0;
             }
 
-            self.from = self.gantt.getDateByPosition(x);
+            self.from = self.gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -45,7 +45,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
                 x = self.gantt.width;
             }
 
-            self.to = self.gantt.getDateByPosition(x);
+            self.to = self.gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -59,10 +59,10 @@ gantt.factory('Task', ['dateFunctions', function (df) {
                 x = self.gantt.width - self.width;
             }
 
-            self.from = self.gantt.getDateByPosition(x);
+            self.from = self.gantt.getDateByPosition(x, true);
             self.left = self.gantt.getPositionByDate(self.from);
 
-            self.to = self.gantt.getDateByPosition(self.left + self.width);
+            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
             self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
 
             self.row.setMinMaxDateByTask(self);

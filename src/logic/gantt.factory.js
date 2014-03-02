@@ -126,10 +126,11 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Returns the exact column date at the given position x (in em)
-        self.getDateByPosition = function(x) {
+        self.getDateByPosition = function(x, snapForward) {
             var column = self.getColumnByPosition(x);
             if (column !== undefined) {
-                return column.getDateByPosition(x - column.left);
+                if(arguments.length == 2) return column.getDateByPosition(x - column.left, snapForward);
+                else return column.getDateByPosition(x - column.left);
             } else {
                 return undefined;
             }
