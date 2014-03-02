@@ -101,14 +101,17 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         return column;
     };
 
-    var DayColumn = function(date, left, width, subScale, isWeekend, workHours, showNonWorkHours) {
+    var DayColumn = function(date, left, width, subScale, isWeekend, daysToNextWorkingDay, daysToPrevWorkingDay, workHours, showNonWorkHours) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
+        column.daysToNextWorkingDay = daysToNextWorkingDay;
+        column.daysToPrevWorkingDay = daysToPrevWorkingDay;
+        column.showNonWorkHours = showNonWorkHours;
         
         var startHour = 0;
         var endHour = 24;
 
-        if(arguments.length == 7 && !showNonWorkHours && workHours.length > 1){
+        if(arguments.length == 9 && !showNonWorkHours && workHours.length > 1){
             startHour = workHours[0];
             endHour = workHours[workHours.length-1] + 1;
         }
@@ -119,12 +122,27 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             return copy;
         };
 
-        column.getDateByPosition = function(position) {
+        column.getDateByPosition = function(position, snapForward) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setHours(startHour + calcDbyP(column, (endHour-startHour), position));
+            var hours = startHour + calcDbyP(column, (endHour-startHour), position);
+
+            if(arguments.length == 2){
+                if(hours == endHour && snapForward){
+                    //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
+                    res = df.addDays(res, column.daysToNextWorkingDay);
+                    hours = startHour;
+                }
+                else if(hours == startHour && !snapForward){
+                    //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
+                    res = df.addDays(res, -column.daysToPrevWorkingDay);
+                    hours = endHour;
+                }
+            }
+
+            res.setHours(hours);
             return res;
         };
 

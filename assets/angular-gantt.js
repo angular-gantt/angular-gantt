@@ -397,14 +397,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         return column;
     };
 
-    var DayColumn = function(date, left, width, subScale, isWeekend, workHours, showNonWorkHours) {
+    var DayColumn = function(date, left, width, subScale, isWeekend, daysToNextWorkingDay, daysToPrevWorkingDay, workHours, showNonWorkHours) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
+        column.daysToNextWorkingDay = daysToNextWorkingDay;
+        column.daysToPrevWorkingDay = daysToPrevWorkingDay;
+        column.showNonWorkHours = showNonWorkHours;
         
         var startHour = 0;
         var endHour = 24;
 
-        if(arguments.length == 7 && !showNonWorkHours && workHours.length > 1){
+        if(arguments.length == 9 && !showNonWorkHours && workHours.length > 1){
             startHour = workHours[0];
             endHour = workHours[workHours.length-1] + 1;
         }
@@ -415,12 +418,27 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return copy;
         };
 
-        column.getDateByPosition = function(position) {
+        column.getDateByPosition = function(position, snapForward) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setHours(startHour + calcDbyP(column, (endHour-startHour), position));
+            var hours = startHour + calcDbyP(column, (endHour-startHour), position);
+
+            if(arguments.length == 2){
+                if(hours == endHour && snapForward){
+                    //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
+                    res = df.addDays(res, column.daysToNextWorkingDay);
+                    hours = startHour;
+                }
+                else if(hours == startHour && !snapForward){
+                    //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
+                    res = df.addDays(res, -column.daysToPrevWorkingDay);
+                    hours = endHour;
+                }
+            }
+
+            res.setHours(hours);
             return res;
         };
 
@@ -482,6 +500,30 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         return false;
     };
 
+    // Returns the count of days until the next working day
+    // For example with a Mon-Fri working week, Wed would return 1, Fri would return 3, Sat would return 2
+    var getDaysToNextWorkingDay = function(weekendDays, day){
+        for(var i = 1; i < 8; i++) {
+            var nextDay = (day+i)%7;
+            if(!checkIsWeekend(weekendDays, nextDay)){
+                return i;
+            }
+        }
+        return 1; //default to 1, should only get here if the whole week is the weekend
+    };
+
+    // Returns the count of days from the previous working day
+    // For example with a Mon-Fri working week, Wed would return 1, Mon would return 3.
+    var getDaysToPrevWorkingDay = function(weekendDays, day){
+        for(var i = 1; i < 8; i++) {
+            var prevDay = (((day-i)%7)+7)%7;
+            if(!checkIsWeekend(weekendDays, prevDay)){
+                return i;
+            }
+        }
+        return 1; //default to 1, should only get here if the whole week is the weekend
+    };
+
     // Returns true if the given hour is a work hour
     var checkIsWorkHour = function(workHours, hour) {
         for (var i = 0, l = workHours.length; i < l; i++) {
@@ -537,9 +579,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
                 var isWeekend = checkIsWeekend(weekendDays, date.getDay());
+                var daysToNextWorkingDay = 1;
+                var daysToPreviousWorkingDay = 1;
+                if(!showWeekends){ //days to next/prev working day is only relevant if weekends are hidden
+                    daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDays, date.getDay());
+                    daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDays, date.getDay());
+                }
 
                 if (isWeekend && showWeekends || !isWeekend) {
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, workHours, showNonWorkHours));                    left += columnWidth;
+                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));                    left += columnWidth;
                 }
 
                 date = df.addDays(date, 1);
@@ -725,10 +773,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Returns the exact column date at the given position x (in em)
-        self.getDateByPosition = function(x) {
+        self.getDateByPosition = function(x, snapForward) {
             var column = self.getColumnByPosition(x);
             if (column !== undefined) {
-                return column.getDateByPosition(x - column.left);
+                if(arguments.length == 2) return column.getDateByPosition(x - column.left, snapForward);
+                else return column.getDateByPosition(x - column.left);
             } else {
                 return undefined;
             }
@@ -944,7 +993,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i-1].date.getDay() !== col.date.getDay()) {
-                header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend);
+                header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -1164,7 +1213,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 x = 0;
             }
 
-            self.from = self.gantt.getDateByPosition(x);
+            self.from = self.gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -1178,7 +1227,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 x = self.gantt.width;
             }
 
-            self.to = self.gantt.getDateByPosition(x);
+            self.to = self.gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -1192,10 +1241,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 x = self.gantt.width - self.width;
             }
 
-            self.from = self.gantt.getDateByPosition(x);
+            self.from = self.gantt.getDateByPosition(x, true);
             self.left = self.gantt.getPositionByDate(self.from);
 
-            self.to = self.gantt.getDateByPosition(self.left + self.width);
+            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
             self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
 
             self.row.setMinMaxDateByTask(self);
