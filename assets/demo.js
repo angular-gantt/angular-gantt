@@ -8,6 +8,8 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.weekendDays = [0,6];
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
+    $scope.showNonWorkHours = true;
+    $scope.subScale = 6;
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);

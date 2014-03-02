@@ -101,9 +101,17 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         return column;
     };
 
-    var DayColumn = function(date, left, width, subScale, isWeekend) {
+    var DayColumn = function(date, left, width, subScale, isWeekend, workHours, showNonWorkHours) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
+        
+        var startHour = 0;
+        var endHour = 24;
+
+        if(arguments.length == 7 && !showNonWorkHours && workHours.length > 1){
+            startHour = workHours[0];
+            endHour = workHours[workHours.length-1] + 1;
+        }
 
         column.clone = function() {
             var copy = new Column(column.date, column.left, column.width, column.subScale);
@@ -116,12 +124,16 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setHours(calcDbyP(column, 24, position));
+            res.setHours(startHour + calcDbyP(column, (endHour-startHour), position));
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, 24, date.getHours(), date.getDate(), column.date.getDate());
+            var maxDateValue = endHour-startHour;
+            var currentDateValue = date.getHours()-startHour;
+            if (currentDateValue < 0) return column.left;
+            else if (currentDateValue > maxDateValue) return column.left + column.width;
+            else return calcPbyD(column, date, maxDateValue, currentDateValue, date.getDate(), column.date.getDate());
         };
 
         return column;
