@@ -6,25 +6,23 @@ A Gantt chart directive for Angular.js without any other dependencies.
 ### Features
 - Usable with or without Bootstrap 3
 - Every task has its own color, subject, date (from, to)
+- Tasks can be moved and are resizable
 - Rows combine multiple tasks and can have independent descriptions
 - Rows can be sorted by description, date and custom order
 - A user can drag&drop a row to sort it in custom mode
 - Events on scroll, click, add or update
-- Configurable
+- Configurable (e.g. day or hour scale, weekend days, ..)
 
 ### Missing / To improve
-- Possibility for the user to update tasks (by drag&drop)
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
-- Support for virtual scrolling to be able to handle many years of data.
-- If new rows / tasks are added on scrolling during a fast horizontal mouse wheel scroll it is possible that the current view position is not kept.
 
 ### Usage
-Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [demo.js](js/demo.js).
+Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
 
-1. Add the [gantt.js](js/gantt.js) and [gantt.css](css/gantt.css) files to your HTML code.
+1. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
 
-        <head><link rel="stylesheet" href="css/gantt.css"/></head>
-        <body><script src="js/gantt.js"></script></body>
+        <head><link rel="stylesheet" href="assets/gantt.css"/></head>
+        <body><script src="assets/angular-gantt.js"></script></body>
 2. Include the module `gantt` to your Angular app modules.
 
         var myApp = angular.module('myApp', ['gantt']);
@@ -33,10 +31,49 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
         <gantt></gantt>
 
 ### Attributes
+- **auto-expand** (default `false`)
+
+  The Gantt date range will be extended if the user scroll to the left or right edge.
+
+- **allow-task-moving** (default `true`)
+
+  Defines if tasks can be moved inside and between rows.
+
+- **allow-task-resizing** (default `true`)
+
+  Defines if tasks can be resized.
+
+- **allow-row-sorting** (default `true`)
+
+  Defines if the user can sort the rows by himself. This will switch the `view-mode` to `custom` as soon as the user starts with the sort.
+
+- **center-date**
+
+  Returns a function (`fn`) which can be called to center the specified date.
+
+  Usage:
+  Specify the gantt property:
+    `center-date="scrollToToday = fn"`
+
+  In your code call:
+    `$scope.scrollToToday(new Date());`
+
 - **clear-data**
 
   Returns a function (`fn`) which can be called to removes all rows and tasks at once.
-  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
+
+- **column-width** (default `2`)
+
+  How wide are the columns, 1 being 1em. This allows you add logic like `column-width="scale == 'day' ?  5 : 2"` to have wider columns for days than for other column scales.
+
+- **column-sub-scale** (default: `4`)
+
+  Defines how precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
+  Some examples:
+  - 4 = in quarter steps
+  - 2 = in half steps
+  - 24 (if view-scale = day) to display them very accurate
 
 - **first-day-of-week** (default: `1`)
 
@@ -63,12 +100,22 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **data**
 
-  Allows you to specify the data model for the gantt chart.
+  Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+
+- **labels-width** (default: `0` = Auto)
+
+  This property defines the width of the label section on the left side of the Gantt. This property support two way binding. Therefore if the user resizes the label section any assigned scope variable will be updated too.
 
 - **load-data**
 
   Returns a function (`fn`) which can be called to load more data to the Gantt.
-  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](js/demo_sample_data.js).
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+
+  As an alternative you can use the `data` property to directly assign the data model.
+
+- **max-height** (default: `0` = Disabled)
+
+  If max height is set bigger than 0 the Gantt will be set to this height and show a vertical scroll bar if the content does not fit inside.
 
 - **on-gantt-ready**
 
@@ -80,7 +127,7 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
 - **on-row-clicked**
 
-  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked (or use `event.column.fromDate`/`event.column.toDate`)
+  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked.
 
 - **on-scroll**
 
@@ -90,10 +137,22 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 
   This event is raised if the user clicks on a task.
 
+- **on-task-updated**
+
+  This event is raised if the user moves or resizes a task.
+
 - **remove-data**
 
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
-  Take a look at the files [demo.html](demo.html) and [demo.js](js/demo.js) to see how this callback is used.
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
+
+- **show-weekend** (default: `true`)
+
+  Display the weekend days if enabled. Weekend days are displayed different than non weekend days.
+
+- **show-non-work-hours** (default: `true`)
+
+  Display the non work hours if enabled. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you disable this parameter and use view-scale = day as there are less hours displayed per day.
 
 - **sort-mode** (default: `name`)
 
@@ -109,20 +168,25 @@ Copy the files [js/gantt.js](js/gantt.js), [css/gantt.css](css/gantt.css) and [t
 - **view-scale** (default: `day`)
 
   Defines the Gantt column scale.
-  - `day`: Each column is one day wide
   - `hour`: Each column is one hour wide
+  - `day`: Each column is one day wide
+  - `week`: Each column is one week wide
+  - `month`: Each column is one month wide
 
-- **view-scale-factor** (default 2)
-  How wide are the columns, 1 being 1em per unit (hour or day depending on scale). This allows you add logic like `view-scale-factor="scale == 'day' ?  5 : 2"` to have wider days than hours
 - **weekend-days** (default: `[0,6]`)
 
   Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. Example:
   - `[0,6]`: Sunday, Saturday
 
+- **work-hours** (default: `[8,9,10,11,12,13,14,15,16]`)
+
+  Array containing all working hours. Non working hours are displayed differently than working hours. Example:
+  - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
+
 ### License
 **The MIT License**
 
-Copyright (c) 2013 Marco Schweighauser
+Copyright (c) 2014 Marco Schweighauser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
