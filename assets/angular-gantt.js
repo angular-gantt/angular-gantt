@@ -48,7 +48,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onTaskClicked: "&",
             onTaskUpdated: "&"
         },
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ['$scope', '$element', function ($scope, $element, $timeout) {
             // Initialize defaults
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
@@ -150,6 +150,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
                 }
             };
+
+			// Tries to center the specified date
+			$scope.scrollToDate2 = function(date) {
+				var column = $scope.gantt.getColumnByDate(date);
+				if (column !== undefined) {
+					$scope.ganttScroll[0].scrollLeft = column.left  * $scope.getPxToEmFactor();
+				}
+			};
 
             $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
                 if ($scope.autoExpand !== true) {
@@ -287,7 +295,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.clearData({ fn: $scope.removeAllData});
 
             // Scroll to specified date handler.
-            $scope.centerDate({ fn: $scope.scrollToDate});
+            $scope.centerDate({ fn: $scope.scrollToDate2});
+
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.onGanttReady();
