@@ -219,7 +219,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                 self.rows.push(row);
             }
 
-            if (rowData.tasks !== undefined) {
+            if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
                     expandDateRange(task.from, task.to);
