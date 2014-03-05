@@ -1092,7 +1092,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data);
+                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -1181,7 +1181,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return Row;
 }]);;gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, from, to, data) {
+    var Task = function(id, row, subject, color, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
@@ -1192,6 +1192,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
+        if(est !== undefined && lct !== undefined){
+            self.est = df.clone(est);  //Earliest Start Time
+            self.lct = df.clone(lct);  //Latest Completion Time
+        }
 
         self.checkIfMilestone = function() {
             self.isMilestone = self.from - self.to === 0;
@@ -1203,6 +1207,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
             self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            if(self.est !== undefined && self.lct !== undefined){
+                self.bounds = {};
+                self.bounds.left = self.gantt.getPositionByDate(self.est);
+                self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+            }
         };
 
         // Expands the start of the task to the specified position (in em)
@@ -1255,12 +1264,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.color = task.color;
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
+            self.est = df.clone(task.est);
+            self.lct = df.clone(task.lct);
             self.data = task.data;
             self.isMilestone = task.isMilestone;
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.from, self.to, self.data);
+            return new Task(self.id, self.row, self.subject, self.color, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 
@@ -1413,6 +1424,47 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return w;
         }
     };
+}]);;gantt.directive('ganttBounds', [function () {
+    // Displays a box representing the earliest allowable start time and latest completion time for a job
+
+    return {
+        restrict: "E",
+        template: "<div ng-if='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>",
+        replace: true,
+        scope: { task: "=ngModel" },
+        controller: ['$scope', '$element', function ($scope, $element) {
+            
+            var css = {};
+            if($scope.task.bounds !== undefined) css.width = $scope.task.bounds.width + 'em';
+            else css.display = 'none';
+
+            $scope.getCss = function() {
+                if($scope.task.bounds !== undefined){
+                    if($scope.task.isMilestone === true || $scope.task.width === 0) css.left = ($scope.task.bounds.left-($scope.task.left-0.3)) + 'em';
+                    else css.left = ($scope.task.bounds.left - $scope.task.left) + 'em';
+                }
+                return css;
+            };
+
+            $scope.getClass = function() {
+                if($scope.task.est === undefined || $scope.task.lct === undefined) return 'gantt-task-bounds-in';
+                if($scope.task.est > $scope.task.from) return 'gantt-task-bounds-out';
+                if($scope.task.lct < $scope.task.to) return 'gantt-task-bounds-out';
+                return 'gantt-task-bounds-in';
+            };
+
+            $scope.$watch("task.mouseOver", function () {
+                if ($scope.task.isMoving) return true;
+                else if($scope.task.mouseOver === undefined || $scope.task.mouseOver === false) $scope.visible = false;
+                else $scope.visible = true; //console.log($scope.mouseOver);
+            });
+
+            $scope.$watch("task.isMoving", function(newValue, oldValue) {
+                if (newValue === true) $scope.visible = true;
+                else $scope.visible = false;
+            });
+        }]
+    };
 }]);;gantt.filter('ganttColumnLimit', [ 'binarySearch', function (bs) {
     // Returns only the columns which are visible on the screen
 
@@ -1560,7 +1612,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var moveStartX;
             var scrollInterval;
 
-           $element.bind('mousedown', function (e) {
+            $element.bind('mousedown', function (e) {
                 var mode = getMode(e);
                 if (mode !== "") {
                     enableMoveMode(mode, e);
