@@ -443,6 +443,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         column.getPositionByDate = function(date) {
+            //first check that the date actually corresponds to this column
+            //(it is possible that it might not if weekends are hidden, in which case this will be the nearest previous column)
+            if(df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
+
             var maxDateValue = endHour-startHour;
             var currentDateValue = date.getHours()-startHour;
             if (currentDateValue < 0) return column.left;
