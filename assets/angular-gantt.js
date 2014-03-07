@@ -1795,8 +1795,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             "{{ task.subject }}</br>" +
             "<small>" +
             "{{ task.isMilestone === true &&" +
-            " (task.from | date:'MMM d, HH:mm') ||" +
-            " (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}" +
+            " (task.from | date:dateFormat) ||" +
+            " (task.from | date:dateFormat) + ' - ' + (task.to | date:dateFormat) }}" +
             "</small>" +
             "</div>" +
             "</div>" +
@@ -1804,11 +1804,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             "</div>",
         replace: true,
         transclude: true,
-        scope: { task: "=ngModel" },
+        scope: { task: "=ngModel", dateFormat: "=dateFormat" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var bodyElement = angular.element($document[0].body);
             $scope.visible = false;
             $scope.css = {};
+            $scope.dateFormat = $scope.dateFormat || 'MMM d, HH:mm';
 
             $scope.mouseEnter = function (e) {
                 if (!$scope.task.isMoving) {
