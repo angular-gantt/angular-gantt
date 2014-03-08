@@ -45,12 +45,16 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
             var moveTask = function(mode, mousePos) {
                 var xInEm = mousePos.x / $scope.getPxToEmFactor();
                 if (mode === "M") {
-                    var targetRow = getRow(mousePos.y);
-                    if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
-                        targetRow.moveTaskToRow($scope.task);
+                    if ($scope.allowTaskRowSwitching) {
+                        var targetRow = getRow(mousePos.y);
+                        if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
+                            targetRow.moveTaskToRow($scope.task);
+                        }
                     }
 
-                    $scope.task.moveTo(xInEm - mouseOffsetInEm);
+                    if ($scope.allowTaskMoving) {
+                        $scope.task.moveTo(xInEm - mouseOffsetInEm);
+                    }
                 } else if (mode === "E") {
                     $scope.task.setTo(xInEm);
                 } else {
@@ -110,7 +114,7 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                     return "E";
                 } else if ($scope.allowTaskResizing && x < distance) {
                     return "W";
-                } else if ($scope.allowTaskMoving && x >= distance && x <= $element[0].offsetWidth - distance) {
+                } else if (($scope.allowTaskMoving || $scope.allowTaskRowSwitching) && x >= distance && x <= $element[0].offsetWidth - distance) {
                     return "M";
                 } else {
                     return "";
