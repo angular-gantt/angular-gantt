@@ -108,8 +108,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.swapRows(a, b);
 
                 // Raise change events
-                $scope.raiseRowUpdatedEvent(a);
-                $scope.raiseRowUpdatedEvent(b);
+                $scope.raiseRowUpdatedEvent(a, true);
+                $scope.raiseRowUpdatedEvent(b, true);
 
                 // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== "custom") {
@@ -170,8 +170,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.expandDefaultDateRange(from, to);
             });
 
-            $scope.raiseRowAddedEvent = function(row) {
-                $scope.onRowAdded({ event: { row: row } });
+            $scope.raiseRowAddedEvent = function(row, userTriggered) {
+                $scope.onRowAdded({ event: { row: row, userTriggered: userTriggered } });
             };
 
             $scope.raiseDOMRowClickedEvent = function(e, row) {
@@ -187,11 +187,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseRowClickedEvent = function(row, column, date) {
-                $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date } });
+                $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date, userTriggered: true } });
             };
 
-            $scope.raiseRowUpdatedEvent = function(row) {
-                $scope.onRowUpdated({ event: { row: row } });
+            $scope.raiseRowUpdatedEvent = function(row, userTriggered) {
+                $scope.onRowUpdated({ event: { row: row, userTriggered: userTriggered } });
             };
 
             $scope.raiseScrollEvent = debounce(function() {
@@ -209,7 +209,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 if (date !== undefined) {
                     $scope.autoExpandColumns(el, date, direction);
-                    $scope.onScroll({ event: { date: date, direction: direction }});
+                    $scope.onScroll({ event: { date: date, direction: direction, userTriggered: true }});
                 }
             }, 5);
 
@@ -221,11 +221,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseTaskClickedEvent = function(task) {
-                $scope.onTaskClicked({ event: { task: task } });
+                $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
             };
 
-            $scope.raiseTaskUpdatedEvent = function(task) {
-                $scope.onTaskUpdated({ event: { task: task } });
+            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
+                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
             };
 
             $scope.setData = keepScrollPos($scope, function (data) {
@@ -235,9 +235,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     var row = $scope.gantt.rowsMap[rowData.id];
 
                     if (isUpdate === true) {
-                        $scope.raiseRowUpdatedEvent(row);
+                        $scope.raiseRowUpdatedEvent(row, false);
                     } else {
-                        $scope.raiseRowAddedEvent(row);
+                        $scope.raiseRowAddedEvent(row, false);
                     }
                 }
 
@@ -260,7 +260,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                                 row.removeTask(rowData.tasks[j].id);
                             }
 
-                            $scope.raiseRowUpdatedEvent(row);
+                            $scope.raiseRowUpdatedEvent(row, false);
                         }
                     } else {
                         // Delete the complete row
@@ -1643,7 +1643,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 if (taskHasBeenMoved === true) {
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.raiseTaskUpdatedEvent($scope.task);
+                    $scope.raiseTaskUpdatedEvent($scope.task, true);
                     taskHasBeenMoved = false;
                 }
 

@@ -159,7 +159,7 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
 
                 if (taskHasBeenMoved === true) {
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.raiseTaskUpdatedEvent($scope.task);
+                    $scope.raiseTaskUpdatedEvent($scope.task, true);
                     taskHasBeenMoved = false;
                 }
 

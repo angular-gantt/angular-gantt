@@ -33,7 +33,7 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
 
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
-        console.log('Row event: ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
+        console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
     };
 
     $scope.scrollEvent = function(event) {
@@ -48,6 +48,6 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
 
     $scope.taskEvent = function(event) {
         // A task has been updated or clicked.
-        console.log('Task event: ' + event.task.subject + ' (Custom data: ' + event.task.data + ')');
+        console.log('Task event (by user: ' + event.userTriggered + '): ' + event.task.subject + ' (Custom data: ' + event.task.data + ')');
     };
 }]);
