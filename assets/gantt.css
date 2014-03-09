@@ -57,6 +57,8 @@
     height: 2em;
     text-align: center;
     padding-top: 0.5em;
+    overflow: hidden;
+    text-overflow: clip;
 }
 
 .gantt-labels-row span, .gantt-labels-head-row {
