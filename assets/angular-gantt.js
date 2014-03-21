@@ -1731,7 +1731,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     // Uses the sortableState to share the current row
 
     return {
-        restrict: "E",
+        restrict: "EA",
         template: "<div ng-transclude></div>",
         replace: true,
         transclude: true,
@@ -1797,7 +1797,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     // This tooltip displays more information about a task
 
     return {
-        restrict: "E",
+        restrict: "EA",
         template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
             "<div ng-if='visible' class='gantt-task-info' ng-style='css'>" +
             "<div class='gantt-task-info-content'>" +
