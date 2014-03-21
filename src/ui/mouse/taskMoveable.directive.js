@@ -161,12 +161,6 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                 $scope.task.isMoving = false;
                 clearScrollInterval();
 
-                if (taskHasBeenMoved === true) {
-                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.raiseTaskUpdatedEvent($scope.task, true);
-                    taskHasBeenMoved = false;
-                }
-
                 $element.css("cursor", '');
 
                 angular.element($document[0].body).css({
@@ -176,6 +170,12 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                     'user-select': '',
                     'cursor': ''
                 });
+
+                if (taskHasBeenMoved === true) {
+                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
+                    $scope.raiseTaskUpdatedEvent($scope.task, true);
+                    taskHasBeenMoved = false;
+                }
             };
         }]
     };
