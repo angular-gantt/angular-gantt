@@ -41,6 +41,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             removeData: "&",
             clearData: "&",
             centerDate: "&",
+            onLabelsResized: "&",
             onGanttReady: "&",
             onRowAdded: "&",
             onRowClicked: "&",
@@ -171,6 +172,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 $scope.gantt.expandDefaultDateRange(from, to);
             });
+
+            $scope.raiseLabelsResized = function(width) {
+                $scope.onLabelsResized({ event: { width: width } });
+            };
 
             $scope.raiseRowAddedEvent = function(row, userTriggered) {
                 $scope.onRowAdded({ event: { row: row, userTriggered: userTriggered } });
@@ -1408,7 +1413,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     return {
         restrict: "A",
         scope: { width: "=ganttLabelResizable",
-                 minWidth: "=resizeMin" },
+                 minWidth: "=ganttLabelResizeMin",
+                 onResized: "&onLabelResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
@@ -1481,6 +1487,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     'user-select': '',
                     'cursor': ''
                 });
+
+                $scope.onResized({ width: $scope.width });
             };
         }]
     };
@@ -1647,12 +1655,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.task.isMoving = false;
                 clearScrollInterval();
 
-                if (taskHasBeenMoved === true) {
-                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.raiseTaskUpdatedEvent($scope.task, true);
-                    taskHasBeenMoved = false;
-                }
-
                 $element.css("cursor", '');
 
                 angular.element($document[0].body).css({
@@ -1662,6 +1664,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     'user-select': '',
                     'cursor': ''
                 });
+
+                if (taskHasBeenMoved === true) {
+                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
+                    $scope.raiseTaskUpdatedEvent($scope.task, true);
+                    taskHasBeenMoved = false;
+                }
             };
         }]
     };

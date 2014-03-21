@@ -1,7 +1,7 @@
 <div class="gantt">
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
-         gantt-label-resizable="labelsWidth" resize-min="50">
+         gantt-label-resizable="labelsWidth" gantt-label-resize-min="50" on-label-resized="raiseLabelsResized(width)" >
         <div class="gantt-labels-head"
              ng-show="gantt.columns.length > 0">
             <div class="gantt-labels-head-row"
