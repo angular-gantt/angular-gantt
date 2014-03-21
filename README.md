@@ -40,11 +40,15 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
 - **allow-task-moving** (default `true`)
 
-  Defines if tasks can be moved inside and between rows.
+  Defines if tasks can be moved inside a row.
 
 - **allow-task-resizing** (default `true`)
 
   Defines if tasks can be resized.
+
+- **allow-task-row-switching** (default: `true`)
+
+  If enabled the user can move a task to a different row.
 
 - **allow-row-sorting** (default `true`)
 
