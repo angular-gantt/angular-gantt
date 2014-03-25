@@ -1039,7 +1039,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data);
+                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.borderColor, taskData.from, taskData.to, taskData.data);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -1128,7 +1128,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return Row;
 }]);;gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, from, to, data) {
+    var Task = function(id, row, subject, color, borderColor, from, to, data) {
         var self = this;
 
         self.id = id;
@@ -1136,6 +1136,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.row = row;
         self.subject = subject;
         self.color = color;
+        self.borderColor = borderColor;
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
@@ -1200,6 +1201,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.copy = function(task) {
             self.subject = task.subject;
             self.color = task.color;
+            self.borderColor = task.borderColor;
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
             self.data = task.data;
@@ -1207,7 +1209,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.from, self.to, self.data);
+            return new Task(self.id, self.row, self.subject, self.color, self.borderColor, self.from, self.to, self.data);
         };
     };
 
