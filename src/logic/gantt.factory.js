@@ -16,7 +16,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         self.setViewScale = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
             switch(viewScale) {
                 case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
                 case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(columnWidth, columnSubScale, firstDayOfWeek); break;
                 case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(columnWidth, columnSubScale); break;
                 default:
@@ -126,10 +126,11 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Returns the exact column date at the given position x (in em)
-        self.getDateByPosition = function(x) {
+        self.getDateByPosition = function(x, snapForward) {
             var column = self.getColumnByPosition(x);
             if (column !== undefined) {
-                return column.getDateByPosition(x - column.left);
+                if(arguments.length == 2) return column.getDateByPosition(x - column.left, snapForward);
+                else return column.getDateByPosition(x - column.left);
             } else {
                 return undefined;
             }
@@ -218,7 +219,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                 self.rows.push(row);
             }
 
-            if (rowData.tasks !== undefined) {
+            if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
                     expandDateRange(task.from, task.to);
