@@ -83,7 +83,7 @@
                      ng-repeat="row in gantt.rows track by row.id">
                     <!--a task will override the row event -->
                     <div ng-class="(task.isMilestone === true && 'gantt-task-milestone' || 'gantt-task')"
-                         ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1 || ''), 'background-color': task.color}"
+                         ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}"
                          ng-click="raiseDOMTaskClickedEvent($event, task)"
                          ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"
                          gantt-task-moveable>
