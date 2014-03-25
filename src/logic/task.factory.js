@@ -10,6 +10,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
+
         if(est !== undefined && lct !== undefined){
             self.est = df.clone(est);  //Earliest Start Time
             self.lct = df.clone(lct);  //Latest Completion Time
@@ -21,11 +22,16 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         self.checkIfMilestone();
 
+        self.hasBounds = function() {
+            return self.bounds !== undefined;
+        };
+
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
             self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
-            if(self.est !== undefined && self.lct !== undefined){
+
+            if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
                 self.bounds.left = self.gantt.getPositionByDate(self.est);
                 self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;

@@ -1196,6 +1196,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
+
         if(est !== undefined && lct !== undefined){
             self.est = df.clone(est);  //Earliest Start Time
             self.lct = df.clone(lct);  //Latest Completion Time
@@ -1207,11 +1208,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         self.checkIfMilestone();
 
+        self.hasBounds = function() {
+            return self.bounds !== undefined;
+        };
+
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
             self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
-            if(self.est !== undefined && self.lct !== undefined){
+
+            if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
                 self.bounds.left = self.gantt.getPositionByDate(self.est);
                 self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
@@ -1437,35 +1443,46 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         replace: true,
         scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
-            
             var css = {};
-            if($scope.task.bounds !== undefined) css.width = $scope.task.bounds.width + 'em';
-            else css.display = 'none';
+
+            if(!$scope.task.hasBounds()) {
+               $scope.visible = false;
+            }
 
             $scope.getCss = function() {
-                if($scope.task.bounds !== undefined){
-                    if($scope.task.isMilestone === true || $scope.task.width === 0) css.left = ($scope.task.bounds.left-($scope.task.left-0.3)) + 'em';
-                    else css.left = ($scope.task.bounds.left - $scope.task.left) + 'em';
+                if($scope.task.hasBounds()){
+                    css.width = $scope.task.bounds.width + 'em';
+
+                    if($scope.task.isMilestone === true || $scope.task.width === 0)
+                        css.left = ($scope.task.bounds.left-($scope.task.left-0.3)) + 'em';
+                    else
+                        css.left = ($scope.task.bounds.left - $scope.task.left) + 'em';
                 }
+
                 return css;
             };
 
             $scope.getClass = function() {
-                if($scope.task.est === undefined || $scope.task.lct === undefined) return 'gantt-task-bounds-in';
-                if($scope.task.est > $scope.task.from) return 'gantt-task-bounds-out';
-                if($scope.task.lct < $scope.task.to) return 'gantt-task-bounds-out';
-                return 'gantt-task-bounds-in';
+                if($scope.task.est === undefined || $scope.task.lct === undefined)
+                    return 'gantt-task-bounds-in';
+                else if($scope.task.est > $scope.task.from)
+                    return 'gantt-task-bounds-out';
+                else if($scope.task.lct < $scope.task.to)
+                    return 'gantt-task-bounds-out';
+                else
+                    return 'gantt-task-bounds-in';
             };
 
             $scope.$watch("task.mouseOver", function () {
-                if ($scope.task.isMoving) return true;
-                else if($scope.task.mouseOver === undefined || $scope.task.mouseOver === false) $scope.visible = false;
-                else $scope.visible = true; //console.log($scope.mouseOver);
+                if ($scope.task.hasBounds() && !$scope.task.isMoving) {
+                    $scope.visible = !($scope.task.mouseOver === undefined || $scope.task.mouseOver === false);
+                }
             });
 
             $scope.$watch("task.isMoving", function(newValue, oldValue) {
-                if (newValue === true) $scope.visible = true;
-                else $scope.visible = false;
+                if ($scope.task.hasBounds()) {
+                    $scope.visible = newValue === true;
+                }
             });
         }]
     };
@@ -1616,7 +1633,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var moveStartX;
             var scrollInterval;
 
-            $element.bind('mousedown', function (e) {
+           $element.bind('mousedown', function (e) {
                 var mode = getMode(e);
                 if (mode !== "") {
                     enableMoveMode(mode, e);
