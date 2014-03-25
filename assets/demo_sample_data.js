@@ -24,7 +24,7 @@ function getSampleData() {
                 {"id": "fcc568c5-53b0-4046-8f19-265ebab34c0b", "subject": "Day 3", "color": "#9FC5F8", "from": new Date(2013,9,9,8,30,0), "to": new Date(2013,9,9,12,0,0)}
             ]},
             {"id": "dd2e7a97-1622-4521-a807-f29960218785", "description": "Create concept", "order": 3, "tasks": [
-                {"id": "9c17a6c8-ce8c-4426-8693-a0965ff0fe69", "subject": "Create concept", "color": "#F1C232", "from": new Date(2013,9,10,8,0,0), "to": new Date(2013,9,16,18,0,0), "est": new Date(2013,9,8,8,0,0), "lct": new Date(2013,9,18,18,0,0)}
+                {"id": "9c17a6c8-ce8c-4426-8693-a0965ff0fe69", "subject": "Create concept", "color": "#F1C232", "from": new Date(2013,9,10,8,0,0), "to": new Date(2013,9,16,18,0,0), "est": new Date(2013,9,8,8,0,0), "lct": new Date(2013,9,18,20,0,0)}
             ]},
             {"id": "eede0c9a-6777-4b55-9359-1eada309404e", "description": "Finalize concept", "order": 4, "tasks": [
                 {"id": "30b8f544-5a45-4357-9a72-dd0181fba49f", "subject": "Finalize concept", "color": "#F1C232", "from": new Date(2013,9,17,8,0,0), "to": new Date(2013,9,18,18,0,0)}
