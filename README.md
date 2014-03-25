@@ -190,6 +190,30 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
   Array containing all working hours. Non working hours are displayed differently than working hours. Example:
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
+### Row and task object properties
+#### Row
+```
+{
+    id: "...",  // Unique id of the row
+    description: "...", // Description shown on the left side of each row
+    order: <Number>, // Row order for custom sort mode. Should be a unique number if defined. Property can be left away for default behaviour
+    tasks: [] // Array containing the row tasks to add
+}
+```
+
+#### Task
+```
+{
+    id: "...",  // Unique id of the task
+    subject: "...", // Subject shown on top of each task
+    color: "...", // Color of the task (HEX format)
+    priority: <Number> // Defines which of an overlapping task is on top. Leave property away for default behaviour
+    from: <Date>, // Date can be a String, Timestamp or Date object
+    to: <Date>, // Date can be a String, Timestamp or Date object
+    data: <Any> // Custom object. Use this to attach your own data.
+}
+```
+
 ### License
 **The MIT License**
 
