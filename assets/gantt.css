@@ -114,6 +114,12 @@
     position: relative;
 }
 
+/* Move row to top when hovering to ensure its tooltips
+     appear above other tasks which may have higher z-index.  */
+.gantt-row:hover {
+    z-index: 999;
+}
+
 .gantt-row-height {
     height: 2em;
 }
