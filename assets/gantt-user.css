@@ -1,0 +1,26 @@
+
+/* Styles for booking row colors */
+
+.gantt-milestone {
+    background-color: #FF6347; /* Red */
+    border-color: black;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+}
+
+.gantt-meeting {
+    background-color: white;
+    border-color: #D94F3D; /* Dark Red */
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+}
+
+.gantt-sprint {
+    background-color: #FFFF47; /* Yellow */
+    /*border-color: black;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;*/
+}
