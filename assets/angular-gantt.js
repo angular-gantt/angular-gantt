@@ -24,6 +24,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             allowTaskMoving: "=?", // Set to true if tasks should be moveable by the user.
             allowTaskResizing: "=?", // Set to true if tasks should be resizable by the user.
+            allowTaskRowSwitching: "=?", // If false then tasks can be moved inside their current row only. The user can not move it to another row.
             allowRowSorting: "=?", // Set to true if the user should be able to re-order rows.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
@@ -40,6 +41,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             removeData: "&",
             clearData: "&",
             centerDate: "&",
+            onLabelsResized: "&",
             onGanttReady: "&",
             onRowAdded: "&",
             onRowClicked: "&",
@@ -56,6 +58,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
             if ($scope.allowTaskMoving === undefined) $scope.allowTaskMoving = true;
             if ($scope.allowTaskResizing === undefined) $scope.allowTaskResizing = true;
+            if ($scope.allowTaskRowSwitching === undefined) $scope.allowTaskRowSwitching = true;
             if ($scope.allowRowSorting === undefined) $scope.allowRowSorting = true;
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
@@ -108,8 +111,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.swapRows(a, b);
 
                 // Raise change events
-                $scope.raiseRowUpdatedEvent(a);
-                $scope.raiseRowUpdatedEvent(b);
+                $scope.raiseRowUpdatedEvent(a, true);
+                $scope.raiseRowUpdatedEvent(b, true);
 
                 // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== "custom") {
@@ -170,8 +173,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.expandDefaultDateRange(from, to);
             });
 
-            $scope.raiseRowAddedEvent = function(row) {
-                $scope.onRowAdded({ event: { row: row } });
+            $scope.raiseLabelsResized = function(width) {
+                $scope.onLabelsResized({ event: { width: width } });
+            };
+
+            $scope.raiseRowAddedEvent = function(row, userTriggered) {
+                $scope.onRowAdded({ event: { row: row, userTriggered: userTriggered } });
             };
 
             $scope.raiseDOMRowClickedEvent = function(e, row) {
@@ -187,11 +194,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseRowClickedEvent = function(row, column, date) {
-                $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date } });
+                $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date, userTriggered: true } });
             };
 
-            $scope.raiseRowUpdatedEvent = function(row) {
-                $scope.onRowUpdated({ event: { row: row } });
+            $scope.raiseRowUpdatedEvent = function(row, userTriggered) {
+                $scope.onRowUpdated({ event: { row: row, userTriggered: userTriggered } });
             };
 
             $scope.raiseScrollEvent = debounce(function() {
@@ -209,7 +216,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 if (date !== undefined) {
                     $scope.autoExpandColumns(el, date, direction);
-                    $scope.onScroll({ event: { date: date, direction: direction }});
+                    $scope.onScroll({ event: { date: date, direction: direction, userTriggered: true }});
                 }
             }, 5);
 
@@ -221,11 +228,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseTaskClickedEvent = function(task) {
-                $scope.onTaskClicked({ event: { task: task } });
+                $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
             };
 
-            $scope.raiseTaskUpdatedEvent = function(task) {
-                $scope.onTaskUpdated({ event: { task: task } });
+            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
+                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
             };
 
             $scope.setData = keepScrollPos($scope, function (data) {
@@ -235,9 +242,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     var row = $scope.gantt.rowsMap[rowData.id];
 
                     if (isUpdate === true) {
-                        $scope.raiseRowUpdatedEvent(row);
+                        $scope.raiseRowUpdatedEvent(row, false);
                     } else {
-                        $scope.raiseRowAddedEvent(row);
+                        $scope.raiseRowAddedEvent(row, false);
                     }
                 }
 
@@ -260,7 +267,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                                 row.removeTask(rowData.tasks[j].id);
                             }
 
-                            $scope.raiseRowUpdatedEvent(row);
+                            $scope.raiseRowUpdatedEvent(row, false);
                         }
                     } else {
                         // Delete the complete row
@@ -994,12 +1001,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
         };
 
-        // Sort helper to sort by description name
+        // Sort helper to sort by description name (switch to localeCompare() in the future?)
         var sortByName = function (a, b) {
-            if (a.description === b.description) {
+            if (a.description.toLowerCase() === b.description.toLowerCase()) {
                 return 0;
             } else {
-                return (a.description < b.description) ? -1 : 1;
+                return (a.description.toLowerCase() < b.description.toLowerCase()) ? -1 : 1;
             }
         };
 
@@ -1602,7 +1609,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     return {
         restrict: "A",
         scope: { width: "=ganttLabelResizable",
-                 minWidth: "=resizeMin" },
+                 minWidth: "=ganttLabelResizeMin",
+                 onResized: "&onLabelResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
@@ -1675,6 +1683,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     'user-select': '',
                     'cursor': ''
                 });
+
+                $scope.onResized({ width: $scope.width });
             };
         }]
     };
@@ -1725,12 +1735,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var moveTask = function(mode, mousePos) {
                 var xInEm = mousePos.x / $scope.getPxToEmFactor();
                 if (mode === "M") {
-                    var targetRow = getRow(mousePos.y);
-                    if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
-                        targetRow.moveTaskToRow($scope.task);
+                    if ($scope.allowTaskRowSwitching) {
+                        var targetRow = getRow(mousePos.y);
+                        if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
+                            targetRow.moveTaskToRow($scope.task);
+                        }
                     }
 
-                    $scope.task.moveTo(xInEm - mouseOffsetInEm);
+                    if ($scope.allowTaskMoving) {
+                        $scope.task.moveTo(xInEm - mouseOffsetInEm);
+                    }
                 } else if (mode === "E") {
                     $scope.task.setTo(xInEm);
                 } else {
@@ -1790,7 +1804,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     return "E";
                 } else if ($scope.allowTaskResizing && x < distance) {
                     return "W";
-                } else if ($scope.allowTaskMoving && x >= distance && x <= $element[0].offsetWidth - distance) {
+                } else if (($scope.allowTaskMoving || $scope.allowTaskRowSwitching) && x >= distance && x <= $element[0].offsetWidth - distance) {
                     return "M";
                 } else {
                     return "";
@@ -1837,12 +1851,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.task.isMoving = false;
                 clearScrollInterval();
 
-                if (taskHasBeenMoved === true) {
-                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.raiseTaskUpdatedEvent($scope.task);
-                    taskHasBeenMoved = false;
-                }
-
                 $element.css("cursor", '');
 
                 angular.element($document[0].body).css({
@@ -1852,6 +1860,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     'user-select': '',
                     'cursor': ''
                 });
+
+                if (taskHasBeenMoved === true) {
+                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
+                    $scope.raiseTaskUpdatedEvent($scope.task, true);
+                    taskHasBeenMoved = false;
+                }
             };
         }]
     };

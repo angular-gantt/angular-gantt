@@ -280,12 +280,12 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
-        // Sort helper to sort by description name
+        // Sort helper to sort by description name (switch to localeCompare() in the future?)
         var sortByName = function (a, b) {
-            if (a.description === b.description) {
+            if (a.description.toLowerCase() === b.description.toLowerCase()) {
                 return 0;
             } else {
-                return (a.description < b.description) ? -1 : 1;
+                return (a.description.toLowerCase() < b.description.toLowerCase()) ? -1 : 1;
             }
         };
 
