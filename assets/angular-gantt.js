@@ -383,6 +383,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return (column.firstDayOfWeek + day) % column.daysInWeek;
         };
 
+        var getWeek = function(date) {
+            if (column.firstDayOfWeek !== 1) {
+                // Adjust date so that firstDayOfWeek is always Monday because df.getWeek returns a ISO week number which starts on Monday.
+                // Otherwise if for e.g. firstDayOfWeek is 0 the Sunday would be in week number X while Monday would be in week number Y.
+                df.getWeek(df.addDays(date, 1 - column.firstDayOfWeek, true));
+            } else {
+                return df.getWeek(date);
+            }
+        };
+
         column.getDateByPosition = function(position) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
@@ -391,14 +401,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var day = Math.round(calcDbyP(column, column.daysInWeek, position));
 
             // If day === 7, then jump forward to next week
-            var direction = day !== 7 && day < column.firstDayOfWeek ? -1: 1; // -1: <<<<< | 1: >>>>>
+            var direction = day !== 7 && day < 0 ? -1: 1; // -1: <<<<< | 1: >>>>>
 
             df.setToDayOfWeek(res, day !== 7 ? firstDayIsSunday(day): firstDayIsSunday(day) + 7, false, direction);
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()), df.getWeek(date), df.getWeek(column.date));
+            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()), getWeek(date), getWeek(column.date));
         };
 
         return column;
