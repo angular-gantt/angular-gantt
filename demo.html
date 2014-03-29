@@ -29,7 +29,7 @@
             <span class="help-block">Sort order</span>
             <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
         </div>
-        <div class="form-group">
+        <div class="form-group text-center">
             <span class="help-block">Max height</span>
             <div ng-show="maxHeight > 0">
                 <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
@@ -38,7 +38,7 @@
                 <button class="btn btn-default" ng-click="maxHeight = 300">Activate</button>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group text-center">
             <span class="help-block">Weekends</span>
             <div ng-show="showWeekends">
                 <button class="btn btn-default" ng-click="showWeekends = false">Hide</button>
@@ -47,17 +47,28 @@
                 <button class="btn btn-default" ng-click="showWeekends = true">Show</button>
             </div>
         </div>
+        <div class="form-group text-center">
+            <span class="help-block">Non Working Hours</span>
+            <div ng-show="showNonWorkHours">
+                <button class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide</button>
+            </div>
+            <div ng-hide="showNonWorkHours">
+                <button class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show</button>
+            </div>
+        </div>
     </form>
     <hr>
-    <gantt first-day-of-week="firstDay"
+    <gantt first-day-of-week="1"
            load-data="loadData = fn"
            remove-data="removeData = fn"
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
-           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
-           column-sub-scale="scale === 'week' && 7 || 4"
-           weekend-days="weekendDays"
+           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
+           column-sub-scale="scale === 'week' && 7 || 6"
+           work-hours="[8,9,10,11,12,13,14,15]"
+           show-non-work-hours="showNonWorkHours"
+           weekend-days="[0,6]"
            show-weekends="showWeekends"
            max-height="maxHeight"
            on-gantt-ready="addSamples()"
