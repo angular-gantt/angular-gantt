@@ -104,8 +104,6 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
     var DayColumn = function(date, left, width, subScale, isWeekend, daysToNextWorkingDay, daysToPrevWorkingDay, workHours, showNonWorkHours) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
-        column.daysToNextWorkingDay = daysToNextWorkingDay;
-        column.daysToPrevWorkingDay = daysToPrevWorkingDay;
         column.showNonWorkHours = showNonWorkHours;
         
         var startHour = 0;
@@ -129,15 +127,16 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             var res = df.clone(column.date);
             var hours = startHour + calcDbyP(column, (endHour-startHour), position);
 
+            // Snap is done because a DAY can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
             if(arguments.length == 2){
-                if(hours == endHour && snapForward){
+                if (hours === endHour && snapForward){
                     //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
-                    res = df.addDays(res, column.daysToNextWorkingDay);
+                    res = df.addDays(res, daysToNextWorkingDay);
                     hours = startHour;
                 }
-                else if(hours == startHour && !snapForward){
+                else if (hours === startHour && !snapForward){
                     //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
-                    res = df.addDays(res, -column.daysToPrevWorkingDay);
+                    res = df.addDays(res, -daysToPrevWorkingDay);
                     hours = endHour;
                 }
             }
@@ -149,7 +148,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         column.getPositionByDate = function(date) {
             //first check that the date actually corresponds to this column
             //(it is possible that it might not if weekends are hidden, in which case this will be the nearest previous column)
-            if(df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
+            if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
 
             var maxDateValue = endHour-startHour;
             var currentDateValue = date.getHours()-startHour;
@@ -161,7 +160,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         return column;
     };
 
-    var HourColumn = function(date, left, width, subScale, isWeekend, isWorkHour) {
+    var HourColumn = function(date, left, width, subScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
         column.isWorkHour = isWorkHour;
@@ -173,16 +172,34 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             return copy;
         };
 
-        column.getDateByPosition = function(position) {
+        column.getDateByPosition = function(position, snapForward) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setMinutes(calcDbyP(column, 60, position));
+            var minutes = calcDbyP(column, 60, position);
+
+            // Snap is done because a HOUR can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
+            if(arguments.length == 2){
+                if (minutes === 60 && snapForward){
+                    //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
+                    res = df.addHours(res, hoursToNextWorkingDay);
+                    minutes = 0;
+                }
+                else if (minutes === 0 && !snapForward){
+                    //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
+                    res = df.addHours(res, -hoursToPrevWorkingDay);
+                    minutes = 60;
+                }
+            }
+
+            res.setMinutes(minutes);
             return res;
         };
 
         column.getPositionByDate = function(date) {
+            if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
+
             return calcPbyD(column, date, 60, date.getMinutes(), date.getHours(), column.date.getHours());
         };
 

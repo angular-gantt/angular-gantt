@@ -400,8 +400,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     var DayColumn = function(date, left, width, subScale, isWeekend, daysToNextWorkingDay, daysToPrevWorkingDay, workHours, showNonWorkHours) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
-        column.daysToNextWorkingDay = daysToNextWorkingDay;
-        column.daysToPrevWorkingDay = daysToPrevWorkingDay;
         column.showNonWorkHours = showNonWorkHours;
         
         var startHour = 0;
@@ -425,15 +423,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var res = df.clone(column.date);
             var hours = startHour + calcDbyP(column, (endHour-startHour), position);
 
+            // Snap is done because a DAY can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
             if(arguments.length == 2){
-                if(hours == endHour && snapForward){
+                if (hours === endHour && snapForward){
                     //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
-                    res = df.addDays(res, column.daysToNextWorkingDay);
+                    res = df.addDays(res, daysToNextWorkingDay);
                     hours = startHour;
                 }
-                else if(hours == startHour && !snapForward){
+                else if (hours === startHour && !snapForward){
                     //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
-                    res = df.addDays(res, -column.daysToPrevWorkingDay);
+                    res = df.addDays(res, -daysToPrevWorkingDay);
                     hours = endHour;
                 }
             }
@@ -445,7 +444,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         column.getPositionByDate = function(date) {
             //first check that the date actually corresponds to this column
             //(it is possible that it might not if weekends are hidden, in which case this will be the nearest previous column)
-            if(df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
+            if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
 
             var maxDateValue = endHour-startHour;
             var currentDateValue = date.getHours()-startHour;
@@ -457,7 +456,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         return column;
     };
 
-    var HourColumn = function(date, left, width, subScale, isWeekend, isWorkHour) {
+    var HourColumn = function(date, left, width, subScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
         column.isWorkHour = isWorkHour;
@@ -469,16 +468,34 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return copy;
         };
 
-        column.getDateByPosition = function(position) {
+        column.getDateByPosition = function(position, snapForward) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setMinutes(calcDbyP(column, 60, position));
+            var minutes = calcDbyP(column, 60, position);
+
+            // Snap is done because a HOUR can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
+            if(arguments.length == 2){
+                if (minutes === 60 && snapForward){
+                    //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
+                    res = df.addHours(res, hoursToNextWorkingDay);
+                    minutes = 0;
+                }
+                else if (minutes === 0 && !snapForward){
+                    //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
+                    res = df.addHours(res, -hoursToPrevWorkingDay);
+                    minutes = 60;
+                }
+            }
+
+            res.setMinutes(minutes);
             return res;
         };
 
         column.getPositionByDate = function(date) {
+            if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
+
             return calcPbyD(column, date, 60, date.getMinutes(), date.getHours(), column.date.getHours());
         };
 
@@ -493,50 +510,36 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 }]);;gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, df) {
 
-    // Returns true if the given day is a weekend day
-    var checkIsWeekend = function(weekendDays, day) {
+    // Returns a map to lookup if the current day is a weekend day
+    var getWeekendDaysMap = function(weekendDays) {
+        var weekendDaysMap = {};
+
         for (var i = 0, l = weekendDays.length; i < l; i++) {
-            if (weekendDays[i] === day) {
-                return true;
-            }
+            weekendDaysMap[weekendDays[i]] = true;
         }
 
-        return false;
+        return weekendDaysMap;
     };
 
-    // Returns the count of days until the next working day
-    // For example with a Mon-Fri working week, Wed would return 1, Fri would return 3, Sat would return 2
-    var getDaysToNextWorkingDay = function(weekendDays, day){
-        for(var i = 1; i < 8; i++) {
-            var nextDay = (day+i)%7;
-            if(!checkIsWeekend(weekendDays, nextDay)){
-                return i;
-            }
-        }
-        return 1; //default to 1, should only get here if the whole week is the weekend
+    // Returns true if the given day is a weekend day
+    var checkIsWeekend = function(weekendDaysMap, day) {
+        return weekendDaysMap[day] === true;
     };
 
-    // Returns the count of days from the previous working day
-    // For example with a Mon-Fri working week, Wed would return 1, Mon would return 3.
-    var getDaysToPrevWorkingDay = function(weekendDays, day){
-        for(var i = 1; i < 8; i++) {
-            var prevDay = (((day-i)%7)+7)%7;
-            if(!checkIsWeekend(weekendDays, prevDay)){
-                return i;
-            }
+    // Returns a map to lookup if the current hour is a work hour
+    var getWorkHoursMap = function(workHours) {
+        var workHoursMap = {};
+
+        for (var i = 0, l = workHours.length; i < l; i++) {
+            workHoursMap[workHours[i]] = true;
         }
-        return 1; //default to 1, should only get here if the whole week is the weekend
+
+        return workHoursMap;
     };
 
     // Returns true if the given hour is a work hour
-    var checkIsWorkHour = function(workHours, hour) {
-        for (var i = 0, l = workHours.length; i < l; i++) {
-            if (workHours[i] === hour) {
-                return true;
-            }
-        }
-
-        return false;
+    var checkIsWorkHour = function(workHoursMap, hour) {
+        return workHoursMap[hour] === true;
     };
 
 
@@ -550,16 +553,25 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
+            var workHoursMap = getWorkHoursMap(workHours);
+            var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
             while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                var isWeekend = checkIsWeekend(weekendDays, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
 
                 for (var i = 0; i<24; i++) {
                     var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
-                    var isWorkHour = checkIsWorkHour(workHours, i);
+                    var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
-                        generatedCols.push(new Column.Hour(cDate, left, columnWidth, columnSubScale, isWeekend, isWorkHour));
+                        var hoursToNextWorkingDay = 1;
+                        var hoursToPrevWorkingDay = 1;
+                        if(!showNonWorkHours) { //hours to next/prev working day is only relevant if non-work hours are hidden
+                            hoursToNextWorkingDay = getHoursToNextWorkingDay(workHoursMap, cDate.getHours());
+                            hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.getHours());
+                        }
+
+                        generatedCols.push(new Column.Hour(cDate, left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
                         left += columnWidth;
                     }
                 }
@@ -568,6 +580,30 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
 
             return generatedCols;
+        };
+
+
+        // Returns the count of hours until the next working day
+        // For example with working hours from 8-16, Wed 9am would return 1, Thu 16pm would return 16
+        // Should also be able to handle gaps like 8-12, 13-17
+        var getHoursToNextWorkingDay = function(workHoursMap, hour){
+            for(var i = 1; i < 25; i++) {
+                var nextHour = (hour+i)%24;
+                if(checkIsWorkHour(workHoursMap, nextHour)){
+                    return i;
+                }
+            }
+            return 1; //default to 1, should only get here if the whole day is a work day
+        };
+
+        var getHoursToPreviousWorkingDay = function(workHours, hour){
+            for(var i = 1; i < 25; i++) {
+                var prevHour = (((hour-i)%24)+24)%24;
+                if(checkIsWorkHour(workHours, prevHour)){
+                    return i;
+                }
+            }
+            return 1; //default to 1, should only get here if the whole day is a work day
         };
     };
 
@@ -580,24 +616,51 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
+            var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
             while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                var isWeekend = checkIsWeekend(weekendDays, date.getDay());
-                var daysToNextWorkingDay = 1;
-                var daysToPreviousWorkingDay = 1;
-                if(!showWeekends){ //days to next/prev working day is only relevant if weekends are hidden
-                    daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDays, date.getDay());
-                    daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDays, date.getDay());
-                }
-
+                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
                 if (isWeekend && showWeekends || !isWeekend) {
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));                    left += columnWidth;
+                    var daysToNextWorkingDay = 1;
+                    var daysToPreviousWorkingDay = 1;
+                    if(!showWeekends){ //days to next/prev working day is only relevant if weekends are hidden
+                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.getDay());
+                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
+                    }
+
+                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
+                    left += columnWidth;
                 }
 
                 date = df.addDays(date, 1);
             }
 
             return generatedCols;
+        };
+
+
+        // Returns the count of days until the next working day
+        // For example with a Mon-Fri working week, Wed would return 1, Fri would return 3, Sat would return 2
+        var getDaysToNextWorkingDay = function(weekendDays, day){
+            for(var i = 1; i < 8; i++) {
+                var nextDay = (day+i)%7;
+                if(!checkIsWeekend(weekendDays, nextDay)){
+                    return i;
+                }
+            }
+            return 1; //default to 1, should only get here if the whole week is the weekend
+        };
+
+        // Returns the count of days from the previous working day
+        // For example with a Mon-Fri working week, Wed would return 1, Mon would return 3.
+        var getDaysToPrevWorkingDay = function(weekendDays, day){
+            for(var i = 1; i < 8; i++) {
+                var prevDay = (((day-i)%7)+7)%7;
+                if(!checkIsWeekend(weekendDays, prevDay)){
+                    return i;
+                }
+            }
+            return 1; //default to 1, should only get here if the whole week is the weekend
         };
     };
 
