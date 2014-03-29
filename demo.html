@@ -58,17 +58,17 @@
         </div>
     </form>
     <hr>
-    <gantt first-day-of-week="firstDay"
+    <gantt first-day-of-week="1"
            load-data="loadData = fn"
            remove-data="removeData = fn"
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
            column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
-           column-sub-scale="scale === 'week' && 7 || subScale"
-           work-hours = "[8,9,10,11,12,13,14,15]"
-           show-non-work-hours = "showNonWorkHours"
-           weekend-days="weekendDays"
+           column-sub-scale="scale === 'week' && 7 || 6"
+           work-hours="[8,9,10,11,12,13,14,15]"
+           show-non-work-hours="showNonWorkHours"
+           weekend-days="[0,6]"
            show-weekends="showWeekends"
            max-height="maxHeight"
            on-gantt-ready="addSamples()"

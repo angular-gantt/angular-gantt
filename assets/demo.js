@@ -4,12 +4,9 @@ var demoApp = angular.module('demoApp', ['gantt']);
 
 demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.mode = "custom";
-    $scope.firstDay = 1;
-    $scope.weekendDays = [0,6];
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
-    $scope.subScale = 6;
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
