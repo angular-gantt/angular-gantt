@@ -72,6 +72,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
             $scope.$watch("sortMode", function (newValue, oldValue) {

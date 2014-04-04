@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="gantt-labels-body"
-             ng-style="(maxHeight > 0 && {'max-height': maxHeight+'px'} || {})"
+             ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px'} || {})"
              ng-show="gantt.columns.length > 0">
             <div gantt-vertical-scroll-receiver
                  ng-style="{'position': 'relative'}">
@@ -60,7 +60,7 @@
     <div class="gantt-scrollable"
          gantt-scroll-sender
          gantt-limit-updater
-         ng-style="(maxHeight > 0 && {'max-height': maxHeight+'px', 'overflow-y': 'scroll'} || {'overflow-y': 'hidden'})"
+         ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px', 'overflow-y': 'scroll'} || {'overflow-y': 'hidden'})"
          ng-style="{'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'scroll')}">
         <div class="gantt-body"
              ng-style="{'width': gantt.width+'em'}">
