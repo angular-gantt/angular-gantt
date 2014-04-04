@@ -1355,8 +1355,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.color = task.color;
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
-            self.est = df.clone(task.est);
-            self.lct = df.clone(task.lct);
+            self.est = task.est !== undefined ? df.clone(task.est): undefined;
+            self.lct = task.lct !== undefined ? df.clone(task.lct): undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
         };
