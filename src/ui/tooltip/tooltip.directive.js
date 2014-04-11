@@ -3,19 +3,13 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
 
     return {
         restrict: "E",
-        template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
-            "<div ng-if='visible' class='gantt-task-info' ng-style='css'>" +
-            "<div class='gantt-task-info-content'>" +
-            "{{ task.subject }}</br>" +
-            "<small>" +
-            "{{ task.isMilestone === true &&" +
-            " (task.from | date:'MMM d, HH:mm') ||" +
-            " (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}" +
-            "</small>" +
-            "</div>" +
-            "</div>" +
-            "<div ng-transclude></div>" +
-            "</div>",
+		templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "template/gantt.tooltip.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
         replace: true,
         transclude: true,
         scope: { task: "=ngModel" },
