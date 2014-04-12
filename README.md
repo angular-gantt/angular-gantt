@@ -35,9 +35,10 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
 ### How to build
 1. Install [Grunt](http://gruntjs.com/getting-started)
-2. Execute `grant` to build angular-gantt.js and angular-gantt.min.js
+2. Run `npm install` to install all dependencies
+3. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
 
-Use `grant watch` to build angular-gantt.js on the fly during development.
+Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 ### Attributes
 - **auto-expand** (default `false`)
