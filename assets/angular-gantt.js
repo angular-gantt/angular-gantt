@@ -1170,7 +1170,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
+                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -1259,7 +1259,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return Row;
 }]);;gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, from, to, data, est, lct) {
+    var Task = function(id, row, subject, color, priority, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
@@ -1267,6 +1267,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.row = row;
         self.subject = subject;
         self.color = color;
+        self.priority = priority;
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
@@ -1346,6 +1347,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.copy = function(task) {
             self.subject = task.subject;
             self.color = task.color;
+            self.priority = task.priority;
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
             self.est = task.est !== undefined ? df.clone(task.est): undefined;
@@ -1355,7 +1357,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.subject, self.color, self.priority, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 
