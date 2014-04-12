@@ -36,6 +36,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user resizes the labels width
+            showTooltip: "=?", // True when tooltip shall be enabled. Default (true)
             data: "=?",
             loadData: "&",
             removeData: "&",
@@ -68,6 +69,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
+            if ($scope.showTooltip === undefined) $scope.showTooltip = true;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
