@@ -87,7 +87,7 @@
                          ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"
                          gantt-task-moveable>
                         <gantt-bounds ng-model="task"></gantt-bounds>
-                        <gantt-tooltip ng-model="task">
+                        <gantt-tooltip ng-model="task" enabled="showTooltip">
                             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
                         </gantt-tooltip>
                     </div>

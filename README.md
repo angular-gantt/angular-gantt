@@ -153,6 +153,10 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
+- **show-tooltip** (default: `true`)
+
+  Display a tooltip when the user hovers over a task.
+
 - **show-weekend** (default: `true`)
 
   Display the weekend days if enabled. Weekend days are displayed different than non weekend days.
