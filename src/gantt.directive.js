@@ -221,13 +221,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }, 5);
 
-            $scope.raiseDOMTaskClickedEvent = function(e, task) {
-                $scope.raiseTaskClickedEvent(task);
-
-                e.stopPropagation();
-                e.preventDefault();
-            };
-
             $scope.raiseTaskClickedEvent = function(task) {
                 $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
             };
