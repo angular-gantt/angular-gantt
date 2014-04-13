@@ -17,7 +17,7 @@ A Gantt chart directive for Angular.js without any other dependencies.
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
 
 ### Requires
-- Angular.js >= 1.2.6
+- Angular.js >= 1.2.16
 
 ### Usage
 Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css), [template/gantt.tooltip.tmpl.html](template/gantt.tooltip.tmpl.html) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).

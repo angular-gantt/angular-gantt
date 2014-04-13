@@ -1,14 +1,22 @@
-gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'dateFunctions', 'mouseOffset', function ($document, $timeout, debounce, df, mouseOffset) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', function ($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton) {
 
     return {
-        restrict: "A",
+        restrict: "E",
+        templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "template/gantt.task.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        replace: true,
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidthBig = 5;
             var resizeAreaWidthSmall = 3;
             var scrollSpeed = 15;
             var scrollTriggerDistance = 1;
 
-            var bodyElement = angular.element($document[0].body);
+            var windowElement = angular.element($window);
             var ganttBodyElement = $element.parent().parent();
             var ganttScrollElement = ganttBodyElement.parent().parent();
             var taskHasBeenMoved = false;
@@ -17,38 +25,52 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
             var scrollInterval;
 
             $element.bind('mousedown', function (e) {
-                var mode = getMode(e);
-                if (mode !== "") {
-                    enableMoveMode(mode, e);
-                    e.preventDefault();
-                }
+                $scope.$apply(function() {
+                    var mode = getMoveMode(e);
+                    if (mode !== "" && mouseButton.getButton(e) === 1) {
+                        var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
+                        enableMoveMode(mode, offsetX);
+
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                });
             });
 
             $element.bind('click', function (e) {
-                if (!taskHasBeenMoved) {
-                    $scope.raiseTaskClickedEvent($scope.task);
-                }
+                $scope.$apply(function() {
+                    // Only raise click event if there was no task update event
+                    if (!taskHasBeenMoved) {
+                        $scope.raiseTaskClickedEvent($scope.task);
+                    }
 
-                // Stop the click event from propagating
-                e.stopPropagation();
-                e.preventDefault();
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
             });
 
-            $element.bind("mousemove", function (e) {
-                var mode = getMode(e);
+            $element.bind("mousemove", debounce(function (e) {
+                var mode = getMoveMode(e);
                 if (mode !== "" && mode !== "M") {
                     $element.css("cursor", getCursor(mode));
                 } else {
                     $element.css("cursor", '');
                 }
-            });
 
-            $element.bind('mouseenter', function () {
-                $scope.task.mouseOver = true;
+                $scope.task.mouseX = e.clientX;
+            }, 5));
+
+            $element.bind('mouseenter', function (e) {
+                $scope.$apply(function() {
+                    $scope.task.mouseX = e.clientX;
+                    $scope.task.isMouseOver = true;
+                });
             });
 
             $element.bind('mouseleave', function () {
-                $scope.task.mouseOver = false;
+                $scope.$apply(function() {
+                    $scope.task.isMouseOver = false;
+                });
             });
 
             var handleMove = function(mode, mousePos) {
@@ -61,10 +83,11 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
             };
 
             var moveTask = function(mode, mousePos) {
+                $scope.task.mouseOffsetX = mousePos.x;
                 var xInEm = mousePos.x / $scope.getPxToEmFactor();
                 if (mode === "M") {
                     if ($scope.allowTaskRowSwitching) {
-                        var targetRow = getRow(mousePos.y);
+                        var targetRow = getRowByY(mousePos.y);
                         if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
                             targetRow.moveTaskToRow($scope.task);
                         }
@@ -112,13 +135,13 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                 }
             };
 
-            var getRow = function(y) {
+            var getRowByY = function(y) {
                 var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
                 var pos = Math.floor(y / rowHeight);
                 return $scope.task.row.gantt.rows[pos];
             };
 
-            var getMode = function (e) {
+            var getMoveMode = function (e) {
                 var x = mouseOffset.getOffset(e).x;
 
                 var distance = 0;
@@ -147,13 +170,27 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                 }
             };
 
-            var enableMoveMode = function (mode, e) {
+            var enableMoveMode = function (mode, x) {
                 taskHasBeenMoved = false;
                 $scope.task.isMoving = true;
 
-                moveStartX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
+                moveStartX = x;
                 var xInEm = moveStartX / $scope.getPxToEmFactor();
                 mouseOffsetInEm = xInEm - $scope.task.left;
+
+                var taskMoveHandler = debounce(function(e) {
+                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
+                    clearScrollInterval();
+                    handleMove(mode, mousePos);
+                }, 5);
+                smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
+
+                smartEvent($scope, windowElement, 'mouseup', function() {
+                    $scope.$apply(function() {
+                        windowElement.unbind('mousemove', taskMoveHandler);
+                        disableMoveMode();
+                    });
+                }).bindOnce();
 
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
@@ -162,18 +199,6 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                     'user-select': 'none',
                     'cursor': getCursor(mode)
                 });
-
-                var taskMoveHandler = debounce(function(e) {
-                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
-                    clearScrollInterval();
-                    handleMove(mode, mousePos);
-                }, 5);
-                bodyElement.bind('mousemove', taskMoveHandler);
-
-                bodyElement.one('mouseup', function(e) {
-                    bodyElement.unbind('mousemove', taskMoveHandler);
-                    disableMoveMode();
-                });
             };
 
             var disableMoveMode = function () {
@@ -181,7 +206,6 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                 clearScrollInterval();
 
                 $element.css("cursor", '');
-
                 angular.element($document[0].body).css({
                     '-moz-user-select': '',
                     '-webkit-user-select': '',
@@ -195,6 +219,12 @@ gantt.directive('ganttTaskMoveable', ['$document', '$timeout', 'debounce', 'date
                     $scope.raiseTaskUpdatedEvent($scope.task, true);
                 }
             };
+
+            // In case the task has been moved to another row a new controller is is created by angular.
+            // Enable the move mode again if this was the case.
+            if ($scope.task.isMoving) {
+                enableMoveMode("M", $scope.task.mouseOffsetX);
+            }
         }]
     };
 }]);

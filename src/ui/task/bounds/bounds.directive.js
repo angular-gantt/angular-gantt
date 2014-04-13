@@ -37,9 +37,9 @@ gantt.directive('ganttBounds', [function () {
                     return 'gantt-task-bounds-in';
             };
 
-            $scope.$watch("task.mouseOver", function () {
+            $scope.$watch("task.isMouseOver", function () {
                 if ($scope.task.hasBounds() && !$scope.task.isMoving) {
-                    $scope.visible = !($scope.task.mouseOver === undefined || $scope.task.mouseOver === false);
+                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
                 }
             });
 

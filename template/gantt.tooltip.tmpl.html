@@ -1,11 +1,8 @@
-<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>
-    <div ng-if='visible' class='gantt-task-info' ng-style='css'>
-		<div class='gantt-task-info-content'>
-            {{ task.subject }}</br>
-            <small>
-            {{ task.isMilestone === true && (task.from | date:'MMM d, HH:mm') || (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}
-            </small>
-        </div>
+<div ng-show="visible" class="gantt-task-info" ng-style="css">
+    <div class="gantt-task-info-content">
+        {{ task.subject }}</br>
+        <small>
+        {{ task.isMilestone === true && (task.from | date:'MMM d, HH:mm') || (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}
+        </small>
     </div>
-    <div ng-transclude></div>
 </div>
