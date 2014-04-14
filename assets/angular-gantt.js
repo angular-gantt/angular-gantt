@@ -221,13 +221,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }, 5);
 
-            $scope.raiseDOMTaskClickedEvent = function(e, task) {
-                $scope.raiseTaskClickedEvent(task);
-
-                e.stopPropagation();
-                e.preventDefault();
-            };
-
             $scope.raiseTaskClickedEvent = function(task) {
                 $scope.onTaskClicked({ event: { task: task } });
             };
@@ -1517,6 +1510,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             });
 
+            $element.bind('click', function (e) {
+                if (!taskHasBeenMoved) {
+                    $scope.raiseTaskClickedEvent($scope.task);
+                }
+
+                //Stop the click event form propagating
+                e.stopPropagation();
+                e.preventDefault();
+            });
+
             $element.bind("mousemove", function (e) {
                 var mode = getMode(e);
                 if (mode !== "" && mode !== "M") {
@@ -1524,6 +1527,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 } else {
                     $element.css("cursor", '');
                 }
+            });
+
+            $element.bind('mouseenter', function () {
+                $scope.task.mouseOver = true;
             });
 
             var handleMove = function(mode, mousePos) {
@@ -1619,6 +1626,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var enableMoveMode = function (mode, e) {
+                taskHasBeenMoved = false;
                 $scope.task.isMoving = true;
 
                 moveStartX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
@@ -1640,7 +1648,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }, 5);
                 bodyElement.bind('mousemove', taskMoveHandler);
 
-                bodyElement.one('mouseup', function() {
+                bodyElement.one('mouseup', function(e) {
                     bodyElement.unbind('mousemove', taskMoveHandler);
                     disableMoveMode();
                 });
