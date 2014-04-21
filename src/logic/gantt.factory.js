@@ -115,9 +115,10 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             }
         };
 
-        // Returns the column at the given date
+        // Returns the column at the given or next possible date
         self.getColumnByDate = function(date) {
-            return bs.get(self.columns, date, function(c) { return c.date; })[0];
+            var columns = bs.get(self.columns, date, function(c) { return c.date; });
+            return columns[0] !== undefined? columns[0]: columns[1];
         };
 
         // Returns the column at the given position x (in em)
