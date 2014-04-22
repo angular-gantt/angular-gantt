@@ -17,7 +17,7 @@
                 <div class="gantt-labels-row gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows">
+                     ng-repeat="row in gantt.rows track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
                     </gantt-sortable>
@@ -33,25 +33,25 @@
                  ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width">
+                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index">
                     {{ c.date | date:'MMMM yyyy' }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width">
+                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index">
                     {{ c.week }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width">
+                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index">
                     {{ viewScale === 'hour' && (c.date | date:'dd EEEE') || (c.date | date:'dd') }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width">
+                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index">
                     {{ c.date | date:'HH' }}
                 </span>
             </div>
@@ -68,13 +68,13 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows">
+                     ng-repeat="row in gantt.rows track by $index">
                 </div>
             </div>
             <div class="gantt-body-foreground">
                 <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || 'gantt-foreground-col'))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                     ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width">
+                     ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">
                 </div>
             </div>
             <div class="gantt-body-content">
@@ -99,7 +99,7 @@
         <div ng-class="(task.isMilestone === true && 'gantt-task-milestone' || 'gantt-task')"
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
-            <gantt-tooltip ng-if="showTooltips" ng-model="task"></gantt-tooltip>
+            <gantt-tooltip ng-if="showTooltips && task.isMouseOver" ng-model="task"></gantt-tooltip>
             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
         </div>
     </script>
