@@ -205,23 +205,25 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 #### Row
 ```
 {
-    id: "...",  // Unique id of the row
-    description: "...", // Description shown on the left side of each row
-    order: <Number>, // Row order for custom sort mode. Should be a unique number if defined. Property can be left away for default behaviour
-    tasks: [] // Array containing the row tasks to add
+    id: "...",  // Unique id of the row.
+    description: "...", // Description shown on the left side of each row.
+    order: <Number> (Optional), // Row order for custom sort mode. Should be a unique number if defined. Property can be left away for default behaviour.
+    tasks: [] // Array containing the row tasks to add.
 }
 ```
 
 #### Task
 ```
 {
-    id: "...",  // Unique id of the task
-    subject: "...", // Subject shown on top of each task
-    color: "...", // Color of the task (HEX format)
-    priority: <Number> // Defines which of an overlapping task is on top. Leave property away for default behaviour
-    from: <Date>, // Date can be a String, Timestamp or Date object
-    to: <Date>, // Date can be a String, Timestamp or Date object
-    data: <Any> // Custom object. Use this to attach your own data.
+    id: "...",  // Unique id of the task.
+    subject: "...", // Subject shown on top of each task.
+    from: <Date>, // Date can be a String, Timestamp or Date object.
+    to: <Date>, // Date can be a String, Timestamp or Date object.
+    color: "..." (Optional), // Color of the task (HEX format).
+    priority: <Number> (Optional) // Defines which of an overlapping task is on top. Leave property away for default behaviour.
+    est: <Date> (Optional) // When est and lct are defined a time window will be displayed around the task.
+    lct: <Date> (Optional) // See "est".
+    data: <Any> (Optional) // Custom object. Use this to attach your own data.
 }
 ```
 
