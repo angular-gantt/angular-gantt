@@ -1,6 +1,0 @@
-<div ng-class="(task.isMilestone === true && 'gantt-task-milestone' || 'gantt-task')"
-     ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
-    <gantt-bounds ng-model="task"></gantt-bounds>
-    <gantt-tooltip ng-model="task" enabled="showTooltip"></gantt-tooltip>
-    <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
-</div>

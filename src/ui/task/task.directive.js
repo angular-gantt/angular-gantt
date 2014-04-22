@@ -4,7 +4,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
         restrict: "E",
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "template/gantt.task.tmpl.html";
+                return "default.task.tmpl.html";
             } else {
                 return tAttrs.templateUrl;
             }

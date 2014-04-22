@@ -3,7 +3,13 @@ gantt.directive('ganttBounds', [function () {
 
     return {
         restrict: "E",
-        template: "<div ng-if='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>",
+        templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "default.bounds.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
         replace: true,
         scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {

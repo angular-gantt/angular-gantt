@@ -36,7 +36,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user resizes the labels width
-            showTooltip: "=?", // True when tooltip shall be enabled. Default (true)
+            showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
             data: "=?",
             loadData: "&",
             removeData: "&",
@@ -69,7 +69,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
-            if ($scope.showTooltip === undefined) $scope.showTooltip = true;
+            if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
@@ -1775,7 +1775,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return {
         restrict: "E",
-        template: "<div ng-if='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>",
+        templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "default.bounds.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
         replace: true,
         scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
@@ -1828,7 +1834,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         restrict: "E",
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "template/gantt.task.tmpl.html";
+                return "default.task.tmpl.html";
             } else {
                 return tAttrs.templateUrl;
             }
@@ -2058,13 +2064,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         restrict: "E",
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "template/gantt.tooltip.tmpl.html";
+                return "default.tooltip.tmpl.html";
             } else {
                 return tAttrs.templateUrl;
             }
         },
         replace: true,
-        scope: { task: "=ngModel", enabled: "="},
+        scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var bodyElement = angular.element($document[0].body);
             var parentElement = $element.parent();
@@ -2102,17 +2108,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var showTooltip = function(x) {
-                if ($scope.enabled) {
-                    $scope.visible = true;
+                $scope.visible = true;
 
-                    $timeout(function () {
-                        updateTooltip(x);
+                $timeout(function () {
+                    updateTooltip(x);
 
-                        $scope.css.top = parentElement[0].getBoundingClientRect().top + "px";
-                        $scope.css.marginTop = -$element[0].offsetHeight - 8 + "px";
-                        $scope.css.opacity = 1;
-                    }, 1, true);
-                }
+                    $scope.css.top = parentElement[0].getBoundingClientRect().top + "px";
+                    $scope.css.marginTop = -$element[0].offsetHeight - 8 + "px";
+                    $scope.css.opacity = 1;
+                }, 1, true);
             };
 
             var updateTooltip = function(x) {

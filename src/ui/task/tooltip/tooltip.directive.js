@@ -5,13 +5,13 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
         restrict: "E",
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "template/gantt.tooltip.tmpl.html";
+                return "default.tooltip.tmpl.html";
             } else {
                 return tAttrs.templateUrl;
             }
         },
         replace: true,
-        scope: { task: "=ngModel", enabled: "="},
+        scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var bodyElement = angular.element($document[0].body);
             var parentElement = $element.parent();
@@ -49,17 +49,15 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
             };
 
             var showTooltip = function(x) {
-                if ($scope.enabled) {
-                    $scope.visible = true;
+                $scope.visible = true;
 
-                    $timeout(function () {
-                        updateTooltip(x);
+                $timeout(function () {
+                    updateTooltip(x);
 
-                        $scope.css.top = parentElement[0].getBoundingClientRect().top + "px";
-                        $scope.css.marginTop = -$element[0].offsetHeight - 8 + "px";
-                        $scope.css.opacity = 1;
-                    }, 1, true);
-                }
+                    $scope.css.top = parentElement[0].getBoundingClientRect().top + "px";
+                    $scope.css.marginTop = -$element[0].offsetHeight - 8 + "px";
+                    $scope.css.opacity = 1;
+                }, 1, true);
             };
 
             var updateTooltip = function(x) {
