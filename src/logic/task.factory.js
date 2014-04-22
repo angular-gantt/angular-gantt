@@ -1,5 +1,5 @@
 gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, priority, from, to, data, est, lct) {
+    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
@@ -7,6 +7,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.row = row;
         self.subject = subject;
         self.color = color;
+        self.classes = classes;
         self.priority = priority;
         self.from = df.clone(from);
         self.to = df.clone(to);
@@ -87,6 +88,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.copy = function(task) {
             self.subject = task.subject;
             self.color = task.color;
+            self.classes = task.classes;
             self.priority = task.priority;
             self.from = df.clone(task.from);
             self.to = df.clone(task.to);
@@ -97,7 +99,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 

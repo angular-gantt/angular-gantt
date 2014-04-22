@@ -220,6 +220,7 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
     from: <Date>, // Date can be a String, Timestamp or Date object.
     to: <Date>, // Date can be a String, Timestamp or Date object.
     color: "..." (Optional), // Color of the task (HEX format).
+    classes: <Array|String> (Optional) // Array or String of class names which should be applied to the task. See ng-class documentation for details.
     priority: <Number> (Optional) // Defines which of an overlapping task is on top. Leave property away for default behaviour.
     est: <Date> (Optional) // When est and lct are defined a time window will be displayed around the task.
     lct: <Date> (Optional) // See "est".

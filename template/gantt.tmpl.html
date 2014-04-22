@@ -96,7 +96,7 @@
 
     <!-- Task template -->
     <script type="text/ng-template" id="default.task.tmpl.html">
-        <div ng-class="(task.isMilestone === true && 'gantt-task-milestone' || 'gantt-task')"
+        <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
             <gantt-tooltip ng-if="showTooltips && task.isMouseOver" ng-model="task"></gantt-tooltip>
