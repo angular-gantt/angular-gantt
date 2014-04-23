@@ -6,10 +6,11 @@ gantt.filter('ganttTaskLimit', [function () {
         var res = [];
         for(var i = 0, l = input.length; i<l; i++) {
             var task = input[i];
-            // If task has a visible part on the screen
+            // If task has a visible part on the screen or if the task is currently being moved/resized by the user
             if (task.left >= scroll_left && task.left <= scroll_left + scroll_width ||
                 task.left + task.width >= scroll_left && task.left + task.width <= scroll_left + scroll_width ||
-                task.left < scroll_left && task.left + task.width > scroll_left + scroll_width) {
+                task.left < scroll_left && task.left + task.width > scroll_left + scroll_width ||
+                task.isMoving === true) {
                     res.push(task);
             }
         }

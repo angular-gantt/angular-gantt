@@ -3,38 +3,28 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
 
     return {
         restrict: "E",
-        template: "<div ng-mouseenter='mouseEnter($event)' ng-mouseleave='mouseLeave($event)'>" +
-            "<div ng-if='visible' class='gantt-task-info' ng-style='css'>" +
-            "<div class='gantt-task-info-content'>" +
-            "{{ task.subject }}</br>" +
-            "<small>" +
-            "{{ task.isMilestone === true &&" +
-            " (task.from | date:'MMM d, HH:mm') ||" +
-            " (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}" +
-            "</small>" +
-            "</div>" +
-            "</div>" +
-            "<div ng-transclude></div>" +
-            "</div>",
+        templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "default.tooltip.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
         replace: true,
-        transclude: true,
         scope: { task: "=ngModel" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var bodyElement = angular.element($document[0].body);
+            var parentElement = $element.parent();
             $scope.visible = false;
             $scope.css = {};
 
-            $scope.mouseEnter = function (e) {
-                if (!$scope.task.isMoving) {
-                    showTooltip(e.clientX);
-                }
-            };
-
-            $scope.mouseLeave = function (e) {
-                if (!$scope.task.isMoving) {
+            $scope.$watch("task.isMouseOver", function(newValue, oldValue) {
+                if (newValue === true) {
+                    showTooltip($scope.task.mouseX);
+                } else if (newValue === false && $scope.task.isMoving === false) {
                     hideTooltip();
                 }
-            };
+            });
 
             var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function (e) {
                 if ($scope.visible === true) {
@@ -61,30 +51,26 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
             var showTooltip = function(x) {
                 $scope.visible = true;
 
-                $timeout(function() {
-                    var elTip = angular.element($element.children()[0]);
-
+                $timeout(function () {
                     updateTooltip(x);
 
-                    $scope.css.top = $element[0].getBoundingClientRect().top + "px";
-                    $scope.css.marginTop = -elTip[0].offsetHeight - 8 + "px";
+                    $scope.css.top = parentElement[0].getBoundingClientRect().top + "px";
+                    $scope.css.marginTop = -$element[0].offsetHeight - 8 + "px";
                     $scope.css.opacity = 1;
                 }, 1, true);
             };
 
             var updateTooltip = function(x) {
-                var elTip = angular.element($element.children()[0]);
-
-                elTip.removeClass('gantt-task-infoArrow');
-                elTip.removeClass('gantt-task-infoArrowR');
+                $element.removeClass('gantt-task-infoArrow');
+                $element.removeClass('gantt-task-infoArrowR');
 
                 // Check if info is overlapping with view port
-                if (x + elTip[0].offsetWidth > getViewPortWidth()) {
-                    $scope.css.left = (x + 20 - elTip[0].offsetWidth) + "px";
-                    elTip.addClass('gantt-task-infoArrowR'); // Right aligned info
+                if (x + $element[0].offsetWidth > getViewPortWidth()) {
+                    $scope.css.left = (x + 20 - $element[0].offsetWidth) + "px";
+                    $element.addClass('gantt-task-infoArrowR'); // Right aligned info
                 } else {
                     $scope.css.left = (x - 20) + "px";
-                    elTip.addClass('gantt-task-infoArrow');
+                    $element.addClass('gantt-task-infoArrow');
                 }
             };
 

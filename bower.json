@@ -1,12 +1,12 @@
 {
   "name": "angular-gantt",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "homepage": "https://github.com/Schweigi/angular-gantt",
   "authors": [
     "Schweigi"
   ],
   "description": "A Gantt chart directive for Angular.js without any other dependencies.",
-  "main": "angular-gantt.js",
+  "main": "./assets/angular-gantt.js",
   "keywords": [
     "gantt",
     "chart",
@@ -21,6 +21,6 @@
     "tests"
   ],
   "dependencies": {
-    "angular": ">=1.2.6"
+    "angular": ">=1.2.16"
   }
 }

@@ -17,7 +17,7 @@ A Gantt chart directive for Angular.js without any other dependencies.
 - Add support for US week numbers. Currently all week numbers are according to ISO 8106.
 
 ### Requires
-- Angular.js >= 1.2.6
+- Angular.js >= 1.2.16
 
 ### Usage
 Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
@@ -33,6 +33,13 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
         <gantt></gantt>
 
+### How to build
+1. Install [Grunt](http://gruntjs.com/getting-started)
+2. Run `npm install` to install all dependencies
+3. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
+
+Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
+
 ### Attributes
 - **auto-expand** (default `false`)
 
@@ -40,11 +47,15 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
 - **allow-task-moving** (default `true`)
 
-  Defines if tasks can be moved inside and between rows.
+  Defines if tasks can be moved inside a row.
 
 - **allow-task-resizing** (default `true`)
 
   Defines if tasks can be resized.
+
+- **allow-task-row-switching** (default: `true`)
+
+  If enabled the user can move a task to a different row.
 
 - **allow-row-sorting** (default `true`)
 
@@ -149,6 +160,10 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
+- **show-tooltips** (default: `true`)
+
+  Display a tooltip when the user hovers over a task.
+
 - **show-weekend** (default: `true`)
 
   Display the weekend days if enabled. Weekend days are displayed different than non weekend days.
@@ -185,6 +200,33 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
   Array containing all working hours. Non working hours are displayed differently than working hours. Example:
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
+
+### Row and task object properties
+#### Row
+```js
+{
+    id: "...",  // Unique id of the row.
+    description: "...", // Description shown on the left side of each row.
+    order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
+    tasks: [] // Array containing the row tasks to add.
+}
+```
+
+#### Task
+```js
+{
+    id: "...",  // Unique id of the task.
+    subject: "...", // Subject shown on top of each task.
+    from: <Date>, // Date can be a String, Timestamp or Date object.
+    to: <Date>, // Date can be a String, Timestamp or Date object.
+    color: "..." , // Color of the task in HEX format (Optional).
+    classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+    priority: <Number> // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
+    est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
+    lct: <Date> // See "est".
+    data: <Any> // Custom object. Use this to attach your own data (Optional).
+}
+```
 
 ### License
 **The MIT License**

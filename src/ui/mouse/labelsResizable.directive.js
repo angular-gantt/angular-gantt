@@ -3,7 +3,8 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
     return {
         restrict: "A",
         scope: { width: "=ganttLabelResizable",
-                 minWidth: "=resizeMin" },
+                 minWidth: "=ganttLabelResizeMin",
+                 onResized: "&onLabelResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
@@ -76,6 +77,8 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
                     'user-select': '',
                     'cursor': ''
                 });
+
+                $scope.onResized({ width: $scope.width });
             };
         }]
     };

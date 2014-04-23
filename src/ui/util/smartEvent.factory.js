@@ -1,4 +1,6 @@
 gantt.factory('smartEvent',[function () {
+    // Auto released the binding when the scope is destroyed. Use if an event is registered on another element than the scope.
+
     function smartEvent($scope, $element, event, fn) {
         $scope.$on('$destroy', function() {
             $element.unbind(event, fn);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/gantt.css"/>
     <title>Gantt chart for Angular.js</title>
 </head>
@@ -29,7 +29,7 @@
             <span class="help-block">Sort order</span>
             <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
         </div>
-        <div class="form-group">
+        <div class="form-group text-center">
             <span class="help-block">Max height</span>
             <div ng-show="maxHeight > 0">
                 <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
@@ -38,26 +38,28 @@
                 <button class="btn btn-default" ng-click="maxHeight = 300">Activate</button>
             </div>
         </div>
-        <div class="form-group">
-            <span class="help-block">Weekends</span>
-            <div ng-show="showWeekends">
-                <button class="btn btn-default" ng-click="showWeekends = false">Hide</button>
-            </div>
-            <div ng-hide="showWeekends">
-                <button class="btn btn-default" ng-click="showWeekends = true">Show</button>
+        <div class="form-group text-center">
+            <span class="help-block">Additional options</span>
+            <div class="btn-group">
+                <button ng-show="showWeekends" class="btn btn-default" ng-click="showWeekends = false">Hide weekends</button>
+                <button ng-show="showWeekends == false" class="btn btn-default" ng-click="showWeekends = true">Show weekends</button>
+                <button ng-show="showNonWorkHours == false" class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show non working hours</button>
+                <button ng-show="showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide non working hours</button>
             </div>
         </div>
     </form>
     <hr>
-    <gantt first-day-of-week="firstDay"
+    <gantt first-day-of-week="1"
            load-data="loadData = fn"
            remove-data="removeData = fn"
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
-           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 2)"
-           column-sub-scale="scale === 'week' && 7 || 4"
-           weekend-days="weekendDays"
+           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
+           column-sub-scale="scale === 'week' && 7 || 6"
+           work-hours="[8,9,10,11,12,13,14,15]"
+           show-non-work-hours="showNonWorkHours"
+           weekend-days="[0,6]"
            show-weekends="showWeekends"
            max-height="maxHeight"
            on-gantt-ready="addSamples()"
@@ -72,7 +74,7 @@
     <small>Gantt chart for Angular.js by Marco Schweighauser (2014) | MIT License</small>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
 <script src="assets/demo_sample_data.js"></script>
 <script src="assets/demo.js"></script>
 <script src="assets/angular-gantt.js"></script>
