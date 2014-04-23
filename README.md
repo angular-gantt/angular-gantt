@@ -160,7 +160,7 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
-- **show-tooltip** (default: `true`)
+- **show-tooltips** (default: `true`)
 
   Display a tooltip when the user hovers over a task.
 
@@ -203,28 +203,28 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 ### Row and task object properties
 #### Row
-```
+```js
 {
     id: "...",  // Unique id of the row.
     description: "...", // Description shown on the left side of each row.
-    order: <Number> (Optional), // Row order for custom sort mode. Should be a unique number if defined. Property can be left away for default behaviour.
+    order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
     tasks: [] // Array containing the row tasks to add.
 }
 ```
 
 #### Task
-```
+```js
 {
     id: "...",  // Unique id of the task.
     subject: "...", // Subject shown on top of each task.
     from: <Date>, // Date can be a String, Timestamp or Date object.
     to: <Date>, // Date can be a String, Timestamp or Date object.
-    color: "..." (Optional), // Color of the task (HEX format).
-    classes: <Array|String> (Optional) // Array or String of class names which should be applied to the task. See ng-class documentation for details.
-    priority: <Number> (Optional) // Defines which of an overlapping task is on top. Leave property away for default behaviour.
-    est: <Date> (Optional) // When est and lct are defined a time window will be displayed around the task.
-    lct: <Date> (Optional) // See "est".
-    data: <Any> (Optional) // Custom object. Use this to attach your own data.
+    color: "..." , // Color of the task in HEX format (Optional).
+    classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+    priority: <Number> // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
+    est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
+    lct: <Date> // See "est".
+    data: <Any> // Custom object. Use this to attach your own data (Optional).
 }
 ```
 

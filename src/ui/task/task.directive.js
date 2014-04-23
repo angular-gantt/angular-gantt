@@ -14,12 +14,12 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             var resizeAreaWidthBig = 5;
             var resizeAreaWidthSmall = 3;
             var scrollSpeed = 15;
-            var scrollTriggerDistance = 1;
+            var scrollTriggerDistance = 5;
 
             var windowElement = angular.element($window);
             var ganttBodyElement = $element.parent().parent();
             var ganttScrollElement = ganttBodyElement.parent().parent();
-            var taskHasBeenMoved = false;
+            var taskHasBeenChanged = false;
             var mouseOffsetInEm;
             var moveStartX;
             var scrollInterval;
@@ -40,7 +40,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             $element.bind('click', function (e) {
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
-                    if (!taskHasBeenMoved) {
+                    if (!taskHasBeenChanged) {
                         $scope.raiseTaskClickedEvent($scope.task);
                     }
 
@@ -102,18 +102,19 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                     $scope.task.setFrom(xInEm);
                 }
 
-                taskHasBeenMoved = true;
+                taskHasBeenChanged = true;
             };
 
             var scrollScreen = function(mode, mousePos) {
                 var leftScreenBorder = ganttScrollElement[0].scrollLeft;
+                var keepOnScrolling = false;
 
                 if (mousePos.x < moveStartX) {
                     // Scroll to the left
                     if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
                         mousePos.x -= scrollSpeed;
+                        keepOnScrolling = true;
                         $scope.scrollLeft(scrollSpeed);
-                        scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true); // Keep on scrolling
                     }
                 } else {
                     // Scroll to the right
@@ -122,9 +123,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
                     if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
                         mousePos.x += scrollSpeed;
+                        keepOnScrolling = true;
                         $scope.scrollRight(scrollSpeed);
-                        scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true); // Keep on scrolling
                     }
+                }
+
+                if (keepOnScrolling) {
+                    scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true);
                 }
             };
 
@@ -171,7 +176,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             };
 
             var enableMoveMode = function (mode, x) {
-                taskHasBeenMoved = false;
+                taskHasBeenChanged = false;
                 $scope.task.isMoving = true;
 
                 moveStartX = x;
@@ -214,7 +219,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                     'cursor': ''
                 });
 
-                if (taskHasBeenMoved === true) {
+                if (taskHasBeenChanged === true) {
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
                     $scope.raiseTaskUpdatedEvent($scope.task, true);
                 }

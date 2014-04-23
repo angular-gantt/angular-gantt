@@ -3,9 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/gantt.css"/>
-    <link rel="stylesheet" href="assets/gantt-user.css"/>
     <title>Gantt chart for Angular.js</title>
 </head>
 <body style="padding: 10px">
@@ -40,21 +39,12 @@
             </div>
         </div>
         <div class="form-group text-center">
-            <span class="help-block">Weekends</span>
-            <div ng-show="showWeekends">
-                <button class="btn btn-default" ng-click="showWeekends = false">Hide</button>
-            </div>
-            <div ng-hide="showWeekends">
-                <button class="btn btn-default" ng-click="showWeekends = true">Show</button>
-            </div>
-        </div>
-        <div class="form-group text-center">
-            <span class="help-block">Non Working Hours</span>
-            <div ng-show="showNonWorkHours">
-                <button class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide</button>
-            </div>
-            <div ng-hide="showNonWorkHours">
-                <button class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show</button>
+            <span class="help-block">Additional options</span>
+            <div class="btn-group">
+                <button ng-show="showWeekends" class="btn btn-default" ng-click="showWeekends = false">Hide weekends</button>
+                <button ng-show="showWeekends == false" class="btn btn-default" ng-click="showWeekends = true">Show weekends</button>
+                <button ng-show="showNonWorkHours == false" class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show non working hours</button>
+                <button ng-show="showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide non working hours</button>
             </div>
         </div>
     </form>

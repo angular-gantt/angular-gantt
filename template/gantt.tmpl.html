@@ -99,15 +99,15 @@
         <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
-            <gantt-tooltip ng-if="showTooltips && task.isMouseOver" ng-model="task"></gantt-tooltip>
+            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
         </div>
     </script>
 
     <!-- Task tooltip template -->
-    <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->
+    <!-- Move ng-if from parent to tooltip directive when https://github.com/angular/angular.js/issues/7183 is fixed -->
     <script type="text/ng-template" id="default.tooltip.tmpl.html">
-        <div ng-show="visible" class="gantt-task-info" ng-style="css">
+        <div class="gantt-task-info" ng-style="css">
             <div class="gantt-task-info-content">
                 {{ task.subject }}</br>
                 <small>

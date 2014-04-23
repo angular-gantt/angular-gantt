@@ -21,7 +21,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
             $scope.$watch("task.isMouseOver", function(newValue, oldValue) {
                 if (newValue === true) {
                     showTooltip($scope.task.mouseX);
-                } else if (newValue === false ) {
+                } else if (newValue === false && $scope.task.isMoving === false) {
                     hideTooltip();
                 }
             });
