@@ -49,7 +49,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onRowUpdated: "&",
             onScroll: "&",
             onTaskClicked: "&",
-            onTaskUpdated: "&"
+            onTaskUpdated: "&",
+            onTaskMoveStart: "&",
+            onTaskMoveEnd: "&",
+            onTaskResizeStart: "&",
+            onTaskResizeEnd: "&",
         },
         controller: ['$scope', '$element', function ($scope, $element) {
             // Initialize defaults
@@ -225,6 +229,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.raiseTaskClickedEvent = function(task) {
                 $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskMoveStartEvent = function(task) {
+                $scope.gantt.editStatus.tasks.moving++;
+                $scope.onTaskMoveStart({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskMoveEndEvent = function(task) {
+                $scope.gantt.editStatus.tasks.moving--;
+                $scope.onTaskMoveEnd({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskResizeStartEvent = function(task) {
+                $scope.gantt.editStatus.tasks.resizing++;
+                $scope.onTaskResizeStart({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskResizeEndEvent = function(task) {
+                $scope.gantt.editStatus.tasks.resizing--;
+                $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
             };
 
             $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
@@ -730,7 +754,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
-
+        self.editStatus ={
+            tasks : {
+                resizing : 0,
+                moving   : 0
+            }
+        };
         self.rowsMap = {};
         self.rows = [];
         self.columns = [];
@@ -2009,9 +2038,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var enableMoveMode = function (mode, x) {
+                $scope.task.moveMode = mode;
                 taskHasBeenChanged = false;
+                if(mode==="M" && !$scope.task.isMoving)
+                    $scope.raiseTaskMoveStartEvent($scope.task);
+                else if(mode==="E")
+                    $scope.raiseTaskResizeStartEvent($scope.task);
                 $scope.task.isMoving = true;
-
                 moveStartX = x;
                 var xInEm = moveStartX / $scope.getPxToEmFactor();
                 mouseOffsetInEm = xInEm - $scope.task.left;
@@ -2041,6 +2074,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             var disableMoveMode = function () {
                 $scope.task.isMoving = false;
+                if($scope.task.moveMode==="M")
+                    $scope.raiseTaskMoveEndEvent($scope.task);
+                else if($scope.task.moveMode==="E")
+                    $scope.raiseTaskResizeEndEvent($scope.task);
+                $scope.task.modeMode = null;
+
                 clearScrollInterval();
 
                 $element.css("cursor", '');
