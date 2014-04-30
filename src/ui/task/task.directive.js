@@ -176,9 +176,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             };
 
             var enableMoveMode = function (mode, x) {
+                $scope.task.moveMode = mode;
                 taskHasBeenChanged = false;
+                if(mode==="M" && !$scope.task.isMoving)
+                    $scope.raiseTaskMoveStartEvent($scope.task);
+                else if(mode==="E")
+                    $scope.raiseTaskResizeStartEvent($scope.task);
                 $scope.task.isMoving = true;
-
                 moveStartX = x;
                 var xInEm = moveStartX / $scope.getPxToEmFactor();
                 mouseOffsetInEm = xInEm - $scope.task.left;
@@ -208,6 +212,12 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
             var disableMoveMode = function () {
                 $scope.task.isMoving = false;
+                if($scope.task.moveMode==="M")
+                    $scope.raiseTaskMoveEndEvent($scope.task);
+                else if($scope.task.moveMode==="E")
+                    $scope.raiseTaskResizeEndEvent($scope.task);
+                $scope.task.modeMode = null;
+
                 clearScrollInterval();
 
                 $element.css("cursor", '');

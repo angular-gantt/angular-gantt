@@ -3,6 +3,12 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
+        self.editStatus ={
+            tasks : {
+                resizing : 0,
+                moving   : 0
+            }
+        };
 
         self.rowsMap = {};
         self.rows = [];

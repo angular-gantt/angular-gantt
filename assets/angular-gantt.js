@@ -760,6 +760,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 moving   : 0
             }
         };
+
         self.rowsMap = {};
         self.rows = [];
         self.columns = [];

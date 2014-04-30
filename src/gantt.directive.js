@@ -49,7 +49,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onRowUpdated: "&",
             onScroll: "&",
             onTaskClicked: "&",
-            onTaskUpdated: "&"
+            onTaskUpdated: "&",
+            onTaskMoveStart: "&",
+            onTaskMoveEnd: "&",
+            onTaskResizeStart: "&",
+            onTaskResizeEnd: "&",
         },
         controller: ['$scope', '$element', function ($scope, $element) {
             // Initialize defaults
@@ -67,7 +71,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
-            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
+            if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
@@ -158,7 +162,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
-                if ($scope.autoExpand !== true) {
+                if ( $scope.autoExpand !== "both" && $scope.autoExpand !== true && $scope.autoExpand !== direction ){
                     return;
                 }
 
@@ -225,6 +229,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.raiseTaskClickedEvent = function(task) {
                 $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskMoveStartEvent = function(task) {
+                $scope.gantt.editStatus.tasks.moving++;
+                $scope.onTaskMoveStart({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskMoveEndEvent = function(task) {
+                $scope.gantt.editStatus.tasks.moving--;
+                $scope.onTaskMoveEnd({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskResizeStartEvent = function(task) {
+                $scope.gantt.editStatus.tasks.resizing++;
+                $scope.onTaskResizeStart({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskResizeEndEvent = function(task) {
+                $scope.gantt.editStatus.tasks.resizing--;
+                $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
             };
 
             $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
