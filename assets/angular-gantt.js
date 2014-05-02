@@ -86,7 +86,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+columnWidth+columnSubScale+fromDate+toDate+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     $scope.gantt.reGenerateColumns();
@@ -711,6 +711,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
 		var contractColumns = function() {
+
 			if (dateRange === undefined) {
 				throw "From and to date range cannot be undefined";
 			}
@@ -720,7 +721,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 				expandColumnsNoCheck(dateRange.from,  dateRange.to);
 			} else if (self.getFirstColumn().date < dateRange.from || self.getLastColumn().date > dateRange.to) {
 				var minFrom = self.getFirstColumn().date < dateRange.from ? dateRange.from: self.getFirstColumn().date;
-				var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
+				var maxTo = self.getLastColumn().date > dateRange.to ? dateRange.to: self.getLastColumn().date;
 
 				expandColumnsNoCheck(minFrom, maxTo);
 			}
@@ -2047,4 +2048,5 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return smartEvent;
 }]);
+
 
