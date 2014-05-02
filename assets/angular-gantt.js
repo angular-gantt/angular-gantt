@@ -642,7 +642,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
         self.expandDefaultDateRange = function(from, to) {
-			console.log('expandDefaultDateRange');
             if (from !== undefined && to !== undefined) {
                 expandDateRange(from, to);
                 expandColumns();
@@ -650,8 +649,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
 		self.contractDefaultDateRange = function(from, to) {
-			console.log('contractDefaultDateRange');
-
 			if (from !== undefined && to !== undefined) {
 				contractDateRange(from, to);
 				contractColumns();
@@ -659,7 +656,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 		};
 
         var expandDateRange = function(from, to) {
-			console.log('expandDateRange');
             from = df.clone(from);
             to = df.clone(to);
 
@@ -679,8 +675,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
 		var contractDateRange = function(from, to) {
-			console.log('contractDateRange');
-
 			from = df.clone(from);
 			to = df.clone(to);
 
@@ -701,7 +695,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Generates the Gantt columns according to the current dateRange. The columns are generated if necessary only.
         var expandColumns = function() {
-			console.log('expandColumns');
             if (dateRange === undefined) {
                 throw "From and to date range cannot be undefined";
             }
@@ -718,8 +711,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
 		var contractColumns = function() {
-			console.log('contractColumns');
-
 			if (dateRange === undefined) {
 				throw "From and to date range cannot be undefined";
 			}
