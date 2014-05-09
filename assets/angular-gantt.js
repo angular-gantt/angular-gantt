@@ -43,12 +43,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             clearData: "&",
             centerDate: "&",
             onLabelsResized: "&",
+            onLabelClicked: "&",
+            onLabelDblClicked: "&",
+            onLabelContextClicked: "&",
             onGanttReady: "&",
             onRowAdded: "&",
             onRowClicked: "&",
+            onRowDblClicked: "&",
+            onRowContextClicked: "&",
             onRowUpdated: "&",
             onScroll: "&",
             onTaskClicked: "&",
+            onTaskDblClicked: "&",
+            onTaskContextClicked: "&",
             onTaskUpdated: "&"
         },
         controller: ['$scope', '$element', function ($scope, $element) {
@@ -180,6 +187,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onLabelsResized({ event: { width: width } });
             };
 
+            $scope.raiseLabelClickedEvent = function(evt, row) {
+                $scope.onLabelClicked({ event: { evt: evt, row: row, userTriggered: true } });
+            };
+
+            $scope.raiseLabelDblClickedEvent = function(evt, row) {
+                $scope.onLabelDblClicked({ event: { evt: evt, row: row, userTriggered: true } });
+            };
+
+            $scope.raiseLabelContextMenuEvent = function(evt, row) {
+                $scope.onLabelContextClicked({ event: { evt: evt, row: row, userTriggered: true } });
+            };
+
             $scope.raiseRowAddedEvent = function(row, userTriggered) {
                 $scope.onRowAdded({ event: { row: row, userTriggered: userTriggered } });
             };
@@ -190,14 +209,28 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
                 var date = $scope.gantt.getDateByPosition(xInEm);
 
-                $scope.raiseRowClickedEvent(row, clickedColumn, date);
-
-                e.stopPropagation();
-                e.preventDefault();
+                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
             };
 
-            $scope.raiseRowClickedEvent = function(row, column, date) {
-                $scope.onRowClicked({ event: { row: row, column: column.clone(), date: date, userTriggered: true } });
+            $scope.raiseRowClickedEvent = function(evt, row, column, date) {
+                $scope.onRowClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
+            };
+
+            $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
+                $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
+            };
+
+            $scope.raiseDOMRowContextMenuEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
+
+                $scope.raiseRowContextMenuEvent(e, row, clickedColumn, date);
+            };
+
+            $scope.raiseRowContextMenuEvent = function(evt, row, column, date) {
+                $scope.onRowContextClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
             };
 
             $scope.raiseRowUpdatedEvent = function(row, userTriggered) {
@@ -223,8 +256,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }, 5);
 
-            $scope.raiseTaskClickedEvent = function(task) {
-                $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
+            $scope.raiseTaskClickedEvent = function(evt, task) {
+                $scope.onTaskClicked({ event: { evt: evt, task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskDblClickedEvent = function(evt, task) {
+                $scope.onTaskDblClicked({ event: { evt: evt, task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskContextMenuEvent = function(evt, task) {
+                $scope.onTaskContextClicked({ event: { evt: evt, task: task, userTriggered: true } });
             };
 
             $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
@@ -1648,6 +1689,22 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
         }]
     };
+}]);;gantt.directive('ganttRightClick', ['$parse', function ($parse) {
+
+    return {
+        restrict: "A",
+        compile: function($element, attr) {
+            var fn = $parse(attr.ganttRightClick);
+
+            return function(scope, element) {
+                element.on('contextmenu', function(event) {
+                    scope.$apply(function() {
+                        fn(scope, {$event:event});
+                    });
+                });
+            };
+        }
+    };
 }]);;gantt.directive('ganttHorizontalScrollReceiver', ['scrollManager', function (scrollManager) {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
@@ -1863,9 +1920,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     if (mode !== "" && mouseButton.getButton(e) === 1) {
                         var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
                         enableMoveMode(mode, offsetX);
-
-                        e.stopPropagation();
-                        e.preventDefault();
                     }
                 });
             });
@@ -1874,11 +1928,32 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.raiseTaskClickedEvent($scope.task);
+                        $scope.raiseTaskClickedEvent(e, $scope.task);
                     }
 
                     e.stopPropagation();
-                    e.preventDefault();
+                });
+            });
+
+            $element.bind('dblclick', function (e) {
+                $scope.$apply(function() {
+                    // Only raise dbl click event if there was no task update event
+                    if (!taskHasBeenChanged) {
+                        $scope.raiseTaskDblClickedEvent(e, $scope.task);
+                    }
+
+                    e.stopPropagation();
+                });
+            });
+
+            $element.bind('contextmenu', function (e) {
+                $scope.$apply(function() {
+                    // Only raise click event if there was no task update event
+                    if (!taskHasBeenChanged) {
+                        $scope.raiseTaskContextMenuEvent(e, $scope.task);
+                    }
+
+                    e.stopPropagation();
                 });
             });
 

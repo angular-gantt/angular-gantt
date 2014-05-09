@@ -30,9 +30,6 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                     if (mode !== "" && mouseButton.getButton(e) === 1) {
                         var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
                         enableMoveMode(mode, offsetX);
-
-                        e.stopPropagation();
-                        e.preventDefault();
                     }
                 });
             });
@@ -41,11 +38,32 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.raiseTaskClickedEvent($scope.task);
+                        $scope.raiseTaskClickedEvent(e, $scope.task);
                     }
 
                     e.stopPropagation();
-                    e.preventDefault();
+                });
+            });
+
+            $element.bind('dblclick', function (e) {
+                $scope.$apply(function() {
+                    // Only raise dbl click event if there was no task update event
+                    if (!taskHasBeenChanged) {
+                        $scope.raiseTaskDblClickedEvent(e, $scope.task);
+                    }
+
+                    e.stopPropagation();
+                });
+            });
+
+            $element.bind('contextmenu', function (e) {
+                $scope.$apply(function() {
+                    // Only raise click event if there was no task update event
+                    if (!taskHasBeenChanged) {
+                        $scope.raiseTaskContextMenuEvent(e, $scope.task);
+                    }
+
+                    e.stopPropagation();
                 });
             });
 

@@ -30,6 +30,11 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
         $scope.clearData();
     };
 
+    $scope.labelEvent = function(event) {
+        // A label has been clicked.
+        console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.description + ' (Custom data: ' + event.row.data + ')');
+    };
+
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
         console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
