@@ -1032,13 +1032,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Sort rows by the specified sort mode (name, order, custom)
+        // and by Ascending or Descending
         self.sortRows = function (mode) {
             switch (mode) {
                 case "name":
                     self.rows.sort(sortByName);
                     break;
+                case "-name":
+                    self.rows.reverse(sortByName);
+                    break;
+                case "date":
+                    self.rows.sort(sortByDate);
+                    break;
+                case "-date":
+                    self.rows.reverse(sortByDate);
+                    break;
                 case "custom":
                     self.rows.sort(sortByCustom);
+                    break;
+                case "-custom":
+                    self.rows.reverse(sortByCustom);
                     break;
                 default:
                     self.rows.sort(sortByDate);
