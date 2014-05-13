@@ -95,7 +95,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.$watch('viewScale+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    $scope.gantt.reGenerateColumns();
+                    if (!$scope.gantt.reGenerateColumns()) {
+                        // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
+                        $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    }
                 }
             });
 
@@ -205,6 +208,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseScrollEvent = debounce(function() {
+                if ($scope.gantt.getDateRange() === undefined) {
+                    return;
+                }
+
                 var el = $scope.ganttScroll[0];
                 var direction;
                 var date;
@@ -276,7 +283,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Clear all existing rows and tasks
             $scope.removeAllData = function() {
+                // Clears rows, task and columns
                 $scope.gantt.removeRows();
+                // Restore default columns
+                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Bind scroll event
@@ -810,9 +820,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
             self.columns = [];
-            expandColumns();
+
+            if (dateRange !== undefined) {
+                expandColumns();
+                return true;
+            } else {
+                return false;
+            }
         };
 
         // Update the position/size of all tasks in the Gantt

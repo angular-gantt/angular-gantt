@@ -83,9 +83,16 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
             self.columns = [];
-            expandColumns();
+
+            if (dateRange !== undefined) {
+                expandColumns();
+                return true;
+            } else {
+                return false;
+            }
         };
 
         // Update the position/size of all tasks in the Gantt
