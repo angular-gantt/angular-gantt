@@ -192,7 +192,6 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 mouseOffsetInEm = xInEm - $scope.task.left;
 
                 var taskMoveHandler = debounce(function(e) {
-                    console.log(e);
                     var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
                     clearScrollInterval();
                     handleMove(mode, mousePos);
