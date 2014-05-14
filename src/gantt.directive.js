@@ -19,6 +19,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         },
         scope: {
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
+            rowFilter: "=?", // A filter object definition used to filter rows
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
