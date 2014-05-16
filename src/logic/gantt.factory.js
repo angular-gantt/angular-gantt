@@ -83,9 +83,16 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
             self.columns = [];
-            expandColumns();
+
+            if (dateRange !== undefined) {
+                expandColumns();
+                return true;
+            } else {
+                return false;
+            }
         };
 
         // Update the position/size of all tasks in the Gantt
@@ -305,13 +312,26 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Sort rows by the specified sort mode (name, order, custom)
+        // and by Ascending or Descending
         self.sortRows = function (mode) {
             switch (mode) {
                 case "name":
                     self.rows.sort(sortByName);
                     break;
+                case "-name":
+                    self.rows.reverse(sortByName);
+                    break;
+                case "date":
+                    self.rows.sort(sortByDate);
+                    break;
+                case "-date":
+                    self.rows.reverse(sortByDate);
+                    break;
                 case "custom":
                     self.rows.sort(sortByCustom);
+                    break;
+                case "-custom":
+                    self.rows.reverse(sortByCustom);
                     break;
                 default:
                     self.rows.sort(sortByDate);

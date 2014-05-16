@@ -27,7 +27,7 @@ gantt.directive('ganttScrollSender', ['scrollManager', '$timeout', function (scr
                 if (newValue === 0) {
                     $timeout(function() {
                         updateListeners();
-                    }, 20, true);
+                    }, 0, true);
                 }
             });
         }]

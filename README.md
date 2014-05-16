@@ -179,6 +179,8 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   - `date`: Sort by the earliest task `from` date of each row
   - `custom`: Custom sort order using a property called **order** on each row
 
+  Prepend a `-` in front to sort descending. E.g. `-date`
+
 - **template-url** (default: `template/gantt.tmpl.html`)
 
   URL of the Gantt HTML template. You need to specify this attribute if you put the template in a different folder otherwise the directive won't work.

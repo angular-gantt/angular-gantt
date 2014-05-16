@@ -99,10 +99,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+columnWidth+columnSubScale+fromDate+toDate+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    $scope.gantt.reGenerateColumns();
+                    if (!$scope.gantt.reGenerateColumns()) {
+                        // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
+                        $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    }
                 }
             });
 
@@ -238,6 +241,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseScrollEvent = debounce(function() {
+                if ($scope.gantt.getDateRange() === undefined) {
+                    return;
+                }
+
                 var el = $scope.ganttScroll[0];
                 var direction;
                 var date;
@@ -317,7 +324,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Clear all existing rows and tasks
             $scope.removeAllData = function() {
+                // Clears rows, task and columns
                 $scope.gantt.removeRows();
+                // Restore default columns
+                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Bind scroll event
@@ -851,9 +861,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
             self.columns = [];
-            expandColumns();
+
+            if (dateRange !== undefined) {
+                expandColumns();
+                return true;
+            } else {
+                return false;
+            }
         };
 
         // Update the position/size of all tasks in the Gantt
@@ -1073,13 +1090,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Sort rows by the specified sort mode (name, order, custom)
+        // and by Ascending or Descending
         self.sortRows = function (mode) {
             switch (mode) {
                 case "name":
                     self.rows.sort(sortByName);
                     break;
+                case "-name":
+                    self.rows.reverse(sortByName);
+                    break;
+                case "date":
+                    self.rows.sort(sortByDate);
+                    break;
+                case "-date":
+                    self.rows.reverse(sortByDate);
+                    break;
                 case "custom":
                     self.rows.sort(sortByCustom);
+                    break;
+                case "-custom":
+                    self.rows.reverse(sortByCustom);
                     break;
                 default:
                     self.rows.sort(sortByDate);
@@ -1745,7 +1775,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 if (newValue === 0) {
                     $timeout(function() {
                         updateListeners();
-                    }, 20, true);
+                    }, 0, true);
                 }
             });
         }]
