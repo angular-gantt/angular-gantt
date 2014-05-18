@@ -586,9 +586,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
 
     var HourColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
-        // Generates the columns between from and to date. The task will later be places between the matching columns.
+        // Generates 24 columns for each day between the given from and to date. The task will later be places between the matching columns.
         this.generate = function(from, to) {
-            var excludeTo = df.isTimeZero(to);
+            var excludeTo = isToDateToExclude(to);
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
@@ -624,6 +624,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return generatedCols;
         };
 
+        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
+            // If the To date was excluded from generating then go back one hour.
+            if (isToDateToExclude(newToDate)) {
+                newToDate = df.addHours(newToDate, -1, true);
+            }
+
+            // Set time of newToDate to zero before comparing as the hour columns are generated for the whole day
+            // and the newToDate could be e.g. 23:35 while the last column for this date has time 23:00.
+            // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
+            return firstColDate > newFromDate || lastColDate < df.setTimeZero(newToDate, true);
+        };
+
+        // Columns are generated including or excluding the to date.
+        // If the To date time is 00:00 then no new columns are generated for this day.
+        var isToDateToExclude = function(to) {
+            return df.isTimeZero(to);
+        };
 
         // Returns the count of hours until the next working day
         // For example with working hours from 8-16, Wed 9am would return 1, Thu 16pm would return 16
@@ -650,8 +667,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 
     var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+        // Generates one column for each day between the given from and to date.
         this.generate = function(from, to) {
-            var excludeTo = df.isTimeZero(to);
+            var excludeTo = isToDateToExclude(to);
             from = df.setTimeZero(from, true);
             to = df.setTimeZero(to, true);
 
@@ -680,6 +698,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return generatedCols;
         };
 
+        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
+            // If the To date was excluded from generating then go back one day.
+            if (isToDateToExclude(newToDate)) {
+                newToDate = df.addDays(newToDate, -1, true);
+            }
+
+            // Set time of newToDate to zero before comparing as the day columns generated have time 00:00
+            // and the newToDate could be e.g. 16:23.
+            // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
+            return firstColDate > newFromDate || lastColDate < df.setTimeZero(newToDate, true);
+        };
+
+        // Columns are generated including or excluding the to date.
+        // If the To date time is 00:00 then no new column is generated for this day.
+        var isToDateToExclude = function(to) {
+            return df.isTimeZero(to);
+        };
 
         // Returns the count of days until the next working day
         // For example with a Mon-Fri working week, Wed would return 1, Fri would return 3, Sat would return 2
@@ -707,8 +742,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 
     var WeekColumnGenerator = function(columnWidth, columnSubScale, firstDayOfWeek) {
+        // Generates one column for each week between the given from and to date.
         this.generate = function(from, to) {
-            var excludeTo = to.getDay() === firstDayOfWeek && df.isTimeZero(to);
+            var excludeTo = isToDateToExclude(to);
             from = df.setToDayOfWeek(df.setTimeZero(from, true), firstDayOfWeek, false);
             to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
 
@@ -725,11 +761,30 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             return generatedCols;
         };
+
+        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
+            // If the To date was excluded from generating then go back one week.
+            if (isToDateToExclude(newToDate)) {
+                newToDate = df.addWeeks(newToDate, -1, true);
+            }
+
+            // Set time of newToDate to zero before comparing as the week columns generated have day = firstDayOfWeek and time = 00:00
+            // and the newToDate could be e.g. day 3 and time 16:23.
+            // If we wouldn`t set the day to firstDayOfWeek and time to zero the comparison would trigger an expand in that case.
+            return firstColDate > newFromDate || lastColDate < df.setToDayOfWeek(df.setTimeZero(newToDate, true), firstDayOfWeek);
+        };
+
+        // Columns are generated including or excluding the to date.
+        // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
+        var isToDateToExclude = function(to) {
+            return to.getDay() === firstDayOfWeek && df.isTimeZero(to);
+        };
     };
 
     var MonthColumnGenerator = function(columnWidth, columnSubScale) {
+        // Generates one column for each month between the given from and to date.
         this.generate = function(from, to) {
-            var excludeTo = to.getDate() === 1 && df.isTimeZero(to);
+            var excludeTo = isToDateToExclude(to);
             from = df.setToFirstDayOfMonth(df.setTimeZero(from, true), false);
             to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
 
@@ -745,6 +800,24 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
 
             return generatedCols;
+        };
+
+        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
+            // If the To date was excluded from generating then go back one month.
+            if (isToDateToExclude(newToDate)) {
+                newToDate = df.addMonths(newToDate, -1, true);
+            }
+
+            // Set time of newToDate to zero before comparing as the month columns generated have day = 1 and time = 00:00
+            // and the newToDate could be e.g. day 7 and time 16:23.
+            // If we wouldn`t set the day to 1 and time to zero the comparison would trigger an expand in that case.
+            return firstColDate > newFromDate || lastColDate < df.setToFirstDayOfMonth(df.setTimeZero(newToDate, true));
+        };
+
+        // Columns are generated including or excluding the to date.
+        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+        var isToDateToExclude = function(to) {
+            return to.getDate() === 1 && df.isTimeZero(to);
         };
     };
 
@@ -820,7 +893,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
                 expandColumnsNoCheck(dateRange.from, dateRange.to);
-            } else if (self.getFirstColumn().date > dateRange.from || self.getLastColumn().date < dateRange.to) {
+            } else if (self.columnGenerator.columnExpandNecessary(self.getFirstColumn().date, self.getLastColumn().date, dateRange.from, dateRange.to)) {
                 var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
 

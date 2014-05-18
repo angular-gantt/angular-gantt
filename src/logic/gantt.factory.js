@@ -64,7 +64,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
                 expandColumnsNoCheck(dateRange.from, dateRange.to);
-            } else if (self.getFirstColumn().date > dateRange.from || self.getLastColumn().date < dateRange.to) {
+            } else if (self.columnGenerator.columnExpandNecessary(self.getFirstColumn().date, self.getLastColumn().date, dateRange.from, dateRange.to)) {
                 var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
 
