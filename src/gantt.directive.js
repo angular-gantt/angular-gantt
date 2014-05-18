@@ -279,45 +279,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
             };
 
+            // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function (data) {
-                for (var i = 0, l = data.length; i < l; i++) {
-                    var rowData = data[i];
-                    var isUpdate = $scope.gantt.addRow(rowData);
-                    var row = $scope.gantt.rowsMap[rowData.id];
-
-                    if (isUpdate === true) {
-                        $scope.raiseRowUpdatedEvent(row, false);
-                    } else {
-                        $scope.raiseRowAddedEvent(row, false);
-                    }
-                }
+                $scope.gantt.addData(data,
+                function(row) {
+                    $scope.raiseRowAddedEvent(row, false);
+                }, function(row) {
+                    $scope.raiseRowUpdatedEvent(row, false);
+                });
 
                 $scope.sortRows();
             });
 
-            // Remove data handler.
-            // If a row has no tasks inside the complete row will be deleted.
+            // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
-                for (var i = 0, l = data.length; i < l; i++) {
-                    var rowData = data[i];
-
-                    if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-                        // Only delete the specified tasks but not the row and the other tasks
-
-                        if (rowData.id in $scope.gantt.rowsMap) {
-                            var row = $scope.gantt.rowsMap[rowData.id];
-
-                            for (var j = 0, k = rowData.tasks.length; j < k; j++) {
-                                row.removeTask(rowData.tasks[j].id);
-                            }
-
-                            $scope.raiseRowUpdatedEvent(row, false);
-                        }
-                    } else {
-                        // Delete the complete row
-                        $scope.gantt.removeRow(rowData.id);
-                    }
-                }
+                $scope.gantt.removeData(data, function(row) {
+                    $scope.raiseRowUpdatedEvent(row, false);
+                });
 
                 $scope.sortRows();
             }});
@@ -325,7 +303,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Clear all existing rows and tasks
             $scope.removeAllData = function() {
                 // Clears rows, task and columns
-                $scope.gantt.removeRows();
+                $scope.gantt.removeAllRows();
                 // Restore default columns
                 $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             };

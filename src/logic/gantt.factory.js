@@ -201,8 +201,27 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             return size;
         };
 
-        // Adds a row to the list of rows. Merges the row and it tasks if there is already one with the same id
-        self.addRow = function(rowData) {
+        // Adds or update rows and tasks.
+        self.addData = function(data, addEventFn, updateEventFN) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var rowData = data[i];
+                var isUpdate = addRow(rowData);
+                var row = self.rowsMap[rowData.id];
+
+                if (isUpdate === true && updateEventFN !== undefined) {
+                    updateEventFN(row);
+                } else if (addEventFn !== undefined) {
+                    addEventFn(row);
+                }
+            }
+
+            if (dateRange !== undefined) {
+                expandColumns();
+            }
+        };
+
+        // Adds a row or merges the row and its tasks if there is already one with the same id
+        var addRow = function(rowData) {
             // Copy to new row (add) or merge with existing (update)
             var row, isUpdate = false;
 
@@ -233,15 +252,40 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                     expandDateRange(task.from, task.to);
                     task.updatePosAndSize();
                 }
-
-                expandColumns();
             }
 
             return isUpdate;
         };
 
+        // Removes specified rows or tasks.
+        // If a row has no tasks inside the complete row will be deleted.
+        self.removeData = function(data, updateEventFn) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var rowData = data[i];
+
+                if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
+                    // Only delete the specified tasks but not the row and the other tasks
+
+                    if (rowData.id in self.rowsMap) {
+                        var row = self.rowsMap[rowData.id];
+
+                        for (var j = 0, k = rowData.tasks.length; j < k; j++) {
+                            row.removeTask(rowData.tasks[j].id);
+                        }
+
+                        if (updateEventFn !== undefined) {
+                            updateEventFn(row);
+                        }
+                    }
+                } else {
+                    // Delete the complete row
+                    removeRow(rowData.id);
+                }
+            }
+        };
+
         // Removes the complete row including all tasks
-        self.removeRow = function(rowId) {
+        var removeRow = function(rowId) {
             if (rowId in self.rowsMap) {
                 delete self.rowsMap[rowId]; // Remove from map
 
@@ -258,7 +302,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Removes all rows and tasks
-        self.removeRows = function() {
+        self.removeAllRows = function() {
             self.rowsMap = {};
             self.rows = [];
             self.highestRowOrder = 0;
