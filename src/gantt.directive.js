@@ -50,9 +50,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onScroll: "&",
             onTaskClicked: "&",
             onTaskUpdated: "&",
-            onTaskMoveStart: "&",
+            onTaskMoveBegin: "&",
             onTaskMoveEnd: "&",
-            onTaskResizeStart: "&",
+            onTaskResizeBegin: "&",
             onTaskResizeEnd: "&",
         },
         controller: ['$scope', '$element', function ($scope, $element) {
@@ -232,22 +232,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseTaskMoveStartEvent = function(task) {
-                $scope.gantt.editStatus.tasks.moving++;
-                $scope.onTaskMoveStart({ event: { task: task, userTriggered: true } });
+                $scope.onTaskMoveBegin({ event: { task: task, userTriggered: true } });
             };
 
             $scope.raiseTaskMoveEndEvent = function(task) {
-                $scope.gantt.editStatus.tasks.moving--;
                 $scope.onTaskMoveEnd({ event: { task: task, userTriggered: true } });
             };
 
             $scope.raiseTaskResizeStartEvent = function(task) {
-                $scope.gantt.editStatus.tasks.resizing++;
-                $scope.onTaskResizeStart({ event: { task: task, userTriggered: true } });
+                $scope.onTaskResizeBegin({ event: { task: task, userTriggered: true } });
             };
 
             $scope.raiseTaskResizeEndEvent = function(task) {
-                $scope.gantt.editStatus.tasks.resizing--;
                 $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
             };
 
