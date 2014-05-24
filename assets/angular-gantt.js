@@ -56,7 +56,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onTaskClicked: "&",
             onTaskDblClicked: "&",
             onTaskContextClicked: "&",
-            onTaskUpdated: "&"
+            onTaskUpdated: "&",
+            onTaskMoveBegin: "&",
+            onTaskMoveEnd: "&",
+            onTaskResizeBegin: "&",
+            onTaskResizeEnd: "&"
         },
         controller: ['$scope', '$element', function ($scope, $element) {
             // Initialize defaults
@@ -74,7 +78,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
-            if ($scope.autoExpand === undefined) $scope.autoExpand = false;
+            if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
@@ -168,7 +172,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
-                if ($scope.autoExpand !== true) {
+                if ( $scope.autoExpand !== "both" && $scope.autoExpand !== true && $scope.autoExpand !== direction ){
                     return;
                 }
 
@@ -219,6 +223,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onRowClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
             };
 
+            $scope.raiseDOMRowDblClickedEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
+
+                $scope.raiseRowDblClickedEvent(e, row, clickedColumn, date);
+            };
+
             $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
                 $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
             };
@@ -263,6 +276,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }, 5);
 
+            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
+                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
+            };
+
+            $scope.raiseTaskMoveStartEvent = function(task) {
+                $scope.onTaskMoveBegin({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskMoveEndEvent = function(task) {
+                $scope.onTaskMoveEnd({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskResizeStartEvent = function(task) {
+                $scope.onTaskResizeBegin({ event: { task: task, userTriggered: true } });
+            };
+
+            $scope.raiseTaskResizeEndEvent = function(task) {
+                $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
+            };
+
             $scope.raiseTaskClickedEvent = function(evt, task) {
                 $scope.onTaskClicked({ event: { evt: evt, task: task, userTriggered: true } });
             };
@@ -273,10 +306,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.raiseTaskContextMenuEvent = function(evt, task) {
                 $scope.onTaskContextClicked({ event: { evt: evt, task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
-                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
             };
 
             // Add or update rows and tasks
@@ -2209,13 +2238,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var enableMoveMode = function (mode, x) {
-                taskHasBeenChanged = false;
-                $scope.task.isMoving = true;
+                // Raise task move start event
+                if(!$scope.task.isMoving) {
+                    if (mode === "M")
+                        $scope.raiseTaskMoveStartEvent($scope.task);
+                    else
+                        $scope.raiseTaskResizeStartEvent($scope.task);
+                }
 
+                // Init task move
+                taskHasBeenChanged = false;
+                $scope.task.moveMode = mode;
+                $scope.task.isMoving = true;
                 moveStartX = x;
                 var xInEm = moveStartX / $scope.getPxToEmFactor();
                 mouseOffsetInEm = xInEm - $scope.task.left;
 
+                // Add move event handlers
                 var taskMoveHandler = debounce(function(e) {
                     var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
                     clearScrollInterval();
@@ -2230,6 +2269,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     });
                 }).bindOnce();
 
+                // Show mouse move/resize cursor
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
                     '-webkit-user-select': 'none',
@@ -2241,8 +2281,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             var disableMoveMode = function () {
                 $scope.task.isMoving = false;
+
+                // Stop any active auto scroll
                 clearScrollInterval();
 
+                // Set mouse cursor back to default
                 $element.css("cursor", '');
                 angular.element($document[0].body).css({
                     '-moz-user-select': '',
@@ -2252,6 +2295,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     'cursor': ''
                 });
 
+                // Raise move end event
+                if($scope.task.moveMode==="M")
+                    $scope.raiseTaskMoveEndEvent($scope.task);
+                else
+                    $scope.raiseTaskResizeEndEvent($scope.task);
+
+                $scope.task.modeMode = null;
+
+                // Raise task changed event
                 if (taskHasBeenChanged === true) {
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
                     $scope.raiseTaskUpdatedEvent($scope.task, true);

@@ -223,6 +223,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onRowClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
             };
 
+            $scope.raiseDOMRowDblClickedEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
+
+                $scope.raiseRowDblClickedEvent(e, row, clickedColumn, date);
+            };
+
             $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
                 $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
             };
@@ -267,8 +276,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }, 5);
 
-            $scope.raiseTaskClickedEvent = function(task) {
-                $scope.onTaskClicked({ event: { task: task, userTriggered: true } });
+            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
+                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
             };
 
             $scope.raiseTaskMoveStartEvent = function(task) {
@@ -283,6 +292,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onTaskResizeBegin({ event: { task: task, userTriggered: true } });
             };
 
+            $scope.raiseTaskResizeEndEvent = function(task) {
+                $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
+            };
+
             $scope.raiseTaskClickedEvent = function(evt, task) {
                 $scope.onTaskClicked({ event: { evt: evt, task: task, userTriggered: true } });
             };
@@ -293,10 +306,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.raiseTaskContextMenuEvent = function(evt, task) {
                 $scope.onTaskContextClicked({ event: { evt: evt, task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
-                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
             };
 
             // Add or update rows and tasks
