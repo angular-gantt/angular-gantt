@@ -26,6 +26,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             allowTaskResizing: "=?", // Set to true if tasks should be resizable by the user.
             allowTaskRowSwitching: "=?", // If false then tasks can be moved inside their current row only. The user can not move it to another row.
             allowRowSorting: "=?", // Set to true if the user should be able to re-order rows.
+            allowLabelsResizing: "=?", // Set to true if the user should be able to resize the label section.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
@@ -35,7 +36,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             showNonWorkHours: "=?", // True if the non work hours shall be displayed Default (true)
             autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
-            labelsWidth: "=?", // Define the width of the labels section. Changes when the user resizes the labels width
+            labelsWidth: "=?", // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
             data: "=?",
             loadData: "&",
@@ -46,6 +47,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onLabelClicked: "&",
             onLabelDblClicked: "&",
             onLabelContextClicked: "&",
+            onLabelHeaderClicked: "&",
+            onLabelHeaderDblClicked: "&",
+            onLabelHeaderContextClicked: "&",
             onGanttReady: "&",
             onRowAdded: "&",
             onRowClicked: "&",
@@ -72,6 +76,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.allowTaskResizing === undefined) $scope.allowTaskResizing = true;
             if ($scope.allowTaskRowSwitching === undefined) $scope.allowTaskRowSwitching = true;
             if ($scope.allowRowSorting === undefined) $scope.allowRowSorting = true;
+            if ($scope.allowLabelsResizing === undefined) $scope.allowLabelsResizing = true;
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
@@ -204,6 +209,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.raiseLabelContextMenuEvent = function(evt, row) {
                 $scope.onLabelContextClicked({ event: { evt: evt, row: row, userTriggered: true } });
+            };
+
+            $scope.raiseLabelHeaderClickedEvent = function(evt) {
+                $scope.onLabelHeaderClicked({ event: { evt: evt, userTriggered: true } });
+            };
+
+            $scope.raiseLabelHeaderDblClickedEvent = function(evt) {
+                $scope.onLabelHeaderDblClicked({ event: { evt: evt, userTriggered: true } });
+            };
+
+            $scope.raiseLabelHeaderContextMenuEvent = function(evt) {
+                $scope.onLabelHeaderContextClicked({ event: { evt: evt, userTriggered: true } });
             };
 
             $scope.raiseRowAddedEvent = function(row, userTriggered) {
@@ -1759,12 +1776,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         return res;
     };
-}]);;gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
+}]);;gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
 
     return {
         restrict: "A",
-        scope: { width: "=ganttLabelResizable",
-                 minWidth: "=ganttLabelResizeMin",
+        scope: { enabled: "=ganttLabelsResize",
+                 width: "=ganttLabelsResizeWidth",
+                 minWidth: "=ganttLabelsResizeMinWidth",
                  onResized: "&onLabelResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
@@ -1772,17 +1790,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var originalPos;
 
             $element.bind("mousedown", function (e) {
-                if (isInResizeArea(e)) {
+                if ($scope.enabled && isInResizeArea(e)) {
                     enableResizeMode(e);
                     e.preventDefault();
                 }
             });
 
             $element.bind("mousemove", function (e) {
-                if (isInResizeArea(e)) {
-                    $element.css("cursor", cursor);
-                } else {
-                    $element.css("cursor", '');
+                if ($scope.enabled) {
+                    if (isInResizeArea(e)) {
+                        $element.css("cursor", cursor);
+                    } else {
+                        $element.css("cursor", '');
+                    }
                 }
             });
 
