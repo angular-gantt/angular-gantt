@@ -1,4 +1,4 @@
-<div class="gantt">
+<div class="gantt" >
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
          gantt-label-resizable="labelsWidth" gantt-label-resize-min="50" on-label-resized="raiseLabelsResized(width)" >
@@ -77,7 +77,8 @@
                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">
                 </div>
             </div>
-            <div class="gantt-body-content">
+            <div class="gantt-body-content" data-drop="true" ng-model='taskDropped' data-jqyoui-options="jqyouiOptions" jqyoui-droppable="{onDrop: 'onDrop', onOver: 'onOver'}">
+            <!--<div class="gantt-body-content">-->
                 <div id="gantt-row-{{row.id}}" class="gantt-row gantt-row-height"
                      ng-click="raiseDOMRowClickedEvent($event, row)"
                      ng-repeat="row in gantt.rows | filter:rowFilter track by row.id">

@@ -46,11 +46,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onLabelsResized: "&",
             onGanttReady: "&",
             onRowAdded: "&",
+            onTaskAdded: "&",
             onRowClicked: "&",
             onRowUpdated: "&",
             onScroll: "&",
             onTaskClicked: "&",
-            onTaskUpdated: "&"
+            onTaskUpdated: "&",
+            defaultTaskDuration: '=?'
         },
         controller: ['$scope', '$element', function ($scope, $element) {
             // Initialize defaults
@@ -71,6 +73,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.autoExpand === undefined) $scope.autoExpand = false;
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
+            if ($scope.defaultTaskDuration === undefined) $scope.defaultTaskDuration = 120;
+
+            var ganttBodyElement = $element.find('.gantt-body-content');
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
@@ -292,6 +297,48 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Scroll to specified date handler.
             $scope.centerDate({ fn: $scope.scrollToDate});
+
+            $scope.taskDropped = undefined;
+            $scope.jqyouiOptions = {
+                activate: function(event, ui){console.log('activate)');},
+                create: function(event, ui){console.log('create);');},
+                deactivate: function(event, ui){console.log('deactivate);');}
+            };
+            $scope.onActivate = function(event,ui){
+                console.log('onActivate', event, ui, $scope.taskDropped);
+            };
+            $scope.onCreate = function(event,ui){
+                console.log('onCreate', event, ui, $scope.taskDropped);
+            };
+            $scope.onDeactivate = function(event,ui){
+                console.log('onDeactivate', event, ui, $scope.taskDropped);
+            };
+            $scope.onOver = function(event,ui){
+                console.log('onOver', event, ui, $scope.taskDropped);
+            };
+            $scope.onDrop = function(event, ui){
+                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], event);
+                var visibleRows = ganttBodyElement[0].children;
+                var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
+                var pos = Math.floor((mousePos.y-event.offsetY) / rowHeight);
+                var overRow = visibleRows[pos];
+                if(angular.isDefined(overRow)){
+                    var row = $scope.gantt.rowsMap[overRow.id.substring(10)];
+
+                    $scope.taskDropped.from = $scope.taskDropped.date;
+                    newTask = row.addTask($scope.taskDropped);
+                    newTask.data = $scope.taskDropped;
+                    var xInEm = (mousePos.x - event.offsetX)/ $scope.getPxToEmFactor();
+                    newTask.setFrom(xInEm);
+                    $scope.raiseTaskAddedEvent(row, newTask, event);
+                }
+                else{
+                    return undefined;
+                }
+            };
+            $scope.raiseTaskAddedEvent = function(row, task, userTriggered) {
+                $scope.onTaskAdded({ event: { row: row, task: task, userTriggered: userTriggered } });
+            };
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.onGanttReady();
@@ -2026,7 +2073,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 mouseOffsetInEm = xInEm - $scope.task.left;
 
                 var taskMoveHandler = debounce(function(e) {
-                    console.log(e);
                     var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
                     clearScrollInterval();
                     handleMove(mode, mousePos);

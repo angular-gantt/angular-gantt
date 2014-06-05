@@ -9,6 +9,15 @@
 </head>
 <body style="padding: 10px">
 <a href="https://github.com/Schweigi/angular-gantt" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+<script type="text/ng-template" id="default.task.tmpl2.html">
+    <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
+         ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
+        <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
+        <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
+        <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
+    </div>
+</script>
+
 <div ng-controller="ctrl">
     <h1>Gantt chart demo</h1>
 
@@ -52,8 +61,36 @@
             <input type="text" ng-model="rowFilter.description">
         </div>
     </form>
+
+    <h2>orderBy Filter with ngRepeat</h2>
+    <div class='contentWrapper ng-cloak'>
+        <div class='content'>
+            <div class="row-fluid">
+                <ul class="thumbnails">
+                    <!--<li class="span3" style='margin-left:10px;' ng-repeat="item in list1">-->
+                        <!--<div class="btn btn-droppable" data-drop="true" ng-model='list1' jqyoui-droppable="{index: {{$index}}}">-->
+                            <!--<div class="btn btn-info btn-draggable" ng-show="item.title" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list1" jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}">{{item.title}}</div>-->
+                        <!--</div>-->
+                    <!--</li>-->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+            <div style="background-color: red" ng-repeat="task in list2" width="250" height="500">TEST
+                <mygantt-task task="task" data-drag="true" data-jqyoui-options="jqyouiOptions" ng-model="task" jqyoui-draggable="{onStart:'onStart'}"></mygantt-task>
+            </div>
+                <!--<mygantt-task data-drag="true" data-jqyoui-options="jqyouiOptions" ng-model="list2" jqyoui-draggable="{onStart:'onStart', index: {{$index}}}" ng-hide="!item.id"></mygantt-task>-->
+
+                <!--<div class="btn btn-info btn-draggable" data-drag="true" data-jqyoui-options="jqyouiOptions" ng-model="list2" jqyoui-draggable="{onStart:'onStart', index: {{$index}}}" ng-hide="!item.id">{{item.id}}</div>-->
+
+
+
+    <!--<div data-drop="true" style="background-color: #53ff34; width: 300px; height: 30px;" ng-model='list1' jqyoui-droppable="{}">Test</div>-->
+
     <hr>
-    <gantt first-day-of-week="1"
+    <gantt
+           first-day-of-week="1"
            load-data="loadData = fn"
            remove-data="removeData = fn"
            clear-data="clearData = fn"
@@ -74,14 +111,20 @@
            on-scroll="scrollEvent(event)"
            on-task-clicked="taskEvent(event)"
            on-task-updated="taskEvent(event)">
+           on-task-updated="taskEvent(event)">
      </gantt>
     <hr>
     <small>Gantt chart for Angular.js by Marco Schweighauser (2014) | MIT License</small>
 </div>
-
+<script src="assets/jquery.min.js"></script>
+<script src="assets/jqueryui.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
 <script src="assets/demo_sample_data.js"></script>
+
 <script src="assets/demo.js"></script>
+
+<script src="assets/dnd.js"></script>
 <script src="assets/angular-gantt.js"></script>
+
 </body>
 </html>
