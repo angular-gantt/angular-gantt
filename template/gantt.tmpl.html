@@ -17,7 +17,7 @@
                 <div class="gantt-labels-row gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows | filter:rowFilter track by $index ">
+                     ng-repeat="row in gantt.rows track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
                     </gantt-sortable>
@@ -68,7 +68,7 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows | filter:rowFilter track by $index ">
+                     ng-repeat="row in gantt.rows track by $index">
                 </div>
             </div>
             <div class="gantt-body-foreground">
@@ -78,14 +78,15 @@
                 </div>
             </div>
             <div class="gantt-body-content">
-                <div id="gantt-row-{{row.id}}" class="gantt-row gantt-row-height"
+                <div class="gantt-row gantt-row-height"
                      ng-click="raiseDOMRowClickedEvent($event, row)"
-                     ng-repeat="row in gantt.rows | filter:rowFilter track by row.id">
+                     ng-repeat="row in gantt.rows track by row.id">
                     <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"></gantt-task>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!--
     ******* Inline templates *******

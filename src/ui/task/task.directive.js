@@ -141,17 +141,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             };
 
             var getRowByY = function(y) {
-                var visibleRows = angular.element(ganttBodyElement)[0].children;
-                var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
+                var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
                 var pos = Math.floor(y / rowHeight);
-                var overRow = visibleRows[pos];
-                if(angular.isDefined(overRow)){
-                    return $scope.task.row.gantt.rowsMap[overRow.id.substring(10)];
-                }
-                else{
-                    return undefined;
-                }
-
+                return $scope.task.row.gantt.rows[pos];
             };
 
             var getMoveMode = function (e) {
