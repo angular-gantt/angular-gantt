@@ -160,10 +160,6 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
 
-- **row-filter**
-
-  Filters the rows by the given object (see ng-filter)
-
 - **show-tooltips** (default: `true`)
 
   Display a tooltip when the user hovers over a task.
