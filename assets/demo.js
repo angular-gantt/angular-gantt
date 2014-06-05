@@ -1,59 +1,15 @@
 "use strict";
 
-var demoApp = angular.module('demoApp', ['gantt', 'ngDragDrop']);
+var demoApp = angular.module('demoApp', ['gantt']);
 
-demoApp.controller("ctrl", ['$scope', '$filter', '$compile', function($scope, $filter, $compile) {
+demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.mode = "custom";
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
 
-    $scope.list1 = [];
-    $scope.list2 = [
-//        new TaskToDrag("Test", undefined, "Test", "pink", "", undefined, "2013-10-15T09:00:00", "2013-10-15T10:00:00", {value:"value"}),
-//        new TaskToDrag("Test2", undefined, "Test", "pink", "", undefined, "2013-10-15T09:00:00", "2013-10-15T10:00:00", {value:"value"}),
-//        new TaskToDrag("Test3", undefined, "Test", "pink", "", undefined, "2013-10-15T09:00:00", "2013-10-15T10:00:00", {value:"value"}),
-//        new TaskToDrag("Test4", undefined, "Test", "pink", "", undefined, "2013-10-15T09:00:00", "2013-10-15T10:00:00", {value:"value"})
-
-    ];
-
-    $scope.jqyouiOptions = {
-//        helper:function(a,b,c,d,e,f,g){
-//            var scope = $scope.$new();
-//            var defObj =angular.element(this).scope().item
-//
-//            scope.task = new TaskToDrag(defObj.id, undefined, defObj.subject, defObj.color, defObj.classes, defObj.priority, defObj.from, defObj.to, defObj.data);
-//            console.log(scope);
-//            var domElm =  $compile('<mygantt-task></mygantt-task>')(scope);
-//            //var domElm = '<div style="background-color:red">TEST</div>';
-//
-//            console.log(domElm);
-//            return domElm;
-//        }
-    }
-    $scope.onStart = function(args1, args2, args3, args4){
-        console.log('onStart');
-        args1.data = this.item;
-        args2.julien = this.item;
-    };
-    angular.forEach($scope.list2, function(val, key) {
-        $scope.list1.push({});
-    });
-
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
-    };
-
-    $scope.onOver = function(){
-        console.log('onOver');
-    };
-
-    $scope.onDrog= function(event, ui){
-        console.log('onDrop')
-    }
-
-    $scope.onOut = function(){
-        console.log('onOut');
     };
 
     $scope.removeSomeSamples = function () {
