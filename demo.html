@@ -47,6 +47,10 @@
                 <button ng-show="showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide non working hours</button>
             </div>
         </div>
+        <div class="form-group">
+            <span class="help-block">Row filter</span>
+            <input type="text" ng-model="rowFilter.description">
+        </div>
     </form>
     <hr>
     <gantt first-day-of-week="1"
@@ -55,6 +59,7 @@
            clear-data="clearData = fn"
            sort-mode="mode"
            view-scale="scale"
+           row-filter="rowFilter"
            column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
            column-sub-scale="scale === 'week' && 7 || 6"
            work-hours="[8,9,10,11,12,13,14,15]"
