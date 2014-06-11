@@ -1,3 +1,6 @@
+// Variables
+@import "gantt-variables.less";
+
 .gantt {
     width: 100%;
     line-height: 1;
@@ -14,12 +17,12 @@
 
 .gantt-labels {
     float: left;
-    border-right: 1px solid #dddddd;
+    border-right: 1px solid @gantt-border;
 }
 
 .gantt-labels-head {
     border-top: 1px solid transparent;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid @gantt-border;
 }
 
 .gantt-labels-body {
@@ -28,8 +31,8 @@
 
 .gantt-head {
     overflow: hidden;
-    border-top: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
+    border-top: 1px solid @gantt-border;
+    border-bottom: 1px solid @gantt-border;
 }
 
 .gantt-head-row, .gantt-labels-head-row {
@@ -41,12 +44,12 @@
 }
 
 .gantt-head-row-bottom {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid @gantt-border;
 }
 
 .gantt-head-row span {
     position: absolute;
-    border-right: 1px solid #dddddd;
+    border-right: 1px solid @gantt-border;
 }
 
 .gantt-labels-row span, .gantt-labels-head-row span, .gantt-head-row span {
@@ -99,15 +102,15 @@
     -webkit-box-sizing:border-box;
 	display: inline-block;
     height: 100%;
-    border-right: 1px solid #dddddd;
+    border-right: 1px solid @gantt-border;
 }
 
 .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour {
-    background-color: rgba(200, 200, 200, 0.3);
+    background-color: @gantt-nonworkhour-weekend;
 }
 
 .gantt-background-row-alt {
-	background-color: #EFEFEF;
+	background-color: @gantt-background-row-alt;
 }
 
 .gantt-row {
@@ -130,12 +133,12 @@
     top: 0; bottom: 0;
     min-width: 0.6em;
     height: 80%;
-    background-color: grey;
+    background-color: @gantt-task-default;
     border-radius: 2px;
 }
 
 .gantt-task-readOnly {
-    background-color: grey;
+    background-color: @gantt-task-readOnly;
 }
 
 .gantt-task-milestone {
@@ -144,7 +147,7 @@
     top: 0; bottom: 0;
     width: 0.6em !important;
     height: 80%;
-    background-color: grey;
+    background-color: @gantt-task-default;
     border-radius: 0.3em;
 }
 
@@ -225,8 +228,8 @@
 }
 
 .gantt-task-bounds-in {
-    border-color: #2E4F2E;
+    border-color: @gantt-task-bounds-in-border;
 }
 .gantt-task-bounds-out {
-    border-color: #FF6347;
+    border-color: @gantt-task-bounds-out-border;
 }

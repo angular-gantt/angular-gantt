@@ -1,5 +1,5 @@
 gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
+    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct, readOnly) {
         var self = this;
 
         self.id = id;
@@ -11,13 +11,14 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.priority = priority;
         self.from = df.clone(from);
         self.to = df.clone(to);
+		self.readOnly = readOnly;
         self.data = data;
 
         if(est !== undefined && lct !== undefined){
             self.est = df.clone(est);  //Earliest Start Time
             self.lct = df.clone(lct);  //Latest Completion Time
         }
-
+		
         self.checkIfMilestone = function() {
             self.isMilestone = self.from - self.to === 0;
         };
@@ -96,10 +97,11 @@ gantt.factory('Task', ['dateFunctions', function (df) {
             self.lct = task.lct !== undefined ? df.clone(task.lct): undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
+			self.readOnly = task.readOnly;
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.readOnly);
         };
     };
 
