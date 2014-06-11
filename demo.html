@@ -56,6 +56,10 @@
             <span class="help-block">Date range</span>
             <select class="form-control" style="width: 100px;" ng-model="dateRangeMode" ng-options="m for m in ['default', 'only 7-10-2013', 'only 9-10-2013', 'untilToday']" ng-change="changeDateRangeMode()"></select>
         </div>
+        <div class="form-group text-center" ng-repeat="taskToDrag in taskToDragList" ng-if="taskToDrag">
+            <span class="help-block">Task to drag</span>
+            <gantt-task-drag task="taskToDrag"></gantt-task-drag>
+        </div>
     </form>
     <hr>
     <gantt
@@ -91,13 +95,17 @@
            on-task-clicked="taskEvent(event)"
            on-task-dbl-clicked="taskEvent(event)"
            on-task-context-clicked="taskEvent(event)"
-           on-task-updated="taskEvent(event)">
+           on-task-updated="taskEvent(event)"
+           on-task-dropped="taskEvent(event)">
     </gantt>
     <hr>
     <small>Gantt chart for Angular.js by Marco Schweighauser (2014) | MIT License</small>
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+<script src="vendor/angular-dragdrop.js"></script>
 <script src="assets/demo_sample_data.js"></script>
 <script src="assets/demo.js"></script>
 <script src="assets/angular-gantt.js"></script>

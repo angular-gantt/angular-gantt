@@ -1,7 +1,5 @@
-gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
+gantt.service('Gantt', ['ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (ColumnGenerator, HeaderGenerator, df, bs) {
 
-    // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
@@ -26,8 +24,6 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
-        self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
-
         // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
         self.expandDefaultDateRange = function(from, to) {
             if (from !== undefined && to !== undefined) {
@@ -36,40 +32,23 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
             }
         };
 
-        // Replace the default date range. Even if there tasks are smaller the specified date range is shown.
-        self.replaceDefaultDateRange = function(from, to) {
-            if (from !== undefined && to !== undefined) {
-                replaceDateRange(from, to);
-                expandColumnsNoCheck(from, to);
-            }
-        };
-
         var expandDateRange = function(from, to) {
-            from = df.clone(from);
-            to = df.clone(to);
-
-            if (angular.isDefined(dateRange)){
-                if (from > dateRange.from) {
-                    from = dateRange.from;
-                }
-
-                if (to < dateRange.to) {
-                    to = dateRange.to;
-                }
-            }
-            replaceDateRange(from, to);
-        };
-
-        var replaceDateRange = function(from, to) {
             from = df.clone(from);
             to = df.clone(to);
 
             if (dateRange === undefined) {
                 dateRange = {};
+                dateRange.from = from;
+                dateRange.to = to;
+            } else {
+                if (from < dateRange.from) {
+                    dateRange.from = from;
+                }
 
+                if (to > dateRange.to) {
+                    dateRange.to = to;
+                }
             }
-            dateRange.from = from;
-            dateRange.to = to;
         };
 
         // Generates the Gantt columns according to the current dateRange. The columns are generated if necessary only.
@@ -258,14 +237,14 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, self, rowData.description, order, rowData.data);
-                self.rowsMap[rowData.id] = row;
-                self.rows.push(row);
+                //row = new Row(rowData.id, rowData.description, order, rowData.data);
+                self.rowsMap[rowData.id] = rowData;
+                self.rows.push(rowData);
             }
-
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                    var task = row.addTask(rowData.tasks[i]);
+                    //var task = row.addTask(rowData.tasks[i]);
+                    var task = rowData.tasks[i];
                     expandDateRange(task.from, task.to);
                     task.updatePosAndSize();
                 }
@@ -399,7 +378,5 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
                     break;
             }
         };
-    };
 
-    return Gantt;
 }]);
