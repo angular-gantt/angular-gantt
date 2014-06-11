@@ -29,6 +29,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             allowRowSorting: "=?", // Set to true if the user should be able to re-order rows.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
+            expandDateRange: "=?", // If not specified or true, when fromDate or toDate change, the date range is expanded with new value. If equals to false, the date range is replace by the new values
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
             weekendDays: "=?", // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
             showWeekends: "=?", // True if the weekends shall be displayed Default (true)
@@ -82,10 +83,21 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
+            if ($scope.expandDateRange === undefined) $scope.expandDateRange = true;
 
             // Gantt logic
+
+            var setDefaultDateRange = function(from, to){
+                if($scope.expandDateRange){
+                    $scope.gantt.expandDefaultDateRange(from, to);
+                }
+                else{
+                    $scope.gantt.replaceDefaultDateRange(from, to);
+                }
+            };
+
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
@@ -109,14 +121,21 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     if (!$scope.gantt.reGenerateColumns()) {
                         // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                        $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                        setDefaultDateRange($scope.fromDate, $scope.toDate);
                     }
                 }
             });
-
-            $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
+//            $scope.$watch(function(scope){
+//                return {from:scope.fromDate,
+//                        to: scope.toDate,
+//                        expandDateRange:scope.expandDateRange};
+//            }, function(newValue, oldValue){
+//                console.log('test watch', newValue, oldValue);
+//            },false);
+            $scope.$watch('fromDate+toDate+expandDateRange', function(newValue, oldValue) {
+                console.log('watch from to date', newValue, oldValue, $scope.fromDate, $scope.toDate, $scope.expandDateRange);
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    setDefaultDateRange($scope.fromDate, $scope.toDate);
                 }
             });
 
@@ -188,7 +207,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                $scope.gantt.expandDefaultDateRange(from, to);
+                setDefaultDateRange(from, to);
             });
 
             $scope.raiseLabelsResized = function(width) {
@@ -335,7 +354,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Clears rows, task and columns
                 $scope.gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                setDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Bind scroll event
@@ -368,8 +387,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var factor;
 
         if (date - column.date > 0 && a !== b) {
+            console.log('1');
             factor = 1;
         } else {
+            console.log('2');
             factor = Math.round(currentDateValue/maxDateValue * column.subScale) / column.subScale;
         }
 
@@ -895,23 +916,40 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
         };
 
+        // Replace the default date range. Even if there tasks are smaller the specified date range is shown.
+        self.replaceDefaultDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+                replaceDateRange(from, to);
+                expandColumnsNoCheck(from, to);
+            }
+        };
+
         var expandDateRange = function(from, to) {
+            from = df.clone(from);
+            to = df.clone(to);
+
+            if (angular.isDefined(dateRange)){
+                if (from > dateRange.from) {
+                    from = dateRange.from;
+                }
+
+                if (to < dateRange.to) {
+                    to = dateRange.to;
+                }
+            }
+            replaceDateRange(from, to);
+        };
+
+        var replaceDateRange = function(from, to) {
             from = df.clone(from);
             to = df.clone(to);
 
             if (dateRange === undefined) {
                 dateRange = {};
-                dateRange.from = from;
-                dateRange.to = to;
-            } else {
-                if (from < dateRange.from) {
-                    dateRange.from = from;
-                }
 
-                if (to > dateRange.to) {
-                    dateRange.to = to;
-                }
             }
+            dateRange.from = from;
+            dateRange.to = to;
         };
 
         // Generates the Gantt columns according to the current dateRange. The columns are generated if necessary only.
