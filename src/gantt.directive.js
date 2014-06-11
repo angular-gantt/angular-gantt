@@ -74,8 +74,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
-            $scope.ganttHeader = $element.children()[1];
-            $scope.ganttScroll = angular.element($element.children()[2]);
+            var children = $element.children();
+            for (var i = 0; i < children.length; i++) {
+                if (children[i].className == 'gantt-head') $scope.ganttHeader = children[i];
+                if (children[i].className == 'gantt-scrollable') $scope.ganttScroll = angular.element($scope.ganttScroll = children[i]);
+            }
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -85,7 +88,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.$watch("data", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllData();
+                    if (oldValue.length > 0) $scope.removeAllData();
                     $scope.setData(newValue);
                 }
             });
