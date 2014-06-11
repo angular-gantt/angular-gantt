@@ -179,6 +179,8 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   - `date`: Sort by the earliest task `from` date of each row
   - `custom`: Custom sort order using a property called **order** on each row
 
+  Prepend a `-` in front to sort descending. E.g. `-date`
+
 - **template-url** (default: `template/gantt.tmpl.html`)
 
   URL of the Gantt HTML template. You need to specify this attribute if you put the template in a different folder otherwise the directive won't work.
@@ -201,6 +203,9 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   Array containing all working hours. Non working hours are displayed differently than working hours. Example:
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
+**row-filter**
+ 
+ Filters the rows by the given object (see ng-filter)
 ### Row and task object properties
 #### Row
 ```js

@@ -7,6 +7,43 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
+    $scope.dateRangeMode = 'default';
+    $scope.from, $scope.to;
+    $scope.expandDateRange = true;
+    var backupFrom = new Date(2013,9,7);
+    var backupTo = new Date(2013,10,30);
+
+    $scope.changeDateRangeMode = function(){
+        if($scope.dateRangeMode === 'default'){
+            $scope.from = angular.copy(backupFrom);
+            $scope.to = angular.copy(backupTo);
+            $scope.expandDateRange = false;
+        }
+        else if($scope.dateRangeMode === 'only 7-10-2013'){
+            $scope.from = new Date(2013,9,7);
+            $scope.to = new Date(2013,9,8);
+            $scope.expandDateRange = false;
+        }
+        else if($scope.dateRangeMode === 'only 9-10-2013'){
+            $scope.from = new Date(2013,9,9);
+            $scope.to = new Date(2013,9,10);
+            $scope.expandDateRange = false;
+        }
+        else if($scope.dateRangeMode === 'untilToday'){
+            $scope.from = angular.copy(backupFrom);
+            $scope.to = new Date();
+            $scope.expandDateRange = true;
+        }
+    };
+    $scope.taskToDragList = [
+        {
+            subject: 'Drag this task'
+        }
+        ,
+        {
+            subject: 'An other task to drag'
+        }
+    ];
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
@@ -28,6 +65,11 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
 
     $scope.removeSamples = function () {
         $scope.clearData();
+    };
+
+    $scope.labelEvent = function(event) {
+        // A label has been clicked.
+        console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.description + ' (Custom data: ' + event.row.data + ')');
     };
 
     $scope.rowEvent = function(event) {
