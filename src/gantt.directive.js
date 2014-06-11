@@ -4,9 +4,9 @@
  License: MIT License. See README.md
  */
 
-var gantt = angular.module('gantt', []);
+var gantt = angular.module('gantt', ['ngDragDrop', 'templates.gantt']);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function (Gantt, df, mouseOffset, debounce, keepScrollPos) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Row', function (Gantt, df, mouseOffset, debounce, keepScrollPos, Row) {
     return {
         restrict: "EA",
         replace: true,
@@ -59,6 +59,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onTaskUpdated: "&",
             onTaskMoveBegin: "&",
             onTaskMoveEnd: "&",
+            onTaskDropped: "&",
             onTaskResizeBegin: "&",
             onTaskResizeEnd: "&"
         },
@@ -82,9 +83,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
+            var ganttBodyElement = $element.find('.gantt-body-content');
+
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            Gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = Gantt;
+            Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
@@ -105,27 +109,27 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // All those changes need a recalculation of the header columns
             $scope.$watch('viewScale+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    if (!$scope.gantt.reGenerateColumns()) {
+                    Gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    if (!Gantt.reGenerateColumns()) {
                         // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                        $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                        Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
                     }
                 }
             });
 
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
                 }
             });
 
             $scope.getPxToEmFactor = function() {
-                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
+                return $scope.ganttScroll.children()[0].offsetWidth / Gantt.width;
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
-                $scope.gantt.swapRows(a, b);
+                Gantt.swapRows(a, b);
 
                 // Raise change events
                 $scope.raiseRowUpdatedEvent(a, true);
@@ -141,7 +145,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Sort rows by the current sort mode
             $scope.sortRows = function () {
-                $scope.gantt.sortRows($scope.sortMode);
+                Gantt.sortRows($scope.sortMode);
             };
 
             // Scroll to the specified x
@@ -164,7 +168,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Tries to center the specified date
             $scope.scrollToDate = function(date) {
-                var column = $scope.gantt.getColumnByDate(date);
+                var column = Gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
                     $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
@@ -187,7 +191,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                $scope.gantt.expandDefaultDateRange(from, to);
+                Gantt.expandDefaultDateRange(from, to);
             });
 
             $scope.raiseLabelsResized = function(width) {
@@ -213,8 +217,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseDOMRowClickedEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
+                var clickedColumn = Gantt.getColumnByPosition(xInEm);
+                var date = Gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
             };
@@ -226,8 +230,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseDOMRowDblClickedEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
+                var clickedColumn = Gantt.getColumnByPosition(xInEm);
+                var date = Gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowDblClickedEvent(e, row, clickedColumn, date);
             };
@@ -239,8 +243,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseDOMRowContextMenuEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
+                var clickedColumn = Gantt.getColumnByPosition(xInEm);
+                var date = Gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowContextMenuEvent(e, row, clickedColumn, date);
             };
@@ -254,7 +258,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseScrollEvent = debounce(function() {
-                if ($scope.gantt.getDateRange() === undefined) {
+                if (Gantt.getDateRange() === undefined) {
                     return;
                 }
 
@@ -264,10 +268,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 if (el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.getDateRange().from;
+                    date = Gantt.getDateRange().from;
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     direction = 'right';
-                    date = $scope.gantt.getDateRange().to;
+                    date = Gantt.getDateRange().to;
                 }
 
                 if (date !== undefined) {
@@ -310,7 +314,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function (data) {
-                $scope.gantt.addData(data,
+                var dataRow = [];
+                for(var i = 0; i<data.length;i ++){
+                    dataRow.push(new Row(data[i].id, data[i].description, data[i].order, data[i].data, data[i].tasks));
+                }
+                Gantt.addData(dataRow,
                 function(row) {
                     $scope.raiseRowAddedEvent(row, false);
                 }, function(row) {
@@ -322,7 +330,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data, function(row) {
+                Gantt.removeData(data, function(row) {
                     $scope.raiseRowUpdatedEvent(row, false);
                 });
 
@@ -332,9 +340,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Clear all existing rows and tasks
             $scope.removeAllData = function() {
                 // Clears rows, task and columns
-                $scope.gantt.removeAllRows();
+                Gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Bind scroll event
@@ -352,6 +360,61 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.onGanttReady();
+
+
+
+            /*
+            DRAG AND DROP
+             */
+            $scope.taskDropped = undefined;
+            $scope.jqyouiOptions = {
+                tolerance: 'pointer',
+                activate: function(event, ui){console.log('activate)');},
+                create: function(event, ui){console.log('create);');},
+                deactivate: function(event, ui){console.log('deactivate);');}
+            };
+            $scope.onActivate = function(event,ui){
+                console.log('onActivate', event, ui, $scope.taskDropped);
+            };
+            $scope.onCreate = function(event,ui){
+                console.log('onCreate', event, ui, $scope.taskDropped);
+            };
+            $scope.onDeactivate = function(event,ui){
+                console.log('onDeactivate', event, ui, $scope.taskDropped);
+            };
+            $scope.onOver = function(event,ui){
+//                console.log('onOver', event, ui, $scope.taskDropped);
+                angular.element(ui.draggable[0]).scope().over = true;
+                console.log('onOver', angular.element(ui.draggable[0]).scope(), angular.element(ui.helper[0]).scope());
+                angular.element(ui.helper[0]).find('.gantt-task').scope().$parent.enableScroll(event, $scope);
+            };
+            $scope.onDrop = function(event, ui){
+                console.log('onDrop', event, ui);
+                var test = {clientX: ui.offset.left,
+                            clientY: ui.offset.top+ui.helper[0].offsetHeight/2};
+                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], /*test*/event);
+                var visibleRows = ganttBodyElement[0].children;
+                var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
+                var pos = Math.floor((mousePos.y-event.offsetY) / rowHeight);
+                var overRow = visibleRows[pos];
+
+                if(angular.isDefined(overRow)){
+                    var row = $scope.gantt.rowsMap[overRow.id.substring(10)];
+                    newTask = row.addTask($scope.taskDropped);
+                    var xInEm = (mousePos.x /*- event.offsetX*/)/ $scope.getPxToEmFactor();
+                    //var xInEm = mousePos.x/ $scope.getPxToEmFactor();
+                    newTask.setFrom(xInEm);
+                    newTask.to = new Date(newTask.from.getTime()+$scope.taskDropped.duration * 60*1000);
+                    newTask.updatePosAndSize();
+                    $scope.raiseTaskAddedEvent(row, newTask, event);
+                }
+                else{
+                    return undefined;
+                }
+            };
+            $scope.raiseTaskAddedEvent = function(row, task, userTriggered) {
+                $scope.onTaskDropped({ event: { row: row, task: task, userTriggered: userTriggered } });
+            };
         }
     ]};
 }]);

@@ -80,8 +80,9 @@
                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">
                 </div>
             </div>
-            <div class="gantt-body-content">
+            <div class="gantt-body-content" data-drop="true" ng-model='taskDropped' data-jqyoui-options="jqyouiOptions" jqyoui-droppable="{onDrop: 'onDrop', onOver: 'onOver'}">
                 <div class="gantt-row gantt-row-height"
+                     id="gantt-row-{{row.id}}"
                      ng-click="raiseDOMRowClickedEvent($event, row)"
                      ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"
                      gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
@@ -91,40 +92,4 @@
             </div>
         </div>
     </div>
-
-
-    <!--
-    ******* Inline templates *******
-    You can specify your own templates by either changing the default ones below or by
-    adding an attribute template-url="<url to your template>" on the specific element.
-    -->
-
-    <!-- Task template -->
-    <script type="text/ng-template" id="default.task.tmpl.html">
-        <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
-             ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
-            <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
-            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
-            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
-        </div>
-    </script>
-
-    <!-- Task tooltip template -->
-    <!-- Move ng-if from parent to tooltip directive when https://github.com/angular/angular.js/issues/7183 is fixed -->
-    <script type="text/ng-template" id="default.tooltip.tmpl.html">
-        <div class="gantt-task-info" ng-style="css">
-            <div class="gantt-task-info-content">
-                {{ task.subject }}</br>
-                <small>
-                    {{ task.isMilestone === true && (task.from | date:'MMM d, HH:mm') || (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}
-                </small>
-            </div>
-        </div>
-    </script>
-
-    <!-- Task bounds template -->
-    <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->
-    <script type="text/ng-template" id="default.bounds.tmpl.html">
-        <div ng-show='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>
-    </script>
 </div>

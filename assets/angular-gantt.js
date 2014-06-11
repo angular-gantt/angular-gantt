@@ -1,12 +1,154 @@
-/*
+angular.module('templates.gantt', ['template/default.bouds.tmpl.html', 'template/default.tooltip.tmpl.html', 'template/gantt.task.drag.tmpl.html', 'template/gantt.task.tmpl.html', 'template/gantt.tmpl.html']);
+
+angular.module('template/default.bouds.tmpl.html', []).run(['$templateCache', function($templateCache) {
+  $templateCache.put('template/default.bouds.tmpl.html',
+    '<div ng-show=\'visible\' class=\'gantt-task-bounds\' ng-style=\'getCss()\' ng-class=\'getClass()\'></div>');
+}]);
+
+angular.module('template/default.tooltip.tmpl.html', []).run(['$templateCache', function($templateCache) {
+  $templateCache.put('template/default.tooltip.tmpl.html',
+    '<div class="gantt-task-info" ng-style="css">\n' +
+    '    <div class="gantt-task-info-content">\n' +
+    '        {{ task.subject }}</br>\n' +
+    '        <small>\n' +
+    '            {{ task.isMilestone === true && (task.from | date:\'MMM d, HH:mm\') || (task.from | date:\'MMM d, HH:mm\') + \' - \' + (task.to | date:\'MMM d, HH:mm\') }}\n' +
+    '        </small>\n' +
+    '    </div>\n' +
+    '</div>');
+}]);
+
+angular.module('template/gantt.task.drag.tmpl.html', []).run(['$templateCache', function($templateCache) {
+  $templateCache.put('template/gantt.task.drag.tmpl.html',
+    '<div data-drag="true" data-jqyoui-options="jqyouiOptions" ng-model="taskToDrag" jqyoui-draggable="{onStart:\'onStart\', onStop :\'onStop\'}">\n' +
+    '    <div class="btn btn-default"  ng-if="!dragActive">{{task.subject}}</div>\n' +
+    '    <div ng-if="dragActive" ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
+    '         ng-style="{\'height\': \'1.6em\', \'width\': task.width +\'em\', \'z-index\': 1000, \'background-color\': task.color}">\n' +
+    '        <!--<gantt-bounds template-url="template/default.bouds.tmpl.html" ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>-->\n' +
+    '        <!--<gantt-tooltip template-url="template/default.tooltip.tmpl.html" ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>-->\n' +
+    '        <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.subject) }}</span><span ng-if="task.over"> - OVER</span></div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '\n' +
+    '');
+}]);
+
+angular.module('template/gantt.task.tmpl.html', []).run(['$templateCache', function($templateCache) {
+  $templateCache.put('template/gantt.task.tmpl.html',
+    '<div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
+    '     ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'em\', \'width\': task.width +\'em\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
+    '    <gantt-bounds template-url="template/default.bouds.tmpl.html" ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>\n' +
+    '    <gantt-tooltip template-url="template/default.tooltip.tmpl.html" ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>\n' +
+    '    <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.subject) }}</span></div>\n' +
+    '</div>');
+}]);
+
+angular.module('template/gantt.tmpl.html', []).run(['$templateCache', function($templateCache) {
+  $templateCache.put('template/gantt.tmpl.html',
+    '<div class="gantt">\n' +
+    '    <div class="gantt-labels"\n' +
+    '         ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
+    '         gantt-label-resizable="labelsWidth" gantt-label-resize-min="50" on-label-resized="raiseLabelsResized(width)" >\n' +
+    '        <div class="gantt-labels-head"\n' +
+    '             ng-show="gantt.columns.length > 0">\n' +
+    '            <div class="gantt-labels-head-row"\n' +
+    '                 ng-style="{\'margin-top\': ((gantt.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
+    '                <span>Description</span>\n' +
+    '            </div>\n' +
+    '        </div>\n' +
+    '        <div class="gantt-labels-body"\n' +
+    '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-ganttHeader.offsetHeight)+\'px\'} || {})"\n' +
+    '             ng-show="gantt.columns.length > 0">\n' +
+    '            <div gantt-vertical-scroll-receiver\n' +
+    '                 ng-style="{\'position\': \'relative\'}">\n' +
+    '                <div class="gantt-labels-row gantt-row-height"\n' +
+    '                     ng-class-odd="\'gantt-background-row\'"\n' +
+    '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
+    '                     ng-click="raiseLabelClickedEvent($event, row)"\n' +
+    '                     ng-dblclick="raiseLabelDblClickedEvent($event, row)"\n' +
+    '                     gantt-right-click="raiseLabelContextMenuEvent($event, row)"\n' +
+    '                     ng-repeat="row in gantt.rows track by $index">\n' +
+    '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
+    '                        <span>{{ row.description }}</span>\n' +
+    '                    </gantt-sortable>\n' +
+    '                </div>\n' +
+    '            </div>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '    <div class="gantt-head"\n' +
+    '         ng-show="gantt.columns.length > 0">\n' +
+    '        <div gantt-horizontal-scroll-receiver\n' +
+    '             ng-style="{\'position\': \'relative\', \'width\': gantt.width+\'em\'}">\n' +
+    '            <div class="gantt-head-row"\n' +
+    '                 ng-class="(gantt.headers.week !== undefined && \'gantt-head-row-bottom\' || \'\')"\n' +
+    '                 ng-if="gantt.headers.month !== undefined">\n' +
+    '                <span ng-style="{\'width\': c.width+\'em\', \'left\': c.left+\'em\'}"\n' +
+    '                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index">\n' +
+    '                    {{ c.date | date:\'MMMM yyyy\' }}\n' +
+    '                </span>\n' +
+    '            </div>\n' +
+    '            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">\n' +
+    '                <span ng-style="{\'width\': c.width+\'em\', \'left\': c.left+\'em\'}"\n' +
+    '                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index">\n' +
+    '                    {{ c.week }}\n' +
+    '                </span>\n' +
+    '            </div>\n' +
+    '            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">\n' +
+    '                <span ng-style="{\'width\': c.width+\'em\', \'left\': c.left+\'em\'}"\n' +
+    '                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index">\n' +
+    '                    {{ viewScale === \'hour\' && (c.date | date:\'dd EEEE\') || (c.date | date:\'dd\') }}\n' +
+    '                </span>\n' +
+    '            </div>\n' +
+    '            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">\n' +
+    '                <span ng-style="{\'width\': c.width+\'em\', \'left\': c.left+\'em\'}"\n' +
+    '                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index">\n' +
+    '                    {{ c.date | date:\'HH\' }}\n' +
+    '                </span>\n' +
+    '            </div>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '    <div class="gantt-scrollable"\n' +
+    '         gantt-scroll-sender\n' +
+    '         gantt-limit-updater\n' +
+    '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-ganttHeader.offsetHeight)+\'px\', \'overflow-y\': \'scroll\'} || {\'overflow-y\': \'hidden\'})"\n' +
+    '         ng-style="{\'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'scroll\')}">\n' +
+    '        <div class="gantt-body"\n' +
+    '             ng-style="{\'width\': gantt.width+\'em\'}">\n' +
+    '            <div class="gantt-body-background">\n' +
+    '                <div class="gantt-row-height"\n' +
+    '                     ng-class-odd="\'gantt-background-row\'"\n' +
+    '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
+    '                     ng-repeat="row in gantt.rows track by $index">\n' +
+    '                </div>\n' +
+    '            </div>\n' +
+    '            <div class="gantt-body-foreground">\n' +
+    '                <div ng-class="(viewScale === \'hour\' && !c.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (c.isWeekend && \'gantt-foreground-col-weekend\' || \'gantt-foreground-col\'))"\n' +
+    '                     ng-style="{\'width\': c.width+\'em\', \'left\': c.left+\'em\'}"\n' +
+    '                     ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">\n' +
+    '                </div>\n' +
+    '            </div>\n' +
+    '            <div class="gantt-body-content" data-drop="true" ng-model=\'taskDropped\' data-jqyoui-options="jqyouiOptions" jqyoui-droppable="{onDrop: \'onDrop\', onOver: \'onOver\'}">\n' +
+    '                <div class="gantt-row gantt-row-height"\n' +
+    '                     id="gantt-row-{{row.id}}"\n' +
+    '                     ng-click="raiseDOMRowClickedEvent($event, row)"\n' +
+    '                     ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"\n' +
+    '                     gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"\n' +
+    '                     ng-repeat="row in gantt.rows track by row.id">\n' +
+    '                    <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"></gantt-task>\n' +
+    '                </div>\n' +
+    '            </div>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '</div>');
+}]);
+;/*
  Project: Gantt chart for Angular.js
  Author: Marco Schweighauser (2013)
  License: MIT License. See README.md
  */
 
-var gantt = angular.module('gantt', []);
+var gantt = angular.module('gantt', ['ngDragDrop', 'templates.gantt']);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function (Gantt, df, mouseOffset, debounce, keepScrollPos) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Row', function (Gantt, df, mouseOffset, debounce, keepScrollPos, Row) {
     return {
         restrict: "EA",
         replace: true,
@@ -59,6 +201,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onTaskUpdated: "&",
             onTaskMoveBegin: "&",
             onTaskMoveEnd: "&",
+            onTaskDropped: "&",
             onTaskResizeBegin: "&",
             onTaskResizeEnd: "&"
         },
@@ -82,9 +225,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
+            var ganttBodyElement = $element.find('.gantt-body-content');
+
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            Gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = Gantt;
+            Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
@@ -105,27 +251,27 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // All those changes need a recalculation of the header columns
             $scope.$watch('viewScale+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    if (!$scope.gantt.reGenerateColumns()) {
+                    Gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    if (!Gantt.reGenerateColumns()) {
                         // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                        $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                        Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
                     }
                 }
             });
 
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
                 }
             });
 
             $scope.getPxToEmFactor = function() {
-                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
+                return $scope.ganttScroll.children()[0].offsetWidth / Gantt.width;
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function (a, b) {
-                $scope.gantt.swapRows(a, b);
+                Gantt.swapRows(a, b);
 
                 // Raise change events
                 $scope.raiseRowUpdatedEvent(a, true);
@@ -141,7 +287,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Sort rows by the current sort mode
             $scope.sortRows = function () {
-                $scope.gantt.sortRows($scope.sortMode);
+                Gantt.sortRows($scope.sortMode);
             };
 
             // Scroll to the specified x
@@ -164,7 +310,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Tries to center the specified date
             $scope.scrollToDate = function(date) {
-                var column = $scope.gantt.getColumnByDate(date);
+                var column = Gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
                     $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
@@ -187,7 +333,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                $scope.gantt.expandDefaultDateRange(from, to);
+                Gantt.expandDefaultDateRange(from, to);
             });
 
             $scope.raiseLabelsResized = function(width) {
@@ -213,8 +359,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseDOMRowClickedEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
+                var clickedColumn = Gantt.getColumnByPosition(xInEm);
+                var date = Gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
             };
@@ -226,8 +372,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseDOMRowDblClickedEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
+                var clickedColumn = Gantt.getColumnByPosition(xInEm);
+                var date = Gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowDblClickedEvent(e, row, clickedColumn, date);
             };
@@ -239,8 +385,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseDOMRowContextMenuEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
+                var clickedColumn = Gantt.getColumnByPosition(xInEm);
+                var date = Gantt.getDateByPosition(xInEm);
 
                 $scope.raiseRowContextMenuEvent(e, row, clickedColumn, date);
             };
@@ -254,7 +400,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseScrollEvent = debounce(function() {
-                if ($scope.gantt.getDateRange() === undefined) {
+                if (Gantt.getDateRange() === undefined) {
                     return;
                 }
 
@@ -264,10 +410,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 if (el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.getDateRange().from;
+                    date = Gantt.getDateRange().from;
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     direction = 'right';
-                    date = $scope.gantt.getDateRange().to;
+                    date = Gantt.getDateRange().to;
                 }
 
                 if (date !== undefined) {
@@ -310,7 +456,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function (data) {
-                $scope.gantt.addData(data,
+                var dataRow = [];
+                for(var i = 0; i<data.length;i ++){
+                    dataRow.push(new Row(data[i].id, data[i].description, data[i].order, data[i].data, data[i].tasks));
+                }
+                Gantt.addData(dataRow,
                 function(row) {
                     $scope.raiseRowAddedEvent(row, false);
                 }, function(row) {
@@ -322,7 +472,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data, function(row) {
+                Gantt.removeData(data, function(row) {
                     $scope.raiseRowUpdatedEvent(row, false);
                 });
 
@@ -332,9 +482,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Clear all existing rows and tasks
             $scope.removeAllData = function() {
                 // Clears rows, task and columns
-                $scope.gantt.removeAllRows();
+                Gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                Gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Bind scroll event
@@ -352,6 +502,61 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.onGanttReady();
+
+
+
+            /*
+            DRAG AND DROP
+             */
+            $scope.taskDropped = undefined;
+            $scope.jqyouiOptions = {
+                tolerance: 'pointer',
+                activate: function(event, ui){console.log('activate)');},
+                create: function(event, ui){console.log('create);');},
+                deactivate: function(event, ui){console.log('deactivate);');}
+            };
+            $scope.onActivate = function(event,ui){
+                console.log('onActivate', event, ui, $scope.taskDropped);
+            };
+            $scope.onCreate = function(event,ui){
+                console.log('onCreate', event, ui, $scope.taskDropped);
+            };
+            $scope.onDeactivate = function(event,ui){
+                console.log('onDeactivate', event, ui, $scope.taskDropped);
+            };
+            $scope.onOver = function(event,ui){
+//                console.log('onOver', event, ui, $scope.taskDropped);
+                angular.element(ui.draggable[0]).scope().over = true;
+                console.log('onOver', angular.element(ui.draggable[0]).scope(), angular.element(ui.helper[0]).scope());
+                angular.element(ui.helper[0]).find('.gantt-task').scope().$parent.enableScroll(event, $scope);
+            };
+            $scope.onDrop = function(event, ui){
+                console.log('onDrop', event, ui);
+                var test = {clientX: ui.offset.left,
+                            clientY: ui.offset.top+ui.helper[0].offsetHeight/2};
+                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], /*test*/event);
+                var visibleRows = ganttBodyElement[0].children;
+                var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
+                var pos = Math.floor((mousePos.y-event.offsetY) / rowHeight);
+                var overRow = visibleRows[pos];
+
+                if(angular.isDefined(overRow)){
+                    var row = $scope.gantt.rowsMap[overRow.id.substring(10)];
+                    newTask = row.addTask($scope.taskDropped);
+                    var xInEm = (mousePos.x /*- event.offsetX*/)/ $scope.getPxToEmFactor();
+                    //var xInEm = mousePos.x/ $scope.getPxToEmFactor();
+                    newTask.setFrom(xInEm);
+                    newTask.to = new Date(newTask.from.getTime()+$scope.taskDropped.duration * 60*1000);
+                    newTask.updatePosAndSize();
+                    $scope.raiseTaskAddedEvent(row, newTask, event);
+                }
+                else{
+                    return undefined;
+                }
+            };
+            $scope.raiseTaskAddedEvent = function(row, task, userTriggered) {
+                $scope.onTaskDropped({ event: { row: row, task: task, userTriggered: userTriggered } });
+            };
         }
     ]};
 }]);
@@ -856,7 +1061,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         WeekGenerator: WeekColumnGenerator,
         MonthGenerator: MonthColumnGenerator
     };
-}]);;gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
+}]);;gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -1243,6 +1448,387 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 
     return Gantt;
+}]);;gantt.service('Gantt', ['ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (ColumnGenerator, HeaderGenerator, df, bs) {
+
+        var self = this;
+
+        self.rowsMap = {};
+        self.rows = [];
+        self.columns = [];
+        self.headers = {};
+        self.width = 0;
+        var dateRange;
+
+        // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
+        // The headers are shown depending on the defined view scale.
+        self.setViewScale = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            switch(viewScale) {
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(columnWidth, columnSubScale, firstDayOfWeek); break;
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(columnWidth, columnSubScale); break;
+                default:
+                    throw "Unsupported view scale: " + viewScale;
+            }
+
+            self.headerGenerator = new HeaderGenerator.instance(viewScale);
+        };
+
+        // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
+        self.expandDefaultDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+                expandDateRange(from, to);
+                expandColumns();
+            }
+        };
+
+        var expandDateRange = function(from, to) {
+            from = df.clone(from);
+            to = df.clone(to);
+
+            if (dateRange === undefined) {
+                dateRange = {};
+                dateRange.from = from;
+                dateRange.to = to;
+            } else {
+                if (from < dateRange.from) {
+                    dateRange.from = from;
+                }
+
+                if (to > dateRange.to) {
+                    dateRange.to = to;
+                }
+            }
+        };
+
+        // Generates the Gantt columns according to the current dateRange. The columns are generated if necessary only.
+        var expandColumns = function() {
+            if (dateRange === undefined) {
+                throw "From and to date range cannot be undefined";
+            }
+
+            // Only expand if expand is necessary
+            if (self.columns.length === 0) {
+                expandColumnsNoCheck(dateRange.from, dateRange.to);
+            } else if (self.columnGenerator.columnExpandNecessary(self.getFirstColumn().date, self.getLastColumn().date, dateRange.from, dateRange.to)) {
+                var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from: self.getFirstColumn().date;
+                var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
+
+                expandColumnsNoCheck(minFrom, maxTo);
+            }
+        };
+
+        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
+        var expandColumnsNoCheck = function(from ,to) {
+            self.columns = self.columnGenerator.generate(from, to);
+            self.headers = self.headerGenerator.generate(self.columns);
+            self.updateTasksPosAndSize();
+
+            var lastColumn = self.getLastColumn();
+            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
+        };
+
+        // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
+        // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
+        self.reGenerateColumns = function() {
+            self.columns = [];
+
+            if (dateRange !== undefined) {
+                expandColumns();
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        // Update the position/size of all tasks in the Gantt
+        self.updateTasksPosAndSize = function() {
+            for (var i = 0, l = self.rows.length; i < l; i++) {
+                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
+                    self.rows[i].tasks[j].updatePosAndSize();
+                }
+            }
+        };
+
+        // Returns the first Gantt column or undefined
+        self.getLastColumn = function() {
+            if (self.columns.length > 0) {
+                return self.columns[self.columns.length-1];
+            } else {
+                return undefined;
+            }
+        };
+
+        // Returns the last Gantt column or undefined
+        self.getFirstColumn = function() {
+            if (self.columns.length > 0) {
+                return self.columns[0];
+            } else {
+                return undefined;
+            }
+        };
+
+        // Returns the column at the given or next possible date
+        self.getColumnByDate = function(date) {
+            var columns = bs.get(self.columns, date, function(c) { return c.date; });
+            return columns[0] !== undefined? columns[0]: columns[1];
+        };
+
+        // Returns the column at the given position x (in em)
+        self.getColumnByPosition = function(x) {
+            return bs.get(self.columns, x, function(c) { return c.left; })[0];
+        };
+
+        // Returns the exact column date at the given position x (in em)
+        self.getDateByPosition = function(x, snapForward) {
+            var column = self.getColumnByPosition(x);
+            if (column !== undefined) {
+                if(arguments.length == 2) return column.getDateByPosition(x - column.left, snapForward);
+                else return column.getDateByPosition(x - column.left);
+            } else {
+                return undefined;
+            }
+        };
+
+        // Returns the position inside the Gantt calculated by the given date
+        self.getPositionByDate = function(date) {
+            var column = self.getColumnByDate(date);
+            if (column !== undefined) {
+                return column.getPositionByDate(date);
+            } else {
+                return undefined;
+            }
+        };
+
+        // Returns the current Gantt date range or undefined if it has not been defined
+        self.getDateRange = function() {
+            if (dateRange === undefined) {
+                return undefined;
+            } else {
+                return {
+                    from: df.clone(dateRange.from),
+                    to: df.clone(dateRange.to)
+                };
+            }
+        };
+
+        // Returns the min and max date of all loaded tasks or undefined if there are no tasks loaded
+        self.getTasksDateRange = function() {
+            if (self.rows.length === 0) {
+                return undefined;
+            } else {
+                var minDate, maxDate;
+
+                for (var i = 0, l = self.rows.length; i < l; i++) {
+                    var row = self.rows[i];
+
+                    if (minDate === undefined || row.minFromDate < minDate) {
+                        minDate = row.minFromDate;
+                    }
+
+                    if (maxDate === undefined || row.maxToDate > maxDate) {
+                        maxDate = row.maxToDate;
+                    }
+                }
+
+                return {
+                    from: minDate,
+                    to: maxDate
+                };
+            }
+        };
+
+        // Returns the number of active headers
+        self.getActiveHeadersCount = function() {
+            var size = 0, key;
+            for (key in self.headers) {
+                if (self.headers.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
+
+        // Adds or update rows and tasks.
+        self.addData = function(data, addEventFn, updateEventFN) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var rowData = data[i];
+                var isUpdate = addRow(rowData);
+                var row = self.rowsMap[rowData.id];
+
+                if (isUpdate === true && updateEventFN !== undefined) {
+                    updateEventFN(row);
+                } else if (addEventFn !== undefined) {
+                    addEventFn(row);
+                }
+            }
+
+            if (dateRange !== undefined) {
+                expandColumns();
+            }
+        };
+
+        // Adds a row or merges the row and its tasks if there is already one with the same id
+        var addRow = function(rowData) {
+            // Copy to new row (add) or merge with existing (update)
+            var row, isUpdate = false;
+
+            if (rowData.id in self.rowsMap) {
+                row = self.rowsMap[rowData.id];
+                row.copy(rowData);
+                isUpdate = true;
+            } else {
+                var order = rowData.order;
+
+                // Check if the row has a order predefined. If not assign one
+                if (order === undefined) {
+                    order = self.highestRowOrder;
+                }
+
+                if (order >= self.highestRowOrder) {
+                    self.highestRowOrder = order + 1;
+                }
+
+                //row = new Row(rowData.id, rowData.description, order, rowData.data);
+                self.rowsMap[rowData.id] = rowData;
+                self.rows.push(rowData);
+            }
+            if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
+                for (var i = 0, l = rowData.tasks.length; i < l; i++) {
+                    //var task = row.addTask(rowData.tasks[i]);
+                    var task = rowData.tasks[i];
+                    expandDateRange(task.from, task.to);
+                    task.updatePosAndSize();
+                }
+            }
+
+            return isUpdate;
+        };
+
+        // Removes specified rows or tasks.
+        // If a row has no tasks inside the complete row will be deleted.
+        self.removeData = function(data, updateEventFn) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var rowData = data[i];
+
+                if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
+                    // Only delete the specified tasks but not the row and the other tasks
+
+                    if (rowData.id in self.rowsMap) {
+                        var row = self.rowsMap[rowData.id];
+
+                        for (var j = 0, k = rowData.tasks.length; j < k; j++) {
+                            row.removeTask(rowData.tasks[j].id);
+                        }
+
+                        if (updateEventFn !== undefined) {
+                            updateEventFn(row);
+                        }
+                    }
+                } else {
+                    // Delete the complete row
+                    removeRow(rowData.id);
+                }
+            }
+        };
+
+        // Removes the complete row including all tasks
+        var removeRow = function(rowId) {
+            if (rowId in self.rowsMap) {
+                delete self.rowsMap[rowId]; // Remove from map
+
+                for (var i = 0, l = self.rows.length; i < l; i++) {
+                    var row = self.rows[i];
+                    if (row.id === rowId) {
+                        self.rows.splice(i, 1); // Remove from array
+                        return row;
+                    }
+                }
+            }
+
+            return undefined;
+        };
+
+        // Removes all rows and tasks
+        self.removeAllRows = function() {
+            self.rowsMap = {};
+            self.rows = [];
+            self.highestRowOrder = 0;
+            self.columns = [];
+            dateRange = undefined;
+        };
+
+        // Swaps two rows and changes the sort order to custom to display the swapped rows
+        self.swapRows = function (a, b) {
+            // Swap the two rows
+            var order = a.order;
+            a.order = b.order;
+            b.order = order;
+        };
+
+        // Sort helper to sort by the date of the task with the earliest from date.
+        // Rows with no min date will be sorted by name
+        var sortByDate = function (a, b) {
+            if (a.minFromDate === undefined && b.minFromDate === undefined) {
+                return sortByName(a, b);
+            } else if (a.minFromDate === undefined) {
+                return 1;
+            } else if (b.minFromDate === undefined) {
+                return -1;
+            } else {
+                return a.minFromDate - b.minFromDate;
+            }
+        };
+
+        // Sort helper to sort by description name (switch to localeCompare() in the future?)
+        var sortByName = function (a, b) {
+            if (a.description.toLowerCase() === b.description.toLowerCase()) {
+                return 0;
+            } else {
+                return (a.description.toLowerCase() < b.description.toLowerCase()) ? -1 : 1;
+            }
+        };
+
+        // Sort helper to sort by order.
+        // If a row has no order move it at the end. If both rows have no order they will be sorted by name.
+        var sortByCustom = function (a, b) {
+            if (a.order === undefined && b.order === undefined) {
+                return sortByName(a, b);
+            } else if (a.order === undefined) {
+                return 1;
+            } else if (b.order === undefined) {
+                return -1;
+            } else {
+                return a.order - b.order;
+            }
+        };
+
+        // Sort rows by the specified sort mode (name, order, custom)
+        // and by Ascending or Descending
+        self.sortRows = function (mode) {
+            switch (mode) {
+                case "name":
+                    self.rows.sort(sortByName);
+                    break;
+                case "-name":
+                    self.rows.reverse(sortByName);
+                    break;
+                case "date":
+                    self.rows.sort(sortByDate);
+                    break;
+                case "-date":
+                    self.rows.reverse(sortByDate);
+                    break;
+                case "custom":
+                    self.rows.sort(sortByCustom);
+                    break;
+                case "-custom":
+                    self.rows.reverse(sortByCustom);
+                    break;
+                default:
+                    self.rows.sort(sortByDate);
+                    break;
+            }
+        };
+
 }]);;gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, df) {
 
     var generateHourHeader = function(columns) {
@@ -1348,16 +1934,33 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         }
     };
 }]);;gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
-    var Row = function(id, gantt, description, order, data) {
+    var Row = function(id, description, order, data, tasks) {
         var self = this;
 
         self.id = id;
-        self.gantt = gantt;
         self.description = description;
         self.order= order;
         self.tasksMap = {};
         self.tasks = [];
         self.data = data;
+
+        self.sortTasks = function() {
+            self.tasks.sort(function(t1, t2) { return t1.left - t2.left; });
+        };
+
+        self.setMinMaxDateByTask = function (task) {
+            if (self.minFromDate === undefined) {
+                self.minFromDate = df.clone(task.from);
+            } else if (task.from < self.minFromDate) {
+                self.minFromDate = df.clone(task.from);
+            }
+
+            if (self.maxToDate === undefined) {
+                self.maxToDate = df.clone(task.to);
+            } else if (task.to > self.maxToDate) {
+                self.maxToDate = df.clone(task.to);
+            }
+        };
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id
         self.addTask = function(taskData) {
@@ -1377,6 +1980,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.setMinMaxDateByTask(task);
             return task;
         };
+
+        for(var i=0; i < tasks.length; i++){
+            self.addTask(tasks[i]);
+        }
 
         // Removes the task from the existing row and adds it to he current one
         self.moveTaskToRow = function(task) {
@@ -1418,23 +2025,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
         };
 
-        self.setMinMaxDateByTask = function (task) {
-            if (self.minFromDate === undefined) {
-                self.minFromDate = df.clone(task.from);
-            } else if (task.from < self.minFromDate) {
-                self.minFromDate = df.clone(task.from);
-            }
 
-            if (self.maxToDate === undefined) {
-                self.maxToDate = df.clone(task.to);
-            } else if (task.to > self.maxToDate) {
-                self.maxToDate = df.clone(task.to);
-            }
-        };
 
-        self.sortTasks = function() {
-            self.tasks.sort(function(t1, t2) { return t1.left - t2.left; });
-        };
+
 
         self.copy = function(row) {
             self.description = row.description;
@@ -1446,7 +2039,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.description, self.order, self.data);
+            var clone = new Row(self.id, self.description, self.order, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
@@ -1456,12 +2049,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 
     return Row;
-}]);;gantt.factory('Task', ['dateFunctions', function (df) {
+}]);;gantt.factory('Task', ['dateFunctions', 'Gantt', function (df, Gantt) {
     var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
-        self.gantt = row.gantt;
         self.row = row;
         self.subject = subject;
         self.color = color;
@@ -1488,13 +2080,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
-            self.left = self.gantt.getPositionByDate(self.from);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.left = Gantt.getPositionByDate(self.from);
+            self.width = Math.round( (Gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
 
             if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
-                self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+                self.bounds.left = Gantt.getPositionByDate(self.est);
+                self.bounds.width = Math.round( (Gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
             }
         };
 
@@ -1506,7 +2098,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 x = 0;
             }
 
-            self.from = self.gantt.getDateByPosition(x, true);
+            self.from = Gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -1516,11 +2108,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.setTo = function(x) {
             if (x < self.left) {
                 x = self.left;
-            } else if (x > self.gantt.width) {
-                x = self.gantt.width;
+            } else if (x > Gantt.width) {
+                x = Gantt.width;
             }
 
-            self.to = self.gantt.getDateByPosition(x, false);
+            self.to = Gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -1530,15 +2122,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.moveTo = function(x) {
             if (x < 0) {
                 x = 0;
-            } else if (x + self.width >= self.gantt.width) {
-                x = self.gantt.width - self.width;
+            } else if (x + self.width >= Gantt.width) {
+                x = Gantt.width - self.width;
             }
 
-            self.from = self.gantt.getDateByPosition(x, true);
-            self.left = self.gantt.getPositionByDate(self.from);
+            self.from = Gantt.getDateByPosition(x, true);
+            self.left = Gantt.getPositionByDate(self.from);
 
-            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.to = Gantt.getDateByPosition(self.left + self.width, false);
+            self.width = Math.round( (Gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
 
             self.row.setMinMaxDateByTask(self);
         };
@@ -1558,6 +2150,113 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         self.clone = function() {
             return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+        };
+    };
+
+    return Task;
+}]);
+gantt.factory('DroppableTask', ['dateFunctions', 'Gantt', function (df, Gantt) {
+    var Task = function(id, /*row,*/ subject, color, classes, priority, from, to, data, est, lct) {
+
+        var self = this;
+
+        self.id = id;
+//        self.row = row;
+        self.subject = subject;
+        self.color = color;
+        self.classes = classes;
+        self.priority = priority;
+        self.from = df.clone(from);
+        self.to = df.clone(to);
+        self.data = data;
+
+        if(est !== undefined && lct !== undefined){
+            self.est = df.clone(est);  //Earliest Start Time
+            self.lct = df.clone(lct);  //Latest Completion Time
+        }
+
+        self.checkIfMilestone = function() {
+            self.isMilestone = self.from - self.to === 0;
+        };
+
+        self.checkIfMilestone();
+
+        self.hasBounds = function() {
+            return self.bounds !== undefined;
+        };
+
+        // Updates the pos and size of the task according to the from - to date
+          self.updatePosAndSize = function() {
+            self.left = Gantt.getPositionByDate(self.from);
+            self.width = Math.round( (Gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+
+            if (self.est !== undefined && self.lct !== undefined) {
+                self.bounds = {};
+                self.bounds.left = Gantt.getPositionByDate(self.est);
+                self.bounds.width = Math.round( (Gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+            }
+        };
+
+        // Expands the start of the task to the specified position (in em)
+        self.setFrom = function(x) {
+            if (x > self.left + self.width) {
+                x = self.left + self.width;
+            } else if (x < 0) {
+                x = 0;
+            }
+
+            self.from = Gantt.getDateByPosition(x, true);
+//            self.row.setMinMaxDateByTask(self);
+            self.updatePosAndSize();
+            self.checkIfMilestone();
+        };
+
+        // Expands the end of the task to the specified position (in em)
+        self.setTo = function(x) {
+            if (x < self.left) {
+                x = self.left;
+            } else if (x > Gantt.width) {
+                x = Gantt.width;
+            }
+
+            self.to = Gantt.getDateByPosition(x, false);
+//            self.row.setMinMaxDateByTask(self);
+            self.updatePosAndSize();
+            self.checkIfMilestone();
+        };
+
+        // Moves the task to the specified position (in em)
+        self.moveTo = function(x) {
+            if (x < 0) {
+                x = 0;
+            } else if (x + self.width >= Gantt.width) {
+                x = Gantt.width - self.width;
+            }
+
+            self.from = Gantt.getDateByPosition(x, true);
+            self.left = Gantt.getPositionByDate(self.from);
+
+            self.to = Gantt.getDateByPosition(self.left + self.width, false);
+            self.width = Math.round( (Gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+
+//            self.row.setMinMaxDateByTask(self);
+        };
+
+        self.copy = function(task) {
+            self.subject = task.subject;
+            self.color = task.color;
+            self.classes = task.classes;
+            self.priority = task.priority;
+            self.from = df.clone(task.from);
+            self.to = df.clone(task.to);
+            self.est = task.est !== undefined ? df.clone(task.est): undefined;
+            self.lct = task.lct !== undefined ? df.clone(task.lct): undefined;
+            self.data = task.data;
+            self.isMilestone = task.isMilestone;
+        };
+
+        self.clone = function() {
+            return new Task(self.id, /*self.row,*/ self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 
@@ -2042,13 +2741,173 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             });
         }]
     };
-}]);;gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', function ($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton) {
+}]);;gantt.directive('ganttTaskDrag',['Gantt', 'DroppableTask', function (Gantt, DroppableTask) {
 
     return {
         restrict: "E",
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "default.task.tmpl.html";
+                return "template/gantt.task.drag.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        scope:{
+            task:'='
+        },
+        replace: true,
+        controller: ['$scope', '$element', '$timeout',  '$window', 'debounce', 'mouseOffset', 'smartEvent', function ($scope, $element, $timeout, $window, debounce, mouseOffset, smartEvent) {
+            var ganttScope;
+            var ganttBodyElement, ganttScrollElement;
+            var windowElement = angular.element($window);
+            var taskMoveHandler;
+            var scrollInterval;
+            var scrollSpeed = 15;
+            var scrollTriggerDistance = 5;
+
+            $scope.dragActive = false;
+            $scope.onStart = function(){
+                $scope.dragActive = true;
+                var duration;
+                console.log('onStart', $scope.task);
+                if(!angular.isDefined($scope.task.from)){
+                    $scope.task.from = Gantt.getDateRange().from;
+                }
+                if(!angular.isDefined($scope.task.to)) {
+                    duration = $scope.task.duration;
+                    if (!angular.isDefined(duration)) {
+                        $scope.task.duration = 240;
+                    }
+                    $scope.task.to = new Date($scope.task.from.getTime() + $scope.task.duration * 60 * 1000);
+                    duration = $scope.task.duration;
+                }
+
+                $scope.task = new DroppableTask($scope.task.id, /*{gantt: Gantt},*/ $scope.task.subject, $scope.task.color, $scope.task.classes, $scope.task.priority, $scope.task.from, $scope.task.to, $scope.task.data, undefined, undefined);
+                $scope.task.duration = duration;
+                //angular.copy('after', $scope.task);
+                $scope.task.updatePosAndSize();
+            };
+            $scope.onStop = function(event, ui){
+                $scope.dragActive = false;
+                if(angular.isDefined(taskMoveHandler)){
+                    windowElement.unbind('mousemove', taskMoveHandler);
+                    disableMoveMode();
+                }
+
+
+                console.log('onStop');
+            };
+            $scope.jqyouiOptions = {
+                revert: 'invalid',
+                cursorAt:{left:0, top:5},
+                scroll: false
+            };
+
+            var setGanttBodyElement = function(){
+                if(!angular.isDefined(ganttBodyElement)){
+                    var windowElement = angular.element($window.document.body);
+                    ganttBodyElement = windowElement.find('.gantt');
+                    ganttScrollElement = ganttBodyElement.parent().parent();
+                }
+            };
+
+            var clearScrollInterval = function() {
+                if (scrollInterval !== undefined) {
+                    $timeout.cancel(scrollInterval);
+                    scrollInterval = undefined;
+                }
+            };
+
+            var scrollScreen = function(mode, mousePos) {
+                var leftScreenBorder = ganttScrollElement[0].scrollLeft;
+                var keepOnScrolling = false;
+
+                if (mousePos.x < moveStartX) {
+                    // Scroll to the left
+                    if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
+                        mousePos.x -= scrollSpeed;
+                        keepOnScrolling = true;
+                        ganttScope.scrollLeft(scrollSpeed);
+                    }
+                } else {
+                    // Scroll to the right
+                    var screenWidth = ganttScrollElement[0].offsetWidth;
+                    var rightScreenBorder = leftScreenBorder + screenWidth;
+
+                    if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
+                        mousePos.x += scrollSpeed;
+                        keepOnScrolling = true;
+                        ganttScope.scrollRight(scrollSpeed);
+                    }
+                }
+
+                if (keepOnScrolling) {
+                    scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true);
+                }
+            };
+
+            var handleMove = function(mode, mousePos) {
+                scrollScreen(mode, mousePos);
+            };
+
+            var enableMoveMode = function (mode, x) {
+//                // Raise task move start event
+//                if(!$scope.task.isMoving) {
+//                    if (mode === "M")
+//                        $scope.raiseTaskMoveStartEvent($scope.task);
+//                    else
+//                        $scope.raiseTaskResizeStartEvent($scope.task);
+//                }
+
+                // Init task move
+//                taskHasBeenChanged = false;
+//                $scope.task.moveMode = mode;
+//                $scope.task.isMoving = true;
+                moveStartX = x;
+                var xInEm = moveStartX / ganttScope.getPxToEmFactor();
+                mouseOffsetInEm = xInEm - $scope.task.left;
+
+                // Add move event handlers
+                taskMoveHandler = debounce(function(e) {
+                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
+                    clearScrollInterval();
+                    handleMove(mode, mousePos);
+                }, 5);
+                smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
+
+                smartEvent($scope, windowElement, 'mouseup', function() {
+                    $scope.$apply(function() {
+                        windowElement.unbind('mousemove', taskMoveHandler);
+                        disableMoveMode();
+                    });
+                }).bindOnce();
+            };
+
+            var disableMoveMode = function () {
+                // Stop any active auto scroll
+                clearScrollInterval();
+
+                $scope.task.modeMode = null;
+            };
+
+            $scope.enableScroll = function (event, ganttDirectiveScope) {
+                ganttScope = ganttDirectiveScope;
+                setGanttBodyElement();
+                var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], event).x;
+                enableMoveMode("M", offsetX);
+            };
+
+
+        }]
+    };
+}]);
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', 'Gantt', function ($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton, Gantt) {
+
+    return {
+        restrict: "E",
+        templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "template/gantt.task.tmpl.html";
             } else {
                 return tAttrs.templateUrl;
             }
@@ -2203,9 +3062,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var getRowByY = function(y) {
-                var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
+                var rowHeight = ganttBodyElement[0].offsetHeight / Gantt.rows.length;
                 var pos = Math.floor(y / rowHeight);
-                return $scope.task.row.gantt.rows[pos];
+                return Gantt.rows[pos];
             };
 
             var getMoveMode = function (e) {
@@ -2418,7 +3277,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     }
 
     return debounce;
-}]);;gantt.factory('keepScrollPos',['$timeout', function ($timeout) {
+}]);;gantt.factory('keepScrollPos',['$timeout', 'Gantt', function ($timeout, Gantt) {
     // Make sure the scroll position will be at the same place after the tasks or columns changed
 
     function keepScrollPos($scope, fn) {
@@ -2427,14 +3286,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Save scroll position
             var oldScrollLeft = el.scrollLeft;
-            var left = $scope.gantt.getFirstColumn();
+            var left = Gantt.getFirstColumn();
             var pxToEmFactor = $scope.getPxToEmFactor();
 
             // Execute Gantt changes
             fn.apply(this, arguments);
 
             // Re-apply scroll position
-            left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
+            left = left === undefined ? 0: Gantt.getColumnByDate(left.date).left * pxToEmFactor;
             el.scrollLeft = left + oldScrollLeft;
 
             // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.

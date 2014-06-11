@@ -7,6 +7,15 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
+    $scope.taskToDragList = [
+        {
+            subject: 'Drag this task'
+        }
+        ,
+        {
+            subject: 'An other task to drag'
+        }
+    ];
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);

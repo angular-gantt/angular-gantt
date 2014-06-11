@@ -1,10 +1,170 @@
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', function ($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton) {
+gantt.directive('ganttTaskDrag',['Gantt', 'DroppableTask', function (Gantt, DroppableTask) {
 
     return {
         restrict: "E",
         templateUrl: function (tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "default.task.tmpl.html";
+                return "template/gantt.task.drag.tmpl.html";
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        scope:{
+            task:'='
+        },
+        replace: true,
+        controller: ['$scope', '$element', '$timeout',  '$window', 'debounce', 'mouseOffset', 'smartEvent', function ($scope, $element, $timeout, $window, debounce, mouseOffset, smartEvent) {
+            var ganttScope;
+            var ganttBodyElement, ganttScrollElement;
+            var windowElement = angular.element($window);
+            var taskMoveHandler;
+            var scrollInterval;
+            var scrollSpeed = 15;
+            var scrollTriggerDistance = 5;
+
+            $scope.dragActive = false;
+            $scope.onStart = function(){
+                $scope.dragActive = true;
+                var duration;
+                console.log('onStart', $scope.task);
+                if(!angular.isDefined($scope.task.from)){
+                    $scope.task.from = Gantt.getDateRange().from;
+                }
+                if(!angular.isDefined($scope.task.to)) {
+                    duration = $scope.task.duration;
+                    if (!angular.isDefined(duration)) {
+                        $scope.task.duration = 240;
+                    }
+                    $scope.task.to = new Date($scope.task.from.getTime() + $scope.task.duration * 60 * 1000);
+                    duration = $scope.task.duration;
+                }
+
+                $scope.task = new DroppableTask($scope.task.id, /*{gantt: Gantt},*/ $scope.task.subject, $scope.task.color, $scope.task.classes, $scope.task.priority, $scope.task.from, $scope.task.to, $scope.task.data, undefined, undefined);
+                $scope.task.duration = duration;
+                //angular.copy('after', $scope.task);
+                $scope.task.updatePosAndSize();
+            };
+            $scope.onStop = function(event, ui){
+                $scope.dragActive = false;
+                if(angular.isDefined(taskMoveHandler)){
+                    windowElement.unbind('mousemove', taskMoveHandler);
+                    disableMoveMode();
+                }
+
+
+                console.log('onStop');
+            };
+            $scope.jqyouiOptions = {
+                revert: 'invalid',
+                cursorAt:{left:0, top:5},
+                scroll: false
+            };
+
+            var setGanttBodyElement = function(){
+                if(!angular.isDefined(ganttBodyElement)){
+                    var windowElement = angular.element($window.document.body);
+                    ganttBodyElement = windowElement.find('.gantt');
+                    ganttScrollElement = ganttBodyElement.parent().parent();
+                }
+            };
+
+            var clearScrollInterval = function() {
+                if (scrollInterval !== undefined) {
+                    $timeout.cancel(scrollInterval);
+                    scrollInterval = undefined;
+                }
+            };
+
+            var scrollScreen = function(mode, mousePos) {
+                var leftScreenBorder = ganttScrollElement[0].scrollLeft;
+                var keepOnScrolling = false;
+
+                if (mousePos.x < moveStartX) {
+                    // Scroll to the left
+                    if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
+                        mousePos.x -= scrollSpeed;
+                        keepOnScrolling = true;
+                        ganttScope.scrollLeft(scrollSpeed);
+                    }
+                } else {
+                    // Scroll to the right
+                    var screenWidth = ganttScrollElement[0].offsetWidth;
+                    var rightScreenBorder = leftScreenBorder + screenWidth;
+
+                    if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
+                        mousePos.x += scrollSpeed;
+                        keepOnScrolling = true;
+                        ganttScope.scrollRight(scrollSpeed);
+                    }
+                }
+
+                if (keepOnScrolling) {
+                    scrollInterval = $timeout(function() { handleMove(mode, mousePos); }, 100, true);
+                }
+            };
+
+            var handleMove = function(mode, mousePos) {
+                scrollScreen(mode, mousePos);
+            };
+
+            var enableMoveMode = function (mode, x) {
+//                // Raise task move start event
+//                if(!$scope.task.isMoving) {
+//                    if (mode === "M")
+//                        $scope.raiseTaskMoveStartEvent($scope.task);
+//                    else
+//                        $scope.raiseTaskResizeStartEvent($scope.task);
+//                }
+
+                // Init task move
+//                taskHasBeenChanged = false;
+//                $scope.task.moveMode = mode;
+//                $scope.task.isMoving = true;
+                moveStartX = x;
+                var xInEm = moveStartX / ganttScope.getPxToEmFactor();
+                mouseOffsetInEm = xInEm - $scope.task.left;
+
+                // Add move event handlers
+                taskMoveHandler = debounce(function(e) {
+                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
+                    clearScrollInterval();
+                    handleMove(mode, mousePos);
+                }, 5);
+                smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
+
+                smartEvent($scope, windowElement, 'mouseup', function() {
+                    $scope.$apply(function() {
+                        windowElement.unbind('mousemove', taskMoveHandler);
+                        disableMoveMode();
+                    });
+                }).bindOnce();
+            };
+
+            var disableMoveMode = function () {
+                // Stop any active auto scroll
+                clearScrollInterval();
+
+                $scope.task.modeMode = null;
+            };
+
+            $scope.enableScroll = function (event, ganttDirectiveScope) {
+                ganttScope = ganttDirectiveScope;
+                setGanttBodyElement();
+                var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], event).x;
+                enableMoveMode("M", offsetX);
+            };
+
+
+        }]
+    };
+}]);
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', 'Gantt', function ($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton, Gantt) {
+
+    return {
+        restrict: "E",
+        templateUrl: function (tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return "template/gantt.task.tmpl.html";
             } else {
                 return tAttrs.templateUrl;
             }
@@ -159,9 +319,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             };
 
             var getRowByY = function(y) {
-                var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
+                var rowHeight = ganttBodyElement[0].offsetHeight / Gantt.rows.length;
                 var pos = Math.floor(y / rowHeight);
-                return $scope.task.row.gantt.rows[pos];
+                return Gantt.rows[pos];
             };
 
             var getMoveMode = function (e) {
