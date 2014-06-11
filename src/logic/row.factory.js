@@ -1,14 +1,31 @@
 gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
-    var Row = function(id, gantt, description, order, data) {
+    var Row = function(id, description, order, data, tasks) {
         var self = this;
 
         self.id = id;
-        self.gantt = gantt;
         self.description = description;
         self.order= order;
         self.tasksMap = {};
         self.tasks = [];
         self.data = data;
+
+        self.sortTasks = function() {
+            self.tasks.sort(function(t1, t2) { return t1.left - t2.left; });
+        };
+
+        self.setMinMaxDateByTask = function (task) {
+            if (self.minFromDate === undefined) {
+                self.minFromDate = df.clone(task.from);
+            } else if (task.from < self.minFromDate) {
+                self.minFromDate = df.clone(task.from);
+            }
+
+            if (self.maxToDate === undefined) {
+                self.maxToDate = df.clone(task.to);
+            } else if (task.to > self.maxToDate) {
+                self.maxToDate = df.clone(task.to);
+            }
+        };
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id
         self.addTask = function(taskData) {
@@ -28,6 +45,10 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
             self.setMinMaxDateByTask(task);
             return task;
         };
+
+        for(var i=0; i < tasks.length; i++){
+            self.addTask(tasks[i]);
+        }
 
         // Removes the task from the existing row and adds it to he current one
         self.moveTaskToRow = function(task) {
@@ -69,23 +90,9 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
             }
         };
 
-        self.setMinMaxDateByTask = function (task) {
-            if (self.minFromDate === undefined) {
-                self.minFromDate = df.clone(task.from);
-            } else if (task.from < self.minFromDate) {
-                self.minFromDate = df.clone(task.from);
-            }
 
-            if (self.maxToDate === undefined) {
-                self.maxToDate = df.clone(task.to);
-            } else if (task.to > self.maxToDate) {
-                self.maxToDate = df.clone(task.to);
-            }
-        };
 
-        self.sortTasks = function() {
-            self.tasks.sort(function(t1, t2) { return t1.left - t2.left; });
-        };
+
 
         self.copy = function(row) {
             self.description = row.description;
@@ -97,7 +104,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
         };
 
         self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.description, self.order, self.data);
+            var clone = new Row(self.id, self.description, self.order, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }

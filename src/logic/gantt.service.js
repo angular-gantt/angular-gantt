@@ -1,7 +1,5 @@
-gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
+gantt.service('Gantt', ['ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (ColumnGenerator, HeaderGenerator, df, bs) {
 
-    // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
@@ -25,8 +23,6 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
 
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
-
-        self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
         self.expandDefaultDateRange = function(from, to) {
@@ -258,14 +254,14 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, self, rowData.description, order, rowData.data);
-                self.rowsMap[rowData.id] = row;
-                self.rows.push(row);
+                //row = new Row(rowData.id, rowData.description, order, rowData.data);
+                self.rowsMap[rowData.id] = rowData;
+                self.rows.push(rowData);
             }
-
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                    var task = row.addTask(rowData.tasks[i]);
+                    //var task = row.addTask(rowData.tasks[i]);
+                    var task = rowData.tasks[i];
                     expandDateRange(task.from, task.to);
                     task.updatePosAndSize();
                 }
@@ -399,7 +395,5 @@ gantt.factory('GanttFactory', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dat
                     break;
             }
         };
-    };
 
-    return Gantt;
 }]);

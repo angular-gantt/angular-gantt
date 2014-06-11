@@ -7,8 +7,21 @@ module.exports = function(grunt) {
                 separator: ';'
             },
             dist: {
-                src: ['src/**/*.js'],
+                src: ['assets/<%= pkg.name %>.tmpl.html.js','src/**/*.js'],
                 dest: 'assets/<%= pkg.name %>.js'
+            }
+        },
+        html2js: {
+            app: {
+                options: {
+                    quoteChar: "'",
+                    base:"."
+                },
+                src: [
+                    'template/*.tmpl.html'
+                ],
+                dest: 'assets/<%= pkg.name %>.tmpl.html.js',
+                module: 'templates.gantt'
             }
         },
         uglify: {
@@ -42,7 +55,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-html2js');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+    grunt.registerTask('default', ['html2js', 'jshint', 'concat', 'uglify']);
 
 };
