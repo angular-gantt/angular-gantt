@@ -147,6 +147,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             };
 
             var getMoveMode = function (e) {
+				if ($scope.task.readOnly) return "";
                 var x = mouseOffset.getOffset(e).x;
 
                 var distance = 0;
@@ -155,7 +156,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 if ($scope.allowTaskResizing) {
                     distance = $element[0].offsetWidth < 10 ? resizeAreaWidthSmall: resizeAreaWidthBig;
                 }
-
+				
                 if ($scope.allowTaskResizing && x > $element[0].offsetWidth - distance) {
                     return "E";
                 } else if ($scope.allowTaskResizing && x < distance) {

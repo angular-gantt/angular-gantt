@@ -74,8 +74,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
-            $scope.ganttHeader = $element.children()[1];
-            $scope.ganttScroll = angular.element($element.children()[2]);
+            var children = $element.children();
+            for (var i = 0; i < children.length; i++) {
+                if (children[i].className == 'gantt-head') $scope.ganttHeader = children[i];
+                if (children[i].className == 'gantt-scrollable') $scope.ganttScroll = angular.element($scope.ganttScroll = children[i]);
+            }
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -85,7 +88,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.$watch("data", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllData();
+                    if (oldValue.length > 0) $scope.removeAllData();
                     $scope.setData(newValue);
                 }
             });
@@ -1173,7 +1176,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
+                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.readOnly);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -1262,7 +1265,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return Row;
 }]);;gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
+    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct, readOnly) {
         var self = this;
 
         self.id = id;
@@ -1274,13 +1277,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.priority = priority;
         self.from = df.clone(from);
         self.to = df.clone(to);
+		self.readOnly = readOnly;
         self.data = data;
 
         if(est !== undefined && lct !== undefined){
             self.est = df.clone(est);  //Earliest Start Time
             self.lct = df.clone(lct);  //Latest Completion Time
         }
-
+		
         self.checkIfMilestone = function() {
             self.isMilestone = self.from - self.to === 0;
         };
@@ -1359,10 +1363,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.lct = task.lct !== undefined ? df.clone(task.lct): undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
+			self.readOnly = task.readOnly;
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.readOnly);
         };
     };
 
@@ -1980,6 +1985,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var getMoveMode = function (e) {
+				if ($scope.task.readOnly) return "";
                 var x = mouseOffset.getOffset(e).x;
 
                 var distance = 0;
@@ -1988,7 +1994,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 if ($scope.allowTaskResizing) {
                     distance = $element[0].offsetWidth < 10 ? resizeAreaWidthSmall: resizeAreaWidthBig;
                 }
-
+				
                 if ($scope.allowTaskResizing && x > $element[0].offsetWidth - distance) {
                     return "E";
                 } else if ($scope.allowTaskResizing && x < distance) {
