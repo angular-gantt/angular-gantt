@@ -1,9 +1,10 @@
-gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
+gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
 
     return {
         restrict: "A",
-        scope: { width: "=ganttLabelResizable",
-                 minWidth: "=ganttLabelResizeMin",
+        scope: { enabled: "=ganttLabelsResize",
+                 width: "=ganttLabelsResizeWidth",
+                 minWidth: "=ganttLabelsResizeMinWidth",
                  onResized: "&onLabelResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
@@ -11,17 +12,19 @@ gantt.directive('ganttLabelResizable', ['$document', 'debounce', 'mouseOffset', 
             var originalPos;
 
             $element.bind("mousedown", function (e) {
-                if (isInResizeArea(e)) {
+                if ($scope.enabled && isInResizeArea(e)) {
                     enableResizeMode(e);
                     e.preventDefault();
                 }
             });
 
             $element.bind("mousemove", function (e) {
-                if (isInResizeArea(e)) {
-                    $element.css("cursor", cursor);
-                } else {
-                    $element.css("cursor", '');
+                if ($scope.enabled) {
+                    if (isInResizeArea(e)) {
+                        $element.css("cursor", cursor);
+                    } else {
+                        $element.css("cursor", '');
+                    }
                 }
             });
 

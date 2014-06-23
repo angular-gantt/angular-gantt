@@ -41,9 +41,13 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 ### Attributes
-- **auto-expand** (default `false`)
+- **auto-expand** (default `none`)
 
-  The Gantt date range will be extended if the user scroll to the left or right edge.
+  The Gantt date range will be extended if the user scroll to the left or right edge. Possible values are `both`, `left`, `right` or `none`.
+  
+- **allow-labels-resizing** (default `true`)
+
+  Defines if the user can resize the row label section by himself.
 
 - **allow-task-moving** (default `true`)
 
@@ -135,25 +139,45 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
   This event is raised when the Gantt is initialized and ready to load data.
 
+- **on-label-clicked**, **on-label-dbl-clicked**, **on-label-context-clicked**
+
+  This event is raised if the user clicks on a row label. Use the `evt` property on the event to access the original javascript event.
+
+- **on-label-header-clicked**, **on-label-header-dbl-clicked**, **on-label-header-context-clicked**
+
+  This event is raised if the user clicks on the label header in the top section of the Gantt. Use the `evt` property on the event to access the original javascript event.
+
+- **on-labels-resized**
+
+  This event is raised after the user did resize the row label section.
+
 - **on-row-added** and **on-row-updated**
 
   Those events are raised if a new row is added or updated. A row is updated if the custom sort order has been changed by the user.
 
-- **on-row-clicked**
+- **on-row-clicked**, **on-row-dbl-clicked**, **on-row-context-clicked**
 
-  This event is raised if the user clicks on a row. The event has a `row`, `date` and `column` property you can use to detect the date clicked.
+  This event is raised if the user clicks on a row. The event has a `row`, `date`, `column` and `evt` property you can use to detect the date clicked or to access the original javascript event.
 
 - **on-scroll**
 
   This event is raised if the user scrolls to the left or right side of the Gantt chart. Use this event to load more data on the fly.
 
-- **on-task-clicked**
+- **on-task-clicked**, **on-task-dbl-clicked**, **on-task-context-clicked**
 
-  This event is raised if the user clicks on a task.
+  This event is raised if the user clicks on a task. Use the `evt` property on the event to access the original javascript event.
 
 - **on-task-updated**
 
   This event is raised if the user moves or resizes a task.
+
+- **on-task-move-begin**, **on-task-move-end**
+
+  This event is raised if when a user starts moving a task and when the move finished.
+
+- **on-task-resize-begin**, **on-task-resize-end**
+
+  This event is raised if when a user starts resizing a task and when the resize operation is finished.
 
 - **remove-data**
 
@@ -178,6 +202,8 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   - `name`: Sort by row description
   - `date`: Sort by the earliest task `from` date of each row
   - `custom`: Custom sort order using a property called **order** on each row
+
+  Prepend a `-` in front to sort descending. E.g. `-date`
 
 - **template-url** (default: `template/gantt.tmpl.html`)
 

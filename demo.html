@@ -63,18 +63,28 @@
            show-weekends="showWeekends"
            max-height="maxHeight"
            on-gantt-ready="addSamples()"
+           on-label-clicked="labelEvent(event)"
+           on-label-dbl-clicked="labelEvent(event)"
+           on-label-context-clicked="labelEvent(event)"
+           on-label-header-clicked="labelHeaderEvent(event)"
+           on-label-header-dbl-clicked="labelHeaderEvent(event)"
+           on-label-header-context-clicked="labelHeaderEvent(event)"
            on-row-added="rowEvent(event)"
            on-row-clicked="rowEvent(event)"
+           on-row-dbl-clicked="rowEvent(event)"
+           on-row-context-clicked="rowEvent(event)"
            on-row-updated="rowEvent(event)"
            on-scroll="scrollEvent(event)"
            on-task-clicked="taskEvent(event)"
+           on-task-dbl-clicked="taskEvent(event)"
+           on-task-context-clicked="taskEvent(event)"
            on-task-updated="taskEvent(event)">
-     </gantt>
+    </gantt>
     <hr>
-    <small>Gantt chart for Angular.js by Marco Schweighauser (2014) | MIT License</small>
+    <small>Gantt chart v0.6.1 for Angular.js by Marco Schweighauser (2014) | MIT License</small>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
 <script src="assets/demo_sample_data.js"></script>
 <script src="assets/demo.js"></script>
 <script src="assets/angular-gantt.js"></script>

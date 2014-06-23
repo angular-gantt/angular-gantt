@@ -1,10 +1,13 @@
 <div class="gantt">
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
-         gantt-label-resizable="labelsWidth" gantt-label-resize-min="50" on-label-resized="raiseLabelsResized(width)" >
+         gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50" on-labels-resized="raiseLabelsResized(width)" >
         <div class="gantt-labels-head"
              ng-show="gantt.columns.length > 0">
             <div class="gantt-labels-head-row"
+                 ng-click="raiseLabelHeaderClickedEvent($event)"
+                 ng-dblclick="raiseLabelHeaderDblClickedEvent($event)"
+                 gantt-right-click="raiseLabelHeaderContextMenuEvent($event)"
                  ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
                 <span>Description</span>
             </div>
@@ -17,6 +20,9 @@
                 <div class="gantt-labels-row gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
+                     ng-click="raiseLabelClickedEvent($event, row)"
+                     ng-dblclick="raiseLabelDblClickedEvent($event, row)"
+                     gantt-right-click="raiseLabelContextMenuEvent($event, row)"
                      ng-repeat="row in gantt.rows track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
@@ -80,6 +86,8 @@
             <div class="gantt-body-content">
                 <div class="gantt-row gantt-row-height"
                      ng-click="raiseDOMRowClickedEvent($event, row)"
+                     ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"
+                     gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
                      ng-repeat="row in gantt.rows track by row.id">
                     <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"></gantt-task>
                 </div>
