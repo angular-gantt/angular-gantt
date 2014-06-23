@@ -216,6 +216,7 @@
     position: absolute;
     z-index: 99;
     border: 1px dashed;
+    pointer-events: none;
 }
 
 .gantt-task-bounds-in {
