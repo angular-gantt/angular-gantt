@@ -154,7 +154,6 @@
 .gantt-task-content span  {
     display: inline-block;
     white-space: nowrap;
-    /*text-overflow: ellipsis;*/
 }
 
 .gantt-task-info {
