@@ -34,7 +34,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             showWeekends: "=?", // True if the weekends shall be displayed Default (true)
             workHours: "=?", // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
             showNonWorkHours: "=?", // True if the non work hours shall be displayed Default (true)
-            autoExpand: "=?", // Set this true if the date range shall expand if the user scroll to the left or right end.
+            autoExpand: "=?", // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
