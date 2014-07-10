@@ -30,6 +30,10 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
         $scope.clearData();
     };
 
+    $scope.columnDateEvent = function(event) {
+        console.log(event);
+    }
+
     $scope.labelEvent = function(event) {
         // A label has been clicked.
         console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.description + ' (Custom data: ' + event.row.data + ')');

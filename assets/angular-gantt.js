@@ -43,6 +43,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             removeData: "&",
             clearData: "&",
             centerDate: "&",
+            onColumnDateClicked: "&",
+            onColumnDateDblClicked: "&",
+            onColumnDataContextClicked: "&",
             onLabelsResized: "&",
             onLabelClicked: "&",
             onLabelDblClicked: "&",
@@ -194,6 +197,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 $scope.gantt.expandDefaultDateRange(from, to);
             });
+
+            $scope.raiseColumnDateClickedEvent = function(evt, column) {
+                $scope.onColumnDateClicked({ event: { evt: evt, column: column} });
+            }
+
+            $scope.raiseColumnDateDblClickedEvent = function(evt, column) {
+                $scope.onColumnDateDblClicked({ event: { evt: evt, column: column} });
+            }
+
+            $scope.raiseColumnDateContextMenuEvent = function(evt, column) {
+                $scope.onColumnDataContextClicked({ event: { evt: evt, column: column} });
+            }
 
             $scope.raiseLabelsResized = function(width) {
                 $scope.onLabelsResized({ event: { width: width } });
