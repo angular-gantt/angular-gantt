@@ -271,6 +271,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             if ($scope.task.isMoving) {
                 enableMoveMode("M", $scope.task.mouseOffsetX);
             }
+			
+			// In case the task has been added from mouse event it start in resize Mode
+			if ($scope.task.onDraw) {
+                 $scope.task.onDraw = false;
+                 enableMoveMode('E', $scope.task.mouseOffsetX);
+            }
+			
         }]
     };
 }]);

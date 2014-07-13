@@ -56,6 +56,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onRowDblClicked: "&",
             onRowContextClicked: "&",
             onRowUpdated: "&",
+			onRowMouseDown: "&",
             onScroll: "&",
             onTaskClicked: "&",
             onTaskDblClicked: "&",
@@ -252,7 +253,30 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
                 $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
             };
+			
+			//@summary New Task from ClickNDrag
+			$scope.raiseDOMRowMouseDownEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
 
+                $scope.raiseRowMouseDownEvent(e, row, clickedColumn, date);
+            };
+			
+			$scope.raiseRowMouseDownEvent = function(evt, row, column, date) {
+                $scope.onRowMouseDown({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
+            };
+						
+			$scope.raiseDOMRowClickedEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
+				
+                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
+			};
+			
             $scope.raiseDOMRowContextMenuEvent = function(e, row) {
                 var x = mouseOffset.getOffset(e).x;
                 var xInEm = x / $scope.getPxToEmFactor();
@@ -1385,7 +1409,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
+                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.onDraw);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -1474,7 +1498,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return Row;
 }]);;gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
+    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct, onDraw) {
         var self = this;
 
         self.id = id;
@@ -1487,6 +1511,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
+		
+		//Draw Event with Mouse
+		self.onDraw = onDraw;
 
         if(est !== undefined && lct !== undefined){
             self.est = df.clone(est);  //Earliest Start Time
@@ -1571,10 +1598,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.lct = task.lct !== undefined ? df.clone(task.lct): undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
+			self.onDrag = task.onDrag;
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.onDraw);
         };
     };
 
@@ -2335,6 +2363,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.task.isMoving) {
                 enableMoveMode("M", $scope.task.mouseOffsetX);
             }
+			
+			// In case the task has been added from mouse event it start in resize Mode
+			if ($scope.task.onDraw) {
+                 $scope.task.onDraw = false;
+                 enableMoveMode('E', $scope.task.mouseOffsetX);
+            }
+			
         }]
     };
 }]);;gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function ($timeout, $document, debounce, smartEvent) {

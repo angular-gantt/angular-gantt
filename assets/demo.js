@@ -43,6 +43,25 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
         console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
+		// Example to draw task inside row
+		 if(event.userTriggered && event.evt.type == "mousedown" && event.evt.srcElement.className.indexOf('gantt-row') > -1)
+            {
+                var startDate = event.date;
+                var endDate = new Date(startDate.getTime());
+                //endDate.setDate(endDate.getDate());
+                var infoTask =   {
+                    id: (Math.floor((Math.random() * 1000) + 1)),  // Unique id of the task.
+                    subject: "Test", // Subject shown on top of each task.
+                    from: startDate, // Date can be a String, Timestamp or Date object.
+                    to: endDate,// Date can be a String, Timestamp or Date object.
+                    color: "#AA8833" , // Color of the task in HEX format (Optional).
+                    onDraw: true,
+                    data: {info: "La Cacca sulla torretta"} // Custom object. Use this to attach your own data (Optional).
+                    
+                };
+                var task = event.row.addTask(infoTask);
+                task.updatePosAndSize();
+            }
     };
 
     $scope.scrollEvent = function(event) {

@@ -1,5 +1,5 @@
 gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
+    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct, onDraw) {
         var self = this;
 
         self.id = id;
@@ -12,6 +12,9 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.from = df.clone(from);
         self.to = df.clone(to);
         self.data = data;
+		
+		//Draw Event with Mouse
+		self.onDraw = onDraw;
 
         if(est !== undefined && lct !== undefined){
             self.est = df.clone(est);  //Earliest Start Time
@@ -96,10 +99,11 @@ gantt.factory('Task', ['dateFunctions', function (df) {
             self.lct = task.lct !== undefined ? df.clone(task.lct): undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
+			self.onDrag = task.onDrag;
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.onDraw);
         };
     };
 
