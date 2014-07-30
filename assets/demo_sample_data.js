@@ -61,3 +61,19 @@ function getSampleData() {
             ]}
         ]};
 }
+
+function getSampleTimespans() {
+    return {
+        "timespan1": [
+            {
+                id: '1',
+                from: new Date(2013,9,21,8,0,0),
+                to: new Date(2013,9,25,15,0,0),
+                subject: 'Sprint 1 Timespan',
+                priority: null,
+                classes: ['timespan-current-sprint'],
+                data: null
+            }
+        ]
+    };
+}

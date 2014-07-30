@@ -9,6 +9,7 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.showNonWorkHours = true;
 
     $scope.addSamples = function () {
+        $scope.loadTimespans(getSampleTimespans().timespan1);
         $scope.loadData(getSampleData().data1);
     };
 

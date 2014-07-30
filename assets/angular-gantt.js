@@ -38,7 +38,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
+            timespans: "=?",
             data: "=?",
+            loadTimespans: "&",
             loadData: "&",
             removeData: "&",
             clearData: "&",
@@ -51,6 +53,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onLabelHeaderDblClicked: "&",
             onLabelHeaderContextClicked: "&",
             onGanttReady: "&",
+            onTimespanAdded: "&",
+            onTimespanUpdated: "&",
             onRowAdded: "&",
             onRowClicked: "&",
             onRowDblClicked: "&",
@@ -96,6 +100,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.sortRows();
+                }
+            });
+
+            $scope.$watch("timespans", function (newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue)) {
+                    $scope.removeAllTimespans();
+                    $scope.setTimespans(newValue);
                 }
             });
 
@@ -354,12 +365,41 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
+            // Clear all existing timespans
+            $scope.removeAllTimespans = function() {
+                // Clears rows, task and columns
+                $scope.gantt.removeAllTimespans();
+                // Restore default columns
+                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            };
+
+            // Add or update timespans
+            $scope.setTimespans = keepScrollPos($scope, function (timespans) {
+                $scope.gantt.addTimespans(timespans,
+                function(timespan) {
+                    $scope.raiseTimespanAddedEvent(timespan, false);
+                }, function(timespan) {
+                    $scope.raiseTimespanUpdatedEvent(timespan, false);
+                });
+
+                $scope.sortRows();
+            });
+
+            $scope.raiseTimespanAddedEvent = function(timespan, userTriggered) {
+                $scope.onTimespanAdded({ event: { timespan: timespan, userTriggered: userTriggered } });
+            };
+
+            $scope.raiseTimespanUpdatedEvent = function(timespan, userTriggered) {
+                $scope.onTimespanUpdated({ event: { timespan: timespan, userTriggered: userTriggered } });
+            };
+
             // Bind scroll event
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
             $scope.loadData({ fn: $scope.setData});
+            $scope.loadTimespans({ fn: $scope.setTimespans});
 
             // Clear data handler.
             $scope.clearData({ fn: $scope.removeAllData});
@@ -873,7 +913,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         WeekGenerator: WeekColumnGenerator,
         MonthGenerator: MonthColumnGenerator
     };
-}]);;gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
+}]);;gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -881,6 +921,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         self.rowsMap = {};
         self.rows = [];
+        self.timespansMap = {};
+        self.timespans = [];
         self.columns = [];
         self.headers = {};
         self.width = 0;
@@ -952,6 +994,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
             self.updateTasksPosAndSize();
+            self.updateTimespansPosAndSize();
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
@@ -976,6 +1019,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
                     self.rows[i].tasks[j].updatePosAndSize();
                 }
+            }
+        };
+
+        // Update the position/size of all timespans in the Gantt
+        self.updateTimespansPosAndSize = function() {
+            for (var i = 0, l = self.timespans.length; i < l; i++) {
+                self.timespans[i].updatePosAndSize();
             }
         };
 
@@ -1185,6 +1235,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             dateRange = undefined;
         };
 
+        // Removes all timespans
+        self.removeAllTimespans = function() {
+            self.timespansMap = {};
+            self.timespans = [];
+        };
+
         // Swaps two rows and changes the sort order to custom to display the swapped rows
         self.swapRows = function (a, b) {
             // Swap the two rows
@@ -1256,6 +1312,47 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     self.rows.sort(sortByDate);
                     break;
             }
+        };
+
+        // Adds or updates timespans
+        self.addTimespans = function(timespans, addEventFn, updateEventFN) {
+            for (var i = 0, l = timespans.length; i < l; i++) {
+                var timespanData = timespans[i];
+                var isUpdate = addTimespan(timespanData);
+                var timespan = self.timespansMap[timespanData.id];
+
+                if (isUpdate === true && updateEventFN !== undefined) {
+                    updateEventFN(timespan);
+                } else if (addEventFn !== undefined) {
+                    addEventFn(timespan);
+                }
+
+                expandDateRange(timespan.from, timespan.to);
+                timespan.updatePosAndSize();
+            }
+
+            if (dateRange !== undefined) {
+                expandColumns();
+            }
+        };
+
+        // Adds a timespan or merges the timespan if there is already one with the same id
+        var addTimespan = function(timespanData) {
+            // Copy to new timespan (add) or merge with existing (update)
+            var timespan, isUpdate = false;
+
+            if (timespanData.id in self.timespansMap) {
+                timespan = self.timespansMap[timespanData.id];
+                timespan.copy(timespanData);
+                isUpdate = true;
+            } else {
+                timespan = new Timespan(timespanData.id, self, timespanData.subject, timespanData.color,
+                    timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
+                self.timespansMap[timespanData.id] = timespan;
+                self.timespans.push(timespan);
+            }
+
+            return isUpdate;
         };
     };
 
@@ -1579,6 +1676,98 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 
     return Task;
+}]);;gantt.factory('Timespan', ['dateFunctions', function (df) {
+    var Timespan = function(id, gantt, subject, color, classes, priority, from, to, data, est, lct) {
+        var self = this;
+
+        self.id = id;
+        self.gantt = gantt;
+        self.subject = subject;
+        self.color = color;
+        self.classes = classes;
+        self.priority = priority;
+        self.from = df.clone(from);
+        self.to = df.clone(to);
+        self.data = data;
+
+        if(est !== undefined && lct !== undefined){
+            self.est = df.clone(est);  //Earliest Start Time
+            self.lct = df.clone(lct);  //Latest Completion Time
+        }
+
+        self.hasBounds = function() {
+            return self.bounds !== undefined;
+        };
+
+        // Updates the pos and size of the timespan according to the from - to date
+        self.updatePosAndSize = function() {
+            self.left = self.gantt.getPositionByDate(self.from);
+            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+
+            if (self.est !== undefined && self.lct !== undefined) {
+                self.bounds = {};
+                self.bounds.left = self.gantt.getPositionByDate(self.est);
+                self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+            }
+        };
+
+        // Expands the start of the timespan to the specified position (in em)
+        self.setFrom = function(x) {
+            if (x > self.left + self.width) {
+                x = self.left + self.width;
+            } else if (x < 0) {
+                x = 0;
+            }
+
+            self.from = self.gantt.getDateByPosition(x, true);
+            self.updatePosAndSize();
+        };
+
+        // Expands the end of the timespan to the specified position (in em)
+        self.setTo = function(x) {
+            if (x < self.left) {
+                x = self.left;
+            } else if (x > self.gantt.width) {
+                x = self.gantt.width;
+            }
+
+            self.to = self.gantt.getDateByPosition(x, false);
+            self.updatePosAndSize();
+        };
+
+        // Moves the timespan to the specified position (in em)
+        self.moveTo = function(x) {
+            if (x < 0) {
+                x = 0;
+            } else if (x + self.width >= self.gantt.width) {
+                x = self.gantt.width - self.width;
+            }
+
+            self.from = self.gantt.getDateByPosition(x, true);
+            self.left = self.gantt.getPositionByDate(self.from);
+
+            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
+            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+        };
+
+        self.copy = function(timespan) {
+            self.subject = timespan.subject;
+            self.color = timespan.color;
+            self.classes = timespan.classes;
+            self.priority = timespan.priority;
+            self.from = df.clone(timespan.from);
+            self.to = df.clone(timespan.to);
+            self.est = timespan.est !== undefined ? df.clone(timespan.est): undefined;
+            self.lct = timespan.lct !== undefined ? df.clone(timespan.lct): undefined;
+            self.data = timespan.data;
+        };
+
+        self.clone = function() {
+            return new Timespan(self.id, self.gantt, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+        };
+    };
+
+    return Timespan;
 }]);;gantt.service('binarySearch', [ function () {
     // Returns the object on the left and right in an array using the given cmp function.
     // The compare function defined which property of the value to compare (e.g.: c => c.left)

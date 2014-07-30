@@ -1,0 +1,9 @@
+
+/* Styles for timespans */
+
+.timespan-current-sprint {
+    color: black;
+    background-color: rgba(158, 158, 158, 0.5);
+    border-left: 1px solid rgba(158, 158, 158, 1);
+    border-right: 1px solid rgba(158, 158, 158, 1);
+}

@@ -84,6 +84,14 @@
                 </div>
             </div>
             <div class="gantt-body-content">
+                <div class="gantt-timespan"
+                     ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'em', 'width': timespan.width +'em', 'z-index': (timespan.priority || 0)}"
+                     ng-class="timespan.classes"
+                     ng-repeat="timespan in gantt.timespans">
+                    <gantt-tooltip ng-model="timespan" date-format="'MMM d'">
+                        <div class="gantt-task-content"><span>{{ timespan.subject }}</span></div>
+                    </gantt-tooltip>
+                </div>
                 <div class="gantt-row gantt-row-height"
                      ng-click="raiseDOMRowClickedEvent($event, row)"
                      ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"
