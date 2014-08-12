@@ -71,10 +71,10 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
   Usage:
   Specify the gantt property:
-    `center-date="scrollToToday = fn"`
+    `center-date="scrollToDate = fn"`
 
   In your code call:
-    `$scope.scrollToToday(new Date());`
+    `$scope.scrollToDate(new Date());`
 
 - **clear-data**
 
