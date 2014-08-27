@@ -489,7 +489,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
         column.showNonWorkHours = showNonWorkHours;
-        
+
         var startHour = 0;
         var endHour = 24;
 

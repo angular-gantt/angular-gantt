@@ -2,7 +2,7 @@
 
 var demoApp = angular.module('demoApp', ['gantt']);
 
-demoApp.controller("ctrl", ['$scope', function($scope) {
+demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
     $scope.mode = "custom";
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
@@ -10,6 +10,9 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
 
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
+        $timeout(function() {
+            $scope.scrollToDate(new Date());
+        },0,true);
     };
 
     $scope.removeSomeSamples = function () {

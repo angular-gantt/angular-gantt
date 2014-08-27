@@ -225,3 +225,11 @@
 .gantt-task-bounds-out {
     border-color: #FF6347;
 }
+
+.gantt-vertical-line{
+    width: 1px;
+    border-left: 1px solid red;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
