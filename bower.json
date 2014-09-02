@@ -6,7 +6,10 @@
     "Schweigi"
   ],
   "description": "A Gantt chart directive for Angular.js without any other dependencies.",
-  "main": "./assets/angular-gantt.js",
+  "main": [
+    "./assets/angular-gantt.js",
+    "./assets/gantt.css"
+  ],
   "keywords": [
     "gantt",
     "chart",
