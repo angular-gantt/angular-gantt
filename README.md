@@ -122,15 +122,11 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 - **from-date**
 
-  If specified ensures that the chart is rendered starts at the from-date. This is useful for showing the chart even without any tasks or empty time before the first task.
-
-  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+  If specified ensures that the chart rendering starts at the from-date. This is useful for showing the chart even without any tasks, or empty time before the first task, or truncate previous tasks.
 
 - **to-date**
 
-  If specified ensures that the chart is rendered goes at least to the end-date. This is useful for showing the chart even without any tasks or empty time after the last task.
-
-  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+  If specified ensures that the chart rendering goes at least to the end-date. This is useful for showing the chart even without any tasks, or empty time after the last task, or truncate next tasks.
 
 - **data**
 

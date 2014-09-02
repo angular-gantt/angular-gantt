@@ -120,7 +120,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
                 }
             });
 

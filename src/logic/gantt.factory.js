@@ -28,6 +28,27 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
 
         self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
+        self.setDefaultDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+              setDateRange(from, to);
+              expandColumnsNoCheck(dateRange.from, dateRange.to);
+            }
+        };
+
+        var setDateRange = function(from, to) {
+            from = df.clone(from);
+            to = df.clone(to);
+
+            if (dateRange === undefined) {
+                dateRange = {};
+                dateRange.from = from;
+                dateRange.to = to;
+            } else {
+                dateRange.from = from;
+                dateRange.to = to;
+            }
+        };
+
         // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
         self.expandDefaultDateRange = function(from, to) {
             if (from !== undefined && to !== undefined) {
