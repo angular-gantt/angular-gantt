@@ -212,9 +212,11 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(e) {
+                  $timeout(function() {
                     var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
                     clearScrollInterval();
                     handleMove(mode, mousePos);
+                  });
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
