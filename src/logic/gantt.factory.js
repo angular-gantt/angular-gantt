@@ -8,6 +8,8 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         self.rows = [];
         self.columns = [];
         self.headers = {};
+        self.previousColumns = [];
+        self.nextColumns = [];
         self.width = 0;
         var dateRange;
 
@@ -103,6 +105,48 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
         };
 
+        var expandExtendedColumnsForPosition = function(x) {
+            if (x < 0) {
+                var firstColumn = self.getFirstColumn();
+                var from = firstColumn.date;
+                var firstExtendedColumn = self.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                    self.previousColumns = self.columnGenerator.generate(from, null, -x, 0, true);
+                }
+                return true;
+            } else if (x > self.width) {
+                var lastColumn = self.getLastColumn();
+                var endDate = lastColumn.getDateByPosition(lastColumn.width);
+                var lastExtendedColumn = self.getLastColumn(true);
+                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                    self.nextColumns = self.columnGenerator.generate(endDate, null, x-self.width, self.width, false);
+                }
+                return true;
+            }
+            return false;
+        };
+
+        var expandExtendedColumnsForDate = function(date) {
+            var firstColumn = self.getFirstColumn();
+            var from = firstColumn.date;
+            var lastColumn = self.getLastColumn();
+            var endDate = lastColumn.getDateByPosition(lastColumn.width);
+            if (date < from) {
+                var firstExtendedColumn = self.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                    self.previousColumns = self.columnGenerator.generate(from, date, null, 0, true);
+                }
+                return true;
+            } else if (date > endDate) {
+                var lastExtendedColumn = self.getLastColumn(true);
+                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                    self.nextColumns = self.columnGenerator.generate(endDate, date, null, self.width, false);
+                }
+                return true;
+            }
+            return false;
+        };
+
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
@@ -126,39 +170,58 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Returns the first Gantt column or undefined
-        self.getLastColumn = function() {
-            if (self.columns.length > 0) {
-                return self.columns[self.columns.length-1];
+        self.getLastColumn = function(extended) {
+            var columns = self.columns;
+            if (extended) {
+                columns = self.nextColumns;
+            }
+            if (columns && columns.length > 0) {
+                return columns[columns.length-1];
             } else {
                 return undefined;
             }
         };
 
         // Returns the last Gantt column or undefined
-        self.getFirstColumn = function() {
-            if (self.columns.length > 0) {
-                return self.columns[0];
+        self.getFirstColumn = function(extended) {
+            var columns = self.columns;
+            if (extended) {
+                columns = self.previousColumns;
+            }
+
+            if (columns && columns.length > 0) {
+                return columns[0];
             } else {
                 return undefined;
             }
         };
 
         // Returns the column at the given or next possible date
-        self.getColumnByDate = function(date) {
-            var columns = bs.get(self.columns, date, function(c) { return c.date; });
+        self.getColumnByDate = function(date, extended) {
+            var ganttColumns = self.columns;
+            if (extended) {
+                expandExtendedColumnsForDate(date);
+                ganttColumns = self.previousColumns.concat(ganttColumns, self.nextColumns);
+            }
+            var columns = bs.get(ganttColumns, date, function(c) { return c.date; });
             return columns[0] !== undefined? columns[0]: columns[1];
         };
 
         // Returns the column at the given position x (in em)
-        self.getColumnByPosition = function(x) {
-            return bs.get(self.columns, x, function(c) { return c.left; })[0];
+        self.getColumnByPosition = function(x, extended) {
+            var ganttColumns = self.columns;
+            if (extended) {
+                expandExtendedColumnsForPosition(x);
+                ganttColumns = self.previousColumns.concat(ganttColumns, self.nextColumns);
+            }
+            return bs.get(ganttColumns, x, function(c) { return c.left; })[0];
         };
 
         // Returns the exact column date at the given position x (in em)
-        self.getDateByPosition = function(x, snapForward) {
-            var column = self.getColumnByPosition(x);
+        self.getDateByPosition = function(x, extended, snapForward) {
+            var column = self.getColumnByPosition(x, extended);
             if (column !== undefined) {
-                if(arguments.length == 2) return column.getDateByPosition(x - column.left, snapForward);
+                if(snapForward !== undefined) return column.getDateByPosition(x - column.left, snapForward);
                 else return column.getDateByPosition(x - column.left);
             } else {
                 return undefined;
@@ -166,8 +229,8 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         // Returns the position inside the Gantt calculated by the given date
-        self.getPositionByDate = function(date) {
-            var column = self.getColumnByDate(date);
+        self.getPositionByDate = function(date, extended) {
+            var column = self.getColumnByDate(date, extended);
             if (column !== undefined) {
                 return column.getPositionByDate(date);
             } else {

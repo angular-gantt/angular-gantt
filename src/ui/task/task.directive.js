@@ -208,7 +208,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 $scope.task.isMoving = true;
                 moveStartX = x;
                 var xInEm = moveStartX / $scope.getPxToEmFactor();
-                mouseOffsetInEm = xInEm - $scope.task.left;
+                mouseOffsetInEm = xInEm - $scope.task.modelLeft;
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(e) {
