@@ -35,7 +35,7 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
             self.left = Math.max(self.modelLeft, 0);
             if (self.modelLeft < 0) {
-                self.width = self.modelWidth + self.modelLeft;
+                self.width = Math.min(self.modelWidth + self.modelLeft, self.gantt.width);
             } else if (self.modelLeft + self.modelWidth > self.gantt.width) {
                 self.width = self.gantt.width - self.modelLeft;
             } else {
@@ -51,12 +51,6 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
-            if (x > self.left + self.width) {
-                x = self.left + self.width;
-            } else if (x < 0) {
-                x = 0;
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
@@ -65,12 +59,6 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
-            if (x < self.left) {
-                x = self.left;
-            } else if (x > self.gantt.width) {
-                x = self.gantt.width;
-            }
-
             self.to = self.gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
@@ -80,20 +68,10 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
             self.from = self.gantt.getDateByPosition(x, true);
-            self.modelLeft = self.gantt.getPositionByDate(self.from);
-
             self.to = self.gantt.getDateByPosition(x + self.modelWidth, false);
-
-            self.left = Math.max(self.modelLeft, 0);
-            if (self.modelLeft < 0) {
-                self.width = self.modelWidth + self.modelLeft;
-            } else if (self.modelLeft + self.modelWidth > self.gantt.width) {
-                self.width = self.gantt.width - self.modelLeft;
-            } else {
-                self.width = self.modelWidth;
-            }
-
             self.row.setMinMaxDateByTask(self);
+
+            self.updatePosAndSize();
         };
 
         self.copy = function(task) {
