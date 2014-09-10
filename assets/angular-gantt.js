@@ -1209,29 +1209,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Returns the column at the given or next possible date
-        self.getColumnByDate = function(date, extended) {
-            var ganttColumns = self.columns;
-            if (extended) {
-                expandExtendedColumnsForDate(date);
-                ganttColumns = self.previousColumns.concat(ganttColumns, self.nextColumns);
-            }
-            var columns = bs.get(ganttColumns, date, function(c) { return c.date; });
+        self.getColumnByDate = function(date) {
+            expandExtendedColumnsForDate(date);
+            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
+            var columns = bs.get(extendedColumns, date, function(c) { return c.date; });
             return columns[0] !== undefined? columns[0]: columns[1];
         };
 
         // Returns the column at the given position x (in em)
-        self.getColumnByPosition = function(x, extended) {
-            var ganttColumns = self.columns;
-            if (extended) {
-                expandExtendedColumnsForPosition(x);
-                ganttColumns = self.previousColumns.concat(ganttColumns, self.nextColumns);
-            }
-            return bs.get(ganttColumns, x, function(c) { return c.left; })[0];
+        self.getColumnByPosition = function(x) {
+            expandExtendedColumnsForPosition(x);
+            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
+            return bs.get(extendedColumns, x, function(c) { return c.left; })[0];
         };
 
         // Returns the exact column date at the given position x (in em)
-        self.getDateByPosition = function(x, extended, snapForward) {
-            var column = self.getColumnByPosition(x, extended);
+        self.getDateByPosition = function(x, snapForward) {
+            var column = self.getColumnByPosition(x);
             if (column !== undefined) {
                 if(snapForward !== undefined) return column.getDateByPosition(x - column.left, snapForward);
                 else return column.getDateByPosition(x - column.left);
@@ -1241,8 +1235,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Returns the position inside the Gantt calculated by the given date
-        self.getPositionByDate = function(date, extended) {
-            var column = self.getColumnByDate(date, extended);
+        self.getPositionByDate = function(date) {
+            var column = self.getColumnByDate(date);
             if (column !== undefined) {
                 return column.getPositionByDate(date);
             } else {
@@ -1753,7 +1747,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 x = 0;
             }
 
-            self.from = self.gantt.getDateByPosition(x, false, true);
+            self.from = self.gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -1767,7 +1761,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 x = self.gantt.width;
             }
 
-            self.to = self.gantt.getDateByPosition(x, false, false);
+            self.to = self.gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -1775,10 +1769,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true, true);
-            self.modelLeft = self.gantt.getPositionByDate(self.from, true);
+            self.from = self.gantt.getDateByPosition(x, true);
+            self.modelLeft = self.gantt.getPositionByDate(self.from);
 
-            self.to = self.gantt.getDateByPosition(x + self.modelWidth, true, false);
+            self.to = self.gantt.getDateByPosition(x + self.modelWidth, false);
 
             self.left = Math.max(self.modelLeft, 0);
             if (self.modelLeft < 0) {
