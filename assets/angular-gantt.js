@@ -1111,10 +1111,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
-            self.updateTasksPosAndSize();
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
+
+            self.updateTasksPosAndSize();
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -1163,6 +1164,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
             self.columns = [];
+            self.previousColumns = [];
+            self.nextColumns = [];
 
             if (dateRange !== undefined) {
                 expandColumns();
