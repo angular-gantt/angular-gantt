@@ -1111,6 +1111,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
+            self.previousColumns = [];
+            self.nextColumns = [];
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
