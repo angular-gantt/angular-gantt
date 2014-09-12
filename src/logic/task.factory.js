@@ -35,7 +35,9 @@ gantt.factory('Task', ['dateFunctions', function (df) {
             self.modelLeft = self.gantt.getPositionByDate(self.from);
             self.modelWidth = self.gantt.getPositionByDate(self.to) - self.modelLeft;
 
-            self.left = Math.max(self.modelLeft, 0);
+            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.gantt.width;
+
+            self.left = Math.min(Math.max(self.modelLeft, 0), self.gantt.width);
             if (self.modelLeft < 0) {
                 self.truncatedLeft = true;
                 if (self.modelWidth + self.modelLeft > self.gantt.width) {
