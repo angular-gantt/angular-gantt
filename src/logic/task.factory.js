@@ -11,6 +11,8 @@ gantt.factory('Task', ['dateFunctions', function (df) {
         self.priority = priority;
         self.from = df.clone(from);
         self.to = df.clone(to);
+        self.truncatedLeft = false;
+        self.truncatedRight = false;
         self.data = data;
 
         if(est !== undefined && lct !== undefined){
@@ -35,10 +37,21 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
             self.left = Math.max(self.modelLeft, 0);
             if (self.modelLeft < 0) {
-                self.width = Math.min(self.modelWidth + self.modelLeft, self.gantt.width);
-            } else if (self.modelLeft + self.modelWidth > self.gantt.width) {
+                self.truncatedLeft = true;
+                if (self.modelWidth + self.modelLeft > self.gantt.width) {
+                    self.truncatedRight = true;
+                    self.width = self.gantt.width;
+                } else {
+                    self.truncatedRight = false;
+                    self.width = self.modelWidth + self.modelLeft;
+                }
+            } else if (self.modelWidth + self.modelLeft > self.gantt.width) {
+                self.truncatedRight = true;
+                self.truncatedLeft = false;
                 self.width = self.gantt.width - self.modelLeft;
             } else {
+                self.truncatedLeft = false;
+                self.truncatedRight = false;
                 self.width = self.modelWidth;
             }
 
