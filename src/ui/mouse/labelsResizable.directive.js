@@ -5,7 +5,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', fu
         scope: { enabled: "=ganttLabelsResize",
                  width: "=ganttLabelsResizeWidth",
                  minWidth: "=ganttLabelsResizeMinWidth",
-                 onResized: "&onLabelResized" },
+                 onResized: "&onLabelsResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
@@ -29,15 +29,16 @@ gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', fu
             });
 
             var resize = function(x) {
-                if ($scope.width === 0) {
-                    $scope.width = $element[0].offsetWidth;
-                }
+                $scope.$apply(function() {
+                    if ($scope.width === 0) {
+                        $scope.width = $element[0].offsetWidth;
+                    }
 
-                $scope.width += x - originalPos;
-                if ($scope.width < $scope.minWidth) {
-                    $scope.width  = $scope.minWidth;
-                }
-
+                    $scope.width += x - originalPos;
+                    if ($scope.width < $scope.minWidth) {
+                        $scope.width  = $scope.minWidth;
+                    }
+                });
                 originalPos = x;
             };
 
