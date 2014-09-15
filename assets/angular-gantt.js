@@ -1365,10 +1365,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                         }
 
                         expandDateRange(from, to);
-                    } else if (self.taskOutOfRange === 'truncate') {
-
-                    } else {
-                        expandDateRange(task.from, task.to);
                     }
 
                     task.updatePosAndSize();

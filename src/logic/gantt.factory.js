@@ -351,10 +351,6 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                         }
 
                         expandDateRange(from, to);
-                    } else if (self.taskOutOfRange === 'truncate') {
-
-                    } else {
-                        expandDateRange(task.from, task.to);
                     }
 
                     task.updatePosAndSize();
