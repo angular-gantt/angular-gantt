@@ -5,7 +5,7 @@
 
 .gantt-scrollable {
     overflow-y: hidden;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .gantt-head, .gantt-labels {

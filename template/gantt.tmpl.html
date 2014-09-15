@@ -66,8 +66,9 @@
     <div class="gantt-scrollable"
          gantt-scroll-sender
          gantt-limit-updater
-         ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px', 'overflow-y': 'scroll'} || {'overflow-y': 'hidden'})"
-         ng-style="{'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'scroll')}">
+         ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px',
+         'overflow-y': 'auto', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')} ||
+         {'overflow-y': 'hidden', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')})">
         <div class="gantt-body"
              ng-style="{'width': gantt.width+'em'}">
             <div class="gantt-body-background">
