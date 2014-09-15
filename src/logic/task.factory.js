@@ -66,6 +66,14 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
+            if (self.gantt.taskOutOfRange !== 'truncate') {
+                if (x > self.left + self.width) {
+                    x = self.left + self.width;
+                } else if (x < 0) {
+                    x = 0;
+                }
+            }
+
             self.from = self.gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
@@ -74,6 +82,14 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
+            if (self.gantt.taskOutOfRange !== 'truncate') {
+                if (x < self.left) {
+                    x = self.left;
+                } else if (x > self.gantt.width) {
+                    x = self.gantt.width;
+                }
+            }
+
             self.to = self.gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
@@ -82,10 +98,17 @@ gantt.factory('Task', ['dateFunctions', function (df) {
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
+            if (self.gantt.taskOutOfRange !== 'truncate') {
+                if (x < 0) {
+                    x = 0;
+                } else if (x + self.width >= self.gantt.width) {
+                    x = self.gantt.width - self.width;
+                }
+            }
+
             self.from = self.gantt.getDateByPosition(x, true);
             self.to = self.gantt.getDateByPosition(x + self.modelWidth, false);
             self.row.setMinMaxDateByTask(self);
-
             self.updatePosAndSize();
         };
 

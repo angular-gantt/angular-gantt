@@ -1,7 +1,7 @@
 gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var Gantt = function(viewScale, autoExpand, taskOutOfRange, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
@@ -11,11 +11,16 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         self.previousColumns = [];
         self.nextColumns = [];
         self.width = 0;
+        self.autoExpand = autoExpand;
+        self.taskOutOfRange = taskOutOfRange;
         var dateRange;
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
-        self.setViewScale = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+        self.setViewScale = function(viewScale, autoExpand, taskOutOfRange, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            self.autoExpand = autoExpand;
+            self.taskOutOfRange = taskOutOfRange;
+
             switch(viewScale) {
                 case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
                 case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
@@ -28,7 +33,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
-        self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
+        self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         self.setDefaultDateRange = function(from, to) {
             if (from !== undefined && to !== undefined) {
@@ -60,19 +65,19 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
         };
 
         var expandDateRange = function(from, to) {
-            from = df.clone(from);
-            to = df.clone(to);
+            from = from ? df.clone(from) : from;
+            to = to ? df.clone(to) : to;
 
-            if (dateRange === undefined) {
+            if (dateRange === undefined && from && to) {
                 dateRange = {};
                 dateRange.from = from;
                 dateRange.to = to;
-            } else {
-                if (from < dateRange.from) {
+            } else if (dateRange !== undefined) {
+                if (from && from < dateRange.from) {
                     dateRange.from = from;
                 }
 
-                if (to > dateRange.to) {
+                if (to && to > dateRange.to) {
                     dateRange.to = to;
                 }
             }
@@ -332,7 +337,26 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
-                    expandDateRange(task.from, task.to);
+
+                    if (self.taskOutOfRange === 'auto-expand') {
+                        var from = null;
+                        var to = null;
+
+                        if (self.autoExpand === 'right' || self.autoExpand === 'both') {
+                            from = task.from;
+                        }
+
+                        if (self.autoExpand === 'left' || self.autoExpand === 'both') {
+                            to = task.to;
+                        }
+
+                        expandDateRange(from, to);
+                    } else if (self.taskOutOfRange === 'truncate') {
+
+                    } else {
+                        expandDateRange(task.from, task.to);
+                    }
+
                     task.updatePosAndSize();
                 }
             }
