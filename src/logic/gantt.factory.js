@@ -338,19 +338,8 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
 
-                    if (self.taskOutOfRange === 'auto-expand') {
-                        var from = null;
-                        var to = null;
-
-                        if (self.autoExpand === 'right' || self.autoExpand === 'both') {
-                            from = task.from;
-                        }
-
-                        if (self.autoExpand === 'left' || self.autoExpand === 'both') {
-                            to = task.to;
-                        }
-
-                        expandDateRange(from, to);
+                    if (self.taskOutOfRange === 'expand') {
+                        expandDateRange(task.from, task.to);
                     }
 
                     task.updatePosAndSize();

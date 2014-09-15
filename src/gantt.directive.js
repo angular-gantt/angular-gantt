@@ -85,7 +85,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
-            if ($scope.taskOutOfRange === undefined) $scope.taskOutOfRange = "auto-expand";
+            if ($scope.taskOutOfRange === undefined) $scope.taskOutOfRange = "expand";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 

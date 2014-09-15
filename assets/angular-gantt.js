@@ -85,7 +85,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
-            if ($scope.taskOutOfRange === undefined) $scope.taskOutOfRange = "auto-expand";
+            if ($scope.taskOutOfRange === undefined) $scope.taskOutOfRange = "expand";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
@@ -1352,19 +1352,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
 
-                    if (self.taskOutOfRange === 'auto-expand') {
-                        var from = null;
-                        var to = null;
-
-                        if (self.autoExpand === 'right' || self.autoExpand === 'both') {
-                            from = task.from;
-                        }
-
-                        if (self.autoExpand === 'left' || self.autoExpand === 'both') {
-                            to = task.to;
-                        }
-
-                        expandDateRange(from, to);
+                    if (self.taskOutOfRange === 'expand') {
+                        expandDateRange(task.from, task.to);
                     }
 
                     task.updatePosAndSize();

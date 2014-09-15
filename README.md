@@ -217,11 +217,11 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
   Prepend a `-` in front to sort descending. E.g. `-date`
 
-- **task-out-of-range** (default `auto-expand`)
+- **task-out-of-range** (default: `expand`)
 
   Define the behavior of tasks defined out of the Gantt rendering range (see from-date and to-date).
-  - `auto-expand`: rendering range will be automatically expanded according to `auto-expand` setting.
-  - `truncate`: tasks will be truncated, or even totally hidden if they are not in range at all.
+  - `expand`: rendering range will be expanded to display the tasks entirely.
+  - `truncate`: tasks will be truncated, or even totally hidden if they are not in rendering range at all.
 
 - **template-url** (default: `template/gantt.tmpl.html`)
 
