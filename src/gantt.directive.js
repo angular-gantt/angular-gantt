@@ -20,6 +20,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         scope: {
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
+            width: "=?", // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             allowTaskMoving: "=?", // Set to true if tasks should be moveable by the user.
@@ -71,6 +72,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Initialize defaults
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
+            if ($scope.width === undefined) $scope.width = 0;
             if ($scope.columnWidth === undefined) $scope.columnWidth = 2;
             if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
             if ($scope.allowTaskMoving === undefined) $scope.allowTaskMoving = true;
@@ -90,7 +92,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, null, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
@@ -110,9 +112,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+autoExpand+taskOutOfRange+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width - $scope.labelsWidth / $scope.getPxToEmFactor(), $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     if (!$scope.gantt.reGenerateColumns()) {
                         // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
                         $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);

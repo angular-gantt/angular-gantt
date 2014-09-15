@@ -32,8 +32,20 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         return workHoursMap[hour] === true;
     };
 
+    var setWidth = function(width, originalWidth, columns) {
+        if (width && originalWidth && columns) {
 
-    var HourColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            var widthFactor = Math.abs(width / originalWidth);
+
+            angular.forEach(columns, function(column) {
+                column.left = widthFactor * column.left;
+                column.width = widthFactor * column.width;
+            });
+        }
+    };
+
+
+    var HourColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates 24 columns for each day between the given from and to date. The task will later be places between the matching columns.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -101,6 +113,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                 date = df.addDays(date, reverse ? -1 : 1);
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -146,7 +160,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var DayColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates one column for each day between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -210,6 +224,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                 generatedCols.reverse();
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -256,7 +272,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var WeekColumnGenerator = function(columnWidth, columnSubScale, firstDayOfWeek) {
+    var WeekColumnGenerator = function(width, columnWidth, columnSubScale, firstDayOfWeek) {
         // Generates one column for each week between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -309,6 +325,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                 generatedCols.reverse();
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -331,7 +349,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var MonthColumnGenerator = function(columnWidth, columnSubScale) {
+    var MonthColumnGenerator = function(width, columnWidth, columnSubScale) {
         // Generates one column for each month between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -382,6 +400,8 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                 }
                 generatedCols.reverse();
             }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };

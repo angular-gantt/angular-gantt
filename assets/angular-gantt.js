@@ -20,6 +20,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         scope: {
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
+            width: "=?", // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             allowTaskMoving: "=?", // Set to true if tasks should be moveable by the user.
@@ -71,6 +72,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Initialize defaults
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
+            if ($scope.width === undefined) $scope.width = 0;
             if ($scope.columnWidth === undefined) $scope.columnWidth = 2;
             if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
             if ($scope.allowTaskMoving === undefined) $scope.allowTaskMoving = true;
@@ -90,7 +92,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, null, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
@@ -110,9 +112,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+autoExpand+taskOutOfRange+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width - $scope.labelsWidth / $scope.getPxToEmFactor(), $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     if (!$scope.gantt.reGenerateColumns()) {
                         // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
                         $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
@@ -633,8 +635,20 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         return workHoursMap[hour] === true;
     };
 
+    var setWidth = function(width, originalWidth, columns) {
+        if (width && originalWidth && columns) {
 
-    var HourColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            var widthFactor = Math.abs(width / originalWidth);
+
+            angular.forEach(columns, function(column) {
+                column.left = widthFactor * column.left;
+                column.width = widthFactor * column.width;
+            });
+        }
+    };
+
+
+    var HourColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates 24 columns for each day between the given from and to date. The task will later be places between the matching columns.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -702,6 +716,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 date = df.addDays(date, reverse ? -1 : 1);
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -747,7 +763,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var DayColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates one column for each day between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -811,6 +827,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 generatedCols.reverse();
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -857,7 +875,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var WeekColumnGenerator = function(columnWidth, columnSubScale, firstDayOfWeek) {
+    var WeekColumnGenerator = function(width, columnWidth, columnSubScale, firstDayOfWeek) {
         // Generates one column for each week between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -910,6 +928,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 generatedCols.reverse();
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -932,7 +952,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var MonthColumnGenerator = function(columnWidth, columnSubScale) {
+    var MonthColumnGenerator = function(width, columnWidth, columnSubScale) {
         // Generates one column for each month between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -984,6 +1004,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 generatedCols.reverse();
             }
 
+            setWidth(width, left, generatedCols);
+
             return generatedCols;
         };
 
@@ -1015,7 +1037,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 }]);;gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, autoExpand, taskOutOfRange, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var Gantt = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
@@ -1031,15 +1053,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
-        self.setViewScale = function(viewScale, autoExpand, taskOutOfRange, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+        self.setViewScale = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
             self.autoExpand = autoExpand;
             self.taskOutOfRange = taskOutOfRange;
 
             switch(viewScale) {
-                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(columnWidth, columnSubScale, firstDayOfWeek); break;
-                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(columnWidth, columnSubScale); break;
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(width, columnWidth, columnSubScale, firstDayOfWeek); break;
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(width, columnWidth, columnSubScale); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
@@ -1047,7 +1069,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
-        self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
+        self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         self.setDefaultDateRange = function(from, to) {
             if (from !== undefined && to !== undefined) {

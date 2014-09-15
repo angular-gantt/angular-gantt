@@ -235,6 +235,10 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   - `week`: Each column is one week wide
   - `month`: Each column is one month wide
 
+- **width** (default: `0` = Disabled)
+
+  How wide is the gantt, 1 being 1em. If defined, columns-width will have no effect.
+
 - **weekend-days** (default: `[0,6]`)
 
   Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. Example:
