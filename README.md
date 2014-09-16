@@ -141,7 +141,7 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 - **on-column-date-clicked**, **on-column-date-dbl-clicked**, **on-column-date-context-clicked**
 
-  This event is raised if the user clickes on a column date. Use the `evt` property on the event to access the original javascript event, and the `column` property to access the clicked column.
+  This event is raised if the user clicks on a column date. Use the `evt` property on the event to access the original javascript event, and the `column` property to access the clicked column.
 
 - **on-label-clicked**, **on-label-dbl-clicked**, **on-label-context-clicked**
 
