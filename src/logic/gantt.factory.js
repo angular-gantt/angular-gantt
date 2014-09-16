@@ -1,4 +1,4 @@
-gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
+gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
@@ -6,6 +6,8 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
 
         self.rowsMap = {};
         self.rows = [];
+        self.timespansMap = {};
+        self.timespans = [];
         self.columns = [];
         self.headers = {};
         self.previousColumns = [];
@@ -111,6 +113,7 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
 
             self.updateTasksPosAndSize();
+            self.updateTimespansPosAndSize();
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -184,6 +187,13 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                 for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
                     self.rows[i].tasks[j].updatePosAndSize();
                 }
+            }
+        };
+
+        // Update the position/size of all timespans in the Gantt
+        self.updateTimespansPosAndSize = function() {
+            for (var i = 0, l = self.timespans.length; i < l; i++) {
+                self.timespans[i].updatePosAndSize();
             }
         };
 
@@ -410,6 +420,12 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
             dateRange = undefined;
         };
 
+        // Removes all timespans
+        self.removeAllTimespans = function() {
+            self.timespansMap = {};
+            self.timespans = [];
+        };
+
         // Swaps two rows and changes the sort order to custom to display the swapped rows
         self.swapRows = function (a, b) {
             // Swap the two rows
@@ -481,6 +497,47 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
                     self.rows.sort(sortByDate);
                     break;
             }
+        };
+
+        // Adds or updates timespans
+        self.addTimespans = function(timespans, addEventFn, updateEventFN) {
+            for (var i = 0, l = timespans.length; i < l; i++) {
+                var timespanData = timespans[i];
+                var isUpdate = addTimespan(timespanData);
+                var timespan = self.timespansMap[timespanData.id];
+
+                if (isUpdate === true && updateEventFN !== undefined) {
+                    updateEventFN(timespan);
+                } else if (addEventFn !== undefined) {
+                    addEventFn(timespan);
+                }
+
+                expandDateRange(timespan.from, timespan.to);
+                timespan.updatePosAndSize();
+            }
+
+            if (dateRange !== undefined) {
+                expandColumns();
+            }
+        };
+
+        // Adds a timespan or merges the timespan if there is already one with the same id
+        var addTimespan = function(timespanData) {
+            // Copy to new timespan (add) or merge with existing (update)
+            var timespan, isUpdate = false;
+
+            if (timespanData.id in self.timespansMap) {
+                timespan = self.timespansMap[timespanData.id];
+                timespan.copy(timespanData);
+                isUpdate = true;
+            } else {
+                timespan = new Timespan(timespanData.id, self, timespanData.subject, timespanData.color,
+                    timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
+                self.timespansMap[timespanData.id] = timespan;
+                self.timespans.push(timespan);
+            }
+
+            return isUpdate;
         };
     };
 

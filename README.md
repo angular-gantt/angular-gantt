@@ -141,7 +141,14 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   Returns a function (`fn`) which can be called to load more data to the Gantt.
   Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
-  As an alternative you can use the `data` property to directly assign the data model.
+  As an alternative, you can use the `data` property to directly assign the data model.
+
+- **load-timespans**
+
+  Returns a function (`fn`) which can be called to load timespans into the Gantt.
+  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+
+  As an alternative, you can use the `timespans` property to directly assign the data model.
 
 - **max-height** (default: `0` = Disabled)
 

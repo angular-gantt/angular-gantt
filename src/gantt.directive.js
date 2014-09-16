@@ -40,7 +40,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
+            timespans: "=?",
             data: "=?",
+            loadTimespans: "&",
             loadData: "&",
             removeData: "&",
             clearData: "&",
@@ -53,6 +55,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onLabelHeaderDblClicked: "&",
             onLabelHeaderContextClicked: "&",
             onGanttReady: "&",
+            onTimespanAdded: "&",
+            onTimespanUpdated: "&",
             onRowAdded: "&",
             onRowClicked: "&",
             onRowDblClicked: "&",
@@ -100,6 +104,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.sortRows();
+                }
+            });
+
+            $scope.$watch("timespans", function (newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue)) {
+                    $scope.removeAllTimespans();
+                    $scope.setTimespans(newValue);
                 }
             });
 
@@ -358,12 +369,41 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
+            // Clear all existing timespans
+            $scope.removeAllTimespans = function() {
+                // Clears rows, task and columns
+                $scope.gantt.removeAllTimespans();
+                // Restore default columns
+                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            };
+
+            // Add or update timespans
+            $scope.setTimespans = keepScrollPos($scope, function (timespans) {
+                $scope.gantt.addTimespans(timespans,
+                function(timespan) {
+                    $scope.raiseTimespanAddedEvent(timespan, false);
+                }, function(timespan) {
+                    $scope.raiseTimespanUpdatedEvent(timespan, false);
+                });
+
+                $scope.sortRows();
+            });
+
+            $scope.raiseTimespanAddedEvent = function(timespan, userTriggered) {
+                $scope.onTimespanAdded({ event: { timespan: timespan, userTriggered: userTriggered } });
+            };
+
+            $scope.raiseTimespanUpdatedEvent = function(timespan, userTriggered) {
+                $scope.onTimespanUpdated({ event: { timespan: timespan, userTriggered: userTriggered } });
+            };
+
             // Bind scroll event
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
             $scope.loadData({ fn: $scope.setData});
+            $scope.loadTimespans({ fn: $scope.setTimespans});
 
             // Clear data handler.
             $scope.clearData({ fn: $scope.removeAllData});

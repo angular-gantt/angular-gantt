@@ -243,3 +243,12 @@
 .gantt-task-bounds-out {
     border-color: #FF6347;
 }
+
+.gantt-timespan {
+    position: absolute;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    display: inline-block;
+    height: 100%;
+}

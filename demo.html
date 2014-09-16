@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/gantt.css"/>
+    <link rel="stylesheet" href="assets/gantt-user.css"/>
     <title>Gantt chart for Angular.js</title>
 </head>
 <body style="padding: 10px">
@@ -51,6 +52,7 @@
     <hr>
     <gantt first-day-of-week="1"
            load-data="loadData = fn"
+           load-timespans="loadTimespans = fn"
            remove-data="removeData = fn"
            clear-data="clearData = fn"
            sort-mode="mode"
