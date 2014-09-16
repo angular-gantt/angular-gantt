@@ -136,16 +136,24 @@ gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFuncti
 
         var expandExtendedColumnsForDate = function(date) {
             var firstColumn = self.getFirstColumn();
-            var from = firstColumn.date;
+            var from = null;
+            if (firstColumn) {
+                from = firstColumn.date;
+            }
+
             var lastColumn = self.getLastColumn();
-            var endDate = lastColumn.getDateByPosition(lastColumn.width);
-            if (date < from) {
+            var endDate = null;
+            if (lastColumn) {
+                endDate = lastColumn.getDateByPosition(lastColumn.width);
+            }
+
+            if (from && date < from) {
                 var firstExtendedColumn = self.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.date > date) {
                     self.previousColumns = self.columnGenerator.generate(from, date, null, 0, true);
                 }
                 return true;
-            } else if (date > endDate) {
+            } else if (endDate && date > endDate) {
                 var lastExtendedColumn = self.getLastColumn(true);
                 if (!lastExtendedColumn || endDate < lastExtendedColumn) {
                     self.nextColumns = self.columnGenerator.generate(endDate, date, null, self.width, false);
