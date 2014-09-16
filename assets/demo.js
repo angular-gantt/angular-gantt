@@ -8,6 +8,10 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
 
+    $scope.ganttInitialized = function() {
+        $scope.addSamples();
+    };
+
     $scope.addSamples = function () {
         $scope.loadData(getSampleData().data1);
     };

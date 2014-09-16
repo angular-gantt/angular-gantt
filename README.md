@@ -32,6 +32,16 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 3. Put directive `gantt` into your HTML code at the position you would like to show the Gantt chart.
 
         <gantt></gantt>
+        
+4. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. The event 'on-gantt-ready' can be used to get notified as soon as this is the case.
+        
+        HTML:
+        <gantt on-gantt-ready="ganttInitialized()"></gantt>
+        
+        Javascript:
+        $scope.ganttInitialized = function() {
+            // Start using the Gantt e.g. load data
+        };
 
 ### How to build
 1. Install [Grunt](http://gruntjs.com/getting-started)
