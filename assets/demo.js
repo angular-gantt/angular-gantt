@@ -62,4 +62,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
         // A task has been updated or clicked.
         console.log('Task event (by user: ' + event.userTriggered + '): ' + event.task.subject + ' (Custom data: ' + event.task.data + ')');
     };
+
+    // Get today date for currentDtae indicator
+    $scope.getToday = new Date();
 }]);

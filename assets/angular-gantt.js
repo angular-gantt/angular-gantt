@@ -87,7 +87,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
-            if ($scope.currentDate === undefined) $scope.currentDate = new Date();
+            if ($scope.currentDate === undefined) $scope.currentDate = null;
 
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);

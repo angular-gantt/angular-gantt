@@ -76,6 +76,17 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   In your code call:
     `$scope.scrollToDate(new Date());`
 
+- **current-date**
+
+  Display a vertical today line in the chart.
+
+  Usage:
+  Specify the gantt property:
+    `current-date="getToday"`
+
+  In your code call:
+    `$scope.getToday = new Date();`
+
 - **clear-data**
 
   Returns a function (`fn`) which can be called to removes all rows and tasks at once.
