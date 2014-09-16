@@ -1,4 +1,5 @@
 .idea
 .DS_Store
-node_modules
-HtmlGantt.iml
+*.iml
+node_modules/
+gh-pages/
