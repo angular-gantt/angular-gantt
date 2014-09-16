@@ -71,7 +71,7 @@ function getSampleTimespans() {
                 to: new Date(2013,9,25,15,0,0),
                 subject: 'Sprint 1 Timespan',
                 priority: null,
-                classes: ['timespan-current-sprint'],
+                //classes: [], //Set custom classes names to apply to the timespan.
                 data: null
             }
         ]

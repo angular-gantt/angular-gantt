@@ -251,4 +251,10 @@
     -webkit-box-sizing:border-box;
     display: inline-block;
     height: 100%;
+
+    color: black;
+    background-color: rgba(158, 158, 158, 0.5);
+    border-left: 1px solid rgba(158, 158, 158, 1);
+    border-right: 1px solid rgba(158, 158, 158, 1);
 }
+
