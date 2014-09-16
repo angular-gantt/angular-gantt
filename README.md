@@ -122,15 +122,11 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 - **from-date**
 
-  If specified ensures that the chart is rendered starts at the from-date. This is useful for showing the chart even without any tasks or empty time before the first task.
-
-  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+  If specified ensures that the chart rendering starts at the from-date. This is useful for showing the chart even without any tasks, or empty time before the first task, or truncate previous tasks.
 
 - **to-date**
 
-  If specified ensures that the chart is rendered goes at least to the end-date. This is useful for showing the chart even without any tasks or empty time after the last task.
-
-  *Note: At this time this does not truncate the tasks, so you will have to do that to your data*
+  If specified ensures that the chart rendering goes at least to the end-date. This is useful for showing the chart even without any tasks, or empty time after the last task, or truncate next tasks.
 
 - **data**
 
@@ -221,6 +217,12 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
   Prepend a `-` in front to sort descending. E.g. `-date`
 
+- **task-out-of-range** (default: `expand`)
+
+  Define the behavior of tasks defined out of the Gantt rendering range (see from-date and to-date).
+  - `expand`: rendering range will be expanded to display the tasks entirely.
+  - `truncate`: tasks will be truncated, or even totally hidden if they are not in rendering range at all.
+
 - **template-url** (default: `template/gantt.tmpl.html`)
 
   URL of the Gantt HTML template. You need to specify this attribute if you put the template in a different folder otherwise the directive won't work.
@@ -232,6 +234,10 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   - `day`: Each column is one day wide
   - `week`: Each column is one week wide
   - `month`: Each column is one month wide
+
+- **width** (default: `0` = Disabled)
+
+  How wide is the gantt, 1 being 1em. If defined, columns-width will have no effect.
 
 - **weekend-days** (default: `[0,6]`)
 

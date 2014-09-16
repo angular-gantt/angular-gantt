@@ -32,13 +32,32 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         return workHoursMap[hour] === true;
     };
 
+    var setWidth = function(width, originalWidth, columns) {
+        if (width && originalWidth && columns) {
 
-    var HourColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            var widthFactor = Math.abs(width / originalWidth);
+
+            angular.forEach(columns, function(column) {
+                column.left = widthFactor * column.left;
+                column.width = widthFactor * column.width;
+            });
+        }
+    };
+
+
+    var HourColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates 24 columns for each day between the given from and to date. The task will later be places between the matching columns.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setTimeZero(from, true);
-            to = df.setTimeZero(to, true);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setTimeZero(to, true);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
@@ -46,7 +65,27 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var workHoursMap = getWorkHoursMap(workHours);
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
+            while(true) {
+                if ((maximumWidth && Math.abs(left) > maximumWidth + columnWidth * 24)) {
+                    break;
+                }
+
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
+                if (reverse) {
+                    left -= columnWidth * 24;
+                }
+
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
 
                 for (var i = 0; i<24; i++) {
@@ -61,13 +100,20 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                             hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.getHours());
                         }
 
-                        generatedCols.push(new Column.Hour(cDate, left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
+                        generatedCols.push(new Column.Hour(cDate, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
                         left += columnWidth;
                     }
+
                 }
 
-                date = df.addDays(date, 1);
+                if (reverse) {
+                    left -= columnWidth * 24;
+                }
+
+                date = df.addDays(date, reverse ? -1 : 1);
             }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -114,19 +160,42 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var DayColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates one column for each day between the given from and to date.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setTimeZero(from, true);
-            to = df.setTimeZero(to, true);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setTimeZero(to, true);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
+            while(true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
+
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
@@ -136,12 +205,26 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                         daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
                     }
 
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
-                    left += columnWidth;
+                    generatedCols.push(new Column.Day(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
+                    if (reverse) {
+                        left -= columnWidth;
+                    } else {
+                        left += columnWidth;
+                    }
+
                 }
 
-                date = df.addDays(date, 1);
+                date = df.addDays(date, reverse ? -1: 1);
             }
+
+            if (reverse) {
+                if (isToDateToExclude(from)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
+            }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -189,23 +272,60 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var WeekColumnGenerator = function(columnWidth, columnSubScale, firstDayOfWeek) {
+    var WeekColumnGenerator = function(width, columnWidth, columnSubScale, firstDayOfWeek) {
         // Generates one column for each week between the given from and to date.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setToDayOfWeek(df.setTimeZero(from, true), firstDayOfWeek, false);
-            to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale, firstDayOfWeek));
-                left += columnWidth;
+            while(true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
 
-                date = df.addWeeks(date, 1);
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
+                generatedCols.push(new Column.Week(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, firstDayOfWeek));
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+
+                date = df.addWeeks(date, reverse ? -1 : 1);
+
             }
+
+            if (reverse) {
+                if (isToDateToExclude(from)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
+            }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -229,23 +349,59 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         };
     };
 
-    var MonthColumnGenerator = function(columnWidth, columnSubScale) {
+    var MonthColumnGenerator = function(width, columnWidth, columnSubScale) {
         // Generates one column for each month between the given from and to date.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setToFirstDayOfMonth(df.setTimeZero(from, true), false);
-            to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                generatedCols.push(new Column.Month(df.clone(date), left, columnWidth, columnSubScale));
-                left += columnWidth;
+            while(true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
 
-                date = df.addMonths(date, 1);
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
+                generatedCols.push(new Column.Month(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+
+                date = df.addMonths(date, reverse ? -1 : 1);
             }
+
+            if (reverse) {
+                if (isToDateToExclude(from)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
+            }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };

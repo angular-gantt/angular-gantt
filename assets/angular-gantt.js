@@ -20,6 +20,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         scope: {
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
+            width: "=?", // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             allowTaskMoving: "=?", // Set to true if tasks should be moveable by the user.
@@ -35,6 +36,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             workHours: "=?", // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
             showNonWorkHours: "=?", // True if the non work hours shall be displayed Default (true)
             autoExpand: "=?", // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
+            taskOutOfRange: "=?", // Set this to auto-expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: "=?", // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
@@ -70,6 +72,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Initialize defaults
             if ($scope.sortMode === undefined) $scope.sortMode = "name";
             if ($scope.viewScale === undefined) $scope.viewScale = "day";
+            if ($scope.width === undefined) $scope.width = 0;
             if ($scope.columnWidth === undefined) $scope.columnWidth = 2;
             if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
             if ($scope.allowTaskMoving === undefined) $scope.allowTaskMoving = true;
@@ -84,12 +87,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
             if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
             if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
+            if ($scope.taskOutOfRange === undefined) $scope.taskOutOfRange = "expand";
             if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, null, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
@@ -108,19 +112,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width - $scope.labelsWidth / $scope.getPxToEmFactor(), $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     if (!$scope.gantt.reGenerateColumns()) {
                         // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                        $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                        $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
                     }
                 }
             });
 
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                    $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
                 }
             });
 
@@ -351,7 +355,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Clears rows, task and columns
                 $scope.gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Bind scroll event
@@ -533,6 +537,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             //first check that the date actually corresponds to this column
             //(it is possible that it might not if weekends are hidden, in which case this will be the nearest previous column)
             if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
+            if (df.setTimeZero(date,true) < df.setTimeZero(column.date, true)) return column.left;
 
             var maxDateValue = endHour-startHour;
             var currentDateValue = date.getHours()-startHour;
@@ -630,13 +635,32 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         return workHoursMap[hour] === true;
     };
 
+    var setWidth = function(width, originalWidth, columns) {
+        if (width && originalWidth && columns) {
 
-    var HourColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            var widthFactor = Math.abs(width / originalWidth);
+
+            angular.forEach(columns, function(column) {
+                column.left = widthFactor * column.left;
+                column.width = widthFactor * column.width;
+            });
+        }
+    };
+
+
+    var HourColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates 24 columns for each day between the given from and to date. The task will later be places between the matching columns.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setTimeZero(from, true);
-            to = df.setTimeZero(to, true);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setTimeZero(to, true);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
@@ -644,7 +668,27 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var workHoursMap = getWorkHoursMap(workHours);
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
+            while(true) {
+                if ((maximumWidth && Math.abs(left) > maximumWidth + columnWidth * 24)) {
+                    break;
+                }
+
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
+                if (reverse) {
+                    left -= columnWidth * 24;
+                }
+
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
 
                 for (var i = 0; i<24; i++) {
@@ -659,13 +703,20 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                             hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.getHours());
                         }
 
-                        generatedCols.push(new Column.Hour(cDate, left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
+                        generatedCols.push(new Column.Hour(cDate, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
                         left += columnWidth;
                     }
+
                 }
 
-                date = df.addDays(date, 1);
+                if (reverse) {
+                    left -= columnWidth * 24;
+                }
+
+                date = df.addDays(date, reverse ? -1 : 1);
             }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -712,19 +763,42 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var DayColumnGenerator = function(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var DayColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
         // Generates one column for each day between the given from and to date.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setTimeZero(from, true);
-            to = df.setTimeZero(to, true);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setTimeZero(to, true);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
+            while(true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
+
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
@@ -734,12 +808,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                         daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
                     }
 
-                    generatedCols.push(new Column.Day(df.clone(date), left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
-                    left += columnWidth;
+                    generatedCols.push(new Column.Day(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
+                    if (reverse) {
+                        left -= columnWidth;
+                    } else {
+                        left += columnWidth;
+                    }
+
                 }
 
-                date = df.addDays(date, 1);
+                date = df.addDays(date, reverse ? -1: 1);
             }
+
+            if (reverse) {
+                if (isToDateToExclude(from)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
+            }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -787,23 +875,60 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var WeekColumnGenerator = function(columnWidth, columnSubScale, firstDayOfWeek) {
+    var WeekColumnGenerator = function(width, columnWidth, columnSubScale, firstDayOfWeek) {
         // Generates one column for each week between the given from and to date.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setToDayOfWeek(df.setTimeZero(from, true), firstDayOfWeek, false);
-            to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                generatedCols.push(new Column.Week(df.clone(date), left, columnWidth, columnSubScale, firstDayOfWeek));
-                left += columnWidth;
+            while(true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
 
-                date = df.addWeeks(date, 1);
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
+                generatedCols.push(new Column.Week(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, firstDayOfWeek));
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+
+                date = df.addWeeks(date, reverse ? -1 : 1);
+
             }
+
+            if (reverse) {
+                if (isToDateToExclude(from)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
+            }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -827,23 +952,59 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
     };
 
-    var MonthColumnGenerator = function(columnWidth, columnSubScale) {
+    var MonthColumnGenerator = function(width, columnWidth, columnSubScale) {
         // Generates one column for each month between the given from and to date.
-        this.generate = function(from, to) {
-            var excludeTo = isToDateToExclude(to);
+        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            var excludeTo = false;
             from = df.setToFirstDayOfMonth(df.setTimeZero(from, true), false);
-            to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
+            }
 
             var date = df.clone(from);
             var generatedCols = [];
             var left = 0;
 
-            while(excludeTo && to - date > 0 || !excludeTo && to - date >= 0) {
-                generatedCols.push(new Column.Month(df.clone(date), left, columnWidth, columnSubScale));
-                left += columnWidth;
+            while(true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
 
-                date = df.addMonths(date, 1);
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
+
+                generatedCols.push(new Column.Month(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+
+                date = df.addMonths(date, reverse ? -1 : 1);
             }
+
+            if (reverse) {
+                if (isToDateToExclude(from)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
+            }
+
+            setWidth(width, left, generatedCols);
 
             return generatedCols;
         };
@@ -876,24 +1037,31 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 }]);;gantt.factory('Gantt', ['Row', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var Gantt = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
         var self = this;
 
         self.rowsMap = {};
         self.rows = [];
         self.columns = [];
         self.headers = {};
+        self.previousColumns = [];
+        self.nextColumns = [];
         self.width = 0;
+        self.autoExpand = autoExpand;
+        self.taskOutOfRange = taskOutOfRange;
         var dateRange;
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
-        self.setViewScale = function(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+        self.setViewScale = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+            self.autoExpand = autoExpand;
+            self.taskOutOfRange = taskOutOfRange;
+
             switch(viewScale) {
-                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(columnWidth, columnSubScale, firstDayOfWeek); break;
-                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(columnWidth, columnSubScale); break;
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(width, columnWidth, columnSubScale, firstDayOfWeek); break;
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(width, columnWidth, columnSubScale); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
@@ -901,7 +1069,28 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.headerGenerator = new HeaderGenerator.instance(viewScale);
         };
 
-        self.setViewScale(viewScale, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
+        self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
+
+        self.setDefaultDateRange = function(from, to) {
+            if (from !== undefined && to !== undefined) {
+              setDateRange(from, to);
+              expandColumnsNoCheck(dateRange.from, dateRange.to);
+            }
+        };
+
+        var setDateRange = function(from, to) {
+            from = df.clone(from);
+            to = df.clone(to);
+
+            if (dateRange === undefined) {
+                dateRange = {};
+                dateRange.from = from;
+                dateRange.to = to;
+            } else {
+                dateRange.from = from;
+                dateRange.to = to;
+            }
+        };
 
         // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
         self.expandDefaultDateRange = function(from, to) {
@@ -912,19 +1101,19 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         var expandDateRange = function(from, to) {
-            from = df.clone(from);
-            to = df.clone(to);
+            from = from ? df.clone(from) : from;
+            to = to ? df.clone(to) : to;
 
-            if (dateRange === undefined) {
+            if (dateRange === undefined && from && to) {
                 dateRange = {};
                 dateRange.from = from;
                 dateRange.to = to;
-            } else {
-                if (from < dateRange.from) {
+            } else if (dateRange !== undefined) {
+                if (from && from < dateRange.from) {
                     dateRange.from = from;
                 }
 
-                if (to > dateRange.to) {
+                if (to && to > dateRange.to) {
                     dateRange.to = to;
                 }
             }
@@ -951,16 +1140,63 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
-            self.updateTasksPosAndSize();
+            self.previousColumns = [];
+            self.nextColumns = [];
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
+
+            self.updateTasksPosAndSize();
+        };
+
+        var expandExtendedColumnsForPosition = function(x) {
+            if (x < 0) {
+                var firstColumn = self.getFirstColumn();
+                var from = firstColumn.date;
+                var firstExtendedColumn = self.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                    self.previousColumns = self.columnGenerator.generate(from, null, -x, 0, true);
+                }
+                return true;
+            } else if (x > self.width) {
+                var lastColumn = self.getLastColumn();
+                var endDate = lastColumn.getDateByPosition(lastColumn.width);
+                var lastExtendedColumn = self.getLastColumn(true);
+                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                    self.nextColumns = self.columnGenerator.generate(endDate, null, x-self.width, self.width, false);
+                }
+                return true;
+            }
+            return false;
+        };
+
+        var expandExtendedColumnsForDate = function(date) {
+            var firstColumn = self.getFirstColumn();
+            var from = firstColumn.date;
+            var lastColumn = self.getLastColumn();
+            var endDate = lastColumn.getDateByPosition(lastColumn.width);
+            if (date < from) {
+                var firstExtendedColumn = self.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                    self.previousColumns = self.columnGenerator.generate(from, date, null, 0, true);
+                }
+                return true;
+            } else if (date > endDate) {
+                var lastExtendedColumn = self.getLastColumn(true);
+                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                    self.nextColumns = self.columnGenerator.generate(endDate, date, null, self.width, false);
+                }
+                return true;
+            }
+            return false;
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.reGenerateColumns = function() {
             self.columns = [];
+            self.previousColumns = [];
+            self.nextColumns = [];
 
             if (dateRange !== undefined) {
                 expandColumns();
@@ -980,18 +1216,27 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Returns the first Gantt column or undefined
-        self.getLastColumn = function() {
-            if (self.columns.length > 0) {
-                return self.columns[self.columns.length-1];
+        self.getLastColumn = function(extended) {
+            var columns = self.columns;
+            if (extended) {
+                columns = self.nextColumns;
+            }
+            if (columns && columns.length > 0) {
+                return columns[columns.length-1];
             } else {
                 return undefined;
             }
         };
 
         // Returns the last Gantt column or undefined
-        self.getFirstColumn = function() {
-            if (self.columns.length > 0) {
-                return self.columns[0];
+        self.getFirstColumn = function(extended) {
+            var columns = self.columns;
+            if (extended) {
+                columns = self.previousColumns;
+            }
+
+            if (columns && columns.length > 0) {
+                return columns[0];
             } else {
                 return undefined;
             }
@@ -999,20 +1244,24 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Returns the column at the given or next possible date
         self.getColumnByDate = function(date) {
-            var columns = bs.get(self.columns, date, function(c) { return c.date; });
+            expandExtendedColumnsForDate(date);
+            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
+            var columns = bs.get(extendedColumns, date, function(c) { return c.date; });
             return columns[0] !== undefined? columns[0]: columns[1];
         };
 
         // Returns the column at the given position x (in em)
         self.getColumnByPosition = function(x) {
-            return bs.get(self.columns, x, function(c) { return c.left; })[0];
+            expandExtendedColumnsForPosition(x);
+            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
+            return bs.get(extendedColumns, x, function(c) { return c.left; })[0];
         };
 
         // Returns the exact column date at the given position x (in em)
         self.getDateByPosition = function(x, snapForward) {
             var column = self.getColumnByPosition(x);
             if (column !== undefined) {
-                if(arguments.length == 2) return column.getDateByPosition(x - column.left, snapForward);
+                if(snapForward !== undefined) return column.getDateByPosition(x - column.left, snapForward);
                 else return column.getDateByPosition(x - column.left);
             } else {
                 return undefined;
@@ -1124,7 +1373,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
-                    expandDateRange(task.from, task.to);
+
+                    if (self.taskOutOfRange === 'expand') {
+                        expandDateRange(task.from, task.to);
+                    }
+
                     task.updatePosAndSize();
                 }
             }
@@ -1486,6 +1739,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.priority = priority;
         self.from = df.clone(from);
         self.to = df.clone(to);
+        self.truncatedLeft = false;
+        self.truncatedRight = false;
         self.data = data;
 
         if(est !== undefined && lct !== undefined){
@@ -1505,22 +1760,46 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
-            self.left = self.gantt.getPositionByDate(self.from);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.modelLeft = self.gantt.getPositionByDate(self.from);
+            self.modelWidth = self.gantt.getPositionByDate(self.to) - self.modelLeft;
+
+            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.gantt.width;
+
+            self.left = Math.min(Math.max(self.modelLeft, 0), self.gantt.width);
+            if (self.modelLeft < 0) {
+                self.truncatedLeft = true;
+                if (self.modelWidth + self.modelLeft > self.gantt.width) {
+                    self.truncatedRight = true;
+                    self.width = self.gantt.width;
+                } else {
+                    self.truncatedRight = false;
+                    self.width = self.modelWidth + self.modelLeft;
+                }
+            } else if (self.modelWidth + self.modelLeft > self.gantt.width) {
+                self.truncatedRight = true;
+                self.truncatedLeft = false;
+                self.width = self.gantt.width - self.modelLeft;
+            } else {
+                self.truncatedLeft = false;
+                self.truncatedRight = false;
+                self.width = self.modelWidth;
+            }
 
             if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
                 self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
             }
         };
 
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
-            if (x > self.left + self.width) {
-                x = self.left + self.width;
-            } else if (x < 0) {
-                x = 0;
+            if (self.gantt.taskOutOfRange !== 'truncate') {
+                if (x > self.left + self.width) {
+                    x = self.left + self.width;
+                } else if (x < 0) {
+                    x = 0;
+                }
             }
 
             self.from = self.gantt.getDateByPosition(x, true);
@@ -1531,10 +1810,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
-            if (x < self.left) {
-                x = self.left;
-            } else if (x > self.gantt.width) {
-                x = self.gantt.width;
+            if (self.gantt.taskOutOfRange !== 'truncate') {
+                if (x < self.left) {
+                    x = self.left;
+                } else if (x > self.gantt.width) {
+                    x = self.gantt.width;
+                }
             }
 
             self.to = self.gantt.getDateByPosition(x, false);
@@ -1545,19 +1826,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
-            if (x < 0) {
-                x = 0;
-            } else if (x + self.width >= self.gantt.width) {
-                x = self.gantt.width - self.width;
+            if (self.gantt.taskOutOfRange !== 'truncate') {
+                if (x < 0) {
+                    x = 0;
+                } else if (x + self.width >= self.gantt.width) {
+                    x = self.gantt.width - self.width;
+                }
             }
 
             self.from = self.gantt.getDateByPosition(x, true);
-            self.left = self.gantt.getPositionByDate(self.from);
-
-            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
-
+            self.to = self.gantt.getDateByPosition(x + self.modelWidth, false);
             self.row.setMinMaxDateByTask(self);
+            self.updatePosAndSize();
         };
 
         self.copy = function(task) {
@@ -1783,7 +2063,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         scope: { enabled: "=ganttLabelsResize",
                  width: "=ganttLabelsResizeWidth",
                  minWidth: "=ganttLabelsResizeMinWidth",
-                 onResized: "&onLabelResized" },
+                 onResized: "&onLabelsResized" },
         controller: ['$scope', '$element', function ($scope, $element) {
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
@@ -1807,15 +2087,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             });
 
             var resize = function(x) {
-                if ($scope.width === 0) {
-                    $scope.width = $element[0].offsetWidth;
-                }
+                $scope.$apply(function() {
+                    if ($scope.width === 0) {
+                        $scope.width = $element[0].offsetWidth;
+                    }
 
-                $scope.width += x - originalPos;
-                if ($scope.width < $scope.minWidth) {
-                    $scope.width  = $scope.minWidth;
-                }
-
+                    $scope.width += x - originalPos;
+                    if ($scope.width < $scope.minWidth) {
+                        $scope.width  = $scope.minWidth;
+                    }
+                });
                 originalPos = x;
             };
 
@@ -2272,13 +2553,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.task.isMoving = true;
                 moveStartX = x;
                 var xInEm = moveStartX / $scope.getPxToEmFactor();
-                mouseOffsetInEm = xInEm - $scope.task.left;
+                mouseOffsetInEm = xInEm - $scope.task.modelLeft;
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(e) {
+                  $timeout(function() {
                     var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
                     clearScrollInterval();
                     handleMove(mode, mousePos);
+                  });
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
@@ -2337,7 +2620,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
         }]
     };
-}]);;gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function ($timeout, $document, debounce, smartEvent) {
+}]);
+;gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function ($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
     return {
@@ -2522,3 +2806,4 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return smartEvent;
 }]);
+//# sourceMappingURL=angular-gantt.js.map
