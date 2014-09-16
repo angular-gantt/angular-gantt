@@ -329,7 +329,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             $scope.raiseTaskClickedEvent = function(evt, task) {
-                $scope.onTaskClicked({ event: { evt: evt, task: task, userTriggered: true } });
+                var x = mouseOffset.getOffset(evt).x,
+                    xInEm = x / $scope.getPxToEmFactor(),
+                    clickedColumn = $scope.gantt.getColumnByPosition(xInEm + task.left),
+                    date = $scope.gantt.getDateByPosition(xInEm + task.left);
+                $scope.onTaskClicked({ event: {
+                    evt: evt,
+                    task: task,
+                    column: clickedColumn,
+                    date: date,
+                    userTriggered: true
+                } });
             };
 
             $scope.raiseTaskDblClickedEvent = function(evt, task) {
