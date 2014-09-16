@@ -39,25 +39,37 @@
                  ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, c)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
                     {{ c.date | date:'MMMM yyyy' }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, c)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
                     {{ c.week }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, c)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
                     {{ viewScale === 'hour' && (c.date | date:'dd EEEE') || (c.date | date:'dd') }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, row)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, row)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, row)">
                     {{ c.date | date:'HH' }}
                 </span>
             </div>

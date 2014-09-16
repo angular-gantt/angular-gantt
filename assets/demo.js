@@ -41,6 +41,10 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
         $scope.clearData();
     };
 
+    $scope.columnDateEvent = function(event) {
+        console.log('Column event (column.date: ' + event.column.date + ')');
+    }
+
     $scope.labelEvent = function(event) {
         // A label has been clicked.
         console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.description + ' (Custom data: ' + event.row.data + ')');
