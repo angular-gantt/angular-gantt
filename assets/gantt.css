@@ -262,6 +262,6 @@
     width: 1px;
     border-left: 1px solid red;
     height: 100%;
-    position: relative;
+    position: absolute;
     z-index: 2;
 }
