@@ -90,7 +90,18 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
     `center-date="scrollToDate = fn"`
 
   In your code call:
-    `$scope.scrollToDate(new Date());`
+    `$scope.scrollToToday(new Date());`
+
+- **current-date**
+
+  Display a vertical line in the chart for the current date.
+
+  Usage:
+  Specify the gantt property:
+    `current-date="getToday"`
+
+  In your code call:
+    `$scope.getToday = new Date();`
 
 - **clear-data**
 

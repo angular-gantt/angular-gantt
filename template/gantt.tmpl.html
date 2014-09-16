@@ -79,6 +79,7 @@
                 </div>
             </div>
             <div class="gantt-body-foreground">
+                <div class="gantt-vertical-line" ng-style="{left: (gantt.getPositionByDate(currentDate))+'em' }"></div>
                 <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || 'gantt-foreground-col'))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">

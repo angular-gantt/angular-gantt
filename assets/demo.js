@@ -2,11 +2,14 @@
 
 var demoApp = angular.module('demoApp', ['gantt']);
 
-demoApp.controller("ctrl", ['$scope', function($scope) {
+demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
     $scope.mode = "custom";
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
+
+    // Get today date for currentDate indicator
+    $scope.currentDate = new Date(2013,9,25,15,0,0);
 
     $scope.ganttInitialized = function() {
         $scope.addSamples();
@@ -15,6 +18,9 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
     $scope.addSamples = function () {
         $scope.loadTimespans(getSampleTimespans().timespan1);
         $scope.loadData(getSampleData().data1);
+        $timeout(function() {
+            $scope.scrollToDate(new Date());
+        },0,true);
     };
 
     $scope.removeSomeSamples = function () {
@@ -64,4 +70,5 @@ demoApp.controller("ctrl", ['$scope', function($scope) {
         // A task has been updated or clicked.
         console.log('Task event (by user: ' + event.userTriggered + '): ' + event.task.subject + ' (Custom data: ' + event.task.data + ')');
     };
+
 }]);

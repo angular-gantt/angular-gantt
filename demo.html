@@ -52,6 +52,7 @@
     <gantt first-day-of-week="1"
            load-data="loadData = fn"
            load-timespans="loadTimespans = fn"
+           center-date="scrollToDate = fn"
            remove-data="removeData = fn"
            clear-data="clearData = fn"
            sort-mode="mode"
@@ -79,7 +80,8 @@
            on-task-clicked="taskEvent(event)"
            on-task-dbl-clicked="taskEvent(event)"
            on-task-context-clicked="taskEvent(event)"
-           on-task-updated="taskEvent(event)">
+           on-task-updated="taskEvent(event)"
+           current-date="currentDate" >
     </gantt>
     <hr>
     <small>Gantt chart v0.6.1 for Angular.js by Marco Schweighauser (2014) | MIT License</small>

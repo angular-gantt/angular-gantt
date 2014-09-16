@@ -30,6 +30,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             allowLabelsResizing: "=?", // Set to true if the user should be able to resize the label section.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
+            currentDate: "=?", // If specified, a vertical line will be displayed representing this date.
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
             weekendDays: "=?", // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
             showWeekends: "=?", // True if the weekends shall be displayed Default (true)
