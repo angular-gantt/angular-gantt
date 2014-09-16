@@ -40,6 +40,12 @@ Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt
 
 Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
+### How to contribute
+1. Create a feature branch with a meaning full name based on the 'develop' branch
+2. Make all your changes inside this feature branch and make sure that those changes have been made in the source JS files and not in the generated angular-gantt.js file. See also chapter "How to build".
+3. After you finished adjust the README and sample app
+4. Create a pull-request for your feature branch
+
 ### Attributes
 - **auto-expand** (default `none`)
 
