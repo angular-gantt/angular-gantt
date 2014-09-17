@@ -2406,35 +2406,45 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
         }
     };
-}]);;gantt.directive('ganttHorizontalScrollReceiver', ['scrollManager', function (scrollManager) {
+}]);;gantt.directive('ganttHorizontalScrollReceiver', function () {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
     return {
         restrict: "A",
+        require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
-            scrollManager.horizontal.push($element[0]);
+            $scope.horizontal.push($element[0]);
         }]
     };
-}]);;gantt.service('scrollManager', [ function () {
-    return { vertical: [], horizontal: [] };
-}]);;gantt.directive('ganttScrollSender', ['scrollManager', '$timeout', function (scrollManager, $timeout) {
+});;gantt.directive('gantScrollManager', function () {
+    // The element with this attribute will scroll at the same time as the scrollSender element
+
+    return {
+        restrict: "A",
+        controller: ['$scope', function($scope){
+            $scope.horizontal = [];
+            $scope.vertical = [];
+        }]
+    };
+});;gantt.directive('ganttScrollSender', ['$timeout', function ($timeout) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
         restrict: "A",
+        require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
             var el = $element[0];
             var updateListeners = function() {
                 var i, l;
 
-                for (i = 0, l = scrollManager.vertical.length; i < l; i++) {
-                    var vElement = scrollManager.vertical[i];
+                for (i = 0, l = $scope.vertical.length; i < l; i++) {
+                    var vElement = $scope.vertical[i];
                     if (vElement.style.top !== -el.scrollTop)
                         vElement.style.top = -el.scrollTop + 'px';
                 }
 
-                for (i = 0, l = scrollManager.horizontal.length; i < l; i++) {
-                    var hElement = scrollManager.horizontal[i];
+                for (i = 0, l = $scope.horizontal.length; i < l; i++) {
+                    var hElement = $scope.horizontal[i];
                     if (hElement.style.left !== -el.scrollLeft)
                         hElement.style.left = -el.scrollLeft + 'px';
                 }
@@ -2451,16 +2461,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             });
         }]
     };
-}]);;gantt.directive('ganttVerticalScrollReceiver', ['scrollManager', function (scrollManager) {
+}]);;gantt.directive('ganttVerticalScrollReceiver', function () {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
     return {
         restrict: "A",
+        require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
-            scrollManager.vertical.push($element[0]);
+            $scope.vertical.push($element[0]);
         }]
     };
-}]);;gantt.service('sortManager', [ function () {
+});;gantt.service('sortManager', [ function () {
     // Contains the row which the user wants to sort (the one he started to drag)
 
     return { startRow: undefined };
