@@ -7,6 +7,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
         mode: "custom",
         scale: "day",
         maxHeight: false,
+        width: false,
         showWeekends: true,
         showNonWorkHours: true,
         currentDate: "line"

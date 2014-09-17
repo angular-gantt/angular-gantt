@@ -59,9 +59,10 @@
                                             <span class="help-block text-center">Additional options</span>
 
                                             <div class="btn-group" bs-checkbox-group>
-                                                <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
                                                 <button type="button" class="btn btn-default" ng-model="options.showWeekends" bs-checkbox>Weekends</button>
                                                 <button type="button" class="btn btn-default" ng-model="options.showNonWorkHours" bs-checkbox>Working hours</button>
+                                                <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
+                                                <button type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
                                             </div>
 
                                         </div>
@@ -113,6 +114,7 @@
                                            view-scale="options.scale"
                                            column-width="options.scale === 'month' && 20 || (options.scale === 'week' && 10 || 4)"
                                            column-sub-scale="options.scale === 'week' && 7 || 6"
+                                           width="options.width && 160 || 0"
                                            work-hours="[8,9,10,11,12,13,14,15]"
                                            show-non-work-hours="options.showNonWorkHours"
                                            weekend-days="[0,6]"
