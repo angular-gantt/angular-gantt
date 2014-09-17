@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="demo/ext/css/bootstrap.css">
     <link rel="stylesheet" href="assets/gantt.css"/>
     <link rel="stylesheet" href="demo/css/gantt-twbs.css"/>
+    <link rel="stylesheet" href="demo/css/angular-motion.css"/>
 
     <script src="demo/ext/js/angular.js"></script>
     <script src="demo/ext/js/angular-animate.js"></script>
@@ -41,40 +42,48 @@
                                 <div class="panel-body">
                                     <form class="form-inline">
                                         <div class="form-group">
-                                            <span class="help-block">Action</span>
-                                            <div class="btn-group">
-                                                <button class="btn btn-default" ng-click="addSamples()">Load data</button>
-                                                <button class="btn btn-default" ng-click="removeSomeSamples()">Remove some</button>
-                                                <button class="btn btn-default" ng-click="removeSamples()">Remove all</button>
-                                            </div>
+                                            <span class="help-block">Scale</span>
+                                            <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['hour', 'day', 'week', 'month']" bs-select></button>
                                         </div>
                                         <div class="form-group">
-                                            <span class="help-block">View scale</span>
-                                            <select class="form-control" style="width: 100px;" ng-model="scale" ng-options="s for s in ['hour', 'day', 'week', 'month']"></select>
-                                        </div>
-                                        <div class="form-group">
-                                            <span class="help-block">Sort order</span>
-                                            <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
-                                        </div>
-                                        <div class="form-group text-center">
-                                            <span class="help-block">Max height</span>
-                                            <div ng-show="maxHeight > 0">
-                                                <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
-                                            </div>
-                                            <div ng-show="maxHeight === 0">
-                                                <button class="btn btn-default" ng-click="maxHeight = 300">Activate</button>
-                                            </div>
+                                            <span class="help-block">Sort</span>
+                                            <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.mode" ng-options="m for m in ['name', 'date', 'custom']" bs-select></button>
                                         </div>
 
-                                        <div class="form-group text-center">
-                                            <span class="help-block">Additional options</span>
+                                        <div class="form-group">
+                                            <span class="help-block">Today</span>
+                                            <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.currentDate" ng-options="d for d in ['none', 'line', 'column']" bs-select></button>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <span class="help-block text-center">Additional options</span>
 
                                             <div class="btn-group" bs-checkbox-group>
+                                                <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
                                                 <button type="button" class="btn btn-default" ng-model="options.showWeekends" bs-checkbox>Weekends</button>
                                                 <button type="button" class="btn btn-default" ng-model="options.showNonWorkHours" bs-checkbox>Working hours</button>
-                                                <button type="button" class="btn btn-default" ng-model="options.showCurrentDate" bs-checkbox>Current date</button>
                                             </div>
 
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="" bs-collapse-toggle>Data</a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse" bs-collapse-target>
+                                <div class="panel-body">
+                                    <form class="form-inline">
+                                        <div class="form-group">
+                                            <div class="btn-group">
+                                                <button class="btn btn-default" ng-click="addSamples()">Reload</button>
+                                                <button class="btn btn-default" ng-click="removeSomeSamples()">Remove</button>
+                                                <button class="btn btn-default" ng-click="removeSamples()">Clear</button>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
@@ -100,16 +109,17 @@
                                            center-date="scrollToDate = fn"
                                            remove-data="removeData = fn"
                                            clear-data="clearData = fn"
-                                           sort-mode="mode"
-                                           view-scale="scale"
-                                           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
-                                           column-sub-scale="scale === 'week' && 7 || 6"
+                                           sort-mode="options.mode"
+                                           view-scale="options.scale"
+                                           column-width="options.scale === 'month' && 20 || (options.scale === 'week' && 10 || 4)"
+                                           column-sub-scale="options.scale === 'week' && 7 || 6"
                                            work-hours="[8,9,10,11,12,13,14,15]"
                                            show-non-work-hours="options.showNonWorkHours"
                                            weekend-days="[0,6]"
                                            show-weekends="options.showWeekends"
-                                           current-date="options.showCurrentDate ? currentDate : null"
-                                           max-height="maxHeight"
+                                           current-date="options.currentDate"
+                                           current-date-value="currentDate"
+                                           max-height="options.maxHeight && 300 || 0"
                                            on-gantt-ready="addSamples()"
                                            on-column-date-clicked="columnDateEvent(event)"
                                            on-column-date-dbl-clicked="columnDateEvent(event)"
