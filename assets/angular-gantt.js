@@ -762,18 +762,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     break;
                 }
 
-                if (to) {
-                    if (reverse) {
-                        if (excludeTo && date < to || !excludeTo && date <= to) {
-                            break;
-                        }
-                    } else {
-                        if (excludeTo && date > to || !excludeTo && date >= to) {
-                            break;
-                        }
-                    }
-                }
-
                 if (reverse) {
                     left -= columnWidth * 24;
                 }
@@ -800,6 +788,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 if (reverse) {
                     left -= columnWidth * 24;
+                }
+
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
                 }
 
                 date = df.addDays(date, reverse ? -1 : 1);
@@ -876,18 +876,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     break;
                 }
 
-                if (to) {
-                    if (reverse) {
-                        if (excludeTo && date < to || !excludeTo && date <= to) {
-                            break;
-                        }
-                    } else {
-                        if (excludeTo && date > to || !excludeTo && date >= to) {
-                            break;
-                        }
-                    }
-                }
-
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
@@ -904,6 +892,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                         left += columnWidth;
                     }
 
+                }
+
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
                 }
 
                 date = df.addDays(date, reverse ? -1: 1);
@@ -987,6 +987,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     break;
                 }
 
+                generatedCols.push(new Column.Week(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, firstDayOfWeek));
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+
                 if (to) {
                     if (reverse) {
                         if (excludeTo && date < to || !excludeTo && date <= to) {
@@ -999,15 +1006,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     }
                 }
 
-                generatedCols.push(new Column.Week(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, firstDayOfWeek));
-                if (reverse) {
-                    left -= columnWidth;
-                } else {
-                    left += columnWidth;
-                }
-
                 date = df.addWeeks(date, reverse ? -1 : 1);
-
             }
 
             if (reverse) {
@@ -1064,6 +1063,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     break;
                 }
 
+                generatedCols.push(new Column.Month(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+
                 if (to) {
                     if (reverse) {
                         if (excludeTo && date < to || !excludeTo && date <= to) {
@@ -1074,13 +1080,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                             break;
                         }
                     }
-                }
-
-                generatedCols.push(new Column.Month(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
-                if (reverse) {
-                    left -= columnWidth;
-                } else {
-                    left += columnWidth;
                 }
 
                 date = df.addMonths(date, reverse ? -1 : 1);
