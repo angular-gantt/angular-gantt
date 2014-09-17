@@ -1,6 +1,6 @@
 /*
- Project: Gantt chart for Angular.js
- Author: Marco Schweighauser (2013)
+ Project: angular-gant for AngularJS
+ Author: Marco Schweighauser (2014)
  License: MIT License. See README.md
  */
 

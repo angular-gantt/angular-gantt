@@ -3,3 +3,5 @@
 *.iml
 node_modules/
 gh-pages/
+assets/*.min.js
+assets/*.map

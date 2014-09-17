@@ -1,5 +1,5 @@
-# Gantt chart for Angular.js
-A Gantt chart directive for Angular.js without any other dependencies.
+# angular-gantt, a gantt chart directive for AngularJS
+A gantt chart directive for AngularJS without any other dependencies.
 
 ####<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">Stable version demo</a>
 
@@ -8,7 +8,7 @@ A Gantt chart directive for Angular.js without any other dependencies.
 ### Features
 - Usable with or without Bootstrap 3
 - Every task has its own color, subject, date (from, to)
-- Tasks can be moved and are resizable
+- Tasks can be moved and resized
 - Rows combine multiple tasks and can have independent descriptions
 - Rows can be sorted by description, date and custom order
 - A user can drag&drop a row to sort it in custom mode
@@ -54,7 +54,7 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 ### How to contribute
 1. Create a feature branch with a meaning full name based on the 'develop' branch
-2. Make all your changes inside this feature branch and make sure that those changes have been made in the source JS files and not in the generated angular-gantt.js file. See also chapter "How to build".
+2. Make all your changes inside this feature branch and make sure that those changes have been made in both source JS files and generated angular-gantt.js file (See chapter "How to build").
 3. After you finished adjust the README and sample app
 4. Create a pull-request for your feature branch
 
