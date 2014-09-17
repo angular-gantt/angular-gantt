@@ -66,6 +66,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onRowDblClicked: "&",
             onRowContextClicked: "&",
             onRowUpdated: "&",
+            onRowMouseDown: "&",
             onScroll: "&",
             onTaskClicked: "&",
             onTaskDblClicked: "&",
@@ -282,6 +283,28 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
                 $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
+            };
+
+            $scope.raiseDOMRowMouseDownEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
+                
+                $scope.raiseRowMouseDownEvent(e, row, clickedColumn, date);
+            };
+
+            $scope.raiseRowMouseDownEvent = function(evt, row, column, date) {
+                $scope.onRowMouseDown({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
+            };
+
+            $scope.raiseDOMRowClickedEvent = function(e, row) {
+                var x = mouseOffset.getOffset(e).x;
+                var xInEm = x / $scope.getPxToEmFactor();
+                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
+                var date = $scope.gantt.getDateByPosition(xInEm);
+
+                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
             };
 
             $scope.raiseDOMRowContextMenuEvent = function(e, row) {
