@@ -2860,11 +2860,17 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             };
 
-            // In case the task has been moved to another row a new controller is is created by angular.
-            // Enable the move mode again if this was the case.
-            if ($scope.task.isMoving) {
+            if ($scope.task.isCreating) {
+                delete $scope.task.isCreating;
+                enableMoveMode("E", $scope.task.mouseOffsetX);
+            } else if ($scope.task.isMoving) {
+                // In case the task has been moved to another row a new controller is is created by angular.
+                // Enable the move mode again if this was the case.
                 enableMoveMode("M", $scope.task.mouseOffsetX);
             }
+
+
+
         }]
     };
 }]);

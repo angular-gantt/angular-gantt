@@ -78,7 +78,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
                     
                 };
                 var task = event.row.addTask(infoTask);
-                task.isMoving = true;
+                task.isCreating = true;
                 task.updatePosAndSize();
             }
     };
