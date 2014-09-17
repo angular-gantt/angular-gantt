@@ -101,7 +101,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, null, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
