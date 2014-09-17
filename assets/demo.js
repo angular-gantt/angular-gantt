@@ -7,6 +7,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
     $scope.maxHeight = 0;
     $scope.showWeekends = true;
     $scope.showNonWorkHours = true;
+    $scope.showCurrentDate = true;
 
     // Get today date for currentDate indicator
     $scope.currentDate = new Date(2013,9,25,15,0,0);

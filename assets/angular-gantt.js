@@ -1377,6 +1377,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Returns the position inside the Gantt calculated by the given date
         self.getPositionByDate = function(date) {
+            if (!date) return undefined;
             var column = self.getColumnByDate(date);
             if (column !== undefined) {
                 return column.getPositionByDate(date);

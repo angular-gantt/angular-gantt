@@ -42,9 +42,11 @@
             <span class="help-block">Additional options</span>
             <div class="btn-group">
                 <button ng-show="showWeekends" class="btn btn-default" ng-click="showWeekends = false">Hide weekends</button>
-                <button ng-show="showWeekends == false" class="btn btn-default" ng-click="showWeekends = true">Show weekends</button>
-                <button ng-show="showNonWorkHours == false" class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show non working hours</button>
+                <button ng-show="!showWeekends" class="btn btn-default" ng-click="showWeekends = true">Show weekends</button>
+                <button ng-show="!showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show non working hours</button>
                 <button ng-show="showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide non working hours</button>
+                <button ng-show="!showCurrentDate" class="btn btn-default" ng-click="showCurrentDate = true">Show current date</button>
+                <button ng-show="showCurrentDate" class="btn btn-default" ng-click="showCurrentDate = false">Hide current date</button>
             </div>
         </div>
     </form>
@@ -63,6 +65,7 @@
            show-non-work-hours="showNonWorkHours"
            weekend-days="[0,6]"
            show-weekends="showWeekends"
+           current-date="showCurrentDate ? currentDate : null"
            max-height="maxHeight"
            on-gantt-ready="addSamples()"
            on-column-date-clicked="columnDateEvent(event)"
@@ -77,15 +80,14 @@
            on-row-added="rowEvent(event)"
            on-row-clicked="rowEvent(event)"
            on-row-dbl-clicked="rowEvent(event)"
-		   on-row-mouse-down="rowEvent(event)"
+           on-row-mouse-down="rowEvent(event)"
            on-row-context-clicked="rowEvent(event)"
            on-row-updated="rowEvent(event)"
            on-scroll="scrollEvent(event)"
            on-task-clicked="taskEvent(event)"
            on-task-dbl-clicked="taskEvent(event)"
            on-task-context-clicked="taskEvent(event)"
-           on-task-updated="taskEvent(event)"
-           current-date="currentDate" >
+           on-task-updated="taskEvent(event)">
     </gantt>
     <hr>
     <small>Gantt chart v0.6.1 for Angular.js by Marco Schweighauser (2014) | MIT License</small>
