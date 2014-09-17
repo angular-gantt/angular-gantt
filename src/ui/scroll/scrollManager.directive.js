@@ -7,7 +7,7 @@ gantt.directive('gantScrollManager', function () {
             $scope.scrollManager = {
                 horizontal: [],
                 vertical: []
-            }
+            };
         }]
     };
 });

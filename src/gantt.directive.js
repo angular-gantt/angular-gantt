@@ -30,7 +30,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             allowLabelsResizing: "=?", // Set to true if the user should be able to resize the label section.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
-            currentDate: "=?", // If specified, a vertical line will be displayed representing this date.
+            currentDateValue: "=?", // If specified, the current date will be displayed
+            currentDate: "=?", // The display of currentDate ('none', 'line' or 'column').
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
             weekendDays: "=?", // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
             showWeekends: "=?", // True if the weekends shall be displayed Default (true)
@@ -89,6 +90,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.allowTaskRowSwitching === undefined) $scope.allowTaskRowSwitching = true;
             if ($scope.allowRowSorting === undefined) $scope.allowRowSorting = true;
             if ($scope.allowLabelsResizing === undefined) $scope.allowLabelsResizing = true;
+            if ($scope.currentDateValue === undefined) $scope.currentDateValue = new Date();
+            if ($scope.currentDate === undefined) $scope.currentDate = "line";
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
@@ -103,6 +106,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
+            $scope.gantt.setCurrentDate($scope.currentDateValue);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
@@ -141,6 +145,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
+                }
+            });
+
+            $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue)) {
+                    $scope.gantt.setCurrentDate($scope.currentDateValue);
                 }
             });
 

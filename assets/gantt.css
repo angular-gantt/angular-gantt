@@ -92,7 +92,7 @@
     height: 100%;
 }
 
-.gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour {
+.gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour, .gantt-foreground-col-current-date {
     position: absolute;
     box-sizing:border-box;
     -moz-box-sizing:border-box;
@@ -104,6 +104,10 @@
 
 .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour {
     background-color: rgba(200, 200, 200, 0.3);
+}
+
+.gantt-foreground-col-current-date {
+    background-color: rgba(255, 0, 0, 0.3);
 }
 
 .gantt-background-row-alt {
@@ -258,9 +262,8 @@
     border-right: 1px solid rgba(158, 158, 158, 1);
 }
 
-.gantt-vertical-line {
-    width: 1px;
-    border-left: 1px solid red;
+.gantt-current-date-line {
+    border: 1px dotted rgba(255, 0, 0, 0.6);
     height: 100%;
     position: absolute;
     z-index: 2;

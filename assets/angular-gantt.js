@@ -30,7 +30,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             allowLabelsResizing: "=?", // Set to true if the user should be able to resize the label section.
             fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
-            currentDate: "=?", // If specified, a vertical line will be displayed representing this date.
+            currentDateValue: "=?", // If specified, the current date will be displayed
+            currentDate: "=?", // The display of currentDate ('none', 'line' or 'column').
             firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
             weekendDays: "=?", // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
             showWeekends: "=?", // True if the weekends shall be displayed Default (true)
@@ -89,6 +90,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.allowTaskRowSwitching === undefined) $scope.allowTaskRowSwitching = true;
             if ($scope.allowRowSorting === undefined) $scope.allowRowSorting = true;
             if ($scope.allowLabelsResizing === undefined) $scope.allowLabelsResizing = true;
+            if ($scope.currentDateValue === undefined) $scope.currentDateValue = new Date();
+            if ($scope.currentDate === undefined) $scope.currentDate = "line";
             if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
             if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
             if ($scope.showWeekends === undefined) $scope.showWeekends = true;
@@ -103,6 +106,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Gantt logic
             $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
+            $scope.gantt.setCurrentDate($scope.currentDateValue);
             $scope.ganttHeader = $element.children()[1];
             $scope.ganttScroll = angular.element($element.children()[2]);
 
@@ -141,6 +145,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
+                }
+            });
+
+            $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue)) {
+                    $scope.gantt.setCurrentDate($scope.currentDateValue);
                 }
             });
 
@@ -492,6 +502,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.width = width;
         self.subScale = subScale;
 
+        self.getEndDate = function() {
+            return self.getDateByPosition(self.width);
+        };
+
         self.clone = function() {
             return new Column(self.date, self.left, self.width, self.subScale);
         };
@@ -499,6 +513,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.equals = function(other) {
             return self.date === other.date;
         };
+
     };
 
     var MonthColumn = function(date, left, width, subScale) {
@@ -1226,10 +1241,24 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
         };
 
+        self.setCurrentDate = function(currentDate) {
+            self._currentDate = currentDate;
+            angular.forEach(self.columns, function(column) {
+                if (currentDate >= column.date && currentDate < column.getEndDate()) {
+                    column.currentDate = currentDate;
+                } else {
+                    delete column.currentDate;
+                }
+            });
+        };
+
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
+            if (self._currentDate) {
+                self.setCurrentDate(self._currentDate);
+            }
             self.previousColumns = [];
             self.nextColumns = [];
 
@@ -2413,7 +2442,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         restrict: "A",
         require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
-            $scope.horizontal.push($element[0]);
+            $scope.scrollManager.horizontal.push($element[0]);
         }]
     };
 });;gantt.directive('gantScrollManager', function () {
@@ -2422,8 +2451,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     return {
         restrict: "A",
         controller: ['$scope', function($scope){
-            $scope.horizontal = [];
-            $scope.vertical = [];
+            $scope.scrollManager = {
+                horizontal: [],
+                vertical: []
+            };
         }]
     };
 });;gantt.directive('ganttScrollSender', ['$timeout', function ($timeout) {
@@ -2437,14 +2468,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var updateListeners = function() {
                 var i, l;
 
-                for (i = 0, l = $scope.vertical.length; i < l; i++) {
-                    var vElement = $scope.vertical[i];
+                for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
+                    var vElement = $scope.scrollManager.vertical[i];
                     if (vElement.style.top !== -el.scrollTop)
                         vElement.style.top = -el.scrollTop + 'px';
                 }
 
-                for (i = 0, l = $scope.horizontal.length; i < l; i++) {
-                    var hElement = $scope.horizontal[i];
+                for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
+                    var hElement = $scope.scrollManager.horizontal[i];
                     if (hElement.style.left !== -el.scrollLeft)
                         hElement.style.left = -el.scrollLeft + 'px';
                 }
@@ -2468,7 +2499,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         restrict: "A",
         require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
-            $scope.vertical.push($element[0]);
+            $scope.scrollManager.vertical.push($element[0]);
         }]
     };
 });;gantt.service('sortManager', [ function () {

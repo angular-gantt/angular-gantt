@@ -25,6 +25,10 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         self.width = width;
         self.subScale = subScale;
 
+        self.getEndDate = function() {
+            return self.getDateByPosition(self.width);
+        };
+
         self.clone = function() {
             return new Column(self.date, self.left, self.width, self.subScale);
         };
@@ -32,6 +36,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         self.equals = function(other) {
             return self.date === other.date;
         };
+
     };
 
     var MonthColumn = function(date, left, width, subScale) {

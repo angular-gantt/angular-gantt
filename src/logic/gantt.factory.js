@@ -102,10 +102,24 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
             }
         };
 
+        self.setCurrentDate = function(currentDate) {
+            self._currentDate = currentDate;
+            angular.forEach(self.columns, function(column) {
+                if (currentDate >= column.date && currentDate < column.getEndDate()) {
+                    column.currentDate = currentDate;
+                } else {
+                    delete column.currentDate;
+                }
+            });
+        };
+
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         var expandColumnsNoCheck = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
+            if (self._currentDate) {
+                self.setCurrentDate(self._currentDate);
+            }
             self.previousColumns = [];
             self.nextColumns = [];
 

@@ -94,9 +94,16 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   In your code call:
     `$scope.scrollToToday(new Date());`
 
-- **current-date**
+- **current-date** (default `line`)
 
-  Display a vertical line in the chart for the current date.
+  Enable display of the current date.
+  - `none`
+  - `line`
+  - `column`
+
+- **current-date-value** (default to system current date)
+
+  Define the current date in the chart.
 
   Usage:
   Specify the gantt property:
