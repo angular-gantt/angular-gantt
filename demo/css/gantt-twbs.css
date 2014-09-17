@@ -1,0 +1,19 @@
+.container-content {
+    margin: 10px;
+}
+
+.top-buffer {
+    margin-top: 8px;
+}
+
+.btn:focus {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn.active:focus {
+    color: #333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+}

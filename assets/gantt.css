@@ -5,7 +5,7 @@
 
 .gantt-scrollable {
     overflow-y: hidden;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .gantt-head, .gantt-labels {
@@ -92,12 +92,12 @@
     height: 100%;
 }
 
-.gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour {
+.gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour, .gantt-foreground-col-current-date {
     position: absolute;
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
-	display: inline-block;
+    display: inline-block;
     height: 100%;
     border-right: 1px solid #dddddd;
 }
@@ -106,8 +106,12 @@
     background-color: rgba(200, 200, 200, 0.3);
 }
 
+.gantt-foreground-col-current-date {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
 .gantt-background-row-alt {
-	background-color: #EFEFEF;
+    background-color: #EFEFEF;
 }
 
 .gantt-row {
@@ -125,7 +129,7 @@
 }
 
 .gantt-task {
-	position: absolute;
+    position: absolute;
     margin: auto;
     top: 0; bottom: 0;
     min-width: 0.6em;
@@ -149,6 +153,24 @@
     margin-right: 5px;
     margin-top: 0.3em;
     overflow: hidden;
+}
+
+.gantt-task-truncated-left {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0.3em;
+}
+
+.gantt-task-truncated-right {
+    position: absolute;
+    top: 0; bottom: 0;
+    right: 0.3em;
+}
+
+.gantt-task-truncated-left span, .gantt-task-truncated-right span {
+    color: #ffffff;
+    font-size: 1.5em;
+    font-weight: bolder;
 }
 
 .gantt-task-content span  {
@@ -224,4 +246,25 @@
 }
 .gantt-task-bounds-out {
     border-color: #FF6347;
+}
+
+.gantt-timespan {
+    position: absolute;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    display: inline-block;
+    height: 100%;
+
+    color: black;
+    background-color: rgba(158, 158, 158, 0.5);
+    border-left: 1px solid rgba(158, 158, 158, 1);
+    border-right: 1px solid rgba(158, 158, 158, 1);
+}
+
+.gantt-current-date-line {
+    border: 1px dotted rgba(255, 0, 0, 0.6);
+    height: 100%;
+    position: absolute;
+    z-index: 2;
 }

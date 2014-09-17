@@ -1,4 +1,4 @@
-<div class="gantt">
+<div class="gantt" gant-scroll-manager>
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
          gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50" on-labels-resized="raiseLabelsResized(width)" >
@@ -39,25 +39,37 @@
                  ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, c)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
                     {{ c.date | date:'MMMM yyyy' }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, c)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
                     {{ c.week }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, c)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
                     {{ viewScale === 'hour' && (c.date | date:'dd EEEE') || (c.date | date:'dd') }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-click="raiseColumnDateClickedEvent($event, row)"
+                      ng-dblclick="raiseColumnDateDblClickedEvent($event, row)"
+                      gantt-right-click="raiseColumnDateContextMenuEvent($event, row)">
                     {{ c.date | date:'HH' }}
                 </span>
             </div>
@@ -66,8 +78,9 @@
     <div class="gantt-scrollable"
          gantt-scroll-sender
          gantt-limit-updater
-         ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px', 'overflow-y': 'scroll'} || {'overflow-y': 'hidden'})"
-         ng-style="{'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'scroll')}">
+         ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px',
+         'overflow-y': 'auto', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')} ||
+         {'overflow-y': 'hidden', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')})">
         <div class="gantt-body"
              ng-style="{'width': gantt.width+'em'}">
             <div class="gantt-body-background">
@@ -78,15 +91,25 @@
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || 'gantt-foreground-col'))"
+                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+'em' }"></div>
+                <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || ((c.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                      ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">
                 </div>
             </div>
             <div class="gantt-body-content">
+                <div class="gantt-timespan"
+                     ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'em', 'width': timespan.width +'em', 'z-index': (timespan.priority || 0)}"
+                     ng-class="timespan.classes"
+                     ng-repeat="timespan in gantt.timespans">
+                    <gantt-tooltip ng-model="timespan" date-format="'MMM d'">
+                        <div class="gantt-task-content"><span>{{ timespan.subject }}</span></div>
+                    </gantt-tooltip>
+                </div>
                 <div class="gantt-row gantt-row-height"
                      ng-click="raiseDOMRowClickedEvent($event, row)"
                      ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"
+                     ng-mousedown="raiseDOMRowMouseDownEvent($event, row)"
                      gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
                      ng-repeat="row in gantt.rows track by row.id">
                     <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"></gantt-task>
@@ -108,7 +131,9 @@
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
             <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
+            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
+            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
         </div>
     </script>
 
