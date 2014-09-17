@@ -5,6 +5,10 @@ gantt.directive('ganttScrollSender', ['$timeout', function ($timeout) {
         restrict: "A",
         require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
+            $scope.ganttScroll = $element;
+            // Bind scroll event
+            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
+
             var el = $element[0];
             var updateListeners = function() {
                 var i, l;

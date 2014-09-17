@@ -107,8 +107,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.gantt.setCurrentDate($scope.currentDateValue);
-            $scope.ganttHeader = $element.children()[1];
-            $scope.ganttScroll = angular.element($element.children()[2]);
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -455,9 +453,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseTimespanUpdatedEvent = function(timespan, userTriggered) {
                 $scope.onTimespanUpdated({ event: { timespan: timespan, userTriggered: userTriggered } });
             };
-
-            // Bind scroll event
-            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.

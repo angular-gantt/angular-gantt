@@ -3,6 +3,7 @@ gantt.directive('gantScrollManager', function () {
 
     return {
         restrict: "A",
+        require: "^gantt",
         controller: ['$scope', function($scope){
             $scope.scrollManager = {
                 horizontal: [],

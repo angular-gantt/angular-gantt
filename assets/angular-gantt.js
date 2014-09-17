@@ -107,8 +107,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
             $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
             $scope.gantt.setCurrentDate($scope.currentDateValue);
-            $scope.ganttHeader = $element.children()[1];
-            $scope.ganttScroll = angular.element($element.children()[2]);
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -455,9 +453,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.raiseTimespanUpdatedEvent = function(timespan, userTriggered) {
                 $scope.onTimespanUpdated({ event: { timespan: timespan, userTriggered: userTriggered } });
             };
-
-            // Bind scroll event
-            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
@@ -2450,6 +2445,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return {
         restrict: "A",
+        require: "^gantt",
         controller: ['$scope', function($scope){
             $scope.scrollManager = {
                 horizontal: [],
@@ -2464,6 +2460,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         restrict: "A",
         require: "^scrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
+            $scope.ganttScroll = $element;
+            // Bind scroll event
+            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
+
             var el = $element[0];
             var updateListeners = function() {
                 var i, l;
@@ -3021,25 +3021,30 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     function keepScrollPos($scope, fn) {
         return function() {
-            var el = $scope.ganttScroll[0];
+            if ($scope.ganttScroll) {
+                var el = $scope.ganttScroll[0];
 
-            // Save scroll position
-            var oldScrollLeft = el.scrollLeft;
-            var left = $scope.gantt.getFirstColumn();
-            var pxToEmFactor = $scope.getPxToEmFactor();
+                // Save scroll position
+                var oldScrollLeft = el.scrollLeft;
+                var left = $scope.gantt.getFirstColumn();
+                var pxToEmFactor = $scope.getPxToEmFactor();
 
-            // Execute Gantt changes
-            fn.apply(this, arguments);
+                // Execute Gantt changes
+                fn.apply(this, arguments);
 
-            // Re-apply scroll position
-            left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
-            el.scrollLeft = left + oldScrollLeft;
+                // Re-apply scroll position
+                left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
+                el.scrollLeft = left + oldScrollLeft;
 
-            // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.
-            if (el.scrollLeft != left + oldScrollLeft) {
-                $timeout(function() {
-                    el.scrollLeft = left + oldScrollLeft;
-                }, 0, false);
+                // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.
+                if (el.scrollLeft != left + oldScrollLeft) {
+                    $timeout(function() {
+                        el.scrollLeft = left + oldScrollLeft;
+                    }, 0, false);
+                }
+            } else {
+                // Execute Gantt changes
+                fn.apply(this, arguments);
             }
         };
     }

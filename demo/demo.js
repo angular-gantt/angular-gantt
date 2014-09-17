@@ -23,7 +23,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
         $scope.loadTimespans(getSampleTimespans().timespan1);
         $scope.loadData(getSampleData().data1);
         $timeout(function() {
-            $scope.scrollToDate(new Date());
+            $scope.scrollToDate($scope.currentDate);
         },0,true);
     };
 
