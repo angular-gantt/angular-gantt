@@ -3,99 +3,150 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/gantt.css"/>
-    <title>Gantt chart for Angular.js</title>
-</head>
-<body style="padding: 10px">
-<a href="https://github.com/Schweigi/angular-gantt" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
-<div ng-controller="ctrl">
-    <h1>Gantt chart demo</h1>
 
-    <form role="form" class="form-inline">
-        <div class="form-group">
-            <span class="help-block">Action</span>
-            <div class="btn-group">
-                <button class="btn btn-default" ng-click="addSamples()">Load data</button>
-                <button class="btn btn-default" ng-click="removeSomeSamples()">Remove some</button>
-                <button class="btn btn-default" ng-click="removeSamples()">Remove all</button>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="demo/gantt.css"/>
+    <link rel="stylesheet" href="demo/gantt-twbs.css"/>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-animate.js"></script>
+    <script src="demo/lib/angular-strap.js"></script>
+    <script src="demo/lib/angular-strap.tpl.js"></script>
+    <script src="demo/demo_sample_data.js"></script>
+    <script src="demo/demo.js"></script>
+    <script src="assets/angular-gantt.js"></script>
+    <title>angular-gannt - gantt chart directive for AngularJS</title>
+</head>
+<body>
+<a href="https://github.com/Schweigi/angular-gantt" target="_blank"><img style="position: absolute; z-index:10000; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+<div ng-controller="ctrl">
+    <div class="navbar navbar-default" role="navigation" bs-navbar>
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">angular-gantt - gantt chart directive for AngularJS</a>
+        </div>
+    </div>
+
+    <div class="container-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel-group" bs-collapse>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a bs-collapse-toggle>Options</a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse" bs-collapse-target>
+                                <div class="panel-body">
+                                    <form class="form-inline">
+                                        <div class="form-group">
+                                            <span class="help-block">Action</span>
+                                            <div class="btn-group">
+                                                <button class="btn btn-default" ng-click="addSamples()">Load data</button>
+                                                <button class="btn btn-default" ng-click="removeSomeSamples()">Remove some</button>
+                                                <button class="btn btn-default" ng-click="removeSamples()">Remove all</button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <span class="help-block">View scale</span>
+                                            <select class="form-control" style="width: 100px;" ng-model="scale" ng-options="s for s in ['hour', 'day', 'week', 'month']"></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <span class="help-block">Sort order</span>
+                                            <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
+                                        </div>
+                                        <div class="form-group text-center">
+                                            <span class="help-block">Max height</span>
+                                            <div ng-show="maxHeight > 0">
+                                                <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
+                                            </div>
+                                            <div ng-show="maxHeight === 0">
+                                                <button class="btn btn-default" ng-click="maxHeight = 300">Activate</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group text-center">
+                                            <span class="help-block">Additional options</span>
+
+                                            <div class="btn-group" bs-checkbox-group>
+                                                <button type="button" class="btn btn-default" ng-model="options.showWeekends" bs-checkbox>Weekends</button>
+                                                <button type="button" class="btn btn-default" ng-model="options.showNonWorkHours" bs-checkbox>Working hours</button>
+                                                <button type="button" class="btn btn-default" ng-model="options.showCurrentDate" bs-checkbox>Current date</button>
+                                            </div>
+
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row top-buffer">
+                <div class="col-md-12">
+                    <div class="panel-group" bs-collapse>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a bs-collapse-toggle>Gantt</a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse" bs-collapse-target>
+                                <div class="panel-body">
+                                    <gantt first-day-of-week="1"
+                                           load-data="loadData = fn"
+                                           load-timespans="loadTimespans = fn"
+                                           center-date="scrollToDate = fn"
+                                           remove-data="removeData = fn"
+                                           clear-data="clearData = fn"
+                                           sort-mode="mode"
+                                           view-scale="scale"
+                                           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
+                                           column-sub-scale="scale === 'week' && 7 || 6"
+                                           work-hours="[8,9,10,11,12,13,14,15]"
+                                           show-non-work-hours="options.showNonWorkHours"
+                                           weekend-days="[0,6]"
+                                           show-weekends="options.showWeekends"
+                                           current-date="options.showCurrentDate ? currentDate : null"
+                                           max-height="maxHeight"
+                                           on-gantt-ready="addSamples()"
+                                           on-column-date-clicked="columnDateEvent(event)"
+                                           on-column-date-dbl-clicked="columnDateEvent(event)"
+                                           on-column-date-context-clicked="columnDateEvent(event)"
+                                           on-label-clicked="labelEvent(event)"
+                                           on-label-dbl-clicked="labelEvent(event)"
+                                           on-label-context-clicked="labelEvent(event)"
+                                           on-label-header-clicked="labelHeaderEvent(event)"
+                                           on-label-header-dbl-clicked="labelHeaderEvent(event)"
+                                           on-label-header-context-clicked="labelHeaderEvent(event)"
+                                           on-row-added="rowEvent(event)"
+                                           on-row-clicked="rowEvent(event)"
+                                           on-row-dbl-clicked="rowEvent(event)"
+                                           on-row-mouse-down="rowEvent(event)"
+                                           on-row-context-clicked="rowEvent(event)"
+                                           on-row-updated="rowEvent(event)"
+                                           on-scroll="scrollEvent(event)"
+                                           on-task-clicked="taskEvent(event)"
+                                           on-task-dbl-clicked="taskEvent(event)"
+                                           on-task-context-clicked="taskEvent(event)"
+                                           on-task-updated="taskEvent(event)">
+                                    </gantt>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row top-buffer">
+                <div class="col-md-12">
+                    <small>Gantt chart v0.6.1 for Angular.js by Marco Schweighauser (2014) | MIT License</small>
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <span class="help-block">View scale</span>
-            <select class="form-control" style="width: 100px;" ng-model="scale" ng-options="s for s in ['hour', 'day', 'week', 'month']"></select>
-        </div>
-        <div class="form-group">
-            <span class="help-block">Sort order</span>
-            <select class="form-control" style="width: 100px;" ng-model="mode" ng-options="m for m in ['name', 'date', 'custom']"></select>
-        </div>
-        <div class="form-group text-center">
-            <span class="help-block">Max height</span>
-            <div ng-show="maxHeight > 0">
-                <button class="btn btn-default" ng-click="maxHeight = 0">Deactivate</button>
-            </div>
-            <div ng-show="maxHeight === 0">
-                <button class="btn btn-default" ng-click="maxHeight = 300">Activate</button>
-            </div>
-        </div>
-        <div class="form-group text-center">
-            <span class="help-block">Additional options</span>
-            <div class="btn-group">
-                <button ng-show="showWeekends" class="btn btn-default" ng-click="showWeekends = false">Hide weekends</button>
-                <button ng-show="!showWeekends" class="btn btn-default" ng-click="showWeekends = true">Show weekends</button>
-                <button ng-show="!showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = true; subScale = 6">Show non working hours</button>
-                <button ng-show="showNonWorkHours" class="btn btn-default" ng-click="showNonWorkHours = false; subScale = 8">Hide non working hours</button>
-                <button ng-show="!showCurrentDate" class="btn btn-default" ng-click="showCurrentDate = true">Show current date</button>
-                <button ng-show="showCurrentDate" class="btn btn-default" ng-click="showCurrentDate = false">Hide current date</button>
-            </div>
-        </div>
-    </form>
-    <hr>
-    <gantt first-day-of-week="1"
-           load-data="loadData = fn"
-           load-timespans="loadTimespans = fn"
-           center-date="scrollToDate = fn"
-           remove-data="removeData = fn"
-           clear-data="clearData = fn"
-           sort-mode="mode"
-           view-scale="scale"
-           column-width="scale === 'month' && 20 || (scale === 'week' && 10 || 4)"
-           column-sub-scale="scale === 'week' && 7 || 6"
-           work-hours="[8,9,10,11,12,13,14,15]"
-           show-non-work-hours="showNonWorkHours"
-           weekend-days="[0,6]"
-           show-weekends="showWeekends"
-           current-date="showCurrentDate ? currentDate : null"
-           max-height="maxHeight"
-           on-gantt-ready="addSamples()"
-           on-column-date-clicked="columnDateEvent(event)"
-           on-column-date-dbl-clicked="columnDateEvent(event)"
-           on-column-date-context-clicked="columnDateEvent(event)"
-           on-label-clicked="labelEvent(event)"
-           on-label-dbl-clicked="labelEvent(event)"
-           on-label-context-clicked="labelEvent(event)"
-           on-label-header-clicked="labelHeaderEvent(event)"
-           on-label-header-dbl-clicked="labelHeaderEvent(event)"
-           on-label-header-context-clicked="labelHeaderEvent(event)"
-           on-row-added="rowEvent(event)"
-           on-row-clicked="rowEvent(event)"
-           on-row-dbl-clicked="rowEvent(event)"
-           on-row-mouse-down="rowEvent(event)"
-           on-row-context-clicked="rowEvent(event)"
-           on-row-updated="rowEvent(event)"
-           on-scroll="scrollEvent(event)"
-           on-task-clicked="taskEvent(event)"
-           on-task-dbl-clicked="taskEvent(event)"
-           on-task-context-clicked="taskEvent(event)"
-           on-task-updated="taskEvent(event)">
-    </gantt>
-    <hr>
-    <small>Gantt chart v0.6.1 for Angular.js by Marco Schweighauser (2014) | MIT License</small>
+    </div>
+
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
-<script src="assets/demo_sample_data.js"></script>
-<script src="assets/demo.js"></script>
-<script src="assets/angular-gantt.js"></script>
 </body>
 </html>

@@ -1,13 +1,16 @@
 "use strict";
 
-var demoApp = angular.module('demoApp', ['gantt']);
+var demoApp = angular.module('demoApp', ['gantt', 'mgcrea.ngStrap']);
 
 demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
     $scope.mode = "custom";
-    $scope.maxHeight = 0;
-    $scope.showWeekends = true;
-    $scope.showNonWorkHours = true;
-    $scope.showCurrentDate = true;
+
+    $scope.options = {
+        maxHeight: 0,
+        showWeekends: true,
+        showNonWorkHours: true,
+        showCurrentDate: true
+    };
 
     // Get today date for currentDate indicator
     $scope.currentDate = new Date(2013,9,25,15,0,0);
