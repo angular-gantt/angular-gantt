@@ -104,9 +104,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
-            $scope.gantt.setCurrentDate($scope.currentDateValue);
+            $scope.gantt = new Gantt($scope);
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -125,30 +123,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.removeAllData();
                     $scope.setData(newValue);
-                }
-            });
-
-            // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
-            // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width - $scope.labelsWidth / $scope.getPxToEmFactor(), $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    if (!$scope.gantt.reGenerateColumns()) {
-                        // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                        $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
-                    }
-                }
-            });
-
-            $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
-                }
-            });
-
-            $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setCurrentDate($scope.currentDateValue);
                 }
             });
 

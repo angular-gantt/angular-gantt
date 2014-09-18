@@ -104,9 +104,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if ($scope.showTooltips === undefined) $scope.showTooltips = true;
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-            $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
-            $scope.gantt.setCurrentDate($scope.currentDateValue);
+            $scope.gantt = new Gantt($scope);
 
             $scope.$watch("sortMode", function (newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -125,30 +123,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.removeAllData();
                     $scope.setData(newValue);
-                }
-            });
-
-            // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
-            // All those changes need a recalculation of the header columns
-            $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setViewScale($scope.viewScale, $scope.autoExpand, $scope.taskOutOfRange, $scope.width - $scope.labelsWidth / $scope.getPxToEmFactor(), $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    if (!$scope.gantt.reGenerateColumns()) {
-                        // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                        $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
-                    }
-                }
-            });
-
-            $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
-                }
-            });
-
-            $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.gantt.setCurrentDate($scope.currentDateValue);
                 }
             });
 
@@ -1151,7 +1125,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 }]);;gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
+    var Gantt = function($scope) {
         var self = this;
 
         self.rowsMap = {};
@@ -1163,29 +1137,48 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.previousColumns = [];
         self.nextColumns = [];
         self.width = 0;
-        self.autoExpand = autoExpand;
-        self.taskOutOfRange = taskOutOfRange;
         var dateRange;
+
+
+        // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
+        // All those changes need a recalculation of the header columns
+        $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.updateGenerators();
+                if (!self.reGenerateColumns()) {
+                    // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
+                    self.setDefaultDateRange($scope.fromDate, $scope.toDate);
+                }
+            }
+        });
+
+        $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.setDefaultDateRange($scope.fromDate, $scope.toDate);
+            }
+        });
+
+        $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.setCurrentDate($scope.currentDateValue);
+            }
+        });
 
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
-        self.setViewScale = function(viewScale, autoExpand, taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours) {
-            self.autoExpand = autoExpand;
-            self.taskOutOfRange = taskOutOfRange;
-
-            switch(viewScale) {
-                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours); break;
-                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator(width, columnWidth, columnSubScale, firstDayOfWeek); break;
-                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator(width, columnWidth, columnSubScale); break;
+        self.updateGenerators = function() {
+            switch($scope.viewScale) {
+                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours); break;
+                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours); break;
+                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek); break;
+                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale); break;
                 default:
                     throw "Unsupported view scale: " + viewScale;
             }
 
-            self.headerGenerator = new HeaderGenerator.instance(viewScale);
+            self.headerGenerator = new HeaderGenerator.instance($scope.viewScale);
         };
-
-        self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
+        self.updateGenerators();
 
         self.setDefaultDateRange = function(from, to) {
             if (from && to) {
@@ -1193,7 +1186,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
               expandColumnsNoCheck(dateRange.from, dateRange.to);
             }
         };
-
         var setDateRange = function(from, to) {
             from = df.clone(from);
             to = df.clone(to);
@@ -1251,6 +1243,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 expandColumnsNoCheck(minFrom, maxTo);
             }
         };
+        self.setDefaultDateRange($scope.fromDate, $scope.toDate);
 
         self.setCurrentDate = function(currentDate) {
             self._currentDate = currentDate;
@@ -1262,6 +1255,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             });
         };
+        self.setCurrentDate($scope.currentDateValue);
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
         var expandColumnsNoCheck = function(from ,to) {
@@ -1521,7 +1515,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
                     var task = row.addTask(rowData.tasks[i]);
 
-                    if (self.taskOutOfRange === 'expand') {
+                    if ($scope.taskOutOfRange === 'expand') {
                         expandDateRange(task.from, task.to);
                     }
 
