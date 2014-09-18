@@ -112,7 +112,7 @@
                      ng-mousedown="raiseDOMRowMouseDownEvent($event, row)"
                      gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
                      ng-repeat="row in gantt.rows track by row.id">
-                    <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"></gantt-task>
+                    <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width:this track by task.id"></gantt-task>
                 </div>
             </div>
         </div>

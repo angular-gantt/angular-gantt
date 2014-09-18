@@ -24,52 +24,32 @@ gantt.factory('Timespan', ['dateFunctions', function (df) {
         // Updates the pos and size of the timespan according to the from - to date
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.width = self.gantt.getPositionByDate(self.to) - self.left;
 
             if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
                 self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
             }
         };
 
         // Expands the start of the timespan to the specified position (in em)
         self.setFrom = function(x) {
-            if (x > self.left + self.width) {
-                x = self.left + self.width;
-            } else if (x < 0) {
-                x = 0;
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
             self.updatePosAndSize();
         };
 
         // Expands the end of the timespan to the specified position (in em)
         self.setTo = function(x) {
-            if (x < self.left) {
-                x = self.left;
-            } else if (x > self.gantt.width) {
-                x = self.gantt.width;
-            }
-
             self.to = self.gantt.getDateByPosition(x, false);
             self.updatePosAndSize();
         };
 
         // Moves the timespan to the specified position (in em)
         self.moveTo = function(x) {
-            if (x < 0) {
-                x = 0;
-            } else if (x + self.width >= self.gantt.width) {
-                x = self.gantt.width - self.width;
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
-            self.left = self.gantt.getPositionByDate(self.from);
-
-            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.to = self.gantt.getDateByPosition(x + self.width, false);
+            self.updatePosAndSize();
         };
 
         self.copy = function(timespan) {

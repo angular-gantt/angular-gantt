@@ -1998,14 +1998,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
-            if (self.gantt.taskOutOfRange !== 'truncate') {
-                if (x > self.left + self.width) {
-                    x = self.left + self.width;
-                } else if (x < 0) {
-                    x = 0;
-                }
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
@@ -2014,14 +2006,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
-            if (self.gantt.taskOutOfRange !== 'truncate') {
-                if (x < self.left) {
-                    x = self.left;
-                } else if (x > self.gantt.width) {
-                    x = self.gantt.width;
-                }
-            }
-
             self.to = self.gantt.getDateByPosition(x, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
@@ -2030,14 +2014,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
-            if (self.gantt.taskOutOfRange !== 'truncate') {
-                if (x < 0) {
-                    x = 0;
-                } else if (x + self.width >= self.gantt.width) {
-                    x = self.gantt.width - self.width;
-                }
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
             self.to = self.gantt.getDateByPosition(x + self.modelWidth, false);
             self.row.setMinMaxDateByTask(self);
@@ -2089,52 +2065,32 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Updates the pos and size of the timespan according to the from - to date
         self.updatePosAndSize = function() {
             self.left = self.gantt.getPositionByDate(self.from);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.width = self.gantt.getPositionByDate(self.to) - self.left;
 
             if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
                 self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = Math.round( (self.gantt.getPositionByDate(self.lct) - self.bounds.left) * 10) / 10;
+                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
             }
         };
 
         // Expands the start of the timespan to the specified position (in em)
         self.setFrom = function(x) {
-            if (x > self.left + self.width) {
-                x = self.left + self.width;
-            } else if (x < 0) {
-                x = 0;
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
             self.updatePosAndSize();
         };
 
         // Expands the end of the timespan to the specified position (in em)
         self.setTo = function(x) {
-            if (x < self.left) {
-                x = self.left;
-            } else if (x > self.gantt.width) {
-                x = self.gantt.width;
-            }
-
             self.to = self.gantt.getDateByPosition(x, false);
             self.updatePosAndSize();
         };
 
         // Moves the timespan to the specified position (in em)
         self.moveTo = function(x) {
-            if (x < 0) {
-                x = 0;
-            } else if (x + self.width >= self.gantt.width) {
-                x = self.gantt.width - self.width;
-            }
-
             self.from = self.gantt.getDateByPosition(x, true);
-            self.left = self.gantt.getPositionByDate(self.from);
-
-            self.to = self.gantt.getDateByPosition(self.left + self.width, false);
-            self.width = Math.round( (self.gantt.getPositionByDate(self.to) - self.left) * 10) / 10;
+            self.to = self.gantt.getDateByPosition(x + self.width, false);
+            self.updatePosAndSize();
         };
 
         self.copy = function(timespan) {
@@ -2319,16 +2275,16 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
             var el = $element[0];
-            var update = function() {
+            var scrollUpdate = function() {
                 $scope.scroll_start = el.scrollLeft / $scope.getPxToEmFactor();
                 $scope.scroll_width = el.offsetWidth / $scope.getPxToEmFactor();
             };
 
-            $element.bind('scroll', function() { $scope.$apply(function() { update(); }); });
+            $element.bind('scroll', function() { $scope.$apply(function() { scrollUpdate(); }); });
 
             $scope.$watch('gantt.width', function(newValue, oldValue) {
                 $timeout(function() {
-                    update();
+                    scrollUpdate();
                 }, 20, true);
             });
         }]
@@ -2337,19 +2293,29 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
-    return function(input, scroll_left, scroll_width) {
+    return function(input, scroll_left, scroll_width, $scope) {
         var res = [];
         for(var i = 0, l = input.length; i<l; i++) {
             var task = input[i];
-            // If task has a visible part on the screen or if the task is currently being moved/resized by the user
-            if (task.left >= scroll_left && task.left <= scroll_left + scroll_width ||
-                task.left + task.width >= scroll_left && task.left + task.width <= scroll_left + scroll_width ||
-                task.left < scroll_left && task.left + task.width > scroll_left + scroll_width ||
-                task.isMoving === true) {
-                    res.push(task);
-            }
-        }
 
+            if (task.isMoving) {
+                // If the task is moving, be sure to keep it existing.
+                res.push(task);
+            } else {
+                // If the task can be drawn with gantt columns only.
+                if (task.to > $scope.$parent.gantt.getFirstColumn().date && task.from < $scope.$parent.gantt.getLastColumn().getEndDate()) {
+
+                    // If task has a visible part on the screen
+                    if (task.left >= scroll_left && task.left <= scroll_left + scroll_width ||
+                        task.left + task.width >= scroll_left && task.left + task.width <= scroll_left + scroll_width ||
+                        task.left < scroll_left && task.left + task.width > scroll_left + scroll_width) {
+
+                        res.push(task);
+                    }
+                }
+            }
+
+        }
         return res;
     };
 }]);;gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
@@ -2771,11 +2737,33 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     }
 
                     if ($scope.allowTaskMoving) {
-                        $scope.task.moveTo(xInEm - mouseOffsetInEm);
+                        var x = xInEm - mouseOffsetInEm;
+                        if ($scope.taskOutOfRange !== 'truncate') {
+                            if (x < 0) {
+                                x = 0;
+                            } else if (x + $scope.task.width >= $scope.gantt.width) {
+                                x = $scope.gantt.width - $scope.task.width;
+                            }
+                        }
+                        $scope.task.moveTo(x);
                     }
                 } else if (mode === "E") {
+                    if ($scope.taskOutOfRange !== 'truncate') {
+                        if (xInEm < $scope.task.left) {
+                            xInEm = $scope.task.left;
+                        } else if (xInEm > $scope.gantt.width) {
+                            xInEm = $scope.gantt.width;
+                        }
+                    }
                     $scope.task.setTo(xInEm);
                 } else {
+                    if ($scope.taskOutOfRange !== 'truncate') {
+                        if (xInEm > $scope.task.left + $scope.task.width) {
+                            xInEm = $scope.task.left + $scope.task.width;
+                        } else if (xInEm < 0) {
+                            xInEm = 0;
+                        }
+                    }
                     $scope.task.setFrom(xInEm);
                 }
 

@@ -5,16 +5,16 @@ gantt.directive('ganttLimitUpdater', ['$timeout', function ($timeout) {
         restrict: "A",
         controller: ['$scope', '$element', function ($scope, $element) {
             var el = $element[0];
-            var update = function() {
+            var scrollUpdate = function() {
                 $scope.scroll_start = el.scrollLeft / $scope.getPxToEmFactor();
                 $scope.scroll_width = el.offsetWidth / $scope.getPxToEmFactor();
             };
 
-            $element.bind('scroll', function() { $scope.$apply(function() { update(); }); });
+            $element.bind('scroll', function() { $scope.$apply(function() { scrollUpdate(); }); });
 
             $scope.$watch('gantt.width', function(newValue, oldValue) {
                 $timeout(function() {
-                    update();
+                    scrollUpdate();
                 }, 20, true);
             });
         }]

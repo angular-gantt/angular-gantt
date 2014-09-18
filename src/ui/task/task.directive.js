@@ -112,11 +112,33 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                     }
 
                     if ($scope.allowTaskMoving) {
-                        $scope.task.moveTo(xInEm - mouseOffsetInEm);
+                        var x = xInEm - mouseOffsetInEm;
+                        if ($scope.taskOutOfRange !== 'truncate') {
+                            if (x < 0) {
+                                x = 0;
+                            } else if (x + $scope.task.width >= $scope.gantt.width) {
+                                x = $scope.gantt.width - $scope.task.width;
+                            }
+                        }
+                        $scope.task.moveTo(x);
                     }
                 } else if (mode === "E") {
+                    if ($scope.taskOutOfRange !== 'truncate') {
+                        if (xInEm < $scope.task.left) {
+                            xInEm = $scope.task.left;
+                        } else if (xInEm > $scope.gantt.width) {
+                            xInEm = $scope.gantt.width;
+                        }
+                    }
                     $scope.task.setTo(xInEm);
                 } else {
+                    if ($scope.taskOutOfRange !== 'truncate') {
+                        if (xInEm > $scope.task.left + $scope.task.width) {
+                            xInEm = $scope.task.left + $scope.task.width;
+                        } else if (xInEm < 0) {
+                            xInEm = 0;
+                        }
+                    }
                     $scope.task.setFrom(xInEm);
                 }
 
