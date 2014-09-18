@@ -17,6 +17,11 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
         currentDate: "line"
     };
 
+    $scope.$watch('fromDate+toDate', function() {
+        $scope.options.fromDate = $scope.fromDate;
+        $scope.options.toDate = $scope.toDate;
+    });
+
     // Get today date for currentDate indicator
     $scope.currentDate = new Date(2013,9,23,11,20,0);
 

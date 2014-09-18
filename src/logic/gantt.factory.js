@@ -148,6 +148,9 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
 
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
+
+            $scope.fromDate = from;
+            $scope.toDate = to;
         };
 
         var expandExtendedColumnsForPosition = function(x) {
