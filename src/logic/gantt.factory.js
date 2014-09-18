@@ -15,22 +15,19 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
         self.width = 0;
         var dateRange;
 
-
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        $scope.$watch('viewScale+autoExpand+taskOutOfRange+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+        $scope.$watch('viewScale+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
+                self.requestDateRange($scope.fromDate, $scope.toDate);
                 self.buildGenerators();
-                if (!self.reGenerateColumns()) {
-                    // Re-generate failed, e.g. because there was no previous date-range. Try to apply the default range.
-                    self.setDefaultDateRange($scope.fromDate, $scope.toDate);
-                }
+                self.reGenerateColumns();
             }
         });
 
-        $scope.$watch('fromDate+toDate', function(newValue, oldValue) {
+        $scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.setDefaultDateRange($scope.fromDate, $scope.toDate);
+                self.requestDateRange($scope.fromDate, $scope.toDate);
             }
         });
 
@@ -56,12 +53,18 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
         };
         self.buildGenerators();
 
-        self.setDefaultDateRange = function(from, to) {
+        self.requestDateRange = function(from, to) {
             if (from && to) {
-              setDateRange(from, to);
-              expandColumnsNoCheck(dateRange.from, dateRange.to);
+                if ($scope.taskOutOfRange == 'expand') {
+                    setExpandedDateRange(from, to);
+                    expandColumns();
+                } else {
+                    setDateRange(from, to);
+                    generateColumns(dateRange.from, dateRange.to);
+                }
             }
         };
+
         var setDateRange = function(from, to) {
             from = df.clone(from);
             to = df.clone(to);
@@ -76,15 +79,7 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
             }
         };
 
-        // Expands the default date range. Even if there tasks are smaller the specified date range is shown.
-        self.expandDefaultDateRange = function(from, to) {
-            if (from !== undefined && to !== undefined) {
-                expandDateRange(from, to);
-                expandColumns();
-            }
-        };
-
-        var expandDateRange = function(from, to) {
+        var setExpandedDateRange = function(from, to) {
             from = from ? df.clone(from) : from;
             to = to ? df.clone(to) : to;
 
@@ -96,30 +91,48 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
                 if (from && from < dateRange.from) {
                     dateRange.from = from;
                 }
-
+                var minTaskFrom = dateRange.from;
+                angular.forEach(self.rows, function(row) {
+                   angular.forEach(row.tasks, function(task) {
+                       if  (minTaskFrom === null || minTaskFrom > task.from) {
+                           minTaskFrom = task.from;
+                       }
+                   });
+                });
+                dateRange.from = minTaskFrom;
                 if (to && to > dateRange.to) {
                     dateRange.to = to;
                 }
+                var maxTaskTo = null;
+                angular.forEach(self.rows, function(row) {
+                    angular.forEach(row.tasks, function(task) {
+                        if  (maxTaskTo === null || maxTaskTo < task.to) {
+                            maxTaskTo = task.to;
+                        }
+                    });
+                });
+                dateRange.to = maxTaskTo;
+
             }
         };
 
-        // Generates the Gantt columns according to the current dateRange. The columns are generated if necessary only.
+        // Generates the Gantt columns according to dateRange. The columns are generated if necessary only.
         var expandColumns = function() {
             if (dateRange === undefined) {
-                throw "From and to date range cannot be undefined";
+                return false;
             }
 
             // Only expand if expand is necessary
             if (self.columns.length === 0) {
-                expandColumnsNoCheck(dateRange.from, dateRange.to);
+                return generateColumns(dateRange.from, dateRange.to);
             } else if (self.columnGenerator.columnExpandNecessary(self.getFirstColumn().date, self.getLastColumn().date, dateRange.from, dateRange.to)) {
                 var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from: self.getFirstColumn().date;
                 var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
 
-                expandColumnsNoCheck(minFrom, maxTo);
+                return generateColumns(minFrom, maxTo);
             }
         };
-        self.setDefaultDateRange($scope.fromDate, $scope.toDate);
+        self.requestDateRange($scope.fromDate, $scope.toDate);
 
         self.setCurrentDate = function(currentDate) {
             self._currentDate = currentDate;
@@ -134,7 +147,7 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
         self.setCurrentDate($scope.currentDateValue);
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
-        var expandColumnsNoCheck = function(from ,to) {
+        var generateColumns = function(from ,to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
             if (self._currentDate) {
@@ -149,8 +162,11 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
 
+            setDateRange(from, to);
             $scope.fromDate = from;
             $scope.toDate = to;
+
+            return true;
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -359,9 +375,7 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
                 }
             }
 
-            if (dateRange !== undefined) {
-                expandColumns();
-            }
+            expandColumns();
         };
 
         // Adds a row or merges the row and its tasks if there is already one with the same id
@@ -395,7 +409,8 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
                     var task = row.addTask(rowData.tasks[i]);
 
                     if ($scope.taskOutOfRange === 'expand') {
-                        expandDateRange(task.from, task.to);
+                        setExpandedDateRange(task.from, task.to);
+                        expandColumns();
                     }
 
                     task.updatePosAndSize();
@@ -550,13 +565,11 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
                     addEventFn(timespan);
                 }
 
-                expandDateRange(timespan.from, timespan.to);
+                setExpandedDateRange(timespan.from, timespan.to);
                 timespan.updatePosAndSize();
             }
 
-            if (dateRange !== undefined) {
-                expandColumns();
-            }
+            expandColumns();
         };
 
         // Adds a timespan or merges the timespan if there is already one with the same id
