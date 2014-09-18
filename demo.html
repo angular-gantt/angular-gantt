@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="demo/ext/css/bootstrap.css">
     <link rel="stylesheet" href="assets/gantt.css"/>
     <link rel="stylesheet" href="demo/css/gantt-twbs.css"/>
-    <link rel="stylesheet" href="demo/css/angular-motion.css"/>
+    <link rel="stylesheet" href="demo/ext/css/angular-motion.css"/>
+    <link rel="stylesheet" href="demo/ext/css/font-awesome.css"/>
 
     <script src="demo/ext/js/angular.js"></script>
     <script src="demo/ext/js/angular-animate.js"></script>
@@ -40,58 +41,70 @@
                             </div>
                             <div class="panel-collapse" bs-collapse-target>
                                 <div class="panel-body">
-                                    <form class="form-inline">
-                                        <div class="form-group">
-                                            <span class="help-block">Scale</span>
-                                            <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['hour', 'day', 'week', 'month']" bs-select></button>
-                                        </div>
-                                        <div class="form-group">
-                                            <span class="help-block">Sort</span>
-                                            <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.mode" ng-options="m for m in ['name', 'date', 'custom']" bs-select></button>
-                                        </div>
+                                    <div class="container-fluid">
+                                        <div class="row">
+                                            <div class="form-inline">
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-search"></i> Scale</label><br>
+                                                    <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['hour', 'day', 'week', 'month']" bs-select></button>
+                                                </div>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
+                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.mode" ng-options="m for m in ['name', 'date', 'custom']" bs-select></button>
+                                                </div>
 
-                                        <div class="form-group">
-                                            <span class="help-block">Today</span>
-                                            <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.currentDate" ng-options="d for d in ['none', 'line', 'column']" bs-select></button>
-                                        </div>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-clock-o"></i> Today</label><br>
+                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.currentDate" ng-options="d for d in ['none', 'line', 'column']" bs-select></button>
+                                                </div>
 
-                                        <div class="form-group">
-                                            <span class="help-block">Auto Expand</span>
-                                            <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.autoExpand" ng-options="e for e in ['none', 'both', 'left', 'right']" bs-select></button>
-                                        </div>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-expand"></i> Expand</label><br>
+                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.autoExpand" ng-options="e for e in ['none', 'both', 'left', 'right']" bs-select></button>
+                                                </div>
 
-                                        <div class="form-group">
-                                            <span class="help-block text-center">Additional options</span>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-scissors"></i> Out of range</label><br>
+                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.taskOutOfRange" ng-options="e for e in ['expand', 'truncate']" bs-select></button>
+                                                </div>
 
-                                            <div class="btn-group" bs-checkbox-group>
-                                                <button type="button" class="btn btn-default" ng-model="options.showWeekends" bs-checkbox>Weekends</button>
-                                                <button type="button" class="btn btn-default" ng-model="options.showNonWorkHours" bs-checkbox>Working hours</button>
-                                                <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
-                                                <button type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-sun-o"></i> Working periods</label><br>
+                                                    <div class="btn-group" bs-checkbox-group>
+                                                        <button type="button" class="btn btn-default" ng-model="options.showWeekends" bs-checkbox>Weekends</button>
+                                                        <button type="button" class="btn btn-default" ng-model="options.showNonWorkHours" bs-checkbox>Non working hours</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
+                                                    <div class="btn-group" bs-checkbox-group>
+                                                        <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
+                                                        <button type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-calendar"></i> <i class="fa fa-arrows-h"></i> <i class="fa fa-calendar"></i> Date range</label><br>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" ng-model="options.fromDate" data-max-date="{{options.toDate}}" placeholder="From" bs-datepicker>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" ng-model="options.toDate" data-min-date="{{options.fromDate}}" placeholder="To" bs-datepicker>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-database"></i> Data actions</label><br>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-default" ng-click="addSamples()">Reload</button>
+                                                        <button class="btn btn-default" ng-click="removeSomeSamples()">Remove</button>
+                                                        <button class="btn btn-default" ng-click="removeSamples()">Clear</button>
+                                                    </div>
+                                                </div>
                                             </div>
-
                                         </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href="" bs-collapse-toggle>Data</a>
-                                </h4>
-                            </div>
-                            <div class="panel-collapse" bs-collapse-target>
-                                <div class="panel-body">
-                                    <form class="form-inline">
-                                        <div class="form-group">
-                                            <div class="btn-group">
-                                                <button class="btn btn-default" ng-click="addSamples()">Reload</button>
-                                                <button class="btn btn-default" ng-click="removeSomeSamples()">Remove</button>
-                                                <button class="btn btn-default" ng-click="removeSamples()">Clear</button>
-                                            </div>
-                                        </div>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -121,6 +134,9 @@
                                            column-sub-scale="options.scale === 'week' && 7 || 6"
                                            width="options.width && 160 || 0"
                                            auto-expand="options.autoExpand"
+                                           task-out-of-range="options.taskOutOfRange"
+                                           from-date = "options.fromDate"
+                                           to-date = "options.toDate"
                                            work-hours="[8,9,10,11,12,13,14,15]"
                                            show-non-work-hours="options.showNonWorkHours"
                                            weekend-days="[0,6]"

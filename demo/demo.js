@@ -9,6 +9,9 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
         maxHeight: false,
         width: false,
         autoExpand: 'none',
+        taskOutOfRange: 'expand',
+        fromDate: null,
+        toDate: null,
         showWeekends: true,
         showNonWorkHours: true,
         currentDate: "line"
