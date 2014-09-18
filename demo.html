@@ -56,6 +56,11 @@
                                         </div>
 
                                         <div class="form-group">
+                                            <span class="help-block">Auto Expand</span>
+                                            <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.autoExpand" ng-options="e for e in ['none', 'both', 'left', 'right']" bs-select></button>
+                                        </div>
+
+                                        <div class="form-group">
                                             <span class="help-block text-center">Additional options</span>
 
                                             <div class="btn-group" bs-checkbox-group>
@@ -115,6 +120,7 @@
                                            column-width="options.scale === 'month' && 20 || (options.scale === 'week' && 10 || 4)"
                                            column-sub-scale="options.scale === 'week' && 7 || 6"
                                            width="options.width && 160 || 0"
+                                           auto-expand="options.autoExpand"
                                            work-hours="[8,9,10,11,12,13,14,15]"
                                            show-non-work-hours="options.showNonWorkHours"
                                            weekend-days="[0,6]"
