@@ -6,10 +6,10 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         return Math.round(maxDateValue/column.width * currentPosition / (maxDateValue / column.subScale)) * (maxDateValue / column.subScale);
     };
 
-    var calcPbyD = function(column, date, maxDateValue, currentDateValue, a, b) {
+    var calcPbyD = function(column, date, maxDateValue, currentDateValue) {
         var factor;
 
-        if (date - column.date > 0 && a !== b) {
+        if (date - column.date > 0 && !column.containsDate(date)) {
             factor = 1;
         } else {
             factor = Math.round(currentDateValue/maxDateValue * column.subScale) / column.subScale;
@@ -47,6 +47,10 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             return new Column(column.date, column.left, column.width, column.subScale);
         };
 
+        column.containsDate = function(date) {
+            return date.getMonth() === column.date.getMonth();
+        };
+
         column.getDateByPosition = function(position) {
             if (position < 0) position = 0;
             if (position > column.width) position = column.width;
@@ -57,7 +61,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInMonth, date.getDate(), date.getMonth(), column.date.getMonth());
+            return calcPbyD(column, date, column.daysInMonth, date.getDate());
         };
 
         return column;
@@ -73,6 +77,10 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             var copy = new Column(column.date, column.left, column.width, column.subScale);
             copy.week = column.week;
             return copy;
+        };
+
+        column.containsDate = function(date) {
+            return getWeek(date) === getWeek(column.date);
         };
 
         // Adjusts the day so that the specified first day of week is index = 0
@@ -110,7 +118,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()), getWeek(date), getWeek(column.date));
+            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()));
         };
 
         return column;
@@ -120,7 +128,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         var column = new Column(date, left, width, subScale);
         column.isWeekend = isWeekend;
         column.showNonWorkHours = showNonWorkHours;
-        
+
         var startHour = 0;
         var endHour = 24;
 
@@ -133,6 +141,10 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             var copy = new Column(column.date, column.left, column.width, column.subScale);
             copy.isWeekend = column.isWeekend;
             return copy;
+        };
+
+        column.containsDate = function(date) {
+            return date.getDate() === column.date.getDate();
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -170,7 +182,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             var currentDateValue = date.getHours()-startHour;
             if (currentDateValue < 0) return column.left;
             else if (currentDateValue > maxDateValue) return column.left + column.width;
-            else return calcPbyD(column, date, maxDateValue, currentDateValue, date.getDate(), column.date.getDate());
+            else return calcPbyD(column, date, maxDateValue, currentDateValue);
         };
 
         return column;
@@ -186,6 +198,10 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             copy.isWeekend = column.isWeekend;
             copy.isWorkHour = column.isWorkHour;
             return copy;
+        };
+
+        column.containsDate = function(date) {
+            return date.getDate() === column.date.getDate() && date.getHours() === column.date.getHours();
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -216,7 +232,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         column.getPositionByDate = function(date) {
             if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
 
-            return calcPbyD(column, date, 60, date.getMinutes(), date.getHours(), column.date.getHours());
+            return calcPbyD(column, date, 60, date.getMinutes());
         };
 
         return column;
