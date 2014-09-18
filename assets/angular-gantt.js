@@ -1188,7 +1188,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         self.setDefaultDateRange = function(from, to) {
-            if (from !== undefined && to !== undefined) {
+            if (from && to) {
               setDateRange(from, to);
               expandColumnsNoCheck(dateRange.from, dateRange.to);
             }

@@ -38,7 +38,7 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
         self.setViewScale(viewScale, self.autoExpand, self.taskOutOfRange, width, columnWidth, columnSubScale, firstDayOfWeek, weekendDays, showWeekends, workHours, showNonWorkHours);
 
         self.setDefaultDateRange = function(from, to) {
-            if (from !== undefined && to !== undefined) {
+            if (from && to) {
               setDateRange(from, to);
               expandColumnsNoCheck(dateRange.from, dateRange.to);
             }
