@@ -155,6 +155,10 @@
     overflow: hidden;
 }
 
+.gantt-task-content span {
+    cursor: default;
+}
+
 .gantt-task-truncated-left {
     position: absolute;
     top: 0; bottom: 0;
