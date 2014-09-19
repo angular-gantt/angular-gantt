@@ -129,6 +129,22 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
   - 2 = in half steps
   - 24 (if view-scale = day) to display them very accurate
 
+- **filter-task**
+
+  Sets a filter on visible tasks using an angularJS expression. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+
+- **filter-task-comparator**
+
+  Sets the comparator to use for `filter-task`. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+
+- **filter-row**
+
+  Sets a filter on visible tasks using an angularJS expression. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+
+- **filter-row-comparator**
+
+  Sets the comparator to use for `filter-row`. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+
 - **first-day-of-week** (default: `1`)
 
   Specifies the first day of the week.

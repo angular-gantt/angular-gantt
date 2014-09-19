@@ -19,6 +19,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         },
         scope: {
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
+            filterTask: "=?", // Task filter as a angularJS expression
+            filterTaskComparator: "=?", // Comparator to use for the task filter
+            filterRow: "=?", // Row filter as a angularJS expression
+            filterRowComparator: "=?", // Comparator to use for the row filter
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
             width: "=?", // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),

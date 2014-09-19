@@ -1,4 +1,4 @@
-gantt.filter('ganttTaskLimit', [function () {
+gantt.filter('ganttTaskLimit', ['$filter', function ($filter) {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
@@ -25,6 +25,11 @@ gantt.filter('ganttTaskLimit', [function () {
             }
 
         }
+
+        if ($scope.filterTask) {
+            res = $filter('filter')(res, $scope.filterTask, $scope.filterTaskComparator);
+        }
+
         return res;
     };
 }]);

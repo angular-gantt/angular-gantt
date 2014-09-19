@@ -17,8 +17,10 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             var scrollTriggerDistance = 5;
 
             var windowElement = angular.element($window);
-            var ganttBodyElement = $element.parent().parent();
+            var ganttRowElement = $element.parent();
+            var ganttBodyElement = ganttRowElement.parent();
             var ganttScrollElement = ganttBodyElement.parent().parent();
+
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;
             var moveStartX;
@@ -181,9 +183,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             };
 
             var getRowByY = function(y) {
-                var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
-                var pos = Math.floor(y / rowHeight);
-                return $scope.task.row.gantt.rows[pos];
+                if (y >= ganttRowElement[0].offsetTop && y <= ganttRowElement[0].offsetTop + ganttRowElement[0].offsetHeight) {
+                    return $scope.task.row;
+                } else {
+                    var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.visibleRows.length;
+                    var pos = Math.floor(y / rowHeight);
+                    return $scope.task.row.gantt.visibleRows[pos];
+                }
             };
 
             var getMoveMode = function (e) {

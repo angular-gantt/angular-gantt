@@ -6,9 +6,11 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         self.rowsMap = {};
         self.rows = [];
+        self.visibleRows = [];
         self.timespansMap = {};
         self.timespans = [];
         self.columns = [];
+        self.visibleColumns = [];
         self.headers = {};
         self.previousColumns = [];
         self.nextColumns = [];
@@ -494,10 +496,10 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         // and by Ascending or Descending
         self.sortRows = function (expression) {
             var reverse = false;
-            var expression = mode;
-            if (mode.charAt(0) == '-') {
+            expression = expression;
+            if (expression.charAt(0) == '-') {
                 reverse = true;
-                expression = mode.substr(1);
+                expression = expression.substr(1);
             }
 
             var angularOrderBy = $filter('orderBy');

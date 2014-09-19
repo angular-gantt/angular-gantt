@@ -19,6 +19,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         },
         scope: {
             sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
+            filterTask: "=?", // Task filter as a angularJS expression
+            filterTaskComparator: "=?", // Comparator to use for the task filter
+            filterRow: "=?", // Row filter as a angularJS expression
+            filterRowComparator: "=?", // Comparator to use for the row filter
             viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
             width: "=?", // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
@@ -1130,9 +1134,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         self.rowsMap = {};
         self.rows = [];
+        self.visibleRows = [];
         self.timespansMap = {};
         self.timespans = [];
         self.columns = [];
+        self.visibleColumns = [];
         self.headers = {};
         self.previousColumns = [];
         self.nextColumns = [];
@@ -1616,23 +1622,23 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
         // Sort rows by the specified sort mode (name, order, custom)
         // and by Ascending or Descending
-        self.sortRows = function (mode) {
+        self.sortRows = function (expression) {
             var reverse = false;
-            var property = mode;
-            if (mode.charAt(0) == '-') {
+            expression = expression;
+            if (expression.charAt(0) == '-') {
                 reverse = true;
-                property = mode.substr(1);
+                expression = expression.substr(1);
             }
 
             var angularOrderBy = $filter('orderBy');
-            if (property === 'name') {
+            if (expression === 'name') {
                 self.rows = angularOrderBy(self.rows, 'description.toLowerCase()', reverse);
-            } else if (property === 'date') {
+            } else if (expression === 'date') {
                 self.rows = angularOrderBy(self.rows, 'minFromDate', reverse);
-            } else if (property === 'custom') {
+            } else if (expression === 'custom') {
                 self.rows = angularOrderBy(self.rows, 'order', reverse);
             } else {
-                self.rows = angularOrderBy(self.rows, property, reverse);
+                self.rows = angularOrderBy(self.rows, expression, reverse);
             }
         };
 
@@ -1791,6 +1797,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.order= order;
         self.tasksMap = {};
         self.tasks = [];
+        self.visibleTasks = [];
         self.data = data;
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id
@@ -2250,7 +2257,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             });
         }]
     };
-}]);;gantt.filter('ganttTaskLimit', [function () {
+}]);;gantt.filter('ganttRowLimit', ['$filter', function ($filter) {
+    // Returns only the rows which are visible on the screen
+    // Use the rows height and position to decide if a row is still visible
+    // TODO
+
+    return function(input, $scope) {
+        if ($scope.filterRow) {
+            input = $filter('filter')(input, $scope.filterRow, $scope.filterRowComparator);
+        }
+        return input;
+    };
+}]);;gantt.filter('ganttTaskLimit', ['$filter', function ($filter) {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
@@ -2277,6 +2295,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
 
         }
+
+        if ($scope.filterTask) {
+            res = $filter('filter')(res, $scope.filterTask, $scope.filterTaskComparator);
+        }
+
         return res;
     };
 }]);;gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', function ($document, debounce, mouseOffset) {
@@ -2603,8 +2626,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var scrollTriggerDistance = 5;
 
             var windowElement = angular.element($window);
-            var ganttBodyElement = $element.parent().parent();
+            var ganttRowElement = $element.parent();
+            var ganttBodyElement = ganttRowElement.parent();
             var ganttScrollElement = ganttBodyElement.parent().parent();
+
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;
             var moveStartX;
@@ -2767,9 +2792,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             var getRowByY = function(y) {
-                var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.rows.length;
-                var pos = Math.floor(y / rowHeight);
-                return $scope.task.row.gantt.rows[pos];
+                if (y >= ganttRowElement[0].offsetTop && y <= ganttRowElement[0].offsetTop + ganttRowElement[0].offsetHeight) {
+                    return $scope.task.row;
+                } else {
+                    var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.visibleRows.length;
+                    var pos = Math.floor(y / rowHeight);
+                    return $scope.task.row.gantt.visibleRows[pos];
+                }
             };
 
             var getMoveMode = function (e) {

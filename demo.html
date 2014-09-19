@@ -52,6 +52,14 @@
                                                     <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
                                                     <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.mode" ng-options="m for m in ['name', 'date', 'custom']" bs-select></button>
                                                 </div>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-filter"></i> Filter Tasks</label><br>
+                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.filterTask" ng-options="f[1] as f[0] for f in [['none', undefined], ['Concept', {subject: 'Concept'}], ['Test', {subject: 'Test'}]]" bs-select></button>
+                                                </div>
+                                                <div class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa-filter"></i> Filter Rows</label><br>
+                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.filterRow" ng-options="f[1] as f[0] for f in [['none', undefined], ['Concept', {description: 'Concept'}], ['Sprint', {description: 'Sprint'}]]" bs-select></button>
+                                                </div>
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-clock-o"></i> Today</label><br>
@@ -129,6 +137,8 @@
                             <div class="panel-collapse" bs-collapse-target>
                                 <div class="panel-body">
                                     <gantt first-day-of-week="1"
+                                           filter-task="options.filterTask"
+                                           filter-row="options.filterRow"
                                            load-data="loadData = fn"
                                            load-timespans="loadTimespans = fn"
                                            center-date="scrollToDate = fn"

@@ -23,7 +23,7 @@
                      ng-click="raiseLabelClickedEvent($event, row)"
                      ng-dblclick="raiseLabelDblClickedEvent($event, row)"
                      gantt-right-click="raiseLabelContextMenuEvent($event, row)"
-                     ng-repeat="row in gantt.rows track by $index">
+                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
                     </gantt-sortable>
@@ -87,14 +87,14 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows track by $index">
+                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
                 </div>
             </div>
             <div class="gantt-body-foreground">
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+'em' }"></div>
                 <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || ((c.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                     ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                     ng-repeat="c in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scroll_start:scroll_width) track by $index">
                 </div>
             </div>
             <div class="gantt-body-content">
@@ -111,8 +111,8 @@
                      ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"
                      ng-mousedown="raiseDOMRowMouseDownEvent($event, row)"
                      gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
-                     ng-repeat="row in gantt.rows track by row.id">
-                    <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width:this track by task.id"></gantt-task>
+                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by row.id">
+                    <gantt-task ng-repeat="task in row.visibleTasks = (row.tasks | ganttTaskLimit:scroll_start:scroll_width:this) track by task.id"></gantt-task>
                 </div>
             </div>
         </div>

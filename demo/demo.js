@@ -30,7 +30,9 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
         showNonWorkHours: true,
         currentDate: "line",
         draw: false,
-        readOnly: false
+        readOnly: false,
+        filterTask: null,
+        filterRow: null
     };
 
     $scope.$watch('fromDate+toDate', function() {
