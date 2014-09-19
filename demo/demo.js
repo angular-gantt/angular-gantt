@@ -31,8 +31,8 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
         currentDate: "line",
         draw: false,
         readOnly: false,
-        filterTask: null,
-        filterRow: null
+        filterTask: undefined,
+        filterRow: undefined
     };
 
     $scope.$watch('fromDate+toDate', function() {
