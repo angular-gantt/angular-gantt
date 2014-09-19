@@ -3,7 +3,7 @@ gantt.directive('ganttScrollSender', ['$timeout', function ($timeout) {
 
     return {
         restrict: "A",
-        require: "^scrollManager",
+        require: "^ganttScrollManager",
         controller: ['$scope', '$element', function ($scope, $element) {
             $scope.ganttScroll = $element;
             // Bind scroll event

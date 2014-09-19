@@ -1,4 +1,4 @@
-gantt.directive('gantScrollManager', function () {
+gantt.directive('ganttScrollManager', function () {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
     return {
