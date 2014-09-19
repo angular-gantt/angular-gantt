@@ -194,7 +194,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                $scope.gantt.expandDefaultDateRange(from, to);
+                $scope.gantt.requestDateRange(from, to);
             });
 
             $scope.raiseColumnDateClickedEvent = function(evt, column) {
@@ -397,7 +397,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Clears rows, task and columns
                 $scope.gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Clear all existing timespans
@@ -405,7 +405,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Clears rows, task and columns
                 $scope.gantt.removeAllTimespans();
                 // Restore default columns
-                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Add or update timespans

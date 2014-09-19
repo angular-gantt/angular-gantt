@@ -83,11 +83,11 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
             from = from ? df.clone(from) : from;
             to = to ? df.clone(to) : to;
 
-            if (dateRange === undefined && from && to) {
+            if (!dateRange && from && to) {
                 dateRange = {};
                 dateRange.from = from;
                 dateRange.to = to;
-            } else if (dateRange !== undefined) {
+            } else if (dateRange) {
                 if (from && from < dateRange.from) {
                     dateRange.from = from;
                 }
@@ -99,7 +99,9 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
                        }
                    });
                 });
-                dateRange.from = minTaskFrom;
+                if (minTaskFrom && minTaskFrom < dateRange.from) {
+                    dateRange.from = minTaskFrom;
+                }
                 if (to && to > dateRange.to) {
                     dateRange.to = to;
                 }
@@ -111,8 +113,9 @@ gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator',
                         }
                     });
                 });
-                dateRange.to = maxTaskTo;
-
+                if (maxTaskTo && maxTaskTo > dateRange.to) {
+                    dateRange.to = maxTaskTo;
+                }
             }
         };
 

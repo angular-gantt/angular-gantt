@@ -194,7 +194,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
-                $scope.gantt.expandDefaultDateRange(from, to);
+                $scope.gantt.requestDateRange(from, to);
             });
 
             $scope.raiseColumnDateClickedEvent = function(evt, column) {
@@ -397,7 +397,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Clears rows, task and columns
                 $scope.gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.setDefaultDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Clear all existing timespans
@@ -405,7 +405,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Clears rows, task and columns
                 $scope.gantt.removeAllTimespans();
                 // Restore default columns
-                $scope.gantt.expandDefaultDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
             };
 
             // Add or update timespans
@@ -1207,11 +1207,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             from = from ? df.clone(from) : from;
             to = to ? df.clone(to) : to;
 
-            if (dateRange === undefined && from && to) {
+            if (!dateRange && from && to) {
                 dateRange = {};
                 dateRange.from = from;
                 dateRange.to = to;
-            } else if (dateRange !== undefined) {
+            } else if (dateRange) {
                 if (from && from < dateRange.from) {
                     dateRange.from = from;
                 }
@@ -1223,7 +1223,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                        }
                    });
                 });
-                dateRange.from = minTaskFrom;
+                if (minTaskFrom && minTaskFrom < dateRange.from) {
+                    dateRange.from = minTaskFrom;
+                }
                 if (to && to > dateRange.to) {
                     dateRange.to = to;
                 }
@@ -1235,8 +1237,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                         }
                     });
                 });
-                dateRange.to = maxTaskTo;
-
+                if (maxTaskTo && maxTaskTo > dateRange.to) {
+                    dateRange.to = maxTaskTo;
+                }
             }
         };
 
