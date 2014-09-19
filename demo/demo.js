@@ -2,7 +2,21 @@
 
 var demoApp = angular.module('demoApp', ['gantt', 'ngAnimate', 'mgcrea.ngStrap']);
 
-demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
+demoApp.service('uuid', [ function () {
+    return {
+        s4: function() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        },
+        randomUuid: function () {
+            return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' +
+                this.s4() + '-' + this.s4() + this.s4() + this.s4();
+        }
+    };
+}]);
+
+demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $timeout, uuid) {
     $scope.options = {
         mode: "custom",
         scale: "day",
@@ -80,7 +94,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
             var endDate = new Date(startDate.getTime());
             //endDate.setDate(endDate.getDate());
             var infoTask =   {
-                id: (Math.floor((Math.random() * 1000) + 1)),  // Unique id of the task.
+                id: uuid.randomUuid(),  // Unique id of the task.
                 subject: "Test", // Subject shown on top of each task.
                 from: startDate, // Date can be a String, Timestamp or Date object.
                 to: endDate,// Date can be a String, Timestamp or Date object.
