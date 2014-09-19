@@ -199,6 +199,18 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
   Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
+- **header-show-month**, **header-show-week**, **header-show-day**, **header-show-hour**
+
+  Display corresponding header row.
+
+- **header-format-month**, **header-format-week**, **header-format-day**, **header-format-hour**
+
+  Format of header row.
+  
+  For `header-format-month`, `header-format-day`, `header-format-hour`, see [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date) for possible formats.
+  
+  `header-format-week` is not formatted with [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date), but with [sprintf](https://github.com/alexei/sprintf.js) (`'Week %s'`).
+
 - **labels-width** (default: `0` = Auto)
 
   This property defines the width of the label section on the left side of the Gantt. This property support two way binding. Therefore if the user resizes the label section any assigned scope variable will be updated too.
