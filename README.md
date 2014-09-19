@@ -1,9 +1,9 @@
 # angular-gantt, a Gantt chart directive for AngularJS
 A Gantt chart directive for AngularJS without any other dependencies.
 
-####<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">Stable version demo</a>
+###<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">Latest Stable Demo</a>
 
-####<a href="http://rawgit.com/Schweigi/angular-gantt/master/demo.html" target="_blank">Master branch demo</a>
+###<a href="http://rawgit.com/Schweigi/angular-gantt/master/demo.html" target="_blank">Master Unstable demo</a>
 
 ### Features
 - Usable with or without Bootstrap 3
@@ -21,42 +21,73 @@ A Gantt chart directive for AngularJS without any other dependencies.
 ### Requires
 - AngularJS >= 1.2.16
 
-### Usage
-Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
+### Install
 
-1. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
+#### Automatically (Using [bower](http://bower.io/), [grunt](http://gruntjs.com/) & [grunt-wiredep](https://github.com/stephenplusplus/grunt-wiredep))
+
+1. Download and install `angular-gantt`.
+
+    [Latest released version](https://github.com/Schweigi/angular-gantt/releases/latest) can also be installed in your project using [Bower](http://bower.io/)
+
+        bower install angular-gantt --save
+    
+    [Master branch version](https://github.com/Schweigi/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
+
+        bower install angular-gantt#master --save
+
+2. Wiredep your dependencies to automatically add [angular-gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML index, with all other dependencies declared in your project.
+
+        grunt wiredep
+
+#### Manually
+
+1. Download angular-gantt.
+    [Latest released version](https://github.com/Schweigi/angular-gantt/releases/latest) is available to 
+    [download](https://github.com/Schweigi/angular-gantt/releases/latest) on Github. 
+    
+    [Master branch version](https://github.com/Schweigi/angular-gantt/archive/master.zip) contains bleeding edge features, but may be very unstable.
+
+2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
+
+3. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
 
         <head><link rel="stylesheet" href="assets/gantt.css"/></head>
         <body><script src="assets/angular-gantt.js"></script></body>
-2. Include the module `gantt` to your Angular app modules.
+
+### Usage
+
+1. Include the module `gantt` to your Angular app modules.
 
         var myApp = angular.module('myApp', ['gantt']);
-3. Put directive `gantt` into your HTML code at the position you would like to show the Gantt chart.
+2. Put directive `gantt` into your HTML code at the position you would like to show the Gantt chart.
 
         <gantt></gantt>
+3. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. The event 'on-gantt-ready' can be used to get notified as soon as this is the case.
         
-4. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. The event 'on-gantt-ready' can be used to get notified as soon as this is the case.
-        
-        HTML:
+    ###### HTML
+    
         <gantt on-gantt-ready="ganttInitialized()"></gantt>
         
-        Javascript:
+    
+    ###### JavaScript
+        
         $scope.ganttInitialized = function() {
             // Start using the Gantt e.g. load data
         };
+    
 
-### How to build
+### Build
 1. Install [Grunt](http://gruntjs.com/getting-started)
 2. Run `npm install` to install all dependencies
 3. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
 
-Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
-
-### How to contribute
-1. Create a feature branch with a meaning full name based on the 'develop' branch
-2. Make all your changes inside this feature branch and make sure that those changes have been made in both source JS files and generated angular-gantt.js file (See chapter "How to build").
-3. After you finished adjust the README and sample app
-4. Create a pull-request for your feature branch
+### Contribute
+1. Create a feature branch with a meaning full name based on the `develop` branch.
+2. Make all your changes inside this feature branch. Only source files located in `src/**` and `assets/gantt.css` must
+be manually modified. `angular-gantt.js` and other `.js` files in `assets/**` are generated by the build (see "How to build")
+and no modification should be made manually to those files. Use `grunt watch` to build `angular-gantt.js` on the fly during development.
+3. After you finished adjust the `README` and the demo app.
+4. Create a pull-request for your feature branch.
 
 ### Attributes
 - **auto-expand** (default `none`)
@@ -131,19 +162,19 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 - **filter-task**
 
-  Sets a filter on visible tasks using an angularJS expression. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+  Sets an expression to filter on visible tasks using angularJS `$filter('filter')`. (value is `expression` as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
 
 - **filter-task-comparator**
 
-  Sets the comparator to use for `filter-task`. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+  Sets the comparator to use for `filter-task`. (value is `comparator` as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
 
 - **filter-row**
 
-  Sets a filter on visible tasks using an angularJS expression. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+  Sets an expression to filter on visible rows using angularJS `$filter('filter')`. (value is an `expression` as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
 
 - **filter-row-comparator**
 
-  Sets the comparator to use for `filter-row`. (see [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+  Sets the comparator to use for `filter-row`. (value is an `comparator` as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
 
 - **first-day-of-week** (default: `1`)
 
