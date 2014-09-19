@@ -81,7 +81,7 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 
 - **allow-row-sorting** (default `true`)
 
-  Defines if the user can sort the rows by himself. This will switch the `view-mode` to `custom` as soon as the user starts with the sort.
+  Defines if the user can sort the rows by himself. This will switch the `sort-mode` to `custom` as soon as the user starts with the sort.
 
 - **center-date**
 
@@ -242,9 +242,10 @@ Hint: Use `grunt watch` to build angular-gantt.js on the fly during development.
 - **sort-mode** (default: `name`)
 
   Sorts the rows by the given value.
-  - `name`: Sort by row description
-  - `date`: Sort by the earliest task `from` date of each row
-  - `custom`: Custom sort order using a property called **order** on each row
+  - `name`: Sort by row description (alias for `description.toLowerCase()`)
+  - `date`: Sort by the earliest task `from` date of each row (alias for `minFromDate`)
+  - `custom`: Sort by a property called **order** on each row (alias for `order`)
+  - `<expression>`: Sort using an angularJS expression (see [angularJS orderBy filter](https://docs.angularjs.org/api/ng/filter/orderBy)).
 
   Prepend a `-` in front to sort descending. E.g. `-date`
 

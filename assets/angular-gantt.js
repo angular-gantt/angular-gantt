@@ -1122,7 +1122,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         WeekGenerator: WeekColumnGenerator,
         MonthGenerator: MonthColumnGenerator
     };
-}]);;gantt.factory('Gantt', ['Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function (Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
+}]);;gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function ($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope) {
@@ -1614,68 +1614,25 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             b.order = order;
         };
 
-        // Sort helper to sort by the date of the task with the earliest from date.
-        // Rows with no min date will be sorted by name
-        var sortByDate = function (a, b) {
-            if (a.minFromDate === undefined && b.minFromDate === undefined) {
-                return sortByName(a, b);
-            } else if (a.minFromDate === undefined) {
-                return 1;
-            } else if (b.minFromDate === undefined) {
-                return -1;
-            } else {
-                return a.minFromDate - b.minFromDate;
-            }
-        };
-
-        // Sort helper to sort by description name (switch to localeCompare() in the future?)
-        var sortByName = function (a, b) {
-            if (a.description.toLowerCase() === b.description.toLowerCase()) {
-                return 0;
-            } else {
-                return (a.description.toLowerCase() < b.description.toLowerCase()) ? -1 : 1;
-            }
-        };
-
-        // Sort helper to sort by order.
-        // If a row has no order move it at the end. If both rows have no order they will be sorted by name.
-        var sortByCustom = function (a, b) {
-            if (a.order === undefined && b.order === undefined) {
-                return sortByName(a, b);
-            } else if (a.order === undefined) {
-                return 1;
-            } else if (b.order === undefined) {
-                return -1;
-            } else {
-                return a.order - b.order;
-            }
-        };
-
         // Sort rows by the specified sort mode (name, order, custom)
         // and by Ascending or Descending
         self.sortRows = function (mode) {
-            switch (mode) {
-                case "name":
-                    self.rows.sort(sortByName);
-                    break;
-                case "-name":
-                    self.rows.reverse(sortByName);
-                    break;
-                case "date":
-                    self.rows.sort(sortByDate);
-                    break;
-                case "-date":
-                    self.rows.reverse(sortByDate);
-                    break;
-                case "custom":
-                    self.rows.sort(sortByCustom);
-                    break;
-                case "-custom":
-                    self.rows.reverse(sortByCustom);
-                    break;
-                default:
-                    self.rows.sort(sortByDate);
-                    break;
+            var reverse = false;
+            var property = mode;
+            if (mode.charAt(0) == '-') {
+                reverse = true;
+                property = mode.substr(1);
+            }
+
+            var angularOrderBy = $filter('orderBy');
+            if (property === 'name') {
+                self.rows = angularOrderBy(self.rows, 'description.toLowerCase()', reverse);
+            } else if (property === 'date') {
+                self.rows = angularOrderBy(self.rows, 'minFromDate', reverse);
+            } else if (property === 'custom') {
+                self.rows = angularOrderBy(self.rows, 'order', reverse);
+            } else {
+                self.rows = angularOrderBy(self.rows, property, reverse);
             }
         };
 
