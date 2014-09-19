@@ -29,7 +29,8 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
         showWeekends: true,
         showNonWorkHours: true,
         currentDate: "line",
-        draw: false
+        draw: false,
+        readOnly: false
     };
 
     $scope.$watch('fromDate+toDate', function() {
@@ -88,7 +89,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
         console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
 
-        if ($scope.options.draw) {
+        if (!$scope.options.readOnly && $scope.options.draw) {
             // Example to draw task inside row
             if(event.userTriggered && event.evt.type == "mousedown" && (event.evt.target ? event.evt.target : event.evt.srcElement).className.indexOf('gantt-row') > -1)
             {

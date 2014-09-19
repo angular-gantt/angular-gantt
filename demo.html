@@ -71,6 +71,7 @@
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-pencil-square-o"></i> Edit</label><br>
                                                     <button type="button" class="btn btn-default" ng-model="options.draw" bs-checkbox>Draw</button>
+                                                    <button type="button" class="btn btn-default" ng-model="options.readOnly" bs-checkbox>readOnly</button>
                                                 </div>
 
                                                 <div class="form-group text-center">
@@ -133,6 +134,9 @@
                                            center-date="scrollToDate = fn"
                                            remove-data="removeData = fn"
                                            clear-data="clearData = fn"
+                                           allow-task-moving="!options.readOnly"
+                                           allow-task-resizing="!options.readOnly"
+                                           allow-task-row-switching="!options.readOnly"
                                            sort-mode="options.mode"
                                            view-scale="options.scale"
                                            column-width="options.scale === 'month' && 20 || (options.scale === 'week' && 10 || 4)"
