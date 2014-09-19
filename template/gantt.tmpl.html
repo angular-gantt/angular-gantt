@@ -36,7 +36,7 @@
         <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': gantt.width+'em'}">
             <div class="gantt-head-row"
-                 ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
+                 ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index"
