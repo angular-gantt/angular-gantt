@@ -2015,7 +2015,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
             self.from = self.gantt.getDateByPosition(x, true);
-            self.to = self.gantt.getDateByPosition(x + self.modelWidth, false);
+            var newTaskLeft = self.gantt.getPositionByDate(self.from);
+            self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, false);
             self.row.setMinMaxDateByTask(self);
             self.updatePosAndSize();
         };
