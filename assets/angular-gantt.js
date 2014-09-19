@@ -2695,7 +2695,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             $element.bind("mousemove", debounce(function (e) {
                 var mode = getMoveMode(e);
-                if (mode !== "" && mode !== "M") {
+                if (mode !== "" && ($scope.task.isMoving || mode !== "M")) {
                     $element.css("cursor", getCursor(mode));
                 } else {
                     $element.css("cursor", '');
@@ -2860,11 +2860,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(e) {
-                  $timeout(function() {
-                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
-                    clearScrollInterval();
-                    handleMove(mode, mousePos);
-                  });
+                    $timeout(function() {
+                        var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
+                        clearScrollInterval();
+                        handleMove(mode, mousePos);
+                    });
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
@@ -2876,6 +2876,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }).bindOnce();
 
                 // Show mouse move/resize cursor
+                $element.css("cursor", getCursor(mode));
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
                     '-webkit-user-select': 'none',
@@ -2924,13 +2925,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 // Enable the move mode again if this was the case.
                 enableMoveMode("M", $scope.task.mouseOffsetX);
             }
-
-
-
         }]
     };
-}]);
-;gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function ($timeout, $document, debounce, smartEvent) {
+}]);;gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function ($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
     return {

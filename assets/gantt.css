@@ -155,7 +155,7 @@
     overflow: hidden;
 }
 
-.gantt-task-content span {
+.gantt-task {
     cursor: default;
 }
 

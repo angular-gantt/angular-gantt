@@ -69,7 +69,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
             $element.bind("mousemove", debounce(function (e) {
                 var mode = getMoveMode(e);
-                if (mode !== "" && mode !== "M") {
+                if (mode !== "" && ($scope.task.isMoving || mode !== "M")) {
                     $element.css("cursor", getCursor(mode));
                 } else {
                     $element.css("cursor", '');
@@ -234,11 +234,11 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(e) {
-                  $timeout(function() {
-                    var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
-                    clearScrollInterval();
-                    handleMove(mode, mousePos);
-                  });
+                    $timeout(function() {
+                        var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
+                        clearScrollInterval();
+                        handleMove(mode, mousePos);
+                    });
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
@@ -250,6 +250,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 }).bindOnce();
 
                 // Show mouse move/resize cursor
+                $element.css("cursor", getCursor(mode));
                 angular.element($document[0].body).css({
                     '-moz-user-select': '-moz-none',
                     '-webkit-user-select': 'none',
@@ -298,9 +299,6 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 // Enable the move mode again if this was the case.
                 enableMoveMode("M", $scope.task.mouseOffsetX);
             }
-
-
-
         }]
     };
 }]);
