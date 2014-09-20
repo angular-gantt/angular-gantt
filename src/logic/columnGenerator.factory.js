@@ -74,10 +74,10 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                     left -= columnWidth * 24;
                 }
 
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, df.getDay(date));
 
                 for (var i = 0; i<24; i++) {
-                    var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
+                    var cDate = new Date(df.getFullYear(date), df.getMonth(date), df.getDate(date), i, 0, 0);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
@@ -184,13 +184,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                     break;
                 }
 
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, df.getDay(date));
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
                     var daysToPreviousWorkingDay = 1;
                     if(!showWeekends){ //days to next/prev working day is only relevant if weekends are hidden
-                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.getDay());
-                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
+                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, df.getDay(date));
+                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, df.getDay(date));
                     }
 
                     generatedCols.push(new Column.Day(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
@@ -344,7 +344,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
         var isToDateToExclude = function(to) {
-            return to.getDay() === firstDayOfWeek && df.isTimeZero(to);
+            return df.getDay(to) === firstDayOfWeek && df.isTimeZero(to);
         };
     };
 
@@ -420,7 +420,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
         var isToDateToExclude = function(to) {
-            return to.getDate() === 1 && df.isTimeZero(to);
+            return df.getDate(to) === 1 && df.isTimeZero(to);
         };
     };
 

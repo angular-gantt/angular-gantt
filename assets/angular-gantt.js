@@ -510,7 +510,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         column.containsDate = function(date) {
-            return date.getMonth() === column.date.getMonth();
+            return df.getMonth(date) === df.getMonth(column.date);
         };
 
         column.getDateByPosition = function(position) {
@@ -518,12 +518,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setDate(1 + calcDbyP(column, column.daysInMonth, position));
+            df.setDate(res, 1 + calcDbyP(column, column.daysInMonth, position));
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInMonth, date.getDate());
+            return calcPbyD(column, date, column.daysInMonth, df.getDate(date));
         };
 
         return column;
@@ -580,7 +580,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()));
+            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(df.getDay(date)));
         };
 
         return column;
@@ -606,7 +606,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         column.containsDate = function(date) {
-            return date.getDate() === column.date.getDate();
+            return df.getDate(date) === df.getDate(column.date);
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -630,7 +630,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }
 
-            res.setHours(hours);
+            df.setHours(res, hours);
             return res;
         };
 
@@ -641,7 +641,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if (df.setTimeZero(date,true) < df.setTimeZero(column.date, true)) return column.left;
 
             var maxDateValue = endHour-startHour;
-            var currentDateValue = date.getHours()-startHour;
+            var currentDateValue = df.getHours(date)-startHour;
             if (currentDateValue < 0) return column.left;
             else if (currentDateValue > maxDateValue) return column.left + column.width;
             else return calcPbyD(column, date, maxDateValue, currentDateValue);
@@ -663,7 +663,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         column.containsDate = function(date) {
-            return date.getDate() === column.date.getDate() && date.getHours() === column.date.getHours();
+            return df.getDate(date) === df.getDate(column.date) && df.getHours(date) === df.getHours(column.date);
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -687,14 +687,14 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 }
             }
 
-            res.setMinutes(minutes);
+            df.setMinutes(res, minutes);
             return res;
         };
 
         column.getPositionByDate = function(date) {
             if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
 
-            return calcPbyD(column, date, 60, date.getMinutes());
+            return calcPbyD(column, date, 60, df.getMinutes(date));
         };
 
         return column;
@@ -782,10 +782,10 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     left -= columnWidth * 24;
                 }
 
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, df.getDay(date));
 
                 for (var i = 0; i<24; i++) {
-                    var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
+                    var cDate = new Date(df.getFullYear(date), df.getMonth(date), df.getDate(date), i, 0, 0);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
@@ -892,13 +892,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     break;
                 }
 
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, df.getDay(date));
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
                     var daysToPreviousWorkingDay = 1;
                     if(!showWeekends){ //days to next/prev working day is only relevant if weekends are hidden
-                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.getDay());
-                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
+                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, df.getDay(date));
+                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, df.getDay(date));
                     }
 
                     generatedCols.push(new Column.Day(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
@@ -1052,7 +1052,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
         var isToDateToExclude = function(to) {
-            return to.getDay() === firstDayOfWeek && df.isTimeZero(to);
+            return df.getDay(to) === firstDayOfWeek && df.isTimeZero(to);
         };
     };
 
@@ -1128,7 +1128,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
         var isToDateToExclude = function(to) {
-            return to.getDate() === 1 && df.isTimeZero(to);
+            return df.getDate(to) === 1 && df.isTimeZero(to);
         };
     };
 
@@ -1720,7 +1720,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getDay() !== col.date.getDay()) {
+            if (i === 0 || df.getDay(columns[i-1].date) !== df.getDay(col.date)) {
                 header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
@@ -1754,7 +1754,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getMonth() !== col.date.getMonth()) {
+            if (i === 0 || df.getMonth(columns[i-1].date) !== df.getMonth(col.date)) {
                 header = new Column.Month(df.clone(col.date), col.left, col.width);
                 generatedHeaders.push(header);
             } else {
@@ -2114,7 +2114,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return [input[res[0]], input[res[1]]];
         }
     };
-}]);;gantt.service('dateFunctions', [ function () {
+}]);;gantt.service('dateFunctions', [ function() {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
         isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
@@ -2132,6 +2132,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var res = clone === true ? this.clone(date) : date;
             res.setHours(0);
             res.setMinutes(0);
+            res.setSeconds(0);
             res.setMilliseconds(0);
             return res;
         },
@@ -2186,13 +2187,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             res.setMinutes(res.getMinutes() + val);
             return res;
         },
+        addSeconds: function(date, val, clone) {
+            var res = clone === true ? this.clone(date) : date;
+            res.setSeconds(res.getSeconds() + val);
+            return res;
+        },
         addMilliseconds: function(date, val, clone) {
             var res = clone === true ? this.clone(date) : date;
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
         },
         isTimeZero: function(date) {
-            return date.getHours() === 0 && date.getMinutes() === 0 && date.getMinutes() === 0 && date.getMilliseconds() === 0;
+            return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
         },
         getDaysInMonth: function(date) {
             return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
@@ -3010,6 +3016,25 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
         }]
     };
+}]);;gantt.filter('ganttDate', ['$filter', function($filter, df) {
+    var defaultFilter = $filter('date');
+
+    if (typeof moment === 'function') {
+        return function(date, format) {
+            date = moment(date);
+            if (moment.isMoment(date)) {
+                // Those replacement are craps, but it makes default native formats working with momentJS
+                format = format.replace('yyyy', 'YYYY');
+                format = format.replace('yy', 'YY');
+                format = format.replace('dd', 'DD');
+
+                return date.utc().format(format);
+            }
+            return defaultFilter(date, format);
+        };
+    } else {
+        return defaultFilter;
+    }
 }]);;gantt.factory('debounce',['$timeout', function ($timeout) {
     function debounce(fn, timeout) {
         var nthCall = 0;

@@ -23,7 +23,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getDay() !== col.date.getDay()) {
+            if (i === 0 || df.getDay(columns[i-1].date) !== df.getDay(col.date)) {
                 header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
@@ -57,7 +57,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getMonth() !== col.date.getMonth()) {
+            if (i === 0 || df.getMonth(columns[i-1].date) !== df.getMonth(col.date)) {
                 header = new Column.Month(df.clone(col.date), col.left, col.width);
                 generatedHeaders.push(header);
             } else {
