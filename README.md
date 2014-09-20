@@ -51,8 +51,31 @@ A Gantt chart directive for AngularJS without any other dependencies.
 
 3. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
 
-        <head><link rel="stylesheet" href="assets/gantt.css"/></head>
-        <body><script src="assets/angular-gantt.js"></script></body>
+        <head>
+            <link rel="stylesheet" href="assets/gantt.css"/>
+        </head>
+        <body>
+            <script src="assets/angular-gantt.js"></script>
+        </body>
+
+#### MomentJS (optional)
+
+You may add the optional dependency [momentJS](http://momentjs.com/) to have more 
+[date format](http://momentjs.com/docs/#/displaying/format/) features, better
+[timezone support](http://momentjs.com/timezone/) and proper parsing from 
+[ISO 8061](http://en.wikipedia.org/wiki/ISO_8601) strings.
+
+To work properly, moment should be linked before angular-gantt.js
+
+        <head>
+            <link rel="stylesheet" href="assets/gantt.css"/>
+        </head>
+        <body>
+            <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.js"></script>
+            <script src="assets/angular-gantt.js"></script>
+        </body>
+
+Angular works well without momentJS, but rely on native Date parsing and format functions of your browser.
 
 ### Usage
 
