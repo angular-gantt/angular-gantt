@@ -27,7 +27,7 @@ A Gantt chart directive for AngularJS without any other dependencies.
 
 1. Download and install `angular-gantt`.
 
-    [Latest released version](https://github.com/Schweigi/angular-gantt/releases/latest) can also be installed in your project using [Bower](http://bower.io/)
+    [Latest released version](https://github.com/Schweigi/angular-gantt/releases/latest) can be installed in your project using [Bower](http://bower.io/)
 
         bower install angular-gantt --save
     
