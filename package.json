@@ -1,6 +1,6 @@
 {
   "name": "angular-gantt",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "A Gantt chart directive for AngularJS without any other dependencies.",
   "author": "Marco Schweighauser",
   "license": "MIT",
