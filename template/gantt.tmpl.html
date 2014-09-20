@@ -144,7 +144,10 @@
             <div class="gantt-task-info-content">
                 {{ task.subject }}</br>
                 <small>
-                    {{ task.isMilestone === true && (task.from | ganttDate:'MMM d, HH:mm') || (task.from | ganttDate:'MMM d, HH:mm') + ' - ' + (task.to | ganttDate:'MMM d, HH:mm') }}
+                    {{
+                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM d, HH:mm';
+                    task.isMilestone === true && (task.from | ganttDate:tooltipDateFormat) || (task.from | ganttDate:tooltipDateFormat) + ' - ' + (task.to | ganttDate:tooltipDateFormat)
+                    }}
                 </small>
             </div>
         </div>

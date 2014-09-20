@@ -54,6 +54,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             headerFormatWeek: "=?",
             headerFormatDay: "=?",
             headerFormatHour: "=?",
+            tooltipDateFormat: "=?",
             timespans: "=?",
             data: "=?",
             loadTimespans: "&",

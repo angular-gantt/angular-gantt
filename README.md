@@ -226,9 +226,13 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
   Format of header row.
   
-  For `header-format-month`, `header-format-day`, `header-format-hour`, see [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date) for possible formats.
+  For `header-format-month`, `header-format-day`, `header-format-hour`
   
-  `header-format-week` is not formatted with [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date), but with [sprintf](https://github.com/alexei/sprintf.js) (`'Week %s'`).
+  If using [momentJS](http://momentjs.com/), see [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
+  It using native date, see [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date).
+  
+  `header-format-week` is not formatted with [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date), but
+  with [sprintf](https://github.com/alexei/sprintf.js) (`'Week %s'`).
 
 - **labels-width** (default: `0` = Auto)
 
@@ -336,6 +340,13 @@ and no modification should be made manually to those files. Use `grunt watch` to
 - **template-url** (default: `template/gantt.tmpl.html`)
 
   URL of the Gantt HTML template. You need to specify this attribute if you put the template in a different folder otherwise the directive won't work.
+
+- **tooltip-date-format**
+
+  Format of the dates displayed in tooltip.
+  
+  If using [momentJS](http://momentjs.com/), see [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
+  It using native date, see [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date).
 
 - **view-scale** (default: `day`)
 
