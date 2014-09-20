@@ -2114,7 +2114,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             return [input[res[0]], input[res[1]]];
         }
     };
-}]);;gantt.service('dateFunctions', [ function () {
+}]);;gantt.service('dateFunctions', [ function() {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
         isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
@@ -2132,6 +2132,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             var res = clone === true ? this.clone(date) : date;
             res.setHours(0);
             res.setMinutes(0);
+            res.setSeconds(0);
             res.setMilliseconds(0);
             return res;
         },
@@ -2186,13 +2187,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             res.setMinutes(res.getMinutes() + val);
             return res;
         },
+        addSeconds: function(date, val, clone) {
+            var res = clone === true ? this.clone(date) : date;
+            res.setSeconds(res.getSeconds() + val);
+            return res;
+        },
         addMilliseconds: function(date, val, clone) {
             var res = clone === true ? this.clone(date) : date;
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
         },
         isTimeZero: function(date) {
-            return date.getHours() === 0 && date.getMinutes() === 0 && date.getMinutes() === 0 && date.getMilliseconds() === 0;
+            return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
         },
         getDaysInMonth: function(date) {
             return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
@@ -3010,6 +3016,26 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
         }]
     };
+}]);;gantt.filter('ganttDate', ['$filter', function($filter, df) {
+    var defaultFilter = $filter('date');
+
+    if (typeof moment === 'function') {
+        return function(date, format) {
+            date = moment(date);
+            if (moment.isMoment(date)) {
+                // Those replacement are craps, but it makes default native formats working with momentJS
+                format = format.replace('yyyy', 'YYYY');
+                format = format.replace('yy', 'YY');
+                format = format.replace('dd', 'DD');
+                format = format.replace('EEEE', 'dddd');
+
+                return date.utc().format(format);
+            }
+            return defaultFilter(date, format);
+        };
+    } else {
+        return defaultFilter;
+    }
 }]);;gantt.factory('debounce',['$timeout', function ($timeout) {
     function debounce(fn, timeout) {
         var nthCall = 0;

@@ -9,6 +9,7 @@ gantt.filter('ganttDate', ['$filter', function($filter, df) {
                 format = format.replace('yyyy', 'YYYY');
                 format = format.replace('yy', 'YY');
                 format = format.replace('dd', 'DD');
+                format = format.replace('EEEE', 'dddd');
 
                 return date.utc().format(format);
             }
