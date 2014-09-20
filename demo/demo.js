@@ -2,16 +2,43 @@
 
 var demoApp = angular.module('demoApp', ['gantt', 'ngAnimate', 'mgcrea.ngStrap']);
 
-demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
+demoApp.service('uuid', [ function () {
+    return {
+        s4: function() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        },
+        randomUuid: function () {
+            return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' +
+                this.s4() + '-' + this.s4() + this.s4() + this.s4();
+        }
+    };
+}]);
+
+demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $timeout, uuid) {
     $scope.options = {
         mode: "custom",
         scale: "day",
         maxHeight: false,
         width: false,
+        autoExpand: 'none',
+        taskOutOfRange: 'expand',
+        fromDate: null,
+        toDate: null,
         showWeekends: true,
         showNonWorkHours: true,
-        currentDate: "line"
+        currentDate: "line",
+        draw: false,
+        readOnly: false,
+        filterTask: undefined,
+        filterRow: undefined
     };
+
+    $scope.$watch('fromDate+toDate', function() {
+        $scope.options.fromDate = $scope.fromDate;
+        $scope.options.toDate = $scope.toDate;
+    });
 
     // Get today date for currentDate indicator
     $scope.currentDate = new Date(2013,9,23,11,20,0);
@@ -63,25 +90,28 @@ demoApp.controller("ctrl", ['$scope', '$timeout', function($scope, $timeout) {
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
         console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
-        // Example to draw task inside row
-         if(event.userTriggered && event.evt.type == "mousedown" && event.evt.srcElement.className.indexOf('gantt-row') > -1)
+
+        if (!$scope.options.readOnly && $scope.options.draw) {
+            // Example to draw task inside row
+            if(event.userTriggered && event.evt.type == "mousedown" && (event.evt.target ? event.evt.target : event.evt.srcElement).className.indexOf('gantt-row') > -1)
             {
                 var startDate = event.date;
                 var endDate = new Date(startDate.getTime());
                 //endDate.setDate(endDate.getDate());
                 var infoTask =   {
-                    id: (Math.floor((Math.random() * 1000) + 1)),  // Unique id of the task.
+                    id: uuid.randomUuid(),  // Unique id of the task.
                     subject: "Test", // Subject shown on top of each task.
                     from: startDate, // Date can be a String, Timestamp or Date object.
                     to: endDate,// Date can be a String, Timestamp or Date object.
                     color: "#AA8833" , // Color of the task in HEX format (Optional).
                     data: {info: "La Cacca sulla torretta"} // Custom object. Use this to attach your own data (Optional).
-                    
+
                 };
                 var task = event.row.addTask(infoTask);
                 task.isCreating = true;
                 task.updatePosAndSize();
             }
+        }
     };
 
     $scope.scrollEvent = function(event) {

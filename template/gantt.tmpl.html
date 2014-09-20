@@ -1,4 +1,4 @@
-<div class="gantt" gant-scroll-manager>
+<div class="gantt" gantt-scroll-manager>
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
          gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50" on-labels-resized="raiseLabelsResized(width)" >
@@ -23,7 +23,7 @@
                      ng-click="raiseLabelClickedEvent($event, row)"
                      ng-dblclick="raiseLabelDblClickedEvent($event, row)"
                      gantt-right-click="raiseLabelContextMenuEvent($event, row)"
-                     ng-repeat="row in gantt.rows track by $index">
+                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.description }}</span>
                     </gantt-sortable>
@@ -36,41 +36,41 @@
         <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': gantt.width+'em'}">
             <div class="gantt-head-row"
-                 ng-class="(gantt.headers.week !== undefined && 'gantt-head-row-bottom' || '')"
-                 ng-if="gantt.headers.month !== undefined">
+                 ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
+                 ng-if="headerShowMonth && gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
-                    {{ c.date | date:'MMMM yyyy' }}
+                    {{ headerFormatMonth && (c.date | ganttDate:headerFormatMonth)  || (c.date | ganttDate:'MMMM yyyy') }}
                 </span>
             </div>
-            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
+            <div class="gantt-head-row" ng-if="headerShowWeek && gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
-                    {{ c.week }}
+                    {{headerFormatWeek && (headerFormatWeek | sprintf:c.week) || c.week }}
                 </span>
             </div>
-            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
+            <div class="gantt-head-row" ng-if="headerShowDay && gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
-                    {{ viewScale === 'hour' && (c.date | date:'dd EEEE') || (c.date | date:'dd') }}
+                    {{ headerFormatDay && (c.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (c.date | ganttDate: 'dd EEEE') || (c.date | ganttDate:'dd')) }}
                 </span>
             </div>
-            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
+            <div class="gantt-head-row" ng-if="headerShowHour && gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, row)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, row)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, row)">
-                    {{ c.date | date:'HH' }}
+                    {{ headerFormatHour && (c.date | ganttDate:headerFormatHour) || (c.date | ganttDate:'HH') }}
                 </span>
             </div>
         </div>
@@ -87,14 +87,14 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows track by $index">
+                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
                 </div>
             </div>
             <div class="gantt-body-foreground">
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+'em' }"></div>
                 <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || ((c.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                     ng-repeat="c in gantt.columns | ganttColumnLimit:scroll_start:scroll_width track by $index">
+                     ng-repeat="c in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scroll_start:scroll_width) track by $index">
                 </div>
             </div>
             <div class="gantt-body-content">
@@ -111,8 +111,8 @@
                      ng-dblclick="raiseDOMRowDblClickedEvent($event, row)"
                      ng-mousedown="raiseDOMRowMouseDownEvent($event, row)"
                      gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
-                     ng-repeat="row in gantt.rows track by row.id">
-                    <gantt-task ng-repeat="task in row.tasks | ganttTaskLimit:scroll_start:scroll_width track by task.id"></gantt-task>
+                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by row.id">
+                    <gantt-task ng-repeat="task in row.visibleTasks = (row.tasks | ganttTaskLimit:scroll_start:scroll_width:this) track by task.id"></gantt-task>
                 </div>
             </div>
         </div>
@@ -144,7 +144,10 @@
             <div class="gantt-task-info-content">
                 {{ task.subject }}</br>
                 <small>
-                    {{ task.isMilestone === true && (task.from | date:'MMM d, HH:mm') || (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}
+                    {{
+                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM d, HH:mm';
+                    task.isMilestone === true && (task.from | ganttDate:tooltipDateFormat) || (task.from | ganttDate:tooltipDateFormat) + ' - ' + (task.to | ganttDate:tooltipDateFormat)
+                    }}
                 </small>
             </div>
         </div>
