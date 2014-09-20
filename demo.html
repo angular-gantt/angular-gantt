@@ -10,18 +10,11 @@
     <link rel="stylesheet" href="demo/ext/css/angular-motion.css"/>
     <link rel="stylesheet" href="demo/ext/css/font-awesome.css"/>
 
-    <script src="demo/ext/js/angular.js"></script>
-    <script src="demo/ext/js/angular-animate.js"></script>
-    <script src="demo/ext/js/angular-strap.js"></script>
-    <script src="demo/ext/js/angular-strap.tpl.js"></script>
-    <script src="demo/ext/js/moment.js"></script>
-    <script src="demo/demo_sample_data.js"></script>
-    <script src="demo/demo.js"></script>
-    <script src="assets/angular-gantt.js"></script>
-    <title>angular-gantt - A Gantt chart directive for AngularJS</title>
+    <title>angular-gantt - A Gantt chart directive for AngularJS - Demo</title>
 </head>
 <body>
 <a href="https://github.com/Schweigi/angular-gantt" target="_blank"><img style="position: absolute; z-index:10000; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
 <div ng-controller="ctrl">
     <div class="navbar navbar-default" role="navigation" bs-navbar>
         <div class="navbar-header">
@@ -29,7 +22,17 @@
         </div>
     </div>
 
-    <div class="container-content">
+    <div class="container-content" ng-show="false">
+        <div class="container-fluid">
+            <div class="row top-buffer">
+                <div class="col-md-12">
+                    <i class="fa fa-cog fa-spin"></i> Loading angular-gantt demo ...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-content" ng-cloak="true">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
@@ -192,6 +195,11 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="container-content" ng-cloak="true">
+        <div class="container-fluid">
             <div class="row top-buffer">
                 <div class="col-md-12">
                     <small>angular-gantt (github master) - A Gantt chart directive for AngularJS by Marco Schweighauser (2014) | MIT License</small>
@@ -201,6 +209,15 @@
     </div>
 
 </div>
+
+<script src="demo/ext/js/moment.js"></script>
+<script src="demo/ext/js/angular.js"></script>
+<script src="demo/ext/js/angular-animate.js"></script>
+<script src="demo/ext/js/angular-strap.js"></script>
+<script src="demo/ext/js/angular-strap.tpl.js"></script>
+<script src="demo/demo_sample_data.js"></script>
+<script src="demo/demo.js"></script>
+<script src="assets/angular-gantt.js"></script>
 
 </body>
 </html>
