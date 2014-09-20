@@ -48,7 +48,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         };
 
         column.containsDate = function(date) {
-            return date.getMonth() === column.date.getMonth();
+            return df.getMonth(date) === df.getMonth(column.date);
         };
 
         column.getDateByPosition = function(position) {
@@ -56,12 +56,12 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             if (position > column.width) position = column.width;
 
             var res = df.clone(column.date);
-            res.setDate(1 + calcDbyP(column, column.daysInMonth, position));
+            df.setDate(res, 1 + calcDbyP(column, column.daysInMonth, position));
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInMonth, date.getDate());
+            return calcPbyD(column, date, column.daysInMonth, df.getDate(date));
         };
 
         return column;
@@ -118,7 +118,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()));
+            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(df.getDay(date)));
         };
 
         return column;
@@ -144,7 +144,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         };
 
         column.containsDate = function(date) {
-            return date.getDate() === column.date.getDate();
+            return df.getDate(date) === df.getDate(column.date);
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -168,7 +168,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
                 }
             }
 
-            res.setHours(hours);
+            df.setHours(res, hours);
             return res;
         };
 
@@ -179,7 +179,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
             if (df.setTimeZero(date,true) < df.setTimeZero(column.date, true)) return column.left;
 
             var maxDateValue = endHour-startHour;
-            var currentDateValue = date.getHours()-startHour;
+            var currentDateValue = df.getHours(date)-startHour;
             if (currentDateValue < 0) return column.left;
             else if (currentDateValue > maxDateValue) return column.left + column.width;
             else return calcPbyD(column, date, maxDateValue, currentDateValue);
@@ -201,7 +201,7 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
         };
 
         column.containsDate = function(date) {
-            return date.getDate() === column.date.getDate() && date.getHours() === column.date.getHours();
+            return df.getDate(date) === df.getDate(column.date) && df.getHours(date) === df.getHours(column.date);
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -225,14 +225,14 @@ gantt.factory('Column', [ 'dateFunctions', function (df) {
                 }
             }
 
-            res.setMinutes(minutes);
+            df.setMinutes(res, minutes);
             return res;
         };
 
         column.getPositionByDate = function(date) {
             if (df.setTimeZero(date,true) > df.setTimeZero(column.date, true)) return column.left + column.width;
 
-            return calcPbyD(column, date, 60, date.getMinutes());
+            return calcPbyD(column, date, 60, df.getMinutes(date));
         };
 
         return column;
