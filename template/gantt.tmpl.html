@@ -43,7 +43,7 @@
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
-                    {{ headerFormatMonth && (c.date | date:headerFormatMonth)  || (c.date | date:'MMMM yyyy') }}
+                    {{ headerFormatMonth && (c.date | ganttDate:headerFormatMonth)  || (c.date | ganttDate:'MMMM yyyy') }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="headerShowWeek && gantt.headers.week !== undefined">
@@ -61,7 +61,7 @@
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
-                    {{ headerFormatDay && (c.date | date:headerFormatDay) || (viewScale === 'hour' && (c.date | date: 'dd EEEE') || (c.date | date:'dd')) }}
+                    {{ headerFormatDay && (c.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (c.date | ganttDate: 'dd EEEE') || (c.date | ganttDate:'dd')) }}
                 </span>
             </div>
             <div class="gantt-head-row" ng-if="headerShowHour && gantt.headers.hour !== undefined">
@@ -70,7 +70,7 @@
                       ng-click="raiseColumnDateClickedEvent($event, row)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, row)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, row)">
-                    {{ headerFormatHour && (c.date | date:headerFormatHour) || (c.date | date:'HH') }}
+                    {{ headerFormatHour && (c.date | ganttDate:headerFormatHour) || (c.date | ganttDate:'HH') }}
                 </span>
             </div>
         </div>
@@ -144,7 +144,7 @@
             <div class="gantt-task-info-content">
                 {{ task.subject }}</br>
                 <small>
-                    {{ task.isMilestone === true && (task.from | date:'MMM d, HH:mm') || (task.from | date:'MMM d, HH:mm') + ' - ' + (task.to | date:'MMM d, HH:mm') }}
+                    {{ task.isMilestone === true && (task.from | ganttDate:'MMM d, HH:mm') || (task.from | ganttDate:'MMM d, HH:mm') + ' - ' + (task.to | ganttDate:'MMM d, HH:mm') }}
                 </small>
             </div>
         </div>

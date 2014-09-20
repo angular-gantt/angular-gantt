@@ -1,4 +1,4 @@
-gantt.service('dateFunctions', [ function () {
+gantt.service('dateFunctions', [ function() {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
         isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
@@ -16,6 +16,7 @@ gantt.service('dateFunctions', [ function () {
             var res = clone === true ? this.clone(date) : date;
             res.setHours(0);
             res.setMinutes(0);
+            res.setSeconds(0);
             res.setMilliseconds(0);
             return res;
         },
@@ -70,13 +71,18 @@ gantt.service('dateFunctions', [ function () {
             res.setMinutes(res.getMinutes() + val);
             return res;
         },
+        addSeconds: function(date, val, clone) {
+            var res = clone === true ? this.clone(date) : date;
+            res.setSeconds(res.getSeconds() + val);
+            return res;
+        },
         addMilliseconds: function(date, val, clone) {
             var res = clone === true ? this.clone(date) : date;
             res.setMilliseconds(res.getMilliseconds() + val);
             return res;
         },
         isTimeZero: function(date) {
-            return date.getHours() === 0 && date.getMinutes() === 0 && date.getMinutes() === 0 && date.getMilliseconds() === 0;
+            return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
         },
         getDaysInMonth: function(date) {
             return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
