@@ -1,9 +1,9 @@
 # angular-gantt, a Gantt chart directive for AngularJS
 A Gantt chart directive for AngularJS without any other dependencies.
 
-###<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">Latest Stable Demo</a>
+###<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">Latest Release Stable Demo</a>
 
-###<a href="http://rawgit.com/Schweigi/angular-gantt/master/demo.html" target="_blank">Master Unstable demo</a>
+###<a href="http://rawgit.com/Schweigi/angular-gantt/master/demo.html" target="_blank">Master Branch Unstable demo</a>
 
 ### Features
 - Usable with or without Bootstrap 3
@@ -160,21 +160,17 @@ and no modification should be made manually to those files. Use `grunt watch` to
   - 2 = in half steps
   - 24 (if view-scale = day) to display them very accurate
 
-- **filter-task**
+- **filter-task**, **filter-task-comparator**
 
-  Sets an expression to filter on visible tasks using angularJS `$filter('filter')`. (value is `expression` as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+  Sets an expression to filter on visible tasks using angularJS `$filter('filter')`. 
+  Value of `filter-task` is `expression`, and `filter-task-comparator` is `comparator`
+  as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter).
 
-- **filter-task-comparator**
+- **filter-row**, **filter-row-comparator**
 
-  Sets the comparator to use for `filter-task`. (value is `comparator` as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
-
-- **filter-row**
-
-  Sets an expression to filter on visible rows using angularJS `$filter('filter')`. (value is an `expression` as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
-
-- **filter-row-comparator**
-
-  Sets the comparator to use for `filter-row`. (value is an `comparator` as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter))
+  Sets an expression to filter on visible rows using angularJS `$filter('filter')`.
+  Value of `filter-row` is `expression`, and `filter-row-comparator` is `comparator`
+  as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter)).
 
 - **first-day-of-week** (default: `1`)
 
