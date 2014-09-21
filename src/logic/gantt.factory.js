@@ -503,11 +503,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             }
 
             var angularOrderBy = $filter('orderBy');
-            if (expression === 'name') {
-                self.rows = angularOrderBy(self.rows, 'name.toLowerCase()', reverse);
-            } else if (expression === 'date') {
-                self.rows = angularOrderBy(self.rows, 'from', reverse);
-            } else if (expression === 'custom') {
+            if (expression === 'custom') {
                 self.rows = angularOrderBy(self.rows, 'order', reverse);
             } else {
                 self.rows = angularOrderBy(self.rows, expression, reverse);

@@ -324,9 +324,10 @@ and no modification should be made manually to those files. Use `grunt watch` to
 - **sort-mode** (default: `name`)
 
   Sorts the rows by the given value.
-  - `name`: Sort by row description (alias for `description.toLowerCase()`)
-  - `date`: Sort by the earliest task `from` date of each row (alias for `minFromDate`)
-  - `custom`: Sort by a property called **order** on each row (alias for `order`)
+  - `name`: Sort by row name
+  - `from`: Sort by the earliest task from date of each row
+  - `to`: Sort by the latest task to date of each row
+  - `custom`: Sort by a property called **order** on each row
   - `<expression>`: Sort using an angularJS expression (see [angularJS orderBy filter](https://docs.angularjs.org/api/ng/filter/orderBy)).
 
   Prepend a `-` in front to sort descending. E.g. `-date`
