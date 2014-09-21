@@ -1,4 +1,5 @@
-gantt.factory('Timespan', ['dateFunctions', function (df) {
+'use strict';
+gantt.factory('Timespan', ['dateFunctions', function(df) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -12,7 +13,7 @@ gantt.factory('Timespan', ['dateFunctions', function (df) {
         self.to = df.clone(to);
         self.data = data;
 
-        if(est !== undefined && lct !== undefined){
+        if (est !== undefined && lct !== undefined) {
             self.est = df.clone(est);  //Earliest Start Time
             self.lct = df.clone(lct);  //Latest Completion Time
         }
@@ -59,8 +60,8 @@ gantt.factory('Timespan', ['dateFunctions', function (df) {
             self.priority = timespan.priority;
             self.from = df.clone(timespan.from);
             self.to = df.clone(timespan.to);
-            self.est = timespan.est !== undefined ? df.clone(timespan.est): undefined;
-            self.lct = timespan.lct !== undefined ? df.clone(timespan.lct): undefined;
+            self.est = timespan.est !== undefined ? df.clone(timespan.est) : undefined;
+            self.lct = timespan.lct !== undefined ? df.clone(timespan.lct) : undefined;
             self.data = timespan.data;
         };
 

@@ -1,3 +1,5 @@
+'use strict';
+/*jshint undef:false */
 module.exports = function(grunt) {
 
     grunt.initConfig({
@@ -14,7 +16,12 @@ module.exports = function(grunt) {
         },
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\nuse strict;\n',
+                // Replace all 'use strict' statements in the code with a single one at the top
+                process: function(src, filepath) {
+                    return '// Source: ' + filepath + '\n' +
+                        src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
+                },
                 sourceMap: true
             },
             dist: {
@@ -26,12 +33,8 @@ module.exports = function(grunt) {
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js'],
             options: {
-                // options here to override JSHint defaults
-                trailing: true,
-                globals: {
-                    browser: true,
-                    console: true
-                }
+                jshintrc: '.jshintrc',
+                reporter: require('jshint-stylish')
             }
         },
         watch: {

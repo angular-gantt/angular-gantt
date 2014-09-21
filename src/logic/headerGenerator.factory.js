@@ -1,4 +1,5 @@
-gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, df) {
+'use strict';
+gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];
@@ -6,7 +7,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getHours() !== col.date.getHours()) {
+            if (i === 0 || columns[i - 1].date.getHours() !== col.date.getHours()) {
                 header = new Column.Hour(df.clone(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
                 generatedHeaders.push(header);
             } else {
@@ -23,7 +24,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getDay() !== col.date.getDay()) {
+            if (i === 0 || columns[i - 1].date.getDay() !== col.date.getDay()) {
                 header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
@@ -40,7 +41,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || df.getWeek(columns[i-1].date) !== df.getWeek(col.date)) {
+            if (i === 0 || df.getWeek(columns[i - 1].date) !== df.getWeek(col.date)) {
                 header = new Column.Week(df.clone(col.date), col.left, col.width, df.getWeek(col.date));
                 generatedHeaders.push(header);
             } else {
@@ -57,7 +58,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i-1].date.getMonth() !== col.date.getMonth()) {
+            if (i === 0 || columns[i - 1].date.getMonth() !== col.date.getMonth()) {
                 header = new Column.Month(df.clone(col.date), col.left, col.width);
                 generatedHeaders.push(header);
             } else {
@@ -73,7 +74,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
             this.generate = function(columns) {
                 var headers = {};
 
-                switch(viewScale) {
+                switch (viewScale) {
                     case 'hour':
                         headers.hour = generateHourHeader(columns);
                         headers.day = generateDayHeader(columns);
@@ -95,7 +96,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function (Column, 
 
                         break;
                     default:
-                        throw "Unsupported view scale: " + viewScale;
+                        throw 'Unsupported view scale: ' + viewScale;
                 }
 
                 return headers;

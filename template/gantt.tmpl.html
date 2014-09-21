@@ -39,7 +39,7 @@
                  ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="headerShowMonth && gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
@@ -48,7 +48,7 @@
             </div>
             <div class="gantt-head-row" ng-if="headerShowWeek && gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
@@ -57,7 +57,7 @@
             </div>
             <div class="gantt-head-row" ng-if="headerShowDay && gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
@@ -66,7 +66,7 @@
             </div>
             <div class="gantt-head-row" ng-if="headerShowHour && gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scroll_start:scroll_width track by $index"
+                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, row)"
                       ng-dblclick="raiseColumnDateDblClickedEvent($event, row)"
                       gantt-right-click="raiseColumnDateContextMenuEvent($event, row)">
@@ -94,7 +94,7 @@
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+'em' }"></div>
                 <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || ((c.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
                      ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                     ng-repeat="c in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scroll_start:scroll_width) track by $index">
+                     ng-repeat="c in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">
                 </div>
             </div>
             <div class="gantt-body-content">
@@ -112,7 +112,7 @@
                      ng-mousedown="raiseDOMRowMouseDownEvent($event, row)"
                      gantt-right-click="raiseDOMRowContextMenuEvent($event, row)"
                      ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by row.id">
-                    <gantt-task ng-repeat="task in row.visibleTasks = (row.tasks | ganttTaskLimit:scroll_start:scroll_width:this) track by task.id"></gantt-task>
+                    <gantt-task ng-repeat="task in row.visibleTasks = (row.tasks | ganttTaskLimit:scrollStart:scrollWidth:this) track by task.id"></gantt-task>
                 </div>
             </div>
         </div>

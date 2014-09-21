@@ -2,6 +2,7 @@
 .DS_Store
 *.iml
 node_modules/
+bower_components/
 gh-pages/
 assets/*.min.js
 assets/*.map

@@ -1,4 +1,5 @@
-gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, df) {
+'use strict';
+gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
 
     // Returns a map to lookup if the current day is a weekend day
     var getWeekendDaysMap = function(weekendDays) {
@@ -65,7 +66,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var workHoursMap = getWorkHoursMap(workHours);
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
-            while(true) {
+            while (true) {
                 if ((maximumWidth && Math.abs(left) > maximumWidth + columnWidth * 24)) {
                     break;
                 }
@@ -76,14 +77,14 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
 
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
 
-                for (var i = 0; i<24; i++) {
+                for (var i = 0; i < 24; i++) {
                     var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
                         var hoursToNextWorkingDay = 1;
                         var hoursToPrevWorkingDay = 1;
-                        if(!showNonWorkHours) { //hours to next/prev working day is only relevant if non-work hours are hidden
+                        if (!showNonWorkHours) { //hours to next/prev working day is only relevant if non-work hours are hidden
                             hoursToNextWorkingDay = getHoursToNextWorkingDay(workHoursMap, cDate.getHours());
                             hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.getHours());
                         }
@@ -139,20 +140,20 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
         // Returns the count of hours until the next working day
         // For example with working hours from 8-16, Wed 9am would return 1, Thu 16pm would return 16
         // Should also be able to handle gaps like 8-12, 13-17
-        var getHoursToNextWorkingDay = function(workHoursMap, hour){
-            for(var i = 1; i < 25; i++) {
-                var nextHour = (hour+i)%24;
-                if(checkIsWorkHour(workHoursMap, nextHour)){
+        var getHoursToNextWorkingDay = function(workHoursMap, hour) {
+            for (var i = 1; i < 25; i++) {
+                var nextHour = (hour + i) % 24;
+                if (checkIsWorkHour(workHoursMap, nextHour)) {
                     return i;
                 }
             }
             return 1; //default to 1, should only get here if the whole day is a work day
         };
 
-        var getHoursToPreviousWorkingDay = function(workHours, hour){
-            for(var i = 1; i < 25; i++) {
-                var prevHour = (((hour-i)%24)+24)%24;
-                if(checkIsWorkHour(workHours, prevHour)){
+        var getHoursToPreviousWorkingDay = function(workHours, hour) {
+            for (var i = 1; i < 25; i++) {
+                var prevHour = (((hour - i) % 24) + 24) % 24;
+                if (checkIsWorkHour(workHours, prevHour)) {
                     return i;
                 }
             }
@@ -179,7 +180,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var left = 0;
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
 
-            while(true) {
+            while (true) {
                 if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
                     break;
                 }
@@ -188,13 +189,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
                     var daysToPreviousWorkingDay = 1;
-                    if(!showWeekends){ //days to next/prev working day is only relevant if weekends are hidden
+                    if (!showWeekends) { //days to next/prev working day is only relevant if weekends are hidden
                         daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.getDay());
                         daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
                     }
 
                     generatedCols.push(new Column.Day(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
-                    if (reverse) {
+                    if (reverse) {
                         left -= columnWidth;
                     } else {
                         left += columnWidth;
@@ -214,7 +215,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
                     }
                 }
 
-                date = df.addDays(date, reverse ? -1: 1);
+                date = df.addDays(date, reverse ? -1 : 1);
             }
 
             if (reverse) {
@@ -249,10 +250,10 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
 
         // Returns the count of days until the next working day
         // For example with a Mon-Fri working week, Wed would return 1, Fri would return 3, Sat would return 2
-        var getDaysToNextWorkingDay = function(weekendDays, day){
-            for(var i = 1; i < 8; i++) {
-                var nextDay = (day+i)%7;
-                if(!checkIsWeekend(weekendDays, nextDay)){
+        var getDaysToNextWorkingDay = function(weekendDays, day) {
+            for (var i = 1; i < 8; i++) {
+                var nextDay = (day + i) % 7;
+                if (!checkIsWeekend(weekendDays, nextDay)) {
                     return i;
                 }
             }
@@ -261,10 +262,10 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
 
         // Returns the count of days from the previous working day
         // For example with a Mon-Fri working week, Wed would return 1, Mon would return 3.
-        var getDaysToPrevWorkingDay = function(weekendDays, day){
-            for(var i = 1; i < 8; i++) {
-                var prevDay = (((day-i)%7)+7)%7;
-                if(!checkIsWeekend(weekendDays, prevDay)){
+        var getDaysToPrevWorkingDay = function(weekendDays, day) {
+            for (var i = 1; i < 8; i++) {
+                var prevDay = (((day - i) % 7) + 7) % 7;
+                if (!checkIsWeekend(weekendDays, prevDay)) {
                     return i;
                 }
             }
@@ -290,13 +291,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var generatedCols = [];
             var left = 0;
 
-            while(true) {
+            while (true) {
                 if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
                     break;
                 }
 
                 generatedCols.push(new Column.Week(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, firstDayOfWeek));
-                if (reverse) {
+                if (reverse) {
                     left -= columnWidth;
                 } else {
                     left += columnWidth;
@@ -318,7 +319,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             }
 
             if (reverse) {
-                if (isToDateToExclude(from)) {
+                if (isToDateToExclude(from)) {
                     generatedCols.shift();
                 }
                 generatedCols.reverse();
@@ -366,13 +367,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function (Column, 
             var generatedCols = [];
             var left = 0;
 
-            while(true) {
+            while (true) {
                 if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
                     break;
                 }
 
                 generatedCols.push(new Column.Month(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
-                if (reverse) {
+                if (reverse) {
                     left -= columnWidth;
                 } else {
                     left += columnWidth;

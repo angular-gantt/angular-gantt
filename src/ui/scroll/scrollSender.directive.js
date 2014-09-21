@@ -1,10 +1,11 @@
-gantt.directive('ganttScrollSender', ['$timeout', function ($timeout) {
+'use strict';
+gantt.directive('ganttScrollSender', ['$timeout', function($timeout) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
-        restrict: "A",
-        require: "^ganttScrollManager",
-        controller: ['$scope', '$element', function ($scope, $element) {
+        restrict: 'A',
+        require: '^ganttScrollManager',
+        controller: ['$scope', '$element', function($scope, $element) {
             $scope.ganttScroll = $element;
             // Bind scroll event
             $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
@@ -15,20 +16,22 @@ gantt.directive('ganttScrollSender', ['$timeout', function ($timeout) {
 
                 for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
                     var vElement = $scope.scrollManager.vertical[i];
-                    if (vElement.style.top !== -el.scrollTop)
+                    if (vElement.style.top !== -el.scrollTop) {
                         vElement.style.top = -el.scrollTop + 'px';
+                    }
                 }
 
                 for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
                     var hElement = $scope.scrollManager.horizontal[i];
-                    if (hElement.style.left !== -el.scrollLeft)
+                    if (hElement.style.left !== -el.scrollLeft) {
                         hElement.style.left = -el.scrollLeft + 'px';
+                    }
                 }
             };
 
             $element.bind('scroll', updateListeners);
 
-            $scope.$watch('gantt.width', function(newValue, oldValue) {
+            $scope.$watch('gantt.width', function(newValue) {
                 if (newValue === 0) {
                     $timeout(function() {
                         updateListeners();

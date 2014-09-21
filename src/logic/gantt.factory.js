@@ -1,4 +1,5 @@
-gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function ($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
+'use strict';
+gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope) {
@@ -42,13 +43,21 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
-            switch($scope.viewScale) {
-                case 'hour': self.columnGenerator = new ColumnGenerator.HourGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours); break;
-                case 'day': self.columnGenerator = new ColumnGenerator.DayGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours); break;
-                case 'week': self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek); break;
-                case 'month': self.columnGenerator = new ColumnGenerator.MonthGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale); break;
+            switch ($scope.viewScale) {
+                case 'hour':
+                    self.columnGenerator = new ColumnGenerator.HourGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    break;
+                case 'day':
+                    self.columnGenerator = new ColumnGenerator.DayGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
+                    break;
+                case 'week':
+                    self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek);
+                    break;
+                case 'month':
+                    self.columnGenerator = new ColumnGenerator.MonthGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
+                    break;
                 default:
-                    throw "Unsupported view scale: " + $scope.viewScale;
+                    throw 'Unsupported view scale: ' + $scope.viewScale;
             }
 
             self.headerGenerator = new HeaderGenerator.instance($scope.viewScale);
@@ -57,7 +66,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         self.requestDateRange = function(from, to) {
             if (from && to) {
-                if ($scope.taskOutOfRange == 'expand') {
+                if ($scope.taskOutOfRange === 'expand') {
                     setExpandedDateRange(from, to);
                     expandColumns();
                 } else {
@@ -95,11 +104,11 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 }
                 var minTaskFrom = dateRange.from;
                 angular.forEach(self.rows, function(row) {
-                   angular.forEach(row.tasks, function(task) {
-                       if  (minTaskFrom === null || minTaskFrom > task.from) {
-                           minTaskFrom = task.from;
-                       }
-                   });
+                    angular.forEach(row.tasks, function(task) {
+                        if (minTaskFrom === null || minTaskFrom > task.from) {
+                            minTaskFrom = task.from;
+                        }
+                    });
                 });
                 if (minTaskFrom && minTaskFrom < dateRange.from) {
                     dateRange.from = minTaskFrom;
@@ -110,7 +119,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 var maxTaskTo = null;
                 angular.forEach(self.rows, function(row) {
                     angular.forEach(row.tasks, function(task) {
-                        if  (maxTaskTo === null || maxTaskTo < task.to) {
+                        if (maxTaskTo === null || maxTaskTo < task.to) {
                             maxTaskTo = task.to;
                         }
                     });
@@ -131,8 +140,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             if (self.columns.length === 0) {
                 return generateColumns(dateRange.from, dateRange.to);
             } else if (self.columnGenerator.columnExpandNecessary(self.getFirstColumn().date, self.getLastColumn().date, dateRange.from, dateRange.to)) {
-                var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from: self.getFirstColumn().date;
-                var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to: self.getLastColumn().date;
+                var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from : self.getFirstColumn().date;
+                var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to : self.getLastColumn().date;
 
                 return generateColumns(minFrom, maxTo);
             }
@@ -152,7 +161,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         self.setCurrentDate($scope.currentDateValue);
 
         // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
-        var generateColumns = function(from ,to) {
+        var generateColumns = function(from, to) {
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
             if (self._currentDate) {
@@ -162,7 +171,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             self.nextColumns = [];
 
             var lastColumn = self.getLastColumn();
-            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
+            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
@@ -175,7 +184,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         };
 
         var expandExtendedColumnsForPosition = function(x) {
-            if (x < 0) {
+            if (x < 0) {
                 var firstColumn = self.getFirstColumn();
                 var from = firstColumn.date;
                 var firstExtendedColumn = self.getFirstColumn(true);
@@ -188,7 +197,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 var endDate = lastColumn.getDateByPosition(lastColumn.width);
                 var lastExtendedColumn = self.getLastColumn(true);
                 if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, null, x-self.width, self.width, false);
+                    self.nextColumns = self.columnGenerator.generate(endDate, null, x - self.width, self.width, false);
                 }
                 return true;
             }
@@ -208,7 +217,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 endDate = lastColumn.getDateByPosition(lastColumn.width);
             }
 
-            if (from && date < from) {
+            if (from && date < from) {
                 var firstExtendedColumn = self.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.date > date) {
                     self.previousColumns = self.columnGenerator.generate(from, date, null, 0, true);
@@ -262,7 +271,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 columns = self.nextColumns;
             }
             if (columns && columns.length > 0) {
-                return columns[columns.length-1];
+                return columns[columns.length - 1];
             } else {
                 return undefined;
             }
@@ -286,23 +295,31 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         self.getColumnByDate = function(date) {
             expandExtendedColumnsForDate(date);
             var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
-            var columns = bs.get(extendedColumns, date, function(c) { return c.date; });
-            return columns[0] !== undefined? columns[0]: columns[1];
+            var columns = bs.get(extendedColumns, date, function(c) {
+                return c.date;
+            });
+            return columns[0] !== undefined ? columns[0] : columns[1];
         };
 
         // Returns the column at the given position x (in em)
         self.getColumnByPosition = function(x) {
             expandExtendedColumnsForPosition(x);
             var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
-            return bs.get(extendedColumns, x, function(c) { return c.left; })[0];
+            return bs.get(extendedColumns, x, function(c) {
+                return c.left;
+            })[0];
         };
 
         // Returns the exact column date at the given position x (in em)
         self.getDateByPosition = function(x, snapForward) {
             var column = self.getColumnByPosition(x);
             if (column !== undefined) {
-                if(snapForward !== undefined) return column.getDateByPosition(x - column.left, snapForward);
-                else return column.getDateByPosition(x - column.left);
+                if (snapForward !== undefined) {
+                    return column.getDateByPosition(x - column.left, snapForward);
+                }
+                else {
+                    return column.getDateByPosition(x - column.left);
+                }
             } else {
                 return undefined;
             }
@@ -310,7 +327,9 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         // Returns the position inside the Gantt calculated by the given date
         self.getPositionByDate = function(date) {
-            if (!date) return undefined;
+            if (!date) {
+                return undefined;
+            }
             var column = self.getColumnByDate(date);
             if (column !== undefined) {
                 return column.getPositionByDate(date);
@@ -361,7 +380,9 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         self.getActiveHeadersCount = function() {
             var size = 0, key;
             for (key in self.headers) {
-                if (self.headers.hasOwnProperty(key)) size++;
+                if (self.headers.hasOwnProperty(key)) {
+                    size++;
+                }
             }
             return size;
         };
@@ -485,7 +506,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         };
 
         // Swaps two rows and changes the sort order to custom to display the swapped rows
-        self.swapRows = function (a, b) {
+        self.swapRows = function(a, b) {
             // Swap the two rows
             var order = a.order;
             a.order = b.order;
@@ -494,10 +515,10 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         // Sort rows by the specified sort mode (name, order, custom)
         // and by Ascending or Descending
-        self.sortRows = function (expression) {
+        self.sortRows = function(expression) {
             var reverse = false;
             expression = expression;
-            if (expression.charAt(0) == '-') {
+            if (expression.charAt(0) === '-') {
                 reverse = true;
                 expression = expression.substr(1);
             }

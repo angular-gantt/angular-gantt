@@ -1,11 +1,12 @@
-gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
+'use strict';
+gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
         self.name = name;
-        self.order= order;
+        self.order = order;
         self.from = undefined;
         self.to = undefined;
         self.tasksMap = {};
@@ -72,7 +73,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
             }
         };
 
-        self.setFromToByTask = function (task) {
+        self.setFromToByTask = function(task) {
             if (self.from === undefined) {
                 self.from = df.clone(task.from);
             } else if (task.from < self.from) {
@@ -87,7 +88,9 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
         };
 
         self.sortTasks = function() {
-            self.tasks.sort(function(t1, t2) { return t1.left - t2.left; });
+            self.tasks.sort(function(t1, t2) {
+                return t1.left - t2.left;
+            });
         };
 
         self.copy = function(row) {

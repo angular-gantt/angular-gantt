@@ -3,140 +3,193 @@
  Author: Marco Schweighauser (2014)
  License: MIT License. See README.md
  */
-
+'use strict';
+/*global gantt: true*/
 var gantt = angular.module('gantt', []);
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function (Gantt, df, mouseOffset, debounce, keepScrollPos) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function(Gantt, df, mouseOffset, debounce, keepScrollPos) {
     return {
-        restrict: "EA",
+        restrict: 'EA',
         replace: true,
-        templateUrl: function (tElement, tAttrs) {
+        templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return "template/gantt.tmpl.html";
+                return 'template/gantt.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
         },
         scope: {
-            sortMode: "=?", // Possible modes: 'name', 'date', 'custom'
-            filterTask: "=?", // Task filter as a angularJS expression
-            filterTaskComparator: "=?", // Comparator to use for the task filter
-            filterRow: "=?", // Row filter as a angularJS expression
-            filterRowComparator: "=?", // Comparator to use for the row filter
-            viewScale: "=?", // Possible scales: 'hour', 'day', 'week', 'month'
-            width: "=?", // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
-            columnWidth: "=?", // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
-            columnSubScale: "=?", // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
-            allowTaskMoving: "=?", // Set to true if tasks should be moveable by the user.
-            allowTaskResizing: "=?", // Set to true if tasks should be resizable by the user.
-            allowTaskRowSwitching: "=?", // If false then tasks can be moved inside their current row only. The user can not move it to another row.
-            allowRowSorting: "=?", // Set to true if the user should be able to re-order rows.
-            allowLabelsResizing: "=?", // Set to true if the user should be able to resize the label section.
-            fromDate: "=?", // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
-            toDate: "=?", // If not specified will use the latest task date (note: as of now this can only expand not shrink)
-            currentDateValue: "=?", // If specified, the current date will be displayed
-            currentDate: "=?", // The display of currentDate ('none', 'line' or 'column').
-            firstDayOfWeek: "=?", // 0=Sunday, 1=Monday, ... Default (1)
-            weekendDays: "=?", // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
-            showWeekends: "=?", // True if the weekends shall be displayed Default (true)
-            workHours: "=?", // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
-            showNonWorkHours: "=?", // True if the non work hours shall be displayed Default (true)
-            autoExpand: "=?", // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
-            taskOutOfRange: "=?", // Set this to auto-expand or truncate to define the behavior of tasks going out of visible range.
-            maxHeight: "=?", // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
-            labelsWidth: "=?", // Define the width of the labels section. Changes when the user is resizing the labels width
-            showTooltips: "=?", // True when tooltips shall be enabled. Default (true)
-            headerShowMonth: "=?",
-            headerShowWeek: "=?",
-            headerShowDay: "=?",
-            headerShowHour: "=?",
-            headerFormatMonth: "=?",
-            headerFormatWeek: "=?",
-            headerFormatDay: "=?",
-            headerFormatHour: "=?",
-            tooltipDateFormat: "=?",
-            timespans: "=?",
-            data: "=?",
-            loadTimespans: "&",
-            loadData: "&",
-            removeData: "&",
-            clearData: "&",
-            centerDate: "&",
-            onColumnDateClicked: "&",
-            onColumnDateDblClicked: "&",
-            onColumnDataContextClicked: "&",
-            onLabelsResized: "&",
-            onLabelClicked: "&",
-            onLabelDblClicked: "&",
-            onLabelContextClicked: "&",
-            onLabelHeaderClicked: "&",
-            onLabelHeaderDblClicked: "&",
-            onLabelHeaderContextClicked: "&",
-            onGanttReady: "&",
-            onTimespanAdded: "&",
-            onTimespanUpdated: "&",
-            onRowAdded: "&",
-            onRowClicked: "&",
-            onRowDblClicked: "&",
-            onRowContextClicked: "&",
-            onRowUpdated: "&",
-            onRowMouseDown: "&",
-            onScroll: "&",
-            onTaskClicked: "&",
-            onTaskDblClicked: "&",
-            onTaskContextClicked: "&",
-            onTaskUpdated: "&",
-            onTaskMoveBegin: "&",
-            onTaskMoveEnd: "&",
-            onTaskResizeBegin: "&",
-            onTaskResizeEnd: "&"
+            sortMode: '=?', // Possible modes: 'name', 'date', 'custom'
+            filterTask: '=?', // Task filter as a angularJS expression
+            filterTaskComparator: '=?', // Comparator to use for the task filter
+            filterRow: '=?', // Row filter as a angularJS expression
+            filterRowComparator: '=?', // Comparator to use for the row filter
+            viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
+            width: '=?', // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
+            columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
+            columnSubScale: '=?', // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
+            allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
+            allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
+            allowTaskRowSwitching: '=?', // If false then tasks can be moved inside their current row only. The user can not move it to another row.
+            allowRowSorting: '=?', // Set to true if the user should be able to re-order rows.
+            allowLabelsResizing: '=?', // Set to true if the user should be able to resize the label section.
+            fromDate: '=?', // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
+            toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
+            currentDateValue: '=?', // If specified, the current date will be displayed
+            currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
+            firstDayOfWeek: '=?', // 0=Sunday, 1=Monday, ... Default (1)
+            weekendDays: '=?', // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
+            showWeekends: '=?', // True if the weekends shall be displayed Default (true)
+            workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
+            showNonWorkHours: '=?', // True if the non work hours shall be displayed Default (true)
+            autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
+            taskOutOfRange: '=?', // Set this to auto-expand or truncate to define the behavior of tasks going out of visible range.
+            maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
+            labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
+            showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
+            headerShowMonth: '=?',
+            headerShowWeek: '=?',
+            headerShowDay: '=?',
+            headerShowHour: '=?',
+            headerFormatMonth: '=?',
+            headerFormatWeek: '=?',
+            headerFormatDay: '=?',
+            headerFormatHour: '=?',
+            tooltipDateFormat: '=?',
+            timespans: '=?',
+            data: '=?',
+            loadTimespans: '&',
+            loadData: '&',
+            removeData: '&',
+            clearData: '&',
+            centerDate: '&',
+            onColumnDateClicked: '&',
+            onColumnDateDblClicked: '&',
+            onColumnDataContextClicked: '&',
+            onLabelsResized: '&',
+            onLabelClicked: '&',
+            onLabelDblClicked: '&',
+            onLabelContextClicked: '&',
+            onLabelHeaderClicked: '&',
+            onLabelHeaderDblClicked: '&',
+            onLabelHeaderContextClicked: '&',
+            onGanttReady: '&',
+            onTimespanAdded: '&',
+            onTimespanUpdated: '&',
+            onRowAdded: '&',
+            onRowClicked: '&',
+            onRowDblClicked: '&',
+            onRowContextClicked: '&',
+            onRowUpdated: '&',
+            onRowMouseDown: '&',
+            onScroll: '&',
+            onTaskClicked: '&',
+            onTaskDblClicked: '&',
+            onTaskContextClicked: '&',
+            onTaskUpdated: '&',
+            onTaskMoveBegin: '&',
+            onTaskMoveEnd: '&',
+            onTaskResizeBegin: '&',
+            onTaskResizeEnd: '&'
         },
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ['$scope', function($scope) {
             // Initialize defaults
-            if ($scope.sortMode === undefined) $scope.sortMode = "name";
-            if ($scope.viewScale === undefined) $scope.viewScale = "day";
-            if ($scope.width === undefined) $scope.width = 0;
-            if ($scope.columnWidth === undefined) $scope.columnWidth = 2;
-            if ($scope.columnSubScale === undefined) $scope.columnSubScale = 4;
-            if ($scope.allowTaskMoving === undefined) $scope.allowTaskMoving = true;
-            if ($scope.allowTaskResizing === undefined) $scope.allowTaskResizing = true;
-            if ($scope.allowTaskRowSwitching === undefined) $scope.allowTaskRowSwitching = true;
-            if ($scope.allowRowSorting === undefined) $scope.allowRowSorting = true;
-            if ($scope.allowLabelsResizing === undefined) $scope.allowLabelsResizing = true;
-            if ($scope.currentDateValue === undefined) $scope.currentDateValue = new Date();
-            if ($scope.currentDate === undefined) $scope.currentDate = "line";
-            if ($scope.firstDayOfWeek === undefined) $scope.firstDayOfWeek = 1;
-            if ($scope.weekendDays === undefined) $scope.weekendDays = [0,6];
-            if ($scope.showWeekends === undefined) $scope.showWeekends = true;
-            if ($scope.workHours === undefined) $scope.workHours = [8,9,10,11,12,13,14,15,16];
-            if ($scope.showNonWorkHours === undefined) $scope.showNonWorkHours = true;
-            if ($scope.maxHeight === undefined) $scope.maxHeight = 0;
-            if ($scope.autoExpand === undefined) $scope.autoExpand = "none";
-            if ($scope.taskOutOfRange === undefined) $scope.taskOutOfRange = "expand";
-            if ($scope.labelsWidth === undefined) $scope.labelsWidth = 0;
-            if ($scope.showTooltips === undefined) $scope.showTooltips = true;
-            if ($scope.headerShowMonth === undefined) $scope.headerShowMonth = true;
-            if ($scope.headerShowWeek === undefined) $scope.headerShowWeek = true;
-            if ($scope.headerShowDay === undefined) $scope.headerShowDay = true;
-            if ($scope.headerShowHour === undefined) $scope.headerShowHour = true;
+            if ($scope.sortMode === undefined) {
+                $scope.sortMode = 'name';
+            }
+            if ($scope.viewScale === undefined) {
+                $scope.viewScale = 'day';
+            }
+            if ($scope.width === undefined) {
+                $scope.width = 0;
+            }
+            if ($scope.columnWidth === undefined) {
+                $scope.columnWidth = 2;
+            }
+            if ($scope.columnSubScale === undefined) {
+                $scope.columnSubScale = 4;
+            }
+            if ($scope.allowTaskMoving === undefined) {
+                $scope.allowTaskMoving = true;
+            }
+            if ($scope.allowTaskResizing === undefined) {
+                $scope.allowTaskResizing = true;
+            }
+            if ($scope.allowTaskRowSwitching === undefined) {
+                $scope.allowTaskRowSwitching = true;
+            }
+            if ($scope.allowRowSorting === undefined) {
+                $scope.allowRowSorting = true;
+            }
+            if ($scope.allowLabelsResizing === undefined) {
+                $scope.allowLabelsResizing = true;
+            }
+            if ($scope.currentDateValue === undefined) {
+                $scope.currentDateValue = new Date();
+            }
+            if ($scope.currentDate === undefined) {
+                $scope.currentDate = 'line';
+            }
+            if ($scope.firstDayOfWeek === undefined) {
+                $scope.firstDayOfWeek = 1;
+            }
+            if ($scope.weekendDays === undefined) {
+                $scope.weekendDays = [0, 6];
+            }
+            if ($scope.showWeekends === undefined) {
+                $scope.showWeekends = true;
+            }
+            if ($scope.workHours === undefined) {
+                $scope.workHours = [8, 9, 10, 11, 12, 13, 14, 15, 16];
+            }
+            if ($scope.showNonWorkHours === undefined) {
+                $scope.showNonWorkHours = true;
+            }
+            if ($scope.maxHeight === undefined) {
+                $scope.maxHeight = 0;
+            }
+            if ($scope.autoExpand === undefined) {
+                $scope.autoExpand = 'none';
+            }
+            if ($scope.taskOutOfRange === undefined) {
+                $scope.taskOutOfRange = 'expand';
+            }
+            if ($scope.labelsWidth === undefined) {
+                $scope.labelsWidth = 0;
+            }
+            if ($scope.showTooltips === undefined) {
+                $scope.showTooltips = true;
+            }
+            if ($scope.headerShowMonth === undefined) {
+                $scope.headerShowMonth = true;
+            }
+            if ($scope.headerShowWeek === undefined) {
+                $scope.headerShowWeek = true;
+            }
+            if ($scope.headerShowDay === undefined) {
+                $scope.headerShowDay = true;
+            }
+            if ($scope.headerShowHour === undefined) {
+                $scope.headerShowHour = true;
+            }
 
             // Gantt logic
             $scope.gantt = new Gantt($scope);
 
-            $scope.$watch("sortMode", function (newValue, oldValue) {
+            $scope.$watch('sortMode', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.sortRows();
                 }
             });
 
-            $scope.$watch("timespans", function (newValue, oldValue) {
+            $scope.$watch('timespans', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.removeAllTimespans();
                     $scope.setTimespans(newValue);
                 }
             });
 
-            $scope.$watch("data", function (newValue, oldValue) {
+            $scope.$watch('data', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
                     $scope.removeAllData();
                     $scope.setData(newValue);
@@ -148,7 +201,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
-            $scope.swapRows = function (a, b) {
+            $scope.swapRows = function(a, b) {
                 $scope.gantt.swapRows(a, b);
 
                 // Raise change events
@@ -156,15 +209,15 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.raiseRowUpdatedEvent(b, true);
 
                 // Switch to custom sort mode and trigger sort
-                if ($scope.sortMode !== "custom") {
-                    $scope.sortMode = "custom"; // Sort will be triggered by the watcher
+                if ($scope.sortMode !== 'custom') {
+                    $scope.sortMode = 'custom'; // Sort will be triggered by the watcher
                 } else {
                     $scope.sortRows();
                 }
             };
 
             // Sort rows by the current sort mode
-            $scope.sortRows = function () {
+            $scope.sortRows = function() {
                 $scope.gantt.sortRows($scope.sortMode);
             };
 
@@ -191,24 +244,24 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var column = $scope.gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
-                    $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth/2;
+                    $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth / 2;
                 }
             };
 
             $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
-                if ( $scope.autoExpand !== "both" && $scope.autoExpand !== true && $scope.autoExpand !== direction ){
+                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
                     return;
                 }
 
                 var from, to;
                 var expandHour = 1, expandDay = 31;
 
-                if (direction === "left") {
-                    from = $scope.viewScale === "hour" ? df.addDays(date, -expandHour, true) : df.addDays(date, -expandDay, true);
+                if (direction === 'left') {
+                    from = $scope.viewScale === 'hour' ? df.addDays(date, -expandHour, true) : df.addDays(date, -expandDay, true);
                     to = date;
                 } else {
                     from = date;
-                    to =  $scope.viewScale === "hour" ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
+                    to = $scope.viewScale === 'hour' ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
                 }
 
                 $scope.gantt.requestDateRange(from, to);
@@ -289,7 +342,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var xInEm = x / $scope.getPxToEmFactor();
                 var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
                 var date = $scope.gantt.getDateByPosition(xInEm);
-                
+
                 $scope.raiseRowMouseDownEvent(e, row, clickedColumn, date);
             };
 
@@ -389,13 +442,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             // Add or update rows and tasks
-            $scope.setData = keepScrollPos($scope, function (data) {
+            $scope.setData = keepScrollPos($scope, function(data) {
                 $scope.gantt.addData(data,
-                function(row) {
-                    $scope.raiseRowAddedEvent(row, false);
-                }, function(row) {
-                    $scope.raiseRowUpdatedEvent(row, false);
-                });
+                    function(row) {
+                        $scope.raiseRowAddedEvent(row, false);
+                    }, function(row) {
+                        $scope.raiseRowUpdatedEvent(row, false);
+                    });
 
                 $scope.sortRows();
             });
@@ -426,13 +479,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             };
 
             // Add or update timespans
-            $scope.setTimespans = keepScrollPos($scope, function (timespans) {
+            $scope.setTimespans = keepScrollPos($scope, function(timespans) {
                 $scope.gantt.addTimespans(timespans,
-                function(timespan) {
-                    $scope.raiseTimespanAddedEvent(timespan, false);
-                }, function(timespan) {
-                    $scope.raiseTimespanUpdatedEvent(timespan, false);
-                });
+                    function(timespan) {
+                        $scope.raiseTimespanAddedEvent(timespan, false);
+                    }, function(timespan) {
+                        $scope.raiseTimespanUpdatedEvent(timespan, false);
+                    });
 
                 $scope.sortRows();
             });
@@ -459,5 +512,5 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.onGanttReady();
         }
-    ]};
+        ]};
 }]);

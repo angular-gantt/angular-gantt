@@ -1,8 +1,13 @@
+'use strict';
 gantt.service('dateFunctions', [ function() {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
-        isNumber: function(n) { return !isNaN(parseFloat(n)) && isFinite(n); },
-        isString: function(o) { return typeof o == "string" || (typeof o == "object" && o.constructor === String);},
+        isNumber: function(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        },
+        isString: function(o) {
+            return typeof o === 'string' || (typeof o === 'object' && o.constructor === String);
+        },
         clone: function(date) {
             if (this.isString(date)) {
                 return new Date(Date.parse(date));
@@ -85,8 +90,9 @@ gantt.service('dateFunctions', [ function() {
             return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
         },
         getDaysInMonth: function(date) {
-            return new Date(date.getYear(), date.getMonth()+1, 0).getDate();
+            return new Date(date.getYear(), date.getMonth() + 1, 0).getDate();
         },
+        /*jshint bitwise:false */
         getWeek: function(date) {
             /* Returns the number of the week. The number is calculated according to ISO 8106 */
             var $y, $m, $d;
@@ -128,5 +134,6 @@ gantt.service('dateFunctions', [ function() {
 
             return w;
         }
+        /*jshint bitwise:true */
     };
 }]);

@@ -1,3 +1,4 @@
+'use strict';
 gantt.filter('sprintf', function() {
     function parse(str) {
         var args = [].slice.call(arguments, 1),

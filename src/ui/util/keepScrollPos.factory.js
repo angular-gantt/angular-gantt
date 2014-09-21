@@ -1,4 +1,5 @@
-gantt.factory('keepScrollPos',['$timeout', function ($timeout) {
+'use strict';
+gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
     // Make sure the scroll position will be at the same place after the tasks or columns changed
 
     function keepScrollPos($scope, fn) {
@@ -15,11 +16,11 @@ gantt.factory('keepScrollPos',['$timeout', function ($timeout) {
                 fn.apply(this, arguments);
 
                 // Re-apply scroll position
-                left = left === undefined ? 0: $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
+                left = left === undefined ? 0 : $scope.gantt.getColumnByDate(left.date).left * pxToEmFactor;
                 el.scrollLeft = left + oldScrollLeft;
 
                 // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.
-                if (el.scrollLeft != left + oldScrollLeft) {
+                if (el.scrollLeft !== left + oldScrollLeft) {
                     $timeout(function() {
                         el.scrollLeft = left + oldScrollLeft;
                     }, 0, false);

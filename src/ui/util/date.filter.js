@@ -1,4 +1,5 @@
-gantt.filter('ganttDate', ['$filter', function($filter, df) {
+'use strict';
+gantt.filter('ganttDate', ['$filter', function($filter) {
     var defaultFilter = $filter('date');
 
     if (typeof moment === 'function') {

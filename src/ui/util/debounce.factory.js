@@ -1,4 +1,5 @@
-gantt.factory('debounce',['$timeout', function ($timeout) {
+'use strict';
+gantt.factory('debounce', ['$timeout', function($timeout) {
     function debounce(fn, timeout) {
         var nthCall = 0;
         return function() {
