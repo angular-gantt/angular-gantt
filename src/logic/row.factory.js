@@ -1,10 +1,10 @@
 gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
-    var Row = function(id, gantt, description, order, data) {
+    var Row = function(id, gantt, name, order, data) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
-        self.description = description;
+        self.name = name;
         self.order= order;
         self.tasksMap = {};
         self.tasks = [];
@@ -20,7 +20,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
+                task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -89,7 +89,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
         };
 
         self.copy = function(row) {
-            self.description = row.description;
+            self.name = row.name;
             self.data = row.data;
 
             if (row.order !== undefined) {
@@ -98,7 +98,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
         };
 
         self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.description, self.order, self.data);
+            var clone = new Row(self.id, self.gantt, self.name, self.order, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }

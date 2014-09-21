@@ -404,7 +404,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, self, rowData.description, order, rowData.data);
+                row = new Row(rowData.id, self, rowData.name, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
             }
@@ -504,7 +504,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
             var angularOrderBy = $filter('orderBy');
             if (expression === 'name') {
-                self.rows = angularOrderBy(self.rows, 'description.toLowerCase()', reverse);
+                self.rows = angularOrderBy(self.rows, 'name.toLowerCase()', reverse);
             } else if (expression === 'date') {
                 self.rows = angularOrderBy(self.rows, 'minFromDate', reverse);
             } else if (expression === 'custom') {
@@ -544,7 +544,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 timespan.copy(timespanData);
                 isUpdate = true;
             } else {
-                timespan = new Timespan(timespanData.id, self, timespanData.subject, timespanData.color,
+                timespan = new Timespan(timespanData.id, self, timespanData.name, timespanData.color,
                     timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
                 self.timespansMap[timespanData.id] = timespan;
                 self.timespans.push(timespan);

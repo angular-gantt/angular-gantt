@@ -1,10 +1,10 @@
 gantt.factory('Timespan', ['dateFunctions', function (df) {
-    var Timespan = function(id, gantt, subject, color, classes, priority, from, to, data, est, lct) {
+    var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
-        self.subject = subject;
+        self.name = name;
         self.color = color;
         self.classes = classes;
         self.priority = priority;
@@ -53,7 +53,7 @@ gantt.factory('Timespan', ['dateFunctions', function (df) {
         };
 
         self.copy = function(timespan) {
-            self.subject = timespan.subject;
+            self.name = timespan.name;
             self.color = timespan.color;
             self.classes = timespan.classes;
             self.priority = timespan.priority;
@@ -65,7 +65,7 @@ gantt.factory('Timespan', ['dateFunctions', function (df) {
         };
 
         self.clone = function() {
-            return new Timespan(self.id, self.gantt, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Timespan(self.id, self.gantt, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 

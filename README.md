@@ -375,7 +375,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 ```js
 {
     id: "...",  // Unique id of the row.
-    description: "...", // Description shown on the left side of each row.
+    name: "...", // Description shown on the left side of each row.
     order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
     tasks: [] // Array containing the row tasks to add.
 }
@@ -385,7 +385,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 ```js
 {
     id: "...",  // Unique id of the task.
-    subject: "...", // Subject shown on top of each task.
+    name: "...", // Subject shown on top of each task.
     from: <Date>, // Date can be a String, Timestamp or Date object.
     to: <Date>, // Date can be a String, Timestamp or Date object.
     color: "..." , // Color of the task in HEX format (Optional).

@@ -1545,7 +1545,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, self, rowData.description, order, rowData.data);
+                row = new Row(rowData.id, self, rowData.name, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
             }
@@ -1645,7 +1645,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             var angularOrderBy = $filter('orderBy');
             if (expression === 'name') {
-                self.rows = angularOrderBy(self.rows, 'description.toLowerCase()', reverse);
+                self.rows = angularOrderBy(self.rows, 'name.toLowerCase()', reverse);
             } else if (expression === 'date') {
                 self.rows = angularOrderBy(self.rows, 'minFromDate', reverse);
             } else if (expression === 'custom') {
@@ -1685,7 +1685,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 timespan.copy(timespanData);
                 isUpdate = true;
             } else {
-                timespan = new Timespan(timespanData.id, self, timespanData.subject, timespanData.color,
+                timespan = new Timespan(timespanData.id, self, timespanData.name, timespanData.color,
                     timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
                 self.timespansMap[timespanData.id] = timespan;
                 self.timespans.push(timespan);
@@ -1801,12 +1801,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         }
     };
 }]);;gantt.factory('Row', ['Task', 'dateFunctions', function (Task, df) {
-    var Row = function(id, gantt, description, order, data) {
+    var Row = function(id, gantt, name, order, data) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
-        self.description = description;
+        self.name = name;
         self.order= order;
         self.tasksMap = {};
         self.tasks = [];
@@ -1822,7 +1822,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.subject, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
+                task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
             }
@@ -1891,7 +1891,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.copy = function(row) {
-            self.description = row.description;
+            self.name = row.name;
             self.data = row.data;
 
             if (row.order !== undefined) {
@@ -1900,7 +1900,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.description, self.order, self.data);
+            var clone = new Row(self.id, self.gantt, self.name, self.order, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
@@ -1911,13 +1911,13 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
     return Row;
 }]);;gantt.factory('Task', ['dateFunctions', function (df) {
-    var Task = function(id, row, subject, color, classes, priority, from, to, data, est, lct) {
+    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
         self.gantt = row.gantt;
         self.row = row;
-        self.subject = subject;
+        self.name = name;
         self.color = color;
         self.classes = classes;
         self.priority = priority;
@@ -2002,7 +2002,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.copy = function(task) {
-            self.subject = task.subject;
+            self.name = task.name;
             self.color = task.color;
             self.classes = task.classes;
             self.priority = task.priority;
@@ -2015,18 +2015,18 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 
     return Task;
 }]);;gantt.factory('Timespan', ['dateFunctions', function (df) {
-    var Timespan = function(id, gantt, subject, color, classes, priority, from, to, data, est, lct) {
+    var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
-        self.subject = subject;
+        self.name = name;
         self.color = color;
         self.classes = classes;
         self.priority = priority;
@@ -2075,7 +2075,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.copy = function(timespan) {
-            self.subject = timespan.subject;
+            self.name = timespan.name;
             self.color = timespan.color;
             self.classes = timespan.classes;
             self.priority = timespan.priority;
@@ -2087,7 +2087,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         self.clone = function() {
-            return new Timespan(self.id, self.gantt, self.subject, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Timespan(self.id, self.gantt, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
         };
     };
 

@@ -25,7 +25,7 @@
                      gantt-right-click="raiseLabelContextMenuEvent($event, row)"
                      ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
-                        <span>{{ row.description }}</span>
+                        <span>{{ row.name }}</span>
                     </gantt-sortable>
                 </div>
             </div>
@@ -103,7 +103,7 @@
                      ng-class="timespan.classes"
                      ng-repeat="timespan in gantt.timespans">
                     <gantt-tooltip ng-model="timespan" date-format="'MMM d'">
-                        <div class="gantt-task-content"><span>{{ timespan.subject }}</span></div>
+                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>
                     </gantt-tooltip>
                 </div>
                 <div class="gantt-row gantt-row-height"
@@ -132,7 +132,7 @@
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
             <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
-            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>
+            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
         </div>
     </script>
@@ -142,7 +142,7 @@
     <script type="text/ng-template" id="default.tooltip.tmpl.html">
         <div class="gantt-task-info" ng-style="css">
             <div class="gantt-task-info-content">
-                {{ task.subject }}</br>
+                {{ task.name }}</br>
                 <small>
                     {{
                     tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM d, HH:mm';
