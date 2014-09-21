@@ -341,12 +341,12 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 for (var i = 0, l = self.rows.length; i < l; i++) {
                     var row = self.rows[i];
 
-                    if (minDate === undefined || row.minFromDate < minDate) {
-                        minDate = row.minFromDate;
+                    if (minDate === undefined || row.from < minDate) {
+                        minDate = row.from;
                     }
 
-                    if (maxDate === undefined || row.maxToDate > maxDate) {
-                        maxDate = row.maxToDate;
+                    if (maxDate === undefined || row.to > maxDate) {
+                        maxDate = row.to;
                     }
                 }
 
@@ -506,7 +506,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             if (expression === 'name') {
                 self.rows = angularOrderBy(self.rows, 'name.toLowerCase()', reverse);
             } else if (expression === 'date') {
-                self.rows = angularOrderBy(self.rows, 'minFromDate', reverse);
+                self.rows = angularOrderBy(self.rows, 'from', reverse);
             } else if (expression === 'custom') {
                 self.rows = angularOrderBy(self.rows, 'order', reverse);
             } else {

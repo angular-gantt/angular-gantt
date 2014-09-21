@@ -1482,12 +1482,12 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 for (var i = 0, l = self.rows.length; i < l; i++) {
                     var row = self.rows[i];
 
-                    if (minDate === undefined || row.minFromDate < minDate) {
-                        minDate = row.minFromDate;
+                    if (minDate === undefined || row.from < minDate) {
+                        minDate = row.from;
                     }
 
-                    if (maxDate === undefined || row.maxToDate > maxDate) {
-                        maxDate = row.maxToDate;
+                    if (maxDate === undefined || row.to > maxDate) {
+                        maxDate = row.to;
                     }
                 }
 
@@ -1647,7 +1647,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             if (expression === 'name') {
                 self.rows = angularOrderBy(self.rows, 'name.toLowerCase()', reverse);
             } else if (expression === 'date') {
-                self.rows = angularOrderBy(self.rows, 'minFromDate', reverse);
+                self.rows = angularOrderBy(self.rows, 'from', reverse);
             } else if (expression === 'custom') {
                 self.rows = angularOrderBy(self.rows, 'order', reverse);
             } else {
@@ -1808,6 +1808,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         self.gantt = gantt;
         self.name = name;
         self.order= order;
+        self.from = undefined;
+        self.to = undefined;
         self.tasksMap = {};
         self.tasks = [];
         self.visibleTasks = [];
@@ -1828,7 +1830,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
 
             self.sortTasks();
-            self.setMinMaxDateByTask(task);
+            self.setFromToByTask(task);
             return task;
         };
 
@@ -1837,7 +1839,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             task.row.removeTask(task.id);
             self.tasksMap[task.id] = task;
             self.tasks.push(task);
-            self.setTasksMinMaxDate();
+            self.setFromTo();
             task.row = self;
             task.updatePosAndSize();
         };
@@ -1853,8 +1855,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                         self.tasks.splice(i, 1); // Remove from array
 
                         // Update earliest or latest date info as this may change
-                        if (self.minFromDate - task.from === 0 || self.maxToDate - task.to === 0) {
-                            self.setTasksMinMaxDate();
+                        if (self.from - task.from === 0 || self.to - task.to === 0) {
+                            self.setFromTo();
                         }
 
                         return task;
@@ -1864,25 +1866,25 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         };
 
         // Calculate the earliest from and latest to date of all tasks in a row
-        self.setTasksMinMaxDate = function() {
-            self.minFromDate = undefined;
-            self.maxToDate = undefined;
+        self.setFromTo = function() {
+            self.from = undefined;
+            self.to = undefined;
             for (var j = 0, k = self.tasks.length; j < k; j++) {
-                self.setMinMaxDateByTask(self.tasks[j]);
+                self.setFromToByTask(self.tasks[j]);
             }
         };
 
-        self.setMinMaxDateByTask = function (task) {
-            if (self.minFromDate === undefined) {
-                self.minFromDate = df.clone(task.from);
-            } else if (task.from < self.minFromDate) {
-                self.minFromDate = df.clone(task.from);
+        self.setFromToByTask = function (task) {
+            if (self.from === undefined) {
+                self.from = df.clone(task.from);
+            } else if (task.from < self.from) {
+                self.from = df.clone(task.from);
             }
 
-            if (self.maxToDate === undefined) {
-                self.maxToDate = df.clone(task.to);
-            } else if (task.to > self.maxToDate) {
-                self.maxToDate = df.clone(task.to);
+            if (self.to === undefined) {
+                self.to = df.clone(task.to);
+            } else if (task.to > self.to) {
+                self.to = df.clone(task.to);
             }
         };
 
@@ -1979,7 +1981,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
             self.from = self.gantt.getDateByPosition(x, true);
-            self.row.setMinMaxDateByTask(self);
+            self.row.setFromToByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
         };
@@ -1987,7 +1989,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
             self.to = self.gantt.getDateByPosition(x, false);
-            self.row.setMinMaxDateByTask(self);
+            self.row.setFromToByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
         };
@@ -1997,7 +1999,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             self.from = self.gantt.getDateByPosition(x, true);
             var newTaskLeft = self.gantt.getPositionByDate(self.from);
             self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, false);
-            self.row.setMinMaxDateByTask(self);
+            self.row.setFromToByTask(self);
             self.updatePosAndSize();
         };
 
