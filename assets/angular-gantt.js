@@ -1192,7 +1192,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     throw "Unsupported view scale: " + $scope.viewScale;
             }
 
-            self.headerGenerator = new HeaderGenerator.instance($scope.viewScale);
+            self.headerGenerator = new HeaderGenerator.instance($scope);
         };
         self.buildGenerators();
 
@@ -1767,35 +1767,21 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
     };
 
     return {
-        instance: function(viewScale) {
+        instance: function($scope) {
             this.generate = function(columns) {
                 var headers = {};
-
-                switch(viewScale) {
-                    case 'hour':
-                        headers.hour = generateHourHeader(columns);
-                        headers.day = generateDayHeader(columns);
-
-                        break;
-                    case 'day':
-                        headers.day = generateDayHeader(columns);
-                        headers.week = generateWeekHeader(columns);
-                        headers.month = generateMonthHeader(columns);
-
-                        break;
-                    case 'week':
-                        headers.week = generateWeekHeader(columns);
-                        headers.month = generateMonthHeader(columns);
-
-                        break;
-                    case 'month':
-                        headers.month = generateMonthHeader(columns);
-
-                        break;
-                    default:
-                        throw "Unsupported view scale: " + viewScale;
+                if ($scope.headerShowHour && ['hour'].indexOf($scope.viewScale) > -1) {
+                    headers.hour = generateHourHeader(columns);
                 }
-
+                if ($scope.headerShowDay && ['hour', 'day'].indexOf($scope.viewScale) > -1) {
+                    headers.day = generateDayHeader(columns);
+                }
+                if ($scope.headerShowWeek && ['week'].indexOf($scope.viewScale) > -1) {
+                    headers.week = generateWeekHeader(columns);
+                }
+                if ($scope.headerShowMonth && ['week', 'month'].indexOf($scope.viewScale) > -1) {
+                    headers.month = generateMonthHeader(columns);
+                }
                 return headers;
             };
         }

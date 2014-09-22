@@ -51,7 +51,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                     throw "Unsupported view scale: " + $scope.viewScale;
             }
 
-            self.headerGenerator = new HeaderGenerator.instance($scope.viewScale);
+            self.headerGenerator = new HeaderGenerator.instance($scope);
         };
         self.buildGenerators();
 
