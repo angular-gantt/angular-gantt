@@ -1,9 +1,9 @@
 # angular-gantt, a Gantt chart directive for AngularJS
 A Gantt chart directive for AngularJS without any other dependencies.
 
-###<a href="http://schweigi.github.io/angular-gantt/index.html" target="_blank">Latest Release Stable Demo</a>
+###<a href="http://angular-gantt.github.io/angular-gantt/index.html" target="_blank">Latest Release Stable Demo</a>
 
-###<a href="http://rawgit.com/Schweigi/angular-gantt/master/demo.html" target="_blank">Master Branch Unstable demo</a>
+###<a href="http://rawgit.com/angular-gantt/angular-gantt/master/demo.html" target="_blank">Master Branch Unstable demo</a>
 
 ### Features
 - Usable with or without Bootstrap 3
@@ -27,11 +27,11 @@ A Gantt chart directive for AngularJS without any other dependencies.
 
 1. Download and install `angular-gantt`.
 
-    [Latest released version](https://github.com/Schweigi/angular-gantt/releases/latest) can be installed in your project using [Bower](http://bower.io/)
+    [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) can be installed in your project using [Bower](http://bower.io/)
 
         bower install angular-gantt --save
     
-    [Master branch version](https://github.com/Schweigi/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
+    [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
         bower install angular-gantt#master --save
 
@@ -42,10 +42,10 @@ A Gantt chart directive for AngularJS without any other dependencies.
 #### Manually
 
 1. Download angular-gantt.
-    [Latest released version](https://github.com/Schweigi/angular-gantt/releases/latest) is available to 
+    [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
     [download](https://github.com/Schweigi/angular-gantt/releases/latest) on Github. 
     
-    [Master branch version](https://github.com/Schweigi/angular-gantt/archive/master.zip) contains bleeding edge features, but may be very unstable.
+    [Master branch version](https://github.com/angular-gantt/angular-gantt/archive/master.zip) contains bleeding edge features, but may be very unstable.
 
 2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
 
