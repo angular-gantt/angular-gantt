@@ -3,7 +3,7 @@
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
          gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50" on-labels-resized="raiseLabelsResized(width)" >
         <div class="gantt-labels-head"
-             ng-show="gantt.columns.length > 0">
+             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">
             <div class="gantt-labels-head-row"
                  ng-click="raiseLabelHeaderClickedEvent($event)"
                  ng-dblclick="raiseLabelHeaderDblClickedEvent($event)"
@@ -32,12 +32,12 @@
         </div>
     </div>
     <div class="gantt-head"
-         ng-show="gantt.columns.length > 0">
+         ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">
         <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': gantt.width+'em'}">
             <div class="gantt-head-row"
                  ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
-                 ng-if="headerShowMonth && gantt.headers.month !== undefined">
+                 ng-if="gantt.headers.month !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
@@ -46,7 +46,7 @@
                     {{ headerFormatMonth && (c.date | ganttDate:headerFormatMonth)  || (c.date | ganttDate:'MMMM yyyy') }}
                 </span>
             </div>
-            <div class="gantt-head-row" ng-if="headerShowWeek && gantt.headers.week !== undefined">
+            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
@@ -55,7 +55,7 @@
                     {{headerFormatWeek && (headerFormatWeek | sprintf:c.week) || c.week }}
                 </span>
             </div>
-            <div class="gantt-head-row" ng-if="headerShowDay && gantt.headers.day !== undefined">
+            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, c)"
@@ -64,7 +64,7 @@
                     {{ headerFormatDay && (c.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (c.date | ganttDate: 'dd EEEE') || (c.date | ganttDate:'dd')) }}
                 </span>
             </div>
-            <div class="gantt-head-row" ng-if="headerShowHour && gantt.headers.hour !== undefined">
+            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
                 <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
                       ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index"
                       ng-click="raiseColumnDateClickedEvent($event, row)"
