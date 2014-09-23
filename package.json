@@ -3,10 +3,13 @@
   "version": "0.6.3",
   "description": "A Gantt chart directive for AngularJS without any other dependencies.",
   "author": "Marco Schweighauser",
+  "contributors": [
+    "Rémi Alvergnat <toilal.dev@gmail.com> (http://www.pragmasphere.com)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Schweigi/angular-gantt.git"
+    "url": "git://github.com/angular-gantt/angular-gantt.git"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

@@ -6,8 +6,22 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         concat: {
             options: {
-                separator: ';',
-                sourceMap: true
+                separator: '\n',
+                sourceMap: true,
+                // Replace all 'use strict' statements in the code with a single one at the top
+                banner: '/*\n' +
+                    'Project: angular-gantt for AngularJS\n' +
+                    'Author: Marco Schweighauser\n' +
+                    'Contributors: Rémi Alvergnat\n' +
+                    'License: MIT.\n' +
+                    'Github: https://github.com/angular-gantt/angular-gantt\n' +
+                    '*/\n' +
+                    '\'use strict\';\n',
+                process: function(src, filepath) {
+                    return '// ' + filepath + '\n' +
+                        src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1')
+                            .replace(/(^|\n)[ \t]*(\/\*\s*global\s+.*?:\s+.*?\*\/);?\s*/g, '$1');
+                }
             },
             dist: {
                 src: ['src/**/*.js'],
@@ -17,11 +31,6 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\nuse strict;\n',
-                // Replace all 'use strict' statements in the code with a single one at the top
-                process: function(src, filepath) {
-                    return '// Source: ' + filepath + '\n' +
-                        src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
-                },
                 sourceMap: true
             },
             dist: {

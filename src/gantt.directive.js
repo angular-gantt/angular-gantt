@@ -1,8 +1,3 @@
-/*
- Project: angular-gant for AngularJS
- Author: Marco Schweighauser (2014)
- License: MIT License. See README.md
- */
 'use strict';
 /*global gantt: true*/
 var gantt = angular.module('gantt', []);

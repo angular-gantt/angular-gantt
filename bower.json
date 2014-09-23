@@ -1,11 +1,12 @@
 {
   "name": "angular-gantt",
   "version": "0.6.3",
-  "homepage": "https://github.com/Schweigi/angular-gantt",
+  "homepage": "https://github.com/angular-gantt/angular-gantt",
   "authors": [
-    "Schweigi"
+    "Marco Schweighauser",
+    "Rémi Alvergnat <toilal.dev@gmail.com> (http://www.pragmasphere.com)"
   ],
-  "description": "A Gantt chart directive for AngularJS without any other dependencies.",
+  "description": "A Gantt chart directive for AngularJS.",
   "main": [
     "./assets/angular-gantt.js",
     "./assets/gantt.css"
