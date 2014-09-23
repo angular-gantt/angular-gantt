@@ -79,7 +79,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
 
     $scope.labelEvent = function(event) {
         // A label has been clicked.
-        console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.description + ' (Custom data: ' + event.row.data + ')');
+        console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.name + ' (Custom data: ' + event.row.data + ')');
     };
 
     $scope.labelHeaderEvent = function(event) {
@@ -89,7 +89,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
 
     $scope.rowEvent = function(event) {
         // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
-        console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.description + ' (Custom data: ' + event.row.data + ')');
+        console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' '  + event.row.name + ' (Custom data: ' + event.row.data + ')');
 
         if (!$scope.options.readOnly && $scope.options.draw) {
             // Example to draw task inside row
@@ -100,7 +100,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
                 //endDate.setDate(endDate.getDate());
                 var infoTask =   {
                     id: uuid.randomUuid(),  // Unique id of the task.
-                    subject: "Test", // Subject shown on top of each task.
+                    name: "Test", // Subject shown on top of each task.
                     from: startDate, // Date can be a String, Timestamp or Date object.
                     to: endDate,// Date can be a String, Timestamp or Date object.
                     color: "#AA8833" , // Color of the task in HEX format (Optional).
@@ -126,7 +126,7 @@ demoApp.controller("ctrl", ['$scope', '$timeout', 'uuid', function($scope, $time
 
     $scope.taskEvent = function(event) {
         // A task has been updated or clicked.
-        console.log('Task event (by user: ' + event.userTriggered + '): ' + event.task.subject + ' (Custom data: ' + event.task.data + ')');
+        console.log('Task event (by user: ' + event.userTriggered + '): ' + event.task.name + ' (Custom data: ' + event.task.data + ')');
     };
 
 }]);

@@ -7,10 +7,10 @@ A Gantt chart directive for AngularJS without any other dependencies.
 
 ### Features
 - Usable with or without Bootstrap 3
-- Every task has its own color, subject, date (from, to)
+- Every task has its own color, name, date (from, to)
 - Tasks can be moved and resized
-- Rows combine multiple tasks and can have independent descriptions
-- Rows can be sorted by description, date and custom order
+- Rows combine multiple tasks and can have independent names
+- Rows can be sorted by name, date and custom order
 - A user can drag&drop a row to sort it in custom mode
 - Events on scroll, click, add or update
 - Configurable (e.g. day or hour scale, weekend days, ..)
@@ -376,7 +376,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 ```js
 {
     id: "...",  // Unique id of the row.
-    name: "...", // Description shown on the left side of each row.
+    name: "...", // Name shown on the left side of each row.
     order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
     tasks: [] // Array containing the row tasks to add.
 }
@@ -386,7 +386,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 ```js
 {
     id: "...",  // Unique id of the task.
-    name: "...", // Subject shown on top of each task.
+    name: "...", // Name shown on top of each task.
     from: <Date>, // Date can be a String, Timestamp or Date object.
     to: <Date>, // Date can be a String, Timestamp or Date object.
     color: "..." , // Color of the task in HEX format (Optional).
