@@ -1,5 +1,5 @@
-# angular-gantt, a Gantt chart directive for AngularJS
-A Gantt chart directive for AngularJS without any other dependencies.
+# angular-gantt [![npm version](http://img.shields.io/npm/v/angular-gantt.svg)](https://npmjs.org/package/angular-gantt) [![build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg)](https://travis-ci.org/angular-gantt/angular-gantt)
+##The gantt chart directive for AngularJS
 
 ###<a href="http://angular-gantt.github.io/angular-gantt/index.html" target="_blank">Latest Release Stable Demo</a>
 

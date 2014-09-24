@@ -6,7 +6,7 @@
     "Marco Schweighauser",
     "Rémi Alvergnat <toilal.dev@gmail.com> (http://www.pragmasphere.com)"
   ],
-  "description": "A Gantt chart directive for AngularJS.",
+  "description": "The gantt chart directive for AngularJS",
   "main": [
     "./assets/angular-gantt.js",
     "./assets/gantt.css"
