@@ -1,10 +1,6 @@
 # angular-gantt [![npm version](http://img.shields.io/npm/v/angular-gantt.svg)](https://npmjs.org/package/angular-gantt) [![build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg)](https://travis-ci.org/angular-gantt/angular-gantt)
 ##The gantt chart directive for AngularJS
 
-###<a href="http://Schweigi.github.io/angular-gantt" target="_blank">Latest Release Stable Demo</a>
-
-###<a href="https://rawgit.com/angular-gantt/angular-gantt/master/demo/dist/index.html" target="_blank">Master Branch Unstable demo</a>
-
 ### Demo project
 
 Demo project is a showcase for [angular-gantt](https://github.com/angular-gantt/angular-gantt).
@@ -35,7 +31,7 @@ To use local sources of [angular-gantt](https://github.com/angular-gantt/angular
 ### License
 **The MIT License**
 
-Copyright (c) 2014 Marco Schweighauser
+Copyright (c) 2014 Marco Schweighauser, Rémi Alvergnat
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

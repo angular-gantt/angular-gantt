@@ -3,7 +3,7 @@
 
 ###<a href="http://angular-gantt.github.io/angular-gantt/index.html" target="_blank">Latest Release Stable Demo</a>
 
-###<a href="http://rawgit.com/angular-gantt/angular-gantt/demo/dist/index.html" target="_blank">Master Branch Unstable demo</a>
+###<a href="http://rawgit.com/angular-gantt/angular-gantt/master/demo/dist/index.html" target="_blank">Master Branch Unstable demo</a>
 
 ### Features
 - Usable with or without Bootstrap 3
@@ -398,7 +398,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 ### License
 **The MIT License**
 
-Copyright (c) 2014 Marco Schweighauser
+Copyright (c) 2014 Marco Schweighauser, Rémi Alvergnat
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
