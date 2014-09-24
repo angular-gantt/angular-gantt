@@ -3,7 +3,7 @@
 
 ###<a href="http://angular-gantt.github.io/angular-gantt/index.html" target="_blank">Latest Release Stable Demo</a>
 
-###<a href="http://rawgit.com/angular-gantt/angular-gantt-demo/dist/index.html" target="_blank">Master Branch Unstable demo</a>
+###<a href="http://rawgit.com/angular-gantt/angular-gantt/demo/dist/index.html" target="_blank">Master Branch Unstable demo</a>
 
 ### Features
 - Usable with or without Bootstrap 3

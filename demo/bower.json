@@ -1,0 +1,24 @@
+{
+  "name": "angular-gantt-demo",
+  "version": "0.6.3",
+  "homepage": "https://github.com/angular-gantt-demo/angular-gantt",
+  "authors": [
+    "Marco Schweighauser",
+    "Rémi Alvergnat <toilal.dev@gmail.com> (http://www.pragmasphere.com)"
+  ],
+  "description": "A Gantt chart directive for AngularJS - Demo",
+  "dependencies": {
+    "angular": "~1.2.0",
+    "json3": "~3.3.1",
+    "es5-shim": "~3.1.0",
+    "angular-animate": "~1.2.0",
+    "angular-strap": "~2.1.0",
+    "font-awesome": "~4.2.0",
+    "moment": "~2.8.3",
+    "angular-gantt": "https://github.com/angular-gantt/angular-gantt.git#master"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.2.0"
+  },
+  "appPath": "app"
+}

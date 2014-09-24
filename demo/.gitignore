@@ -1,0 +1,5 @@
+../../angular-gantt-demo/node_modules/karma-phantomjs-launcher/node_modules/phantomjs/node_modules/request/node_modules/bl/node_modules/readable-stream/node_modules/
+bower_components/
+.tmp/
+*.iml
+
