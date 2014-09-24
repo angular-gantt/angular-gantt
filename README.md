@@ -10,13 +10,10 @@
 - Every task has its own color, name, date (from, to)
 - Tasks can be moved and resized
 - Rows combine multiple tasks and can have independent names
-- Rows can be sorted by name, date and custom order
+- Rows and tasks can be sorted and filtered
 - A user can drag&drop a row to sort it in custom mode
 - Events on scroll, click, add or update
 - Configurable (e.g. day or hour scale, weekend days, ..)
-
-### Missing / To improve
-- Add support for US week numbers. Currently all week numbers are according to ISO 8106.
 
 ### Requires
 - AngularJS >= 1.2.16
