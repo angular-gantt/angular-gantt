@@ -19,11 +19,9 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
-    "demo",
     "node_modules",
     "bower_components",
-    "test",
-    "tests"
+    "test"
   ],
   "dependencies": {
     "angular": ">=1.2.16"
