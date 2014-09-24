@@ -145,7 +145,7 @@
                 {{ task.name }}</br>
                 <small>
                     {{
-                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM d, HH:mm';
+                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM dd, HH:mm';
                     task.isMilestone === true && (task.from | ganttDate:tooltipDateFormat) || (task.from | ganttDate:tooltipDateFormat) + ' - ' + (task.to | ganttDate:tooltipDateFormat)
                     }}
                 </small>

@@ -9,6 +9,19 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 
 var gantt = angular.module('gantt', []);
+gantt.constant('GANTT_EVENTS',
+    {
+        'TASK_CHANGED': 'event:gantt-task-changed',
+        'TASK_MOVE_BEGIN': 'event:gantt-task-moveBegin',
+        'TASK_MOVE': 'event:gantt-task-move',
+        'TASK_MOVE_END': 'event:gantt-task-moveEnd',
+        'TASK_RESIZE_BEGIN': 'event:gantt-task-resizeBegin',
+        'TASK_RESIZE': 'event:gantt-task-resize',
+        'TASK_RESIZE_END': 'event:gantt-task-resizeEnd',
+        'TASK_CLICKED': 'event:gantt-task-clicked',
+        'TASK_DBL_CLICKED': 'event:gantt-task-dblClicked',
+        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu'
+    });
 
 gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function(Gantt, df, mouseOffset, debounce, keepScrollPos) {
     return {
@@ -85,15 +98,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onRowContextClicked: '&',
             onRowUpdated: '&',
             onRowMouseDown: '&',
-            onScroll: '&',
-            onTaskClicked: '&',
-            onTaskDblClicked: '&',
-            onTaskContextClicked: '&',
-            onTaskUpdated: '&',
-            onTaskMoveBegin: '&',
-            onTaskMoveEnd: '&',
-            onTaskResizeBegin: '&',
-            onTaskResizeEnd: '&'
+            onScroll: '&'
         },
         controller: ['$scope', function($scope) {
             // Initialize defaults
@@ -401,48 +406,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     $scope.onScroll({ event: { date: date, direction: direction, userTriggered: true }});
                 }
             }, 5);
-
-            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
-                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
-            };
-
-            $scope.raiseTaskMoveStartEvent = function(task) {
-                $scope.onTaskMoveBegin({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskMoveEndEvent = function(task) {
-                $scope.onTaskMoveEnd({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskResizeStartEvent = function(task) {
-                $scope.onTaskResizeBegin({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskResizeEndEvent = function(task) {
-                $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskClickedEvent = function(evt, task) {
-                var x = mouseOffset.getOffset(evt).x,
-                    xInEm = x / $scope.getPxToEmFactor(),
-                    clickedColumn = $scope.gantt.getColumnByPosition(xInEm + task.left),
-                    date = $scope.gantt.getDateByPosition(xInEm + task.left);
-                $scope.onTaskClicked({ event: {
-                    evt: evt,
-                    task: task,
-                    column: clickedColumn,
-                    date: date,
-                    userTriggered: true
-                } });
-            };
-
-            $scope.raiseTaskDblClickedEvent = function(evt, task) {
-                $scope.onTaskDblClicked({ event: { evt: evt, task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskContextMenuEvent = function(evt, task) {
-                $scope.onTaskContextClicked({ event: { evt: evt, task: task, userTriggered: true } });
-            };
 
             // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function(data) {
@@ -1228,6 +1191,23 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         MonthGenerator: MonthColumnGenerator
     };
 }]);
+
+gantt.service('Events', ['mouseOffset', function(mouseOffset) {
+    return {
+        buildTaskEventData: function(evt, element, task, gantt) {
+            var data = {evt:evt, element:element, task:task};
+            if (gantt !== undefined) {
+                var x = mouseOffset.getOffset(evt).x;
+                // TODO: https://github.com/angular-gantt/angular-gantt/issues/120
+                // xInEm = x / $scope.getPxToEmFactor(),
+                data.column = gantt.getColumnByPosition(x + task.left);
+                data.date = gantt.getDateByPosition(x + task.left);
+            }
+            return data;
+        }
+    };
+}]);
+
 
 gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
@@ -2782,7 +2762,7 @@ gantt.directive('ganttBounds', [function() {
     };
 }]);
 
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', function($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
 
     return {
         restrict: 'E',
@@ -2810,46 +2790,46 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             var moveStartX;
             var scrollInterval;
 
-            $element.bind('mousedown', function(e) {
+            $element.bind('mousedown', function(evt) {
                 $scope.$apply(function() {
-                    var mode = getMoveMode(e);
-                    if (mode !== '' && mouseButton.getButton(e) === 1) {
-                        var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], e).x;
-                        enableMoveMode(mode, offsetX);
+                    var mode = getMoveMode(evt);
+                    if (mode !== '' && mouseButton.getButton(evt) === 1) {
+                        var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
+                        enableMoveMode(mode, offsetX, evt);
                     }
                 });
             });
 
-            $element.bind('click', function(e) {
+            $element.bind('click', function(evt) {
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.raiseTaskClickedEvent(e, $scope.task);
+                        $scope.$emit(GANTT_EVENTS.TASK_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
-                    e.stopPropagation();
+                    evt.stopPropagation();
                 });
             });
 
-            $element.bind('dblclick', function(e) {
+            $element.bind('dblclick', function(evt) {
                 $scope.$apply(function() {
                     // Only raise dbl click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.raiseTaskDblClickedEvent(e, $scope.task);
+                        $scope.$emit(GANTT_EVENTS.TASK_DBL_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
-                    e.stopPropagation();
+                    evt.stopPropagation();
                 });
             });
 
-            $element.bind('contextmenu', function(e) {
+            $element.bind('contextmenu', function(evt) {
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.raiseTaskContextMenuEvent(e, $scope.task);
+                        $scope.$emit(GANTT_EVENTS.TASK_CONTEXTMENU, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
-                    e.stopPropagation();
+                    evt.stopPropagation();
                 });
             });
 
@@ -2877,16 +2857,17 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 });
             });
 
-            var handleMove = function(mode, mousePos) {
+            var handleMove = function(mode, evt) {
                 if ($scope.task.isMoving === false) {
                     return;
                 }
 
-                moveTask(mode, mousePos);
-                scrollScreen(mode, mousePos);
+                moveTask(mode, evt);
+                scrollScreen(mode, evt);
             };
 
-            var moveTask = function(mode, mousePos) {
+            var moveTask = function(mode, evt) {
+                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                 $scope.task.mouseOffsetX = mousePos.x;
                 var xInEm = mousePos.x / $scope.getPxToEmFactor();
                 if (mode === 'M') {
@@ -2907,6 +2888,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                             }
                         }
                         $scope.task.moveTo(x);
+                        $scope.$emit(GANTT_EVENTS.TASK_MOVE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
                 } else if (mode === 'E') {
                     if ($scope.taskOutOfRange !== 'truncate') {
@@ -2917,6 +2899,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                         }
                     }
                     $scope.task.setTo(xInEm);
+                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 } else {
                     if ($scope.taskOutOfRange !== 'truncate') {
                         if (xInEm > $scope.task.left + $scope.task.width) {
@@ -2926,12 +2909,14 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                         }
                     }
                     $scope.task.setFrom(xInEm);
+                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
                 taskHasBeenChanged = true;
             };
 
-            var scrollScreen = function(mode, mousePos) {
+            var scrollScreen = function(mode, evt) {
+                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                 var leftScreenBorder = ganttScrollElement[0].scrollLeft;
                 var keepOnScrolling = false;
 
@@ -2956,7 +2941,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
                 if (keepOnScrolling) {
                     scrollInterval = $timeout(function() {
-                        handleMove(mode, mousePos);
+                        handleMove(mode, evt);
                     }, 100, true);
                 }
             };
@@ -3010,13 +2995,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 }
             };
 
-            var enableMoveMode = function(mode, x) {
+            var enableMoveMode = function(mode, x, evt) {
                 // Raise task move start event
                 if (!$scope.task.isMoving) {
                     if (mode === 'M') {
-                        $scope.raiseTaskMoveStartEvent($scope.task);
+                        $scope.$emit(GANTT_EVENTS.TASK_MOVE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     } else {
-                        $scope.raiseTaskResizeStartEvent($scope.task);
+                        $scope.$emit(GANTT_EVENTS.TASK_RESIZE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
                 }
 
@@ -3029,19 +3014,18 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 mouseOffsetInEm = xInEm - $scope.task.modelLeft;
 
                 // Add move event handlers
-                var taskMoveHandler = debounce(function(e) {
+                var taskMoveHandler = debounce(function(evt) {
                     $timeout(function() {
-                        var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], e);
                         clearScrollInterval();
-                        handleMove(mode, mousePos);
+                        handleMove(mode, evt);
                     });
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
-                smartEvent($scope, windowElement, 'mouseup', function() {
+                smartEvent($scope, windowElement, 'mouseup', function(evt) {
                     $scope.$apply(function() {
                         windowElement.unbind('mousemove', taskMoveHandler);
-                        disableMoveMode();
+                        disableMoveMode(evt);
                     });
                 }).bindOnce();
 
@@ -3056,7 +3040,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 });
             };
 
-            var disableMoveMode = function() {
+            var disableMoveMode = function(evt) {
                 $scope.task.isMoving = false;
 
                 // Stop any active auto scroll
@@ -3074,10 +3058,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
                 // Raise move end event
                 if ($scope.task.moveMode === 'M') {
-                    $scope.raiseTaskMoveEndEvent($scope.task);
-                }
-                else {
-                    $scope.raiseTaskResizeEndEvent($scope.task);
+                    $scope.$emit(GANTT_EVENTS.TASK_MOVE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                } else {
+                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
                 $scope.task.modeMode = null;
@@ -3085,7 +3068,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 // Raise task changed event
                 if (taskHasBeenChanged === true) {
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.raiseTaskUpdatedEvent($scope.task, true);
+                    $scope.$emit(GANTT_EVENTS.TASK_CHANGED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
             };
 
@@ -3100,6 +3083,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
         }]
     };
 }]);
+
 
 gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task

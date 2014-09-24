@@ -1,6 +1,19 @@
 'use strict';
 /*global gantt: true*/
 var gantt = angular.module('gantt', []);
+gantt.constant('GANTT_EVENTS',
+    {
+        'TASK_CHANGED': 'event:gantt-task-changed',
+        'TASK_MOVE_BEGIN': 'event:gantt-task-moveBegin',
+        'TASK_MOVE': 'event:gantt-task-move',
+        'TASK_MOVE_END': 'event:gantt-task-moveEnd',
+        'TASK_RESIZE_BEGIN': 'event:gantt-task-resizeBegin',
+        'TASK_RESIZE': 'event:gantt-task-resize',
+        'TASK_RESIZE_END': 'event:gantt-task-resizeEnd',
+        'TASK_CLICKED': 'event:gantt-task-clicked',
+        'TASK_DBL_CLICKED': 'event:gantt-task-dblClicked',
+        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu'
+    });
 
 gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function(Gantt, df, mouseOffset, debounce, keepScrollPos) {
     return {
@@ -77,15 +90,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onRowContextClicked: '&',
             onRowUpdated: '&',
             onRowMouseDown: '&',
-            onScroll: '&',
-            onTaskClicked: '&',
-            onTaskDblClicked: '&',
-            onTaskContextClicked: '&',
-            onTaskUpdated: '&',
-            onTaskMoveBegin: '&',
-            onTaskMoveEnd: '&',
-            onTaskResizeBegin: '&',
-            onTaskResizeEnd: '&'
+            onScroll: '&'
         },
         controller: ['$scope', function($scope) {
             // Initialize defaults
@@ -393,48 +398,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                     $scope.onScroll({ event: { date: date, direction: direction, userTriggered: true }});
                 }
             }, 5);
-
-            $scope.raiseTaskUpdatedEvent = function(task, userTriggered) {
-                $scope.onTaskUpdated({ event: { task: task, userTriggered: userTriggered } });
-            };
-
-            $scope.raiseTaskMoveStartEvent = function(task) {
-                $scope.onTaskMoveBegin({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskMoveEndEvent = function(task) {
-                $scope.onTaskMoveEnd({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskResizeStartEvent = function(task) {
-                $scope.onTaskResizeBegin({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskResizeEndEvent = function(task) {
-                $scope.onTaskResizeEnd({ event: { task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskClickedEvent = function(evt, task) {
-                var x = mouseOffset.getOffset(evt).x,
-                    xInEm = x / $scope.getPxToEmFactor(),
-                    clickedColumn = $scope.gantt.getColumnByPosition(xInEm + task.left),
-                    date = $scope.gantt.getDateByPosition(xInEm + task.left);
-                $scope.onTaskClicked({ event: {
-                    evt: evt,
-                    task: task,
-                    column: clickedColumn,
-                    date: date,
-                    userTriggered: true
-                } });
-            };
-
-            $scope.raiseTaskDblClickedEvent = function(evt, task) {
-                $scope.onTaskDblClicked({ event: { evt: evt, task: task, userTriggered: true } });
-            };
-
-            $scope.raiseTaskContextMenuEvent = function(evt, task) {
-                $scope.onTaskContextClicked({ event: { evt: evt, task: task, userTriggered: true } });
-            };
 
             // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function(data) {

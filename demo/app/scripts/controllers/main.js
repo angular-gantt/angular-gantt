@@ -8,7 +8,7 @@
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', function($scope, $timeout, Uuid, Sample) {
+    .controller('MainCtrl', function($scope, $timeout, Uuid, Sample, GANTT_EVENTS) {
         $scope.options = {
             mode: 'custom',
             scale: 'day',
@@ -115,8 +115,33 @@ angular.module('angularGanttDemoApp')
             }
         };
 
-        $scope.taskEvent = function(event) {
-            // A task has been updated or clicked.
-            console.log('Task event (by user: ' + event.userTriggered + '): ' + event.task.name + ' (Custom data: ' + event.task.data + ')');
+        var logTaskEvent = function(event, data) {
+            // A task event has occured.
+            var output = '';
+            for (var property in data) {
+                var propertyValue = data[property];
+                if (property === 'evt') {
+                    propertyValue = propertyValue.type;
+                } else if (property === 'element' && propertyValue.length > 0) {
+                    propertyValue = propertyValue[0].localName + (propertyValue[0].className ? '.' + propertyValue[0].className : '');
+                } else if (property === 'task') {
+                    propertyValue = propertyValue.name;
+                } else if (property === 'column') {
+                    propertyValue = propertyValue.date + '-' + propertyValue.getEndDate();
+                }
+                output += property + ': ' + propertyValue +'; ';
+            }
+            console.log('$scope.$on: ' + event.name + ': ' + output);
         };
+
+        $scope.$on(GANTT_EVENTS.TASK_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_DBL_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_CONTEXTMENU, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_UPDATED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_MOVE_BEGIN, logTaskEvent);
+        //$scope.$on(GANTT_EVENTS.TASK_MOVE, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_MOVE_END, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_RESIZE_BEGIN, logTaskEvent);
+        //$scope.$on(GANTT_EVENTS.TASK_RESIZE, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_RESIZE_END, logTaskEvent);
     });
