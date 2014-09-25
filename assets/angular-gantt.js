@@ -3197,7 +3197,7 @@ gantt.filter('ganttDate', ['$filter', function($filter) {
                 format = format.replace('dd', 'DD');
                 format = format.replace('EEEE', 'dddd');
 
-                return date.utc().format(format);
+                return date.format(format);
             }
             return defaultFilter(date, format);
         };
