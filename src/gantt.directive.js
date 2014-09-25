@@ -12,7 +12,10 @@ gantt.constant('GANTT_EVENTS',
         'TASK_RESIZE_END': 'event:gantt-task-resizeEnd',
         'TASK_CLICKED': 'event:gantt-task-clicked',
         'TASK_DBL_CLICKED': 'event:gantt-task-dblClicked',
-        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu'
+        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
+        'COLUMN_CLICKED': 'event:gantt-column-clicked',
+        'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
+        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu'
     });
 
 gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function(Gantt, df, mouseOffset, debounce, keepScrollPos) {
@@ -71,9 +74,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             removeData: '&',
             clearData: '&',
             centerDate: '&',
-            onColumnDateClicked: '&',
-            onColumnDateDblClicked: '&',
-            onColumnDataContextClicked: '&',
             onLabelsResized: '&',
             onLabelClicked: '&',
             onLabelDblClicked: '&',
@@ -266,18 +266,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 $scope.gantt.requestDateRange(from, to);
             });
-
-            $scope.raiseColumnDateClickedEvent = function(evt, column) {
-                $scope.onColumnDateClicked({ event: { evt: evt, column: column} });
-            };
-
-            $scope.raiseColumnDateDblClickedEvent = function(evt, column) {
-                $scope.onColumnDateDblClicked({ event: { evt: evt, column: column} });
-            };
-
-            $scope.raiseColumnDateContextMenuEvent = function(evt, column) {
-                $scope.onColumnDataContextClicked({ event: { evt: evt, column: column} });
-            };
 
             $scope.raiseLabelsResized = function(width) {
                 $scope.onLabelsResized({ event: { width: width } });

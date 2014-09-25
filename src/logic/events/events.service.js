@@ -11,6 +11,13 @@ gantt.service('Events', ['mouseOffset', function(mouseOffset) {
                 data.date = gantt.getDateByPosition(x + task.left);
             }
             return data;
+        },
+
+        buildColumnEventData: function(evt, element, column) {
+            var data = {evt:evt, element:element, column:column};
+            return data;
         }
     };
+
+
 }]);

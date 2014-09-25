@@ -144,4 +144,8 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.TASK_RESIZE_BEGIN, logTaskEvent);
         //$scope.$on(GANTT_EVENTS.TASK_RESIZE, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_RESIZE_END, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.COLUMN_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.COLUMN_DBL_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.COLUMN_CONTEXTMENU, logTaskEvent);
     });

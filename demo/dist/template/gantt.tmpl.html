@@ -38,40 +38,28 @@
             <div class="gantt-head-row"
                  ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
-                <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                      ng-click="raiseColumnDateClickedEvent($event, c)"
-                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
-                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
+                <gantt-column-header ng-repeat="c in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index"
+                                     column="c">
                     {{ headerFormatMonth && (c.date | ganttDate:headerFormatMonth)  || (c.date | ganttDate:'MMMM yyyy') }}
-                </span>
+                </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
-                <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                      ng-click="raiseColumnDateClickedEvent($event, c)"
-                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
-                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
+                <gantt-column ng-repeat="c in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index"
+                              column="c">
                     {{headerFormatWeek && (headerFormatWeek | sprintf:c.week) || c.week }}
-                </span>
+                    </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
-                <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                      ng-click="raiseColumnDateClickedEvent($event, c)"
-                      ng-dblclick="raiseColumnDateDblClickedEvent($event, c)"
-                      gantt-right-click="raiseColumnDateContextMenuEvent($event, c)">
+                <gantt-column-header ng-repeat="c in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index"
+                                     column="c">
                     {{ headerFormatDay && (c.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (c.date | ganttDate: 'dd EEEE') || (c.date | ganttDate:'dd')) }}
-                </span>
+                </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
-                <span ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                      ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                      ng-click="raiseColumnDateClickedEvent($event, row)"
-                      ng-dblclick="raiseColumnDateDblClickedEvent($event, row)"
-                      gantt-right-click="raiseColumnDateContextMenuEvent($event, row)">
+                <gantt-column-header ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index"
+                                     column="c">
                     {{ headerFormatHour && (c.date | ganttDate:headerFormatHour) || (c.date | ganttDate:'HH') }}
-                </span>
+                </gantt-column-header>
             </div>
         </div>
     </div>
@@ -157,5 +145,10 @@
     <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->
     <script type="text/ng-template" id="default.bounds.tmpl.html">
         <div ng-show='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>
+    </script>
+
+    <!-- Column template -->
+    <script type="text/ng-template" id="default.columnHeader.tmpl.html">
+        <span ng-transclude class="gantt-column-header" ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></span>
     </script>
 </div>
