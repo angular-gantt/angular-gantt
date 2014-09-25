@@ -37901,7 +37901,8 @@ License: MIT.
 Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
-// src/gantt.directive.js
+
+
 var gantt = angular.module('gantt', []);
 gantt.constant('GANTT_EVENTS',
     {
@@ -37917,10 +37918,15 @@ gantt.constant('GANTT_EVENTS',
         'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
         'COLUMN_CLICKED': 'event:gantt-column-clicked',
         'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
-        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu'
+        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
+        'ROW_CLICKED': 'event:gantt-row-clicked',
+        'ROW_DBL_CLICKED': 'event:gantt-row-dblClicked',
+        'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
+        'ROW_CHANGED': 'event:gantt-row-changed',
+        'ROW_ADDED': 'event:gantt-row-added'
     });
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function(Gantt, df, mouseOffset, debounce, keepScrollPos) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, df, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -37986,12 +37992,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onGanttReady: '&',
             onTimespanAdded: '&',
             onTimespanUpdated: '&',
-            onRowAdded: '&',
-            onRowClicked: '&',
-            onRowDblClicked: '&',
-            onRowContextClicked: '&',
-            onRowUpdated: '&',
-            onRowMouseDown: '&',
             onScroll: '&'
         },
         controller: ['$scope', function($scope) {
@@ -38107,8 +38107,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.swapRows(a, b);
 
                 // Raise change events
-                $scope.raiseRowUpdatedEvent(a, true);
-                $scope.raiseRowUpdatedEvent(b, true);
+                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
 
                 // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== 'custom') {
@@ -38197,75 +38197,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onLabelHeaderContextClicked({ event: { evt: evt, userTriggered: true } });
             };
 
-            $scope.raiseRowAddedEvent = function(row, userTriggered) {
-                $scope.onRowAdded({ event: { row: row, userTriggered: userTriggered } });
-            };
-
-            $scope.raiseDOMRowClickedEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowClickedEvent = function(evt, row, column, date) {
-                $scope.onRowClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseDOMRowDblClickedEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowDblClickedEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
-                $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseDOMRowMouseDownEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowMouseDownEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowMouseDownEvent = function(evt, row, column, date) {
-                $scope.onRowMouseDown({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseDOMRowClickedEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseDOMRowContextMenuEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowContextMenuEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowContextMenuEvent = function(evt, row, column, date) {
-                $scope.onRowContextClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseRowUpdatedEvent = function(row, userTriggered) {
-                $scope.onRowUpdated({ event: { row: row, userTriggered: userTriggered } });
-            };
-
             $scope.raiseScrollEvent = debounce(function() {
                 if ($scope.gantt.getDateRange() === undefined) {
                     return;
@@ -38293,9 +38224,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.setData = keepScrollPos($scope, function(data) {
                 $scope.gantt.addData(data,
                     function(row) {
-                        $scope.raiseRowAddedEvent(row, false);
+                        $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
                     }, function(row) {
-                        $scope.raiseRowUpdatedEvent(row, false);
+                        $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
                     });
 
                 $scope.sortRows();
@@ -38304,7 +38235,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
                 $scope.gantt.removeData(data, function(row) {
-                    $scope.raiseRowUpdatedEvent(row, false);
+                    $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
                 });
 
                 $scope.sortRows();
@@ -38363,7 +38294,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         ]};
 }]);
 
-// src/logic/column.factory.js
+
 gantt.factory('Column', [ 'dateFunctions', function(df) {
     // Used to display the Gantt grid and header.
     // The columns are generated by the column generator.
@@ -38639,7 +38570,7 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
         Month: MonthColumn
     };
 }]);
-// src/logic/columnGenerator.factory.js
+
 gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
 
     // Returns a map to lookup if the current day is a weekend day
@@ -39073,17 +39004,29 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         MonthGenerator: MonthColumnGenerator
     };
 }]);
-// src/logic/events/events.service.js
+
 gantt.service('Events', ['mouseOffset', function(mouseOffset) {
     return {
         buildTaskEventData: function(evt, element, task, gantt) {
             var data = {evt:evt, element:element, task:task};
-            if (gantt !== undefined) {
+            if (gantt !== undefined && evt !== undefined) {
                 var x = mouseOffset.getOffset(evt).x;
                 // TODO: https://github.com/angular-gantt/angular-gantt/issues/120
                 // xInEm = x / $scope.getPxToEmFactor(),
                 data.column = gantt.getColumnByPosition(x + task.left);
                 data.date = gantt.getDateByPosition(x + task.left);
+            }
+            return data;
+        },
+
+        buildRowEventData: function(evt, element, row, gantt) {
+            var data = {evt:evt, element:element, row:row};
+            if (gantt !== undefined && evt !== undefined) {
+                var x = mouseOffset.getOffset(evt).x;
+                // TODO: https://github.com/angular-gantt/angular-gantt/issues/120
+                // xInEm = x / $scope.getPxToEmFactor(),
+                data.column = gantt.getColumnByPosition(x);
+                data.date = gantt.getDateByPosition(x);
             }
             return data;
         },
@@ -39097,7 +39040,7 @@ gantt.service('Events', ['mouseOffset', function(mouseOffset) {
 
 }]);
 
-// src/logic/gantt.factory.js
+
 gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
@@ -39672,7 +39615,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
     return Gantt;
 }]);
-// src/logic/headerGenerator.factory.js
+
 gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
 
     var generateHourHeader = function(columns) {
@@ -39764,7 +39707,7 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         }
     };
 }]);
-// src/logic/row.factory.js
+
 gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
@@ -39880,7 +39823,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
 
     return Row;
 }]);
-// src/logic/task.factory.js
+
 gantt.factory('Task', ['dateFunctions', function(df) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
@@ -39992,7 +39935,7 @@ gantt.factory('Task', ['dateFunctions', function(df) {
 
     return Task;
 }]);
-// src/logic/timespan.factory.js
+
 gantt.factory('Timespan', ['dateFunctions', function(df) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
@@ -40066,7 +40009,7 @@ gantt.factory('Timespan', ['dateFunctions', function(df) {
 
     return Timespan;
 }]);
-// src/logic/util/binarySearch.service.js
+
 gantt.service('binarySearch', [ function() {
     // Returns the object on the left and right in an array using the given cmp function.
     // The compare function defined which property of the value to compare (e.g.: c => c.left)
@@ -40093,7 +40036,7 @@ gantt.service('binarySearch', [ function() {
         }
     };
 }]);
-// src/logic/util/date.service.js
+
 gantt.service('dateFunctions', [ function() {
     // Date calculations from: http://www.datejs.com/ | MIT License
     return {
@@ -40232,7 +40175,7 @@ gantt.service('dateFunctions', [ function() {
         /*jshint bitwise:true */
     };
 }]);
-// src/ui/column/columnHeader.directive.js
+
 gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
@@ -40263,7 +40206,7 @@ gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events,
     };
 }]);
 
-// src/ui/limit/columnLimit.filter.js
+
 gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
     // Returns only the columns which are visible on the screen
 
@@ -40276,7 +40219,7 @@ gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
         return input.slice(start, end);
     };
 }]);
-// src/ui/limit/limitUpdater.directive.js
+
 gantt.directive('ganttLimitUpdater', ['$timeout', function($timeout) {
     // Updates the limit filters if the user scrolls the gantt chart
 
@@ -40303,7 +40246,7 @@ gantt.directive('ganttLimitUpdater', ['$timeout', function($timeout) {
         }]
     };
 }]);
-// src/ui/limit/rowLimit.filter.js
+
 gantt.filter('ganttRowLimit', ['$filter', function($filter) {
     // Returns only the rows which are visible on the screen
     // Use the rows height and position to decide if a row is still visible
@@ -40316,7 +40259,7 @@ gantt.filter('ganttRowLimit', ['$filter', function($filter) {
         return input;
     };
 }]);
-// src/ui/limit/taskLimit.filter.js
+
 gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
@@ -40352,7 +40295,7 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
         return res;
     };
 }]);
-// src/ui/mouse/labelsResizable.directive.js
+
 gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', function($document, debounce, mouseOffset) {
 
     return {
@@ -40442,7 +40385,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', fu
         }]
     };
 }]);
-// src/ui/mouse/rightClick.directive.js
+
 gantt.directive('ganttRightClick', ['$parse', function($parse) {
 
     return {
@@ -40460,7 +40403,38 @@ gantt.directive('ganttRightClick', ['$parse', function($parse) {
         }
     };
 }]);
-// src/ui/scroll/horizontalScrollReceiver.directive.js
+
+gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            row: '='
+        },
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'default.row.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $element.bind('click', function(evt) {
+                $scope.$emit(GANTT_EVENTS.ROW_CLICKED, Events.buildRowEventData(evt, $element, $scope.row));
+            });
+
+            $element.bind('dblclick', function(evt) {
+                $scope.$emit(GANTT_EVENTS.ROW_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row));
+            });
+
+            $element.bind('contextmenu', function(evt) {
+                $scope.$emit(GANTT_EVENTS.ROW_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row));
+            });
+        }]
+    };
+}]);
+
+
 gantt.directive('ganttHorizontalScrollReceiver', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
@@ -40472,7 +40446,7 @@ gantt.directive('ganttHorizontalScrollReceiver', function() {
         }]
     };
 });
-// src/ui/scroll/scrollManager.directive.js
+
 gantt.directive('ganttScrollManager', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
@@ -40487,7 +40461,7 @@ gantt.directive('ganttScrollManager', function() {
         }]
     };
 });
-// src/ui/scroll/scrollSender.directive.js
+
 gantt.directive('ganttScrollSender', ['$timeout', function($timeout) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
@@ -40530,7 +40504,7 @@ gantt.directive('ganttScrollSender', ['$timeout', function($timeout) {
         }]
     };
 }]);
-// src/ui/scroll/verticalScrollReceiver.directive.js
+
 gantt.directive('ganttVerticalScrollReceiver', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
@@ -40542,13 +40516,13 @@ gantt.directive('ganttVerticalScrollReceiver', function() {
         }]
     };
 });
-// src/ui/sort/sortManager.service.js
+
 gantt.service('sortManager', [ function() {
     // Contains the row which the user wants to sort (the one he started to drag)
 
     return { startRow: undefined };
 }]);
-// src/ui/sort/sortable.directive.js
+
 gantt.directive('ganttSortable', ['$document', 'sortManager', function($document, sortManager) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
@@ -40617,7 +40591,7 @@ gantt.directive('ganttSortable', ['$document', 'sortManager', function($document
         }]
     };
 }]);
-// src/ui/task/bounds/bounds.directive.js
+
 gantt.directive('ganttBounds', [function() {
     // Displays a box representing the earliest allowable start time and latest completion time for a job
 
@@ -40681,7 +40655,7 @@ gantt.directive('ganttBounds', [function() {
         }]
     };
 }]);
-// src/ui/task/task.directive.js
+
 gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
 
     return {
@@ -41004,7 +40978,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
     };
 }]);
 
-// src/ui/task/tooltip/tooltip.directive.js
+
 gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
@@ -41088,7 +41062,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
         }]
     };
 }]);
-// src/ui/util/date.filter.js
+
 gantt.filter('ganttDate', ['$filter', function($filter) {
     var defaultFilter = $filter('date');
 
@@ -41111,7 +41085,7 @@ gantt.filter('ganttDate', ['$filter', function($filter) {
     }
 }]);
 
-// src/ui/util/debounce.factory.js
+
 gantt.factory('debounce', ['$timeout', function($timeout) {
     function debounce(fn, timeout) {
         var nthCall = 0;
@@ -41132,7 +41106,7 @@ gantt.factory('debounce', ['$timeout', function($timeout) {
 
     return debounce;
 }]);
-// src/ui/util/keepScrollPos.factory.js
+
 gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
     // Make sure the scroll position will be at the same place after the tasks or columns changed
 
@@ -41168,7 +41142,7 @@ gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
 
     return keepScrollPos;
 }]);
-// src/ui/util/mouseButton.service.js
+
 gantt.service('mouseButton', [ function() {
     // Mouse button cross browser normalization
 
@@ -41184,7 +41158,7 @@ gantt.service('mouseButton', [ function() {
         }
     };
 }]);
-// src/ui/util/mouseOffset.service.js
+
 gantt.service('mouseOffset', [ function() {
     // Mouse offset support for lesser browsers (read IE 8)
 
@@ -41205,7 +41179,7 @@ gantt.service('mouseOffset', [ function() {
         }
     };
 }]);
-// src/ui/util/smartEvent.factory.js
+
 gantt.factory('smartEvent', [function() {
     // Auto released the binding when the scope is destroyed. Use if an event is registered on another element than the scope.
 
@@ -41229,7 +41203,7 @@ gantt.factory('smartEvent', [function() {
 
     return smartEvent;
 }]);
-// src/ui/util/sprintf.filter.js
+
 gantt.filter('sprintf', function() {
     function parse(str) {
         var args = [].slice.call(arguments, 1),

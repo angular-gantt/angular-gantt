@@ -15,10 +15,15 @@ gantt.constant('GANTT_EVENTS',
         'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
         'COLUMN_CLICKED': 'event:gantt-column-clicked',
         'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
-        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu'
+        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
+        'ROW_CLICKED': 'event:gantt-row-clicked',
+        'ROW_DBL_CLICKED': 'event:gantt-row-dblClicked',
+        'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
+        'ROW_CHANGED': 'event:gantt-row-changed',
+        'ROW_ADDED': 'event:gantt-row-added'
     });
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', function(Gantt, df, mouseOffset, debounce, keepScrollPos) {
+gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, df, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -84,12 +89,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             onGanttReady: '&',
             onTimespanAdded: '&',
             onTimespanUpdated: '&',
-            onRowAdded: '&',
-            onRowClicked: '&',
-            onRowDblClicked: '&',
-            onRowContextClicked: '&',
-            onRowUpdated: '&',
-            onRowMouseDown: '&',
             onScroll: '&'
         },
         controller: ['$scope', function($scope) {
@@ -205,8 +204,8 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.gantt.swapRows(a, b);
 
                 // Raise change events
-                $scope.raiseRowUpdatedEvent(a, true);
-                $scope.raiseRowUpdatedEvent(b, true);
+                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
 
                 // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== 'custom') {
@@ -295,75 +294,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 $scope.onLabelHeaderContextClicked({ event: { evt: evt, userTriggered: true } });
             };
 
-            $scope.raiseRowAddedEvent = function(row, userTriggered) {
-                $scope.onRowAdded({ event: { row: row, userTriggered: userTriggered } });
-            };
-
-            $scope.raiseDOMRowClickedEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowClickedEvent = function(evt, row, column, date) {
-                $scope.onRowClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseDOMRowDblClickedEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowDblClickedEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowDblClickedEvent = function(evt, row, column, date) {
-                $scope.onRowDblClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseDOMRowMouseDownEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowMouseDownEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowMouseDownEvent = function(evt, row, column, date) {
-                $scope.onRowMouseDown({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseDOMRowClickedEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowClickedEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseDOMRowContextMenuEvent = function(e, row) {
-                var x = mouseOffset.getOffset(e).x;
-                var xInEm = x / $scope.getPxToEmFactor();
-                var clickedColumn = $scope.gantt.getColumnByPosition(xInEm);
-                var date = $scope.gantt.getDateByPosition(xInEm);
-
-                $scope.raiseRowContextMenuEvent(e, row, clickedColumn, date);
-            };
-
-            $scope.raiseRowContextMenuEvent = function(evt, row, column, date) {
-                $scope.onRowContextClicked({ event: { evt: evt, row: row, column: column.clone(), date: date, userTriggered: true } });
-            };
-
-            $scope.raiseRowUpdatedEvent = function(row, userTriggered) {
-                $scope.onRowUpdated({ event: { row: row, userTriggered: userTriggered } });
-            };
-
             $scope.raiseScrollEvent = debounce(function() {
                 if ($scope.gantt.getDateRange() === undefined) {
                     return;
@@ -391,9 +321,9 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.setData = keepScrollPos($scope, function(data) {
                 $scope.gantt.addData(data,
                     function(row) {
-                        $scope.raiseRowAddedEvent(row, false);
+                        $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
                     }, function(row) {
-                        $scope.raiseRowUpdatedEvent(row, false);
+                        $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
                     });
 
                 $scope.sortRows();
@@ -402,7 +332,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
                 $scope.gantt.removeData(data, function(row) {
-                    $scope.raiseRowUpdatedEvent(row, false);
+                    $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
                 });
 
                 $scope.sortRows();

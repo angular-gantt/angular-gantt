@@ -144,6 +144,8 @@ angular.module('angularGanttDemoApp')
                     propertyValue = propertyValue.name;
                 } else if (property === 'column') {
                     propertyValue = propertyValue.date + '-' + propertyValue.getEndDate();
+                }  else if (property === 'row') {
+                    propertyValue = propertyValue.name;
                 }
                 output += property + ': ' + propertyValue +'; ';
             }
@@ -164,6 +166,14 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.COLUMN_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.COLUMN_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.COLUMN_CONTEXTMENU, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.ROW_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_DBL_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_CONTEXTMENU, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.ROW_CHANGED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_ADDED, logTaskEvent);
+
     });
 
 'use strict';
