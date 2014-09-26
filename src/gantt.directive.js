@@ -1,3 +1,4 @@
+
 'use strict';
 /*global gantt: true*/
 var gantt = angular.module('gantt', []);
@@ -16,6 +17,8 @@ gantt.constant('GANTT_EVENTS',
         'COLUMN_CLICKED': 'event:gantt-column-clicked',
         'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
         'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
+        'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
+        'ROW_MOUSEUP': 'event:gantt-row-mouseup',
         'ROW_CLICKED': 'event:gantt-row-clicked',
         'ROW_DBL_CLICKED': 'event:gantt-row-dblClicked',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',

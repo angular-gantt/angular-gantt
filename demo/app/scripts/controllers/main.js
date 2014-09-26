@@ -79,32 +79,6 @@ angular.module('angularGanttDemoApp')
             console.log('Label header event. Mouse: ' + event.evt.clientX + '/' + event.evt.clientY);
         };
 
-        $scope.rowEvent = function(event) {
-            // A row has been added, updated or clicked. Use this event to save back the updated row e.g. after a user re-ordered it.
-            console.log('Row event (by user: ' + event.userTriggered + '): ' + event.date + ' ' + event.row.name + ' (Custom data: ' + event.row.data + ')');
-
-            if (!$scope.options.readOnly && $scope.options.draw) {
-                // Example to draw task inside row
-                if (event.userTriggered && event.evt.type === 'mousedown' && (event.evt.target ? event.evt.target : event.evt.srcElement).className.indexOf('gantt-row') > -1) {
-                    var startDate = event.date;
-                    var endDate = new Date(startDate.getTime());
-                    //endDate.setDate(endDate.getDate());
-                    var infoTask = {
-                        id: Uuid.randomUuid(),  // Unique id of the task.
-                        name: 'Test', // Name shown on top of each task.
-                        from: startDate, // Date can be a String, Timestamp or Date object.
-                        to: endDate,// Date can be a String, Timestamp or Date object.
-                        color: '#AA8833', // Color of the task in HEX format (Optional).
-                        data: {info: 'La Cacca sulla torretta'} // Custom object. Use this to attach your own data (Optional).
-
-                    };
-                    var task = event.row.addTask(infoTask);
-                    task.isCreating = true;
-                    task.updatePosAndSize();
-                }
-            }
-        };
-
         $scope.scrollEvent = function(event) {
             if (angular.equals(event.direction, 'left')) {
                 // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
@@ -139,7 +113,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.TASK_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_CONTEXTMENU, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_UPDATED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_MOVE_BEGIN, logTaskEvent);
         //$scope.$on(GANTT_EVENTS.TASK_MOVE, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_MOVE_END, logTaskEvent);
@@ -157,5 +131,33 @@ angular.module('angularGanttDemoApp')
 
         $scope.$on(GANTT_EVENTS.ROW_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_ADDED, logTaskEvent);
+
+        var rowEvent = function(event, data) {
+            if (!$scope.options.readOnly && $scope.options.draw) {
+                // Example to draw task inside row
+                if ((data.evt.target ? data.evt.target : data.evt.srcElement).className.indexOf('gantt-row') > -1) {
+                    // TODO: https://github.com/angular-gantt/angular-gantt/issues/120
+                    // Cause invalid date.
+
+                    var startDate = data.date;
+                    var endDate = new Date(startDate.getTime());
+                    //endDate.setDate(endDate.getDate());
+                    var infoTask = {
+                        id: Uuid.randomUuid(),  // Unique id of the task.
+                        name: 'Drawn task', // Name shown on top of each task.
+                        from: startDate, // Date can be a String, Timestamp or Date object.
+                        to: endDate,// Date can be a String, Timestamp or Date object.
+                        color: '#AA8833' // Color of the task in HEX format (Optional).
+                    };
+                    var task = data.row.addTask(infoTask);
+                    task.isCreating = true;
+                    task.updatePosAndSize();
+                }
+            }
+        };
+
+        $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_MOUSEUP, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, rowEvent);
 
     });

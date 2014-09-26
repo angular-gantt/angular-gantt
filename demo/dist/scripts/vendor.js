@@ -37903,6 +37903,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 'use strict';
 
 
+
 var gantt = angular.module('gantt', []);
 gantt.constant('GANTT_EVENTS',
     {
@@ -37919,6 +37920,8 @@ gantt.constant('GANTT_EVENTS',
         'COLUMN_CLICKED': 'event:gantt-column-clicked',
         'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
         'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
+        'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
+        'ROW_MOUSEUP': 'event:gantt-row-mouseup',
         'ROW_CLICKED': 'event:gantt-row-clicked',
         'ROW_DBL_CLICKED': 'event:gantt-row-dblClicked',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
@@ -40408,9 +40411,6 @@ gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EV
     return {
         restrict: 'E',
         transclude: true,
-        scope: {
-            row: '='
-        },
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
                 return 'default.row.tmpl.html';
@@ -40419,17 +40419,27 @@ gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EV
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
+            $element.bind('mousedown', function(evt) {
+                $scope.$emit(GANTT_EVENTS.ROW_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+            });
+
+            $element.bind('mouseup', function(evt) {
+                $scope.$emit(GANTT_EVENTS.ROW_MOUSEUP, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+            });
+
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_CLICKED, Events.buildRowEventData(evt, $element, $scope.row));
+                $scope.$emit(GANTT_EVENTS.ROW_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row));
+                $scope.$emit(GANTT_EVENTS.ROW_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row));
+                $scope.$emit(GANTT_EVENTS.ROW_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
+
+
         }]
     };
 }]);
