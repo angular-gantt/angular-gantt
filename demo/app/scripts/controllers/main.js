@@ -35,17 +35,13 @@ angular.module('angularGanttDemoApp')
         // Get today date for currentDate indicator
         $scope.currentDate = new Date(2013, 9, 23, 11, 20, 0);
 
-        $scope.ganttInitialized = function() {
-            $scope.addSamples();
-        };
-
-        $scope.addSamples = function() {
+        $scope.$on(GANTT_EVENTS.READY, function() {
             $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
             $scope.loadData(Sample.getSampleData().data1);
             $timeout(function() {
                 $scope.scrollToDate($scope.currentDate);
             }, 0, true);
-        };
+        });
 
         $scope.removeSomeSamples = function() {
             $scope.removeData([

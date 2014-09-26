@@ -4,6 +4,8 @@
 var gantt = angular.module('gantt', []);
 gantt.constant('GANTT_EVENTS',
     {
+        'READY': 'event:gantt-ready',
+
         'TASK_CHANGED': 'event:gantt-task-changed',
         'TASK_MOVE_BEGIN': 'event:gantt-task-moveBegin',
         'TASK_MOVE': 'event:gantt-task-move',
@@ -102,8 +104,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             clearData: '&',
             centerDate: '&',
             onGanttReady: '&',
-            onTimespanAdded: '&',
-            onTimespanUpdated: '&',
             onScroll: '&'
         },
         controller: ['$scope', function($scope) {
@@ -363,7 +363,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.centerDate({ fn: $scope.scrollToDate});
 
             // Gantt is initialized. Signal that the Gantt is ready.
-            $scope.onGanttReady();
+            $scope.$emit(GANTT_EVENTS.READY);
         }
         ]};
 }]);
