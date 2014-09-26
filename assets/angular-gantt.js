@@ -2262,9 +2262,6 @@ gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events,
     return {
         restrict: 'E',
         transclude: true,
-        scope: {
-            column: '='
-        },
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
                 return 'default.columnHeader.tmpl.html';

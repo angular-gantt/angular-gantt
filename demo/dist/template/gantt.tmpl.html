@@ -25,27 +25,23 @@
             <div class="gantt-head-row"
                  ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
-                <gantt-column-header ng-repeat="c in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                                     column="c">
-                    {{ headerFormatMonth && (c.date | ganttDate:headerFormatMonth)  || (c.date | ganttDate:'MMMM yyyy') }}
+                <gantt-column-header ng-repeat="column in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index">
+                    {{ headerFormatMonth && (column.date | ganttDate:headerFormatMonth)  || (column.date | ganttDate:'MMMM yyyy') }}
                 </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
-                <gantt-column-header ng-repeat="c in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                                     column="c">
-                    {{headerFormatWeek && (headerFormatWeek | sprintf:c.week) || c.week }}
+                <gantt-column-header ng-repeat="column in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index">
+                    {{headerFormatWeek && (headerFormatWeek | sprintf:column.week) || column.week }}
                 </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
-                <gantt-column-header ng-repeat="c in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                                     column="c">
-                    {{ headerFormatDay && (c.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (c.date | ganttDate: 'dd EEEE') || (c.date | ganttDate:'dd')) }}
+                <gantt-column-header ng-repeat="column in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index">
+                    {{ headerFormatDay && (column.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (column.date | ganttDate: 'dd EEEE') || (column.date | ganttDate:'dd')) }}
                 </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
-                <gantt-column-header ng-repeat="c in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index"
-                                     column="c">
-                    {{ headerFormatHour && (c.date | ganttDate:headerFormatHour) || (c.date | ganttDate:'HH') }}
+                <gantt-column-header ng-repeat="column in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index">
+                    {{ headerFormatHour && (column.date | ganttDate:headerFormatHour) || (column.date | ganttDate:'HH') }}
                 </gantt-column-header>
             </div>
         </div>
@@ -67,9 +63,9 @@
             </div>
             <div class="gantt-body-foreground">
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+'em' }"></div>
-                <div ng-class="(viewScale === 'hour' && !c.isWorkHour && 'gantt-foreground-col-nonworkhour' || (c.isWeekend && 'gantt-foreground-col-weekend' || ((c.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
-                     ng-style="{'width': c.width+'em', 'left': c.left+'em'}"
-                     ng-repeat="c in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">
+                <div ng-class="(viewScale === 'hour' && !column.isWorkHour && 'gantt-foreground-col-nonworkhour' || (column.isWeekend && 'gantt-foreground-col-weekend' || ((column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
+                     ng-style="{'width': column.width+'em', 'left': column.left+'em'}"
+                     ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">
                 </div>
             </div>
             <div class="gantt-body-content">
