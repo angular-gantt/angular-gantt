@@ -65,20 +65,6 @@ angular.module('angularGanttDemoApp')
             $scope.clearData();
         };
 
-        $scope.columnDateEvent = function(event) {
-            console.log('Column event (column.date: ' + event.column.date + ')');
-        };
-
-        $scope.labelEvent = function(event) {
-            // A label has been clicked.
-            console.log('Label event (by user: ' + event.userTriggered + '): ' + event.row.name + ' (Custom data: ' + event.row.data + ')');
-        };
-
-        $scope.labelHeaderEvent = function(event) {
-            // The label header has been clicked.
-            console.log('Label header event. Mouse: ' + event.evt.clientX + '/' + event.evt.clientY);
-        };
-
         $scope.scrollEvent = function(event) {
             if (angular.equals(event.direction, 'left')) {
                 // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
