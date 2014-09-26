@@ -2641,7 +2641,7 @@ gantt.directive('ganttScrollManager', function() {
 });
 
 
-gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout, debounce) {
+gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
