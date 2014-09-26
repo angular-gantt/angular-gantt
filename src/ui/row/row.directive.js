@@ -3,6 +3,7 @@ gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EV
     return {
         restrict: 'E',
         transclude: true,
+        replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
                 return 'default.row.tmpl.html';
@@ -11,6 +12,8 @@ gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EV
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
+            $scope.row.$element = $element;
+
             $element.bind('mousedown', function(evt) {
                 $scope.$emit(GANTT_EVENTS.ROW_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });

@@ -18,9 +18,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             var scrollTriggerDistance = 5;
 
             var windowElement = angular.element($window);
-            var ganttRowElement = $element.parent();
-            var ganttBodyElement = ganttRowElement.parent();
-            var ganttScrollElement = ganttBodyElement.parent().parent();
+            var ganttRowElement = $scope.row.$element;
+            var ganttBodyElement = $scope.body.$element;
+            var ganttScrollElement = $scope.ganttScroll;
 
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;
