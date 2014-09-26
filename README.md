@@ -253,54 +253,6 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
   If max height is set bigger than 0 the Gantt will be set to this height and show a vertical scroll bar if the content does not fit inside.
 
-- **on-gantt-ready**
-
-  This event is raised when the Gantt is initialized and ready to load data.
-
-- **on-column-date-clicked**, **on-column-date-dbl-clicked**, **on-column-date-context-clicked**
-
-  This event is raised if the user clicks on a column date. Use the `evt` property on the event to access the original javascript event, and the `column` property to access the clicked column.
-
-- **on-label-clicked**, **on-label-dbl-clicked**, **on-label-context-clicked**
-
-  This event is raised if the user clicks on a row label. Use the `evt` property on the event to access the original javascript event.
-
-- **on-label-header-clicked**, **on-label-header-dbl-clicked**, **on-label-header-context-clicked**
-
-  This event is raised if the user clicks on the label header in the top section of the Gantt. Use the `evt` property on the event to access the original javascript event.
-
-- **on-labels-resized**
-
-  This event is raised after the user did resize the row label section.
-
-- **on-row-added** and **on-row-updated**
-
-  Those events are raised if a new row is added or updated. A row is updated if the custom sort order has been changed by the user.
-
-- **on-row-clicked**, **on-row-dbl-clicked**, **on-row-context-clicked**
-
-  This event is raised if the user clicks on a row. The event has a `row`, `date`, `column` and `evt` property you can use to detect the date clicked or to access the original javascript event.
-
-- **on-scroll**
-
-  This event is raised if the user scrolls to the left or right side of the Gantt chart. Use this event to load more data on the fly.
-
-- **on-task-clicked**, **on-task-dbl-clicked**, **on-task-context-clicked**
-
-  This event is raised if the user clicks on a task. Use the `evt` property on the event to access the original javascript event.
-
-- **on-task-updated**
-
-  This event is raised if the user moves or resizes a task.
-
-- **on-task-move-begin**, **on-task-move-end**
-
-  This event is raised if when a user starts moving a task and when the move finished.
-
-- **on-task-resize-begin**, **on-task-resize-end**
-
-  This event is raised if when a user starts resizing a task and when the resize operation is finished.
-
 - **remove-data**
 
   Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
@@ -368,8 +320,8 @@ and no modification should be made manually to those files. Use `grunt watch` to
   Array containing all working hours. Non working hours are displayed differently than working hours. Example:
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
-### Row and task object properties
-#### Row
+### Objects properties
+- **Row**
 ```js
 {
     id: "...",  // Unique id of the row.
@@ -379,7 +331,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 }
 ```
 
-#### Task
+- **Task**
 ```js
 {
     id: "...",  // Unique id of the task.
@@ -394,6 +346,82 @@ and no modification should be made manually to those files. Use `grunt watch` to
     data: <Any> // Custom object. Use this to attach your own data (Optional).
 }
 ```
+
+- **Timespan**
+```js
+{
+    id: "...",  // Unique id of the timespan.
+    name: "...", // Name shown on top of each timespan.
+    from: <Date>, // Date can be a String, Timestamp or Date object.
+    to: <Date>, // Date can be a String, Timestamp or Date object.
+    color: "..." , // Color of the timespan in HEX format (Optional).
+    classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+}
+```
+
+### Events
+
+Angular-gantt emits many events using native AngularJS [$scope.$on(name, listener)](https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$on).
+
+    $scope.$on('event:gantt-<event-name>', function(evt, data) {
+        // Implement this callback to perform what you need
+        // ...
+    })`;
+
+All event names are prefixed with `event:gantt-`. You can also use constants by injecting
+`GANTT_EVENTS` from `gantt` module.
+
+- **ready**
+
+  Gantt is initialized and ready to load data.
+
+- **scroll**
+
+  The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.
+
+- **task-added**, **task-changed**
+
+  This event is raised if the user creates or change a task.
+
+- **task-clicked**, **task-dblclicked**, **task-contextmenu**
+
+  This event is raised if the user clicks on a task. Use the `evt` property on the event to access the original javascript event.
+
+- **task-move-begin**, **task-move**, **task-move-end**
+
+  The user is moving a task.
+
+- **task-resize-begin**, **on-task-resize**, **on-task-resize-end**
+
+  The user is resizing a task.
+
+- **timespan-added**, **timespan-changed**
+
+  This event is raised if the user creates or change a timespan.
+
+- **column-clicked**, **column-dblclicked**, **column-contextmenu**
+  
+  This event is raised if the user clicks on a column date.
+
+- **row-label-clicked**, **row-label-dblclicked**, **row-label-contextmenu**, **row-label-mousedown**, **row-label-mouseup**
+
+  The user has clicked on a row label.
+
+- **row-header-clicked**, **row-header-dblclicked**, **row-header-contextmenu**, **row-header-mousedown**, **row-header-mouseup**
+
+  The user has clicked on the label header in the top section of the Gantt.
+
+- **row-labels-resized**
+
+  The user has resized the row label section.
+
+- **row-added** and **row-changed**
+
+  A new row is added or changed. A row is changed if the custom sort order has been changed by the user.
+
+- **row-clicked**, **row-dblclicked**, **row-contextmenu**, **row-mousedown**, **row-mouseup**
+
+  The user clicks on a row.
 
 ### License
 **The MIT License**

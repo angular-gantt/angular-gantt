@@ -37911,24 +37911,24 @@ gantt.constant('GANTT_EVENTS',
         'SCROLL': 'event:gantt-scroll',
 
         'TASK_CHANGED': 'event:gantt-task-changed',
-        'TASK_MOVE_BEGIN': 'event:gantt-task-moveBegin',
+        'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
         'TASK_MOVE': 'event:gantt-task-move',
-        'TASK_MOVE_END': 'event:gantt-task-moveEnd',
-        'TASK_RESIZE_BEGIN': 'event:gantt-task-resizeBegin',
+        'TASK_MOVE_END': 'event:gantt-task-move-end',
+        'TASK_RESIZE_BEGIN': 'event:gantt-task-resize-begin',
         'TASK_RESIZE': 'event:gantt-task-resize',
-        'TASK_RESIZE_END': 'event:gantt-task-resizeEnd',
+        'TASK_RESIZE_END': 'event:gantt-task-resize-end',
         'TASK_CLICKED': 'event:gantt-task-clicked',
-        'TASK_DBL_CLICKED': 'event:gantt-task-dblClicked',
+        'TASK_DBL_CLICKED': 'event:gantt-task-dblclicked',
         'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
 
         'COLUMN_CLICKED': 'event:gantt-column-clicked',
-        'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
+        'COLUMN_DBL_CLICKED': 'event:gantt-column-dblclicked',
         'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
 
         'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
         'ROW_MOUSEUP': 'event:gantt-row-mouseup',
         'ROW_CLICKED': 'event:gantt-row-clicked',
-        'ROW_DBL_CLICKED': 'event:gantt-row-dblClicked',
+        'ROW_DBL_CLICKED': 'event:gantt-row-dblclicked',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
         'ROW_CHANGED': 'event:gantt-row-changed',
         'ROW_ADDED': 'event:gantt-row-added',
@@ -37936,16 +37936,16 @@ gantt.constant('GANTT_EVENTS',
         'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
         'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
         'ROW_LABEL_CLICKED': 'event:gantt-row-label-clicked',
-        'ROW_LABEL_DBL_CLICKED': 'event:gantt-row-label-dblClicked',
+        'ROW_LABEL_DBL_CLICKED': 'event:gantt-row-label-dblclicked',
         'ROW_LABEL_CONTEXTMENU': 'event:gantt-row-label-contextmenu',
 
         'ROW_HEADER_MOUSEDOWN': 'event:gantt-row-header-mousedown',
         'ROW_HEADER_MOUSEUP': 'event:gantt-row-header-mouseup',
         'ROW_HEADER_CLICKED': 'event:gantt-row-header-clicked',
-        'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblClicked',
+        'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblclicked',
         'ROW_HEADER_CONTEXTMENU': 'event:gantt-row-header-contextmenu',
 
-        'LABELS_RESIZED': 'event:gantt-labels-resized',
+        'ROW_LABELS_RESIZED': 'event:gantt-row-labels-resized',
 
         'TIMESPAN_ADDED': 'event:gantt-timespan-added',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
@@ -40364,7 +40364,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', 'G
                     'cursor': ''
                 });
 
-                $scope.$emit(GANTT_EVENTS.LABELS_RESIZED, { width: $scope.width });
+                $scope.$emit(GANTT_EVENTS.ROW_LABELS_RESIZED, { width: $scope.width });
             };
         }]
     };

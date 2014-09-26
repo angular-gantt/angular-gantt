@@ -172,7 +172,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, logTaskEvent);
 
-        $scope.$on(GANTT_EVENTS.LABELS_RESIZED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_LABELS_RESIZED, logTaskEvent);
 
         $scope.$on(GANTT_EVENTS.TIMESPAN_ADDED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TIMESPAN_CHANGED, logTaskEvent);
