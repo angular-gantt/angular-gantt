@@ -6,7 +6,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.tooltip.tmpl.html';
+                return 'template/default.tooltip.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

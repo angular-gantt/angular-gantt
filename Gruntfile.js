@@ -4,6 +4,18 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        html2js: {
+            options: {
+                quoteChar: '\'',
+                indentString: '    ',
+                module: 'ganttTemplates',
+                singleModule: true
+            },
+            main: {
+                src: ['src/template/**/*.html'],
+                dest: '.tmp/generated/html2js.js'
+            }
+        },
         concat: {
             options: {
                 separator: '\n',
@@ -23,7 +35,7 @@ module.exports = function(grunt) {
                 }
             },
             dist: {
-                src: ['src/**/*.js'],
+                src: ['src/**/*.js', '.tmp/generated/**/*.js'],
                 dest: 'assets/<%= pkg.name %>.js'
             }
         },
@@ -55,7 +67,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-html2js');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+    grunt.registerTask('default', ['html2js', 'jshint', 'concat', 'uglify']);
 
 };

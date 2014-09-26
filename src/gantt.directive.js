@@ -1,7 +1,6 @@
-
 'use strict';
 /*global gantt: true*/
-var gantt = angular.module('gantt', []);
+var gantt = angular.module('gantt', ['ganttTemplates']);
 gantt.constant('GANTT_EVENTS',
     {
         'READY': 'event:gantt-ready',
@@ -54,7 +53,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
         replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'template/gantt.tmpl.html';
+                return 'template/default.gantt.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

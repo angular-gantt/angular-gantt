@@ -7,7 +7,7 @@ gantt.directive('ganttBody', [function() {
         replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.body.tmpl.html';
+                return 'template/default.body.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

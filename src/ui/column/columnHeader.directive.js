@@ -6,7 +6,7 @@ gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events,
         replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.columnHeader.tmpl.html';
+                return 'template/default.columnHeader.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

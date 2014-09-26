@@ -6,7 +6,7 @@ gantt.directive('ganttRowLabel', ['Events', 'GANTT_EVENTS', function(Events, GAN
         replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.rowLabel.tmpl.html';
+                return 'template/default.rowLabel.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

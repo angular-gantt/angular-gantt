@@ -86,13 +86,13 @@
     -->
 
     <!-- Body template -->
-    <script type="text/ng-template" id="default.body.tmpl.html">
+    <script type="text/ng-template" id="template/default.body.tmpl.html">
         <div ng-transclude class="gantt-body" ng-style="{'width': gantt.width+'em'}"></div>
     </script>
 
 
     <!-- Scrollable template -->
-    <script type="text/ng-template" id="default.scrollable.tmpl.html">
+    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">
         <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater
              ng-style="(maxHeight > 0 && {'max-height': (maxHeight - ganttHeader.offsetHeight)+'px',
         'overflow-y': 'auto', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')} ||
@@ -100,7 +100,7 @@
     </script>
 
     <!-- Task template -->
-    <script type="text/ng-template" id="default.task.tmpl.html">
+    <script type="text/ng-template" id="template/default.task.tmpl.html">
         <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
@@ -113,7 +113,7 @@
 
     <!-- Task tooltip template -->
     <!-- Move ng-if from parent to tooltip directive when https://github.com/angular/angular.js/issues/7183 is fixed -->
-    <script type="text/ng-template" id="default.tooltip.tmpl.html">
+    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">
         <div class="gantt-task-info" ng-style="css">
             <div class="gantt-task-info-content">
                 {{ task.name }}</br>
@@ -129,22 +129,22 @@
 
     <!-- Task bounds template -->
     <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->
-    <script type="text/ng-template" id="default.bounds.tmpl.html">
+    <script type="text/ng-template" id="template/default.bounds.tmpl.html">
         <div ng-show='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>
     </script>
 
     <!-- Column header template -->
-    <script type="text/ng-template" id="default.columnHeader.tmpl.html">
+    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">
         <span ng-transclude class="gantt-column-header" ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></span>
     </script>
 
     <!-- Row template -->
-    <script type="text/ng-template" id="default.row.tmpl.html">
+    <script type="text/ng-template" id="template/default.row.tmpl.html">
         <div ng-transclude class="gantt-row gantt-row-height"></div>
     </script>
 
     <!-- Row label template -->
-    <script type="text/ng-template" id="default.rowLabel.tmpl.html">
+    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">
         <div ng-transclude class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'">
@@ -152,7 +152,7 @@
     </script>
 
     <!-- Row header template -->
-    <script type="text/ng-template" id="default.rowHeader.tmpl.html">
+    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">
         <div class="gantt-labels-head-row"
              ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
             <span>Name</span>

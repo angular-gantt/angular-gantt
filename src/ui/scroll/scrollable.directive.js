@@ -6,7 +6,7 @@ gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', fu
         replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.scrollable.tmpl.html';
+                return 'template/default.scrollable.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

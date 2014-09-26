@@ -44,7 +44,7 @@
     
     [Master branch version](https://github.com/angular-gantt/angular-gantt/archive/master.zip) contains bleeding edge features, but may be very unstable.
 
-2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css) and [template/gantt.tmpl.html](template/gantt.tmpl.html) to your project. For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
+2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css). For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
 
 3. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
 
@@ -287,9 +287,19 @@ and no modification should be made manually to those files. Use `grunt watch` to
   - `expand`: rendering range will be expanded to display the tasks entirely.
   - `truncate`: tasks will be truncated, or even totally hidden if they are not in rendering range at all.
 
-- **template-url** (default: `template/gantt.tmpl.html`)
+- **template-url**
 
-  URL of the Gantt HTML template. You need to specify this attribute if you put the template in a different folder otherwise the directive won't work.
+  URL of custom Gantt HTML template. If you want to customize the default Gantt HTML template, make a copy of [default
+  template file src/template/default.gantt.tmpl.html](src/template/default.gantt.tmpl.html) to your own project, and set
+  the URL of copied file to this attribute. 
+    
+  If `undefined` or `template/default.gantt.tmpl.html`, default template will be used.   
+  
+  *warning:* template-url must be different than `template/default.gantt.tmpl.html`, or it will use default
+  template included in `angular-gantt.js`.
+  
+  To use default template, you don't have to copy [default template file]((src/template/default.gantt.tmpl.html)) to your project, default template is loaded in 
+  [$templateCache](https://docs.angularjs.org/api/ng/service/$templateCache) when initializing `gantt` module.
 
 - **tooltip-date-format**
 

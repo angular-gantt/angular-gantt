@@ -6,7 +6,7 @@ gantt.directive('ganttBounds', [function() {
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.bounds.tmpl.html';
+                return 'template/default.bounds.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

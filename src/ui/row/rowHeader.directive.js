@@ -6,7 +6,7 @@ gantt.directive('ganttRowHeader', ['Events', 'GANTT_EVENTS', function(Events, GA
         replace: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'default.rowHeader.tmpl.html';
+                return 'template/default.rowHeader.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
