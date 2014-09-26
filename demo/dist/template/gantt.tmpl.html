@@ -1,8 +1,10 @@
 <div class="gantt" gantt-scroll-manager>
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
-         gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50" on-labels-resized="raiseLabelsResized(width)" >
-        <gantt-row-header ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></gantt-row-header>
+         gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50">
+        <div class="gantt-labels-head">
+            <gantt-row-header ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></gantt-row-header>
+        </div>
         <div class="gantt-labels-body"
              ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px'} || {})"
              ng-show="gantt.columns.length > 0">
@@ -137,6 +139,7 @@
         <div ng-transclude class="gantt-row gantt-row-height"></div>
     </script>
 
+    <!-- Row label template -->
     <script type="text/ng-template" id="default.rowLabel.tmpl.html">
         <div ng-transclude class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
@@ -144,12 +147,11 @@
         </div>
     </script>
 
+    <!-- Row header template -->
     <script type="text/ng-template" id="default.rowHeader.tmpl.html">
-        <div class="gantt-labels-head">
-            <div class="gantt-labels-head-row"
-                 ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
-                <span>Name</span>
-            </div>
+        <div class="gantt-labels-head-row"
+             ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
+            <span>Name</span>
         </div>
     </script>
 

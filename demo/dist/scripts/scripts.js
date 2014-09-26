@@ -116,6 +116,8 @@ angular.module('angularGanttDemoApp')
                     propertyValue = propertyValue[0].localName + (propertyValue[0].className ? '.' + propertyValue[0].className : '');
                 } else if (property === 'task') {
                     propertyValue = propertyValue.name;
+                } else if (property === 'timespan') {
+                    propertyValue = propertyValue.name;
                 } else if (property === 'column') {
                     propertyValue = propertyValue.date + '-' + propertyValue.getEndDate();
                 }  else if (property === 'row') {
@@ -187,6 +189,11 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.ROW_HEADER_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.LABELS_RESIZED, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.TIMESPAN_ADDED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TIMESPAN_CHANGED, logTaskEvent);
 
     });
 

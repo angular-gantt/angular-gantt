@@ -39,7 +39,10 @@ gantt.constant('GANTT_EVENTS',
         'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblClicked',
         'ROW_HEADER_CONTEXTMENU': 'event:gantt-row-header-contextmenu',
 
-        'LABELS_RESIZED': 'event:gantt-labels-resized'
+        'LABELS_RESIZED': 'event:gantt-labels-resized',
+
+        'TIMESPAN_ADDED': 'event:gantt-timespan-added',
+        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
 gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, df, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
@@ -342,21 +345,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             $scope.setTimespans = keepScrollPos($scope, function(timespans) {
                 $scope.gantt.addTimespans(timespans,
                     function(timespan) {
-                        $scope.raiseTimespanAddedEvent(timespan, false);
+                        $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
                     }, function(timespan) {
-                        $scope.raiseTimespanUpdatedEvent(timespan, false);
+                        $scope.$emit(GANTT_EVENTS.TIMESPAN_CHANGED, {timespan: timespan});
                     });
-
-                $scope.sortRows();
             });
-
-            $scope.raiseTimespanAddedEvent = function(timespan, userTriggered) {
-                $scope.onTimespanAdded({ event: { timespan: timespan, userTriggered: userTriggered } });
-            };
-
-            $scope.raiseTimespanUpdatedEvent = function(timespan, userTriggered) {
-                $scope.onTimespanUpdated({ event: { timespan: timespan, userTriggered: userTriggered } });
-            };
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
