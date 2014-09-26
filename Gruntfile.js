@@ -17,10 +17,9 @@ module.exports = function(grunt) {
                     'Github: https://github.com/angular-gantt/angular-gantt\n' +
                     '*/\n' +
                     '\'use strict\';\n',
-                process: function(src, filepath) {
-                    return '// ' + filepath + '\n' +
-                        src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1')
-                            .replace(/(^|\n)[ \t]*(\/\*\s*global\s+.*?:\s+.*?\*\/);?\s*/g, '$1');
+                process: function(src) {
+                    return src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1\n')
+                            .replace(/(^|\n)[ \t]*(\/\*\s*global\s+.*?:\s+.*?\*\/);?\s*/g, '$1\n');
                 }
             },
             dist: {
