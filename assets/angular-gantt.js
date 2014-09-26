@@ -13,6 +13,7 @@ var gantt = angular.module('gantt', []);
 gantt.constant('GANTT_EVENTS',
     {
         'READY': 'event:gantt-ready',
+        'SCROLL': 'event:gantt-scroll',
 
         'TASK_CHANGED': 'event:gantt-task-changed',
         'TASK_MOVE_BEGIN': 'event:gantt-task-moveBegin',
@@ -110,9 +111,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             loadData: '&',
             removeData: '&',
             clearData: '&',
-            centerDate: '&',
-            onGanttReady: '&',
-            onScroll: '&'
+            centerDate: '&'
         },
         controller: ['$scope', function($scope) {
             // Initialize defaults
@@ -219,7 +218,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             });
 
             $scope.getPxToEmFactor = function() {
-                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
+                return $scope.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -245,20 +244,20 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
-                $scope.ganttScroll[0].scrollLeft = x;
-                $scope.ganttScroll.triggerHandler('scroll');
+                $scope.scrollable.$element[0].scrollLeft = x;
+                $scope.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the left side by specified x
             $scope.scrollLeft = function(x) {
-                $scope.ganttScroll[0].scrollLeft -= x;
-                $scope.ganttScroll.triggerHandler('scroll');
+                $scope.scrollable.$element[0].scrollLeft -= x;
+                $scope.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
             $scope.scrollRight = function(x) {
-                $scope.ganttScroll[0].scrollLeft += x;
-                $scope.ganttScroll.triggerHandler('scroll');
+                $scope.scrollable.$element[0].scrollLeft += x;
+                $scope.scrollable.$element.triggerHandler('scroll');
             };
 
             // Tries to center the specified date
@@ -266,7 +265,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var column = $scope.gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
-                    $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth / 2;
+                    $scope.scrollable.$element[0].scrollLeft = x - $scope.scrollable.$element[0].offsetWidth / 2;
                 }
             };
 
@@ -288,29 +287,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 $scope.gantt.requestDateRange(from, to);
             });
-
-            $scope.raiseScrollEvent = debounce(function() {
-                if ($scope.gantt.getDateRange() === undefined) {
-                    return;
-                }
-
-                var el = $scope.ganttScroll[0];
-                var direction;
-                var date;
-
-                if (el.scrollLeft === 0) {
-                    direction = 'left';
-                    date = $scope.gantt.getDateRange().from;
-                } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
-                    direction = 'right';
-                    date = $scope.gantt.getDateRange().to;
-                }
-
-                if (date !== undefined) {
-                    $scope.autoExpandColumns(el, date, direction);
-                    $scope.onScroll({ event: { date: date, direction: direction, userTriggered: true }});
-                }
-            }, 5);
 
             // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function(data) {
@@ -1913,6 +1889,13 @@ gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
     return Row;
 }]);
 
+gantt.factory('Scrollable', [function() {
+    var Scrollable = function() {
+    };
+    return Scrollable;
+}]);
+
+
 gantt.factory('Task', ['dateFunctions', function(df) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
@@ -2657,17 +2640,14 @@ gantt.directive('ganttScrollManager', function() {
     };
 });
 
-gantt.directive('ganttScrollSender', ['$timeout', function($timeout) {
+
+gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout, debounce) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
         restrict: 'A',
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.ganttScroll = $element;
-            // Bind scroll event
-            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
-
             var el = $element[0];
             var updateListeners = function() {
                 var i, l;
@@ -2699,6 +2679,53 @@ gantt.directive('ganttScrollSender', ['$timeout', function($timeout) {
         }]
     };
 }]);
+
+
+gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'default.scrollable.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.scrollable = new Scrollable();
+            $scope.scrollable.$element = $element;
+
+            // Bind scroll event
+            $element.bind('scroll', debounce(function() {
+                if ($scope.gantt.getDateRange() === undefined) {
+                    return;
+                }
+
+                var el = $element[0];
+                var direction;
+                var date;
+
+                if (el.scrollLeft === 0) {
+                    direction = 'left';
+                    date = $scope.gantt.getDateRange().from;
+                } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
+                    direction = 'right';
+                    date = $scope.gantt.getDateRange().to;
+                }
+
+                if (date !== undefined) {
+                    $scope.autoExpandColumns(el, date, direction);
+                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft, date: date, direction: direction});
+                } else {
+                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
+                }
+            }, 5));
+        }]
+    };
+}]);
+
 
 gantt.directive('ganttVerticalScrollReceiver', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
@@ -2872,7 +2899,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             var windowElement = angular.element($window);
             var ganttRowElement = $scope.row.$element;
             var ganttBodyElement = $scope.body.$element;
-            var ganttScrollElement = $scope.ganttScroll;
+            var ganttScrollElement = $scope.scrollable.$element;
 
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;
@@ -3307,8 +3334,8 @@ gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
 
     function keepScrollPos($scope, fn) {
         return function() {
-            if ($scope.ganttScroll) {
-                var el = $scope.ganttScroll[0];
+            if ($scope.scrollable) {
+                var el = $scope.scrollable.$element[0];
 
                 // Save scroll position
                 var oldScrollLeft = el.scrollLeft;
@@ -3337,6 +3364,7 @@ gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
 
     return keepScrollPos;
 }]);
+
 
 gantt.service('mouseButton', [ function() {
     // Mouse button cross browser normalization

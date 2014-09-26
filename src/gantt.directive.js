@@ -5,6 +5,7 @@ var gantt = angular.module('gantt', []);
 gantt.constant('GANTT_EVENTS',
     {
         'READY': 'event:gantt-ready',
+        'SCROLL': 'event:gantt-scroll',
 
         'TASK_CHANGED': 'event:gantt-task-changed',
         'TASK_MOVE_BEGIN': 'event:gantt-task-moveBegin',
@@ -102,9 +103,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             loadData: '&',
             removeData: '&',
             clearData: '&',
-            centerDate: '&',
-            onGanttReady: '&',
-            onScroll: '&'
+            centerDate: '&'
         },
         controller: ['$scope', function($scope) {
             // Initialize defaults
@@ -211,7 +210,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             });
 
             $scope.getPxToEmFactor = function() {
-                return $scope.ganttScroll.children()[0].offsetWidth / $scope.gantt.width;
+                return $scope.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -237,20 +236,20 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
-                $scope.ganttScroll[0].scrollLeft = x;
-                $scope.ganttScroll.triggerHandler('scroll');
+                $scope.scrollable.$element[0].scrollLeft = x;
+                $scope.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the left side by specified x
             $scope.scrollLeft = function(x) {
-                $scope.ganttScroll[0].scrollLeft -= x;
-                $scope.ganttScroll.triggerHandler('scroll');
+                $scope.scrollable.$element[0].scrollLeft -= x;
+                $scope.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
             $scope.scrollRight = function(x) {
-                $scope.ganttScroll[0].scrollLeft += x;
-                $scope.ganttScroll.triggerHandler('scroll');
+                $scope.scrollable.$element[0].scrollLeft += x;
+                $scope.scrollable.$element.triggerHandler('scroll');
             };
 
             // Tries to center the specified date
@@ -258,7 +257,7 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var column = $scope.gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
-                    $scope.ganttScroll[0].scrollLeft = x - $scope.ganttScroll[0].offsetWidth / 2;
+                    $scope.scrollable.$element[0].scrollLeft = x - $scope.scrollable.$element[0].offsetWidth / 2;
                 }
             };
 
@@ -280,29 +279,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 $scope.gantt.requestDateRange(from, to);
             });
-
-            $scope.raiseScrollEvent = debounce(function() {
-                if ($scope.gantt.getDateRange() === undefined) {
-                    return;
-                }
-
-                var el = $scope.ganttScroll[0];
-                var direction;
-                var date;
-
-                if (el.scrollLeft === 0) {
-                    direction = 'left';
-                    date = $scope.gantt.getDateRange().from;
-                } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
-                    direction = 'right';
-                    date = $scope.gantt.getDateRange().to;
-                }
-
-                if (date !== undefined) {
-                    $scope.autoExpandColumns(el, date, direction);
-                    $scope.onScroll({ event: { date: date, direction: direction, userTriggered: true }});
-                }
-            }, 5);
 
             // Add or update rows and tasks
             $scope.setData = keepScrollPos($scope, function(data) {

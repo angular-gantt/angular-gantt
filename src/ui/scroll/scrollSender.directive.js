@@ -1,15 +1,11 @@
 'use strict';
-gantt.directive('ganttScrollSender', ['$timeout', function($timeout) {
+gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout, debounce) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
         restrict: 'A',
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.ganttScroll = $element;
-            // Bind scroll event
-            $scope.ganttScroll.bind('scroll', $scope.raiseScrollEvent);
-
             var el = $element[0];
             var updateListeners = function() {
                 var i, l;

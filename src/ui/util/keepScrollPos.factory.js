@@ -4,8 +4,8 @@ gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
 
     function keepScrollPos($scope, fn) {
         return function() {
-            if ($scope.ganttScroll) {
-                var el = $scope.ganttScroll[0];
+            if ($scope.scrollable) {
+                var el = $scope.scrollable.$element[0];
 
                 // Save scroll position
                 var oldScrollLeft = el.scrollLeft;
