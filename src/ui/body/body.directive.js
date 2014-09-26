@@ -2,6 +2,7 @@
 gantt.directive('ganttBody', [function() {
     return {
         restrict: 'E',
+        require: '^gantt',
         transclude: true,
         replace: true,
         templateUrl: function(tElement, tAttrs) {

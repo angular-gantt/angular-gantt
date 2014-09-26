@@ -40146,6 +40146,7 @@ gantt.service('dateFunctions', [ function() {
 gantt.directive('ganttBody', [function() {
     return {
         restrict: 'E',
+        require: '^gantt',
         transclude: true,
         replace: true,
         templateUrl: function(tElement, tAttrs) {
@@ -40392,6 +40393,7 @@ gantt.directive('ganttRightClick', ['$parse', function($parse) {
 gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
+        require: '^ganttBody',
         transclude: true,
         replace: true,
         templateUrl: function(tElement, tAttrs) {
@@ -40777,6 +40779,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
     return {
         restrict: 'E',
+        require: '^ganttRow',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
                 return 'default.task.tmpl.html';

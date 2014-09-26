@@ -2,6 +2,7 @@
 gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
+        require: '^ganttBody',
         transclude: true,
         replace: true,
         templateUrl: function(tElement, tAttrs) {
