@@ -1,12 +1,11 @@
 'use strict';
-gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', function($document, debounce, mouseOffset) {
+gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
 
     return {
         restrict: 'A',
         scope: { enabled: '=ganttLabelsResize',
             width: '=ganttLabelsResizeWidth',
-            minWidth: '=ganttLabelsResizeMinWidth',
-            onResized: '&onLabelsResized' },
+            minWidth: '=ganttLabelsResizeMinWidth'},
         controller: ['$scope', '$element', function($scope, $element) {
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
@@ -83,7 +82,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', fu
                     'cursor': ''
                 });
 
-                $scope.onResized({ width: $scope.width });
+                $scope.$emit(GANTT_EVENTS.LABELS_RESIZED, { width: $scope.width });
             };
         }]
     };

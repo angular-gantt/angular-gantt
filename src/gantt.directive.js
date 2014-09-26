@@ -14,16 +14,32 @@ gantt.constant('GANTT_EVENTS',
         'TASK_CLICKED': 'event:gantt-task-clicked',
         'TASK_DBL_CLICKED': 'event:gantt-task-dblClicked',
         'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
+
         'COLUMN_CLICKED': 'event:gantt-column-clicked',
         'COLUMN_DBL_CLICKED': 'event:gantt-column-dblClicked',
         'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
+
         'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
         'ROW_MOUSEUP': 'event:gantt-row-mouseup',
         'ROW_CLICKED': 'event:gantt-row-clicked',
         'ROW_DBL_CLICKED': 'event:gantt-row-dblClicked',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
         'ROW_CHANGED': 'event:gantt-row-changed',
-        'ROW_ADDED': 'event:gantt-row-added'
+        'ROW_ADDED': 'event:gantt-row-added',
+
+        'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
+        'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
+        'ROW_LABEL_CLICKED': 'event:gantt-row-label-clicked',
+        'ROW_LABEL_DBL_CLICKED': 'event:gantt-row-label-dblClicked',
+        'ROW_LABEL_CONTEXTMENU': 'event:gantt-row-label-contextmenu',
+
+        'ROW_HEADER_MOUSEDOWN': 'event:gantt-row-header-mousedown',
+        'ROW_HEADER_MOUSEUP': 'event:gantt-row-header-mouseup',
+        'ROW_HEADER_CLICKED': 'event:gantt-row-header-clicked',
+        'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblClicked',
+        'ROW_HEADER_CONTEXTMENU': 'event:gantt-row-header-contextmenu',
+
+        'LABELS_RESIZED': 'event:gantt-labels-resized'
     });
 
 gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, df, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
@@ -82,13 +98,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             removeData: '&',
             clearData: '&',
             centerDate: '&',
-            onLabelsResized: '&',
-            onLabelClicked: '&',
-            onLabelDblClicked: '&',
-            onLabelContextClicked: '&',
-            onLabelHeaderClicked: '&',
-            onLabelHeaderDblClicked: '&',
-            onLabelHeaderContextClicked: '&',
             onGanttReady: '&',
             onTimespanAdded: '&',
             onTimespanUpdated: '&',
@@ -268,34 +277,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
 
                 $scope.gantt.requestDateRange(from, to);
             });
-
-            $scope.raiseLabelsResized = function(width) {
-                $scope.onLabelsResized({ event: { width: width } });
-            };
-
-            $scope.raiseLabelClickedEvent = function(evt, row) {
-                $scope.onLabelClicked({ event: { evt: evt, row: row, userTriggered: true } });
-            };
-
-            $scope.raiseLabelDblClickedEvent = function(evt, row) {
-                $scope.onLabelDblClicked({ event: { evt: evt, row: row, userTriggered: true } });
-            };
-
-            $scope.raiseLabelContextMenuEvent = function(evt, row) {
-                $scope.onLabelContextClicked({ event: { evt: evt, row: row, userTriggered: true } });
-            };
-
-            $scope.raiseLabelHeaderClickedEvent = function(evt) {
-                $scope.onLabelHeaderClicked({ event: { evt: evt, userTriggered: true } });
-            };
-
-            $scope.raiseLabelHeaderDblClickedEvent = function(evt) {
-                $scope.onLabelHeaderDblClicked({ event: { evt: evt, userTriggered: true } });
-            };
-
-            $scope.raiseLabelHeaderContextMenuEvent = function(evt) {
-                $scope.onLabelHeaderContextClicked({ event: { evt: evt, userTriggered: true } });
-            };
 
             $scope.raiseScrollEvent = debounce(function() {
                 if ($scope.gantt.getDateRange() === undefined) {

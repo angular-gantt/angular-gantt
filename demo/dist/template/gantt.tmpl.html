@@ -2,32 +2,17 @@
     <div class="gantt-labels"
          ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
          gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50" on-labels-resized="raiseLabelsResized(width)" >
-        <div class="gantt-labels-head"
-             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">
-            <div class="gantt-labels-head-row"
-                 ng-click="raiseLabelHeaderClickedEvent($event)"
-                 ng-dblclick="raiseLabelHeaderDblClickedEvent($event)"
-                 gantt-right-click="raiseLabelHeaderContextMenuEvent($event)"
-                 ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
-                <span>Name</span>
-            </div>
-        </div>
+        <gantt-row-header ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></gantt-row-header>
         <div class="gantt-labels-body"
              ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px'} || {})"
              ng-show="gantt.columns.length > 0">
             <div gantt-vertical-scroll-receiver
                  ng-style="{'position': 'relative'}">
-                <div class="gantt-labels-row gantt-row-height"
-                     ng-class-odd="'gantt-background-row'"
-                     ng-class-even="'gantt-background-row-alt'"
-                     ng-click="raiseLabelClickedEvent($event, row)"
-                     ng-dblclick="raiseLabelDblClickedEvent($event, row)"
-                     gantt-right-click="raiseLabelContextMenuEvent($event, row)"
-                     ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
+                <gantt-row-label ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.name }}</span>
                     </gantt-sortable>
-                </div>
+                </gantt-row-label>
             </div>
         </div>
     </div>
@@ -151,4 +136,22 @@
     <script type="text/ng-template" id="default.row.tmpl.html">
         <div ng-transclude class="gantt-row gantt-row-height"></div>
     </script>
+
+    <script type="text/ng-template" id="default.rowLabel.tmpl.html">
+        <div ng-transclude class="gantt-labels-row gantt-row-height"
+             ng-class-odd="'gantt-background-row'"
+             ng-class-even="'gantt-background-row-alt'">
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="default.rowHeader.tmpl.html">
+        <div class="gantt-labels-head">
+            <div class="gantt-labels-head-row"
+                 ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
+                <span>Name</span>
+            </div>
+        </div>
+    </script>
+
+
 </div>

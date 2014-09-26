@@ -125,6 +125,8 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.COLUMN_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.COLUMN_CONTEXTMENU, logTaskEvent);
 
+        $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_MOUSEUP, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_CONTEXTMENU, logTaskEvent);
@@ -156,8 +158,21 @@ angular.module('angularGanttDemoApp')
             }
         };
 
-        $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_MOUSEUP, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, rowEvent);
+
+        $scope.$on(GANTT_EVENTS.ROW_LABEL_MOUSEDOWN, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_LABEL_MOUSEUP, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_LABEL_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_LABEL_DBL_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_LABEL_CONTEXTMENU, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.ROW_HEADER_MOUSEDOWN, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_HEADER_MOUSEUP, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_HEADER_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, logTaskEvent);
+
+        $scope.$on(GANTT_EVENTS.LABELS_RESIZED, logTaskEvent);
+
 
     });
