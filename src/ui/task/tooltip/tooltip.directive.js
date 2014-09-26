@@ -12,7 +12,6 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
             }
         },
         replace: true,
-        scope: { task: '=ngModel' },
         controller: ['$scope', '$element', function($scope, $element) {
             var bodyElement = angular.element($document[0].body);
             var parentElement = $element.parent();
