@@ -44,9 +44,9 @@
     
     [Master branch version](https://github.com/angular-gantt/angular-gantt/archive/master.zip) contains bleeding edge features, but may be very unstable.
 
-2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css). For a sample app see the files [demo.html](demo.html) and [assets/demo.js](assets/demo.js).
+2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css).
 
-3. Add the [gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
+3. Add the [angular-gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
 
         <head>
             <link rel="stylesheet" href="assets/gantt.css"/>
@@ -54,6 +54,8 @@
         <body>
             <script src="assets/angular-gantt.js"></script>
         </body>
+
+4. For a sample app see the files [demo/app/index.html](demo/app/index.html) and [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js).
 
 #### MomentJS (optional)
 
@@ -112,49 +114,54 @@ and no modification should be made manually to those files. Use `grunt watch` to
 ### Attributes
 - **auto-expand** (default `none`)
 
-  The Gantt date range will be extended if the user scroll to the left or right edge. Possible values are `both`, `left`, `right` or `none`.
+  Define if the date range will be extended when the user scroll to the left or right edge.
+  - `both`
+  - `left`
+  - `right`
+  - `none`
   
 - **allow-labels-resizing** (default `true`)
 
-  Defines if the user can resize the row label section by himself.
+  Row label section can be resized.
 
 - **allow-task-moving** (default `true`)
 
-  Defines if tasks can be moved inside a row.
+  Tasks can be moved inside a row.
 
 - **allow-task-resizing** (default `true`)
 
-  Defines if tasks can be resized.
+  Tasks can be resized.
 
 - **allow-task-row-switching** (default: `true`)
 
-  If enabled the user can move a task to a different row.
+  Tasks can be moved to a different row.
 
 - **allow-row-sorting** (default `true`)
 
-  Defines if the user can sort the rows by himself. This will switch the `sort-mode` to `custom` as soon as the user starts with the sort.
+  Rows can be manually sorted by drag and drop. This will set `sort-mode` to `custom` as soon as the user
+  starts sorting.
 
 - **center-date**
 
-  Returns a function (`fn`) which can be called to center the specified date.
+  Function (`fn`) called to center the specified date.
 
   Usage:
   Specify the gantt property:
     `center-date="scrollToDate = fn"`
 
   In your code call:
-    `$scope.scrollToToday(new Date());`
+    `$scope.scrollToDate(new Date());`
 
 - **current-date** (default `line`)
 
-  Enable display of the current date.
+  How current date is displayed.
   - `none`
   - `line`
   - `column`
 
 - **current-date-value** (default to system current date)
 
-  Define the current date in the chart.
+  Current date in the chart.
 
   Usage:
   Specify the gantt property:
@@ -165,8 +172,9 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **clear-data**
 
-  Returns a function (`fn`) which can be called to removes all rows and tasks at once.
-  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
+  Function (`fn`) called to removes all rows and tasks at once.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
 - **column-width** (default `2`)
 
@@ -174,7 +182,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **column-sub-scale** (default: `4`)
 
-  Defines how precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
+  How precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
   Some examples:
   - 4 = in quarter steps
   - 2 = in half steps
@@ -182,13 +190,13 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **filter-task**, **filter-task-comparator**
 
-  Sets an expression to filter on visible tasks using angularJS `$filter('filter')`. 
+  Expression to filter on visible tasks using angularJS `$filter('filter')`. 
   Value of `filter-task` is `expression`, and `filter-task-comparator` is `comparator`
   as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter).
 
 - **filter-row**, **filter-row-comparator**
 
-  Sets an expression to filter on visible rows using angularJS `$filter('filter')`.
+  Expression to filter on visible rows using angularJS `$filter('filter')`.
   Value of `filter-row` is `expression`, and `filter-row-comparator` is `comparator`
   as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter)).
 
@@ -205,15 +213,15 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **from-date**
 
-  If specified ensures that the chart rendering starts at the from-date. This is useful for showing the chart even without any tasks, or empty time before the first task, or truncate previous tasks.
+  Ensures that the chart rendering starts at this date. This is useful for showing the chart even without any tasks, or empty time before the first task, or truncate previous tasks.
 
 - **to-date**
 
-  If specified ensures that the chart rendering goes at least to the end-date. This is useful for showing the chart even without any tasks, or empty time after the last task, or truncate next tasks.
+  Ensures that the chart rendering goes at least to this date. This is useful for showing the chart even without any tasks, or empty time after the last task, or truncate next tasks.
 
 - **data**
 
-  Allows you to specify the data model for the gantt chart. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+  Specify the data model for the gantt chart. An example of the data definition can be found in [demo/app/script/services/sample.js](demo/app/script/services/sample.js).
 
 - **header-show-month**, **header-show-week**, **header-show-day**, **header-show-hour**
 
@@ -233,46 +241,53 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **labels-width** (default: `0` = Auto)
 
-  This property defines the width of the label section on the left side of the Gantt. This property support two way binding. Therefore if the user resizes the label section any assigned scope variable will be updated too.
+  Width of label section on the left side of the Gantt. This property support two way binding. Therefore if the user
+  resizes the label section any assigned scope variable will be updated too.
 
 - **load-data**
 
-  Returns a function (`fn`) which can be called to load more data to the Gantt.
-  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+  Function (`fn`) called to load more data to the Gantt.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  
+  An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
   As an alternative, you can use the `data` property to directly assign the data model.
 
 - **load-timespans**
 
-  Returns a function (`fn`) which can be called to load timespans into the Gantt.
-  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used. An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+  Function (`fn`) called to load timespans into the Gantt.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
 
   As an alternative, you can use the `timespans` property to directly assign the data model.
 
 - **max-height** (default: `0` = Disabled)
 
-  If max height is set bigger than 0 the Gantt will be set to this height and show a vertical scroll bar if the content does not fit inside.
+  Maximum height of the Gantt. It will show a vertical scroll bar if the content does not fit inside.
 
 - **remove-data**
 
-  Returns a function (`fn`) which can be called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
-  Take a look at the files [demo.html](demo.html) and [demo.js](assets/demo.js) to see how this callback is used.
+  Function (`fn`) called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
 - **show-tooltips** (default: `true`)
 
-  Display a tooltip when the user hovers over a task.
+  Show tooltip when the user hovers over a task.
 
 - **show-weekend** (default: `true`)
 
-  Display the weekend days if enabled. Weekend days are displayed different than non weekend days.
+  Show weekend days. Weekend days are displayed different than non weekend days.
 
 - **show-non-work-hours** (default: `true`)
 
-  Display the non work hours if enabled. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you disable this parameter and use view-scale = day as there are less hours displayed per day.
+  Show non work hours. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you disable this parameter and use view-scale = day as there are less hours displayed per day.
 
 - **sort-mode** (default: `name`)
 
-  Sorts the rows by the given value.
+  Sorts the rows by given expression.
   - `name`: Sort by row name
   - `from`: Sort by the earliest task from date of each row
   - `to`: Sort by the latest task to date of each row
@@ -283,7 +298,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **task-out-of-range** (default: `expand`)
 
-  Define the behavior of tasks defined out of the Gantt rendering range (see from-date and to-date).
+  Behavior when tasks are defined out of the Gantt rendering range (see from-date and to-date).
   - `expand`: rendering range will be expanded to display the tasks entirely.
   - `truncate`: tasks will be truncated, or even totally hidden if they are not in rendering range at all.
 
@@ -310,7 +325,7 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **view-scale** (default: `day`)
 
-  Defines the Gantt column scale.
+  Gantt column scale.
   - `hour`: Each column is one hour wide
   - `day`: Each column is one day wide
   - `week`: Each column is one week wide
@@ -318,16 +333,20 @@ and no modification should be made manually to those files. Use `grunt watch` to
 
 - **width** (default: `0` = Disabled)
 
-  How wide is the gantt, 1 being 1em. If defined, columns-width will have no effect.
+  Width of the gantt, 1 being 1em. If defined, `columns-width` will have no effect.
 
 - **weekend-days** (default: `[0,6]`)
 
-  Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. Example:
+  Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. 
+  
+  Example: 
   - `[0,6]`: Sunday, Saturday
 
 - **work-hours** (default: `[8,9,10,11,12,13,14,15,16]`)
 
-  Array containing all working hours. Non working hours are displayed differently than working hours. Example:
+  Array containing all working hours. Non working hours are displayed differently than working hours. 
+  
+  Example:
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
 ### Objects properties
@@ -391,47 +410,47 @@ All event names are prefixed with `event:gantt-`. You can also use constants by 
 
 - **task-added**, **task-changed**
 
-  This event is raised if the user creates or change a task.
+  A task has been added or changed
 
 - **task-clicked**, **task-dblclicked**, **task-contextmenu**
 
-  This event is raised if the user clicks on a task. Use the `evt` property on the event to access the original javascript event.
+  A task has been clicked, double clicked or right clicked.
 
 - **task-move-begin**, **task-move**, **task-move-end**
 
-  The user is moving a task.
+  A task is starting to move, moving or has stopped moving.
 
 - **task-resize-begin**, **on-task-resize**, **on-task-resize-end**
 
-  The user is resizing a task.
+  A task is starting to resize, moving or has stopped moving.
 
 - **timespan-added**, **timespan-changed**
 
-  This event is raised if the user creates or change a timespan.
-
-- **column-clicked**, **column-dblclicked**, **column-contextmenu**
+  A timespan has been added or changed.
   
-  This event is raised if the user clicks on a column date.
-
-- **row-label-clicked**, **row-label-dblclicked**, **row-label-contextmenu**, **row-label-mousedown**, **row-label-mouseup**
-
-  The user has clicked on a row label.
-
-- **row-header-clicked**, **row-header-dblclicked**, **row-header-contextmenu**, **row-header-mousedown**, **row-header-mouseup**
-
-  The user has clicked on the label header in the top section of the Gantt.
-
-- **row-labels-resized**
-
-  The user has resized the row label section.
-
 - **row-added** and **row-changed**
 
-  A new row is added or changed. A row is changed if the custom sort order has been changed by the user.
+  A row has been added or changed. A row is changed if the custom sort order has been changed by the user.
 
 - **row-clicked**, **row-dblclicked**, **row-contextmenu**, **row-mousedown**, **row-mouseup**
 
-  The user clicks on a row.
+  A row has been clicked, double clicked, right clicked, mouse downed or mouse upped.
+
+- **column-clicked**, **column-dblclicked**, **column-contextmenu**
+  
+  A column header has been clicked, double clicked or right clicked.
+
+- **row-label-clicked**, **row-label-dblclicked**, **row-label-contextmenu**, **row-label-mousedown**, **row-label-mouseup**
+
+  A row label has been clicked, double clicked, right clicked, mouse downed or mouse upped.
+
+- **row-header-clicked**, **row-header-dblclicked**, **row-header-contextmenu**, **row-header-mousedown**, **row-header-mouseup**
+
+  A row header has been clicked, double clicked, right clicked, mouse downed or mouse upped.
+
+- **row-labels-resized**
+
+  Row labels have been resized.
 
 ### License
 **The MIT License**
