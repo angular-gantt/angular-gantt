@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Timespan', ['dateFunctions', function(df) {
+gantt.factory('Timespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -9,13 +9,13 @@ gantt.factory('Timespan', ['dateFunctions', function(df) {
         self.color = color;
         self.classes = classes;
         self.priority = priority;
-        self.from = df.clone(from);
-        self.to = df.clone(to);
+        self.from = moment(from);
+        self.to = moment(to);
         self.data = data;
 
         if (est !== undefined && lct !== undefined) {
-            self.est = df.clone(est);  //Earliest Start Time
-            self.lct = df.clone(lct);  //Latest Completion Time
+            self.est = moment(est);  //Earliest Start Time
+            self.lct = moment(lct);  //Latest Completion Time
         }
 
         self.hasBounds = function() {
@@ -58,10 +58,10 @@ gantt.factory('Timespan', ['dateFunctions', function(df) {
             self.color = timespan.color;
             self.classes = timespan.classes;
             self.priority = timespan.priority;
-            self.from = df.clone(timespan.from);
-            self.to = df.clone(timespan.to);
-            self.est = timespan.est !== undefined ? df.clone(timespan.est) : undefined;
-            self.lct = timespan.lct !== undefined ? df.clone(timespan.lct) : undefined;
+            self.from = moment(timespan.from);
+            self.to = moment(timespan.to);
+            self.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
+            self.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
             self.data = timespan.data;
         };
 

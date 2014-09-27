@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
+gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope) {
@@ -51,7 +51,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                     self.columnGenerator = new ColumnGenerator.DayGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     break;
                 case 'week':
-                    self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek);
+                    self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
                     break;
                 case 'month':
                     self.columnGenerator = new ColumnGenerator.MonthGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
@@ -77,8 +77,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         };
 
         var setDateRange = function(from, to) {
-            from = df.clone(from);
-            to = df.clone(to);
+            from = moment(from);
+            to = moment(to);
 
             if (dateRange === undefined) {
                 dateRange = {};
@@ -91,8 +91,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         };
 
         var setExpandedDateRange = function(from, to) {
-            from = from ? df.clone(from) : from;
-            to = to ? df.clone(to) : to;
+            from = from ? moment(from) : from;
+            to = to ? moment(to) : to;
 
             if (!dateRange && from && to) {
                 dateRange = {};
@@ -344,8 +344,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 return undefined;
             } else {
                 return {
-                    from: df.clone(dateRange.from),
-                    to: df.clone(dateRange.to)
+                    from: moment(dateRange.from),
+                    to: moment(dateRange.to)
                 };
             }
         };

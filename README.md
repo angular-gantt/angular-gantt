@@ -3,8 +3,11 @@
 
  - [Demo](#demo)
  - [Features](#features)
+ - [Dependencies](#dependencies)
  - [Install](#install)
  - [Usage](#commit)
+ - [MomentJS](#momentjs)
+ - [Run from sources](#run-from-sources)
  - [Build](#build)
  - [Attributes](#attributes)
  - [Objects](#objects)
@@ -28,38 +31,42 @@
 - Events on scroll, click, add or update
 - Configurable (e.g. day or hour scale, weekend days, ..)
 
-### Requires
-- AngularJS >= 1.2.16
+### <a name="dependencies"></a> Dependencies
+- [AngularJS]
+- [angular-moment] ([momentJS] wrapper)
 
 ### <a name="install"></a> Install
 
-#### Automatically (Using [bower](http://bower.io/), [grunt](http://gruntjs.com/) & [grunt-wiredep](https://github.com/stephenplusplus/grunt-wiredep))
+#### Automatically (Using [bower], [grunt] & [grunt-wiredep])
 
 1. Download and install `angular-gantt`.
 
-    [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) can be installed in your project using [Bower](http://bower.io/)
+    [Latest released version] can be installed in your project using [bower]
 
         bower install angular-gantt --save
     
-    [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
+    [Master branch version] contains bleeding edge features, but may be very unstable.
 
         bower install angular-gantt#master --save
 
-2. Wiredep your dependencies to automatically add [angular-gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML index, with all other dependencies declared in your project.
+2. Wiredep your dependencies to automatically add [angular-gantt.js] and [gantt.css] files to your HTML index, with all 
+other dependencies declared in your project.
 
         grunt wiredep
 
 #### Manually
 
-1. Download angular-gantt.
-    [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
-    [download](https://github.com/Schweigi/angular-gantt/releases/latest) on Github. 
+1. Install all [dependencies](#dependencies) in your application (That's why you should use [bower]).
+
+2. Download angular-gantt.
+    [Latest released version] is available to 
+    [download][Latest released version] on Github. 
     
-    [Master branch version](https://github.com/angular-gantt/angular-gantt/archive/master.zip) contains bleeding edge features, but may be very unstable.
+    [Master branch version] contains bleeding edge features, but may be very unstable.
 
-2. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js), [assets/gantt.css](assets/gantt.css).
+3. Copy the files [angular-gantt.js] and [gantt.css].
 
-3. Add the [angular-gantt.js](assets/angular-gantt.js) and [gantt.css](assets/gantt.css) files to your HTML code.
+4. Add the [angular-gantt.js] and [gantt.css] files to your HTML code.
 
         <head>
             <link rel="stylesheet" href="assets/gantt.css"/>
@@ -68,26 +75,7 @@
             <script src="assets/angular-gantt.js"></script>
         </body>
 
-4. For a sample app see the files [demo/app/index.html](demo/app/index.html) and [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js).
-
-#### MomentJS (optional)
-
-You may add the optional dependency [momentJS](http://momentjs.com/) to have more 
-[date format](http://momentjs.com/docs/#/displaying/format/) features, better
-[timezone support](http://momentjs.com/timezone/) and proper parsing from 
-[ISO 8061](http://en.wikipedia.org/wiki/ISO_8601) strings.
-
-To work properly, moment should be linked before angular-gantt.js
-
-        <head>
-            <link rel="stylesheet" href="assets/gantt.css"/>
-        </head>
-        <body>
-            <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.js"></script>
-            <script src="assets/angular-gantt.js"></script>
-        </body>
-
-Angular works well without momentJS, but rely on native Date parsing and format functions of your browser.
+5. For a sample app see the files [demo/app/index.html] and [demo/app/scripts/controllers/main.js].
 
 ### <a name="usage"></a> Usage
 
@@ -97,7 +85,8 @@ Angular works well without momentJS, but rely on native Date parsing and format 
 2. Put directive `gantt` into your HTML code at the position you would like to show the Gantt chart.
 
         <gantt></gantt>
-3. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. The event 'on-gantt-ready' can be used to get notified as soon as this is the case.
+3. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. 
+The event 'event:gantt-ready' can be used to get notified as soon as it's ready.
 
    ```js
     $scope.$on('event:gantt-ready', function() {
@@ -105,10 +94,30 @@ Angular works well without momentJS, but rely on native Date parsing and format 
     };
     ```
 
+### <a name="run-from-sources"></a> Run from sources
+
+Bower can link your local sources in demo project.
+
+    `bower link`    
+    `cd demo`
+    `bower link angular-gantt`
+    
+This will create a symbolic link in `demo/bower_components` pointing to your local sources of `angular-gantt`.
+    
+Then, run `grunt serve` from `demo` directory.
+
 ### <a name="build"></a> Build
-1. Install [Grunt](http://gruntjs.com/getting-started)
-2. Run `npm install` to install all dependencies
-3. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
+1. Install [grunt]
+2. Run `npm install` to install node dependencies
+3  Run `bower install` to install bower dependencies
+4. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
+5. Run `grunt` from `demo` directory to build demo distribution
+
+### <a name="momentjs"></a> MomentJS
+
+angular-gantt use [angular-moment], an angularJS wrapper for [momentJS]. 
+For any features related to date, like date formats, week numbering, custom calendars and timezone support, please
+review those projects documentations.
 
 ### <a name="attributes"></a> Attributes
 - **auto-expand** (default `none`)
@@ -172,12 +181,13 @@ Angular works well without momentJS, but rely on native Date parsing and format 
 - **clear-data**
 
   Function (`fn`) called to removes all rows and tasks at once.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  Take a look at demo files [demo/app/index.html] and [demo/app/scripts/controllers/main.js] to see how this callback is
+  used.
 
 - **column-width** (default `2`)
 
-  How wide are the columns, 1 being 1em. This allows you add logic like `column-width="scale == 'day' ?  5 : 2"` to have wider columns for days than for other column scales.
+  How wide are the columns, 1 being 1em. This allows you add logic like `column-width="scale == 'day' ?  5 : 2"` to 
+  have wider columns for days than for other column scales.
 
 - **column-sub-scale** (default: `4`)
 
@@ -199,28 +209,21 @@ Angular works well without momentJS, but rely on native Date parsing and format 
   Value of `filter-row` is `expression`, and `filter-row-comparator` is `comparator`
   as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter)).
 
-- **first-day-of-week** (default: `1`)
-
-  Specifies the first day of the week.
-  - `0`: Sunday
-  - `1`: Monday
-  - `2`: Tuesday
-  - `3`: Wednesday
-  - `4`: Thursday
-  - `5`: Friday
-  - `6`: Saturday
-
 - **from-date**
 
-  Ensures that the chart rendering starts at this date. This is useful for showing the chart even without any tasks, or empty time before the first task, or truncate previous tasks.
+  Ensures that the chart rendering starts at this date. This is useful for showing the chart even without any tasks, or 
+  empty time before the first task, or truncate previous tasks.
 
 - **to-date**
 
-  Ensures that the chart rendering goes at least to this date. This is useful for showing the chart even without any tasks, or empty time after the last task, or truncate next tasks.
+  Ensures that the chart rendering goes at least to this date. This is useful for showing the chart even without any 
+  tasks, or empty time after the last task, or truncate next tasks.
 
 - **data**
 
-  Specify the data model for the gantt chart. An example of the data definition can be found in [demo/app/script/services/sample.js](demo/app/script/services/sample.js).
+  Specify the data model for the gantt chart. 
+    
+  See [#objects] section.
 
 - **header-show-month**, **header-show-week**, **header-show-day**, **header-show-hour**
 
@@ -232,11 +235,10 @@ Angular works well without momentJS, but rely on native Date parsing and format 
   
   For `header-format-month`, `header-format-day`, `header-format-hour`
   
-  If using [momentJS](http://momentjs.com/), see [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
-  It using native date, see [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date).
+  See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
   
   `header-format-week` is not formatted with [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date), but
-  with [sprintf](https://github.com/alexei/sprintf.js) (`'Week %s'`).
+  with [sprintf] (`'Week %s'`).
 
 - **labels-width** (default: `0` = Auto)
 
@@ -249,16 +251,17 @@ Angular works well without momentJS, but rely on native Date parsing and format 
   Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
   [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
   
-  An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+  An example of the data definition can be found in [demo sample file].
 
   As an alternative, you can use the `data` property to directly assign the data model.
 
 - **load-timespans**
 
   Function (`fn`) called to load timespans into the Gantt.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
-  An example of the data definition can be found in [demo\_sample\_data.js](assets/demo_sample_data.js).
+  Take a look at demo files [demo/app/index.html] and 
+  [demo/app/scripts/controllers/main.js] to see how this callback is used.
+
+  An example of the data definition can be found in [demo sample file].
 
   As an alternative, you can use the `timespans` property to directly assign the data model.
 
@@ -269,8 +272,8 @@ Angular works well without momentJS, but rely on native Date parsing and format 
 - **remove-data**
 
   Function (`fn`) called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  Take a look at demo files [demo/app/index.html] and 
+  [demo/app/scripts/controllers/main.js] to see how this callback is used.
 
 - **show-tooltips** (default: `true`)
 
@@ -282,7 +285,8 @@ Angular works well without momentJS, but rely on native Date parsing and format 
 
 - **show-non-work-hours** (default: `true`)
 
-  Show non work hours. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you disable this parameter and use view-scale = day as there are less hours displayed per day.
+  Show non work hours. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you 
+  disable this parameter and use view-scale = day as there are less hours displayed per day.
 
 - **sort-mode** (default: `name`)
 
@@ -304,7 +308,7 @@ Angular works well without momentJS, but rely on native Date parsing and format 
 - **template-url**
 
   URL of custom Gantt HTML template. If you want to customize the default Gantt HTML template, make a copy of [default
-  template file src/template/default.gantt.tmpl.html](src/template/default.gantt.tmpl.html) to your own project, and set
+  template file src/template/default.gantt.tmpl.html][default template file] to your own project, and set
   the URL of copied file to this attribute. 
     
   If `undefined` or `template/default.gantt.tmpl.html`, default template will be used.   
@@ -312,15 +316,15 @@ Angular works well without momentJS, but rely on native Date parsing and format 
   *warning:* template-url must be different than `template/default.gantt.tmpl.html`, or it will use default
   template included in `angular-gantt.js`.
   
-  To use default template, you don't have to copy [default template file]((src/template/default.gantt.tmpl.html)) to your project, default template is loaded in 
+  To use default template, you don't have to copy [default template file] to 
+  your project, default template is loaded in 
   [$templateCache](https://docs.angularjs.org/api/ng/service/$templateCache) when initializing `gantt` module.
 
 - **tooltip-date-format**
 
   Format of the dates displayed in tooltip.
   
-  If using [momentJS](http://momentjs.com/), see [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
-  It using native date, see [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date).
+  See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
 
 - **view-scale** (default: `day`)
 
@@ -349,6 +353,8 @@ Angular works well without momentJS, but rely on native Date parsing and format 
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
 ### <a name="objects"></a> Objects
+  An example of the data definition can be found in [demo sample file].
+
 - **Row**
 ```js
 {
@@ -477,3 +483,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+[AngularJS]: https://angularjs.org
+[angular-moment]: https://github.com/urish/angular-moment
+[momentJS]: http://momentjs.com/
+[sprintf]: https://github.com/alexei/sprintf.js
+[bower]: http://bower.io/
+[grunt]: http://gruntjs.com/
+[grunt-wiredep]: https://github.com/stephenplusplus/grunt-wiredep
+[Latest released version]: https://github.com/angular-gantt/angular-gantt/releases/latest
+[Master branch version]: https://github.com/angular-gantt/angular-gantt/tree/master
+[angular-gantt.js]: assets/angular-gantt.js
+[gantt.css]: assets/gantt.css
+[default template file](src/template/default.gantt.tmpl.html)
+[demo/app/index.html]: demo/app/index.html
+[demo/app/scripts/controllers/main.js]: demo/app/scripts/controllers/main.js
+[demo sample file][demo/app/scripts/services/sample.js]
+

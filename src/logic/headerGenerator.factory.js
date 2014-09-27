@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
+gantt.factory('HeaderGenerator', [ 'Column', 'moment', function(Column, moment) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];
@@ -7,8 +7,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.getHours() !== col.date.getHours()) {
-                header = new Column.Hour(df.clone(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
+            if (i === 0 || columns[i - 1].date.hour() !== col.date.hour()) {
+                header = new Column.Hour(moment(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -24,8 +24,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.getDay() !== col.date.getDay()) {
-                header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
+            if (i === 0 || columns[i - 1].date.day() !== col.date.day()) {
+                header = new Column.Day(moment(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -41,8 +41,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || df.getWeek(columns[i - 1].date) !== df.getWeek(col.date)) {
-                header = new Column.Week(df.clone(col.date), col.left, col.width, df.getWeek(col.date));
+            if (i === 0 || columns[i - 1].date.week() !== col.date.week()) {
+                header = new Column.Week(moment(col.date), col.left, col.width, col.date.week());
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -58,8 +58,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.getMonth() !== col.date.getMonth()) {
-                header = new Column.Month(df.clone(col.date), col.left, col.width);
+            if (i === 0 || columns[i - 1].date.month() !== col.date.month()) {
+                header = new Column.Month(moment(col.date), col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;

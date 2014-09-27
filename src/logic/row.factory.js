@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
+gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -75,15 +75,15 @@ gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
 
         self.setFromToByTask = function(task) {
             if (self.from === undefined) {
-                self.from = df.clone(task.from);
+                self.from = moment(task.from);
             } else if (task.from < self.from) {
-                self.from = df.clone(task.from);
+                self.from = moment(task.from);
             }
 
             if (self.to === undefined) {
-                self.to = df.clone(task.to);
+                self.to = moment(task.to);
             } else if (task.to > self.to) {
-                self.to = df.clone(task.to);
+                self.to = moment(task.to);
             }
         };
 

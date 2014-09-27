@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Task', ['dateFunctions', function(df) {
+gantt.factory('Task', ['moment', function(moment) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -10,15 +10,15 @@ gantt.factory('Task', ['dateFunctions', function(df) {
         self.color = color;
         self.classes = classes;
         self.priority = priority;
-        self.from = df.clone(from);
-        self.to = df.clone(to);
+        self.from = moment(from);
+        self.to = moment(to);
         self.truncatedLeft = false;
         self.truncatedRight = false;
         self.data = data;
 
         if (est !== undefined && lct !== undefined) {
-            self.est = df.clone(est);  //Earliest Start Time
-            self.lct = df.clone(lct);  //Latest Completion Time
+            self.est = moment(est);  //Earliest Start Time
+            self.lct = moment(lct);  //Latest Completion Time
         }
 
         self.checkIfMilestone = function() {
@@ -95,10 +95,10 @@ gantt.factory('Task', ['dateFunctions', function(df) {
             self.color = task.color;
             self.classes = task.classes;
             self.priority = task.priority;
-            self.from = df.clone(task.from);
-            self.to = df.clone(task.to);
-            self.est = task.est !== undefined ? df.clone(task.est) : undefined;
-            self.lct = task.lct !== undefined ? df.clone(task.lct) : undefined;
+            self.from = moment(task.from);
+            self.to = moment(task.to);
+            self.est = task.est !== undefined ? moment(task.est) : undefined;
+            self.lct = task.lct !== undefined ? moment(task.lct) : undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
         };

@@ -1,6 +1,6 @@
 'use strict';
 /*global gantt: true*/
-var gantt = angular.module('gantt', ['ganttTemplates']);
+var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
 gantt.constant('GANTT_EVENTS',
     {
         'READY': 'event:gantt-ready',
@@ -47,7 +47,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, df, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -77,7 +77,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             currentDateValue: '=?', // If specified, the current date will be displayed
             currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
-            firstDayOfWeek: '=?', // 0=Sunday, 1=Monday, ... Default (1)
             weekendDays: '=?', // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
             showWeekends: '=?', // True if the weekends shall be displayed Default (true)
             workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
@@ -141,9 +140,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
             if ($scope.currentDate === undefined) {
                 $scope.currentDate = 'line';
-            }
-            if ($scope.firstDayOfWeek === undefined) {
-                $scope.firstDayOfWeek = 1;
             }
             if ($scope.weekendDays === undefined) {
                 $scope.weekendDays = [0, 6];
@@ -269,11 +265,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var expandHour = 1, expandDay = 31;
 
                 if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? df.addDays(date, -expandHour, true) : df.addDays(date, -expandDay, true);
+                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
                     to = date;
                 } else {
                     from = date;
-                    to = $scope.viewScale === 'hour' ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
+                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
                 $scope.gantt.requestDateRange(from, to);

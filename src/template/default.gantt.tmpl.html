@@ -26,7 +26,7 @@
                  ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index">
-                    {{ headerFormatMonth && (column.date | ganttDate:headerFormatMonth)  || (column.date | ganttDate:'MMMM yyyy') }}
+                    {{ headerFormatMonth && (column.date | amDateFormat:headerFormatMonth)  || (column.date | amDateFormat:'MMMM YYYY') }}
                 </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
@@ -36,12 +36,12 @@
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index">
-                    {{ headerFormatDay && (column.date | ganttDate:headerFormatDay) || (viewScale === 'hour' && (column.date | ganttDate: 'dd EEEE') || (column.date | ganttDate:'dd')) }}
+                    {{ headerFormatDay && (column.date | amDateFormat:headerFormatDay) || (viewScale === 'hour' && (column.date | amDateFormat: 'DD dddd') || (column.date | amDateFormat:'DD')) }}
                 </gantt-column-header>
             </div>
             <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index">
-                    {{ headerFormatHour && (column.date | ganttDate:headerFormatHour) || (column.date | ganttDate:'HH') }}
+                    {{ headerFormatHour && (column.date | amDateFormat:headerFormatHour) || (column.date | amDateFormat:'HH') }}
                 </gantt-column-header>
             </div>
         </div>
@@ -56,7 +56,7 @@
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+'em' }"></div>
+                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+'em' }"></div>
                 <div ng-class="(viewScale === 'hour' && !column.isWorkHour && 'gantt-foreground-col-nonworkhour' || (column.isWeekend && 'gantt-foreground-col-weekend' || ((column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
                      ng-style="{'width': column.width+'em', 'left': column.left+'em'}"
                      ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">
@@ -119,8 +119,8 @@
                 {{ task.name }}</br>
                 <small>
                     {{
-                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM dd, HH:mm';
-                    task.isMilestone === true && (task.from | ganttDate:tooltipDateFormat) || (task.from | ganttDate:tooltipDateFormat) + ' - ' + (task.to | ganttDate:tooltipDateFormat)
+                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM DD, HH:mm';
+                    task.isMilestone === true && (task.from | amDateFormat:tooltipDateFormat) || (task.from | amDateFormat:tooltipDateFormat) + ' - ' + (task.to | amDateFormat:tooltipDateFormat)
                     }}
                 </small>
             </div>

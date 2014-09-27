@@ -28,6 +28,7 @@ module.exports = function(config) {
       'bower_components/angular-strap/dist/angular-strap.min.js',
       'bower_components/angular-strap/dist/angular-strap.tpl.min.js',
       'bower_components/moment/moment.js',
+      'bower_components/angular-moment/angular-moment.js',
       'bower_components/angular-gantt/assets/angular-gantt.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
