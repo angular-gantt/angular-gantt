@@ -98,13 +98,13 @@ The event 'event:gantt-ready' can be used to get notified as soon as it's ready.
 
 Bower can link your local sources in demo project.
 
-    `bower link`    
-    `cd demo`
-    `bower link angular-gantt`
+    bower link 
+    cd demo
+    bower link angular-gantt
     
 This will create a symbolic link in `demo/bower_components` pointing to your local sources of `angular-gantt`.
-    
-Then, run `grunt serve` from `demo` directory.
+
+Then, run `grunt serve` from `demo` directory to run the demo.
 
 ### <a name="build"></a> Build
 1. Install [grunt]
@@ -484,6 +484,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
+
+
 [AngularJS]: https://angularjs.org
 [angular-moment]: https://github.com/urish/angular-moment
 [momentJS]: http://momentjs.com/
@@ -495,8 +497,7 @@ THE SOFTWARE.
 [Master branch version]: https://github.com/angular-gantt/angular-gantt/tree/master
 [angular-gantt.js]: assets/angular-gantt.js
 [gantt.css]: assets/gantt.css
-[default template file](src/template/default.gantt.tmpl.html)
+[default template file]: src/template/default.gantt.tmpl.html
 [demo/app/index.html]: demo/app/index.html
 [demo/app/scripts/controllers/main.js]: demo/app/scripts/controllers/main.js
-[demo sample file][demo/app/scripts/services/sample.js]
-
+[demo sample file]: demo/app/scripts/services/sample.js
