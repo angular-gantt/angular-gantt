@@ -2,19 +2,25 @@
 gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function($scope) {
+    var Gantt = function($scope, $element) {
         var self = this;
+
+        self.$elements = $element;
 
         self.rowsMap = {};
         self.rows = [];
         self.visibleRows = [];
+
         self.timespansMap = {};
         self.timespans = [];
+
         self.columns = [];
         self.visibleColumns = [];
         self.headers = {};
+
         self.previousColumns = [];
         self.nextColumns = [];
+
         self.width = 0;
         var dateRange;
 

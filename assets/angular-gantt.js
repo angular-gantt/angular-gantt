@@ -111,7 +111,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             clearData: '&',
             centerDate: '&'
         },
-        controller: ['$scope', function($scope) {
+        controller: ['$scope', '$element', function($scope, $element) {
             // Initialize defaults
             if ($scope.sortMode === undefined) {
                 $scope.sortMode = 'name';
@@ -190,7 +190,8 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             }
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope);
+            $scope.template = {};
+            $scope.gantt = new Gantt($scope, $element);
 
             $scope.$watch('sortMode', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -213,7 +214,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             });
 
             $scope.getPxToEmFactor = function() {
-                return $scope.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
+                return $scope.template.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -239,20 +240,20 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
 
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
-                $scope.scrollable.$element[0].scrollLeft = x;
-                $scope.scrollable.$element.triggerHandler('scroll');
+                $scope.template.scrollable.$element[0].scrollLeft = x;
+                $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the left side by specified x
             $scope.scrollLeft = function(x) {
-                $scope.scrollable.$element[0].scrollLeft -= x;
-                $scope.scrollable.$element.triggerHandler('scroll');
+                $scope.template.scrollable.$element[0].scrollLeft -= x;
+                $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
             $scope.scrollRight = function(x) {
-                $scope.scrollable.$element[0].scrollLeft += x;
-                $scope.scrollable.$element.triggerHandler('scroll');
+                $scope.template.scrollable.$element[0].scrollLeft += x;
+                $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Tries to center the specified date
@@ -260,7 +261,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 var column = $scope.gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
-                    $scope.scrollable.$element[0].scrollLeft = x - $scope.scrollable.$element[0].offsetWidth / 2;
+                    $scope.template.scrollable.$element[0].scrollLeft = x - $scope.template.scrollable.$element[0].offsetWidth / 2;
                 }
             };
 
@@ -345,13 +346,6 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             $scope.$emit(GANTT_EVENTS.READY);
         }
         ]};
-}]);
-
-
-gantt.factory('Body', [function() {
-    var Body = function() {
-    };
-    return Body;
 }]);
 
 
@@ -1082,19 +1076,25 @@ gantt.service('Events', ['mouseOffset', function(mouseOffset) {
 gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function($scope) {
+    var Gantt = function($scope, $element) {
         var self = this;
+
+        self.$elements = $element;
 
         self.rowsMap = {};
         self.rows = [];
         self.visibleRows = [];
+
         self.timespansMap = {};
         self.timespans = [];
+
         self.columns = [];
         self.visibleColumns = [];
         self.headers = {};
+
         self.previousColumns = [];
         self.nextColumns = [];
+
         self.width = 0;
         var dateRange;
 
@@ -1866,7 +1866,8 @@ gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
 
 
 gantt.factory('Scrollable', [function() {
-    var Scrollable = function() {
+    var Scrollable = function($element) {
+        this.$element = $element;
     };
     return Scrollable;
 }]);
@@ -1985,6 +1986,66 @@ gantt.factory('Task', ['moment', function(moment) {
 }]);
 
 
+gantt.factory('Body', [function() {
+    var Body= function($element) {
+        this.$element = $element;
+
+        this.getWidth = function() {
+            return this.$element.width();
+        };
+    };
+    return Body;
+}]);
+
+
+gantt.factory('BodyColumns', [function() {
+    var BodyColumns = function($element) {
+        this.$element = $element;
+
+        this.getWidth = function() {
+            return this.$element.width();
+        };
+    };
+    return BodyColumns;
+}]);
+
+
+gantt.factory('BodyRows', [function() {
+    var BodyRows = function($element) {
+        this.$element = $element;
+
+        this.getWidth = function() {
+            return this.$element.width();
+        };
+    };
+    return BodyRows;
+}]);
+
+
+gantt.factory('Header', [function() {
+    var Header= function($element) {
+        this.$element = $element;
+
+        this.getWidth = function() {
+            return this.$element.width();
+        };
+    };
+    return Header;
+}]);
+
+
+gantt.factory('Labels', [function() {
+    var Labels= function($element) {
+        this.$element = $element;
+
+        this.getWidth = function() {
+            return this.$element.width();
+        };
+    };
+    return Labels;
+}]);
+
+
 gantt.factory('Timespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
@@ -2086,56 +2147,6 @@ gantt.service('binarySearch', [ function() {
         }
     };
 }]);
-
-gantt.directive('ganttBody', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.body.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'Body', function($scope, $element, Body) {
-            $scope.body = new Body();
-            $scope.body.$element = $element;
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.columnHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_DBL_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CONTEXTMENU, Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-        }]
-    };
-}]);
-
 
 gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
     // Returns only the columns which are visible on the screen
@@ -2535,8 +2546,7 @@ gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', fu
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollable = new Scrollable();
-            $scope.scrollable.$element = $element;
+            $scope.template.scrollable = new Scrollable($element);
 
             // Bind scroll event
             $element.bind('scroll', debounce(function() {
@@ -2741,8 +2751,8 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
 
             var windowElement = angular.element($window);
             var ganttRowElement = $scope.row.$element;
-            var ganttBodyElement = $scope.body.$element;
-            var ganttScrollElement = $scope.scrollable.$element;
+            var ganttBodyElement = $scope.template.body.$element;
+            var ganttScrollElement = $scope.template.scrollable.$element;
 
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;
@@ -3128,6 +3138,135 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
 }]);
 
 
+gantt.directive('ganttBody', [function() {
+    return {
+        restrict: 'E',
+        require: '^gantt',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.body.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', 'Body', function($scope, $element, Body) {
+            $scope.template.body = new Body($element);
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttBodyColumns', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttBody',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.bodyColumns.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', 'BodyColumns', function($scope, $element, BodyColumns) {
+            $scope.template.body.columns = new BodyColumns($element);
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttBodyRows', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttBody',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.bodyRows.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', 'BodyRows', function($scope, $element, BodyRows) {
+            $scope.template.body.rows = new BodyRows($element);
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+    return {
+        restrict: 'E',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.columnHeader.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $element.bind('click', function(evt) {
+                $scope.$emit(GANTT_EVENTS.COLUMN_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
+            });
+
+            $element.bind('dblclick', function(evt) {
+                $scope.$emit(GANTT_EVENTS.COLUMN_DBL_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
+            });
+
+            $element.bind('contextmenu', function(evt) {
+                $scope.$emit(GANTT_EVENTS.COLUMN_CONTEXTMENU, Events.buildColumnEventData(evt, $element, $scope.column));
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttHeader', [function() {
+    return {
+        restrict: 'E',
+        require: '^gantt',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.header.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', 'Header', function($scope, $element, Header) {
+            $scope.template.header = new Header($element);
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttLabels', [function() {
+    return {
+        restrict: 'E',
+        require: '^gantt',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.labels.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', 'Labels', function($scope, $element, Labels) {
+            $scope.template.labels = new Labels($element);
+        }]
+    };
+}]);
+
+
 gantt.factory('debounce', ['$timeout', function($timeout) {
     function debounce(fn, timeout) {
         var nthCall = 0;
@@ -3154,8 +3293,8 @@ gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
 
     function keepScrollPos($scope, fn) {
         return function() {
-            if ($scope.scrollable) {
-                var el = $scope.scrollable.$element[0];
+            if ($scope.template.scrollable) {
+                var el = $scope.template.scrollable.$element[0];
 
                 // Save scroll position
                 var oldScrollLeft = el.scrollLeft;
@@ -3264,10 +3403,8 @@ gantt.filter('sprintf', function() {
 angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/default.gantt.tmpl.html',
         '<div class="gantt unselectable" gantt-scroll-manager>\n' +
-        '    <div class="gantt-labels"\n' +
-        '         ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
-        '         gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50">\n' +
-        '        <div class="gantt-labels-head">\n' +
+        '    <gantt-labels>\n' +
+        '        <div class="gantt-labels-header">\n' +
         '            <gantt-row-header ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></gantt-row-header>\n' +
         '        </div>\n' +
         '        <div class="gantt-labels-body"\n' +
@@ -3282,35 +3419,35 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                </gantt-row-label>\n' +
         '            </div>\n' +
         '        </div>\n' +
-        '    </div>\n' +
-        '    <div class="gantt-head"\n' +
+        '    </gantt-labels>\n' +
+        '    <gantt-header\n' +
         '         ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">\n' +
         '        <div gantt-horizontal-scroll-receiver\n' +
         '             ng-style="{\'position\': \'relative\', \'width\': gantt.width+\'em\'}">\n' +
-        '            <div class="gantt-head-row"\n' +
-        '                 ng-class="(gantt.headers.month !== undefined && \'gantt-head-row-bottom\' || \'\')"\n' +
+        '            <div class="gantt-header-row"\n' +
+        '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')"\n' +
         '                 ng-if="gantt.headers.month !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
         '                    {{ headerFormatMonth && (column.date | amDateFormat:headerFormatMonth)  || (column.date | amDateFormat:\'MMMM YYYY\') }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
         '                    {{headerFormatWeek && (headerFormatWeek | sprintf:column.week) || column.week }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
         '                    {{ headerFormatDay && (column.date | amDateFormat:headerFormatDay) || (viewScale === \'hour\' && (column.date | amDateFormat: \'DD dddd\') || (column.date | amDateFormat:\'DD\')) }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
         '                    {{ headerFormatHour && (column.date | amDateFormat:headerFormatHour) || (column.date | amDateFormat:\'HH\') }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '        </div>\n' +
-        '    </div>\n' +
+        '    </gantt-header>\n' +
         '    <gantt-scrollable>\n' +
         '        <gantt-body>\n' +
         '            <div class="gantt-body-background">\n' +
@@ -3322,12 +3459,14 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+\'em\' }"></div>\n' +
+        '            </div>\n' +
+        '            <gantt-body-columns class="gantt-body-columns">\n' +
         '                <div ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
         '                     ng-style="{\'width\': column.width+\'em\', \'left\': column.left+\'em\'}"\n' +
         '                     ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">\n' +
         '                </div>\n' +
-        '            </div>\n' +
-        '            <div class="gantt-body-content">\n' +
+        '            </gantt-body-columns>\n' +
+        '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +
         '                     ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'em\', \'width\': timespan.width +\'em\', \'z-index\': (timespan.priority || 0)}"\n' +
         '                     ng-class="timespan.classes"\n' +
@@ -3339,7 +3478,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                <gantt-row ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by row.id">\n' +
         '                    <gantt-task ng-repeat="task in row.visibleTasks = (row.tasks | ganttTaskLimit:scrollStart:scrollWidth:this) track by task.id"></gantt-task>\n' +
         '                </gantt-row>\n' +
-        '            </div>\n' +
+        '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
         '    </gantt-scrollable>\n' +
         '\n' +
@@ -3352,9 +3491,27 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/default.body.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width+\'em\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body"\n' +
+        '             ng-style="{\'width\': gantt.width+\'em\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-columns"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-rows"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-header"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-labels"\n' +
+        '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
+        '             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>\n' +
+        '    </script>\n' +
         '\n' +
         '    <!-- Scrollable template -->\n' +
         '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
@@ -3395,12 +3552,14 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <!-- Task bounds template -->\n' +
         '    <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->\n' +
         '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
-        '        <div ng-show=\'visible\' class=\'gantt-task-bounds\' ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
+        '        <div ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
+        '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Column header template -->\n' +
         '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
-        '        <span ng-transclude class="gantt-column-header" ng-style="{\'width\': column.width+\'em\', \'left\': column.left+\'em\'}"></span>\n' +
+        '        <span ng-transclude class="gantt-column-header"\n' +
+        '              ng-style="{\'width\': column.width+\'em\', \'left\': column.left+\'em\'}"></span>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
@@ -3418,7 +3577,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Row header template -->\n' +
         '    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">\n' +
-        '        <div class="gantt-labels-head-row"\n' +
+        '        <div class="gantt-labels-header-row"\n' +
         '             ng-style="{\'margin-top\': ((gantt.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
         '            <span>Name</span>\n' +
         '        </div>\n' +

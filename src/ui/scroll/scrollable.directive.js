@@ -12,8 +12,7 @@ gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', fu
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollable = new Scrollable();
-            $scope.scrollable.$element = $element;
+            $scope.template.scrollable = new Scrollable($element);
 
             // Bind scroll event
             $element.bind('scroll', debounce(function() {

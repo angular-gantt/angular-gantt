@@ -1,8 +1,6 @@
 <div class="gantt unselectable" gantt-scroll-manager>
-    <div class="gantt-labels"
-         ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
-         gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50">
-        <div class="gantt-labels-head">
+    <gantt-labels>
+        <div class="gantt-labels-header">
             <gantt-row-header ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></gantt-row-header>
         </div>
         <div class="gantt-labels-body"
@@ -17,35 +15,35 @@
                 </gantt-row-label>
             </div>
         </div>
-    </div>
-    <div class="gantt-head"
+    </gantt-labels>
+    <gantt-header
          ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">
         <div gantt-horizontal-scroll-receiver
              ng-style="{'position': 'relative', 'width': gantt.width+'em'}">
-            <div class="gantt-head-row"
-                 ng-class="(gantt.headers.month !== undefined && 'gantt-head-row-bottom' || '')"
+            <div class="gantt-header-row"
+                 ng-class="(gantt.headers.month !== undefined && 'gantt-header-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index">
                     {{ headerFormatMonth && (column.date | amDateFormat:headerFormatMonth)  || (column.date | amDateFormat:'MMMM YYYY') }}
                 </gantt-column-header>
             </div>
-            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.week | ganttColumnLimit:scrollStart:scrollWidth track by $index">
                     {{headerFormatWeek && (headerFormatWeek | sprintf:column.week) || column.week }}
                 </gantt-column-header>
             </div>
-            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index">
                     {{ headerFormatDay && (column.date | amDateFormat:headerFormatDay) || (viewScale === 'hour' && (column.date | amDateFormat: 'DD dddd') || (column.date | amDateFormat:'DD')) }}
                 </gantt-column-header>
             </div>
-            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined">
                 <gantt-column-header ng-repeat="column in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index">
                     {{ headerFormatHour && (column.date | amDateFormat:headerFormatHour) || (column.date | amDateFormat:'HH') }}
                 </gantt-column-header>
             </div>
         </div>
-    </div>
+    </gantt-header>
     <gantt-scrollable>
         <gantt-body>
             <div class="gantt-body-background">
@@ -57,12 +55,14 @@
             </div>
             <div class="gantt-body-foreground">
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+'em' }"></div>
+            </div>
+            <gantt-body-columns class="gantt-body-columns">
                 <div ng-class="(viewScale === 'hour' && !column.isWorkHour && 'gantt-foreground-col-nonworkhour' || (column.isWeekend && 'gantt-foreground-col-weekend' || ((column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
                      ng-style="{'width': column.width+'em', 'left': column.left+'em'}"
                      ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">
                 </div>
-            </div>
-            <div class="gantt-body-content">
+            </gantt-body-columns>
+            <gantt-body-rows>
                 <div class="gantt-timespan"
                      ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'em', 'width': timespan.width +'em', 'z-index': (timespan.priority || 0)}"
                      ng-class="timespan.classes"
@@ -74,7 +74,7 @@
                 <gantt-row ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by row.id">
                     <gantt-task ng-repeat="task in row.visibleTasks = (row.tasks | ganttTaskLimit:scrollStart:scrollWidth:this) track by task.id"></gantt-task>
                 </gantt-row>
-            </div>
+            </gantt-body-rows>
         </gantt-body>
     </gantt-scrollable>
 
@@ -87,9 +87,27 @@
 
     <!-- Body template -->
     <script type="text/ng-template" id="template/default.body.tmpl.html">
-        <div ng-transclude class="gantt-body" ng-style="{'width': gantt.width+'em'}"></div>
+        <div ng-transclude class="gantt-body"
+             ng-style="{'width': gantt.width+'em'}"></div>
     </script>
 
+    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">
+        <div ng-transclude class="gantt-body-columns"></div>
+    </script>
+
+    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">
+        <div ng-transclude class="gantt-body-rows"></div>
+    </script>
+
+    <script type="text/ng-template" id="template/default.header.tmpl.html">
+        <div ng-transclude class="gantt-header"></div>
+    </script>
+
+    <script type="text/ng-template" id="template/default.labels.tmpl.html">
+        <div ng-transclude class="gantt-labels"
+             ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
+             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>
+    </script>
 
     <!-- Scrollable template -->
     <script type="text/ng-template" id="template/default.scrollable.tmpl.html">
@@ -130,12 +148,14 @@
     <!-- Task bounds template -->
     <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->
     <script type="text/ng-template" id="template/default.bounds.tmpl.html">
-        <div ng-show='visible' class='gantt-task-bounds' ng-style='getCss()' ng-class='getClass()'></div>
+        <div ng-show='visible' class='gantt-task-bounds'
+             ng-style='getCss()' ng-class='getClass()'></div>
     </script>
 
     <!-- Column header template -->
     <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">
-        <span ng-transclude class="gantt-column-header" ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></span>
+        <span ng-transclude class="gantt-column-header"
+              ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></span>
     </script>
 
     <!-- Row template -->
@@ -153,7 +173,7 @@
 
     <!-- Row header template -->
     <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">
-        <div class="gantt-labels-head-row"
+        <div class="gantt-labels-header-row"
              ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
             <span>Name</span>
         </div>

@@ -103,7 +103,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             clearData: '&',
             centerDate: '&'
         },
-        controller: ['$scope', function($scope) {
+        controller: ['$scope', '$element', function($scope, $element) {
             // Initialize defaults
             if ($scope.sortMode === undefined) {
                 $scope.sortMode = 'name';
@@ -182,7 +182,8 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             }
 
             // Gantt logic
-            $scope.gantt = new Gantt($scope);
+            $scope.template = {};
+            $scope.gantt = new Gantt($scope, $element);
 
             $scope.$watch('sortMode', function(newValue, oldValue) {
                 if (!angular.equals(newValue, oldValue)) {
@@ -205,7 +206,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             });
 
             $scope.getPxToEmFactor = function() {
-                return $scope.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
+                return $scope.template.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
             };
 
             // Swaps two rows and changes the sort order to custom to display the swapped rows
@@ -231,20 +232,20 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
 
             // Scroll to the specified x
             $scope.scrollTo = function(x) {
-                $scope.scrollable.$element[0].scrollLeft = x;
-                $scope.scrollable.$element.triggerHandler('scroll');
+                $scope.template.scrollable.$element[0].scrollLeft = x;
+                $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the left side by specified x
             $scope.scrollLeft = function(x) {
-                $scope.scrollable.$element[0].scrollLeft -= x;
-                $scope.scrollable.$element.triggerHandler('scroll');
+                $scope.template.scrollable.$element[0].scrollLeft -= x;
+                $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
             $scope.scrollRight = function(x) {
-                $scope.scrollable.$element[0].scrollLeft += x;
-                $scope.scrollable.$element.triggerHandler('scroll');
+                $scope.template.scrollable.$element[0].scrollLeft += x;
+                $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Tries to center the specified date
@@ -252,7 +253,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 var column = $scope.gantt.getColumnByDate(date);
                 if (column !== undefined) {
                     var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
-                    $scope.scrollable.$element[0].scrollLeft = x - $scope.scrollable.$element[0].offsetWidth / 2;
+                    $scope.template.scrollable.$element[0].scrollLeft = x - $scope.template.scrollable.$element[0].offsetWidth / 2;
                 }
             };
 

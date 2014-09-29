@@ -13,8 +13,7 @@ gantt.directive('ganttBody', [function() {
             }
         },
         controller: ['$scope', '$element', 'Body', function($scope, $element, Body) {
-            $scope.body = new Body();
-            $scope.body.$element = $element;
+            $scope.template.body = new Body($element);
         }]
     };
 }]);
