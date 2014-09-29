@@ -41510,6 +41510,26 @@ gantt.directive('ganttBodyRows', [function() {
 }]);
 
 
+gantt.directive('ganttColumn', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttBodyColumns',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.column.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.column.$element = $element;
+        }]
+    };
+}]);
+
+
 gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
@@ -41773,10 +41793,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+\'em\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <div ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
-        '                     ng-style="{\'width\': column.width+\'em\', \'left\': column.left+\'em\'}"\n' +
-        '                     ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">\n' +
-        '                </div>\n' +
+        '                <gantt-column ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index"></gantt-column>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +
@@ -41809,6 +41826,12 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-columns"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-column"\n' +
+        '             ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
+        '             ng-style="{\'width\': column.width+\'em\', \'left\': column.left+\'em\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +

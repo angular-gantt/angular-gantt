@@ -57,10 +57,7 @@
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+'em' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
-                <div ng-class="(viewScale === 'hour' && !column.isWorkHour && 'gantt-foreground-col-nonworkhour' || (column.isWeekend && 'gantt-foreground-col-weekend' || ((column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
-                     ng-style="{'width': column.width+'em', 'left': column.left+'em'}"
-                     ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">
-                </div>
+                <gantt-column ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index"></gantt-column>
             </gantt-body-columns>
             <gantt-body-rows>
                 <div class="gantt-timespan"
@@ -93,6 +90,12 @@
 
     <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">
         <div ng-transclude class="gantt-body-columns"></div>
+    </script>
+
+    <script type="text/ng-template" id="template/default.column.tmpl.html">
+        <div ng-transclude class="gantt-column"
+             ng-class="(viewScale === 'hour' && !column.isWorkHour && 'gantt-foreground-col-nonworkhour' || (column.isWeekend && 'gantt-foreground-col-weekend' || ((column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
+             ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></div>
     </script>
 
     <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">
