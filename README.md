@@ -186,7 +186,7 @@ review those projects documentations.
 
 - **column-width** (default `2`)
 
-  How wide are the columns, 1 being 1em. This allows you add logic like `column-width="scale == 'day' ?  5 : 2"` to 
+  How wide are the columns in `px`. This allows you add logic like `column-width="scale == 'day' ?  50 : 20"` to 
   have wider columns for days than for other column scales.
 
 - **column-sub-scale** (default: `4`)
@@ -336,7 +336,7 @@ review those projects documentations.
 
 - **width** (default: `0` = Disabled)
 
-  Width of the gantt, 1 being 1em. If defined, `columns-width` will have no effect.
+  Width of the gantt in `px`. If defined, `columns-width` will have no effect.
 
 - **weekend-days** (default: `[0,6]`)
 

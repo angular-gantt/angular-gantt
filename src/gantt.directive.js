@@ -205,10 +205,6 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 }
             });
 
-            $scope.getPxToEmFactor = function() {
-                return $scope.template.scrollable.$element.children()[0].offsetWidth / $scope.gantt.width;
-            };
-
             // Swaps two rows and changes the sort order to custom to display the swapped rows
             $scope.swapRows = function(a, b) {
                 $scope.gantt.swapRows(a, b);
@@ -252,7 +248,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             $scope.scrollToDate = function(date) {
                 var column = $scope.gantt.getColumnByDate(date);
                 if (column !== undefined) {
-                    var x = (column.left + column.width / 2) * $scope.getPxToEmFactor();
+                    var x = (column.left + column.width / 2);
                     $scope.template.scrollable.$element[0].scrollLeft = x - $scope.template.scrollable.$element[0].offsetWidth / 2;
                 }
             };

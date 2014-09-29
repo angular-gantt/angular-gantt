@@ -107,7 +107,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
             var moveTask = function(mode, evt) {
                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                 $scope.task.mouseOffsetX = mousePos.x;
-                var xInEm = mousePos.x / $scope.getPxToEmFactor();
+                var x = mousePos.x;
                 if (mode === 'M') {
                     if ($scope.allowTaskRowSwitching) {
                         var targetRow = getRowByY(mousePos.y);
@@ -117,7 +117,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                     }
 
                     if ($scope.allowTaskMoving) {
-                        var x = xInEm - mouseOffsetInEm;
+                        x = x - mouseOffsetInEm;
                         if ($scope.taskOutOfRange !== 'truncate') {
                             if (x < 0) {
                                 x = 0;
@@ -130,23 +130,23 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                     }
                 } else if (mode === 'E') {
                     if ($scope.taskOutOfRange !== 'truncate') {
-                        if (xInEm < $scope.task.left) {
-                            xInEm = $scope.task.left;
-                        } else if (xInEm > $scope.gantt.width) {
-                            xInEm = $scope.gantt.width;
+                        if (x < $scope.task.left) {
+                            x = $scope.task.left;
+                        } else if (x > $scope.gantt.width) {
+                            x = $scope.gantt.width;
                         }
                     }
-                    $scope.task.setTo(xInEm);
+                    $scope.task.setTo(x);
                     $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 } else {
                     if ($scope.taskOutOfRange !== 'truncate') {
-                        if (xInEm > $scope.task.left + $scope.task.width) {
-                            xInEm = $scope.task.left + $scope.task.width;
-                        } else if (xInEm < 0) {
-                            xInEm = 0;
+                        if (x > $scope.task.left + $scope.task.width) {
+                            x = $scope.task.left + $scope.task.width;
+                        } else if (x < 0) {
+                            x = 0;
                         }
                     }
-                    $scope.task.setFrom(xInEm);
+                    $scope.task.setFrom(x);
                     $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
@@ -248,8 +248,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 $scope.task.moveMode = mode;
                 $scope.task.isMoving = true;
                 moveStartX = x;
-                var xInEm = moveStartX / $scope.getPxToEmFactor();
-                mouseOffsetInEm = xInEm - $scope.task.modelLeft;
+                mouseOffsetInEm = x - $scope.task.modelLeft;
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(evt) {

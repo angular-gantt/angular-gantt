@@ -19,7 +19,7 @@
     <gantt-header
          ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">
         <div gantt-horizontal-scroll-receiver
-             ng-style="{'position': 'relative', 'width': gantt.width+'em'}">
+             ng-style="{'position': 'relative', 'width': gantt.width+'px'}">
             <div class="gantt-header-row"
                  ng-class="(gantt.headers.month !== undefined && 'gantt-header-row-bottom' || '')"
                  ng-if="gantt.headers.month !== undefined">
@@ -54,14 +54,14 @@
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+'em' }"></div>
+                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+'px' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
                 <gantt-column ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index"></gantt-column>
             </gantt-body-columns>
             <gantt-body-rows>
                 <div class="gantt-timespan"
-                     ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'em', 'width': timespan.width +'em', 'z-index': (timespan.priority || 0)}"
+                     ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'px', 'width': timespan.width +'px', 'z-index': (timespan.priority || 0)}"
                      ng-class="timespan.classes"
                      ng-repeat="timespan in gantt.timespans">
                     <gantt-tooltip ng-model="timespan" date-format="'MMM d'">
@@ -85,7 +85,7 @@
     <!-- Body template -->
     <script type="text/ng-template" id="template/default.body.tmpl.html">
         <div ng-transclude class="gantt-body"
-             ng-style="{'width': gantt.width+'em'}"></div>
+             ng-style="{'width': gantt.width+'px'}"></div>
     </script>
 
     <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">
@@ -95,7 +95,7 @@
     <script type="text/ng-template" id="template/default.column.tmpl.html">
         <div ng-transclude class="gantt-column"
              ng-class="(viewScale === 'hour' && !column.isWorkHour && 'gantt-foreground-col-nonworkhour' || (column.isWeekend && 'gantt-foreground-col-weekend' || ((column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col')))"
-             ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></div>
+             ng-style="{'width': column.width+'px', 'left': column.left+'px'}"></div>
     </script>
 
     <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">
@@ -123,7 +123,7 @@
     <!-- Task template -->
     <script type="text/ng-template" id="template/default.task.tmpl.html">
         <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
-             ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'em', 'width': task.width +'em', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
+             ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>
             <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
@@ -158,7 +158,7 @@
     <!-- Column header template -->
     <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">
         <span ng-transclude class="gantt-column-header"
-              ng-style="{'width': column.width+'em', 'left': column.left+'em'}"></span>
+              ng-style="{'width': column.width+'px', 'left': column.left+'px'}"></span>
     </script>
 
     <!-- Row template -->
@@ -177,7 +177,7 @@
     <!-- Row header template -->
     <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">
         <div class="gantt-labels-header-row"
-             ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
+             ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'px'}">
             <span>Name</span>
         </div>
     </script>

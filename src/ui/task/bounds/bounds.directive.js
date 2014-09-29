@@ -22,12 +22,12 @@ gantt.directive('ganttBounds', [function() {
 
             $scope.getCss = function() {
                 if ($scope.task.hasBounds()) {
-                    css.width = $scope.task.bounds.width + 'em';
+                    css.width = $scope.task.bounds.width + 'px';
 
                     if ($scope.task.isMilestone === true || $scope.task.width === 0) {
-                        css.left = ($scope.task.bounds.left - ($scope.task.left - 0.3)) + 'em';
+                        css.left = ($scope.task.bounds.left - ($scope.task.left - 0.3)) + 'px';
                     } else {
-                        css.left = ($scope.task.bounds.left - $scope.task.left) + 'em';
+                        css.left = ($scope.task.bounds.left - $scope.task.left) + 'px';
                     }
                 }
 

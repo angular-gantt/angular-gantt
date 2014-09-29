@@ -4,8 +4,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
         var self = this;
-
-        self.$elements = $element;
+        self.$element = $element;
 
         self.rowsMap = {};
         self.rows = [];
