@@ -101,9 +101,11 @@ angular.module('angularGanttDemoApp')
                 } else if (property === 'timespan') {
                     propertyValue = propertyValue.name;
                 } else if (property === 'column') {
-                    propertyValue = propertyValue.date + '-' + propertyValue.getEndDate();
+                    propertyValue = propertyValue.date.format() + '-' + propertyValue.getEndDate().format();
                 }  else if (property === 'row') {
                     propertyValue = propertyValue.name;
+                } else if (property === 'date') {
+                    propertyValue = propertyValue.format();
                 }
                 output += property + ': ' + propertyValue +'; ';
             }

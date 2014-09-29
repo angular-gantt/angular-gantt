@@ -890,10 +890,10 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             }
 
             var excludeTo = false;
-            from = moment(from).day(1);
+            from = moment(from).startOf('week');
             if (to) {
                 excludeTo = isToDateToExclude(to);
-                to = moment(to).day(1);
+                to = moment(to).startOf('week');
             }
 
             var date = moment(from);

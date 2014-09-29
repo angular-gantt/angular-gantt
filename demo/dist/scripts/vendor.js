@@ -37893,6 +37893,423 @@ var r=n(i);a.on(o.trigger||"click",r.toggle),e.$on("$destroy",function(){r&&r.de
     }
 }).call(this);
 
+/* angular-moment.js / v0.8.2 / (c) 2013, 2014 Uri Shaked / MIT Licence */
+
+/* global define */
+
+(function () {
+	'use strict';
+
+	function angularMoment(angular, moment) {
+
+		/**
+		 * @ngdoc overview
+		 * @name angularMoment
+		 *
+		 * @description
+		 * angularMoment module provides moment.js functionality for angular.js apps.
+		 */
+		return angular.module('angularMoment', [])
+
+		/**
+		 * @ngdoc object
+		 * @name angularMoment.config:angularMomentConfig
+		 *
+		 * @description
+		 * Common configuration of the angularMoment module
+		 */
+			.constant('angularMomentConfig', {
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.angularMomentConfig#preprocess
+				 * @propertyOf angularMoment.config:angularMomentConfig
+				 * @returns {string} The default preprocessor to apply
+				 *
+				 * @description
+				 * Defines a default preprocessor to apply (e.g. 'unix', 'etc', ...). The default value is null,
+				 * i.e. no preprocessor will be applied.
+				 */
+				preprocess: null, // e.g. 'unix', 'utc', ...
+
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.angularMomentConfig#timezone
+				 * @propertyOf angularMoment.config:angularMomentConfig
+				 * @returns {string} The default timezone
+				 *
+				 * @description
+				 * The default timezone (e.g. 'Europe/London'). Empty string by default (does not apply
+				 * any timezone shift).
+				 */
+				timezone: '',
+
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.angularMomentConfig#format
+				 * @propertyOf angularMoment.config:angularMomentConfig
+				 * @returns {string} The pre-conversion format of the date
+				 *
+				 * @description
+				 * Specify the format of the input date. Essentially it's a
+				 * default and saves you from specifying a format in every
+				 * element. Overridden by element attr. Null by default.
+				 */
+				format: null
+			})
+
+		/**
+		 * @ngdoc object
+		 * @name angularMoment.object:moment
+		 *
+		 * @description
+		 * moment global (as provided by the moment.js library)
+		 */
+			.constant('moment', moment)
+
+		/**
+		 * @ngdoc object
+		 * @name angularMoment.config:amTimeAgoConfig
+		 * @module angularMoment
+		 *
+		 * @description
+		 * configuration specific to the amTimeAgo directive
+		 */
+			.constant('amTimeAgoConfig', {
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.amTimeAgoConfig#withoutSuffix
+				 * @propertyOf angularMoment.config:amTimeAgoConfig
+				 * @returns {boolean} Whether to include a suffix in am-time-ago directive
+				 *
+				 * @description
+				 * Defaults to false.
+				 */
+				withoutSuffix: false,
+
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.amTimeAgoConfig#serverTime
+				 * @propertyOf angularMoment.config:amTimeAgoConfig
+				 * @returns {number} Server time in milliseconds since the epoch
+				 *
+				 * @description
+				 * If set, time ago will be calculated relative to the given value.
+				 * If null, local time will be used. Defaults to null.
+				 */
+				serverTime: null
+			})
+
+		/**
+		 * @ngdoc directive
+		 * @name angularMoment.directive:amTimeAgo
+		 * @module angularMoment
+		 *
+		 * @restrict A
+		 */
+			.directive('amTimeAgo', ['$window', 'moment', 'amMoment', 'amTimeAgoConfig', 'angularMomentConfig', function ($window, moment, amMoment, amTimeAgoConfig, angularMomentConfig) {
+
+				return function (scope, element, attr) {
+					var activeTimeout = null;
+					var currentValue;
+					var currentFormat = angularMomentConfig.format;
+					var withoutSuffix = amTimeAgoConfig.withoutSuffix;
+					var localDate = new Date().getTime();
+					var preprocess = angularMomentConfig.preprocess;
+					var modelName = attr.amTimeAgo.replace(/^::/, '');
+					var isBindOnce = (attr.amTimeAgo.indexOf('::') === 0);
+					var isTimeElement = ('TIME' === element[0].nodeName.toUpperCase());
+					var unwatchChanges;
+
+					function getNow() {
+						var now;
+						if (amTimeAgoConfig.serverTime) {
+							var localNow = new Date().getTime();
+							var nowMillis = localNow - localDate + amTimeAgoConfig.serverTime;
+							now = moment(nowMillis);
+						}
+						else {
+							now = moment();
+						}
+						return now;
+					}
+
+					function cancelTimer() {
+						if (activeTimeout) {
+							$window.clearTimeout(activeTimeout);
+							activeTimeout = null;
+						}
+					}
+
+					function updateTime(momentInstance) {
+						element.text(momentInstance.from(getNow(), withoutSuffix));
+						if (!isBindOnce) {
+
+							var howOld = Math.abs(getNow().diff(momentInstance, 'minute'));
+							var secondsUntilUpdate = 3600;
+							if (howOld < 1) {
+								secondsUntilUpdate = 1;
+							} else if (howOld < 60) {
+								secondsUntilUpdate = 30;
+							} else if (howOld < 180) {
+								secondsUntilUpdate = 300;
+							}
+
+							activeTimeout = $window.setTimeout(function () {
+								updateTime(momentInstance);
+							}, secondsUntilUpdate * 1000);
+						}
+					}
+
+					function updateDateTimeAttr(value) {
+						if (isTimeElement) {
+							element.attr('datetime', value);
+						}
+					}
+
+					function updateMoment() {
+						cancelTimer();
+						if (currentValue) {
+							var momentValue = amMoment.preprocessDate(currentValue, preprocess, currentFormat);
+							updateTime(momentValue);
+							updateDateTimeAttr(momentValue.toISOString());
+						}
+					}
+
+					unwatchChanges = scope.$watch(modelName, function (value) {
+						if ((typeof value === 'undefined') || (value === null) || (value === '')) {
+							cancelTimer();
+							if (currentValue) {
+								element.text('');
+								updateDateTimeAttr('');
+								currentValue = null;
+							}
+							return;
+						}
+
+						currentValue = value;
+						updateMoment();
+
+						if (value !== undefined && isBindOnce) {
+							unwatchChanges();
+						}
+					});
+
+					if (angular.isDefined(attr.amWithoutSuffix)) {
+						scope.$watch(attr.amWithoutSuffix, function (value) {
+							if (typeof value === 'boolean') {
+								withoutSuffix = value;
+								updateMoment();
+							} else {
+								withoutSuffix = amTimeAgoConfig.withoutSuffix;
+							}
+						});
+					}
+
+					attr.$observe('amFormat', function (format) {
+						if (typeof format !== 'undefined') {
+							currentFormat = format;
+							updateMoment();
+						}
+					});
+
+					attr.$observe('amPreprocess', function (newValue) {
+						preprocess = newValue;
+						updateMoment();
+					});
+
+					scope.$on('$destroy', function () {
+						cancelTimer();
+					});
+
+					scope.$on('amMoment:localeChanged', function () {
+						updateMoment();
+					});
+				};
+			}])
+
+		/**
+		 * @ngdoc service
+		 * @name angularMoment.service.amMoment
+		 * @module angularMoment
+		 */
+			.service('amMoment', ['moment', '$rootScope', '$log', 'angularMomentConfig', function (moment, $rootScope, $log, angularMomentConfig) {
+				var that = this;
+				/**
+				 * @ngdoc property
+				 * @name angularMoment:amMoment#preprocessors
+				 * @module angularMoment
+				 *
+				 * @description
+				 * Defines the preprocessors for the preprocessDate method. By default, the following preprocessors
+				 * are defined: utc, unix.
+				 */
+				this.preprocessors = {
+					utc: moment.utc,
+					unix: moment.unix
+				};
+
+				/**
+				 * @ngdoc function
+				 * @name angularMoment.service.amMoment#changeLocale
+				 * @methodOf angularMoment.service.amMoment
+				 *
+				 * @description
+				 * Changes the locale for moment.js and updates all the am-time-ago directive instances
+				 * with the new locale. Also broadcasts a `amMoment:localeChanged` event on $rootScope.
+				 *
+				 * @param {string} locale 2-letter language code (e.g. en, es, ru, etc.)
+				 */
+				this.changeLocale = function (locale) {
+					var result = (moment.locale||moment.lang)(locale);
+					if (angular.isDefined(locale)) {
+						$rootScope.$broadcast('amMoment:localeChanged');
+
+						// The following event is deprecated and will be removed in an upcoming
+						// major release.
+						$rootScope.$broadcast('amMoment:languageChange');
+					}
+					return result;
+				};
+
+				/**
+				 * @ngdoc function
+				 * @name angularMoment.service.amMoment#changeLanguage
+				 * @methodOf angularMoment.service.amMoment
+				 * @deprecated Please use changeLocale() instead.
+				 *
+				 * @description
+				 * Deprecated. Please use changeLocale() instead.
+				 */
+				this.changeLanguage = function (lang) {
+					$log.warn('angular-moment: Usage of amMoment.changeLanguage() is deprecated. Please use changeLocale()');
+					return that.changeLocale(lang);
+				};
+
+				/**
+				 * @ngdoc function
+				 * @name angularMoment.service.amMoment#preprocessDate
+				 * @methodOf angularMoment.service.amMoment
+				 *
+				 * @description
+				 * Preprocess a given value and convert it into a Moment instance appropriate for use in the
+				 * am-time-ago directive and the filters.
+				 *
+				 * @param {*} value The value to be preprocessed
+				 * @param {string} preprocess The name of the preprocessor the apply (e.g. utc, unix)
+				 * @param {string=} format Specifies how to parse the value (see {@link http://momentjs.com/docs/#/parsing/string-format/})
+				 * @return {Moment} A value that can be parsed by the moment library
+				 */
+				this.preprocessDate = function (value, preprocess, format) {
+					if (angular.isUndefined(preprocess)) {
+						preprocess = angularMomentConfig.preprocess;
+					}
+					if (this.preprocessors[preprocess]) {
+						return this.preprocessors[preprocess](value, format);
+					}
+					if (preprocess) {
+						$log.warn('angular-moment: Ignoring unsupported value for preprocess: ' + preprocess);
+					}
+					if (!isNaN(parseFloat(value)) && isFinite(value)) {
+						// Milliseconds since the epoch
+						return moment(parseInt(value, 10));
+					}
+					// else just returns the value as-is.
+					return moment(value, format);
+				};
+
+				/**
+				 * @ngdoc function
+				 * @name angularMoment.service.amMoment#applyTimezone
+				 * @methodOf angularMoment.service.amMoment
+				 *
+				 * @description
+				 * Apply a timezone onto a given moment object - if moment-timezone.js is included
+				 * Otherwise, it'll not apply any timezone shift.
+				 *
+				 * @param {Moment} aMoment a moment() instance to apply the timezone shift to
+				 * @returns {Moment} The given moment with the timezone shift applied
+				 */
+				this.applyTimezone = function (aMoment) {
+					var timezone = angularMomentConfig.timezone;
+					if (aMoment && timezone) {
+						if (aMoment.tz) {
+							aMoment = aMoment.tz(timezone);
+						} else {
+							$log.warn('angular-moment: timezone specified but moment.tz() is undefined. Did you forget to include moment-timezone.js?');
+						}
+					}
+					return aMoment;
+				};
+			}])
+
+		/**
+		 * @ngdoc filter
+		 * @name angularMoment.filter:amCalendar
+		 * @module angularMoment
+		 */
+			.filter('amCalendar', ['moment', 'amMoment', function (moment, amMoment) {
+				return function (value, preprocess) {
+					if (typeof value === 'undefined' || value === null) {
+						return '';
+					}
+
+					value = amMoment.preprocessDate(value, preprocess);
+					var date = moment(value);
+					if (!date.isValid()) {
+						return '';
+					}
+
+					return amMoment.applyTimezone(date).calendar();
+				};
+			}])
+
+		/**
+		 * @ngdoc filter
+		 * @name angularMoment.filter:amDateFormat
+		 * @module angularMoment
+		 * @function
+		 */
+			.filter('amDateFormat', ['moment', 'amMoment', function (moment, amMoment) {
+				return function (value, format, preprocess) {
+					if (typeof value === 'undefined' || value === null) {
+						return '';
+					}
+
+					value = amMoment.preprocessDate(value, preprocess);
+					var date = moment(value);
+					if (!date.isValid()) {
+						return '';
+					}
+
+					return amMoment.applyTimezone(date).format(format);
+				};
+			}])
+
+		/**
+		 * @ngdoc filter
+		 * @name angularMoment.filter:amDurationFormat
+		 * @module angularMoment
+		 * @function
+		 */
+			.filter('amDurationFormat', ['moment', function (moment) {
+				return function (value, format, suffix) {
+					if (typeof value === 'undefined' || value === null) {
+						return '';
+					}
+
+					return moment.duration(value, format).humanize(suffix);
+				};
+			}]);
+	}
+
+	if (typeof define === 'function' && define.amd) {
+		define('angular-moment', ['angular', 'moment'], angularMoment);
+	} else {
+		angularMoment(angular, window.moment);
+	}
+})();
+
+
 /*
 Project: angular-gantt for AngularJS
 Author: Marco Schweighauser
@@ -37903,7 +38320,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 'use strict';
 
 
-var gantt = angular.module('gantt', ['ganttTemplates']);
+var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
 gantt.constant('GANTT_EVENTS',
     {
         'READY': 'event:gantt-ready',
@@ -37950,7 +38367,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, df, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -37980,7 +38397,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             currentDateValue: '=?', // If specified, the current date will be displayed
             currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
-            firstDayOfWeek: '=?', // 0=Sunday, 1=Monday, ... Default (1)
             weekendDays: '=?', // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
             showWeekends: '=?', // True if the weekends shall be displayed Default (true)
             workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
@@ -38044,9 +38460,6 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
             }
             if ($scope.currentDate === undefined) {
                 $scope.currentDate = 'line';
-            }
-            if ($scope.firstDayOfWeek === undefined) {
-                $scope.firstDayOfWeek = 1;
             }
             if ($scope.weekendDays === undefined) {
                 $scope.weekendDays = [0, 6];
@@ -38172,11 +38585,11 @@ gantt.directive('gantt', ['Gantt', 'dateFunctions', 'mouseOffset', 'debounce', '
                 var expandHour = 1, expandDay = 31;
 
                 if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? df.addDays(date, -expandHour, true) : df.addDays(date, -expandDay, true);
+                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
                     to = date;
                 } else {
                     from = date;
-                    to = $scope.viewScale === 'hour' ? df.addDays(date, expandHour, true) : df.addDays(date, expandDay, true);
+                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
                 $scope.gantt.requestDateRange(from, to);
@@ -38254,7 +38667,7 @@ gantt.factory('Body', [function() {
 }]);
 
 
-gantt.factory('Column', [ 'dateFunctions', function(df) {
+gantt.factory('Column', [ 'moment', function(moment) {
     // Used to display the Gantt grid and header.
     // The columns are generated by the column generator.
 
@@ -38296,15 +38709,15 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
     };
 
     var MonthColumn = function(date, left, width, subScale) {
-        var column = new Column(date, left, width, subScale);
-        column.daysInMonth = df.getDaysInMonth(column.date);
+        var column = new Column(moment(date), left, width, subScale);
+        column.daysInMonth = column.date.daysInMonth();
 
         column.clone = function() {
-            return new Column(column.date, column.left, column.width, column.subScale);
+            return new Column(moment(column.date), column.left, column.width, column.subScale);
         };
 
         column.containsDate = function(date) {
-            return date.getMonth() === column.date.getMonth();
+            return date.month() === column.date.month();
         };
 
         column.getDateByPosition = function(position) {
@@ -38315,52 +38728,31 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
                 position = column.width;
             }
 
-            var res = df.clone(column.date);
-            res.setDate(1 + calcDbyP(column, column.daysInMonth, position));
+            var res = moment(column.date);
+            res.date(1 + calcDbyP(column, column.daysInMonth, position));
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInMonth, date.getDate());
+            return calcPbyD(column, date, column.daysInMonth, date.date());
         };
 
         return column;
     };
 
-    var WeekColumn = function(date, left, width, subScale, firstDayOfWeek) {
-        var column = new Column(date, left, width, subScale);
-        column.week = df.getWeek(date);
-        column.firstDayOfWeek = firstDayOfWeek;
+    var WeekColumn = function(date, left, width, subScale) {
+        var column = new Column(moment(date), left, width, subScale);
+        column.week = date.week();
         column.daysInWeek = 7;
 
         column.clone = function() {
-            var copy = new Column(column.date, column.left, column.width, column.subScale);
+            var copy = new Column(moment(column.date), column.left, column.width, column.subScale);
             copy.week = column.week;
             return copy;
         };
 
         column.containsDate = function(date) {
-            return getWeek(date) === getWeek(column.date);
-        };
-
-        // Adjusts the day so that the specified first day of week is index = 0
-        var firstDayIs0 = function(day) {
-            return ((column.daysInWeek - column.firstDayOfWeek) + day) % column.daysInWeek;
-        };
-
-        // Adjusts the day so that Sunday= 0, Monday = 1, ...
-        var firstDayIsSunday = function(day) {
-            return (column.firstDayOfWeek + day) % column.daysInWeek;
-        };
-
-        var getWeek = function(date) {
-            if (column.firstDayOfWeek !== 1) {
-                // Adjust date so that firstDayOfWeek is always Monday because df.getWeek returns a ISO week number which starts on Monday.
-                // Otherwise if for e.g. firstDayOfWeek is 0 the Sunday would be in week number X while Monday would be in week number Y.
-                df.getWeek(df.addDays(date, 1 - column.firstDayOfWeek, true));
-            } else {
-                return df.getWeek(date);
-            }
+            return date.week() === column.date.week();
         };
 
         column.getDateByPosition = function(position) {
@@ -38371,25 +38763,22 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
                 position = column.width;
             }
 
-            var res = df.clone(column.date);
+            var res = moment(column.date);
             var day = Math.round(calcDbyP(column, column.daysInWeek, position));
 
-            // If day === 7, then jump forward to next week
-            var direction = day !== 7 && day < 0 ? -1 : 1; // -1: <<<<< | 1: >>>>>
-
-            df.setToDayOfWeek(res, day !== 7 ? firstDayIsSunday(day) : firstDayIsSunday(day) + 7, false, direction);
+            res.day(day);
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, firstDayIs0(date.getDay()));
+            return calcPbyD(column, date, column.daysInWeek, date.day());
         };
 
         return column;
     };
 
     var DayColumn = function(date, left, width, subScale, isWeekend, daysToNextWorkingDay, daysToPrevWorkingDay, workHours, showNonWorkHours) {
-        var column = new Column(date, left, width, subScale);
+        var column = new Column(moment(date), left, width, subScale);
         column.isWeekend = isWeekend;
         column.showNonWorkHours = showNonWorkHours;
 
@@ -38402,13 +38791,13 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
         }
 
         column.clone = function() {
-            var copy = new Column(column.date, column.left, column.width, column.subScale);
+            var copy = new Column(moment(column.date), column.left, column.width, column.subScale);
             copy.isWeekend = column.isWeekend;
             return copy;
         };
 
         column.containsDate = function(date) {
-            return date.getDate() === column.date.getDate();
+            return date.date() === column.date.date();
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -38419,39 +38808,39 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
                 position = column.width;
             }
 
-            var res = df.clone(column.date);
+            var res = moment(column.date);
             var hours = startHour + calcDbyP(column, (endHour - startHour), position);
 
             // Snap is done because a DAY can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
             if (arguments.length === 2) {
                 if (hours === endHour && snapForward) {
                     //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
-                    res = df.addDays(res, daysToNextWorkingDay);
+                    res.add(daysToNextWorkingDay, 'day');
                     hours = startHour;
                 }
                 else if (hours === startHour && !snapForward) {
                     //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
-                    res = df.addDays(res, -daysToPrevWorkingDay);
+                    res.add(-daysToNextWorkingDay, 'day');
                     hours = endHour;
                 }
             }
 
-            res.setHours(hours);
+            res.hour(hours);
             return res;
         };
 
         column.getPositionByDate = function(date) {
             //first check that the date actually corresponds to this column
             //(it is possible that it might not if weekends are hidden, in which case this will be the nearest previous column)
-            if (df.setTimeZero(date, true) > df.setTimeZero(column.date, true)) {
+            if (moment(date).startOf('day') > moment(column.date).startOf('day')) {
                 return column.left + column.width;
             }
-            if (df.setTimeZero(date, true) < df.setTimeZero(column.date, true)) {
+            if (moment(date).startOf('day') < moment(column.date).startOf('day')) {
                 return column.left;
             }
 
             var maxDateValue = endHour - startHour;
-            var currentDateValue = date.getHours() - startHour;
+            var currentDateValue = date.hour() - startHour;
             if (currentDateValue < 0) {
                 return column.left;
             }
@@ -38467,19 +38856,19 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
     };
 
     var HourColumn = function(date, left, width, subScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay) {
-        var column = new Column(date, left, width, subScale);
+        var column = new Column(moment(date), left, width, subScale);
         column.isWeekend = isWeekend;
         column.isWorkHour = isWorkHour;
 
         column.clone = function() {
-            var copy = new Column(column.date, column.left, column.width, column.subScale);
+            var copy = new Column(moment(column.date), column.left, column.width, column.subScale);
             copy.isWeekend = column.isWeekend;
             copy.isWorkHour = column.isWorkHour;
             return copy;
         };
 
         column.containsDate = function(date) {
-            return date.getDate() === column.date.getDate() && date.getHours() === column.date.getHours();
+            return date.date() === column.date.date() && date.hour() === column.date.hour();
         };
 
         column.getDateByPosition = function(position, snapForward) {
@@ -38490,33 +38879,33 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
                 position = column.width;
             }
 
-            var res = df.clone(column.date);
+            var res = moment(column.date);
             var minutes = calcDbyP(column, 60, position);
 
             // Snap is done because a HOUR can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
             if (arguments.length === 2) {
                 if (minutes === 60 && snapForward) {
                     //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
-                    res = df.addHours(res, hoursToNextWorkingDay);
+                    res.add(hoursToNextWorkingDay, 'hours');
                     minutes = 0;
                 }
                 else if (minutes === 0 && !snapForward) {
                     //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
-                    res = df.addHours(res, -hoursToPrevWorkingDay);
+                    res.add(-hoursToPrevWorkingDay, 'hours');
                     minutes = 60;
                 }
             }
 
-            res.setMinutes(minutes);
+            res.minutes(minutes);
             return res;
         };
 
         column.getPositionByDate = function(date) {
-            if (df.setTimeZero(date, true) > df.setTimeZero(column.date, true)) {
+            if (moment(date).startOf('day') > moment(column.date).startOf('day')) {
                 return column.left + column.width;
             }
 
-            return calcPbyD(column, date, 60, date.getMinutes());
+            return calcPbyD(column, date, 60, date.minutes());
         };
 
         return column;
@@ -38530,7 +38919,8 @@ gantt.factory('Column', [ 'dateFunctions', function(df) {
     };
 }]);
 
-gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
+
+gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) {
 
     // Returns a map to lookup if the current day is a weekend day
     var getWeekendDaysMap = function(weekendDays) {
@@ -38585,13 +38975,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
             }
 
             var excludeTo = false;
-            from = df.setTimeZero(from, true);
+            from = moment(from).startOf('day');
             if (to) {
                 excludeTo = isToDateToExclude(to);
-                to = df.setTimeZero(to, true);
+                to = moment(to).startOf('day');
             }
 
-            var date = df.clone(from);
+            var date = moment(from);
             var generatedCols = [];
             var left = 0;
             var workHoursMap = getWorkHoursMap(workHours);
@@ -38606,18 +38996,18 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     left -= columnWidth * 24;
                 }
 
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
 
                 for (var i = 0; i < 24; i++) {
-                    var cDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), i, 0, 0);
+                    var cDate = new Date(date.year(), date.month(), date.date(), i, 0, 0);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
                         var hoursToNextWorkingDay = 1;
                         var hoursToPrevWorkingDay = 1;
                         if (!showNonWorkHours) { //hours to next/prev working day is only relevant if non-work hours are hidden
-                            hoursToNextWorkingDay = getHoursToNextWorkingDay(workHoursMap, cDate.getHours());
-                            hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.getHours());
+                            hoursToNextWorkingDay = getHoursToNextWorkingDay(workHoursMap, cDate.hour());
+                            hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.hour());
                         }
 
                         generatedCols.push(new Column.Hour(cDate, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
@@ -38642,7 +39032,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     }
                 }
 
-                date = df.addDays(date, reverse ? -1 : 1);
+                date.add(reverse ? -1 : 1, 'day');
             }
 
             setWidth(width, left, generatedCols);
@@ -38653,19 +39043,19 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
             // If the To date was excluded from generating then go back one hour.
             if (isToDateToExclude(newToDate)) {
-                newToDate = df.addHours(newToDate, -1, true);
+                newToDate = moment(newToDate).add(-1, 'hours');
             }
 
             // Set time of newToDate to zero before comparing as the hour columns are generated for the whole day
             // and the newToDate could be e.g. 23:35 while the last column for this date has time 23:00.
             // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < df.setTimeZero(newToDate, true);
+            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('day');
         };
 
         // Columns are generated including or excluding the to date.
         // If the To date time is 00:00 then no new columns are generated for this day.
         var isToDateToExclude = function(to) {
-            return df.isTimeZero(to);
+            return moment(to).add(1, 'day').startOf('day') === to;
         };
 
         // Returns the count of hours until the next working day
@@ -38700,13 +39090,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
             }
 
             var excludeTo = false;
-            from = df.setTimeZero(from, true);
+            from = moment(from).startOf('day');
             if (to) {
                 excludeTo = isToDateToExclude(to);
-                to = df.setTimeZero(to, true);
+                to = moment(to).startOf('day');
             }
 
-            var date = df.clone(from);
+            var date = moment(from);
             var generatedCols = [];
             var left = 0;
             var weekendDaysMap = getWeekendDaysMap(weekendDays);
@@ -38716,16 +39106,16 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     break;
                 }
 
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.getDay());
+                var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
                 if (isWeekend && showWeekends || !isWeekend) {
                     var daysToNextWorkingDay = 1;
                     var daysToPreviousWorkingDay = 1;
                     if (!showWeekends) { //days to next/prev working day is only relevant if weekends are hidden
-                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.getDay());
-                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.getDay());
+                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.day());
+                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.day());
                     }
 
-                    generatedCols.push(new Column.Day(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
+                    generatedCols.push(new Column.Day(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
                     if (reverse) {
                         left -= columnWidth;
                     } else {
@@ -38746,7 +39136,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     }
                 }
 
-                date = df.addDays(date, reverse ? -1 : 1);
+                date.add(reverse ? -1 : 1, 'day');
             }
 
             if (reverse) {
@@ -38764,19 +39154,19 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
             // If the To date was excluded from generating then go back one day.
             if (isToDateToExclude(newToDate)) {
-                newToDate = df.addDays(newToDate, -1, true);
+                newToDate = moment(newToDate).add(-1, 'day');
             }
 
             // Set time of newToDate to zero before comparing as the day columns generated have time 00:00
             // and the newToDate could be e.g. 16:23.
             // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < df.setTimeZero(newToDate, true);
+            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('day');
         };
 
         // Columns are generated including or excluding the to date.
         // If the To date time is 00:00 then no new column is generated for this day.
         var isToDateToExclude = function(to) {
-            return df.isTimeZero(to);
+            return moment(to).add(1, 'day').startOf('day') === to;
         };
 
         // Returns the count of days until the next working day
@@ -38804,7 +39194,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         };
     };
 
-    var WeekColumnGenerator = function(width, columnWidth, columnSubScale, firstDayOfWeek) {
+    var WeekColumnGenerator = function(width, columnWidth, columnSubScale) {
         // Generates one column for each week between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -38812,13 +39202,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
             }
 
             var excludeTo = false;
-            from = df.setToDayOfWeek(df.setTimeZero(from, true), firstDayOfWeek, false);
+            from = moment(from).startOf('week');
             if (to) {
                 excludeTo = isToDateToExclude(to);
-                to = df.setToDayOfWeek(df.setTimeZero(to, true), firstDayOfWeek, false);
+                to = moment(to).startOf('week');
             }
 
-            var date = df.clone(from);
+            var date = moment(from);
             var generatedCols = [];
             var left = 0;
 
@@ -38827,7 +39217,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     break;
                 }
 
-                generatedCols.push(new Column.Week(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, firstDayOfWeek));
+                generatedCols.push(new Column.Week(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -38846,7 +39236,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     }
                 }
 
-                date = df.addWeeks(date, reverse ? -1 : 1);
+                date.add(reverse ? -1 : 1, 'week');
             }
 
             if (reverse) {
@@ -38864,19 +39254,19 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
             // If the To date was excluded from generating then go back one week.
             if (isToDateToExclude(newToDate)) {
-                newToDate = df.addWeeks(newToDate, -1, true);
+                newToDate = moment(newToDate).add(-1, 'week');
             }
 
             // Set time of newToDate to zero before comparing as the week columns generated have day = firstDayOfWeek and time = 00:00
             // and the newToDate could be e.g. day 3 and time 16:23.
             // If we wouldn`t set the day to firstDayOfWeek and time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < df.setToDayOfWeek(df.setTimeZero(newToDate, true), firstDayOfWeek);
+            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('week');
         };
 
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
         var isToDateToExclude = function(to) {
-            return to.getDay() === firstDayOfWeek && df.isTimeZero(to);
+            return moment(to).add(1, 'week').startOf('week') === to;
         };
     };
 
@@ -38888,13 +39278,13 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
             }
 
             var excludeTo = false;
-            from = df.setToFirstDayOfMonth(df.setTimeZero(from, true), false);
+            from = moment(from).startOf('month');
             if (to) {
                 excludeTo = isToDateToExclude(to);
-                to = df.setToFirstDayOfMonth(df.setTimeZero(to, true), false);
+                to = moment(to).startOf('month');
             }
 
-            var date = df.clone(from);
+            var date = moment(from);
             var generatedCols = [];
             var left = 0;
 
@@ -38903,7 +39293,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     break;
                 }
 
-                generatedCols.push(new Column.Month(df.clone(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Month(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -38922,7 +39312,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
                     }
                 }
 
-                date = df.addMonths(date, reverse ? -1 : 1);
+                date.add(reverse ? -1 : 1, 'month');
             }
 
             if (reverse) {
@@ -38940,19 +39330,19 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
             // If the To date was excluded from generating then go back one month.
             if (isToDateToExclude(newToDate)) {
-                newToDate = df.addMonths(newToDate, -1, true);
+                newToDate = moment(newToDate).add(-1, 'month');
             }
 
             // Set time of newToDate to zero before comparing as the month columns generated have day = 1 and time = 00:00
             // and the newToDate could be e.g. day 7 and time 16:23.
             // If we wouldn`t set the day to 1 and time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < df.setToFirstDayOfMonth(df.setTimeZero(newToDate, true));
+            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('month');
         };
 
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
         var isToDateToExclude = function(to) {
-            return to.getDate() === 1 && df.isTimeZero(to);
+            return moment(to).add(1, 'month').startOf('month') === to;
         };
     };
 
@@ -38963,6 +39353,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'dateFunctions', function(Column, d
         MonthGenerator: MonthColumnGenerator
     };
 }]);
+
 
 gantt.service('Events', ['mouseOffset', function(mouseOffset) {
     return {
@@ -39000,7 +39391,7 @@ gantt.service('Events', ['mouseOffset', function(mouseOffset) {
 }]);
 
 
-gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'dateFunctions', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, df, bs) {
+gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope) {
@@ -39052,7 +39443,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                     self.columnGenerator = new ColumnGenerator.DayGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
                     break;
                 case 'week':
-                    self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.firstDayOfWeek);
+                    self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
                     break;
                 case 'month':
                     self.columnGenerator = new ColumnGenerator.MonthGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
@@ -39078,8 +39469,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         };
 
         var setDateRange = function(from, to) {
-            from = df.clone(from);
-            to = df.clone(to);
+            from = moment(from);
+            to = moment(to);
 
             if (dateRange === undefined) {
                 dateRange = {};
@@ -39092,8 +39483,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         };
 
         var setExpandedDateRange = function(from, to) {
-            from = from ? df.clone(from) : from;
-            to = to ? df.clone(to) : to;
+            from = from ? moment(from) : from;
+            to = to ? moment(to) : to;
 
             if (!dateRange && from && to) {
                 dateRange = {};
@@ -39345,8 +39736,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 return undefined;
             } else {
                 return {
-                    from: df.clone(dateRange.from),
-                    to: df.clone(dateRange.to)
+                    from: moment(dateRange.from),
+                    to: moment(dateRange.to)
                 };
             }
         };
@@ -39575,7 +39966,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
     return Gantt;
 }]);
 
-gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, df) {
+
+gantt.factory('HeaderGenerator', [ 'Column', 'moment', function(Column, moment) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];
@@ -39583,8 +39975,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.getHours() !== col.date.getHours()) {
-                header = new Column.Hour(df.clone(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
+            if (i === 0 || columns[i - 1].date.hour() !== col.date.hour()) {
+                header = new Column.Hour(moment(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -39600,8 +39992,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.getDay() !== col.date.getDay()) {
-                header = new Column.Day(df.clone(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
+            if (i === 0 || columns[i - 1].date.day() !== col.date.day()) {
+                header = new Column.Day(moment(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -39617,8 +40009,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || df.getWeek(columns[i - 1].date) !== df.getWeek(col.date)) {
-                header = new Column.Week(df.clone(col.date), col.left, col.width, df.getWeek(col.date));
+            if (i === 0 || columns[i - 1].date.week() !== col.date.week()) {
+                header = new Column.Week(moment(col.date), col.left, col.width, col.date.week());
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -39634,8 +40026,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.getMonth() !== col.date.getMonth()) {
-                header = new Column.Month(df.clone(col.date), col.left, col.width);
+            if (i === 0 || columns[i - 1].date.month() !== col.date.month()) {
+                header = new Column.Month(moment(col.date), col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -39667,7 +40059,8 @@ gantt.factory('HeaderGenerator', [ 'Column', 'dateFunctions', function(Column, d
     };
 }]);
 
-gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
+
+gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -39743,15 +40136,15 @@ gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
 
         self.setFromToByTask = function(task) {
             if (self.from === undefined) {
-                self.from = df.clone(task.from);
+                self.from = moment(task.from);
             } else if (task.from < self.from) {
-                self.from = df.clone(task.from);
+                self.from = moment(task.from);
             }
 
             if (self.to === undefined) {
-                self.to = df.clone(task.to);
+                self.to = moment(task.to);
             } else if (task.to > self.to) {
-                self.to = df.clone(task.to);
+                self.to = moment(task.to);
             }
         };
 
@@ -39783,6 +40176,7 @@ gantt.factory('Row', ['Task', 'dateFunctions', function(Task, df) {
     return Row;
 }]);
 
+
 gantt.factory('Scrollable', [function() {
     var Scrollable = function() {
     };
@@ -39790,7 +40184,7 @@ gantt.factory('Scrollable', [function() {
 }]);
 
 
-gantt.factory('Task', ['dateFunctions', function(df) {
+gantt.factory('Task', ['moment', function(moment) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -39801,15 +40195,15 @@ gantt.factory('Task', ['dateFunctions', function(df) {
         self.color = color;
         self.classes = classes;
         self.priority = priority;
-        self.from = df.clone(from);
-        self.to = df.clone(to);
+        self.from = moment(from);
+        self.to = moment(to);
         self.truncatedLeft = false;
         self.truncatedRight = false;
         self.data = data;
 
         if (est !== undefined && lct !== undefined) {
-            self.est = df.clone(est);  //Earliest Start Time
-            self.lct = df.clone(lct);  //Latest Completion Time
+            self.est = moment(est);  //Earliest Start Time
+            self.lct = moment(lct);  //Latest Completion Time
         }
 
         self.checkIfMilestone = function() {
@@ -39886,10 +40280,10 @@ gantt.factory('Task', ['dateFunctions', function(df) {
             self.color = task.color;
             self.classes = task.classes;
             self.priority = task.priority;
-            self.from = df.clone(task.from);
-            self.to = df.clone(task.to);
-            self.est = task.est !== undefined ? df.clone(task.est) : undefined;
-            self.lct = task.lct !== undefined ? df.clone(task.lct) : undefined;
+            self.from = moment(task.from);
+            self.to = moment(task.to);
+            self.est = task.est !== undefined ? moment(task.est) : undefined;
+            self.lct = task.lct !== undefined ? moment(task.lct) : undefined;
             self.data = task.data;
             self.isMilestone = task.isMilestone;
         };
@@ -39902,7 +40296,8 @@ gantt.factory('Task', ['dateFunctions', function(df) {
     return Task;
 }]);
 
-gantt.factory('Timespan', ['dateFunctions', function(df) {
+
+gantt.factory('Timespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -39912,13 +40307,13 @@ gantt.factory('Timespan', ['dateFunctions', function(df) {
         self.color = color;
         self.classes = classes;
         self.priority = priority;
-        self.from = df.clone(from);
-        self.to = df.clone(to);
+        self.from = moment(from);
+        self.to = moment(to);
         self.data = data;
 
         if (est !== undefined && lct !== undefined) {
-            self.est = df.clone(est);  //Earliest Start Time
-            self.lct = df.clone(lct);  //Latest Completion Time
+            self.est = moment(est);  //Earliest Start Time
+            self.lct = moment(lct);  //Latest Completion Time
         }
 
         self.hasBounds = function() {
@@ -39961,10 +40356,10 @@ gantt.factory('Timespan', ['dateFunctions', function(df) {
             self.color = timespan.color;
             self.classes = timespan.classes;
             self.priority = timespan.priority;
-            self.from = df.clone(timespan.from);
-            self.to = df.clone(timespan.to);
-            self.est = timespan.est !== undefined ? df.clone(timespan.est) : undefined;
-            self.lct = timespan.lct !== undefined ? df.clone(timespan.lct) : undefined;
+            self.from = moment(timespan.from);
+            self.to = moment(timespan.to);
+            self.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
+            self.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
             self.data = timespan.data;
         };
 
@@ -39975,6 +40370,7 @@ gantt.factory('Timespan', ['dateFunctions', function(df) {
 
     return Timespan;
 }]);
+
 
 gantt.service('binarySearch', [ function() {
     // Returns the object on the left and right in an array using the given cmp function.
@@ -40000,145 +40396,6 @@ gantt.service('binarySearch', [ function() {
             var res = this.getIndicesOnly(input, value, comparer);
             return [input[res[0]], input[res[1]]];
         }
-    };
-}]);
-
-gantt.service('dateFunctions', [ function() {
-    // Date calculations from: http://www.datejs.com/ | MIT License
-    return {
-        isNumber: function(n) {
-            return !isNaN(parseFloat(n)) && isFinite(n);
-        },
-        isString: function(o) {
-            return typeof o === 'string' || (typeof o === 'object' && o.constructor === String);
-        },
-        clone: function(date) {
-            if (this.isString(date)) {
-                return new Date(Date.parse(date));
-            } else if (this.isNumber(date)) {
-                return new Date(date);
-            } else {
-                return new Date(date.getTime());
-            }
-        },
-        setTimeZero: function(date, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setHours(0);
-            res.setMinutes(0);
-            res.setSeconds(0);
-            res.setMilliseconds(0);
-            return res;
-        },
-        setTimeComponent: function(date, milliseconds) {
-            return new Date(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate(),
-                0,
-                0,
-                0,
-                milliseconds);
-        },
-        setToFirstDayOfMonth: function(date, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setDate(1);
-            return res;
-        },
-        setToDayOfWeek: function(date, dayOfWeek, clone, orient) {
-            var res = clone === true ? this.clone(date) : date;
-            if (res.getDay() === dayOfWeek) {
-                return res;
-            } else {
-                orient = orient || -1;
-                var diff = (dayOfWeek - res.getDay() + 7 * (orient || +1)) % 7;
-                return this.addDays(res, (diff === 0) ? diff += 7 * (orient || +1) : diff);
-            }
-        },
-        addMonths: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setDate(1);
-            res.setMonth(res.getMonth() + val);
-            return res;
-        },
-        addWeeks: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setDate(res.getDate() + val * 7);
-            return res;
-        },
-        addDays: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setDate(res.getDate() + val);
-            return res;
-        },
-        addHours: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setHours(res.getHours() + val);
-            return res;
-        },
-        addMinutes: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setMinutes(res.getMinutes() + val);
-            return res;
-        },
-        addSeconds: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setSeconds(res.getSeconds() + val);
-            return res;
-        },
-        addMilliseconds: function(date, val, clone) {
-            var res = clone === true ? this.clone(date) : date;
-            res.setMilliseconds(res.getMilliseconds() + val);
-            return res;
-        },
-        isTimeZero: function(date) {
-            return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
-        },
-        getDaysInMonth: function(date) {
-            return new Date(date.getYear(), date.getMonth() + 1, 0).getDate();
-        },
-        /*jshint bitwise:false */
-        getWeek: function(date) {
-            /* Returns the number of the week. The number is calculated according to ISO 8106 */
-            var $y, $m, $d;
-            var a, b, c, d, e, f, g, n, s, w;
-
-            $y = date.getFullYear();
-            $m = date.getMonth() + 1;
-            $d = date.getDate();
-
-            if ($m <= 2) {
-                a = $y - 1;
-                b = (a / 4 | 0) - (a / 100 | 0) + (a / 400 | 0);
-                c = ((a - 1) / 4 | 0) - ((a - 1) / 100 | 0) + ((a - 1) / 400 | 0);
-                s = b - c;
-                e = 0;
-                f = $d - 1 + (31 * ($m - 1));
-            } else {
-                a = $y;
-                b = (a / 4 | 0) - (a / 100 | 0) + (a / 400 | 0);
-                c = ((a - 1) / 4 | 0) - ((a - 1) / 100 | 0) + ((a - 1) / 400 | 0);
-                s = b - c;
-                e = s + 1;
-                f = $d + ((153 * ($m - 3) + 2) / 5) + 58 + s;
-            }
-
-            g = (a + b) % 7;
-            d = (f + g - e) % 7;
-            n = (f + 3 - d) | 0;
-
-            if (n < 0) {
-                w = 53 - ((g - s) / 5 | 0);
-            } else if (n > 364 + s) {
-                w = 1;
-            } else {
-                w = (n / 7 | 0) + 1;
-            }
-
-            $y = $m = $d = null;
-
-            return w;
-        }
-        /*jshint bitwise:true */
     };
 }]);
 
@@ -40775,7 +41032,7 @@ gantt.directive('ganttBounds', [function() {
 }]);
 
 
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'dateFunctions', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, smartEvent, debounce, df, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
 
     return {
         restrict: 'E',
@@ -41183,29 +41440,6 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
 }]);
 
 
-gantt.filter('ganttDate', ['$filter', function($filter) {
-    var defaultFilter = $filter('date');
-
-    if (typeof moment === 'function') {
-        return function(date, format) {
-            date = moment(date);
-            if (moment.isMoment(date)) {
-                // Those replacement are craps, but it makes default native formats working with momentJS
-                format = format.replace('yyyy', 'YYYY');
-                format = format.replace('yy', 'YY');
-                format = format.replace('dd', 'DD');
-                format = format.replace('EEEE', 'dddd');
-
-                return date.format(format);
-            }
-            return defaultFilter(date, format);
-        };
-    } else {
-        return defaultFilter;
-    }
-}]);
-
-
 gantt.factory('debounce', ['$timeout', function($timeout) {
     function debounce(fn, timeout) {
         var nthCall = 0;
@@ -41369,7 +41603,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                 ng-class="(gantt.headers.month !== undefined && \'gantt-head-row-bottom\' || \'\')"\n' +
         '                 ng-if="gantt.headers.month !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.month | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
-        '                    {{ headerFormatMonth && (column.date | ganttDate:headerFormatMonth)  || (column.date | ganttDate:\'MMMM yyyy\') }}\n' +
+        '                    {{ headerFormatMonth && (column.date | amDateFormat:headerFormatMonth)  || (column.date | amDateFormat:\'MMMM YYYY\') }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-head-row" ng-if="gantt.headers.week !== undefined">\n' +
@@ -41379,12 +41613,12 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            </div>\n' +
         '            <div class="gantt-head-row" ng-if="gantt.headers.day !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.day | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
-        '                    {{ headerFormatDay && (column.date | ganttDate:headerFormatDay) || (viewScale === \'hour\' && (column.date | ganttDate: \'dd EEEE\') || (column.date | ganttDate:\'dd\')) }}\n' +
+        '                    {{ headerFormatDay && (column.date | amDateFormat:headerFormatDay) || (viewScale === \'hour\' && (column.date | amDateFormat: \'DD dddd\') || (column.date | amDateFormat:\'DD\')) }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-head-row" ng-if="gantt.headers.hour !== undefined">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.hour | ganttColumnLimit:scrollStart:scrollWidth track by $index">\n' +
-        '                    {{ headerFormatHour && (column.date | ganttDate:headerFormatHour) || (column.date | ganttDate:\'HH\') }}\n' +
+        '                    {{ headerFormatHour && (column.date | amDateFormat:headerFormatHour) || (column.date | amDateFormat:\'HH\') }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -41399,7 +41633,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{left: (gantt.getPositionByDate(currentDateValue))+\'em\' }"></div>\n' +
+        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+\'em\' }"></div>\n' +
         '                <div ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
         '                     ng-style="{\'width\': column.width+\'em\', \'left\': column.left+\'em\'}"\n' +
         '                     ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index">\n' +
@@ -41462,8 +41696,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                {{ task.name }}</br>\n' +
         '                <small>\n' +
         '                    {{\n' +
-        '                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || \'MMM dd, HH:mm\';\n' +
-        '                    task.isMilestone === true && (task.from | ganttDate:tooltipDateFormat) || (task.from | ganttDate:tooltipDateFormat) + \' - \' + (task.to | ganttDate:tooltipDateFormat)\n' +
+        '                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || \'MMM DD, HH:mm\';\n' +
+        '                    task.isMilestone === true && (task.from | amDateFormat:tooltipDateFormat) || (task.from | amDateFormat:tooltipDateFormat) + \' - \' + (task.to | amDateFormat:tooltipDateFormat)\n' +
         '                    }}\n' +
         '                </small>\n' +
         '            </div>\n' +
