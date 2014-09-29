@@ -2025,6 +2025,18 @@ gantt.factory('Header', [function() {
 }]);
 
 
+gantt.factory('HeaderColumns', [function() {
+    var HeaderColumns = function($element) {
+        this.$element = $element;
+
+        this.getWidth = function() {
+            return this.$element.width();
+        };
+    };
+    return HeaderColumns;
+}]);
+
+
 gantt.factory('Labels', [function() {
     var Labels= function($element) {
         this.$element = $element;
@@ -2151,6 +2163,7 @@ gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
         return input.slice(start, end);
     };
 }]);
+
 
 gantt.directive('ganttLimitUpdater', ['$timeout', function($timeout) {
     // Updates the limit filters if the user scrolls the gantt chart
@@ -3258,6 +3271,26 @@ gantt.directive('ganttHeader', [function() {
 }]);
 
 
+gantt.directive('ganttHeaderColumns', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttHeader',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.headerColumns.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', 'HeaderColumns', function($scope, $element, HeaderColumns) {
+            $scope.template.header.columns = new HeaderColumns($element);
+        }]
+    };
+}]);
+
+
 gantt.directive('ganttLabels', [function() {
     return {
         restrict: 'E',
@@ -3415,13 +3448,12 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '<div class="gantt unselectable" gantt-scroll-manager>\n' +
         '    <gantt-labels>\n' +
         '        <div class="gantt-labels-header">\n' +
-        '            <gantt-row-header ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></gantt-row-header>\n' +
+        '            <gantt-row-header></gantt-row-header>\n' +
         '        </div>\n' +
         '        <div class="gantt-labels-body"\n' +
         '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-ganttHeader.offsetHeight)+\'px\'} || {})"\n' +
         '             ng-show="gantt.columns.length > 0">\n' +
-        '            <div gantt-vertical-scroll-receiver\n' +
-        '                 ng-style="{\'position\': \'relative\'}">\n' +
+        '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.visibleRows = (gantt.rows | ganttRowLimit:this) track by $index">\n' +
         '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
         '                        <span>{{ row.name }}</span>\n' +
@@ -3430,10 +3462,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            </div>\n' +
         '        </div>\n' +
         '    </gantt-labels>\n' +
-        '    <gantt-header\n' +
-        '         ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0">\n' +
-        '        <div gantt-horizontal-scroll-receiver\n' +
-        '             ng-style="{\'position\': \'relative\', \'width\': gantt.width+\'px\'}">\n' +
+        '    <gantt-header>\n' +
+        '        <gantt-header-columns>\n' +
         '            <div class="gantt-header-row"\n' +
         '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')"\n' +
         '                 ng-if="gantt.headers.month !== undefined">\n' +
@@ -3456,7 +3486,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                    {{ headerFormatHour && (column.date | amDateFormat:headerFormatHour) || (column.date | amDateFormat:\'HH\') }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '        </div>\n' +
+        '        </gantt-header-columns>\n' +
         '    </gantt-header>\n' +
         '    <gantt-scrollable>\n' +
         '        <gantt-body>\n' +
@@ -3468,7 +3498,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{left: (gantt.getPositionByDate(moment(currentDateValue)))+\'px\' }"></div>\n' +
+        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(moment(currentDateValue))) + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
         '                <gantt-column ng-repeat="column in gantt.visibleColumns = (gantt.columns | ganttColumnLimit:scrollStart:scrollWidth) track by $index"></gantt-column>\n' +
@@ -3502,82 +3532,10 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-style="{\'width\': gantt.width+\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body-columns"></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-column"\n' +
-        '             ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
-        '             ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body-rows"></div>\n' +
-        '    </script>\n' +
-        '\n' +
+        '    <!-- Header template -->\n' +
         '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-header"></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-labels"\n' +
-        '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
-        '             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Scrollable template -->\n' +
-        '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
-        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - ganttHeader.offsetHeight)+\'px\',\n' +
-        '        \'overflow-y\': \'auto\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')} ||\n' +
-        '        {\'overflow-y\': \'hidden\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')})"></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Task template -->\n' +
-        '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
-        '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
-        '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
-        '            <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>\n' +
-        '            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>\n' +
-        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
-        '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
-        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
-        '        </div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Task tooltip template -->\n' +
-        '    <!-- Move ng-if from parent to tooltip directive when https://github.com/angular/angular.js/issues/7183 is fixed -->\n' +
-        '    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">\n' +
-        '        <div class="gantt-task-info" ng-style="css">\n' +
-        '            <div class="gantt-task-info-content">\n' +
-        '                {{ task.name }}</br>\n' +
-        '                <small>\n' +
-        '                    {{\n' +
-        '                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || \'MMM DD, HH:mm\';\n' +
-        '                    task.isMilestone === true && (task.from | amDateFormat:tooltipDateFormat) || (task.from | amDateFormat:tooltipDateFormat) + \' - \' + (task.to | amDateFormat:tooltipDateFormat)\n' +
-        '                    }}\n' +
-        '                </small>\n' +
-        '            </div>\n' +
-        '        </div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Task bounds template -->\n' +
-        '    <!-- Replace ng-show with ng-if when https://github.com/angular/angular.js/issues/7183 is fixed -->\n' +
-        '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
-        '        <div ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
-        '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Column header template -->\n' +
-        '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
-        '        <span ng-transclude class="gantt-column-header"\n' +
-        '              ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></span>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Row template -->\n' +
-        '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height"></div>\n' +
+        '        <div ng-transclude class="gantt-header"\n' +
+        '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
@@ -3591,11 +3549,91 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <!-- Row header template -->\n' +
         '    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">\n' +
         '        <div class="gantt-labels-header-row"\n' +
+        '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
         '             ng-style="{\'margin-top\': ((gantt.getActiveHeadersCount()-1)*2)+\'px\'}">\n' +
         '            <span>Name</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <!-- Labels template -->\n' +
+        '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-labels"\n' +
+        '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
+        '             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Header columns template -->\n' +
+        '    <script type="text/ng-template" id="template/default.headerColumns.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-header-columns"\n' +
+        '              gantt-horizontal-scroll-receiver></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-column-header"\n' +
+        '              ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Body columns template -->\n' +
+        '    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-columns"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-column"\n' +
+        '             ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
+        '             ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Scrollable template -->\n' +
+        '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
+        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - ganttHeader.offsetHeight)+\'px\',\n' +
+        '        \'overflow-y\': \'auto\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')} ||\n' +
+        '        {\'overflow-y\': \'hidden\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')})"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Rows template -->\n' +
+        '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-rows"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Task template -->\n' +
+        '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
+        '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
+        '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
+        '            <gantt-bounds ng-model="task"></gantt-bounds>\n' +
+        '            <gantt-tooltip ng-model="task"></gantt-tooltip>\n' +
+        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
+        '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
+        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Tooltip template -->\n' +
+        '    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">\n' +
+        '        <div class="gantt-task-info" ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-style="css">\n' +
+        '            <div class="gantt-task-info-content">\n' +
+        '                {{ task.name }}</br>\n' +
+        '                <small>\n' +
+        '                    {{\n' +
+        '                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || \'MMM DD, HH:mm\';\n' +
+        '                    task.isMilestone === true && (task.from | amDateFormat:tooltipDateFormat) || (task.from | amDateFormat:tooltipDateFormat) + \' - \' + (task.to | amDateFormat:tooltipDateFormat)\n' +
+        '                    }}\n' +
+        '                </small>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Task bounds template -->\n' +
+        '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
+        '        <div ng-if="task.bounds !== undefined" ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
+        '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Row template -->\n' +
+        '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-row gantt-row-height"></div>\n' +
+        '    </script>\n' +
         '\n' +
         '</div>\n' +
         '');

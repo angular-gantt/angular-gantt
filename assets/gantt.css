@@ -12,6 +12,12 @@
     cursor: default;
 }
 
+.gantt-header-columns {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
 .gantt-labels {
     float: left;
     border-right: 1px solid #dddddd;
@@ -92,13 +98,13 @@
 .gantt-body-foreground {
     position: absolute;
     height: 100%;
-    height: 100%;
+    width: 100%;
 }
 
 .gantt-body-columns {
     position: absolute;
     height: 100%;
-    height: 100%;
+    width: 100%;
 }
 
 .gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour, .gantt-foreground-col-current-date {
