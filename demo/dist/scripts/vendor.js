@@ -44001,7 +44001,6 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
                 return generateColumns(minFrom, maxTo);
             }
-            updateVisibleColumns();
         };
         self.requestDateRange($scope.fromDate, $scope.toDate);
 
@@ -44036,6 +44035,9 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             setDateRange(from, to);
             $scope.fromDate = from;
             $scope.toDate = to;
+
+            updateVisibleColumns();
+            updateVisibleObjects();
 
             return true;
         };
