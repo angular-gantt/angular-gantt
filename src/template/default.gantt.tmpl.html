@@ -17,24 +17,26 @@
     </gantt-labels>
     <gantt-header>
         <gantt-header-columns>
-            <div class="gantt-header-row"
-                 ng-class="(gantt.headers.month !== undefined && 'gantt-header-row-bottom' || '')"
-                 ng-if="gantt.headers.month !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.month !== undefined"
+                 ng-class="(gantt.headers.month !== undefined && 'gantt-header-row-bottom' || '')">
                 <gantt-column-header ng-repeat="column in gantt.headers.month | filter:{hidden:false} track by $index">
                     {{ column.date | amDateFormat:headerFormatMonth }}
                 </gantt-column-header>
             </div>
-            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined"
+                 ng-class="(gantt.headers.week !== undefined && 'gantt-header-row-bottom' || '')">
                 <gantt-column-header ng-repeat="column in gantt.headers.week | filter:{hidden:false} track by $index">
                     {{ column.date | amDateFormat:headerFormatWeek }}
                 </gantt-column-header>
             </div>
-            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined"
+                 ng-class="(gantt.headers.day !== undefined && 'gantt-header-row-bottom' || '')">
                 <gantt-column-header ng-repeat="column in gantt.headers.day | filter:{hidden:false} track by $index">
                     {{ column.date | amDateFormat:headerFormatDay }}
                 </gantt-column-header>
             </div>
-            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined">
+            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined"
+                 ng-class="(gantt.headers.hour !== undefined && 'gantt-header-row-bottom' || '')">
                 <gantt-column-header ng-repeat="column in gantt.headers.hour | filter:{hidden:false} track by $index">
                     {{ column.date | amDateFormat:headerFormatHour }}
                 </gantt-column-header>

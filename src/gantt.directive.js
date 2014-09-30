@@ -187,10 +187,10 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.headerFormatWeek = 'w';
             }
             if ($scope.headerFormatDay === undefined) {
-                $scope.headerFormatDay = 'DD';
+                $scope.headerFormatDay = 'D';
             }
             if ($scope.headerFormatHour === undefined) {
-                $scope.headerFormatHour = 'HH';
+                $scope.headerFormatHour = 'H';
             }
 
             // Gantt logic

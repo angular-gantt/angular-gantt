@@ -195,10 +195,10 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.headerFormatWeek = 'w';
             }
             if ($scope.headerFormatDay === undefined) {
-                $scope.headerFormatDay = 'DD';
+                $scope.headerFormatDay = 'D';
             }
             if ($scope.headerFormatHour === undefined) {
-                $scope.headerFormatHour = 'HH';
+                $scope.headerFormatHour = 'H';
             }
 
             // Gantt logic
@@ -2602,6 +2602,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout)
                     var vElement = $scope.scrollManager.vertical[i];
                     if (vElement.style.top !== -el.scrollTop) {
                         vElement.style.top = -el.scrollTop + 'px';
+                        vElement.style.height = el.scrollHeight + 'px';
                     }
                 }
 
@@ -2609,6 +2610,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout)
                     var hElement = $scope.scrollManager.horizontal[i];
                     if (hElement.style.left !== -el.scrollLeft) {
                         hElement.style.left = -el.scrollLeft + 'px';
+                        hElement.style.width = el.scrollWidth + 'px';
                     }
                 }
             };
@@ -3544,24 +3546,26 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    </gantt-labels>\n' +
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
-        '            <div class="gantt-header-row"\n' +
-        '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')"\n' +
-        '                 ng-if="gantt.headers.month !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.month !== undefined"\n' +
+        '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.month | filter:{hidden:false} track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatMonth }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined"\n' +
+        '                 ng-class="(gantt.headers.week !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.week | filter:{hidden:false} track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatWeek }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined"\n' +
+        '                 ng-class="(gantt.headers.day !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.day | filter:{hidden:false} track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatDay }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined">\n' +
+        '            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined"\n' +
+        '                 ng-class="(gantt.headers.hour !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
         '                <gantt-column-header ng-repeat="column in gantt.headers.hour | filter:{hidden:false} track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatHour }}\n' +
         '                </gantt-column-header>\n' +

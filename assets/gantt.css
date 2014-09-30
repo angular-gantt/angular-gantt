@@ -24,7 +24,6 @@
 }
 
 .gantt-labels-header {
-    border-top: 1px solid transparent;
     border-bottom: 1px solid #dddddd;
 }
 
@@ -35,7 +34,6 @@
 .gantt-header {
     overflow: hidden;
     border-top: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
 }
 
 .gantt-header-row, .gantt-labels-header-row {

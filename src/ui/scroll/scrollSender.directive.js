@@ -14,6 +14,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout)
                     var vElement = $scope.scrollManager.vertical[i];
                     if (vElement.style.top !== -el.scrollTop) {
                         vElement.style.top = -el.scrollTop + 'px';
+                        vElement.style.height = el.scrollHeight + 'px';
                     }
                 }
 
@@ -21,6 +22,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'debounce', function($timeout)
                     var hElement = $scope.scrollManager.horizontal[i];
                     if (hElement.style.left !== -el.scrollLeft) {
                         hElement.style.left = -el.scrollLeft + 'px';
+                        hElement.style.width = el.scrollWidth + 'px';
                     }
                 }
             };
