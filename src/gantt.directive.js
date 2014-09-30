@@ -136,7 +136,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.allowLabelsResizing = true;
             }
             if ($scope.currentDateValue === undefined) {
-                $scope.currentDateValue = new Date();
+                $scope.currentDateValue = moment();
             }
             if ($scope.currentDate === undefined) {
                 $scope.currentDate = 'line';

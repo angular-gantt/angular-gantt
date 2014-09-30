@@ -144,7 +144,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.allowLabelsResizing = true;
             }
             if ($scope.currentDateValue === undefined) {
-                $scope.currentDateValue = new Date();
+                $scope.currentDateValue = moment();
             }
             if ($scope.currentDate === undefined) {
                 $scope.currentDate = 'line';
@@ -677,7 +677,7 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
 
                 for (var i = 0; i < 24; i++) {
-                    var cDate = new Date(date.year(), date.month(), date.date(), i, 0, 0);
+                    var cDate = moment(date).startOf('day').hour(i);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
