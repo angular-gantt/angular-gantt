@@ -24,7 +24,7 @@ angular.module('angularGanttDemoApp', [
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', function($scope, $timeout, Uuid, Sample, GANTT_EVENTS) {
+    .controller('MainCtrl', function($scope, $timeout, Uuid, Sample, moment, GANTT_EVENTS) {
         $scope.options = {
             mode: 'custom',
             scale: 'day',
@@ -92,7 +92,7 @@ angular.module('angularGanttDemoApp')
             var output = '';
             for (var property in data) {
                 var propertyValue = data[property];
-                if (property === 'evt') {
+                if (property === 'evt' && propertyValue) {
                     propertyValue = propertyValue.type;
                 } else if (property === 'element' && propertyValue.length > 0) {
                     propertyValue = propertyValue[0].localName + (propertyValue[0].className ? '.' + propertyValue[0].className : '');
@@ -140,11 +140,8 @@ angular.module('angularGanttDemoApp')
             if (!$scope.options.readOnly && $scope.options.draw) {
                 // Example to draw task inside row
                 if ((data.evt.target ? data.evt.target : data.evt.srcElement).className.indexOf('gantt-row') > -1) {
-                    // TODO: https://github.com/angular-gantt/angular-gantt/issues/120
-                    // Cause invalid date.
-
                     var startDate = data.date;
-                    var endDate = new Date(startDate.getTime());
+                    var endDate = moment(startDate);
                     //endDate.setDate(endDate.getDate());
                     var infoTask = {
                         id: Uuid.randomUuid(),  // Unique id of the task.

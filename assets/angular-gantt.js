@@ -3550,7 +3550,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">\n' +
         '        <div class="gantt-labels-header-row"\n' +
         '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
-        '             ng-style="{\'margin-top\': ((gantt.getActiveHeadersCount()-1)*2)+\'px\'}">\n' +
+        '             ng-style="{\'margin-top\': ((gantt.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
         '            <span>Name</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
