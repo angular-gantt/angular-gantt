@@ -3682,8 +3682,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
         '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
-        '            <gantt-bounds ng-model="task"></gantt-bounds>\n' +
-        '            <gantt-tooltip ng-model="task"></gantt-tooltip>\n' +
+        '            <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>\n' +
+        '            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
@@ -3692,7 +3692,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Tooltip template -->\n' +
         '    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">\n' +
-        '        <div class="gantt-task-info" ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-style="css">\n' +
+        '        <div class="gantt-task-info" ng-style="css">\n' +
         '            <div class="gantt-task-info-content">\n' +
         '                {{ task.name }}</br>\n' +
         '                <small>\n' +
@@ -3707,7 +3707,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Task bounds template -->\n' +
         '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
-        '        <div ng-if="task.bounds !== undefined" ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
+        '        <div ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
         '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
         '    </script>\n' +
         '\n' +
