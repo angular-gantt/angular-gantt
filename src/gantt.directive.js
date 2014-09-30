@@ -115,7 +115,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.width = 0;
             }
             if ($scope.columnWidth === undefined) {
-                $scope.columnWidth = 2;
+                $scope.columnWidth = 30;
             }
             if ($scope.columnSubScale === undefined) {
                 $scope.columnSubScale = 4;
@@ -179,6 +179,18 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             }
             if ($scope.headerShowHour === undefined) {
                 $scope.headerShowHour = true;
+            }
+            if ($scope.headerFormatMonth === undefined) {
+                $scope.headerFormatMonth = 'MMMM YYYY';
+            }
+            if ($scope.headerFormatWeek === undefined) {
+                $scope.headerFormatWeek = 'w';
+            }
+            if ($scope.headerFormatDay === undefined) {
+                $scope.headerFormatDay = 'DD';
+            }
+            if ($scope.headerFormatHour === undefined) {
+                $scope.headerFormatHour = 'HH';
             }
 
             // Gantt logic

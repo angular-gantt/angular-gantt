@@ -184,7 +184,7 @@ review those projects documentations.
   Take a look at demo files [demo/app/index.html] and [demo/app/scripts/controllers/main.js] to see how this callback is
   used.
 
-- **column-width** (default `2`)
+- **column-width** (default `30`)
 
   How wide are the columns in `px`. This allows you add logic like `column-width="scale == 'day' ?  50 : 20"` to 
   have wider columns for days than for other column scales.
@@ -232,13 +232,8 @@ review those projects documentations.
 - **header-format-month**, **header-format-week**, **header-format-day**, **header-format-hour**
 
   Format of header row.
-  
-  For `header-format-month`, `header-format-day`, `header-format-hour`
-  
+    
   See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
-  
-  `header-format-week` is not formatted with [angularJS date filter](https://docs.angularjs.org/api/ng/filter/date), but
-  with [sprintf] (`'Week %s'`).
 
 - **labels-width** (default: `0` = Auto)
 

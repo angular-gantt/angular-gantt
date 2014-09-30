@@ -123,7 +123,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.width = 0;
             }
             if ($scope.columnWidth === undefined) {
-                $scope.columnWidth = 2;
+                $scope.columnWidth = 30;
             }
             if ($scope.columnSubScale === undefined) {
                 $scope.columnSubScale = 4;
@@ -187,6 +187,18 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             }
             if ($scope.headerShowHour === undefined) {
                 $scope.headerShowHour = true;
+            }
+            if ($scope.headerFormatMonth === undefined) {
+                $scope.headerFormatMonth = 'MMMM YYYY';
+            }
+            if ($scope.headerFormatWeek === undefined) {
+                $scope.headerFormatWeek = 'w';
+            }
+            if ($scope.headerFormatDay === undefined) {
+                $scope.headerFormatDay = 'DD';
+            }
+            if ($scope.headerFormatHour === undefined) {
+                $scope.headerFormatHour = 'HH';
             }
 
             // Gantt logic
@@ -3511,21 +3523,6 @@ gantt.factory('smartEvent', [function() {
 
     return smartEvent;
 }]);
-
-gantt.filter('sprintf', function() {
-    function parse(str) {
-        var args = [].slice.call(arguments, 1),
-            i = 0;
-
-        return str.replace(/%s/g, function() {
-            return args[i++];
-        });
-    }
-
-    return function(str) {
-        return parse(str, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
-    };
-});
 angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/default.gantt.tmpl.html',
         '<div class="gantt unselectable" gantt-scroll-manager>\n' +
@@ -3537,7 +3534,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-ganttHeader.offsetHeight)+\'px\'} || {})"\n' +
         '             ng-show="gantt.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
-        '                <gantt-row-label ng-repeat="row in gantt.rows | filter:{hidden:false} track by row.id">\n' +
+        '                <gantt-row-label ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">\n' +
         '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
         '                        <span>{{ row.name }}</span>\n' +
         '                    </gantt-sortable>\n' +
@@ -3550,23 +3547,23 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <div class="gantt-header-row"\n' +
         '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')"\n' +
         '                 ng-if="gantt.headers.month !== undefined">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.month | filter:{hidden:false}">\n' +
-        '                    {{ headerFormatMonth && (column.date | amDateFormat:headerFormatMonth)  || (column.date | amDateFormat:\'MMMM YYYY\') }}\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.headers.month | filter:{hidden:false} track by $index">\n' +
+        '                    {{ column.date | amDateFormat:headerFormatMonth }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.week | filter:{hidden:false}">\n' +
-        '                    {{headerFormatWeek && (headerFormatWeek | sprintf:column.week) || column.week }}\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.headers.week | filter:{hidden:false} track by $index">\n' +
+        '                    {{ column.date | amDateFormat:headerFormatWeek }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.day | filter:{hidden:false}">\n' +
-        '                    {{ headerFormatDay && (column.date | amDateFormat:headerFormatDay) || (viewScale === \'hour\' && (column.date | amDateFormat: \'DD dddd\') || (column.date | amDateFormat:\'DD\')) }}\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.headers.day | filter:{hidden:false} track by $index">\n' +
+        '                    {{ column.date | amDateFormat:headerFormatDay }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.hour | filter:{hidden:false}">\n' +
-        '                    {{ headerFormatHour && (column.date | amDateFormat:headerFormatHour) || (column.date | amDateFormat:\'HH\') }}\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.headers.hour | filter:{hidden:false} track by $index">\n' +
+        '                    {{ column.date | amDateFormat:headerFormatHour }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '        </gantt-header-columns>\n' +
@@ -3577,14 +3574,14 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                <div class="gantt-row-height"\n' +
         '                     ng-class-odd="\'gantt-background-row\'"\n' +
         '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                     ng-repeat="row in gantt.rows | filter:{hidden:false} track by row.id">\n' +
+        '                     ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">\n' +
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(moment(currentDateValue))) + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false}"></gantt-column>\n' +
+        '                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index"></gantt-column>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +
@@ -3595,8 +3592,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>\n' +
         '                    </gantt-tooltip>\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.rows | filter:{hidden:false} track by row.id">\n' +
-        '                    <gantt-task ng-repeat="task in row.tasks | filter:{hidden:false} track by task.id"></gantt-task>\n' +
+        '                <gantt-row ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">\n' +
+        '                    <gantt-task ng-repeat="task in row.tasks | filter:{hidden:false} track by $index"></gantt-task>\n' +
         '                </gantt-row>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
