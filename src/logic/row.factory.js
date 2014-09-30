@@ -11,7 +11,6 @@ gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
         self.to = undefined;
         self.tasksMap = {};
         self.tasks = [];
-        self.visibleTasks = [];
         self.data = data;
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id

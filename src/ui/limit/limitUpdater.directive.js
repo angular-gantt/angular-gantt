@@ -7,7 +7,7 @@ gantt.directive('ganttLimitUpdater', ['$timeout', function($timeout) {
         controller: ['$scope', '$element', function($scope, $element) {
             var el = $element[0];
             var scrollUpdate = function() {
-                $scope.scrollStart = el.scrollLeft;
+                $scope.scrollLeft = el.scrollLeft;
                 $scope.scrollWidth = el.offsetWidth;
             };
 

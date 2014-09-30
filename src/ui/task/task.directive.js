@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 'debounce', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'smartEvent', 'debounce', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
 
     return {
         restrict: 'E',
@@ -195,9 +195,15 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', 'smartEvent', 
                 if (y >= ganttRowElement[0].offsetTop && y <= ganttRowElement[0].offsetTop + ganttRowElement[0].offsetHeight) {
                     return $scope.task.row;
                 } else {
-                    var rowHeight = ganttBodyElement[0].offsetHeight / $scope.task.row.gantt.visibleRows.length;
+                    var visibleRows = [];
+                    angular.forEach($scope.task.row.gantt.rows, function(row) {
+                        if (!row.hidden) {
+                            visibleRows.push(row);
+                        }
+                    });
+                    var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
                     var pos = Math.floor(y / rowHeight);
-                    return $scope.task.row.gantt.visibleRows[pos];
+                    return visibleRows[pos];
                 }
             };
 

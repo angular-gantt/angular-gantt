@@ -8,13 +8,12 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         self.rowsMap = {};
         self.rows = [];
-        self.visibleRows = [];
 
         self.timespansMap = {};
         self.timespans = [];
 
         self.columns = [];
-        self.visibleColumns = [];
+
         self.headers = {};
 
         self.previousColumns = [];
@@ -42,6 +41,77 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.setCurrentDate($scope.currentDateValue);
+            }
+        });
+
+        var updateVisibleColumns = function() {
+            angular.forEach(self.columns, function(column) {
+                column.hidden = true;
+            });
+            var columns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
+            angular.forEach(columns, function(column) {
+                column.hidden = false;
+            });
+
+            angular.forEach(self.headers, function(headers, key) {
+                if (self.headers.hasOwnProperty(key)) {
+                    angular.forEach(headers, function(header) {
+                        header.hidden = true;
+                    });
+                    var visibleHeaders = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
+                    angular.forEach(visibleHeaders, function(header) {
+                        header.hidden = false;
+                    });
+                }
+            });
+        };
+
+        var updateVisibleRows = function() {
+            angular.forEach(self.rows, function(row) {
+                row.hidden = true;
+            });
+            var visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
+            angular.forEach(visibleRows, function(row) {
+                row.hidden = false;
+            });
+        };
+
+        var updateVisibleTasks = function() {
+            angular.forEach(self.rows, function(row) {
+                angular.forEach(row.tasks, function(task) {
+                    task.hidden = true;
+                });
+                var visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
+                angular.forEach(visibleTasks, function(task) {
+                    task.hidden = false;
+                });
+            });
+        };
+
+        var updateVisibleObjects = function() {
+            updateVisibleRows();
+            updateVisibleTasks();
+        };
+
+        updateVisibleColumns();
+        updateVisibleObjects();
+
+        $scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                updateVisibleColumns();
+                updateVisibleTasks();
+            }
+        });
+
+        $scope.$watch('filterTask+filterTaskComparator', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                updateVisibleTasks();
+            }
+        });
+
+        $scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                updateVisibleRows();
             }
         });
 
@@ -150,6 +220,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
                 return generateColumns(minFrom, maxTo);
             }
+            updateVisibleColumns();
         };
         self.requestDateRange($scope.fromDate, $scope.toDate);
 
@@ -407,6 +478,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             }
 
             expandColumns();
+            updateVisibleObjects();
         };
 
         // Adds a row or merges the row and its tasks if there is already one with the same id
@@ -476,6 +548,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                     removeRow(rowData.id);
                 }
             }
+            updateVisibleObjects();
         };
 
         // Removes the complete row including all tasks
@@ -501,6 +574,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             self.rows = [];
             self.highestRowOrder = 0;
             self.columns = [];
+            self.headers = {};
             dateRange = undefined;
         };
 
