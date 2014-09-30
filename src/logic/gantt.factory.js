@@ -405,9 +405,14 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         // Returns the position inside the Gantt calculated by the given date
         self.getPositionByDate = function(date) {
-            if (!date) {
+            if (date === undefined) {
                 return undefined;
             }
+
+            if (!moment.isMoment(moment)) {
+                date = moment(date);
+            }
+
             var column = self.getColumnByDate(date);
             if (column !== undefined) {
                 return column.getPositionByDate(date);

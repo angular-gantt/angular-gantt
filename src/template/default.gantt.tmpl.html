@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{'left': (gantt.getPositionByDate(moment(currentDateValue))) + 'px' }"></div>
+                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{'left': (gantt.getPositionByDate(currentDateValue)) + 'px' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
                 <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index"></gantt-column>

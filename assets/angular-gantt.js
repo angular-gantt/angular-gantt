@@ -1483,9 +1483,14 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
         // Returns the position inside the Gantt calculated by the given date
         self.getPositionByDate = function(date) {
-            if (!date) {
+            if (date === undefined) {
                 return undefined;
             }
+
+            if (!moment.isMoment(moment)) {
+                date = moment(date);
+            }
+
             var column = self.getColumnByDate(date);
             if (column !== undefined) {
                 return column.getPositionByDate(date);
@@ -3582,7 +3587,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(moment(currentDateValue))) + \'px\' }"></div>\n' +
+        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(currentDateValue)) + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
         '                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index"></gantt-column>\n' +
