@@ -344,7 +344,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             $scope.centerDate({ fn: $scope.scrollToDate});
 
             // Gantt is initialized. Signal that the Gantt is ready.
-            $scope.$emit(GANTT_EVENTS.READY);
+            $scope.$emit(GANTT_EVENTS.READY, $scope);
         }
         ]};
 }]);
