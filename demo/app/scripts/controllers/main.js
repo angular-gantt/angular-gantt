@@ -21,6 +21,7 @@ angular.module('angularGanttDemoApp')
             showWeekends: true,
             showNonWorkHours: true,
             currentDate: 'line',
+            currentDateValue : new Date(2013, 9, 23, 11, 20, 0),
             draw: false,
             readOnly: false,
             filterTask: undefined,
@@ -32,14 +33,11 @@ angular.module('angularGanttDemoApp')
             $scope.options.toDate = $scope.toDate;
         });
 
-        // Get today date for currentDate indicator
-        $scope.currentDate = new Date(2013, 9, 23, 11, 20, 0);
-
         $scope.$on(GANTT_EVENTS.READY, function() {
             $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
             $scope.loadData(Sample.getSampleData().data1);
             $timeout(function() {
-                $scope.scrollToDate($scope.currentDate);
+                $scope.scrollToDate($scope.options.currentDateValue);
             }, 0, true);
         });
 
