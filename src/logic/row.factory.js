@@ -42,6 +42,12 @@ gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
             task.updatePosAndSize();
         };
 
+        self.updateTasksPosAndSize = function() {
+            for (var j = 0, k = self.tasks.length; j < k; j++) {
+                self.tasks[j].updatePosAndSize();
+            }
+        };
+
         // Remove the specified task from the row
         self.removeTask = function(taskId) {
             if (taskId in self.tasksMap) {

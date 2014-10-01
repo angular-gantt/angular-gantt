@@ -16,20 +16,16 @@ gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', fu
 
             // Bind scroll event
             $element.bind('scroll', debounce(function() {
-                if ($scope.gantt.getDateRange() === undefined) {
-                    return;
-                }
-
                 var el = $element[0];
                 var direction;
                 var date;
 
                 if (el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.getDateRange().from;
+                    date = $scope.gantt.from;
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     direction = 'right';
-                    date = $scope.gantt.getDateRange().to;
+                    date = $scope.gantt.to;
                 }
 
                 if (date !== undefined) {

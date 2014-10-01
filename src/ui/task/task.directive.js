@@ -163,7 +163,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
                     if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
                         mousePos.x -= scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollLeft(scrollSpeed);
+                        $scope.scrollToLeft(scrollSpeed);
                     }
                 } else {
                     // Scroll to the right
@@ -173,7 +173,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
                     if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
                         mousePos.x += scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollRight(scrollSpeed);
+                        $scope.scrollToRight(scrollSpeed);
                     }
                 }
 
@@ -306,7 +306,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
                     $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
-                $scope.task.modeMode = null;
+                $scope.task.modeMode = undefined;
 
                 // Raise task changed event
                 if (taskHasBeenChanged === true) {

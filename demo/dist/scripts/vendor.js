@@ -42805,7 +42805,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
             showNonWorkHours: '=?', // True if the non work hours shall be displayed Default (true)
             autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
-            taskOutOfRange: '=?', // Set this to auto-expand or truncate to define the behavior of tasks going out of visible range.
+            taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
@@ -42883,7 +42883,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.autoExpand = 'none';
             }
             if ($scope.taskOutOfRange === undefined) {
-                $scope.taskOutOfRange = 'expand';
+                $scope.taskOutOfRange = 'truncate';
             }
             if ($scope.labelsWidth === undefined) {
                 $scope.labelsWidth = 0;
@@ -42968,13 +42968,13 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             };
 
             // Scroll to the left side by specified x
-            $scope.scrollLeft = function(x) {
+            $scope.scrollToLeft = function(x) {
                 $scope.template.scrollable.$element[0].scrollLeft -= x;
                 $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
-            $scope.scrollRight = function(x) {
+            $scope.scrollToRight = function(x) {
                 $scope.template.scrollable.$element[0].scrollLeft += x;
                 $scope.template.scrollable.$element.triggerHandler('scroll');
             };
@@ -43004,7 +43004,8 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                     to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
-                $scope.gantt.requestDateRange(from, to);
+                $scope.fromDate = from;
+                $scope.toDate = to;
             });
 
             // Add or update rows and tasks
@@ -43033,7 +43034,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 // Clears rows, task and columns
                 $scope.gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.updateColumns();
             };
 
             // Clear all existing timespans
@@ -43041,7 +43042,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 // Clears rows, task and columns
                 $scope.gantt.removeAllTimespans();
                 // Restore default columns
-                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.updateColumns();
             };
 
             // Add or update timespans
@@ -43445,18 +43446,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             return generatedCols;
         };
 
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one hour.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'hours');
-            }
-
-            // Set time of newToDate to zero before comparing as the hour columns are generated for the whole day
-            // and the newToDate could be e.g. 23:35 while the last column for this date has time 23:00.
-            // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('day');
-        };
-
         // Columns are generated including or excluding the to date.
         // If the To date time is 00:00 then no new columns are generated for this day.
         var isToDateToExclude = function(to) {
@@ -43556,18 +43545,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             return generatedCols;
         };
 
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one day.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'day');
-            }
-
-            // Set time of newToDate to zero before comparing as the day columns generated have time 00:00
-            // and the newToDate could be e.g. 16:23.
-            // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('day');
-        };
-
         // Columns are generated including or excluding the to date.
         // If the To date time is 00:00 then no new column is generated for this day.
         var isToDateToExclude = function(to) {
@@ -43656,18 +43633,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             return generatedCols;
         };
 
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one week.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'week');
-            }
-
-            // Set time of newToDate to zero before comparing as the week columns generated have day = firstDayOfWeek and time = 00:00
-            // and the newToDate could be e.g. day 3 and time 16:23.
-            // If we wouldn`t set the day to firstDayOfWeek and time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('week');
-        };
-
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
         var isToDateToExclude = function(to) {
@@ -43730,18 +43695,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             setWidth(width, left, generatedCols);
 
             return generatedCols;
-        };
-
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one month.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'month');
-            }
-
-            // Set time of newToDate to zero before comparing as the month columns generated have day = 1 and time = 00:00
-            // and the newToDate could be e.g. day 7 and time 16:23.
-            // If we wouldn`t set the day to 1 and time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('month');
         };
 
         // Columns are generated including or excluding the to date.
@@ -43813,21 +43766,23 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         self.nextColumns = [];
 
         self.width = 0;
-        var dateRange;
+
+        self.from = undefined;
+        self.to = undefined;
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
         $scope.$watch('viewScale+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.requestDateRange($scope.fromDate, $scope.toDate);
                 self.buildGenerators();
-                self.reGenerateColumns();
+                self.clearColumns();
+                self.updateColumns();
             }
         });
 
         $scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.requestDateRange($scope.fromDate, $scope.toDate);
+                self.updateColumns();
             }
         });
 
@@ -43908,6 +43863,130 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             }
         });
 
+        var getExpandedFrom = function(from) {
+            from = from ? moment(from) : from;
+
+            var minRowFrom = from;
+            angular.forEach(self.rows, function(row) {
+                if (minRowFrom === undefined || minRowFrom > row.from) {
+                    minRowFrom = row.from;
+                }
+            });
+            if (minRowFrom && (!from || minRowFrom < from)) {
+                return minRowFrom;
+            }
+            return from;
+        };
+
+        var getExpandedTo = function(to) {
+            to = to ? moment(to) : to;
+
+            var maxRowTo = to;
+            angular.forEach(self.rows, function(row) {
+                if (maxRowTo === undefined || maxRowTo < row.to) {
+                    maxRowTo = row.to;
+                }
+            });
+            if (maxRowTo && (!$scope.toDate || maxRowTo > $scope.toDate)) {
+                return maxRowTo;
+            }
+            return to;
+        };
+
+        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
+        var generateColumns = function(from, to) {
+            if (!from) {
+                from = getDefaultFrom();
+                if (!from) {
+                    return false;
+                }
+            }
+
+            if (!to) {
+                to = getDefaultTo();
+                if (!to) {
+                    return false;
+                }
+            }
+
+            if (self.from === from && self.to === to) {
+                return false;
+            }
+
+            self.from = from;
+            self.to = to;
+
+            self.columns = self.columnGenerator.generate(from, to);
+            self.headers = self.headerGenerator.generate(self.columns);
+            if (self._currentDate !== undefined) {
+                self.setCurrentDate(self._currentDate);
+            }
+            self.previousColumns = [];
+            self.nextColumns = [];
+
+            var lastColumn = self.getLastColumn();
+            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+
+            self.updateTasksPosAndSize();
+            self.updateTimespansPosAndSize();
+
+            updateVisibleColumns();
+            updateVisibleObjects();
+
+            return true;
+
+        };
+
+        var expandExtendedColumnsForPosition = function(x) {
+            if (x < 0) {
+                var firstColumn = self.getFirstColumn();
+                var from = firstColumn.date;
+                var firstExtendedColumn = self.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                    self.previousColumns = self.columnGenerator.generate(from, undefined, -x, 0, true);
+                }
+                return true;
+            } else if (x > self.width) {
+                var lastColumn = self.getLastColumn();
+                var endDate = lastColumn.getDateByPosition(lastColumn.width);
+                var lastExtendedColumn = self.getLastColumn(true);
+                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                    self.nextColumns = self.columnGenerator.generate(endDate, undefined, x - self.width, self.width, false);
+                }
+                return true;
+            }
+            return false;
+        };
+
+        var expandExtendedColumnsForDate = function(date) {
+            var firstColumn = self.getFirstColumn();
+            var from;
+            if (firstColumn) {
+                from = firstColumn.date;
+            }
+
+            var lastColumn = self.getLastColumn();
+            var endDate;
+            if (lastColumn) {
+                endDate = lastColumn.getDateByPosition(lastColumn.width);
+            }
+
+            if (from && date < from) {
+                var firstExtendedColumn = self.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                    self.previousColumns = self.columnGenerator.generate(from, date, undefined, 0, true);
+                }
+                return true;
+            } else if (endDate && date > endDate) {
+                var lastExtendedColumn = self.getLastColumn(true);
+                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                    self.nextColumns = self.columnGenerator.generate(endDate, date, undefined, self.width, false);
+                }
+                return true;
+            }
+            return false;
+        };
+
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
@@ -43930,201 +44009,64 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
             self.headerGenerator = new HeaderGenerator.instance($scope);
         };
-        self.buildGenerators();
 
-        self.requestDateRange = function(from, to) {
-            if (from && to) {
-                if ($scope.taskOutOfRange === 'expand') {
-                    setExpandedDateRange(from, to);
-                    expandColumns();
-                } else {
-                    setDateRange(from, to);
-                    generateColumns(dateRange.from, dateRange.to);
-                }
-            }
-        };
-
-        var setDateRange = function(from, to) {
-            from = moment(from);
-            to = moment(to);
-
-            if (dateRange === undefined) {
-                dateRange = {};
-                dateRange.from = from;
-                dateRange.to = to;
-            } else {
-                dateRange.from = from;
-                dateRange.to = to;
-            }
-        };
-
-        var setExpandedDateRange = function(from, to) {
-            from = from ? moment(from) : from;
-            to = to ? moment(to) : to;
-
-            if (!dateRange && from && to) {
-                dateRange = {};
-                dateRange.from = from;
-                dateRange.to = to;
-            } else if (dateRange) {
-                if (from && from < dateRange.from) {
-                    dateRange.from = from;
-                }
-                var minTaskFrom = dateRange.from;
-                angular.forEach(self.rows, function(row) {
-                    angular.forEach(row.tasks, function(task) {
-                        if (minTaskFrom === null || minTaskFrom > task.from) {
-                            minTaskFrom = task.from;
-                        }
-                    });
-                });
-                if (minTaskFrom && minTaskFrom < dateRange.from) {
-                    dateRange.from = minTaskFrom;
-                }
-                if (to && to > dateRange.to) {
-                    dateRange.to = to;
-                }
-                var maxTaskTo = null;
-                angular.forEach(self.rows, function(row) {
-                    angular.forEach(row.tasks, function(task) {
-                        if (maxTaskTo === null || maxTaskTo < task.to) {
-                            maxTaskTo = task.to;
-                        }
-                    });
-                });
-                if (maxTaskTo && maxTaskTo > dateRange.to) {
-                    dateRange.to = maxTaskTo;
-                }
-            }
-        };
-
-        // Generates the Gantt columns according to dateRange. The columns are generated if necessary only.
-        var expandColumns = function() {
-            if (dateRange === undefined) {
-                return false;
-            }
-
-            // Only expand if expand is necessary
-            if (self.columns.length === 0) {
-                return generateColumns(dateRange.from, dateRange.to);
-            } else if (self.columnGenerator.columnExpandNecessary(self.getFirstColumn().date, self.getLastColumn().date, dateRange.from, dateRange.to)) {
-                var minFrom = self.getFirstColumn().date > dateRange.from ? dateRange.from : self.getFirstColumn().date;
-                var maxTo = self.getLastColumn().date < dateRange.to ? dateRange.to : self.getLastColumn().date;
-
-                return generateColumns(minFrom, maxTo);
-            }
-        };
-        self.requestDateRange($scope.fromDate, $scope.toDate);
-
-        self.setCurrentDate = function(currentDate) {
-            self._currentDate = currentDate;
-            angular.forEach(self.columns, function(column) {
-                if (currentDate >= column.date && currentDate < column.getEndDate()) {
-                    column.currentDate = currentDate;
-                } else {
-                    delete column.currentDate;
+        var getDefaultFrom = function() {
+            var defaultFrom;
+            angular.forEach(self.timespans, function(timespan) {
+                if (defaultFrom === undefined || timespan.from < defaultFrom) {
+                    defaultFrom = timespan.from;
                 }
             });
+
+            angular.forEach(self.rows, function(row) {
+                if (defaultFrom === undefined || row.from < defaultFrom) {
+                    defaultFrom = row.from;
+                }
+            });
+            return defaultFrom;
         };
-        self.setCurrentDate($scope.currentDateValue);
 
-        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
-        var generateColumns = function(from, to) {
-            self.columns = self.columnGenerator.generate(from, to);
-            self.headers = self.headerGenerator.generate(self.columns);
-            if (self._currentDate) {
-                self.setCurrentDate(self._currentDate);
+        var getDefaultTo = function() {
+            var defaultTo;
+            angular.forEach(self.timespans, function(timespan) {
+                if (defaultTo === undefined || timespan.to > defaultTo) {
+                    defaultTo = timespan.to;
+                }
+            });
+
+            angular.forEach(self.rows, function(row) {
+                if (defaultTo === undefined || row.to > defaultTo) {
+                    defaultTo = row.to;
+                }
+            });
+            return defaultTo;
+        };
+
+        self.updateColumns = function() {
+            var from = $scope.fromDate;
+            var to = $scope.toDate;
+            if ($scope.taskOutOfRange === 'expand') {
+                from = getExpandedFrom(from);
+                to = getExpandedTo(to);
             }
-            self.previousColumns = [];
-            self.nextColumns = [];
-
-            var lastColumn = self.getLastColumn();
-            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
-
-            self.updateTasksPosAndSize();
-            self.updateTimespansPosAndSize();
-
-            setDateRange(from, to);
-            $scope.fromDate = from;
-            $scope.toDate = to;
-
+            generateColumns(from, to);
             updateVisibleColumns();
-            updateVisibleObjects();
-
-            return true;
-        };
-
-        var expandExtendedColumnsForPosition = function(x) {
-            if (x < 0) {
-                var firstColumn = self.getFirstColumn();
-                var from = firstColumn.date;
-                var firstExtendedColumn = self.getFirstColumn(true);
-                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    self.previousColumns = self.columnGenerator.generate(from, null, -x, 0, true);
-                }
-                return true;
-            } else if (x > self.width) {
-                var lastColumn = self.getLastColumn();
-                var endDate = lastColumn.getDateByPosition(lastColumn.width);
-                var lastExtendedColumn = self.getLastColumn(true);
-                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, null, x - self.width, self.width, false);
-                }
-                return true;
-            }
-            return false;
-        };
-
-        var expandExtendedColumnsForDate = function(date) {
-            var firstColumn = self.getFirstColumn();
-            var from = null;
-            if (firstColumn) {
-                from = firstColumn.date;
-            }
-
-            var lastColumn = self.getLastColumn();
-            var endDate = null;
-            if (lastColumn) {
-                endDate = lastColumn.getDateByPosition(lastColumn.width);
-            }
-
-            if (from && date < from) {
-                var firstExtendedColumn = self.getFirstColumn(true);
-                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
-                    self.previousColumns = self.columnGenerator.generate(from, date, null, 0, true);
-                }
-                return true;
-            } else if (endDate && date > endDate) {
-                var lastExtendedColumn = self.getLastColumn(true);
-                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, date, null, self.width, false);
-                }
-                return true;
-            }
-            return false;
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
-        self.reGenerateColumns = function() {
+        self.clearColumns = function() {
+            self.from = undefined;
+            self.to = undefined;
             self.columns = [];
             self.previousColumns = [];
             self.nextColumns = [];
-
-            if (dateRange !== undefined) {
-                expandColumns();
-                return true;
-            } else {
-                return false;
-            }
         };
 
         // Update the position/size of all tasks in the Gantt
         self.updateTasksPosAndSize = function() {
             for (var i = 0, l = self.rows.length; i < l; i++) {
-                for (var j = 0, k = self.rows[i].tasks.length; j < k; j++) {
-                    self.rows[i].tasks[j].updatePosAndSize();
-                }
+                self.rows[i].updateTasksPosAndSize();
             }
         };
 
@@ -44135,7 +44077,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             }
         };
 
-        // Returns the first Gantt column or undefined
+        // Returns the last Gantt column or undefined
         self.getLastColumn = function(extended) {
             var columns = self.columns;
             if (extended) {
@@ -44148,7 +44090,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             }
         };
 
-        // Returns the last Gantt column or undefined
+        // Returns the first Gantt column or undefined
         self.getFirstColumn = function(extended) {
             var columns = self.columns;
             if (extended) {
@@ -44214,18 +44156,6 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             }
         };
 
-        // Returns the current Gantt date range or undefined if it has not been defined
-        self.getDateRange = function() {
-            if (dateRange === undefined) {
-                return undefined;
-            } else {
-                return {
-                    from: moment(dateRange.from),
-                    to: moment(dateRange.to)
-                };
-            }
-        };
-
         // Returns the min and max date of all loaded tasks or undefined if there are no tasks loaded
         self.getTasksDateRange = function() {
             if (self.rows.length === 0) {
@@ -44277,7 +44207,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 }
             }
 
-            expandColumns();
+            self.updateColumns();
+            self.updateTasksPosAndSize();
             updateVisibleObjects();
         };
 
@@ -44309,17 +44240,9 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                 for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                    var task = row.addTask(rowData.tasks[i]);
-
-                    if ($scope.taskOutOfRange === 'expand') {
-                        setExpandedDateRange(task.from, task.to);
-                        expandColumns();
-                    }
-
-                    task.updatePosAndSize();
+                    row.addTask(rowData.tasks[i]);
                 }
             }
-
             return isUpdate;
         };
 
@@ -44348,6 +44271,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                     removeRow(rowData.id);
                 }
             }
+
+            self.updateColumns();
             updateVisibleObjects();
         };
 
@@ -44373,9 +44298,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
             self.rowsMap = {};
             self.rows = [];
             self.highestRowOrder = 0;
-            self.columns = [];
-            self.headers = {};
-            dateRange = undefined;
+            self.clearColumns();
         };
 
         // Removes all timespans
@@ -44422,12 +44345,8 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
                 } else if (addEventFn !== undefined) {
                     addEventFn(timespan);
                 }
-
-                setExpandedDateRange(timespan.from, timespan.to);
                 timespan.updatePosAndSize();
             }
-
-            expandColumns();
         };
 
         // Adds a timespan or merges the timespan if there is already one with the same id
@@ -44448,6 +44367,22 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 
             return isUpdate;
         };
+
+        self.setCurrentDate = function(currentDate) {
+            self._currentDate = currentDate;
+            angular.forEach(self.columns, function(column) {
+                if (currentDate >= column.date && currentDate < column.getEndDate()) {
+                    column.currentDate = currentDate;
+                } else {
+                    delete column.currentDate;
+                }
+            });
+        };
+        self.setCurrentDate($scope.currentDateValue);
+
+        self.buildGenerators();
+        self.clearColumns();
+        self.updateColumns();
     };
 
     return Gantt;
@@ -44588,6 +44523,12 @@ gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
             self.setFromTo();
             task.row = self;
             task.updatePosAndSize();
+        };
+
+        self.updateTasksPosAndSize = function() {
+            for (var j = 0, k = self.tasks.length; j < k; j++) {
+                self.tasks[j].updatePosAndSize();
+            }
         };
 
         // Remove the specified task from the row
@@ -45366,20 +45307,16 @@ gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', fu
 
             // Bind scroll event
             $element.bind('scroll', debounce(function() {
-                if ($scope.gantt.getDateRange() === undefined) {
-                    return;
-                }
-
                 var el = $element[0];
                 var direction;
                 var date;
 
                 if (el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.getDateRange().from;
+                    date = $scope.gantt.from;
                 } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
                     direction = 'right';
-                    date = $scope.gantt.getDateRange().to;
+                    date = $scope.gantt.to;
                 }
 
                 if (date !== undefined) {
@@ -45710,7 +45647,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
                     if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
                         mousePos.x -= scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollLeft(scrollSpeed);
+                        $scope.scrollToLeft(scrollSpeed);
                     }
                 } else {
                     // Scroll to the right
@@ -45720,7 +45657,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
                     if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
                         mousePos.x += scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollRight(scrollSpeed);
+                        $scope.scrollToRight(scrollSpeed);
                     }
                 }
 
@@ -45853,7 +45790,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
                     $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
-                $scope.task.modeMode = null;
+                $scope.task.modeMode = undefined;
 
                 // Raise task changed event
                 if (taskHasBeenChanged === true) {

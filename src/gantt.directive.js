@@ -82,7 +82,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
             showNonWorkHours: '=?', // True if the non work hours shall be displayed Default (true)
             autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
-            taskOutOfRange: '=?', // Set this to auto-expand or truncate to define the behavior of tasks going out of visible range.
+            taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
@@ -160,7 +160,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 $scope.autoExpand = 'none';
             }
             if ($scope.taskOutOfRange === undefined) {
-                $scope.taskOutOfRange = 'expand';
+                $scope.taskOutOfRange = 'truncate';
             }
             if ($scope.labelsWidth === undefined) {
                 $scope.labelsWidth = 0;
@@ -245,13 +245,13 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             };
 
             // Scroll to the left side by specified x
-            $scope.scrollLeft = function(x) {
+            $scope.scrollToLeft = function(x) {
                 $scope.template.scrollable.$element[0].scrollLeft -= x;
                 $scope.template.scrollable.$element.triggerHandler('scroll');
             };
 
             // Scroll to the right side by specified x
-            $scope.scrollRight = function(x) {
+            $scope.scrollToRight = function(x) {
                 $scope.template.scrollable.$element[0].scrollLeft += x;
                 $scope.template.scrollable.$element.triggerHandler('scroll');
             };
@@ -281,7 +281,8 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                     to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
-                $scope.gantt.requestDateRange(from, to);
+                $scope.fromDate = from;
+                $scope.toDate = to;
             });
 
             // Add or update rows and tasks
@@ -310,7 +311,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 // Clears rows, task and columns
                 $scope.gantt.removeAllRows();
                 // Restore default columns
-                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.updateColumns();
             };
 
             // Clear all existing timespans
@@ -318,7 +319,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 // Clears rows, task and columns
                 $scope.gantt.removeAllTimespans();
                 // Restore default columns
-                $scope.gantt.requestDateRange($scope.fromDate, $scope.toDate);
+                $scope.gantt.updateColumns();
             };
 
             // Add or update timespans

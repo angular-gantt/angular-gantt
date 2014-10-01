@@ -119,18 +119,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             return generatedCols;
         };
 
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one hour.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'hours');
-            }
-
-            // Set time of newToDate to zero before comparing as the hour columns are generated for the whole day
-            // and the newToDate could be e.g. 23:35 while the last column for this date has time 23:00.
-            // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('day');
-        };
-
         // Columns are generated including or excluding the to date.
         // If the To date time is 00:00 then no new columns are generated for this day.
         var isToDateToExclude = function(to) {
@@ -230,18 +218,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             return generatedCols;
         };
 
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one day.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'day');
-            }
-
-            // Set time of newToDate to zero before comparing as the day columns generated have time 00:00
-            // and the newToDate could be e.g. 16:23.
-            // If we wouldn`t set the time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('day');
-        };
-
         // Columns are generated including or excluding the to date.
         // If the To date time is 00:00 then no new column is generated for this day.
         var isToDateToExclude = function(to) {
@@ -330,18 +306,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             return generatedCols;
         };
 
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one week.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'week');
-            }
-
-            // Set time of newToDate to zero before comparing as the week columns generated have day = firstDayOfWeek and time = 00:00
-            // and the newToDate could be e.g. day 3 and time 16:23.
-            // If we wouldn`t set the day to firstDayOfWeek and time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('week');
-        };
-
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
         var isToDateToExclude = function(to) {
@@ -404,18 +368,6 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
             setWidth(width, left, generatedCols);
 
             return generatedCols;
-        };
-
-        this.columnExpandNecessary = function(firstColDate, lastColDate, newFromDate, newToDate) {
-            // If the To date was excluded from generating then go back one month.
-            if (isToDateToExclude(newToDate)) {
-                newToDate = moment(newToDate).add(-1, 'month');
-            }
-
-            // Set time of newToDate to zero before comparing as the month columns generated have day = 1 and time = 00:00
-            // and the newToDate could be e.g. day 7 and time 16:23.
-            // If we wouldn`t set the day to 1 and time to zero the comparison would trigger an expand in that case.
-            return firstColDate > newFromDate || lastColDate < moment(newToDate).startOf('month');
         };
 
         // Columns are generated including or excluding the to date.
