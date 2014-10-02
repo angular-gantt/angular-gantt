@@ -1,7 +1,13 @@
 /.idea
 /.DS_Store
+/.tmp
+/demo
+/.travis.yml
+/.npmignore
+/*.html
+/*.js
 /*.iml
-/.tmp/
+/*.tgz
 /bower_components/
 /node_modules/
 /gh-pages/
