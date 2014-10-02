@@ -34,8 +34,6 @@ angular.module('angularGanttDemoApp')
             taskOutOfRange: 'truncate',
             fromDate: undefined,
             toDate: undefined,
-            showWeekends: true,
-            showNonWorkHours: true,
             showLabelsColumn: true,
             currentDate: 'line',
             currentDateValue : new Date(2013, 9, 23, 11, 20, 0),
@@ -104,7 +102,7 @@ angular.module('angularGanttDemoApp')
                 } else if (property === 'timespan') {
                     propertyValue = propertyValue.name;
                 } else if (property === 'column') {
-                    propertyValue = propertyValue.date.format() + '-' + propertyValue.getEndDate().format();
+                    propertyValue = propertyValue.date.format() + ' <---> ' + propertyValue.endDate.format();
                 }  else if (property === 'row') {
                     propertyValue = propertyValue.name;
                 } else if (property === 'date') {

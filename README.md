@@ -29,7 +29,7 @@
 - Rows and tasks can be sorted and filtered
 - A user can drag&drop a row to sort it in custom mode
 - Events on scroll, click, add or update
-- Configurable (e.g. day or hour scale, weekend days, ..)
+- Configurable (Any scale, (non)working time frames and days, ...)
 
 ### <a name="dependencies"></a> Dependencies
 - [AngularJS](https://angularjs.org)
@@ -190,14 +190,6 @@ review those projects documentations.
   How wide are the columns in `px`. This allows you add logic like `column-width="scale == 'day' ?  50 : 20"` to 
   have wider columns for days than for other column scales.
 
-- **column-sub-scale** (default: `4`)
-
-  How precise tasks should be positioned. By default tasks are placed in quarter steps (every 8 hour or 15 minute).
-  Some examples:
-  - 4 = in quarter steps
-  - 2 = in half steps
-  - 24 (if view-scale = day) to display them very accurate
-
 - **filter-task**, **filter-task-comparator**
 
   Expression to filter on visible tasks using angularJS `$filter('filter')`. 
@@ -226,13 +218,31 @@ review those projects documentations.
     
   See [objects section](#objects).
 
-- **header-show-month**, **header-show-week**, **header-show-day**, **header-show-hour**
+- **headers**
 
-  Display corresponding header row.
+  Array of headers to display.
+    - `second`
+    - `minute`
+    - `hour`
+    - `day`
+    - `week`
+    - `month`
+    - `quarter`
+    - `year`
+    
+  Example:
+    ```js
+    ['month', 'week', 'day'];
+    ```
 
-- **header-format-month**, **header-format-week**, **header-format-day**, **header-format-hour**
+- **headers-formats**
 
-  Format of header row.
+  Associative array of headers format. Key is the header, and value is the format.
+  
+  Example:
+  ```js
+  {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+  ```
     
   See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
 
@@ -280,15 +290,6 @@ review those projects documentations.
 
   Show tooltip when the user hovers over a task.
 
-- **show-weekend** (default: `true`)
-
-  Show weekend days. Weekend days are displayed different than non weekend days.
-
-- **show-non-work-hours** (default: `true`)
-
-  Show non work hours. Non work hours displayed different than work hours. Increase the `view-scale-factor` if you 
-  disable this parameter and use view-scale = day as there are less hours displayed per day.
-
 - **sort-mode** (default: `name`)
 
   Sorts the rows by given expression.
@@ -329,29 +330,19 @@ review those projects documentations.
 
 - **view-scale** (default: `day`)
 
-  Gantt column scale.
-  - `hour`: Each column is one hour wide
-  - `day`: Each column is one day wide
-  - `week`: Each column is one week wide
-  - `month`: Each column is one month wide
+  Column scale using any of [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) supported unit.
+  - `second`
+  - `minute`
+  - `hour`
+  - `day`
+  - `week`
+  - `month`
+  - `quarter`
+  - `year`
 
 - **width** (default: `0` = Disabled)
 
   Width of the gantt in `px`. If defined, `columns-width` will have no effect.
-
-- **weekend-days** (default: `[0,6]`)
-
-  Array containing all weekend days. Assign an empty array `[]` if you don't want any weekend days at all. 
-  
-  Example: 
-  - `[0,6]`: Sunday, Saturday
-
-- **work-hours** (default: `[8,9,10,11,12,13,14,15,16]`)
-
-  Array containing all working hours. Non working hours are displayed differently than working hours. 
-  
-  Example:
-  - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
 ### <a name="objects"></a> Objects
   An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).

@@ -17,7 +17,7 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
                 res.push(task);
             } else {
                 // If the task can be drawn with gantt columns only.
-                if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().getEndDate()) {
+                if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().endDate) {
 
                     // If task has a visible part on the screen
                     if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||

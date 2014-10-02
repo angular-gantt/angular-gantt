@@ -67,7 +67,6 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
             width: '=?', // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
-            columnSubScale: '=?', // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
             allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
             allowTaskRowSwitching: '=?', // If false then tasks can be moved inside their current row only. The user can not move it to another row.
@@ -77,25 +76,14 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             currentDateValue: '=?', // If specified, the current date will be displayed
             currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
-            weekendDays: '=?', // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
-            showWeekends: '=?', // True if the weekends shall be displayed Default (true)
-            workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
-            showNonWorkHours: '=?', // True if the non work hours shall be displayed Default (true)
             autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
             taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
             showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
-            headerShowMonth: '=?',
-            headerShowWeek: '=?',
-            headerShowDay: '=?',
-            headerShowHour: '=?',
-            headerFormatMonth: '=?',
-            headerFormatWeek: '=?',
-            headerFormatDay: '=?',
-            headerFormatHour: '=?',
-            tooltipDateFormat: '=?',
+            headers: '=?', // An array of units for headers.
+            headersFormats: '=?', // An array of corresponding formats for headers.
             timespans: '=?',
             data: '=?',
             loadTimespans: '&',
@@ -115,11 +103,11 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             if ($scope.width === undefined) {
                 $scope.width = 0;
             }
-            if ($scope.columnWidth === undefined) {
-                $scope.columnWidth = 30;
+            if ($scope.columnWidths === undefined) {
+                $scope.columnWidths = 30;
             }
-            if ($scope.columnSubScale === undefined) {
-                $scope.columnSubScale = 4;
+            if ($scope.columnMagnet === undefined) {
+                $scope.columnMagnet = '15 minutes';
             }
             if ($scope.allowTaskMoving === undefined) {
                 $scope.allowTaskMoving = true;
@@ -142,18 +130,6 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             if ($scope.currentDate === undefined) {
                 $scope.currentDate = 'line';
             }
-            if ($scope.weekendDays === undefined) {
-                $scope.weekendDays = [0, 6];
-            }
-            if ($scope.showWeekends === undefined) {
-                $scope.showWeekends = true;
-            }
-            if ($scope.workHours === undefined) {
-                $scope.workHours = [8, 9, 10, 11, 12, 13, 14, 15, 16];
-            }
-            if ($scope.showNonWorkHours === undefined) {
-                $scope.showNonWorkHours = true;
-            }
             if ($scope.maxHeight === undefined) {
                 $scope.maxHeight = 0;
             }
@@ -172,30 +148,18 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             if ($scope.showTooltips === undefined) {
                 $scope.showTooltips = true;
             }
-            if ($scope.headerShowMonth === undefined) {
-                $scope.headerShowMonth = true;
-            }
-            if ($scope.headerShowWeek === undefined) {
-                $scope.headerShowWeek = true;
-            }
-            if ($scope.headerShowDay === undefined) {
-                $scope.headerShowDay = true;
-            }
-            if ($scope.headerShowHour === undefined) {
-                $scope.headerShowHour = true;
-            }
-            if ($scope.headerFormatMonth === undefined) {
-                $scope.headerFormatMonth = 'MMMM YYYY';
-            }
-            if ($scope.headerFormatWeek === undefined) {
-                $scope.headerFormatWeek = 'w';
-            }
-            if ($scope.headerFormatDay === undefined) {
-                $scope.headerFormatDay = 'D';
-            }
-            if ($scope.headerFormatHour === undefined) {
-                $scope.headerFormatHour = 'H';
-            }
+
+            var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+            $scope.getHeaderFormat = function(unit) {
+                var format;
+                if ($scope.headersFormats !== undefined) {
+                    format = $scope.headersFormats[unit];
+                }
+                if (format === undefined) {
+                    format = defaultHeadersFormats[unit];
+                }
+                return format;
+            };
 
             // Disable animation if ngAnimate is present, as it drops down performance.
             enableNgAnimate(false, $element);

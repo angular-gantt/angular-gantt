@@ -11182,7 +11182,7 @@ var version = {
   major: 1,    // package task
   minor: 2,
   dot: 26,
-  codeName: 'captivating-disinterest'
+  codeName: 'zucchini-expansion'
 };
 
 
@@ -42776,7 +42776,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrollPos', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, keepScrollPos, Events, enableNgAnimate, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -42796,7 +42796,6 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
             width: '=?', // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
-            columnSubScale: '=?', // Defines how precise tasks should be positioned inside columns. 4 = in quarter steps, 2 = in half steps, ... Use values higher than 24 or 60 (hour view) to display them very accurate. Default (4)
             allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
             allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
             allowTaskRowSwitching: '=?', // If false then tasks can be moved inside their current row only. The user can not move it to another row.
@@ -42806,25 +42805,14 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
             currentDateValue: '=?', // If specified, the current date will be displayed
             currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
-            weekendDays: '=?', // Array of days: 0=Sunday, 1=Monday, ... Default ([0,6])
-            showWeekends: '=?', // True if the weekends shall be displayed Default (true)
-            workHours: '=?', // Array of valid work hours. Default ([8,9,..,16] equals a 8am - 17pm workday)
-            showNonWorkHours: '=?', // True if the non work hours shall be displayed Default (true)
             autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
             taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
             showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
-            headerShowMonth: '=?',
-            headerShowWeek: '=?',
-            headerShowDay: '=?',
-            headerShowHour: '=?',
-            headerFormatMonth: '=?',
-            headerFormatWeek: '=?',
-            headerFormatDay: '=?',
-            headerFormatHour: '=?',
-            tooltipDateFormat: '=?',
+            headers: '=?', // An array of units for headers.
+            headersFormats: '=?', // An array of corresponding formats for headers.
             timespans: '=?',
             data: '=?',
             loadTimespans: '&',
@@ -42844,11 +42832,11 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             if ($scope.width === undefined) {
                 $scope.width = 0;
             }
-            if ($scope.columnWidth === undefined) {
-                $scope.columnWidth = 30;
+            if ($scope.columnWidths === undefined) {
+                $scope.columnWidths = 30;
             }
-            if ($scope.columnSubScale === undefined) {
-                $scope.columnSubScale = 4;
+            if ($scope.columnMagnet === undefined) {
+                $scope.columnMagnet = '15 minutes';
             }
             if ($scope.allowTaskMoving === undefined) {
                 $scope.allowTaskMoving = true;
@@ -42871,18 +42859,6 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             if ($scope.currentDate === undefined) {
                 $scope.currentDate = 'line';
             }
-            if ($scope.weekendDays === undefined) {
-                $scope.weekendDays = [0, 6];
-            }
-            if ($scope.showWeekends === undefined) {
-                $scope.showWeekends = true;
-            }
-            if ($scope.workHours === undefined) {
-                $scope.workHours = [8, 9, 10, 11, 12, 13, 14, 15, 16];
-            }
-            if ($scope.showNonWorkHours === undefined) {
-                $scope.showNonWorkHours = true;
-            }
             if ($scope.maxHeight === undefined) {
                 $scope.maxHeight = 0;
             }
@@ -42901,33 +42877,18 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             if ($scope.showTooltips === undefined) {
                 $scope.showTooltips = true;
             }
-            if ($scope.headerShowMonth === undefined) {
-                $scope.headerShowMonth = true;
-            }
-            if ($scope.headerShowWeek === undefined) {
-                $scope.headerShowWeek = true;
-            }
-            if ($scope.headerShowDay === undefined) {
-                $scope.headerShowDay = true;
-            }
-            if ($scope.headerShowHour === undefined) {
-                $scope.headerShowHour = true;
-            }
-            if ($scope.headerFormatMonth === undefined) {
-                $scope.headerFormatMonth = 'MMMM YYYY';
-            }
-            if ($scope.headerFormatWeek === undefined) {
-                $scope.headerFormatWeek = 'w';
-            }
-            if ($scope.headerFormatDay === undefined) {
-                $scope.headerFormatDay = 'D';
-            }
-            if ($scope.headerFormatHour === undefined) {
-                $scope.headerFormatHour = 'H';
-            }
 
-            // Disable animation if ngAnimate is present, as it drops down performance.
-            enableNgAnimate(false, $element);
+            var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+            $scope.getHeaderFormat = function(unit) {
+                var format;
+                if ($scope.headersFormats !== undefined) {
+                    format = $scope.headersFormats[unit];
+                }
+                if (format === undefined) {
+                    format = defaultHeadersFormats[unit];
+                }
+                return format;
+            };
 
             // Gantt logic
             $scope.template = {};
@@ -43086,521 +43047,68 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
 }]);
 
 
-gantt.factory('GanttColumn', [ 'moment', function(moment) {
+gantt.factory('Column', [ 'moment', function(moment) {
     // Used to display the Gantt grid and header.
     // The columns are generated by the column generator.
 
-    var calcDbyP = function(column, maxDateValue, currentPosition) {
-        return Math.round(maxDateValue / column.width * currentPosition / (maxDateValue / column.subScale)) * (maxDateValue / column.subScale);
-    };
-
-    var calcPbyD = function(column, date, maxDateValue, currentDateValue) {
-        var factor;
-
-        if (date - column.date > 0 && !column.containsDate(date)) {
-            factor = 1;
-        } else {
-            factor = Math.round(currentDateValue / maxDateValue * column.subScale) / column.subScale;
-        }
-
-        return Math.round((column.left + column.width * factor) * 10) / 10;
-    };
-
-    var Column = function(date, left, width, subScale) {
+    var Column = function(date, unit, left, width) {
         var self = this;
-        self.date = date;
+
+        self.date = moment(date).startOf(unit);
+        self.endDate = moment(self.date).add(1, unit);
+        self.widthDuration = self.endDate.diff(self.date, 'milliseconds');
+        self.unit = unit;
         self.left = left;
         self.width = width;
-        self.subScale = subScale;
-
-        self.getEndDate = function() {
-            return self.getDateByPosition(self.width);
-        };
 
         self.clone = function() {
-            return new Column(self.date, self.left, self.width, self.subScale);
+            return new Column(self.date.clone(), self.unit, self.left, self.width);
+        };
+
+        self.containsDate = function(date) {
+            return moment(date) > self.date && moment(date) <= self.endDate;
         };
 
         self.equals = function(other) {
             return self.date === other.date;
         };
 
-    };
-
-    var MonthColumn = function(date, left, width, subScale) {
-        var column = new Column(moment(date), left, width, subScale);
-        column.daysInMonth = column.date.daysInMonth();
-
-        column.clone = function() {
-            return new Column(moment(column.date), column.left, column.width, column.subScale);
-        };
-
-        column.containsDate = function(date) {
-            return date.month() === column.date.month();
-        };
-
-        column.getDateByPosition = function(position) {
+        self.getDateByPosition = function(position) {
             if (position < 0) {
                 position = 0;
             }
-            if (position > column.width) {
-                position = column.width;
+            if (position > self.width) {
+                position = self.width;
             }
 
-            var res = moment(column.date);
-            res.date(1 + calcDbyP(column, column.daysInMonth, position));
-            return res;
+            var positionDuration = self.widthDuration / self.width * position;
+            var date = moment(self.date).add(positionDuration, 'milliseconds');
+            return date;
         };
 
-        column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInMonth, date.date());
+        self.getPositionByDate = function(date) {
+            var positionDuration = date.diff(self.date, 'milliseconds');
+            var position = positionDuration / self.widthDuration * self.width;
+            return self.left + position;
         };
-
-        return column;
     };
-
-    var WeekColumn = function(date, left, width, subScale) {
-        var column = new Column(moment(date), left, width, subScale);
-        column.week = date.week();
-        column.daysInWeek = 7;
-
-        column.clone = function() {
-            var copy = new Column(moment(column.date), column.left, column.width, column.subScale);
-            copy.week = column.week;
-            return copy;
-        };
-
-        column.containsDate = function(date) {
-            return date.week() === column.date.week();
-        };
-
-        column.getDateByPosition = function(position) {
-            if (position < 0) {
-                position = 0;
-            }
-            if (position > column.width) {
-                position = column.width;
-            }
-
-            var res = moment(column.date);
-            var day = Math.round(calcDbyP(column, column.daysInWeek, position));
-
-            res.day(day);
-            return res;
-        };
-
-        column.getPositionByDate = function(date) {
-            return calcPbyD(column, date, column.daysInWeek, date.day());
-        };
-
-        return column;
-    };
-
-    var DayColumn = function(date, left, width, subScale, isWeekend, daysToNextWorkingDay, daysToPrevWorkingDay, workHours, showNonWorkHours) {
-        var column = new Column(moment(date), left, width, subScale);
-        column.isWeekend = isWeekend;
-        column.showNonWorkHours = showNonWorkHours;
-
-        var startHour = 0;
-        var endHour = 24;
-
-        if (arguments.length === 9 && !showNonWorkHours && workHours.length > 1) {
-            startHour = workHours[0];
-            endHour = workHours[workHours.length - 1] + 1;
-        }
-
-        column.clone = function() {
-            var copy = new Column(moment(column.date), column.left, column.width, column.subScale);
-            copy.isWeekend = column.isWeekend;
-            return copy;
-        };
-
-        column.containsDate = function(date) {
-            return date.date() === column.date.date();
-        };
-
-        column.getDateByPosition = function(position, snapForward) {
-            if (position < 0) {
-                position = 0;
-            }
-            if (position > column.width) {
-                position = column.width;
-            }
-
-            var res = moment(column.date);
-            var hours = startHour + calcDbyP(column, (endHour - startHour), position);
-
-            // Snap is done because a DAY can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
-            if (arguments.length === 2) {
-                if (hours === endHour && snapForward) {
-                    //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
-                    res.add(daysToNextWorkingDay, 'day');
-                    hours = startHour;
-                }
-                else if (hours === startHour && !snapForward) {
-                    //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
-                    res.add(-daysToNextWorkingDay, 'day');
-                    hours = endHour;
-                }
-            }
-
-            res.hour(hours);
-            return res;
-        };
-
-        column.getPositionByDate = function(date) {
-            //first check that the date actually corresponds to this column
-            //(it is possible that it might not if weekends are hidden, in which case this will be the nearest previous column)
-            if (moment(date).startOf('day') > moment(column.date).startOf('day')) {
-                return column.left + column.width;
-            }
-            if (moment(date).startOf('day') < moment(column.date).startOf('day')) {
-                return column.left;
-            }
-
-            var maxDateValue = endHour - startHour;
-            var currentDateValue = date.hour() - startHour;
-            if (currentDateValue < 0) {
-                return column.left;
-            }
-            else if (currentDateValue > maxDateValue) {
-                return column.left + column.width;
-            }
-            else {
-                return calcPbyD(column, date, maxDateValue, currentDateValue);
-            }
-        };
-
-        return column;
-    };
-
-    var HourColumn = function(date, left, width, subScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay) {
-        var column = new Column(moment(date), left, width, subScale);
-        column.isWeekend = isWeekend;
-        column.isWorkHour = isWorkHour;
-
-        column.clone = function() {
-            var copy = new Column(moment(column.date), column.left, column.width, column.subScale);
-            copy.isWeekend = column.isWeekend;
-            copy.isWorkHour = column.isWorkHour;
-            return copy;
-        };
-
-        column.containsDate = function(date) {
-            return date.date() === column.date.date() && date.hour() === column.date.hour();
-        };
-
-        column.getDateByPosition = function(position, snapForward) {
-            if (position < 0) {
-                position = 0;
-            }
-            if (position > column.width) {
-                position = column.width;
-            }
-
-            var res = moment(column.date);
-            var minutes = calcDbyP(column, 60, position);
-
-            // Snap is done because a HOUR can hide the non-work hours. If this is the case the start or end date of a task shall be the last work hour of the current day and not the next day.
-            if (arguments.length === 2) {
-                if (minutes === 60 && snapForward) {
-                    //We have snapped to the end of one day but this is a start of a task so it should snap to the start of the next displayed day
-                    res.add(hoursToNextWorkingDay, 'hours');
-                    minutes = 0;
-                }
-                else if (minutes === 0 && !snapForward) {
-                    //We have snapped to the start of one day but this is the end of a task so it should snap to the end of the previous displayed day
-                    res.add(-hoursToPrevWorkingDay, 'hours');
-                    minutes = 60;
-                }
-            }
-
-            res.minutes(minutes);
-            return res;
-        };
-
-        column.getPositionByDate = function(date) {
-            if (moment(date).startOf('day') > moment(column.date).startOf('day')) {
-                return column.left + column.width;
-            }
-
-            return calcPbyD(column, date, 60, date.minutes());
-        };
-
-        return column;
-    };
-
-    return {
-        Hour: HourColumn,
-        Day: DayColumn,
-        Week: WeekColumn,
-        Month: MonthColumn
-    };
+    return Column;
 }]);
 
 
-gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-
-    // Returns a map to lookup if the current day is a weekend day
-    var getWeekendDaysMap = function(weekendDays) {
-        var weekendDaysMap = {};
-
-        for (var i = 0, l = weekendDays.length; i < l; i++) {
-            weekendDaysMap[weekendDays[i]] = true;
-        }
-
-        return weekendDaysMap;
-    };
-
-    // Returns true if the given day is a weekend day
-    var checkIsWeekend = function(weekendDaysMap, day) {
-        return weekendDaysMap[day] === true;
-    };
-
-    // Returns a map to lookup if the current hour is a work hour
-    var getWorkHoursMap = function(workHours) {
-        var workHoursMap = {};
-
-        for (var i = 0, l = workHours.length; i < l; i++) {
-            workHoursMap[workHours[i]] = true;
-        }
-
-        return workHoursMap;
-    };
-
-    // Returns true if the given hour is a work hour
-    var checkIsWorkHour = function(workHoursMap, hour) {
-        return workHoursMap[hour] === true;
-    };
-
-    var setWidth = function(width, originalWidth, columns) {
-        if (width && originalWidth && columns) {
-
-            var widthFactor = Math.abs(width / originalWidth);
-
-            angular.forEach(columns, function(column) {
-                column.left = widthFactor * column.left;
-                column.width = widthFactor * column.width;
-            });
-        }
-    };
-
-
-    var HourColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
-        // Generates 24 columns for each day between the given from and to date. The task will later be places between the matching columns.
+gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) {
+    var ColumnGenerator = function(width, columnWidth, unit) {
+        // Generates one column for each time unit between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
                 throw 'to or maximumWidth must be defined';
             }
 
             var excludeTo = false;
-            from = moment(from).startOf('day');
+            from = moment(from).startOf(unit);
             if (to) {
                 excludeTo = isToDateToExclude(to);
-                to = moment(to).startOf('day');
-            }
-
-            var date = moment(from);
-            var generatedCols = [];
-            var left = 0;
-            var workHoursMap = getWorkHoursMap(workHours);
-            var weekendDaysMap = getWeekendDaysMap(weekendDays);
-
-            while (true) {
-                if ((maximumWidth && Math.abs(left) > maximumWidth + columnWidth * 24)) {
-                    break;
-                }
-
-                if (reverse) {
-                    left -= columnWidth * 24;
-                }
-
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
-
-                for (var i = 0; i < 24; i++) {
-                    var cDate = moment(date).startOf('day').hour(i);
-                    var isWorkHour = checkIsWorkHour(workHoursMap, i);
-
-                    if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
-                        var hoursToNextWorkingDay = 1;
-                        var hoursToPrevWorkingDay = 1;
-                        if (!showNonWorkHours) { //hours to next/prev working day is only relevant if non-work hours are hidden
-                            hoursToNextWorkingDay = getHoursToNextWorkingDay(workHoursMap, cDate.hour());
-                            hoursToPrevWorkingDay = getHoursToPreviousWorkingDay(workHoursMap, cDate.hour());
-                        }
-
-                        generatedCols.push(new Column.Hour(cDate, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, isWorkHour, hoursToNextWorkingDay, hoursToPrevWorkingDay));
-                        left += columnWidth;
-                    }
-
-                }
-
-                if (reverse) {
-                    left -= columnWidth * 24;
-                }
-
-                if (to) {
-                    if (reverse) {
-                        if (excludeTo && date < to || !excludeTo && date <= to) {
-                            break;
-                        }
-                    } else {
-                        if (excludeTo && date > to || !excludeTo && date >= to) {
-                            break;
-                        }
-                    }
-                }
-
-                date.add(reverse ? -1 : 1, 'day');
-            }
-
-            setWidth(width, left, generatedCols);
-
-            return generatedCols;
-        };
-
-        // Columns are generated including or excluding the to date.
-        // If the To date time is 00:00 then no new columns are generated for this day.
-        var isToDateToExclude = function(to) {
-            return moment(to).add(1, 'day').startOf('day') === to;
-        };
-
-        // Returns the count of hours until the next working day
-        // For example with working hours from 8-16, Wed 9am would return 1, Thu 16pm would return 16
-        // Should also be able to handle gaps like 8-12, 13-17
-        var getHoursToNextWorkingDay = function(workHoursMap, hour) {
-            for (var i = 1; i < 25; i++) {
-                var nextHour = (hour + i) % 24;
-                if (checkIsWorkHour(workHoursMap, nextHour)) {
-                    return i;
-                }
-            }
-            return 1; //default to 1, should only get here if the whole day is a work day
-        };
-
-        var getHoursToPreviousWorkingDay = function(workHours, hour) {
-            for (var i = 1; i < 25; i++) {
-                var prevHour = (((hour - i) % 24) + 24) % 24;
-                if (checkIsWorkHour(workHours, prevHour)) {
-                    return i;
-                }
-            }
-            return 1; //default to 1, should only get here if the whole day is a work day
-        };
-    };
-
-    var DayColumnGenerator = function(width, columnWidth, columnSubScale, weekendDays, showWeekends, workHours, showNonWorkHours) {
-        // Generates one column for each day between the given from and to date.
-        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
-            if (!to && !maximumWidth) {
-                throw 'to or maximumWidth must be defined';
-            }
-
-            var excludeTo = false;
-            from = moment(from).startOf('day');
-            if (to) {
-                excludeTo = isToDateToExclude(to);
-                to = moment(to).startOf('day');
-            }
-
-            var date = moment(from);
-            var generatedCols = [];
-            var left = 0;
-            var weekendDaysMap = getWeekendDaysMap(weekendDays);
-
-            while (true) {
-                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
-                    break;
-                }
-
-                var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
-                if (isWeekend && showWeekends || !isWeekend) {
-                    var daysToNextWorkingDay = 1;
-                    var daysToPreviousWorkingDay = 1;
-                    if (!showWeekends) { //days to next/prev working day is only relevant if weekends are hidden
-                        daysToNextWorkingDay = getDaysToNextWorkingDay(weekendDaysMap, date.day());
-                        daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.day());
-                    }
-
-                    generatedCols.push(new Column.Day(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
-                    if (reverse) {
-                        left -= columnWidth;
-                    } else {
-                        left += columnWidth;
-                    }
-
-                }
-
-                if (to) {
-                    if (reverse) {
-                        if (excludeTo && date < to || !excludeTo && date <= to) {
-                            break;
-                        }
-                    } else {
-                        if (excludeTo && date > to || !excludeTo && date >= to) {
-                            break;
-                        }
-                    }
-                }
-
-                date.add(reverse ? -1 : 1, 'day');
-            }
-
-            if (reverse) {
-                if (isToDateToExclude(from)) {
-                    generatedCols.shift();
-                }
-                generatedCols.reverse();
-            }
-
-            setWidth(width, left, generatedCols);
-
-            return generatedCols;
-        };
-
-        // Columns are generated including or excluding the to date.
-        // If the To date time is 00:00 then no new column is generated for this day.
-        var isToDateToExclude = function(to) {
-            return moment(to).add(1, 'day').startOf('day') === to;
-        };
-
-        // Returns the count of days until the next working day
-        // For example with a Mon-Fri working week, Wed would return 1, Fri would return 3, Sat would return 2
-        var getDaysToNextWorkingDay = function(weekendDays, day) {
-            for (var i = 1; i < 8; i++) {
-                var nextDay = (day + i) % 7;
-                if (!checkIsWeekend(weekendDays, nextDay)) {
-                    return i;
-                }
-            }
-            return 1; //default to 1, should only get here if the whole week is the weekend
-        };
-
-        // Returns the count of days from the previous working day
-        // For example with a Mon-Fri working week, Wed would return 1, Mon would return 3.
-        var getDaysToPrevWorkingDay = function(weekendDays, day) {
-            for (var i = 1; i < 8; i++) {
-                var prevDay = (((day - i) % 7) + 7) % 7;
-                if (!checkIsWeekend(weekendDays, prevDay)) {
-                    return i;
-                }
-            }
-            return 1; //default to 1, should only get here if the whole week is the weekend
-        };
-    };
-
-    var WeekColumnGenerator = function(width, columnWidth, columnSubScale) {
-        // Generates one column for each week between the given from and to date.
-        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
-            if (!to && !maximumWidth) {
-                throw 'to or maximumWidth must be defined';
-            }
-
-            var excludeTo = false;
-            from = moment(from).startOf('week');
-            if (to) {
-                excludeTo = isToDateToExclude(to);
-                to = moment(to).startOf('week');
+                to = moment(to).startOf(unit);
             }
 
             var date = moment(from);
@@ -43612,7 +43120,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     break;
                 }
 
-                generatedCols.push(new Column.Week(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                generatedCols.push(new Column(date, unit, leftOffset ? left + leftOffset : left, columnWidth));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -43631,71 +43139,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     }
                 }
 
-                date.add(reverse ? -1 : 1, 'week');
-            }
-
-            if (reverse) {
-                if (isToDateToExclude(from)) {
-                    generatedCols.shift();
-                }
-                generatedCols.reverse();
-            }
-
-            setWidth(width, left, generatedCols);
-
-            return generatedCols;
-        };
-
-        // Columns are generated including or excluding the to date.
-        // If the To date is the first day of week and the time is 00:00 then no new column is generated for this week.
-        var isToDateToExclude = function(to) {
-            return moment(to).add(1, 'week').startOf('week') === to;
-        };
-    };
-
-    var MonthColumnGenerator = function(width, columnWidth, columnSubScale) {
-        // Generates one column for each month between the given from and to date.
-        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
-            if (!to && !maximumWidth) {
-                throw 'to or maximumWidth must be defined';
-            }
-
-            var excludeTo = false;
-            from = moment(from).startOf('month');
-            if (to) {
-                excludeTo = isToDateToExclude(to);
-                to = moment(to).startOf('month');
-            }
-
-            var date = moment(from);
-            var generatedCols = [];
-            var left = 0;
-
-            while (true) {
-                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
-                    break;
-                }
-
-                generatedCols.push(new Column.Month(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
-                if (reverse) {
-                    left -= columnWidth;
-                } else {
-                    left += columnWidth;
-                }
-
-                if (to) {
-                    if (reverse) {
-                        if (excludeTo && date < to || !excludeTo && date <= to) {
-                            break;
-                        }
-                    } else {
-                        if (excludeTo && date > to || !excludeTo && date >= to) {
-                            break;
-                        }
-                    }
-                }
-
-                date.add(reverse ? -1 : 1, 'month');
+                date.add(reverse ? -1 : 1, unit);
             }
 
             if (reverse) {
@@ -43712,21 +43156,28 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
 
         // Columns are generated including or excluding the to date.
         // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+
         var isToDateToExclude = function(to) {
-            return moment(to).add(1, 'month').startOf('month') === to;
+            return moment(to).add(1, unit).startOf(unit) === to;
+        };
+
+        var setWidth = function(width, originalWidth, columns) {
+            if (width && originalWidth && columns) {
+
+                var widthFactor = Math.abs(width / originalWidth);
+
+                angular.forEach(columns, function(column) {
+                    column.left = widthFactor * column.left;
+                    column.width = widthFactor * column.width;
+                });
+            }
         };
     };
-
-    return {
-        HourGenerator: HourColumnGenerator,
-        DayGenerator: DayColumnGenerator,
-        WeekGenerator: WeekColumnGenerator,
-        MonthGenerator: MonthColumnGenerator
-    };
+    return ColumnGenerator;
 }]);
 
 
-gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
+gantt.service('Events', ['mouseOffset', function(mouseOffset) {
     return {
         buildTaskEventData: function(evt, element, task, gantt) {
             var data = {evt:evt, element:element, task:task};
@@ -43758,7 +43209,7 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
 }]);
 
 
-gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'ganttBinarySearch', 'moment', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, bs, moment) {
+gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
@@ -43785,7 +43236,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        $scope.$watch('viewScale+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
+        $scope.$watch('viewScale+width+labelsWidth+columnWidth', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.buildGenerators();
                 self.clearColumns();
@@ -44003,23 +43454,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
-            switch ($scope.viewScale) {
-                case 'hour':
-                    self.columnGenerator = new ColumnGenerator.HourGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    break;
-                case 'day':
-                    self.columnGenerator = new ColumnGenerator.DayGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale, $scope.weekendDays, $scope.showWeekends, $scope.workHours, $scope.showNonWorkHours);
-                    break;
-                case 'week':
-                    self.columnGenerator = new ColumnGenerator.WeekGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
-                    break;
-                case 'month':
-                    self.columnGenerator = new ColumnGenerator.MonthGenerator($scope.width, $scope.columnWidth, $scope.columnSubScale);
-                    break;
-                default:
-                    throw 'Unsupported view scale: ' + $scope.viewScale;
-            }
-
+            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale);
             self.headerGenerator = new HeaderGenerator.instance($scope);
         };
 
@@ -44384,7 +43819,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         self.setCurrentDate = function(currentDate) {
             self._currentDate = currentDate;
             angular.forEach(self.columns, function(column) {
-                if (currentDate >= column.date && currentDate < column.getEndDate()) {
+                if (column.containsDate(currentDate)) {
                     column.currentDate = currentDate;
                 } else {
                     delete column.currentDate;
@@ -44402,92 +43837,37 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 }]);
 
 
-gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-
-    var generateHourHeader = function(columns) {
+gantt.factory('HeaderGenerator', [ 'Column', function(Column) {
+    var generateHeader = function(columns, unit) {
         var generatedHeaders = [];
-
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.hour() !== col.date.hour()) {
-                header = new Column.Hour(moment(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
+            if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
+                header = new Column(col.date, unit, col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
             }
         }
-
-        return generatedHeaders;
-    };
-
-    var generateDayHeader = function(columns) {
-        var generatedHeaders = [];
-
-        var header;
-        for (var i = 0, l = columns.length; i < l; i++) {
-            var col = columns[i];
-            if (i === 0 || columns[i - 1].date.day() !== col.date.day()) {
-                header = new Column.Day(moment(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
-                generatedHeaders.push(header);
-            } else {
-                header.width += col.width;
-            }
-        }
-
-        return generatedHeaders;
-    };
-
-    var generateWeekHeader = function(columns) {
-        var generatedHeaders = [];
-
-        var header;
-        for (var i = 0, l = columns.length; i < l; i++) {
-            var col = columns[i];
-            if (i === 0 || columns[i - 1].date.week() !== col.date.week()) {
-                header = new Column.Week(moment(col.date), col.left, col.width, col.date.week());
-                generatedHeaders.push(header);
-            } else {
-                header.width += col.width;
-            }
-        }
-
-        return generatedHeaders;
-    };
-
-    var generateMonthHeader = function(columns) {
-        var generatedHeaders = [];
-
-        var header;
-        for (var i = 0, l = columns.length; i < l; i++) {
-            var col = columns[i];
-            if (i === 0 || columns[i - 1].date.month() !== col.date.month()) {
-                header = new Column.Month(moment(col.date), col.left, col.width);
-                generatedHeaders.push(header);
-            } else {
-                header.width += col.width;
-            }
-        }
-
         return generatedHeaders;
     };
 
     return {
         instance: function($scope) {
             this.generate = function(columns) {
-                var headers = {};
-                if ($scope.headerShowHour && ['hour'].indexOf($scope.viewScale) > -1) {
-                    headers.hour = generateHourHeader(columns);
+                var units = [];
+                if ($scope.headers === undefined) {
+                    units = [$scope.viewScale];
+                } else {
+                    units = $scope.headers;
                 }
-                if ($scope.headerShowDay && ['hour', 'day'].indexOf($scope.viewScale) > -1) {
-                    headers.day = generateDayHeader(columns);
-                }
-                if ($scope.headerShowWeek && ['day', 'week'].indexOf($scope.viewScale) > -1) {
-                    headers.week = generateWeekHeader(columns);
-                }
-                if ($scope.headerShowMonth && ['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
-                    headers.month = generateMonthHeader(columns);
-                }
+
+                var headers = [];
+                angular.forEach(units, function(unit) {
+                    headers.push(generateHeader(columns, unit));
+                });
+
                 return headers;
             };
         }
@@ -44495,7 +43875,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
 }]);
 
 
-gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
+gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -44617,7 +43997,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
 }]);
 
 
-gantt.factory('GanttScrollable', [function() {
+gantt.factory('Scrollable', [function() {
     var Scrollable = function($element) {
         this.$element = $element;
     };
@@ -44625,7 +44005,7 @@ gantt.factory('GanttScrollable', [function() {
 }]);
 
 
-gantt.factory('GanttTask', ['moment', function(moment) {
+gantt.factory('Task', ['moment', function(moment) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -44738,7 +44118,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
 }]);
 
 
-gantt.factory('GanttBody', [function() {
+gantt.factory('Body', [function() {
     var Body= function($element) {
         this.$element = $element;
 
@@ -44750,7 +44130,7 @@ gantt.factory('GanttBody', [function() {
 }]);
 
 
-gantt.factory('GanttBodyColumns', [function() {
+gantt.factory('BodyColumns', [function() {
     var BodyColumns = function($element) {
         this.$element = $element;
 
@@ -44762,7 +44142,7 @@ gantt.factory('GanttBodyColumns', [function() {
 }]);
 
 
-gantt.factory('GanttBodyRows', [function() {
+gantt.factory('BodyRows', [function() {
     var BodyRows = function($element) {
         this.$element = $element;
 
@@ -44774,7 +44154,7 @@ gantt.factory('GanttBodyRows', [function() {
 }]);
 
 
-gantt.factory('GanttHeader', [function() {
+gantt.factory('Header', [function() {
     var Header= function($element) {
         this.$element = $element;
 
@@ -44786,7 +44166,7 @@ gantt.factory('GanttHeader', [function() {
 }]);
 
 
-gantt.factory('GanttHeaderColumns', [function() {
+gantt.factory('HeaderColumns', [function() {
     var HeaderColumns = function($element) {
         this.$element = $element;
 
@@ -44798,7 +44178,7 @@ gantt.factory('GanttHeaderColumns', [function() {
 }]);
 
 
-gantt.factory('GanttLabels', [function() {
+gantt.factory('Labels', [function() {
     var Labels= function($element) {
         this.$element = $element;
 
@@ -44810,7 +44190,7 @@ gantt.factory('GanttLabels', [function() {
 }]);
 
 
-gantt.factory('GanttTimespan', ['moment', function(moment) {
+gantt.factory('Timespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 
@@ -44885,7 +44265,7 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
 }]);
 
 
-gantt.service('ganttBinarySearch', [ function() {
+gantt.service('binarySearch', [ function() {
     // Returns the object on the left and right in an array using the given cmp function.
     // The compare function defined which property of the value to compare (e.g.: c => c.left)
 
@@ -44912,7 +44292,7 @@ gantt.service('ganttBinarySearch', [ function() {
     };
 }]);
 
-gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
+gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
     // Returns only the columns which are visible on the screen
 
     return function(input, scrollLeft, scrollWidth) {
@@ -44926,7 +44306,7 @@ gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
 }]);
 
 
-gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
+gantt.directive('ganttLimitUpdater', ['$timeout', 'debounce', function($timeout, debounce) {
     // Updates the limit filters if the user scrolls the gantt chart
 
     return {
@@ -44939,12 +44319,16 @@ gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($tim
             };
 
             $element.bind('scroll', debounce(function() {
-                scrollUpdate();
+                $scope.$apply(function() {
+                    scrollUpdate();
+                });
             }, 5));
 
-            $scope.$watch('gantt.width', debounce(function() {
-                scrollUpdate();
-            }, 20));
+            $scope.$watch('gantt.width', function() {
+                $timeout(function() {
+                    scrollUpdate();
+                }, 20, true);
+            });
         }]
     };
 }]);
@@ -44982,7 +44366,7 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
                 res.push(task);
             } else {
                 // If the task can be drawn with gantt columns only.
-                if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().getEndDate()) {
+                if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().endDate) {
 
                     // If task has a visible part on the screen
                     if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
@@ -45001,7 +44385,7 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
 }]);
 
 
-gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
+gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
 
     return {
         restrict: 'A',
@@ -45031,15 +44415,16 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
             });
 
             var resize = function(x) {
-                if ($scope.width === 0) {
-                    $scope.width = $element[0].offsetWidth;
-                }
+                $scope.$apply(function() {
+                    if ($scope.width === 0) {
+                        $scope.width = $element[0].offsetWidth;
+                    }
 
-                $scope.width += x - originalPos;
-                if ($scope.width < $scope.minWidth) {
-                    $scope.width = $scope.minWidth;
-                }
-
+                    $scope.width += x - originalPos;
+                    if ($scope.width < $scope.minWidth) {
+                        $scope.width = $scope.minWidth;
+                    }
+                });
                 originalPos = x;
             };
 
@@ -45108,7 +44493,7 @@ gantt.directive('ganttRightClick', ['$parse', function($parse) {
     };
 }]);
 
-gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
         require: '^ganttBody',
@@ -45150,7 +44535,7 @@ gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GAN
 }]);
 
 
-gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRowHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -45189,7 +44574,7 @@ gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Event
 }]);
 
 
-gantt.directive('ganttRowLabel', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRowLabel', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -45256,7 +44641,7 @@ gantt.directive('ganttScrollManager', function() {
 });
 
 
-gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS', function($timeout, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollSender', ['$timeout', 'debounce', 'GANTT_EVENTS', function($timeout, debounce, GANTT_EVENTS) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -45287,7 +44672,9 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS
             $element.bind('scroll', updateListeners);
 
             $scope.$on(GANTT_EVENTS.ROW_ADDED, debounce(function() {
-                updateListeners();
+                $timeout(function() {
+                    updateListeners();
+                }, 0, true);
             }, 5));
 
             $scope.$watch('gantt.width', function(newValue) {
@@ -45302,7 +44689,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS
 }]);
 
 
-gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -45317,6 +44704,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.template.scrollable = new Scrollable($element);
 
+            // Bind scroll event
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
                 var direction;
@@ -45354,13 +44742,13 @@ gantt.directive('ganttVerticalScrollReceiver', function() {
     };
 });
 
-gantt.service('ganttSortManager', [ function() {
+gantt.service('sortManager', [ function() {
     // Contains the row which the user wants to sort (the one he started to drag)
 
     return { startRow: undefined };
 }]);
 
-gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($document, sortManager) {
+gantt.directive('ganttSortable', ['$document', 'sortManager', function($document, sortManager) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
@@ -45494,7 +44882,7 @@ gantt.directive('ganttBounds', [function() {
 }]);
 
 
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'smartEvent', 'debounce', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
 
     return {
         restrict: 'E',
@@ -45753,8 +45141,10 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(evt) {
-                    clearScrollInterval();
-                    handleMove(mode, evt);
+                    $timeout(function() {
+                        clearScrollInterval();
+                        handleMove(mode, evt);
+                    });
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
@@ -45821,7 +45211,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 }]);
 
 
-gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
     return {
@@ -45854,7 +45244,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
                 } else {
                     showTooltip(e.clientX);
                 }
-            }, 5, false));
+            }, 1));
 
             $scope.$watch('task.isMoving', function(newValue) {
                 if (newValue === true) {
@@ -45879,7 +45269,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
                     $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
                     $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
                     $scope.css.opacity = 1;
-                }, 0, true);
+                }, 1, true);
             };
 
             var updateTooltip = function(x) {
@@ -45918,7 +45308,7 @@ gantt.directive('ganttBody', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttBody', function($scope, $element, Body) {
+        controller: ['$scope', '$element', 'Body', function($scope, $element, Body) {
             $scope.template.body = new Body($element);
         }]
     };
@@ -45938,7 +45328,7 @@ gantt.directive('ganttBodyColumns', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttBodyColumns', function($scope, $element, BodyColumns) {
+        controller: ['$scope', '$element', 'BodyColumns', function($scope, $element, BodyColumns) {
             $scope.template.body.columns = new BodyColumns($element);
         }]
     };
@@ -45958,7 +45348,7 @@ gantt.directive('ganttBodyRows', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttBodyRows', function($scope, $element, BodyRows) {
+        controller: ['$scope', '$element', 'BodyRows', function($scope, $element, BodyRows) {
             $scope.template.body.rows = new BodyRows($element);
         }]
     };
@@ -45985,7 +45375,7 @@ gantt.directive('ganttColumn', [function() {
 }]);
 
 
-gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -46027,7 +45417,7 @@ gantt.directive('ganttHeader', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
+        controller: ['$scope', '$element', 'Header', function($scope, $element, Header) {
             $scope.template.header = new Header($element);
         }]
     };
@@ -46047,7 +45437,7 @@ gantt.directive('ganttHeaderColumns', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttHeaderColumns', function($scope, $element, HeaderColumns) {
+        controller: ['$scope', '$element', 'HeaderColumns', function($scope, $element, HeaderColumns) {
             $scope.template.header.columns = new HeaderColumns($element);
         }]
     };
@@ -46067,15 +45457,15 @@ gantt.directive('ganttLabels', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttLabels', function($scope, $element, Labels) {
+        controller: ['$scope', '$element', 'Labels', function($scope, $element, Labels) {
             $scope.template.labels = new Labels($element);
         }]
     };
 }]);
 
 
-gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
-    function debounce(fn, timeout, invokeApply) {
+gantt.factory('debounce', ['$timeout', function($timeout) {
+    function debounce(fn, timeout) {
         var nthCall = 0;
         return function() {
             var self = this;
@@ -46088,33 +45478,14 @@ gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
                     }
                 };
             })(nthCall);
-            return $timeout(later, timeout, invokeApply === undefined ? true: invokeApply);
+            return $timeout(later, timeout, true);
         };
     }
 
     return debounce;
 }]);
 
-gantt.service('ganttEnableNgAnimate', ['$injector', function($injector) {
-    var ngAnimate;
-    try {
-        ngAnimate = $injector.get('$animate');
-    } catch (e) {
-    }
-
-    if (ngAnimate !== undefined) {
-        return function(enabled, element) {
-            ngAnimate.enabled(false, element);
-        };
-    } else {
-        return function() {};
-    }
-
-
-}]);
-
-
-gantt.factory('ganttKeepScrollPos', ['$timeout', function($timeout) {
+gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
     // Make sure the scroll position will be at the same place after the tasks or columns changed
 
     function keepScrollPos($scope, fn) {
@@ -46150,7 +45521,7 @@ gantt.factory('ganttKeepScrollPos', ['$timeout', function($timeout) {
 }]);
 
 
-gantt.service('ganttMouseButton', [ function() {
+gantt.service('mouseButton', [ function() {
     // Mouse button cross browser normalization
 
     return {
@@ -46166,7 +45537,7 @@ gantt.service('ganttMouseButton', [ function() {
     };
 }]);
 
-gantt.service('ganttMouseOffset', [ function() {
+gantt.service('mouseOffset', [ function() {
     // Mouse offset support for lesser browsers (read IE 8)
 
     return {
@@ -46187,7 +45558,7 @@ gantt.service('ganttMouseOffset', [ function() {
     };
 }]);
 
-gantt.factory('ganttSmartEvent', [function() {
+gantt.factory('smartEvent', [function() {
     // Auto released the binding when the scope is destroyed. Use if an event is registered on another element than the scope.
 
     function smartEvent($scope, $element, event, fn) {
@@ -46231,29 +45602,12 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    </gantt-labels>\n' +
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.month !== undefined"\n' +
-        '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.month | filter:{hidden:false} track by $index">\n' +
-        '                    {{ column.date | amDateFormat:headerFormatMonth }}\n' +
-        '                </gantt-column-header>\n' +
-        '            </div>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined"\n' +
-        '                 ng-class="(gantt.headers.week !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.week | filter:{hidden:false} track by $index">\n' +
-        '                    {{ column.date | amDateFormat:headerFormatWeek }}\n' +
-        '                </gantt-column-header>\n' +
-        '            </div>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined"\n' +
-        '                 ng-class="(gantt.headers.day !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.day | filter:{hidden:false} track by $index">\n' +
-        '                    {{ column.date | amDateFormat:headerFormatDay }}\n' +
-        '                </gantt-column-header>\n' +
-        '            </div>\n' +
-        '            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined"\n' +
-        '                 ng-class="(gantt.headers.hour !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.hour | filter:{hidden:false} track by $index">\n' +
-        '                    {{ column.date | amDateFormat:headerFormatHour }}\n' +
-        '                </gantt-column-header>\n' +
+        '            <div ng-repeat="header in gantt.headers">\n' +
+        '                <div class="gantt-header-row gantt-header-row-bottom">\n' +
+        '                    <gantt-column-header ng-repeat="column in header | filter:{hidden:false} track by $index">\n' +
+        '                        {{ column.date | amDateFormat: $parent.$parent.getHeaderFormat(column.unit) }}\n' +
+        '                    </gantt-column-header>\n' +
+        '                </div>\n' +
         '            </div>\n' +
         '        </gantt-header-columns>\n' +
         '    </gantt-header>\n' +
@@ -46349,7 +45703,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-column"\n' +
-        '             ng-class="(viewScale === \'hour\' && !column.isWorkHour && \'gantt-foreground-col-nonworkhour\' || (column.isWeekend && \'gantt-foreground-col-weekend\' || ((column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\')))"\n' +
+        '             ng-class="(column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\'"\n' +
         '             ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +

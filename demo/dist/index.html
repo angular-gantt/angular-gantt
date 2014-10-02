@@ -52,7 +52,7 @@
                                                 <div class="form-inline">
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-search"></i> Scale</label><br>
-                                                        <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['hour', 'day', 'week', 'month']" bs-select></button>
+                                                        <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'year']" bs-select></button>
                                                     </div>
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
@@ -86,14 +86,6 @@
                                                         <label class="control-label"><i class="fa fa-pencil-square-o"></i> Edit</label><br>
                                                         <button type="button" class="btn btn-default" ng-model="options.draw" bs-checkbox>Draw</button>
                                                         <button type="button" class="btn btn-default" ng-model="options.readOnly" bs-checkbox>Read Only</button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-sun-o"></i> Working periods</label><br>
-                                                        <div class="btn-group" bs-checkbox-group>
-                                                            <button type="button" class="btn btn-default" ng-model="options.showWeekends" bs-checkbox>Weekends</button>
-                                                            <button type="button" class="btn btn-default" ng-model="options.showNonWorkHours" bs-checkbox>Non working hours</button>
-                                                        </div>
                                                     </div>
 
                                                     <div class="form-group text-center">
@@ -156,17 +148,12 @@
                                                allow-task-row-switching="!options.readOnly"
                                                sort-mode="options.mode"
                                                view-scale="options.scale"
-                                               column-width="options.scale === 'month' && 200 || (options.scale === 'week' && 100 || 40)"
-                                               column-sub-scale="options.scale === 'week' && 7 || 6"
+                                               column-width="{minute: 40, hour: 40, day: 40, week: 150, month: 300, quarter: 500, year: 800}[options.scale]"
                                                width="options.width && 160 || 0"
                                                auto-expand="options.autoExpand"
                                                task-out-of-range="options.taskOutOfRange"
                                                from-date = "options.fromDate"
                                                to-date = "options.toDate"
-                                               work-hours="[8,9,10,11,12,13,14,15]"
-                                               show-non-work-hours="options.showNonWorkHours"
-                                               weekend-days="[0,6]"
-                                               show-weekends="options.showWeekends"
                                                show-labels-column="options.showLabelsColumn"
                                                current-date="options.currentDate"
                                                current-date-value="options.currentDateValue"
