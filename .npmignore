@@ -1,0 +1,15 @@
+/.idea
+/.DS_Store
+/.tmp
+/demo
+/.travis.yml
+/.npmignore
+/*.html
+/*.js
+/*.iml
+/*.tgz
+bower_components/
+node_modules/
+gh-pages/
+assets/*.min.js
+assets/*.map
