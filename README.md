@@ -32,41 +32,41 @@
 - Configurable (e.g. day or hour scale, weekend days, ..)
 
 ### <a name="dependencies"></a> Dependencies
-- [AngularJS]
-- [angular-moment] ([momentJS] wrapper)
+- [AngularJS](https://angularjs.org)
+- [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
 
 ### <a name="install"></a> Install
 
-#### Automatically (Using [bower], [grunt] & [grunt-wiredep])
+#### Automatically (Using [bower](http://bower.io/), [grunt](http://gruntjs.com/) & [grunt-wiredep](https://github.com/stephenplusplus/grunt-wiredep))
 
 1. Download and install `angular-gantt`.
 
-    [Latest released version] can be installed in your project using [bower]
+    [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) can be installed in your project using [bower](http://bower.io/)
 
         bower install angular-gantt --save
     
-    [Master branch version] contains bleeding edge features, but may be very unstable.
+    [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
         bower install angular-gantt#master --save
 
-2. Wiredep your dependencies to automatically add [angular-gantt.js] and [gantt.css] files to your HTML index, with all 
+2. Wiredep your dependencies to automatically add [assets/angular-gantt.js](assets/angular-gantt.js) and [assets/gantt.css](assets/gantt.css) files to your HTML index, with all 
 other dependencies declared in your project.
 
         grunt wiredep
 
 #### Manually
 
-1. Install all [dependencies](#dependencies) in your application (That's why you should use [bower]).
+1. Install all [dependencies](#dependencies) in your application (That's why you should use [bower](http://bower.io/)).
 
 2. Download angular-gantt.
-    [Latest released version] is available to 
-    [download][Latest released version] on Github. 
+    [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
+    [download](https://github.com/angular-gantt/angular-gantt/releases/latest) on Github. 
     
-    [Master branch version] contains bleeding edge features, but may be very unstable.
+    [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
-3. Copy the files [angular-gantt.js] and [gantt.css].
+3. Copy the files [assets/angular-gantt.js](assets/angular-gantt.js) and [assets/gantt.css](assets/gantt.css).
 
-4. Add the [angular-gantt.js] and [gantt.css] files to your HTML code.
+4. Add the [assets/angular-gantt.js](assets/angular-gantt.js) and [assets/gantt.css](assets/gantt.css) files to your HTML code.
 
         <head>
             <link rel="stylesheet" href="assets/gantt.css"/>
@@ -75,7 +75,8 @@ other dependencies declared in your project.
             <script src="assets/angular-gantt.js"></script>
         </body>
 
-5. For a sample app see the files [demo/app/index.html] and [demo/app/scripts/controllers/main.js].
+5. For a sample app see the files [demo/app/index.html](demo/app/index.html) and 
+   [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js).
 
 ### <a name="usage"></a> Usage
 
@@ -107,7 +108,7 @@ This will create a symbolic link in `demo/bower_components` pointing to your loc
 Then, run `grunt serve` from `demo` directory to run the demo.
 
 ### <a name="build"></a> Build
-1. Install [grunt]
+1. Install (http://gruntjs.com/)(http://gruntjs.com/)
 2. Run `npm install` to install node dependencies
 3  Run `bower install` to install bower dependencies
 4. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
@@ -115,7 +116,7 @@ Then, run `grunt serve` from `demo` directory to run the demo.
 
 ### <a name="momentjs"></a> MomentJS
 
-angular-gantt use [angular-moment], an angularJS wrapper for [momentJS]. 
+angular-gantt use [angular-moment](https://github.com/urish/angular-moment), an angularJS wrapper for [momentJS](http://momentjs.com/). 
 For any features related to date, like date formats, week numbering, custom calendars and timezone support, please
 review those projects documentations.
 
@@ -181,8 +182,8 @@ review those projects documentations.
 - **clear-data**
 
   Function (`fn`) called to removes all rows and tasks at once.
-  Take a look at demo files [demo/app/index.html] and [demo/app/scripts/controllers/main.js] to see how this callback is
-  used.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
 - **column-width** (default `30`)
 
@@ -223,7 +224,7 @@ review those projects documentations.
 
   Specify the data model for the gantt chart. 
     
-  See [#objects] section.
+  See [objects section](#objects).
 
 - **header-show-month**, **header-show-week**, **header-show-day**, **header-show-hour**
 
@@ -246,17 +247,17 @@ review those projects documentations.
   Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
   [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
   
-  An example of the data definition can be found in [demo sample file].
+  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
 
   As an alternative, you can use the `data` property to directly assign the data model.
 
 - **load-timespans**
 
   Function (`fn`) called to load timespans into the Gantt.
-  Take a look at demo files [demo/app/index.html] and 
-  [demo/app/scripts/controllers/main.js] to see how this callback is used.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
-  An example of the data definition can be found in [demo sample file].
+  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
 
   As an alternative, you can use the `timespans` property to directly assign the data model.
 
@@ -267,8 +268,8 @@ review those projects documentations.
 - **remove-data**
 
   Function (`fn`) called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
-  Take a look at demo files [demo/app/index.html] and 
-  [demo/app/scripts/controllers/main.js] to see how this callback is used.
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
 - **show-tooltips** (default: `true`)
 
@@ -303,7 +304,7 @@ review those projects documentations.
 - **template-url**
 
   URL of custom Gantt HTML template. If you want to customize the default Gantt HTML template, make a copy of [default
-  template file src/template/default.gantt.tmpl.html][default template file] to your own project, and set
+  template file](src/template/default.gantt.tmpl.html) to your own project, and set
   the URL of copied file to this attribute. 
     
   If `undefined` or `template/default.gantt.tmpl.html`, default template will be used.   
@@ -311,7 +312,7 @@ review those projects documentations.
   *warning:* template-url must be different than `template/default.gantt.tmpl.html`, or it will use default
   template included in `angular-gantt.js`.
   
-  To use default template, you don't have to copy [default template file] to 
+  To use default template, you don't have to copy [default template file](src/template/default.gantt.tmpl.html) to 
   your project, default template is loaded in 
   [$templateCache](https://docs.angularjs.org/api/ng/service/$templateCache) when initializing `gantt` module.
 
@@ -348,7 +349,7 @@ review those projects documentations.
   - `[8,9,10,11,12,13,14,15,16]`: Working hours are from 8am to 5pm.
 
 ### <a name="objects"></a> Objects
-  An example of the data definition can be found in [demo sample file].
+  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
 
 - **Row**
 ```js
@@ -478,21 +479,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
-
-[AngularJS]: https://angularjs.org
-[angular-moment]: https://github.com/urish/angular-moment
-[momentJS]: http://momentjs.com/
-[sprintf]: https://github.com/alexei/sprintf.js
-[bower]: http://bower.io/
-[grunt]: http://gruntjs.com/
-[grunt-wiredep]: https://github.com/stephenplusplus/grunt-wiredep
-[Latest released version]: https://github.com/angular-gantt/angular-gantt/releases/latest
-[Master branch version]: https://github.com/angular-gantt/angular-gantt/tree/master
-[angular-gantt.js]: assets/angular-gantt.js
-[gantt.css]: assets/gantt.css
-[default template file]: src/template/default.gantt.tmpl.html
-[demo/app/index.html]: demo/app/index.html
-[demo/app/scripts/controllers/main.js]: demo/app/scripts/controllers/main.js
-[demo sample file]: demo/app/scripts/services/sample.js
