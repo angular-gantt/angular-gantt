@@ -1,10 +1,12 @@
 'use strict';
-gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'ganttBinarySearch', 'moment', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, bs, moment) {
+gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'GanttCalendar', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, Calendar) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
         var self = this;
         self.$element = $element;
+
+        self.calendar = new Calendar.Calendar();
 
         self.rowsMap = {};
         self.rows = [];

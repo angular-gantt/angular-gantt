@@ -59,7 +59,13 @@ module.exports = function(grunt) {
         },
         watch: {
             files: ['<%= jshint.files %>', 'src/**/*.html'],
-            tasks: ['default']
+            tasks: ['build']
+        },
+        karma: {
+            unit: {
+                configFile: 'test/karma.conf.js',
+                singleRun: true
+            }
         }
     });
 
@@ -67,8 +73,15 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+
     grunt.loadNpmTasks('grunt-html2js');
 
-    grunt.registerTask('default', ['html2js', 'jshint', 'concat', 'uglify']);
+    grunt.loadNpmTasks('grunt-karma');
+
+    grunt.registerTask('test', ['karma']);
+
+    grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'uglify']);
+
+    grunt.registerTask('default', ['build', 'test']);
 
 };
