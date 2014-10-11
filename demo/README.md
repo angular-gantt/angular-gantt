@@ -9,13 +9,13 @@ It's generated using [yeoman angular generator](https://github.com/yeoman/genera
 
 ### Development
 
-You will need [npm](https://www.npmjs.org/), [grunt](http://gruntjs.com/)and [bower](http://bower.io/).
+You will need [npm](https://www.npmjs.org/), [grunt](http://gruntjs.com/) and [bower](http://bower.io/).
 
 To install required dependencies execute `npm install` and `bower install`.
 
 Tu run tests, execute `grunt test`.
 
-To build execute `grunt build`. This will execute tests, and then produce a dist folder containing ready to use application.
+To build execute `grunt`. This will execute tests, and then produce a dist folder containing ready to use application.
 
 To run the demo application, execute `grunt serve`. This will start a web server and open your browser on the demo application.
 
