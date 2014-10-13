@@ -1754,10 +1754,10 @@ gantt.factory('HeaderGenerator', [ 'Column', 'moment', function(Column, moment) 
                 if ($scope.headerShowDay && ['hour', 'day'].indexOf($scope.viewScale) > -1) {
                     headers.day = generateDayHeader(columns);
                 }
-                if ($scope.headerShowWeek && ['week'].indexOf($scope.viewScale) > -1) {
+                if ($scope.headerShowWeek && ['day', 'week'].indexOf($scope.viewScale) > -1) {
                     headers.week = generateWeekHeader(columns);
                 }
-                if ($scope.headerShowMonth && ['week', 'month'].indexOf($scope.viewScale) > -1) {
+                if ($scope.headerShowMonth && ['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
                     headers.month = generateMonthHeader(columns);
                 }
                 return headers;
