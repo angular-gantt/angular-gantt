@@ -34,12 +34,16 @@ angular.module('angularGanttDemoApp')
         });
 
         $scope.$on(GANTT_EVENTS.READY, function() {
-            $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
-            $scope.loadData(Sample.getSampleData().data1);
+            $scope.addSamples();
             $timeout(function() {
                 $scope.scrollToDate($scope.options.currentDateValue);
             }, 0, true);
         });
+
+        $scope.addSamples = function() {
+            $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
+            $scope.loadData(Sample.getSampleData().data1);
+        };
 
         $scope.removeSomeSamples = function() {
             $scope.removeData([
