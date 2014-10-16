@@ -11182,7 +11182,7 @@ var version = {
   major: 1,    // package task
   minor: 2,
   dot: 26,
-  codeName: 'captivating-disinterest'
+  codeName: 'zucchini-expansion'
 };
 
 
@@ -42814,6 +42814,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
+            showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
             headerShowMonth: '=?',
             headerShowWeek: '=?',
@@ -42893,6 +42894,9 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             }
             if ($scope.labelsWidth === undefined) {
                 $scope.labelsWidth = 0;
+            }
+            if ($scope.showLabelsColumn === undefined) {
+                $scope.showLabelsColumn = true;
             }
             if ($scope.showTooltips === undefined) {
                 $scope.showTooltips = true;
@@ -46304,7 +46308,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Labels template -->\n' +
         '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-labels"\n' +
+        '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
         '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
         '             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>\n' +
         '    </script>\n' +

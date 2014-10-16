@@ -101,6 +101,7 @@
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
                                                             <button type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
+                                                            <button type="button" class="btn btn-default" ng-model="options.showLabelsColumn" bs-checkbox>Labels</button>
                                                         </div>
                                                     </div>
 
@@ -166,6 +167,7 @@
                                                show-non-work-hours="options.showNonWorkHours"
                                                weekend-days="[0,6]"
                                                show-weekends="options.showWeekends"
+                                               show-labels-column="options.showLabelsColumn"
                                                current-date="options.currentDate"
                                                current-date-value="options.currentDateValue"
                                                max-height="options.maxHeight && 300 || 0"

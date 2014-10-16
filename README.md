@@ -241,6 +241,11 @@ review those projects documentations.
   Width of label section on the left side of the Gantt. This property support two way binding. Therefore if the user
   resizes the label section any assigned scope variable will be updated too.
 
+- **show-labels-column** (default: `true`)
+
+  Whether the column with labels is to be shown or not. This attribute support two way binding, hence the visibility
+  of the column may be toggled.
+
 - **load-data**
 
   Function (`fn`) called to load more data to the Gantt.

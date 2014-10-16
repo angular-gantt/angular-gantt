@@ -36,6 +36,7 @@ angular.module('angularGanttDemoApp')
             toDate: undefined,
             showWeekends: true,
             showNonWorkHours: true,
+            showLabelsColumn: true,
             currentDate: 'line',
             currentDateValue : new Date(2013, 9, 23, 11, 20, 0),
             draw: false,

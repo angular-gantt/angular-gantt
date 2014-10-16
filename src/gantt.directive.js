@@ -85,6 +85,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
             maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
             labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
+            showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
             headerShowMonth: '=?',
             headerShowWeek: '=?',
@@ -164,6 +165,9 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             }
             if ($scope.labelsWidth === undefined) {
                 $scope.labelsWidth = 0;
+            }
+            if ($scope.showLabelsColumn === undefined) {
+                $scope.showLabelsColumn = true;
             }
             if ($scope.showTooltips === undefined) {
                 $scope.showTooltips = true;
