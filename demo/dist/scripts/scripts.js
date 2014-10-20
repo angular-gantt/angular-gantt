@@ -40,7 +40,21 @@ angular.module('angularGanttDemoApp')
             draw: false,
             readOnly: false,
             filterTask: undefined,
-            filterRow: undefined
+            filterRow: undefined,
+            timeFrames :
+                 {'day': {
+                    start: moment('8:00', 'HH:mm'),
+                        end: moment('20:00', 'HH:mm'),
+                        working: true,
+                        default: true
+                    },
+                 'noon': {
+                     start: moment('12:00', 'HH:mm'),
+                     end: moment('13:30', 'HH:mm'),
+                     working: false,
+                     default: true
+                 }
+                }
         };
 
         $scope.$watch('fromDate+toDate', function() {

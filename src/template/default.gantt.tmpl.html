@@ -39,7 +39,9 @@
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{'left': (gantt.getPositionByDate(currentDateValue)) + 'px' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
-                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index"></gantt-column>
+                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index">
+                    <div class="gantt-timeframe" ng-class="timeFrame.timeFrame.working && 'gantt-timeframe-working' || 'gantt-timeframe-non-working'" ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px'}" ng-repeat="timeFrame in column.timeFrames"></div>
+                </gantt-column>
             </gantt-body-columns>
             <gantt-body-rows>
                 <div class="gantt-timespan"

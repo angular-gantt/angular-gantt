@@ -119,6 +119,22 @@
     background-color: rgba(200, 200, 200, 0.3);
 }
 
+.gantt-timeframe {
+    position: absolute;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    height: 100%;
+}
+
+.gantt-timeframe-working {
+
+}
+
+.gantt-timeframe-non-working {
+    background-color: rgba(200, 200, 200, 0.3);
+}
+
 .gantt-foreground-col-current-date {
     background-color: rgba(255, 0, 0, 0.3);
 }

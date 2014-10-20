@@ -42776,7 +42776,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, debounce, keepScrollPos, Events, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'Calendar', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, debounce, keepScrollPos, Events, Calendar, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -42813,6 +42813,8 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
             showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
             headers: '=?', // An array of units for headers.
             headersFormats: '=?', // An array of corresponding formats for headers.
+            timeFrames: '=?',
+            dateFrames: '=?',
             timespans: '=?',
             data: '=?',
             loadTimespans: '&',
@@ -42889,6 +42891,20 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
                 }
                 return format;
             };
+
+            $scope.calendar = new Calendar();
+            $scope.calendar.registerTimeFrames($scope.timeFrames);
+            $scope.calendar.registerDateFrames($scope.dateFrames);
+
+            $scope.$watch('timeFrames', function() {
+                $scope.calendar.clearTimeFrames();
+                $scope.calendar.registerTimeFrames($scope.timeFrames);
+            });
+
+            $scope.$watch('dateFrames', function() {
+                $scope.calendar.clearDateFrames();
+                $scope.calendar.registerDateFrames($scope.dateFrames);
+            });
 
             // Gantt logic
             $scope.template = {};
@@ -43051,276 +43067,459 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
  * Calendar factory is used to defined working periods, non working periods, and other specific period of time,
  * and retrieve effective timeFrames for each day of the gantt.
  */
-gantt.factory('Calendar', [function() {
-    return {
-        /**
-         * TimeFrame represents time frame in any day. parameters are given using options object.
-         *
-         * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
-         * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
-         * @param {boolean} working is this timeFrame flagged as working.
-         * @param {boolean} default is this timeFrame will be used as default.
-         * @param {string} cssClass css class attached to this timeFrame.
-         *
-         * @constructor
-         */
-        TimeFrame: function(options) {
-            var self = this;
+gantt.factory('Calendar', ['$filter', function($filter) {
+    /**
+     * TimeFrame represents time frame in any day. parameters are given using options object.
+     *
+     * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
+     * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
+     * @param {boolean} working is this timeFrame flagged as working.
+     * @param {boolean} default is this timeFrame will be used as default.
+     * @param {string} cssClass css class attached to this timeFrame.
+     *
+     * @constructor
+     */
+    var TimeFrame = function(options) {
+        var self = this;
 
-            if (options === undefined) {
-                options = {};
+        if (options === undefined) {
+            options = {};
+        }
+
+        self.start = options.start;
+        self.end = options.end;
+        self.working = options.working;
+        self.default = options.default;
+        self.cssClass = options.cssClass;
+
+        self.getDuration = function() {
+            return self.start.diff(self.end, 'milliseconds');
+        };
+
+        self.clone = function() {
+            return new TimeFrame(self);
+        };
+    };
+    /**
+     * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
+     *
+     * @param {function} func a function with date parameter, that will be evaluated for each distinct day of the gantt.
+     *                        this function must return an array of timeFrame names to apply.
+     * @constructor
+     */
+    var TimeFrameMapping = function(func) {
+        var self = this;
+        self.func = func;
+
+        self.getTimeFrames = function(date) {
+            var ret = self.func(date);
+            if (!(ret instanceof Array)) {
+                ret = [ret];
             }
+            return ret;
+        };
 
-            self.start = options.start;
-            self.end = options.end;
-            self.working = options.working;
-            self.default = options.default;
-            self.cssClass = options.cssClass;
-        },
-        /**
-         * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
-         *
-         * @param {function} func a function with date parameter, that will be evaluated for each distinct day of the gantt.
-         *                        this function must return an array of timeFrame names to apply.
-         * @constructor
-         */
-        TimeFrameMapping: function(func) {
-            var self = this;
-            self.func = func;
+        self.clone = function() {
+            return new TimeFrameMapping(self.func);
+        };
+    };
+    /**
+     * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
+     * a date (date) or a date range (start, end). parameters are given using options object.
+     *
+     * @param {function} evaluator a function with date parameter, that will be evaluated for each distinct day of the gantt.
+     *                   this function must return a boolean representing matching of this dateFrame or not.
+     * @param {moment} date date of dateFrame.
+     * @param {moment} start start of date frame.
+     * @param {moment} end end of date frame.
+     * @param {array} targets array of TimeFrameMappings/TimeFrames names to use for this date frame.
+     * @param {boolean} default is this dateFrame will be used as default.
+     * @constructor
+     */
+    var DateFrame = function(options) {
+        var self = this;
 
-            self.getTimeFrames = function(date) {
-                var ret = self.func(date);
-                if (!(ret instanceof Array)) {
-                    ret = [ret];
-                }
-                return ret;
-            };
-        },
-        /**
-         * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
-         * a date (date) or a date range (start, end). parameters are given using options object.
-         *
-         * @param {function} evaluator a function with date parameter, that will be evaluated for each distinct day of the gantt.
-         *                   this function must return a boolean representing matching of this dateFrame or not.
-         * @param {moment} date date of dateFrame.
-         * @param {moment} start start of date frame.
-         * @param {moment} end end of date frame.
-         * @param {array} targets array of TimeFrameMappings/TimeFrames names to use for this date frame.
-         * @param {boolean} default is this dateFrame will be used as default.
-         * @constructor
-         */
-        DateFrame: function(options) {
-            var self = this;
+        self.evaluator = options.evaluator;
+        self.date = options.date;
+        self.start = options.start;
+        self.end = options.end;
+        if (options.targets instanceof Array) {
+            self.targets = options.targets;
+        } else {
+            self.targets = [options.targets];
+        }
+        self.default = options.default;
 
-            self.evaluator = options.evaluator;
-            self.date = options.date;
-            self.start = options.start;
-            self.end = options.end;
-            if (options.targets instanceof Array) {
-                self.targets = options.targets;
+        self.dateMatch = function(date) {
+            if (self.evaluator) {
+                return self.evaluator(date);
+            } else if (self.start && self.end) {
+                return date >= self.start && date <= self.end;
+            } else if (self.date) {
+                return self.date.year() === date.year() && self.date.dayOfYear() === date.dayOfYear();
             } else {
-                self.targets = [options.targets];
+                return false;
             }
-            self.default = options.default;
+        };
 
-            self.dateMatch = function(date) {
-                if (self.evaluator) {
-                    return self.evaluator(date);
-                } else if (self.start && self.end) {
-                    return date >= self.start && date <= self.end;
-                } else if (self.date) {
-                    return self.date.year() === date.year() && self.date.dayOfYear() === date.dayOfYear();
-                } else {
-                    return false;
-                }
-            };
-        },
+
+        self.clone = function() {
+            return new DateFrame(self);
+        };
+    };
+
+
+    /**
+     * Register TimeFrame, TimeFrameMapping and DateMapping objects into Calendar object,
+     * and use Calendar#getTimeFrames(date) function to retrieve effective timeFrames for a specific day.
+     *
+     * @constructor
+     */
+    var Calendar = function() {
+        var self = this;
+
+        self.timeFrames = {};
+        self.timeFrameMappings = {};
+        self.dateFrames = {};
+
         /**
-         * Register TimeFrame, TimeFrameMapping and DateMapping objects into Calendar object,
-         * and use Calendar#getTimeFrames(date) function to retrieve effective timeFrames for a specific day.
-         *
-         * @constructor
+         * Remove all objects.
          */
-        Calendar: function() {
-            var self = this;
-
+        self.clear = function() {
             self.timeFrames = {};
             self.timeFrameMappings = {};
             self.dateFrames = {};
+        };
 
-            /**
-             * Remove all objects.
-             */
-            self.clear = function() {
-                self.timeFrames = {};
-                self.timeFrameMappings = {};
-                self.dateFrames = {};
-            };
+        /**
+         * Register TimeFrame objects.
+         *
+         * @param {object} timeFrames with names of timeFrames for keys and TimeFrame objects for values.
+         */
+        self.registerTimeFrames = function(timeFrames) {
+            angular.forEach(timeFrames, function(timeFrame, name) {
+                self.timeFrames[name] = new TimeFrame(timeFrame);
+            });
+        };
 
-            /**
-             * Register TimeFrame objects.
-             *
-             * @param {object} timeFrames with names of timeFrames for keys and TimeFrame objects for values.
-             */
-            self.registerTimeFrames = function(timeFrames) {
-                angular.forEach(timeFrames, function(timeFrame, name) {
-                    self.timeFrames[name] = timeFrame;
-                });
-            };
+        /**
+         * Removes TimeFrame objects.
+         *
+         * @param {array} timeFrames names of timeFrames to remove.
+         */
+        self.removeTimeFrames = function(timeFrames) {
+            angular.forEach(timeFrames, function(name) {
+                delete self.timeFrames[name];
+            });
+        };
 
-            /**
-             * Removes TimeFrame objects.
-             *
-             * @param {array} timeFrames names of timeFrames to remove.
-             */
-            self.removeTimeFrames = function(timeFrames) {
-                angular.forEach(timeFrames, function(name) {
-                    delete self.timeFrames[name];
-                });
-            };
+        /**
+         * Remove all TimeFrame objects.
+         */
+        self.clearTimeFrames = function() {
+            self.timeFrames = {};
+        };
 
-            /**
-             * Remove all TimeFrame objects.
-             */
-            self.clearTimeFrames = function() {
-                self.timeFrames = {};
-            };
+        /**
+         * Register TimeFrameMapping objects.
+         *
+         * @param {object} mappings object with names of timeFrames mappings for keys and TimeFrameMapping objects for values.
+         */
+        self.registerTimeFrameMappings = function(mappings) {
+            angular.forEach(mappings, function(timeFrameMapping, name) {
+                self.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
+            });
+        };
 
-            /**
-             * Register TimeFrameMapping objects.
-             *
-             * @param {object} mappings object with names of timeFrames mappings for keys and TimeFrameMapping objects for values.
-             */
-            self.registerTimeFrameMappings = function(mappings) {
-                angular.forEach(mappings, function(timeFrameMapping, name) {
-                    self.timeFrameMappings[name] = timeFrameMapping;
-                });
-            };
+        /**
+         * Removes TimeFrameMapping objects.
+         *
+         * @param {array} mappings names of timeFrame mappings to remove.
+         */
+        self.removeTimeFrameMappings = function(mappings) {
+            angular.forEach(mappings, function(name) {
+                delete self.timeFrameMappings[name];
+            });
+        };
 
-            /**
-             * Removes TimeFrameMapping objects.
-             *
-             * @param {array} mappings names of timeFrame mappings to remove.
-             */
-            self.removeTimeFrameMappings = function(mappings) {
-                angular.forEach(mappings, function(name) {
-                    delete self.timeFrameMappings[name];
-                });
-            };
+        /**
+         * Removes all TimeFrameMapping objects.
+         */
+        self.clearTimeFrameMappings = function() {
+            self.timeFrameMappings = {};
+        };
 
-            /**
-             * Removes all TimeFrameMapping objects.
-             */
-            self.clearTimeFrameMappings = function() {
-                self.timeFrameMappings = {};
-            };
+        /**
+         * Register DateFrame objects.
+         *
+         * @param {object} dateFrames object with names of dateFrames for keys and DateFrame objects for values.
+         */
+        self.registerDateFrames = function(dateFrames) {
+            angular.forEach(dateFrames, function(dateFrame, name) {
+                self.dateFrames[name] = new DateFrame(dateFrame);
+            });
+        };
 
-            /**
-             * Register DateFrame objects.
-             *
-             * @param {object} dateFrames object with names of dateFrames for keys and DateFrame objects for values.
-             */
-            self.registerDateFrames = function(dateFrames) {
-                angular.forEach(dateFrames, function(dateFrame, name) {
-                    self.dateFrames[name] = dateFrame;
-                });
-            };
+        /**
+         * Remove DateFrame objects.
+         *
+         * @param {array} mappings names of date frames to remove.
+         */
+        self.removeDateFrames = function(dateFrames) {
+            angular.forEach(dateFrames, function(name) {
+                delete self.dateFrames[name];
+            });
+        };
 
-            /**
-             * Remove DateFrame objects.
-             *
-             * @param {array} mappings names of date frames to remove.
-             */
-            self.removeDateFrames = function(dateFrames) {
-                angular.forEach(dateFrames, function(name) {
-                    delete self.dateFrames[name];
-                });
-            };
+        /**
+         * Removes all DateFrame objects.
+         */
+        self.clearDateFrames = function() {
+            self.dateFrames = {};
+        };
 
-            /**
-             * Removes all DateFrame objects.
-             */
-            self.clearDateFrames = function() {
-                self.dateFrames = {};
-            };
-
-            var getDateFrames = function(date) {
-                var dateFrames = [];
+        var getDateFrames = function(date) {
+            var dateFrames = [];
+            angular.forEach(self.dateFrames, function(dateFrame) {
+                if (dateFrame.dateMatch(date)) {
+                    dateFrames.push(dateFrame);
+                }
+            });
+            if (dateFrames.length === 0) {
                 angular.forEach(self.dateFrames, function(dateFrame) {
-                    if (dateFrame.dateMatch(date)) {
+                    if (dateFrame.default) {
                         dateFrames.push(dateFrame);
                     }
                 });
-                if (dateFrames.length === 0) {
-                    angular.forEach(self.dateFrames, function(dateFrame) {
-                        if (dateFrame.default) {
-                            dateFrames.push(dateFrame);
+            }
+            return dateFrames;
+        };
+
+        /**
+         * Retrieves TimeFrame objects for a given date, using whole configuration for this Calendar object.
+         *
+         * @param {moment} date
+         *
+         * @return {array} an array of TimeFrame objects.
+         */
+        self.getTimeFrames = function(date) {
+            var timeFrames = [];
+            var dateFrames = getDateFrames(date);
+
+            angular.forEach(dateFrames, function(dateFrame) {
+                if (dateFrame !== undefined) {
+                    angular.forEach(dateFrame.targets, function(timeFrameMappingName) {
+                        var timeFrameMapping = self.timeFrameMappings[timeFrameMappingName];
+                        if (timeFrameMapping !== undefined) {
+                            // If a timeFrame mapping is found
+                            timeFrames.push(timeFrameMapping.getTimeFrames());
+                        } else {
+                            // If no timeFrame mapping is found, try using direct timeFrame
+                            var timeFrame = self.timeFrames[timeFrameMappingName];
+                            if (timeFrame !== undefined) {
+                                timeFrames.push(timeFrame);
+                            }
                         }
                     });
                 }
-                return dateFrames;
-            };
+            });
 
-            /**
-             * Retrieves TimeFrame objects for a given date, using whole configuration for this Calendar object.
-             *
-             * @param {moment} date
-             *
-             * @return {array} an array of TimeFrame objects.
-             */
-            self.getTimeFrames = function(date) {
-                var timeFrames = [];
-                var dateFrames = getDateFrames(date);
+            var validatedTimeFrames = [];
+            if (timeFrames.length === 0) {
+                angular.forEach(self.timeFrames, function(timeFrame) {
+                    if (timeFrame.default) {
+                        timeFrames.push(timeFrame);
+                    }
+                });
+            }
 
-                angular.forEach(dateFrames, function(dateFrame) {
-                    if (dateFrame !== undefined) {
-                        angular.forEach(dateFrame.targets, function(timeFrameMappingName) {
-                            var timeFrameMapping = self.timeFrameMappings[timeFrameMappingName];
-                            if (timeFrameMapping !== undefined) {
-                                // If a timeFrame mapping is found
-                                timeFrames.push(timeFrameMapping.getTimeFrames());
-                            } else {
-                                // If no timeFrame mapping is found, try using direct timeFrame
-                                var timeFrame = self.timeFrames[timeFrameMappingName];
-                                if (timeFrame !== undefined) {
-                                    timeFrames.push(timeFrame);
-                                }
-                            }
-                        });
+            angular.forEach(timeFrames, function(timeFrame) {
+                timeFrame = timeFrame.clone();
+
+                if (timeFrame.start !== undefined) {
+                    timeFrame.start.year(date.year());
+                    timeFrame.start.dayOfYear(date.dayOfYear());
+                }
+
+                if (timeFrame.end !== undefined) {
+                    timeFrame.end.year(date.year());
+                    timeFrame.end.dayOfYear(date.dayOfYear());
+
+                    if (moment(timeFrame.end).startOf('day') === timeFrame.end) {
+                        timeFrame.end.add(1, 'day');
+                    }
+                }
+
+                validatedTimeFrames.push(timeFrame);
+            });
+
+            return validatedTimeFrames;
+        };
+
+        /**
+         * Solve timeFrames using two rules.
+         *
+         * 1) If at least one working timeFrame is defined, everything outside
+         * defined timeFrames is considered as non-working. Else it's considered
+         * as working.
+         *
+         * 2) Smaller timeFrames have priority over larger one.
+         *
+         * @param {array} timeFrames Array of timeFrames to solve
+         * @param {moment} startDate
+         * @param {moment} endDate
+         */
+        self.solve = function(timeFrames, startDate, endDate) {
+            var oneWorking = false;
+            var minDate;
+            var maxDate;
+
+            angular.forEach(timeFrames, function(timeFrame) {
+                if (timeFrame.working) {
+                    oneWorking = true;
+                }
+                if (minDate === undefined || minDate > timeFrame.start) {
+                    minDate = timeFrame.start;
+                }
+                if (maxDate === undefined || maxDate < timeFrame.end) {
+                    maxDate = timeFrame.end;
+                }
+            });
+
+            if (startDate === undefined) {
+                startDate = minDate;
+            }
+
+            if (endDate === undefined) {
+                endDate = maxDate;
+            }
+
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: !oneWorking})];
+
+            var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
+                return timeFrame.getDuration();
+            });
+
+            orderedTimeFrames = $filter('filter')(timeFrames, function(timeFrame) {
+                return timeFrame.end > startDate && timeFrame.start < endDate;
+            });
+
+            angular.forEach(orderedTimeFrames, function(timeFrame) {
+                var tmpSolvedTimeFrames = solvedTimeFrames.slice();
+
+                var i=0;
+                var dispatched = false;
+                var treated = false;
+                angular.forEach(solvedTimeFrames, function(solvedTimeFrame) {
+                    if (!treated) {
+                        if (timeFrame.end > solvedTimeFrame.start && timeFrame.start < solvedTimeFrame.end) {
+                            // timeFrame is included in this solvedTimeFrame.
+                            // solvedTimeFrame:|ssssssssssssssssssssssssssssssssss|
+                            //       timeFrame:          |tttttt|
+                            //          result:|sssssssss|tttttt|sssssssssssssssss|
+
+                            timeFrame = timeFrame.clone();
+                            var newSolvedTimeFrame = solvedTimeFrame.clone();
+
+                            solvedTimeFrame.end = timeFrame.start;
+                            newSolvedTimeFrame.start = timeFrame.end;
+
+                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
+                            treated = true;
+                        } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
+                            // timeFrame is at dispatched on two solvedTimeFrame.
+                            // First part
+                            // solvedTimeFrame:|sssssssssssssssssssssssssssssssssss|s+1;s+1;s+1;s+1;s+1;s+1|
+                            //       timeFrame:                                |tttttt|
+                            //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
+
+                            timeFrame = timeFrame.clone();
+
+                            solvedTimeFrame.end = timeFrame.start.clone();
+                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
+
+                            dispatched = true;
+                        } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
+                            // timeFrame is at dispatched on two solvedTimeFrame.
+                            // Second part
+
+                            solvedTimeFrame.start = timeFrame.end.clone();
+                            dispatched = false;
+                            treated = true;
+                        }
+                        i++;
                     }
                 });
 
-                if (timeFrames.length === 0) {
-                    angular.forEach(self.timeFrames, function(timeFrame) {
-                        if (timeFrame.default) {
-                            timeFrames.push(timeFrame);
-                        }
-                    });
-                }
-                return timeFrames;
-            };
+                solvedTimeFrames = tmpSolvedTimeFrames;
+            });
 
-        }
+            return solvedTimeFrames;
+
+        };
     };
+    return Calendar;
 }]);
 
 
 gantt.factory('Column', [ 'moment', function(moment) {
     // Used to display the Gantt grid and header.
     // The columns are generated by the column generator.
-
-    var Column = function(date, unit, left, width) {
+    var Column = function(date, endDate, left, width, calendar) {
         var self = this;
 
-        self.date = moment(date).startOf(unit);
-        self.endDate = moment(self.date).add(1, unit);
-        self.widthDuration = self.endDate.diff(self.date, 'milliseconds');
-        self.unit = unit;
+        self.date = date;
+        self.endDate = endDate;
         self.left = left;
         self.width = width;
+        self.calendar = calendar;
+        self.widthDuration = self.endDate.diff(self.date, 'milliseconds');
+        self.timeFrames = [];
+
+        if (self.calendar !== undefined) {
+            var buildPushTimeFrames = function(startDate, endDate) {
+                return function(timeFrame) {
+                    var start = timeFrame.start;
+                    if (start === undefined) {
+                        start = startDate;
+                    }
+
+                    var end = timeFrame.end;
+                    if (end === undefined) {
+                        end = endDate;
+                    }
+
+                    if (start < self.date) {
+                        start = self.date;
+                    }
+
+                    if (end > self.endDate) {
+                        end = self.endDate;
+                    }
+
+                    var positionDuration = start.diff(date, 'milliseconds');
+                    var position = positionDuration / self.widthDuration * self.width;
+
+                    var timeFrameDuration = end.diff(start, 'milliseconds');
+                    var timeFramePosition = timeFrameDuration / self.widthDuration * self.width;
+
+                    self.timeFrames.push({left: position, width: timeFramePosition, date: date, timeFrame: timeFrame});
+                };
+            };
+
+            var cDate = self.date;
+
+            while (cDate < self.endDate) {
+                var timeFrames = self.calendar.getTimeFrames(cDate);
+                var nextCDate = moment.min(moment(cDate).startOf('day').add(1, 'day'), self.endDate);
+                timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
+                angular.forEach(timeFrames, buildPushTimeFrames(cDate, nextCDate));
+                cDate = nextCDate;
+            }
+        }
 
         self.clone = function() {
-            return new Column(self.date.clone(), self.unit, self.left, self.width);
+            return new Column(self.date.clone(), self.endDate.clone(), self.left, self.width, self.calendar);
         };
 
         self.containsDate = function(date) {
@@ -43355,7 +43554,7 @@ gantt.factory('Column', [ 'moment', function(moment) {
 
 
 gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) {
-    var ColumnGenerator = function(width, columnWidth, unit) {
+    var ColumnGenerator = function(width, columnWidth, unit, calendar) {
         // Generates one column for each time unit between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -43378,7 +43577,10 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
                     break;
                 }
 
-                generatedCols.push(new Column(date, unit, leftOffset ? left + leftOffset : left, columnWidth));
+                var startDate = moment(date).startOf(unit);
+                var endDate = moment(startDate).add(1, unit);
+
+                generatedCols.push(new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -43435,6 +43637,23 @@ gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) 
 }]);
 
 
+gantt.factory('ColumnHeader', [ 'moment', 'Column', function(moment, Column) {
+    // Used to display the Gantt grid and header.
+    // The columns are generated by the column generator.
+
+    var ColumnHeader = function(date, unit, left, width) {
+        var startDate = moment(date).startOf(unit);
+        var endDate = moment(startDate).add(1, unit);
+
+        var column = new Column(startDate, endDate, left, width);
+        column.unit = unit;
+
+        return column;
+    };
+    return ColumnHeader;
+}]);
+
+
 gantt.service('Events', ['mouseOffset', function(mouseOffset) {
     return {
         buildTaskEventData: function(evt, element, task, gantt) {
@@ -43467,14 +43686,12 @@ gantt.service('Events', ['mouseOffset', function(mouseOffset) {
 }]);
 
 
-gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', 'Calendar', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, Calendar) {
+gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
         var self = this;
         self.$element = $element;
-
-        self.calendar = new Calendar.Calendar();
 
         self.rowsMap = {};
         self.rows = [];
@@ -43714,7 +43931,7 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
-            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale);
+            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale, $scope.calendar);
             self.headerGenerator = new HeaderGenerator.instance($scope);
         };
 
@@ -44097,14 +44314,14 @@ gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'Header
 }]);
 
 
-gantt.factory('HeaderGenerator', [ 'Column', function(Column) {
+gantt.factory('HeaderGenerator', [ 'ColumnHeader', function(ColumnHeader) {
     var generateHeader = function(columns, unit) {
         var generatedHeaders = [];
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
-                header = new Column(col.date, unit, col.left, col.width);
+                header = new ColumnHeader(col.date, unit, col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -45884,7 +46101,9 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(currentDateValue)) + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index"></gantt-column>\n' +
+        '                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index">\n' +
+        '                    <div class="gantt-timeframe" ng-class="timeFrame.timeFrame.working && \'gantt-timeframe-working\' || \'gantt-timeframe-non-working\'" ng-style="{\'left\': timeFrame.left + \'px\', \'width\': timeFrame.width + \'px\'}" ng-repeat="timeFrame in column.timeFrames"></div>\n' +
+        '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +

@@ -1,12 +1,10 @@
 'use strict';
-gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'GanttCalendar', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, Calendar) {
+gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
         var self = this;
         self.$element = $element;
-
-        self.calendar = new Calendar.Calendar();
 
         self.rowsMap = {};
         self.rows = [];
@@ -246,7 +244,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
-            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale);
+            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale, $scope.calendar);
             self.headerGenerator = new HeaderGenerator.instance($scope);
         };
 
