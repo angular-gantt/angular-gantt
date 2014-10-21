@@ -174,4 +174,23 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[4].working).toBeFalsy();
         });
 
+    it('solves single open non-working timeFrame ',
+        function() {
+            var cal = new Calendar();
+
+            var inputTimeFrames = {
+                'closed': {
+                    working: false,
+                    default: true
+                }
+            };
+            cal.registerTimeFrames(inputTimeFrames);
+            var timeFrames = cal.getTimeFrames(moment());
+
+            timeFrames = cal.solve(timeFrames);
+            expect(timeFrames.length).toBe(1);
+
+            expect(timeFrames[0].working).toBeFalsy();
+        });
+
 });

@@ -37,8 +37,19 @@ angular.module('angularGanttDemoApp')
                      end: moment('13:30', 'HH:mm'),
                      working: false,
                      default: true
+                 },
+                 'weekend': {
+                     working: false
                  }
+                },
+            dateFrames : {
+                'weekend': {
+                    evaluator: function(date) {
+                        return date.isoWeekday() === 6 || date.isoWeekday() === 7;
+                    },
+                    targets: ['weekend']
                 }
+            }
         };
 
         $scope.$watch('fromDate+toDate', function() {

@@ -43064,7 +43064,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScr
 
 
 /**
- * Calendar factory is used to defined working periods, non working periods, and other specific period of time,
+ * Calendar factory is used to define working periods, non working periods, and other specific period of time,
  * and retrieve effective timeFrames for each day of the gantt.
  */
 gantt.factory('Calendar', ['$filter', function($filter) {
@@ -43370,13 +43370,13 @@ gantt.factory('Calendar', ['$filter', function($filter) {
          * @param {moment} endDate
          */
         self.solve = function(timeFrames, startDate, endDate) {
-            var oneWorking = false;
+            var defaultWorking = false;
             var minDate;
             var maxDate;
 
             angular.forEach(timeFrames, function(timeFrame) {
-                if (timeFrame.working) {
-                    oneWorking = true;
+                if (!defaultWorking && timeFrame.working && timeFrame.start !== undefined && timeFrame.end !== undefined) {
+                    defaultWorking = false;
                 }
                 if (minDate === undefined || minDate > timeFrame.start) {
                     minDate = timeFrame.start;
@@ -43394,14 +43394,14 @@ gantt.factory('Calendar', ['$filter', function($filter) {
                 endDate = maxDate;
             }
 
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: !oneWorking})];
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking})];
 
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return timeFrame.getDuration();
             });
 
             orderedTimeFrames = $filter('filter')(timeFrames, function(timeFrame) {
-                return timeFrame.end > startDate && timeFrame.start < endDate;
+                return (startDate === undefined || timeFrame.end > startDate) && (endDate === undefined || timeFrame.start < endDate);
             });
 
             angular.forEach(orderedTimeFrames, function(timeFrame) {
@@ -43427,7 +43427,7 @@ gantt.factory('Calendar', ['$filter', function($filter) {
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
                         } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
-                            // timeFrame is at dispatched on two solvedTimeFrame.
+                            // timeFrame is dispatched on two solvedTimeFrame.
                             // First part
                             // solvedTimeFrame:|sssssssssssssssssssssssssssssssssss|s+1;s+1;s+1;s+1;s+1;s+1|
                             //       timeFrame:                                |tttttt|
@@ -43440,7 +43440,7 @@ gantt.factory('Calendar', ['$filter', function($filter) {
 
                             dispatched = true;
                         } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
-                            // timeFrame is at dispatched on two solvedTimeFrame.
+                            // timeFrame is dispatched on two solvedTimeFrame.
                             // Second part
 
                             solvedTimeFrame.start = timeFrame.end.clone();
