@@ -255,6 +255,69 @@ review those projects documentations.
 
   Whether the column with labels is to be shown or not. This attribute support two way binding, hence the visibility
   of the column may be toggled.
+  
+- **time-frames**, **date-frames**
+
+  TimeFrames and DateFrames are used to configure global calendar in the gantt.
+
+  A TimeFrame is a part of day, for example 8H00-20H00 or 12H00-13H30. Each TimeFrame can be marked as working or not.
+  A TimeFrame can also be marked as default to be used for every day displayed in the gantt.
+  
+  A DateFrame is a configuration object that will reference one or many TimeFrame names for specific days in the
+  calendar. Using DateFrame configurations, it's possible to setup holidays, weekends and other special days that will
+  have different time schedules than usual.
+  
+  Example:
+    ```html
+    <gantt calendar-time-frames="timeFrames" calendar-date-frames="dateFrames"></gantt>
+    ```
+  
+    ```js
+    $scope.timeFrames = {day: {
+                            start: moment('8:00', 'HH:mm'),
+                                end: moment('20:00', 'HH:mm'),
+                                working: true, // This is a working period
+                                default: true // It will be used for each day
+                            },
+                         noon: {
+                             start: moment('12:00', 'HH:mm'),
+                             end: moment('13:30', 'HH:mm'),
+                             working: false, // This is a resting period
+                             default: true // It will be used for each day
+                         },
+                         closed: {
+                             working: false // We don't work when it's closed
+                         }
+                       };
+    
+    $scope.dateFrames = {halloween:{
+                           date: moment('2014-10-31', 'YYYY-MM-DD'), // A specific date
+                           targets: ['day'] // Use timeFrame named day for halloween. We won't close for noon.
+                        },
+                        holidays: {
+                            start: moment('2014-08-15', 'YYYY-MM-DD'), // A date range
+                            end: moment('2014-08-30', 'YYYY-MM-DD'),
+                            targets: ['closed'] // use timeFrame named closed for this date range.
+                        }, 
+                        weekend: {
+                            evaluator: function(date) { // A custom function evaluated for each day in the gantt
+                                return date.isoWeekday() === 6 || date.isoWeekday() === 7;
+                            },
+                            targets: ['closed'] // Use timeFrame named closed for saturday and sunday.
+                        };
+
+    ```
+  
+  In this example, three TimeFrames (`day`, `noon`, `closed`) and three DateFrames (`halloween`, `holidays`, `weekend`) 
+  are defined.
+  
+  If a day match at least one DateFrame, it will apply TimeFrames defined in `targets` property of each matching
+  DateFrame. If no DateFrame at all match the day, it will use `default` TimeFrames (`day` and `noon`).
+  
+  When multiple TimeFrames are found for a day, smaller ones have priority and bigger ones will be split or shrinked.
+  
+  After resolution of TimeFrame for each day, TimeFrame can be displayed or cropped from the gantt using
+  `calendar-working-mode` and `calendar-non-working-mode`.
 
 - **load-data**
 
