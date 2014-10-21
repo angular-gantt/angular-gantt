@@ -49,7 +49,8 @@ angular.module('angularGanttDemoApp')
                     },
                     targets: ['weekend']
                 }
-            }
+            },
+            timeFramesNonWorkingMode : 'visible'
         };
 
         $scope.$watch('fromDate+toDate', function() {

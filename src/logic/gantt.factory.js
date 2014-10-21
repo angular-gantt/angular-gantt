@@ -26,7 +26,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        $scope.$watch('viewScale+width+labelsWidth+columnWidth', function(newValue, oldValue) {
+        $scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.buildGenerators();
                 self.clearColumns();
@@ -244,7 +244,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
-            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale, $scope.calendar);
+            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale, $scope.calendar, $scope.timeFramesWorkingMode, $scope.timeFramesNonWorkingMode);
             self.headerGenerator = new HeaderGenerator.instance($scope);
         };
 

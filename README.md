@@ -317,7 +317,23 @@ review those projects documentations.
   When multiple TimeFrames are found for a day, smaller ones have priority and bigger ones will be split or shrinked.
   
   After resolution of TimeFrame for each day, TimeFrame can be displayed or cropped from the gantt using
-  `calendar-working-mode` and `calendar-non-working-mode`.
+  `time-frames-working-mode` and `time-frames-non-working-mode`.
+
+- **time-frames-working-mode** (default `hidden`), 
+
+  How working TimeFrames are displayed.
+  
+  - `visible`
+  - `hidden`
+  - `cropped` (soon)
+
+- **time-frames-non-working-mode**
+
+  How non-working TimeFrames are displayed. (default `visible`)
+    
+    - `visible`
+    - `hidden`
+    - `cropped` (soon)
 
 - **load-data**
 
