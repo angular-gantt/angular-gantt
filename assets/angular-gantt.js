@@ -2202,7 +2202,7 @@ gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
 }]);
 
 
-gantt.directive('ganttLimitUpdater', ['$timeout', function($timeout) {
+gantt.directive('ganttLimitUpdater', ['$timeout', 'debounce', function($timeout, debounce) {
     // Updates the limit filters if the user scrolls the gantt chart
 
     return {
@@ -2214,11 +2214,11 @@ gantt.directive('ganttLimitUpdater', ['$timeout', function($timeout) {
                 $scope.scrollWidth = el.offsetWidth;
             };
 
-            $element.bind('scroll', function() {
+            $element.bind('scroll', debounce(function() {
                 $scope.$apply(function() {
                     scrollUpdate();
                 });
-            });
+            }, 5));
 
             $scope.$watch('gantt.width', function() {
                 $timeout(function() {
