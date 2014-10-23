@@ -1,5 +1,5 @@
 'use strict';
-gantt.service('Events', ['mouseOffset', function(mouseOffset) {
+gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
     return {
         buildTaskEventData: function(evt, element, task, gantt) {
             var data = {evt:evt, element:element, task:task};

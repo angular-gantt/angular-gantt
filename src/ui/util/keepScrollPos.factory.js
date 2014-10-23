@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('keepScrollPos', ['$timeout', function($timeout) {
+gantt.factory('ganttKeepScrollPos', ['$timeout', function($timeout) {
     // Make sure the scroll position will be at the same place after the tasks or columns changed
 
     function keepScrollPos($scope, fn) {

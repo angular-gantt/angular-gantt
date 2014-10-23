@@ -180,7 +180,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.TIMESPAN_CHANGED, logTaskEvent);
 
         $scope.$on(GANTT_EVENTS.READY, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.SCROLL, logTaskEvent);
+        //$scope.$on(GANTT_EVENTS.SCROLL, logTaskEvent);
     });
 
 'use strict';

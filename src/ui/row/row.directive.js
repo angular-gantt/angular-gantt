@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttRow', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
         require: '^ganttBody',

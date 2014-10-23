@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Row', ['Task', 'moment', function(Task, moment) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 

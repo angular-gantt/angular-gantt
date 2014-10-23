@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('BodyRows', [function() {
+gantt.factory('GanttBodyRows', [function() {
     var BodyRows = function($element) {
         this.$element = $element;
 

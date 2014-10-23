@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttLimitUpdater', ['$timeout', 'debounce', function($timeout, debounce) {
+gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
     // Updates the limit filters if the user scrolls the gantt chart
 
     return {
@@ -12,16 +12,12 @@ gantt.directive('ganttLimitUpdater', ['$timeout', 'debounce', function($timeout,
             };
 
             $element.bind('scroll', debounce(function() {
-                $scope.$apply(function() {
-                    scrollUpdate();
-                });
+                scrollUpdate();
             }, 5));
 
-            $scope.$watch('gantt.width', function() {
-                $timeout(function() {
-                    scrollUpdate();
-                }, 20, true);
-            });
+            $scope.$watch('gantt.width', debounce(function() {
+                scrollUpdate();
+            }, 20));
         }]
     };
 }]);

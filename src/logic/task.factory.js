@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Task', ['moment', function(moment) {
+gantt.factory('GanttTask', ['moment', function(moment) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 

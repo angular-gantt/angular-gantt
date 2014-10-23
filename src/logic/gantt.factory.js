@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Gantt', ['$filter', 'Row', 'Timespan', 'ColumnGenerator', 'HeaderGenerator', 'moment', 'binarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
+gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'ganttBinarySearch', 'moment', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, bs, moment) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {

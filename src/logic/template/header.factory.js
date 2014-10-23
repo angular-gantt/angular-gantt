@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Header', [function() {
+gantt.factory('GanttHeader', [function() {
     var Header= function($element) {
         this.$element = $element;
 

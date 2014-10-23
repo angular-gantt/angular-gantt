@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttColumnHeader', ['Events', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,

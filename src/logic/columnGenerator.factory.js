@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('ColumnGenerator', [ 'Column', 'moment', function(Column, moment) {
+gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
 
     // Returns a map to lookup if the current day is a weekend day
     var getWeekendDaysMap = function(weekendDays) {

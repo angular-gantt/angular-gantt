@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'smartEvent', 'debounce', 'mouseOffset', 'mouseButton', 'Events', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
 
     return {
         restrict: 'E',
@@ -258,10 +258,8 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'sm
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(evt) {
-                    $timeout(function() {
-                        clearScrollInterval();
-                        handleMove(mode, evt);
-                    });
+                    clearScrollInterval();
+                    handleMove(mode, evt);
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 

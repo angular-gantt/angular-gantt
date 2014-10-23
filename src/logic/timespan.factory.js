@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Timespan', ['moment', function(moment) {
+gantt.factory('GanttTimespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
         var self = this;
 

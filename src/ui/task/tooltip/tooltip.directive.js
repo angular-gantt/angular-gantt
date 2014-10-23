@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEvent', function($timeout, $document, debounce, smartEvent) {
+gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
     return {
@@ -32,7 +32,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
                 } else {
                     showTooltip(e.clientX);
                 }
-            }, 1));
+            }, 5, false));
 
             $scope.$watch('task.isMoving', function(newValue) {
                 if (newValue === true) {
@@ -57,7 +57,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'debounce', 'smartEven
                     $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
                     $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
                     $scope.css.opacity = 1;
-                }, 1, true);
+                }, 0, true);
             };
 
             var updateTooltip = function(x) {

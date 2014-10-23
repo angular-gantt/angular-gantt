@@ -1,5 +1,5 @@
 'use strict';
-gantt.filter('ganttColumnLimit', [ 'binarySearch', function(bs) {
+gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
     // Returns only the columns which are visible on the screen
 
     return function(input, scrollLeft, scrollWidth) {

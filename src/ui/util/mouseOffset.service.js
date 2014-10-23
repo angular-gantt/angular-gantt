@@ -1,5 +1,5 @@
 'use strict';
-gantt.service('mouseOffset', [ function() {
+gantt.service('ganttMouseOffset', [ function() {
     // Mouse offset support for lesser browsers (read IE 8)
 
     return {

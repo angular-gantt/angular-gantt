@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('smartEvent', [function() {
+gantt.factory('ganttSmartEvent', [function() {
     // Auto released the binding when the scope is destroyed. Use if an event is registered on another element than the scope.
 
     function smartEvent($scope, $element, event, fn) {

@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
+gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
 
     return {
         restrict: 'A',
@@ -29,16 +29,15 @@ gantt.directive('ganttLabelsResize', ['$document', 'debounce', 'mouseOffset', 'G
             });
 
             var resize = function(x) {
-                $scope.$apply(function() {
-                    if ($scope.width === 0) {
-                        $scope.width = $element[0].offsetWidth;
-                    }
+                if ($scope.width === 0) {
+                    $scope.width = $element[0].offsetWidth;
+                }
 
-                    $scope.width += x - originalPos;
-                    if ($scope.width < $scope.minWidth) {
-                        $scope.width = $scope.minWidth;
-                    }
-                });
+                $scope.width += x - originalPos;
+                if ($scope.width < $scope.minWidth) {
+                    $scope.width = $scope.minWidth;
+                }
+
                 originalPos = x;
             };
 

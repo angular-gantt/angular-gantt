@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('HeaderColumns', [function() {
+gantt.factory('GanttHeaderColumns', [function() {
     var HeaderColumns = function($element) {
         this.$element = $element;
 

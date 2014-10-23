@@ -1,5 +1,5 @@
 'use strict';
-gantt.service('mouseButton', [ function() {
+gantt.service('ganttMouseButton', [ function() {
     // Mouse button cross browser normalization
 
     return {

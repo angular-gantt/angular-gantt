@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Labels', [function() {
+gantt.factory('GanttLabels', [function() {
     var Labels= function($element) {
         this.$element = $element;
 

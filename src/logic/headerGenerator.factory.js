@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('HeaderGenerator', [ 'Column', 'moment', function(Column, moment) {
+gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];

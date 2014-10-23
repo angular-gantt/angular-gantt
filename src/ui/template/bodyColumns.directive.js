@@ -12,7 +12,7 @@ gantt.directive('ganttBodyColumns', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'BodyColumns', function($scope, $element, BodyColumns) {
+        controller: ['$scope', '$element', 'GanttBodyColumns', function($scope, $element, BodyColumns) {
             $scope.template.body.columns = new BodyColumns($element);
         }]
     };

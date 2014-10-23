@@ -47,7 +47,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'moment', 'mouseOffset', 'debounce', 'keepScrollPos', 'Events', 'enableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, debounce, keepScrollPos, Events, enableNgAnimate, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrollPos', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, keepScrollPos, Events, enableNgAnimate, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,

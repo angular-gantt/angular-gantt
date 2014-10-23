@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -14,7 +14,6 @@ gantt.directive('ganttScrollable', ['Scrollable', 'debounce', 'GANTT_EVENTS', fu
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.template.scrollable = new Scrollable($element);
 
-            // Bind scroll event
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
                 var direction;

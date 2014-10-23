@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Scrollable', [function() {
+gantt.factory('GanttScrollable', [function() {
     var Scrollable = function($element) {
         this.$element = $element;
     };

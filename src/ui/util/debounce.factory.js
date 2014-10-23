@@ -1,6 +1,6 @@
 'use strict';
-gantt.factory('debounce', ['$timeout', function($timeout) {
-    function debounce(fn, timeout) {
+gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
+    function debounce(fn, timeout, invokeApply) {
         var nthCall = 0;
         return function() {
             var self = this;
@@ -13,7 +13,7 @@ gantt.factory('debounce', ['$timeout', function($timeout) {
                     }
                 };
             })(nthCall);
-            return $timeout(later, timeout, true);
+            return $timeout(later, timeout, invokeApply === undefined ? true: invokeApply);
         };
     }
 

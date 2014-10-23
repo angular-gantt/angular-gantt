@@ -1,5 +1,5 @@
 'use strict';
-gantt.service('binarySearch', [ function() {
+gantt.service('ganttBinarySearch', [ function() {
     // Returns the object on the left and right in an array using the given cmp function.
     // The compare function defined which property of the value to compare (e.g.: c => c.left)
 

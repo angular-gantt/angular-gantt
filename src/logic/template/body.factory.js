@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('Body', [function() {
+gantt.factory('GanttBody', [function() {
     var Body= function($element) {
         this.$element = $element;
 

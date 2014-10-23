@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttSortable', ['$document', 'sortManager', function($document, sortManager) {
+gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($document, sortManager) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
