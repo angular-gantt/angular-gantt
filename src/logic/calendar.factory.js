@@ -29,7 +29,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
         self.cssClass = options.cssClass;
 
         self.getDuration = function() {
-            return self.start.diff(self.end, 'milliseconds');
+            return self.end.diff(self.start, 'milliseconds');
         };
 
         self.clone = function() {

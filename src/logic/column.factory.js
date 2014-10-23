@@ -10,10 +10,11 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.left = left;
         self.width = width;
         self.calendar = calendar;
-        self.widthDuration = self.endDate.diff(self.date, 'milliseconds');
+        self.duration = self.endDate.diff(self.date, 'milliseconds');
         self.timeFramesWorkingMode = timeFramesWorkingMode;
         self.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
         self.timeFrames = [];
+        self.cropped = false;
 
         if (self.calendar !== undefined) {
             var buildPushTimeFrames = function(startDate, endDate) {
@@ -36,12 +37,6 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                         end = self.endDate;
                     }
 
-                    var positionDuration = start.diff(date, 'milliseconds');
-                    var position = positionDuration / self.widthDuration * self.width;
-
-                    var timeFrameDuration = end.diff(start, 'milliseconds');
-                    var timeFramePosition = timeFrameDuration / self.widthDuration * self.width;
-
                     var hidden = false;
                     if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
                         hidden = true;
@@ -49,18 +44,68 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                         hidden = true;
                     }
 
-                    self.timeFrames.push({left: position, width: timeFramePosition, hidden: hidden, date: date, timeFrame: timeFrame});
+                    timeFrame = timeFrame.clone();
+
+                    timeFrame.hidden = hidden;
+                    timeFrame.start = moment(start);
+                    timeFrame.end = moment(end);
+
+                    self.timeFrames.push(timeFrame);
                 };
             };
 
             var cDate = self.date;
-
             while (cDate < self.endDate) {
                 var timeFrames = self.calendar.getTimeFrames(cDate);
-                var nextCDate = moment.min(moment(cDate).startOf('day').add(1, 'day'), self.endDate);
+                var nextCDate = moment.min(moment(cDate).startOf('day').add(1, 'day'), moment(self.endDate));
                 timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
                 angular.forEach(timeFrames, buildPushTimeFrames(cDate, nextCDate));
                 cDate = nextCDate;
+            }
+
+            angular.forEach(self.timeFrames, function(timeFrame) {
+                var positionDuration = timeFrame.start.diff(self.date, 'milliseconds');
+                var position = positionDuration / self.duration * self.width;
+
+                var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
+                var timeFramePosition = timeFrameDuration / self.duration * self.width;
+
+                timeFrame.left = position;
+                timeFrame.width = timeFramePosition;
+            });
+
+            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
+                var timeFramesWidth = 0;
+                angular.forEach(self.timeFrames, function(timeFrame) {
+                    if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
+                        timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                        timeFramesWidth += timeFrame.width;
+                    }
+                });
+
+                if (timeFramesWidth !== self.width) {
+                    var croppedRatio = self.width / timeFramesWidth;
+                    var croppedWidth = 0;
+
+                    var allCropped = true;
+
+                    angular.forEach(self.timeFrames, function(timeFrame) {
+                        if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
+                            timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                            timeFrame.left = (timeFrame.left - croppedWidth) * croppedRatio;
+                            timeFrame.width = timeFrame.width * croppedRatio;
+                            timeFrame.cropped = false;
+                            allCropped = false;
+                        } else {
+                            croppedWidth += timeFrame.width;
+                            timeFrame.left = undefined;
+                            timeFrame.width = 0;
+                            timeFrame.cropped = true;
+                        }
+                    });
+
+                    self.cropped = allCropped;
+                }
             }
         }
 
@@ -77,6 +122,9 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         };
 
         self.getDateByPosition = function(position) {
+            var positionDuration;
+            var date;
+
             if (position < 0) {
                 position = 0;
             }
@@ -84,14 +132,57 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 position = self.width;
             }
 
-            var positionDuration = self.widthDuration / self.width * position;
-            var date = moment(self.date).add(positionDuration, 'milliseconds');
+            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
+                for (var i=0; i < self.timeFrames.length; i++) {
+                    var timeFrame = self.timeFrames[i];
+                    if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
+                        positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
+                        date = moment(timeFrame.start).add(positionDuration, 'milliseconds');
+                        return date;
+                    }
+                }
+            }
+
+            positionDuration = self.duration / self.width * position;
+            date = moment(self.date).add(positionDuration, 'milliseconds');
             return date;
         };
 
         self.getPositionByDate = function(date) {
-            var positionDuration = date.diff(self.date, 'milliseconds');
-            var position = positionDuration / self.widthDuration * self.width;
+            var positionDuration;
+            var position;
+
+            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
+                var croppedDate = date;
+                for (var i=0; i < self.timeFrames.length; i++) {
+                    var timeFrame = self.timeFrames[i];
+                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
+                        if (timeFrame.cropped) {
+                            if (self.timeFrames.length > i+1) {
+                                croppedDate = self.timeFrames[i+1].start;
+                            } else {
+                                croppedDate = timeFrame.end;
+                            }
+                        } else {
+                            positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
+                            position = positionDuration / timeFrame.getDuration() * timeFrame.width;
+                            return self.left + timeFrame.left + position;
+                        }
+                    }
+                }
+            }
+
+            positionDuration = date.diff(self.date, 'milliseconds');
+            position = positionDuration / self.duration * self.width;
+
+            if (position < 0) {
+                position = 0;
+            }
+
+            if (position > self.width) {
+                position = self.width;
+            }
+
             return self.left + position;
         };
     };

@@ -325,7 +325,7 @@ review those projects documentations.
   
   - `visible`
   - `hidden`
-  - `cropped` (soon)
+  - `cropped`
 
 - **time-frames-non-working-mode**
 
@@ -333,7 +333,7 @@ review those projects documentations.
     
     - `visible`
     - `hidden`
-    - `cropped` (soon)
+    - `cropped`
 
 - **load-data**
 

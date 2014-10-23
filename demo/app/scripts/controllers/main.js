@@ -66,7 +66,7 @@ angular.module('angularGanttDemoApp')
         });
 
         $scope.addSamples = function() {
-            $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
+            //$scope.loadTimespans(Sample.getSampleTimespans().timespan1);
             $scope.loadData(Sample.getSampleData().data1);
         };
 

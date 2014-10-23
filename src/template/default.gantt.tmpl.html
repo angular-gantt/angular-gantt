@@ -41,7 +41,7 @@
             <gantt-body-columns class="gantt-body-columns">
                 <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index">
                     <div class="gantt-timeframe"
-                         ng-class="timeFrame.timeFrame.working && 'gantt-timeframe-working' || 'gantt-timeframe-non-working'"
+                         ng-class="timeFrame.working && 'gantt-timeframe-working' || 'gantt-timeframe-non-working'"
                          ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px'}"
                          ng-repeat="timeFrame in column.timeFrames | filter:{hidden:false}"></div>
                 </gantt-column>

@@ -26,25 +26,27 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 var startDate = moment(date).startOf(unit);
                 var endDate = moment(startDate).add(1, unit);
 
-                generatedCols.push(new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode));
-                if (reverse) {
-                    left -= columnWidth;
-                } else {
-                    left += columnWidth;
-                }
-
-                if (to) {
+                var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
+                if (!column.cropped) {
+                    generatedCols.push(column);
                     if (reverse) {
-                        if (excludeTo && date < to || !excludeTo && date <= to) {
-                            break;
-                        }
+                        left -= columnWidth;
                     } else {
-                        if (excludeTo && date > to || !excludeTo && date >= to) {
-                            break;
+                        left += columnWidth;
+                    }
+
+                    if (to) {
+                        if (reverse) {
+                            if (excludeTo && date < to || !excludeTo && date <= to) {
+                                break;
+                            }
+                        } else {
+                            if (excludeTo && date > to || !excludeTo && date >= to) {
+                                break;
+                            }
                         }
                     }
                 }
-
                 date.add(reverse ? -1 : 1, unit);
             }
 
