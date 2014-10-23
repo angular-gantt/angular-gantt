@@ -24,6 +24,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         self.from = undefined;
         self.to = undefined;
 
+        self.scrollAnchor = undefined;
+
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
         $scope.$watch('viewScale+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
@@ -117,6 +119,15 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             }
         });
 
+        var setScrollAnchor = function() {
+            if ($scope.template.scrollable && $scope.template.scrollable.$element && self.columns.length > 0) {
+                var el = $scope.template.scrollable.$element[0];
+                var center = el.scrollLeft + el.offsetWidth / 2;
+
+                self.scrollAnchor = self.getDateByPosition(center);
+            }
+        };
+
         var getExpandedFrom = function(from) {
             from = from ? moment(from) : from;
 
@@ -167,6 +178,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 return false;
             }
 
+            setScrollAnchor();
+
             self.from = from;
             self.to = to;
 
@@ -188,7 +201,6 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             updateVisibleObjects();
 
             return true;
-
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -310,6 +322,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.clearColumns = function() {
+            setScrollAnchor();
+
             self.from = undefined;
             self.to = undefined;
             self.columns = [];
@@ -553,6 +567,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.rows = [];
             self.highestRowOrder = 0;
             self.clearColumns();
+            self.scrollAnchor = undefined;
         };
 
         // Removes all timespans

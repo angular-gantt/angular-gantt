@@ -42776,7 +42776,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrollPos', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, keepScrollPos, Events, enableNgAnimate, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, Events, enableNgAnimate, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -42994,15 +42994,21 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
 
             // Tries to center the specified date
             $scope.scrollToDate = function(date) {
-                var column = $scope.gantt.getColumnByDate(date);
-                if (column !== undefined) {
-                    var x = (column.left + column.width / 2);
-                    $scope.template.scrollable.$element[0].scrollLeft = x - $scope.template.scrollable.$element[0].offsetWidth / 2;
+                var position = $scope.gantt.getPositionByDate(date);
+
+                if (position !== undefined) {
+                    $scope.template.scrollable.$element[0].scrollLeft = position - $scope.template.scrollable.$element[0].offsetWidth / 2;
                 }
             };
 
-            $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
+            var lastAutoExpand;
+            var autoExpandCoolDownPeriod = 500;
+            $scope.autoExpandColumns = function(el, date, direction) {
                 if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                    return;
+                }
+
+                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
                     return;
                 }
 
@@ -43019,10 +43025,11 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
 
                 $scope.fromDate = from;
                 $scope.toDate = to;
-            });
+                lastAutoExpand = Date.now();
+            };
 
             // Add or update rows and tasks
-            $scope.setData = keepScrollPos($scope, function(data) {
+            $scope.setData = function(data) {
                 $scope.gantt.addData(data,
                     function(row) {
                         $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
@@ -43031,7 +43038,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
                     });
 
                 $scope.sortRows();
-            });
+            };
 
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
@@ -43059,14 +43066,14 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             };
 
             // Add or update timespans
-            $scope.setTimespans = keepScrollPos($scope, function(timespans) {
+            $scope.setTimespans = function(timespans) {
                 $scope.gantt.addTimespans(timespans,
                     function(timespan) {
                         $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
                     }, function(timespan) {
                         $scope.$emit(GANTT_EVENTS.TIMESPAN_CHANGED, {timespan: timespan});
                     });
-            });
+            };
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
@@ -43783,6 +43790,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         self.from = undefined;
         self.to = undefined;
 
+        self.scrollAnchor = undefined;
+
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
         $scope.$watch('viewScale+width+labelsWidth+columnWidth+columnSubScale+firstDayOfWeek+weekendDays+showWeekends+workHours+showNonWorkHours', function(newValue, oldValue) {
@@ -43876,6 +43885,15 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             }
         });
 
+        var setScrollAnchor = function() {
+            if ($scope.template.scrollable && $scope.template.scrollable.$element && self.columns.length > 0) {
+                var el = $scope.template.scrollable.$element[0];
+                var center = el.scrollLeft + el.offsetWidth / 2;
+
+                self.scrollAnchor = self.getDateByPosition(center);
+            }
+        };
+
         var getExpandedFrom = function(from) {
             from = from ? moment(from) : from;
 
@@ -43926,6 +43944,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 return false;
             }
 
+            setScrollAnchor();
+
             self.from = from;
             self.to = to;
 
@@ -43947,7 +43967,6 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             updateVisibleObjects();
 
             return true;
-
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -44069,6 +44088,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.clearColumns = function() {
+            setScrollAnchor();
+
             self.from = undefined;
             self.to = undefined;
             self.columns = [];
@@ -44312,6 +44333,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.rows = [];
             self.highestRowOrder = 0;
             self.clearColumns();
+            self.scrollAnchor = undefined;
         };
 
         // Removes all timespans
@@ -45317,18 +45339,22 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.template.scrollable = new Scrollable($element);
 
+            var lastScrollLeft;
+
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
                 var direction;
                 var date;
 
-                if (el.scrollLeft === 0) {
+                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
                     direction = 'left';
                     date = $scope.gantt.from;
-                } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
+                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
                     date = $scope.gantt.to;
                 }
+
+                lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
                     $scope.autoExpandColumns(el, date, direction);
@@ -45337,6 +45363,15 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
                     $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
                 }
             }, 5));
+
+            $scope.$watch('gantt.columns.length', function(newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue) && newValue > 0 && $scope.gantt.scrollAnchor !== undefined) {
+                    // Ugly but prevents screen flickering (unlike $timeout)
+                    $scope.$$postDigest(function() {
+                        $scope.scrollToDate($scope.gantt.scrollAnchor);
+                    });
+                }
+            });
         }]
     };
 }]);
@@ -46111,42 +46146,6 @@ gantt.service('ganttEnableNgAnimate', ['$injector', function($injector) {
     }
 
 
-}]);
-
-
-gantt.factory('ganttKeepScrollPos', ['$timeout', function($timeout) {
-    // Make sure the scroll position will be at the same place after the tasks or columns changed
-
-    function keepScrollPos($scope, fn) {
-        return function() {
-            if ($scope.template.scrollable) {
-                var el = $scope.template.scrollable.$element[0];
-
-                // Save scroll position
-                var oldScrollLeft = el.scrollLeft;
-                var left = $scope.gantt.getFirstColumn();
-
-                // Execute Gantt changes
-                fn.apply(this, arguments);
-
-                // Re-apply scroll position
-                left = left === undefined ? 0 : $scope.gantt.getColumnByDate(left.date).left;
-                el.scrollLeft = left + oldScrollLeft;
-
-                // Workaround: Set scrollLeft again after the DOM has changed as the assignment of scrollLeft before may not have worked when the scroll area was too tiny.
-                if (el.scrollLeft !== left + oldScrollLeft) {
-                    $timeout(function() {
-                        el.scrollLeft = left + oldScrollLeft;
-                    }, 0, false);
-                }
-            } else {
-                // Execute Gantt changes
-                fn.apply(this, arguments);
-            }
-        };
-    }
-
-    return keepScrollPos;
 }]);
 
 

@@ -14,18 +14,22 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.template.scrollable = new Scrollable($element);
 
+            var lastScrollLeft;
+
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
                 var direction;
                 var date;
 
-                if (el.scrollLeft === 0) {
+                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
                     direction = 'left';
                     date = $scope.gantt.from;
-                } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth) {
+                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
                     date = $scope.gantt.to;
                 }
+
+                lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
                     $scope.autoExpandColumns(el, date, direction);
@@ -34,6 +38,15 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
                     $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
                 }
             }, 5));
+
+            $scope.$watch('gantt.columns.length', function(newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue) && newValue > 0 && $scope.gantt.scrollAnchor !== undefined) {
+                    // Ugly but prevents screen flickering (unlike $timeout)
+                    $scope.$$postDigest(function() {
+                        $scope.scrollToDate($scope.gantt.scrollAnchor);
+                    });
+                }
+            });
         }]
     };
 }]);

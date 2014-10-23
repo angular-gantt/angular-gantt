@@ -47,7 +47,7 @@ gantt.constant('GANTT_EVENTS',
         'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
     });
 
-gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrollPos', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, keepScrollPos, Events, enableNgAnimate, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, moment, mouseOffset, Events, enableNgAnimate, GANTT_EVENTS) {
     return {
         restrict: 'EA',
         replace: true,
@@ -265,15 +265,21 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
 
             // Tries to center the specified date
             $scope.scrollToDate = function(date) {
-                var column = $scope.gantt.getColumnByDate(date);
-                if (column !== undefined) {
-                    var x = (column.left + column.width / 2);
-                    $scope.template.scrollable.$element[0].scrollLeft = x - $scope.template.scrollable.$element[0].offsetWidth / 2;
+                var position = $scope.gantt.getPositionByDate(date);
+
+                if (position !== undefined) {
+                    $scope.template.scrollable.$element[0].scrollLeft = position - $scope.template.scrollable.$element[0].offsetWidth / 2;
                 }
             };
 
-            $scope.autoExpandColumns = keepScrollPos($scope, function(el, date, direction) {
+            var lastAutoExpand;
+            var autoExpandCoolDownPeriod = 500;
+            $scope.autoExpandColumns = function(el, date, direction) {
                 if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                    return;
+                }
+
+                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
                     return;
                 }
 
@@ -290,10 +296,11 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
 
                 $scope.fromDate = from;
                 $scope.toDate = to;
-            });
+                lastAutoExpand = Date.now();
+            };
 
             // Add or update rows and tasks
-            $scope.setData = keepScrollPos($scope, function(data) {
+            $scope.setData = function(data) {
                 $scope.gantt.addData(data,
                     function(row) {
                         $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
@@ -302,7 +309,7 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
                     });
 
                 $scope.sortRows();
-            });
+            };
 
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
@@ -330,14 +337,14 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'ganttKeepScrol
             };
 
             // Add or update timespans
-            $scope.setTimespans = keepScrollPos($scope, function(timespans) {
+            $scope.setTimespans = function(timespans) {
                 $scope.gantt.addTimespans(timespans,
                     function(timespan) {
                         $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
                     }, function(timespan) {
                         $scope.$emit(GANTT_EVENTS.TIMESPAN_CHANGED, {timespan: timespan});
                     });
-            });
+            };
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.

@@ -80,11 +80,11 @@ angular.module('angularGanttDemoApp')
             $scope.clearData();
         };
 
-        $scope.scrollEvent = function(event) {
-            if (angular.equals(event.direction, 'left')) {
+        var logScrollEvent = function(event, data) {
+            if (angular.equals(data.direction, 'left')) {
                 // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
-                console.log('Scroll event: Left');
-            } else if (angular.equals(event.direction, 'right')) {
+                console.log('Scroll event: Left ' + data.left);
+            } else if (angular.equals(data.direction, 'right')) {
                 // Raised if the user scrolled to the right side of the Gantt. Use this event to load more data.
                 console.log('Scroll event: Right');
             }
@@ -180,7 +180,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.TIMESPAN_CHANGED, logTaskEvent);
 
         $scope.$on(GANTT_EVENTS.READY, logTaskEvent);
-        //$scope.$on(GANTT_EVENTS.SCROLL, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.SCROLL, logScrollEvent);
     });
 
 'use strict';
