@@ -37,16 +37,8 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                         end = self.endDate;
                     }
 
-                    var hidden = false;
-                    if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
-                        hidden = true;
-                    } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
-                        hidden = true;
-                    }
-
                     timeFrame = timeFrame.clone();
 
-                    timeFrame.hidden = hidden;
                     timeFrame.start = moment(start);
                     timeFrame.end = moment(end);
 
@@ -70,6 +62,14 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
                 var timeFramePosition = timeFrameDuration / self.duration * self.width;
 
+                var hidden = false;
+                if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
+                    hidden = true;
+                } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
+                    hidden = true;
+                }
+
+                timeFrame.hidden = hidden;
                 timeFrame.left = position;
                 timeFrame.width = timeFramePosition;
             });

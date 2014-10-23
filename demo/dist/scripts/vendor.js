@@ -43408,11 +43408,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
             var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking})];
 
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
-                return timeFrame.getDuration();
-            });
-
-            orderedTimeFrames = $filter('filter')(timeFrames, function(timeFrame) {
-                return (startDate === undefined || timeFrame.end > startDate) && (endDate === undefined || timeFrame.start < endDate);
+                return -timeFrame.getDuration();
             });
 
             angular.forEach(orderedTimeFrames, function(timeFrame) {
@@ -43432,8 +43428,8 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                             timeFrame = timeFrame.clone();
                             var newSolvedTimeFrame = solvedTimeFrame.clone();
 
-                            solvedTimeFrame.end = timeFrame.start;
-                            newSolvedTimeFrame.start = timeFrame.end;
+                            solvedTimeFrame.end = timeFrame.start.clone();
+                            newSolvedTimeFrame.start = timeFrame.end.clone();
 
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
@@ -43463,6 +43459,10 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 });
 
                 solvedTimeFrames = tmpSolvedTimeFrames;
+            });
+
+            solvedTimeFrames = $filter('filter')(solvedTimeFrames, function(timeFrame) {
+                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
             });
 
             return solvedTimeFrames;
@@ -43511,16 +43511,8 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                         end = self.endDate;
                     }
 
-                    var hidden = false;
-                    if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
-                        hidden = true;
-                    } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
-                        hidden = true;
-                    }
-
                     timeFrame = timeFrame.clone();
 
-                    timeFrame.hidden = hidden;
                     timeFrame.start = moment(start);
                     timeFrame.end = moment(end);
 
@@ -43544,6 +43536,14 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
                 var timeFramePosition = timeFrameDuration / self.duration * self.width;
 
+                var hidden = false;
+                if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
+                    hidden = true;
+                } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
+                    hidden = true;
+                }
+
+                timeFrame.hidden = hidden;
                 timeFrame.left = position;
                 timeFrame.width = timeFramePosition;
             });

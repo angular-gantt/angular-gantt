@@ -193,4 +193,37 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[0].working).toBeFalsy();
         });
 
+    it('solves timeFrame for small timePeriod',
+        function() {
+            var cal = new Calendar();
+
+            var inputTimeFrames = {
+                'day': {
+                    start: moment('9:00', 'HH:mm'),
+                    end: moment('18:00', 'HH:mm'),
+                    working: true,
+                    default: true
+                },
+                'noon': {
+                    start: moment('12:00', 'HH:mm'),
+                    end: moment('13:30', 'HH:mm'),
+                    working: false,
+                    default: true
+                },
+                'dummy':{
+                    start: moment('20:00', 'HH:mm'),
+                    end: moment('22:30', 'HH:mm'),
+                    working: false,
+                    default: false
+                }
+            };
+            cal.registerTimeFrames(inputTimeFrames);
+            var timeFrames = cal.getTimeFrames(moment());
+
+            timeFrames = cal.solve(timeFrames, moment('12:00', 'HH:mm'), moment('13:00', 'HH:mm'));
+            expect(timeFrames.length).toBe(1);
+
+            expect(timeFrames[0].working).toBeFalsy();
+        });
+
 });
