@@ -434,9 +434,9 @@ All event names are prefixed with `event:gantt-`. You can also use constants by 
 
   A timespan has been added or changed.
   
-- **row-added** and **row-changed**
+- **row-added**, **row-changed** and **row-order-changed**
 
-  A row has been added or changed. A row is changed if the custom sort order has been changed by the user.
+  A row has been added or changed. The row changed event and row order changed event is raised if the custom sort order has been changed by the user.
 
 - **row-clicked**, **row-dblclicked**, **row-contextmenu**, **row-mousedown**, **row-mouseup**
 

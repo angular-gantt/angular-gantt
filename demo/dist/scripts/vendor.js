@@ -42757,6 +42757,7 @@ gantt.constant('GANTT_EVENTS',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
         'ROW_CHANGED': 'event:gantt-row-changed',
         'ROW_ADDED': 'event:gantt-row-added',
+        'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
 
         'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
         'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
@@ -42959,7 +42960,9 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'GanttEvents', 
 
                 // Raise change events
                 $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
                 $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
+                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
 
                 // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== 'custom') {
@@ -43407,7 +43410,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 to = moment(to).startOf('day');
             }
 
-            var date = moment(from);
+            var date = moment(from).startOf('day');
             var generatedCols = [];
             var left = 0;
             var workHoursMap = getWorkHoursMap(workHours);
@@ -43425,7 +43428,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
 
                 for (var i = 0; i < 24; i++) {
-                    var cDate = moment(date).startOf('day').hour(i);
+                    var cDate = date.hour(i);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
@@ -43529,7 +43532,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                         daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.day());
                     }
 
-                    generatedCols.push(new Column.Day(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
+                    generatedCols.push(new Column.Day(date, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
                     if (reverse) {
                         left -= columnWidth;
                     } else {
@@ -43619,7 +43622,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     break;
                 }
 
-                generatedCols.push(new Column.Week(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Week(date, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -43683,7 +43686,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     break;
                 }
 
-                generatedCols.push(new Column.Month(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Month(date, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -43774,13 +43777,16 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.rowsMap = {};
         self.rows = [];
+        self.visibleRows = [];
 
         self.timespansMap = {};
         self.timespans = [];
 
         self.columns = [];
+        self.visibleColumns = [];
 
         self.headers = {};
+        self.visibleHeaders = {};
 
         self.previousColumns = [];
         self.nextColumns = [];
@@ -43815,46 +43821,22 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         });
 
         var updateVisibleColumns = function() {
-            angular.forEach(self.columns, function(column) {
-                column.hidden = true;
-            });
-            var columns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
-            angular.forEach(columns, function(column) {
-                column.hidden = false;
-            });
+            self.visibleColumns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
 
             angular.forEach(self.headers, function(headers, key) {
                 if (self.headers.hasOwnProperty(key)) {
-                    angular.forEach(headers, function(header) {
-                        header.hidden = true;
-                    });
-                    var visibleHeaders = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
-                    angular.forEach(visibleHeaders, function(header) {
-                        header.hidden = false;
-                    });
+                    self.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
                 }
             });
         };
 
         var updateVisibleRows = function() {
-            angular.forEach(self.rows, function(row) {
-                row.hidden = true;
-            });
-            var visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
-            angular.forEach(visibleRows, function(row) {
-                row.hidden = false;
-            });
+            self.visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
         };
 
         var updateVisibleTasks = function() {
             angular.forEach(self.rows, function(row) {
-                angular.forEach(row.tasks, function(task) {
-                    task.hidden = true;
-                });
-                var visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
-                angular.forEach(visibleTasks, function(task) {
-                    task.hidden = false;
-                });
+                row.visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
             });
         };
 
@@ -44093,8 +44075,11 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.from = undefined;
             self.to = undefined;
             self.columns = [];
+            self.visibleColumns = [];
             self.previousColumns = [];
             self.nextColumns = [];
+            self.visibleHeaders = {};
+            self.visibleRows = [];
         };
 
         // Update the position/size of all tasks in the Gantt
@@ -44366,6 +44351,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             } else {
                 self.rows = angularOrderBy(self.rows, expression, reverse);
             }
+
+            updateVisibleRows();
         };
 
         // Adds or updates timespans
@@ -44405,13 +44392,17 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.setCurrentDate = function(currentDate) {
             self._currentDate = currentDate;
-            angular.forEach(self.columns, function(column) {
-                if (currentDate >= column.date && currentDate < column.getEndDate()) {
-                    column.currentDate = currentDate;
-                } else {
-                    delete column.currentDate;
+            if (self._currentDateColumn !== undefined) {
+                delete self._currentDateColumn;
+            }
+
+            if (self._currentDate !== undefined) {
+                var column = self.getColumnByDate(self._currentDate);
+                if (column !== undefined) {
+                    column.currentDate = self._currentDate;
+                    self._currentDateColumn = column;
                 }
-            });
+            }
         };
         self.setCurrentDate($scope.currentDateValue);
 
@@ -44424,7 +44415,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 }]);
 
 
-gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
+gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', function(Column) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];
@@ -44433,7 +44424,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.hour() !== col.date.hour()) {
-                header = new Column.Hour(moment(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
+                header = new Column.Hour(col.date, col.left, col.width, col.isWeekend, col.isWorkHour);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -44450,7 +44441,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.day() !== col.date.day()) {
-                header = new Column.Day(moment(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
+                header = new Column.Day(col.date, col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -44467,7 +44458,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.week() !== col.date.week()) {
-                header = new Column.Week(moment(col.date), col.left, col.width, col.date.week());
+                header = new Column.Week(col.date, col.left, col.width, col.date.week());
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -44484,7 +44475,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.month() !== col.date.month()) {
-                header = new Column.Month(moment(col.date), col.left, col.width);
+                header = new Column.Month(col.date, col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -45427,9 +45418,11 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
                     var elementBelowMouse = angular.element($document[0].elementFromPoint(e.clientX, e.clientY));
                     var targetRow = elementBelowMouse.controller('ngModel').$modelValue;
 
-                    $scope.$apply(function() {
-                        $scope.swap({a: targetRow, b: sortManager.startRow});
-                    });
+                    if (targetRow.id !== sortManager.startRow.id) {
+                        $scope.$apply(function () {
+                            $scope.swap({a: targetRow, b: sortManager.startRow});
+                        });
+                    }
                 }
             });
 
@@ -46220,7 +46213,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-ganttHeader.offsetHeight)+\'px\'} || {})"\n' +
         '             ng-show="gantt.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
-        '                <gantt-row-label ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">\n' +
+        '                <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">\n' +
         '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
         '                        <span>{{ row.name }}</span>\n' +
         '                    </gantt-sortable>\n' +
@@ -46232,25 +46225,25 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '        <gantt-header-columns>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.month !== undefined"\n' +
         '                 ng-class="(gantt.headers.month !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.month | filter:{hidden:false} track by $index">\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.visibleHeaders.month track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatMonth }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.week !== undefined"\n' +
         '                 ng-class="(gantt.headers.week !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.week | filter:{hidden:false} track by $index">\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.visibleHeaders.week track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatWeek }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.day !== undefined"\n' +
         '                 ng-class="(gantt.headers.day !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.day | filter:{hidden:false} track by $index">\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.visibleHeaders.day track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatDay }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
         '            <div class="gantt-header-row" ng-if="gantt.headers.hour !== undefined"\n' +
         '                 ng-class="(gantt.headers.hour !== undefined && \'gantt-header-row-bottom\' || \'\')">\n' +
-        '                <gantt-column-header ng-repeat="column in gantt.headers.hour | filter:{hidden:false} track by $index">\n' +
+        '                <gantt-column-header ng-repeat="column in gantt.visibleHeaders.hour track by $index">\n' +
         '                    {{ column.date | amDateFormat:headerFormatHour }}\n' +
         '                </gantt-column-header>\n' +
         '            </div>\n' +
@@ -46262,14 +46255,14 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                <div class="gantt-row-height"\n' +
         '                     ng-class-odd="\'gantt-background-row\'"\n' +
         '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                     ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">\n' +
+        '                     ng-repeat="row in gantt.visibleRows track by $index">\n' +
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(currentDateValue)) + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index"></gantt-column>\n' +
+        '                <gantt-column ng-repeat="column in gantt.visibleColumns track by $index"></gantt-column>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +
@@ -46280,8 +46273,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>\n' +
         '                    </gantt-tooltip>\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">\n' +
-        '                    <gantt-task ng-repeat="task in row.tasks | filter:{hidden:false} track by $index"></gantt-task>\n' +
+        '                <gantt-row ng-repeat="row in gantt.visibleRows track by $index">\n' +
+        '                    <gantt-task ng-repeat="task in row.visibleTasks track by $index"></gantt-task>\n' +
         '                </gantt-row>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +

@@ -36,6 +36,7 @@ gantt.constant('GANTT_EVENTS',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
         'ROW_CHANGED': 'event:gantt-row-changed',
         'ROW_ADDED': 'event:gantt-row-added',
+        'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
 
         'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
         'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
@@ -238,7 +239,9 @@ gantt.directive('gantt', ['Gantt', 'moment', 'ganttMouseOffset', 'GanttEvents', 
 
                 // Raise change events
                 $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
                 $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
+                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
 
                 // Switch to custom sort mode and trigger sort
                 if ($scope.sortMode !== 'custom') {

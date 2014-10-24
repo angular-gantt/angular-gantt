@@ -136,6 +136,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.ROW_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_CONTEXTMENU, logTaskEvent);
 
+        $scope.$on(GANTT_EVENTS.ROW_ORDER_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_ADDED, logTaskEvent);
 
