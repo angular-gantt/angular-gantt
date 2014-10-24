@@ -43492,12 +43492,13 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.timeFramesWorkingMode = timeFramesWorkingMode;
         self.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
         self.timeFrames = [];
+        self.daysTimeFrames = {};
         self.cropped = false;
         self.columnMagnetValue = columnMagnetValue;
         self.columnMagnetUnit = columnMagnetUnit;
 
         if (self.calendar !== undefined) {
-            var buildPushTimeFrames = function(startDate, endDate) {
+            var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
                 return function(timeFrame) {
                     var start = timeFrame.start;
                     if (start === undefined) {
@@ -43522,7 +43523,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                     timeFrame.start = moment(start);
                     timeFrame.end = moment(end);
 
-                    self.timeFrames.push(timeFrame);
+                    timeFrames.push(timeFrame);
                 };
             };
 
@@ -43531,8 +43532,19 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 var timeFrames = self.calendar.getTimeFrames(cDate);
                 var nextCDate = moment.min(moment(cDate).startOf('day').add(1, 'day'), moment(self.endDate));
                 timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
-                angular.forEach(timeFrames, buildPushTimeFrames(cDate, nextCDate));
+                var cTimeFrames = [];
+                angular.forEach(timeFrames, buildPushTimeFrames(cTimeFrames, cDate, nextCDate));
                 cDate = nextCDate;
+                self.timeFrames = self.timeFrames.concat(cTimeFrames);
+
+                var year = cDate.year();
+                var dayOfYear = cDate.dayOfYear();
+                if (self.daysTimeFrames[year] === undefined) {
+                    self.daysTimeFrames[year] = {dayOfYear: cTimeFrames};
+                } else {
+                    self.daysTimeFrames[year][dayOfYear] = cTimeFrames;
+                }
+                self.daysTimeFrames[cDate.year()][cDate.dayOfYear()] = cTimeFrames;
             }
 
             angular.forEach(self.timeFrames, function(timeFrame) {
@@ -43626,6 +43638,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
 
             if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
                 for (var i=0; i < self.timeFrames.length; i++) {
+                    // TODO: performance optimization could be done.
                     var timeFrame = self.timeFrames[i];
                     if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
                         positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
@@ -43645,18 +43658,31 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
             return date;
         };
 
+        var getDayTimeFrame = function(date) {
+            var dtf = self.daysTimeFrames[date.year()];
+            if (dtf === undefined) {
+                return [];
+            }
+            dtf = dtf[date.dayOfYear()];
+            if (dtf === undefined) {
+                return [];
+            }
+            return dtf;
+        };
+
         self.getPositionByDate = function(date) {
             var positionDuration;
             var position;
 
             if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
                 var croppedDate = date;
-                for (var i=0; i < self.timeFrames.length; i++) {
-                    var timeFrame = self.timeFrames[i];
+                var timeFrames = getDayTimeFrame(croppedDate);
+                for (var i=0; i < timeFrames.length; i++) {
+                    var timeFrame = timeFrames[i];
                     if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
                         if (timeFrame.cropped) {
-                            if (self.timeFrames.length > i+1) {
-                                croppedDate = self.timeFrames[i+1].start;
+                            if (timeFrames.length > i+1) {
+                                croppedDate = timeFrames[i+1].start;
                             } else {
                                 croppedDate = timeFrame.end;
                             }
