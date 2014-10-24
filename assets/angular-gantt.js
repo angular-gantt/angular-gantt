@@ -1684,13 +1684,17 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.setCurrentDate = function(currentDate) {
             self._currentDate = currentDate;
-            angular.forEach(self.columns, function(column) {
-                if (currentDate >= column.date && currentDate < column.getEndDate()) {
-                    column.currentDate = currentDate;
-                } else {
-                    delete column.currentDate;
+            if (self._currentDateColumn !== undefined) {
+                delete self._currentDateColumn;
+            }
+
+            if (self._currentDate !== undefined) {
+                var column = self.getColumnByDate(self._currentDate);
+                if (column !== undefined) {
+                    column.currentDate = self._currentDate;
+                    self._currentDateColumn = column;
                 }
-            });
+            }
         };
         self.setCurrentDate($scope.currentDateValue);
 
