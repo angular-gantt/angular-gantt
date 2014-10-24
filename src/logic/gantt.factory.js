@@ -582,6 +582,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             } else {
                 self.rows = angularOrderBy(self.rows, expression, reverse);
             }
+
+            updateVisibleRows();
         };
 
         // Adds or updates timespans
