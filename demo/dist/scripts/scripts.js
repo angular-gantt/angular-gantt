@@ -41,7 +41,7 @@ angular.module('angularGanttDemoApp')
             readOnly: false,
             filterTask: undefined,
             filterRow: undefined,
-            timeFrames :
+            timeFrames:
                  {'day': {
                     start: moment('8:00', 'HH:mm'),
                         end: moment('20:00', 'HH:mm'),
@@ -58,7 +58,7 @@ angular.module('angularGanttDemoApp')
                      working: false
                  }
                 },
-            dateFrames : {
+            dateFrames: {
                 'weekend': {
                     evaluator: function(date) {
                         return date.isoWeekday() === 6 || date.isoWeekday() === 7;
@@ -66,7 +66,8 @@ angular.module('angularGanttDemoApp')
                     targets: ['weekend']
                 }
             },
-            timeFramesNonWorkingMode : 'visible'
+            timeFramesNonWorkingMode: 'visible',
+            columnMagnet: '5 minutes'
         };
 
         $scope.$watch('fromDate+toDate', function() {

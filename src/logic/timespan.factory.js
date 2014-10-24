@@ -36,20 +36,20 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
 
         // Expands the start of the timespan to the specified position (in em)
         self.setFrom = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true);
+            self.from = self.gantt.getDateByPosition(x);
             self.updatePosAndSize();
         };
 
         // Expands the end of the timespan to the specified position (in em)
         self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x, false);
+            self.to = self.gantt.getDateByPosition(x);
             self.updatePosAndSize();
         };
 
         // Moves the timespan to the specified position (in em)
         self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true);
-            self.to = self.gantt.getDateByPosition(x + self.width, false);
+            self.from = self.gantt.getDateByPosition(x);
+            self.to = self.gantt.getDateByPosition(x + self.width);
             self.updatePosAndSize();
         };
 

@@ -190,6 +190,19 @@ review those projects documentations.
   How wide are the columns in `px`. This allows you add logic like `column-width="scale == 'day' ?  50 : 20"` to 
   have wider columns for days than for other column scales.
 
+- **column-magnet** (default `15 minutes`)
+
+  Precision for all user operations, like moving and resizing tasks.
+  
+  Format is `<integer> <momentjs-unit>`. See [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) for 
+  a list of supported unit.
+  
+  Examples:
+  - `1 minute`
+  - `30 minutes`
+  - `1 hour`
+  - `3 hours`
+
 - **filter-task**, **filter-task-comparator**
 
   Expression to filter on visible tasks using angularJS `$filter('filter')`. 

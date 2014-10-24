@@ -1,6 +1,6 @@
 'use strict';
 gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-    var ColumnGenerator = function(width, columnWidth, unit, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode) {
+    var ColumnGenerator = function(width, columnWidth, unit, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit) {
         // Generates one column for each time unit between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -26,7 +26,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 var startDate = moment(date).startOf(unit);
                 var endDate = moment(startDate).add(1, unit);
 
-                var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
+                var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit);
                 if (!column.cropped) {
                     generatedCols.push(column);
                     if (reverse) {

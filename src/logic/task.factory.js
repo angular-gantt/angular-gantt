@@ -75,7 +75,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
 
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x, false);
+            self.to = self.gantt.getDateByPosition(x, true);
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -85,7 +85,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         self.moveTo = function(x) {
             self.from = self.gantt.getDateByPosition(x, true);
             var newTaskLeft = self.gantt.getPositionByDate(self.from);
-            self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, false);
+            self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
         };
