@@ -686,7 +686,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 to = moment(to).startOf('day');
             }
 
-            var date = moment(from);
+            var date = moment(from).startOf('day');
             var generatedCols = [];
             var left = 0;
             var workHoursMap = getWorkHoursMap(workHours);
@@ -704,7 +704,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 var isWeekend = checkIsWeekend(weekendDaysMap, date.day());
 
                 for (var i = 0; i < 24; i++) {
-                    var cDate = moment(date).startOf('day').hour(i);
+                    var cDate = date.hour(i);
                     var isWorkHour = checkIsWorkHour(workHoursMap, i);
 
                     if ((isWeekend && showWeekends || !isWeekend) && (!isWorkHour && showNonWorkHours || isWorkHour)) {
@@ -808,7 +808,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                         daysToPreviousWorkingDay = getDaysToPrevWorkingDay(weekendDaysMap, date.day());
                     }
 
-                    generatedCols.push(new Column.Day(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
+                    generatedCols.push(new Column.Day(date, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale, isWeekend, daysToNextWorkingDay, daysToPreviousWorkingDay, workHours, showNonWorkHours));
                     if (reverse) {
                         left -= columnWidth;
                     } else {
@@ -898,7 +898,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     break;
                 }
 
-                generatedCols.push(new Column.Week(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Week(date, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -962,7 +962,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     break;
                 }
 
-                generatedCols.push(new Column.Month(moment(date), leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
+                generatedCols.push(new Column.Month(date, leftOffset ? left + leftOffset : left, columnWidth, columnSubScale));
                 if (reverse) {
                     left -= columnWidth;
                 } else {
@@ -1707,7 +1707,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 }]);
 
 
-gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
+gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', function(Column) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];
@@ -1716,7 +1716,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.hour() !== col.date.hour()) {
-                header = new Column.Hour(moment(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
+                header = new Column.Hour(col.date, col.left, col.width, col.isWeekend, col.isWorkHour);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -1733,7 +1733,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.day() !== col.date.day()) {
-                header = new Column.Day(moment(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
+                header = new Column.Day(col.date, col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -1750,7 +1750,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.week() !== col.date.week()) {
-                header = new Column.Week(moment(col.date), col.left, col.width, col.date.week());
+                header = new Column.Week(col.date, col.left, col.width, col.date.week());
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -1767,7 +1767,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.month() !== col.date.month()) {
-                header = new Column.Month(moment(col.date), col.left, col.width);
+                header = new Column.Month(col.date, col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;

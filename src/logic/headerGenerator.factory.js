@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
+gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', function(Column) {
 
     var generateHourHeader = function(columns) {
         var generatedHeaders = [];
@@ -8,7 +8,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.hour() !== col.date.hour()) {
-                header = new Column.Hour(moment(col.date), col.left, col.width, col.isWeekend, col.isWorkHour);
+                header = new Column.Hour(col.date, col.left, col.width, col.isWeekend, col.isWorkHour);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -25,7 +25,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.day() !== col.date.day()) {
-                header = new Column.Day(moment(col.date), col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
+                header = new Column.Day(col.date, col.left, col.width, col.isWeekend, col.daysToNextWorkingDay, col.daysToPrevWorkingDay);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -42,7 +42,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.week() !== col.date.week()) {
-                header = new Column.Week(moment(col.date), col.left, col.width, col.date.week());
+                header = new Column.Week(col.date, col.left, col.width, col.date.week());
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -59,7 +59,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumn', 'moment', function(Column
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.month() !== col.date.month()) {
-                header = new Column.Month(moment(col.date), col.left, col.width);
+                header = new Column.Month(col.date, col.left, col.width);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
