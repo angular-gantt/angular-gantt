@@ -42893,13 +42893,23 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }
 
             var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+            var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
+            var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
+
             $scope.getHeaderFormat = function(unit) {
                 var format;
                 if ($scope.headersFormats !== undefined) {
                     format = $scope.headersFormats[unit];
                 }
                 if (format === undefined) {
-                    format = defaultHeadersFormats[unit];
+                    if (['millisecond', 'second', 'minute', 'hour'].indexOf($scope.viewScale) > -1) {
+                        format = defaultDayHeadersFormats[unit];
+                    } else if (['month', 'quarter', 'year'].indexOf($scope.viewScale) > -1) {
+                        format = defaultYearHeadersFormats[unit];
+                    }
+                    if (format === undefined) {
+                        format = defaultHeadersFormats[unit];
+                    }
                 }
                 return format;
             };
@@ -44503,7 +44513,34 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHead
             this.generate = function(columns) {
                 var units = [];
                 if ($scope.headers === undefined) {
-                    units = [$scope.viewScale];
+                    units = [];
+                    if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
+                        units.push('year');
+                    }
+                    if (['quarter'].indexOf($scope.viewScale) > -1) {
+                        units.push('quarter');
+                    }
+                    if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
+                        units.push('month');
+                    }
+                    if (['day', 'week'].indexOf($scope.viewScale) > -1) {
+                        units.push('week');
+                    }
+                    if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
+                        units.push('day');
+                    }
+                    if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
+                        units.push('hour');
+                    }
+                    if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
+                        units.push('minute');
+                    }
+                    if (['second'].indexOf($scope.viewScale) > -1) {
+                        units.push('second');
+                    }
+                    if (units.length === 0) {
+                        units.push($scope.viewScale);
+                    }
                 } else {
                     units = $scope.headers;
                 }

@@ -20,7 +20,34 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHead
             this.generate = function(columns) {
                 var units = [];
                 if ($scope.headers === undefined) {
-                    units = [$scope.viewScale];
+                    units = [];
+                    if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
+                        units.push('year');
+                    }
+                    if (['quarter'].indexOf($scope.viewScale) > -1) {
+                        units.push('quarter');
+                    }
+                    if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
+                        units.push('month');
+                    }
+                    if (['day', 'week'].indexOf($scope.viewScale) > -1) {
+                        units.push('week');
+                    }
+                    if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
+                        units.push('day');
+                    }
+                    if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
+                        units.push('hour');
+                    }
+                    if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
+                        units.push('minute');
+                    }
+                    if (['second'].indexOf($scope.viewScale) > -1) {
+                        units.push('second');
+                    }
+                    if (units.length === 0) {
+                        units.push($scope.viewScale);
+                    }
                 } else {
                     units = $scope.headers;
                 }

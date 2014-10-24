@@ -164,13 +164,23 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }
 
             var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+            var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
+            var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
+
             $scope.getHeaderFormat = function(unit) {
                 var format;
                 if ($scope.headersFormats !== undefined) {
                     format = $scope.headersFormats[unit];
                 }
                 if (format === undefined) {
-                    format = defaultHeadersFormats[unit];
+                    if (['millisecond', 'second', 'minute', 'hour'].indexOf($scope.viewScale) > -1) {
+                        format = defaultDayHeadersFormats[unit];
+                    } else if (['month', 'quarter', 'year'].indexOf($scope.viewScale) > -1) {
+                        format = defaultYearHeadersFormats[unit];
+                    }
+                    if (format === undefined) {
+                        format = defaultHeadersFormats[unit];
+                    }
                 }
                 return format;
             };
