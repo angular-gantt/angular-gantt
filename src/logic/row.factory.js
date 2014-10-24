@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task, moment, GANTT_EVENTS) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -11,6 +11,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
         self.to = undefined;
         self.tasksMap = {};
         self.tasks = [];
+        self.visibleTasks = [];
         self.data = data;
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id
@@ -35,13 +36,26 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
 
         // Removes the task from the existing row and adds it to he current one
         self.moveTaskToRow = function(task) {
-            task.row.removeTask(task.id);
-            task.row = self;
+            var oldRow = task.row;
+            oldRow.removeTask(task.id, true);
+            oldRow.updateVisibleTasks();
+
             self.tasksMap[task.id] = task;
             self.tasks.push(task);
+            task.row = self;
+
             self.sortTasks();
             self.setFromToByTask(task);
+
             task.updatePosAndSize();
+            self.updateVisibleTasks();
+
+            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
+
+        };
+
+        self.updateVisibleTasks = function() {
+            self.visibleTasks = $filter('ganttTaskLimit')(self.tasks, self.gantt);
         };
 
         self.updateTasksPosAndSize = function() {
@@ -51,7 +65,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
         };
 
         // Remove the specified task from the row
-        self.removeTask = function(taskId) {
+        self.removeTask = function(taskId, disableEmit) {
             if (taskId in self.tasksMap) {
                 delete self.tasksMap[taskId]; // Remove from map
 
@@ -65,7 +79,9 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
                             self.setFromTo();
                         }
 
-                        self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
+                        if (!disableEmit) {
+                            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
+                        }
                         return task;
                     }
                 }

@@ -42738,6 +42738,7 @@ gantt.constant('GANTT_EVENTS',
         'TASK_ADDED': 'event:gantt-task-added',
         'TASK_CHANGED': 'event:gantt-task-changed',
         'TASK_REMOVED': 'event:gantt-task-removed',
+        'TASK_MOVED': 'event:gantt-task-moved',
         'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
         'TASK_MOVE': 'event:gantt-task-move',
         'TASK_MOVE_END': 'event:gantt-task-move-end',
@@ -43938,7 +43939,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         var updateVisibleTasks = function() {
             angular.forEach(self.rows, function(row) {
-                row.visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
+                row.updateVisibleTasks();
             });
         };
 
@@ -44562,7 +44563,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHead
 }]);
 
 
-gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task, moment, GANTT_EVENTS) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -44574,6 +44575,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
         self.to = undefined;
         self.tasksMap = {};
         self.tasks = [];
+        self.visibleTasks = [];
         self.data = data;
 
         // Adds a task to a specific row. Merges the task if there is already one with the same id
@@ -44598,12 +44600,26 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
 
         // Removes the task from the existing row and adds it to he current one
         self.moveTaskToRow = function(task) {
-            task.row.removeTask(task.id);
+            var oldRow = task.row;
+            oldRow.removeTask(task.id, true);
+            oldRow.updateVisibleTasks();
+
             self.tasksMap[task.id] = task;
             self.tasks.push(task);
-            self.setFromTo();
             task.row = self;
+
+            self.sortTasks();
+            self.setFromToByTask(task);
+
             task.updatePosAndSize();
+            self.updateVisibleTasks();
+
+            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
+
+        };
+
+        self.updateVisibleTasks = function() {
+            self.visibleTasks = $filter('ganttTaskLimit')(self.tasks, self.gantt);
         };
 
         self.updateTasksPosAndSize = function() {
@@ -44613,7 +44629,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
         };
 
         // Remove the specified task from the row
-        self.removeTask = function(taskId) {
+        self.removeTask = function(taskId, disableEmit) {
             if (taskId in self.tasksMap) {
                 delete self.tasksMap[taskId]; // Remove from map
 
@@ -44627,7 +44643,9 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
                             self.setFromTo();
                         }
 
-                        self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
+                        if (!disableEmit) {
+                            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
+                        }
                         return task;
                     }
                 }
@@ -44677,7 +44695,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task,
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
-
             return clone;
         };
     };
@@ -45037,9 +45054,9 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
-    return function(input, scrollLeft, scrollWidth, gantt, filterTask, filterTaskComparator) {
-        if (filterTask) {
-            input = $filter('filter')(input, filterTask, filterTaskComparator);
+    return function(input, gantt) {
+        if (gantt.$scope.filterTask) {
+            input = $filter('filter')(input, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
         }
 
         var res = [];
@@ -45052,6 +45069,9 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
             } else {
                 // If the task can be drawn with gantt columns only.
                 if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().endDate) {
+
+                    var scrollLeft = gantt.$scope.scrollLeft;
+                    var scrollWidth = gantt.$scope.scrollWidth;
 
                     // If task has a visible part on the screen
                     if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
@@ -46317,8 +46337,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>\n' +
         '                    </gantt-tooltip>\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.visibleRows track by $index">\n' +
-        '                    <gantt-task ng-repeat="task in row.visibleTasks track by $index"></gantt-task>\n' +
+        '                <gantt-row ng-repeat="row in gantt.visibleRows track by row.id">\n' +
+        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>\n' +
         '                </gantt-row>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +

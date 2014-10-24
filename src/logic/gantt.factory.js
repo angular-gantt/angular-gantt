@@ -68,7 +68,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         var updateVisibleTasks = function() {
             angular.forEach(self.rows, function(row) {
-                row.visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
+                row.updateVisibleTasks();
             });
         };
 

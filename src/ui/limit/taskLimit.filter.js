@@ -3,9 +3,9 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
-    return function(input, scrollLeft, scrollWidth, gantt, filterTask, filterTaskComparator) {
-        if (filterTask) {
-            input = $filter('filter')(input, filterTask, filterTaskComparator);
+    return function(input, gantt) {
+        if (gantt.$scope.filterTask) {
+            input = $filter('filter')(input, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
         }
 
         var res = [];
@@ -18,6 +18,9 @@ gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
             } else {
                 // If the task can be drawn with gantt columns only.
                 if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().endDate) {
+
+                    var scrollLeft = gantt.$scope.scrollLeft;
+                    var scrollWidth = gantt.$scope.scrollWidth;
 
                     // If task has a visible part on the screen
                     if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
