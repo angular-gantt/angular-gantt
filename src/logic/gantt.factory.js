@@ -8,13 +8,16 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.rowsMap = {};
         self.rows = [];
+        self.visibleRows = [];
 
         self.timespansMap = {};
         self.timespans = [];
 
         self.columns = [];
+        self.visibleColumns = [];
 
         self.headers = {};
+        self.visibleHeaders = {};
 
         self.previousColumns = [];
         self.nextColumns = [];
@@ -49,46 +52,22 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         });
 
         var updateVisibleColumns = function() {
-            angular.forEach(self.columns, function(column) {
-                column.hidden = true;
-            });
-            var columns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
-            angular.forEach(columns, function(column) {
-                column.hidden = false;
-            });
+            self.visibleColumns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
 
             angular.forEach(self.headers, function(headers, key) {
                 if (self.headers.hasOwnProperty(key)) {
-                    angular.forEach(headers, function(header) {
-                        header.hidden = true;
-                    });
-                    var visibleHeaders = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
-                    angular.forEach(visibleHeaders, function(header) {
-                        header.hidden = false;
-                    });
+                    self.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
                 }
             });
         };
 
         var updateVisibleRows = function() {
-            angular.forEach(self.rows, function(row) {
-                row.hidden = true;
-            });
-            var visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
-            angular.forEach(visibleRows, function(row) {
-                row.hidden = false;
-            });
+            self.visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
         };
 
         var updateVisibleTasks = function() {
             angular.forEach(self.rows, function(row) {
-                angular.forEach(row.tasks, function(task) {
-                    task.hidden = true;
-                });
-                var visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
-                angular.forEach(visibleTasks, function(task) {
-                    task.hidden = false;
-                });
+                row.visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
             });
         };
 
@@ -327,8 +306,11 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.from = undefined;
             self.to = undefined;
             self.columns = [];
+            self.visibleColumns = [];
             self.previousColumns = [];
             self.nextColumns = [];
+            self.visibleHeaders = {};
+            self.visibleRows = [];
         };
 
         // Update the position/size of all tasks in the Gantt
