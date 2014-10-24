@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task, moment, GANTT_EVENTS) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -29,16 +29,18 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
 
             self.sortTasks();
             self.setFromToByTask(task);
+            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
             return task;
         };
 
         // Removes the task from the existing row and adds it to he current one
         self.moveTaskToRow = function(task) {
             task.row.removeTask(task.id);
+            task.row = self;
             self.tasksMap[task.id] = task;
             self.tasks.push(task);
-            self.setFromTo();
-            task.row = self;
+            self.sortTasks();
+            self.setFromToByTask(task);
             task.updatePosAndSize();
         };
 
@@ -63,6 +65,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
                             self.setFromTo();
                         }
 
+                        self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
                         return task;
                     }
                 }
@@ -112,7 +115,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
-
             return clone;
         };
     };

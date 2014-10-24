@@ -143,7 +143,9 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.TASK_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_DBL_CLICKED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_CONTEXTMENU, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_ADDED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_CHANGED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.TASK_REMOVED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_MOVE_BEGIN, logTaskEvent);
         //$scope.$on(GANTT_EVENTS.TASK_MOVE, logTaskEvent);
         $scope.$on(GANTT_EVENTS.TASK_MOVE_END, logTaskEvent);
@@ -164,6 +166,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.ROW_ORDER_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_ADDED, logTaskEvent);
+        $scope.$on(GANTT_EVENTS.ROW_REMOVED, logTaskEvent);
 
         var rowEvent = function(event, data) {
             if (!$scope.options.readOnly && $scope.options.draw) {

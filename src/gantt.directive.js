@@ -6,7 +6,9 @@ gantt.constant('GANTT_EVENTS',
         'READY': 'event:gantt-ready',
         'SCROLL': 'event:gantt-scroll',
 
+        'TASK_ADDED': 'event:gantt-task-added',
         'TASK_CHANGED': 'event:gantt-task-changed',
+        'TASK_REMOVED': 'event:gantt-task-removed',
         'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
         'TASK_MOVE': 'event:gantt-task-move',
         'TASK_MOVE_END': 'event:gantt-task-move-end',
@@ -28,6 +30,7 @@ gantt.constant('GANTT_EVENTS',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
         'ROW_CHANGED': 'event:gantt-row-changed',
         'ROW_ADDED': 'event:gantt-row-added',
+        'ROW_REMOVED': 'event:gantt-row-removed',
         'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
 
         'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
@@ -306,22 +309,13 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
 
             // Add or update rows and tasks
             $scope.setData = function(data) {
-                $scope.gantt.addData(data,
-                    function(row) {
-                        $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
-                    }, function(row) {
-                        $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
-                    });
-
+                $scope.gantt.addData(data);
                 $scope.sortRows();
             };
 
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data, function(row) {
-                    $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
-                });
-
+                $scope.gantt.removeData(data);
                 $scope.sortRows();
             }});
 
@@ -343,12 +337,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
 
             // Add or update timespans
             $scope.setTimespans = function(timespans) {
-                $scope.gantt.addTimespans(timespans,
-                    function(timespan) {
-                        $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
-                    }, function(timespan) {
-                        $scope.$emit(GANTT_EVENTS.TIMESPAN_CHANGED, {timespan: timespan});
-                    });
+                $scope.gantt.addTimespans(timespans);
             };
 
             // Load data handler.

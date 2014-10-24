@@ -14,7 +14,9 @@ gantt.constant('GANTT_EVENTS',
         'READY': 'event:gantt-ready',
         'SCROLL': 'event:gantt-scroll',
 
+        'TASK_ADDED': 'event:gantt-task-added',
         'TASK_CHANGED': 'event:gantt-task-changed',
+        'TASK_REMOVED': 'event:gantt-task-removed',
         'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
         'TASK_MOVE': 'event:gantt-task-move',
         'TASK_MOVE_END': 'event:gantt-task-move-end',
@@ -36,6 +38,7 @@ gantt.constant('GANTT_EVENTS',
         'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
         'ROW_CHANGED': 'event:gantt-row-changed',
         'ROW_ADDED': 'event:gantt-row-added',
+        'ROW_REMOVED': 'event:gantt-row-removed',
         'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
 
         'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
@@ -314,22 +317,13 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
 
             // Add or update rows and tasks
             $scope.setData = function(data) {
-                $scope.gantt.addData(data,
-                    function(row) {
-                        $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
-                    }, function(row) {
-                        $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
-                    });
-
+                $scope.gantt.addData(data);
                 $scope.sortRows();
             };
 
             // Remove specified rows and tasks.
             $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data, function(row) {
-                    $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
-                });
-
+                $scope.gantt.removeData(data);
                 $scope.sortRows();
             }});
 
@@ -351,12 +345,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
 
             // Add or update timespans
             $scope.setTimespans = function(timespans) {
-                $scope.gantt.addTimespans(timespans,
-                    function(timespan) {
-                        $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
-                    }, function(timespan) {
-                        $scope.$emit(GANTT_EVENTS.TIMESPAN_CHANGED, {timespan: timespan});
-                    });
+                $scope.gantt.addTimespans(timespans);
             };
 
             // Load data handler.
@@ -1159,11 +1148,12 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
 }]);
 
 
-gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs) {
+gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'GANTT_EVENTS', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, GANTT_EVENTS) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
         var self = this;
+        self.$scope = $scope;
         self.$element = $element;
 
         self.rowsMap = {};
@@ -1594,17 +1584,10 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         };
 
         // Adds or update rows and tasks.
-        self.addData = function(data, addEventFn, updateEventFN) {
+        self.addData = function(data) {
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
-                var isUpdate = addRow(rowData);
-                var row = self.rowsMap[rowData.id];
-
-                if (isUpdate === true && updateEventFN !== undefined) {
-                    updateEventFN(row);
-                } else if (addEventFn !== undefined) {
-                    addEventFn(row);
-                }
+                addRow(rowData);
             }
 
             self.updateColumns();
@@ -1621,6 +1604,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 row = self.rowsMap[rowData.id];
                 row.copy(rowData);
                 isUpdate = true;
+                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
             } else {
                 var order = rowData.order;
 
@@ -1636,6 +1620,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 row = new Row(rowData.id, self, rowData.name, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
+                $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
             }
 
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
@@ -1648,27 +1633,26 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         // Removes specified rows or tasks.
         // If a row has no tasks inside the complete row will be deleted.
-        self.removeData = function(data, updateEventFn) {
+        self.removeData = function(data) {
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
+                var row;
 
                 if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                     // Only delete the specified tasks but not the row and the other tasks
 
                     if (rowData.id in self.rowsMap) {
-                        var row = self.rowsMap[rowData.id];
+                        row = self.rowsMap[rowData.id];
 
                         for (var j = 0, k = rowData.tasks.length; j < k; j++) {
                             row.removeTask(rowData.tasks[j].id);
                         }
 
-                        if (updateEventFn !== undefined) {
-                            updateEventFn(row);
-                        }
+                        $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
                     }
                 } else {
                     // Delete the complete row
-                    removeRow(rowData.id);
+                    row = removeRow(rowData.id);
                 }
             }
 
@@ -1685,6 +1669,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                     var row = self.rows[i];
                     if (row.id === rowId) {
                         self.rows.splice(i, 1); // Remove from array
+                        $scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': row});
                         return row;
                     }
                 }
@@ -1737,17 +1722,11 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         };
 
         // Adds or updates timespans
-        self.addTimespans = function(timespans, addEventFn, updateEventFN) {
+        self.addTimespans = function(timespans) {
             for (var i = 0, l = timespans.length; i < l; i++) {
                 var timespanData = timespans[i];
-                var isUpdate = addTimespan(timespanData);
+                addTimespan(timespanData);
                 var timespan = self.timespansMap[timespanData.id];
-
-                if (isUpdate === true && updateEventFN !== undefined) {
-                    updateEventFN(timespan);
-                } else if (addEventFn !== undefined) {
-                    addEventFn(timespan);
-                }
                 timespan.updatePosAndSize();
             }
         };
@@ -1766,6 +1745,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                     timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
                 self.timespansMap[timespanData.id] = timespan;
                 self.timespans.push(timespan);
+                $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
             }
 
             return isUpdate;
@@ -1861,7 +1841,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHead
 }]);
 
 
-gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', 'GANTT_EVENTS', function(Task, moment, GANTT_EVENTS) {
     var Row = function(id, gantt, name, order, data) {
         var self = this;
 
@@ -1891,16 +1871,18 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
 
             self.sortTasks();
             self.setFromToByTask(task);
+            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
             return task;
         };
 
         // Removes the task from the existing row and adds it to he current one
         self.moveTaskToRow = function(task) {
             task.row.removeTask(task.id);
+            task.row = self;
             self.tasksMap[task.id] = task;
             self.tasks.push(task);
-            self.setFromTo();
-            task.row = self;
+            self.sortTasks();
+            self.setFromToByTask(task);
             task.updatePosAndSize();
         };
 
@@ -1925,6 +1907,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
                             self.setFromTo();
                         }
 
+                        self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
                         return task;
                     }
                 }
@@ -1974,7 +1957,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', function(Task, moment) {
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
-
             return clone;
         };
     };

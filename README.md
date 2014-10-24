@@ -497,9 +497,9 @@ All event names are prefixed with `event:gantt-`. You can also use constants by 
 
   The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.
 
-- **task-added**, **task-changed**
+- **task-added**, **task-changed**, **task-removed**
 
-  A task has been added or changed
+  A task has been added, changed or removed
 
 - **task-clicked**, **task-dblclicked**, **task-contextmenu**
 
@@ -513,13 +513,13 @@ All event names are prefixed with `event:gantt-`. You can also use constants by 
 
   A task is starting to resize, moving or has stopped moving.
 
-- **timespan-added**, **timespan-changed**
+- **timespan-added**, **timespan-changed**, **timespan-removed**
 
-  A timespan has been added or changed.
+  A timespan has been added, changed or removed.
   
-- **row-added**, **row-changed** and **row-order-changed**
+- **row-added**, **row-changed**, **row-removed**, **row-order-changed**
 
-  A row has been added or changed. The row changed event and row order changed event is raised if the custom sort order has been changed by the user.
+  A row has been added, changed or removed. The row changed event and row order changed event is raised if the custom sort order has been changed by the user.
 
 - **row-clicked**, **row-dblclicked**, **row-contextmenu**, **row-mousedown**, **row-mouseup**
 
