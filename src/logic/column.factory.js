@@ -152,6 +152,18 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
             return date;
         };
 
+        var getDateByPositionUsingTimeFrames = function(timeFrames, position) {
+            for (var i=0; i < timeFrames.length; i++) {
+                // TODO: performance optimization could be done.
+                var timeFrame = timeFrames[i];
+                if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
+                    var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
+                    var date = moment(timeFrame.start).add(positionDuration, 'milliseconds');
+                    return date;
+                }
+            }
+        };
+
         self.getDateByPosition = function(position, magnet) {
             var positionDuration;
             var date;
@@ -164,19 +176,14 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
             }
 
             if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
-                for (var i=0; i < self.timeFrames.length; i++) {
-                    // TODO: performance optimization could be done.
-                    var timeFrame = self.timeFrames[i];
-                    if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
-                        positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
-                        date = moment(timeFrame.start).add(positionDuration, 'milliseconds');
-                        return date;
-                    }
-                }
+                date = getDateByPositionUsingTimeFrames(self.timeFrames, position);
             }
 
-            positionDuration = self.duration / self.width * position;
-            date = moment(self.date).add(positionDuration, 'milliseconds');
+            if (date === undefined) {
+                positionDuration = self.duration / self.width * position;
+                date = moment(self.date).add(positionDuration, 'milliseconds');
+            }
+
 
             if (magnet) {
                 return self.getMagnetDate(date);
