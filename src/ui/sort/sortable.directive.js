@@ -31,9 +31,11 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
                     var elementBelowMouse = angular.element($document[0].elementFromPoint(e.clientX, e.clientY));
                     var targetRow = elementBelowMouse.controller('ngModel').$modelValue;
 
-                    $scope.$apply(function() {
-                        $scope.swap({a: targetRow, b: sortManager.startRow});
-                    });
+                    if (targetRow.id !== sortManager.startRow.id) {
+                        $scope.$apply(function () {
+                            $scope.swap({a: targetRow, b: sortManager.startRow});
+                        });
+                    }
                 }
             });
 

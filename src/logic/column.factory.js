@@ -14,6 +14,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.timeFramesWorkingMode = timeFramesWorkingMode;
         self.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
         self.timeFrames = [];
+        self.visibleTimeFrames = [];
         self.daysTimeFrames = {};
         self.cropped = false;
         self.columnMagnetValue = columnMagnetValue;
@@ -81,6 +82,10 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                     hidden = true;
                 } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
                     hidden = true;
+                }
+
+                if (!hidden) {
+                    self.visibleTimeFrames.push(timeFrame);
                 }
 
                 timeFrame.hidden = hidden;

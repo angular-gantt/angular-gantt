@@ -8,13 +8,16 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.rowsMap = {};
         self.rows = [];
+        self.visibleRows = [];
 
         self.timespansMap = {};
         self.timespans = [];
 
         self.columns = [];
+        self.visibleColumns = [];
 
         self.headers = {};
+        self.visibleHeaders = {};
 
         self.previousColumns = [];
         self.nextColumns = [];
@@ -23,6 +26,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.from = undefined;
         self.to = undefined;
+
+        self.scrollAnchor = undefined;
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
@@ -47,46 +52,22 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         });
 
         var updateVisibleColumns = function() {
-            angular.forEach(self.columns, function(column) {
-                column.hidden = true;
-            });
-            var columns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
-            angular.forEach(columns, function(column) {
-                column.hidden = false;
-            });
+            self.visibleColumns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
 
             angular.forEach(self.headers, function(headers, key) {
                 if (self.headers.hasOwnProperty(key)) {
-                    angular.forEach(headers, function(header) {
-                        header.hidden = true;
-                    });
-                    var visibleHeaders = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
-                    angular.forEach(visibleHeaders, function(header) {
-                        header.hidden = false;
-                    });
+                    self.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
                 }
             });
         };
 
         var updateVisibleRows = function() {
-            angular.forEach(self.rows, function(row) {
-                row.hidden = true;
-            });
-            var visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
-            angular.forEach(visibleRows, function(row) {
-                row.hidden = false;
-            });
+            self.visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
         };
 
         var updateVisibleTasks = function() {
             angular.forEach(self.rows, function(row) {
-                angular.forEach(row.tasks, function(task) {
-                    task.hidden = true;
-                });
-                var visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
-                angular.forEach(visibleTasks, function(task) {
-                    task.hidden = false;
-                });
+                row.visibleTasks = $filter('ganttTaskLimit')(row.tasks, $scope.scrollLeft, $scope.scrollWidth, self, $scope.filterTask, $scope.filterTaskComparator);
             });
         };
 
@@ -116,6 +97,15 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 updateVisibleRows();
             }
         });
+
+        var setScrollAnchor = function() {
+            if ($scope.template.scrollable && $scope.template.scrollable.$element && self.columns.length > 0) {
+                var el = $scope.template.scrollable.$element[0];
+                var center = el.scrollLeft + el.offsetWidth / 2;
+
+                self.scrollAnchor = self.getDateByPosition(center);
+            }
+        };
 
         var getExpandedFrom = function(from) {
             from = from ? moment(from) : from;
@@ -167,6 +157,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 return false;
             }
 
+            setScrollAnchor();
+
             self.from = from;
             self.to = to;
 
@@ -188,7 +180,6 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             updateVisibleObjects();
 
             return true;
-
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -305,11 +296,16 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
         // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
         self.clearColumns = function() {
+            setScrollAnchor();
+
             self.from = undefined;
             self.to = undefined;
             self.columns = [];
+            self.visibleColumns = [];
             self.previousColumns = [];
             self.nextColumns = [];
+            self.visibleHeaders = {};
+            self.visibleRows = [];
         };
 
         // Update the position/size of all tasks in the Gantt
@@ -543,6 +539,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.rows = [];
             self.highestRowOrder = 0;
             self.clearColumns();
+            self.scrollAnchor = undefined;
         };
 
         // Removes all timespans
@@ -575,6 +572,8 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             } else {
                 self.rows = angularOrderBy(self.rows, expression, reverse);
             }
+
+            updateVisibleRows();
         };
 
         // Adds or updates timespans
@@ -614,13 +613,17 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
         self.setCurrentDate = function(currentDate) {
             self._currentDate = currentDate;
-            angular.forEach(self.columns, function(column) {
-                if (column.containsDate(currentDate)) {
-                    column.currentDate = currentDate;
-                } else {
-                    delete column.currentDate;
+            if (self._currentDateColumn !== undefined) {
+                delete self._currentDateColumn;
+            }
+
+            if (self._currentDate !== undefined) {
+                var column = self.getColumnByDate(self._currentDate);
+                if (column !== undefined) {
+                    column.currentDate = self._currentDate;
+                    self._currentDateColumn = column;
                 }
-            });
+            }
         };
         self.setCurrentDate($scope.currentDateValue);
 

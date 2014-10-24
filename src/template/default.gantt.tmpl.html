@@ -7,7 +7,7 @@
              ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px'} || {})"
              ng-show="gantt.columns.length > 0">
             <div gantt-vertical-scroll-receiver style="position: relative">
-                <gantt-row-label ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">
+                <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span>{{ row.name }}</span>
                     </gantt-sortable>
@@ -17,9 +17,9 @@
     </gantt-labels>
     <gantt-header>
         <gantt-header-columns>
-            <div ng-repeat="header in gantt.headers">
+            <div ng-repeat="header in gantt.visibleHeaders">
                 <div class="gantt-header-row gantt-header-row-bottom">
-                    <gantt-column-header ng-repeat="column in header | filter:{hidden:false} track by $index">
+                    <gantt-column-header ng-repeat="column in header track by $index">
                         {{ column.date | amDateFormat: $parent.$parent.getHeaderFormat(column.unit) }}
                     </gantt-column-header>
                 </div>
@@ -32,18 +32,18 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">
+                     ng-repeat="row in gantt.visibleRows track by $index">
                 </div>
             </div>
             <div class="gantt-body-foreground">
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{'left': (gantt.getPositionByDate(currentDateValue)) + 'px' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
-                <gantt-column ng-repeat="column in gantt.columns | filter:{hidden:false} track by $index">
+                <gantt-column ng-repeat="column in gantt.visibleColumns track by $index">
                     <div class="gantt-timeframe"
                          ng-class="timeFrame.working && 'gantt-timeframe-working' || 'gantt-timeframe-non-working'"
                          ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px'}"
-                         ng-repeat="timeFrame in column.timeFrames | filter:{hidden:false}"></div>
+                         ng-repeat="timeFrame in column.visibleTimeFrames"></div>
                 </gantt-column>
             </gantt-body-columns>
             <gantt-body-rows>
@@ -55,8 +55,8 @@
                         <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>
                     </gantt-tooltip>
                 </div>
-                <gantt-row ng-repeat="row in gantt.rows | filter:{hidden:false} track by $index">
-                    <gantt-task ng-repeat="task in row.tasks | filter:{hidden:false} track by $index"></gantt-task>
+                <gantt-row ng-repeat="row in gantt.visibleRows track by $index">
+                    <gantt-task ng-repeat="task in row.visibleTasks track by $index"></gantt-task>
                 </gantt-row>
             </gantt-body-rows>
         </gantt-body>
