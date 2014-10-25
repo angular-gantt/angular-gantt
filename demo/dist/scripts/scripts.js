@@ -75,6 +75,18 @@ angular.module('angularGanttDemoApp')
             $scope.options.toDate = $scope.toDate;
         });
 
+        $scope.$watch('options.scale', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                if (newValue === 'quarter') {
+                    $scope.options.headersFormats = {'quarter': '[Q]Q YYYY'};
+                    $scope.options.headers = ['quarter'];
+                } else {
+                    $scope.options.headersFormats = undefined;
+                    $scope.options.headers = undefined;
+                }
+            }
+        });
+
         $scope.$on(GANTT_EVENTS.READY, function() {
             $scope.addSamples();
             $timeout(function() {

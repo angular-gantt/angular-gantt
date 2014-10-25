@@ -50394,7 +50394,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <div ng-repeat="header in gantt.visibleHeaders">\n' +
         '                <div class="gantt-header-row gantt-header-row-bottom">\n' +
         '                    <gantt-column-header ng-repeat="column in header track by $index">\n' +
-        '                        {{ ::column.date | amDateFormat: $parent.$parent.getHeaderFormat(column.unit) }}\n' +
+        '                        {{ column.date | amDateFormat: $parent.$parent.getHeaderFormat(column.unit) }}\n' +
         '                    </gantt-column-header>\n' +
         '                </div>\n' +
         '            </div>\n' +
