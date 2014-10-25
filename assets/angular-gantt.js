@@ -678,14 +678,11 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          * @param {moment} endDate
          */
         self.solve = function(timeFrames, startDate, endDate) {
-            var defaultWorking = false;
+            var defaultWorking = timeFrames.length === 0;
             var minDate;
             var maxDate;
 
             angular.forEach(timeFrames, function(timeFrame) {
-                if (!defaultWorking && timeFrame.working && timeFrame.start !== undefined && timeFrame.end !== undefined) {
-                    defaultWorking = false;
-                }
                 if (minDate === undefined || minDate > timeFrame.start) {
                     minDate = timeFrame.start;
                 }

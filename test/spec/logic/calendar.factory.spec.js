@@ -226,4 +226,15 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[0].working).toBeFalsy();
         });
 
+    it('solve to a working timeFrame when nothing is registered',
+        function() {
+            var cal = new Calendar();
+            var timeFrames = cal.getTimeFrames(moment());
+
+            timeFrames = cal.solve(timeFrames);
+            expect(timeFrames.length).toBe(1);
+
+            expect(timeFrames[0].working).toBeTruthy();
+        });
+
 });
