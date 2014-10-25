@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div class="gantt-current-date-line" ng-if="currentDate === 'line'" ng-style="{'left': (gantt.getPositionByDate(currentDateValue)) + 'px' }"></div>
+                <div class="gantt-current-date-line" ng-if="currentDate === 'line' && currentDatePosition >= 0 && currentDatePosition <= gantt.width" ng-style="{'left': currentDatePosition + 'px' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
                 <gantt-column ng-repeat="column in gantt.visibleColumns track by $index">

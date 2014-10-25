@@ -165,14 +165,15 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
-            if (self._currentDate !== undefined) {
-                self.setCurrentDate(self._currentDate);
-            }
             self.previousColumns = [];
             self.nextColumns = [];
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+
+            if (self._currentDate !== undefined) {
+                self.setCurrentDate(self._currentDate);
+            }
 
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
@@ -604,12 +605,13 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                     self._currentDateColumn = column;
                 }
             }
-        };
-        self.setCurrentDate($scope.currentDateValue);
 
+            $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
+        };
         self.buildGenerators();
         self.clearColumns();
         self.updateColumns();
+        self.setCurrentDate($scope.currentDateValue);
     };
 
     return Gantt;

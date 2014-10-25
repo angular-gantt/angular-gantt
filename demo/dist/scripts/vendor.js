@@ -44057,14 +44057,15 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 
             self.columns = self.columnGenerator.generate(from, to);
             self.headers = self.headerGenerator.generate(self.columns);
-            if (self._currentDate !== undefined) {
-                self.setCurrentDate(self._currentDate);
-            }
             self.previousColumns = [];
             self.nextColumns = [];
 
             var lastColumn = self.getLastColumn();
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+
+            if (self._currentDate !== undefined) {
+                self.setCurrentDate(self._currentDate);
+            }
 
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
@@ -44496,12 +44497,13 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                     self._currentDateColumn = column;
                 }
             }
-        };
-        self.setCurrentDate($scope.currentDateValue);
 
+            $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
+        };
         self.buildGenerators();
         self.clearColumns();
         self.updateColumns();
+        self.setCurrentDate($scope.currentDateValue);
     };
 
     return Gantt;
@@ -46369,7 +46371,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="gantt-body-foreground">\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\'" ng-style="{\'left\': (gantt.getPositionByDate(currentDateValue)) + \'px\' }"></div>\n' +
+        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && currentDatePosition >= 0 && currentDatePosition <= gantt.width" ng-style="{\'left\': currentDatePosition + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
         '                <gantt-column ng-repeat="column in gantt.visibleColumns track by $index">\n' +
