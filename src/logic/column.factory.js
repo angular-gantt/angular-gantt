@@ -50,10 +50,10 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 };
             };
 
-            var cDate = self.date;
+            var cDate = moment(self.date).startOf('day');
             while (cDate < self.endDate) {
                 var timeFrames = self.calendar.getTimeFrames(cDate);
-                var nextCDate = moment.min(moment(cDate).startOf('day').add(1, 'day'), moment(self.endDate));
+                var nextCDate = moment.min(moment(cDate).add(1, 'day'), moment(self.endDate));
                 timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
                 var cTimeFrames = [];
                 angular.forEach(timeFrames, buildPushTimeFrames(cTimeFrames, cDate, nextCDate));
@@ -61,13 +61,11 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 self.timeFrames = self.timeFrames.concat(cTimeFrames);
 
                 var year = cDate.year();
-                var dayOfYear = cDate.dayOfYear();
                 if (self.daysTimeFrames[year] === undefined) {
                     self.daysTimeFrames[year] = {dayOfYear: cTimeFrames};
                 } else {
-                    self.daysTimeFrames[year][dayOfYear] = cTimeFrames;
+                    self.daysTimeFrames[year][cDate.dayOfYear()] = cTimeFrames;
                 }
-                self.daysTimeFrames[cDate.year()][cDate.dayOfYear()] = cTimeFrames;
             }
 
             angular.forEach(self.timeFrames, function(timeFrame) {

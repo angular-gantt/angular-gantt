@@ -14,7 +14,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 to = moment(to).startOf(unit);
             }
 
-            var date = moment(from);
+            var date = moment(from).startOf(unit);
             var generatedCols = [];
             var left = 0;
 
@@ -23,7 +23,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                     break;
                 }
 
-                var startDate = moment(date).startOf(unit);
+                var startDate = moment(date);
                 var endDate = moment(startDate).add(1, unit);
 
                 var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit);
