@@ -2034,7 +2034,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         self._toLabel = undefined;
         self.getToLabel = function() {
             if (self._toLabel === undefined) {
-                self._toLabel = self.from.format(self.gantt.$scope.tooltipDateFormat);
+                self._toLabel = self.to.format(self.gantt.$scope.tooltipDateFormat);
             }
             return self._toLabel;
         };
@@ -3488,6 +3488,26 @@ gantt.directive('ganttLabels', [function() {
 }]);
 
 
+gantt.directive('ganttTimeFrame', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttColumn',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.timeFrame.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.timeFrame.$element = $element;
+        }]
+    };
+}]);
+
+
 gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
     function debounce(fn, timeout, invokeApply) {
         var nthCall = 0;
@@ -3632,10 +3652,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
         '                <gantt-column ng-repeat="column in gantt.visibleColumns track by $index">\n' +
-        '                    <div class="gantt-timeframe"\n' +
-        '                         ng-class="timeFrame.working && \'gantt-timeframe-working\' || \'gantt-timeframe-non-working\'"\n' +
-        '                         ng-style="{\'left\': timeFrame.left + \'px\', \'width\': timeFrame.width + \'px\'}"\n' +
-        '                         ng-repeat="timeFrame in column.visibleTimeFrames"></div>\n' +
+        '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
         '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
@@ -3705,7 +3722,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-column-header"\n' +
-        '              ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></div>\n' +
+        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body columns template -->\n' +
@@ -3716,7 +3733,13 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-column"\n' +
         '             ng-class="(column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\'"\n' +
-        '             ng-style="{\'width\': column.width+\'px\', \'left\': column.left+\'px\'}"></div>\n' +
+        '             ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.timeFrame.tmpl.html">\n' +
+        '        <div class="gantt-timeframe"\n' +
+        '             ng-class="timeFrame.working && \'gantt-timeframe-working\' || \'gantt-timeframe-non-working\'"\n' +
+        '             ng-style="{\'left\': timeFrame.left + \'px\', \'width\': timeFrame.width + \'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Scrollable template -->\n' +
