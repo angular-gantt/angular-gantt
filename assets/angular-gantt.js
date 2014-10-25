@@ -787,7 +787,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.columnMagnetValue = columnMagnetValue;
         self.columnMagnetUnit = columnMagnetUnit;
 
-        if (self.calendar !== undefined) {
+        if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
             var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
                 return function(timeFrame) {
                     var start = timeFrame.start;
