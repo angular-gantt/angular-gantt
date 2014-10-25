@@ -159,8 +159,7 @@
                 {{ task.name }}</br>
                 <small>
                     {{
-                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || 'MMM DD, HH:mm';
-                    task.isMilestone === true && (task.from | amDateFormat:tooltipDateFormat) || (task.from | amDateFormat:tooltipDateFormat) + ' - ' + (task.to | amDateFormat:tooltipDateFormat)
+                    task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + ' - ' + task.getToLabel());
                     }}
                 </small>
             </div>

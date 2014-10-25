@@ -93,6 +93,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             dateFrames: '=?',
             timeFramesWorkingMode: '=?',
             timeFramesNonWorkingMode: '=?',
+            tooltipDateFormat: '=?',
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',
@@ -166,6 +167,9 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }
             if ($scope.columnMagnet === undefined) {
                 $scope.columnMagnet = '15 minutes';
+            }
+            if ($scope.tooltipDateFormat === undefined) {
+                $scope.tooltipDateFormat = 'MMM DD, HH:mm';
             }
 
             var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};

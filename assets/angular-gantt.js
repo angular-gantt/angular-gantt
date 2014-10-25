@@ -101,6 +101,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             dateFrames: '=?',
             timeFramesWorkingMode: '=?',
             timeFramesNonWorkingMode: '=?',
+            tooltipDateFormat: '=?',
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',
@@ -174,6 +175,9 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }
             if ($scope.columnMagnet === undefined) {
                 $scope.columnMagnet = '15 minutes';
+            }
+            if ($scope.tooltipDateFormat === undefined) {
+                $scope.tooltipDateFormat = 'MMM DD, HH:mm';
             }
 
             var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
@@ -2019,6 +2023,22 @@ gantt.factory('GanttTask', ['moment', function(moment) {
             self.lct = moment(lct);  //Latest Completion Time
         }
 
+        self._fromLabel = undefined;
+        self.getFromLabel = function() {
+            if (self._fromLabel === undefined) {
+                self._fromLabel = self.from.format(self.gantt.$scope.tooltipDateFormat);
+            }
+            return self._fromLabel;
+        };
+
+        self._toLabel = undefined;
+        self.getToLabel = function() {
+            if (self._toLabel === undefined) {
+                self._toLabel = self.from.format(self.gantt.$scope.tooltipDateFormat);
+            }
+            return self._toLabel;
+        };
+
         self.checkIfMilestone = function() {
             self.isMilestone = self.from - self.to === 0;
         };
@@ -2066,6 +2086,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
             self.from = self.gantt.getDateByPosition(x, true);
+            self._fromLabel = undefined;
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -2074,6 +2095,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
             self.to = self.gantt.getDateByPosition(x, true);
+            self._toLabel = undefined;
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
             self.checkIfMilestone();
@@ -2082,8 +2104,10 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
             self.from = self.gantt.getDateByPosition(x, true);
+            self._fromLabel = undefined;
             var newTaskLeft = self.gantt.getPositionByDate(self.from);
             self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
+            self._toLabel = undefined;
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
         };
@@ -3727,8 +3751,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                {{ task.name }}</br>\n' +
         '                <small>\n' +
         '                    {{\n' +
-        '                    tooltipDateFormat = $parent.tooltipDateFormat && $parent.tooltipDateFormat || \'MMM DD, HH:mm\';\n' +
-        '                    task.isMilestone === true && (task.from | amDateFormat:tooltipDateFormat) || (task.from | amDateFormat:tooltipDateFormat) + \' - \' + (task.to | amDateFormat:tooltipDateFormat)\n' +
+        '                    task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + \' - \' + task.getToLabel());\n' +
         '                    }}\n' +
         '                </small>\n' +
         '            </div>\n' +
