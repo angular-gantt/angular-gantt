@@ -32,7 +32,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         self._toLabel = undefined;
         self.getToLabel = function() {
             if (self._toLabel === undefined) {
-                self._toLabel = self.from.format(self.gantt.$scope.tooltipDateFormat);
+                self._toLabel = self.to.format(self.gantt.$scope.tooltipDateFormat);
             }
             return self._toLabel;
         };
