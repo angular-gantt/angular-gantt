@@ -141,10 +141,10 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.getMagnetDate = function(date) {
             if (self.columnMagnetValue > 0 && self.columnMagnetUnit !== undefined) {
                 date = date.clone();
-                var value = date.get(columnMagnetUnit);
+                var value = date.get(self.columnMagnetUnit);
                 var magnetValue = Math.round(value/self.columnMagnetValue) * self.columnMagnetValue;
-                date.startOf(columnMagnetUnit);
-                date.set(columnMagnetUnit, magnetValue);
+                date.startOf(self.columnMagnetUnit);
+                date.set(self.columnMagnetUnit, magnetValue);
                 return date;
             }
             return date;

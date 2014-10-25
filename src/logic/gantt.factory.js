@@ -236,18 +236,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
-            var columnMagnetValue;
-            var columnMagnetUnit;
-
-            if ($scope.columnMagnet) {
-                var splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
-                if (splittedColumnMagnet.length > 1) {
-                    columnMagnetValue = parseInt(splittedColumnMagnet[0]);
-                    columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
-                }
-            }
-
-            self.columnGenerator = new ColumnGenerator($scope.width, $scope.columnWidth, $scope.viewScale, $scope.calendar, $scope.timeFramesWorkingMode, $scope.timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit);
+            self.columnGenerator = new ColumnGenerator($scope);
             self.headerGenerator = new HeaderGenerator.instance($scope);
         };
 

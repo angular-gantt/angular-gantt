@@ -1,12 +1,13 @@
 'use strict';
 gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHeader) {
-    var generateHeader = function(columns, unit) {
+    var generateHeader = function(headerFormatFunction, columns, unit) {
         var generatedHeaders = [];
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
-                header = new ColumnHeader(col.date, unit, col.left, col.width);
+                var label = col.date.format(headerFormatFunction(unit));
+                header = new ColumnHeader(col.date, unit, col.left, col.width, label);
                 generatedHeaders.push(header);
             } else {
                 header.width += col.width;
@@ -54,7 +55,7 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHead
 
                 var headers = [];
                 angular.forEach(units, function(unit) {
-                    headers.push(generateHeader(columns, unit));
+                    headers.push(generateHeader($scope.getHeaderFormat, columns, unit));
                 });
 
                 return headers;

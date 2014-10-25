@@ -1,6 +1,24 @@
 'use strict';
 gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-    var ColumnGenerator = function(width, columnWidth, unit, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit) {
+    var ColumnGenerator = function($scope) {
+        var width = $scope.width;
+        var columnWidth = $scope.columnWidth;
+        var unit = $scope.viewScale;
+        var calendar = $scope.calendar;
+        var timeFramesWorkingMode = $scope.timeFramesWorkingMode;
+        var timeFramesNonWorkingMode = $scope.timeFramesNonWorkingMode;
+
+        var columnMagnetValue;
+        var columnMagnetUnit;
+
+        if ($scope.columnMagnet) {
+            var splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+            if (splittedColumnMagnet.length > 1) {
+                columnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+            }
+        }
+
         // Generates one column for each time unit between the given from and to date.
         this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {

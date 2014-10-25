@@ -20,7 +20,7 @@
             <div ng-repeat="header in gantt.visibleHeaders">
                 <div class="gantt-header-row gantt-header-row-bottom">
                     <gantt-column-header ng-repeat="column in header track by $index">
-                        {{ column.date | amDateFormat: $parent.$parent.getHeaderFormat(column.unit) }}
+                        {{ column.label }}
                     </gantt-column-header>
                 </div>
             </div>

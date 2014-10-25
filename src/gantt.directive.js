@@ -113,8 +113,8 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             if ($scope.width === undefined) {
                 $scope.width = 0;
             }
-            if ($scope.columnWidths === undefined) {
-                $scope.columnWidths = 30;
+            if ($scope.columnWidth === undefined) {
+                $scope.columnWidth = 30;
             }
             if ($scope.columnMagnet === undefined) {
                 $scope.columnMagnet = '15 minutes';
