@@ -6,6 +6,10 @@ gantt.factory('GanttHeader', [function() {
         this.getWidth = function() {
             return this.$element.width();
         };
+
+        this.getHeight = function() {
+            return this.$element.outerHeight();
+        };
     };
     return Header;
 }]);

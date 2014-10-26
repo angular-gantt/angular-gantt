@@ -4,7 +4,7 @@
             <gantt-row-header></gantt-row-header>
         </div>
         <div class="gantt-labels-body"
-             ng-style="(maxHeight > 0 && {'max-height': (maxHeight-ganttHeader.offsetHeight)+'px'} || {})"
+             ng-style="(maxHeight > 0 && {'max-height': (maxHeight-template.header.getHeight())+'px'} || {})"
              ng-show="gantt.columns.length > 0">
             <div gantt-vertical-scroll-receiver style="position: relative">
                 <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">
@@ -136,7 +136,7 @@
     <!-- Scrollable template -->
     <script type="text/ng-template" id="template/default.scrollable.tmpl.html">
         <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater
-             ng-style="(maxHeight > 0 && {'max-height': (maxHeight - ganttHeader.offsetHeight)+'px',
+             ng-style="(maxHeight > 0 && {'max-height': (maxHeight - template.header.getHeight())+'px',
         'overflow-y': 'auto', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')} ||
         {'overflow-y': 'hidden', 'overflow-x': (gantt.rows.length == 0 && 'hidden' || 'auto')})"></div>
     </script>

@@ -48991,6 +48991,10 @@ gantt.factory('GanttHeader', [function() {
         this.getWidth = function() {
             return this.$element.width();
         };
+
+        this.getHeight = function() {
+            return this.$element.outerHeight();
+        };
     };
     return Header;
 }]);
@@ -50449,7 +50453,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <gantt-row-header></gantt-row-header>\n' +
         '        </div>\n' +
         '        <div class="gantt-labels-body"\n' +
-        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-ganttHeader.offsetHeight)+\'px\'} || {})"\n' +
+        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-template.header.getHeight())+\'px\'} || {})"\n' +
         '             ng-show="gantt.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">\n' +
@@ -50581,7 +50585,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <!-- Scrollable template -->\n' +
         '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
-        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - ganttHeader.offsetHeight)+\'px\',\n' +
+        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - template.header.getHeight())+\'px\',\n' +
         '        \'overflow-y\': \'auto\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')} ||\n' +
         '        {\'overflow-y\': \'hidden\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')})"></div>\n' +
         '    </script>\n' +
