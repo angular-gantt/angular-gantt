@@ -1,5 +1,4 @@
 .gantt {
-    width: 100%;
     line-height: 1;
 }
 
@@ -15,7 +14,6 @@
 .gantt-header-columns {
     position: relative;
     height: 100%;
-    width: 100%;
 }
 
 .gantt-labels {
@@ -84,7 +82,6 @@
 .gantt-body {
     position: relative;
     height: 100%;
-    width: 100%;
 }
 
 .gantt-body-background {
@@ -102,7 +99,6 @@
 .gantt-body-columns {
     position: absolute;
     height: 100%;
-    width: 100%;
 }
 
 .gantt-foreground-col, .gantt-foreground-col-weekend, .gantt-foreground-col-nonworkhour, .gantt-foreground-col-current-date {
@@ -288,7 +284,6 @@
     -webkit-box-sizing:border-box;
     display: inline-block;
     height: 100%;
-    width: 100%;
 
     color: black;
     background-color: rgba(158, 158, 158, 0.5);

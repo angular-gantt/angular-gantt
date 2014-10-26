@@ -1,4 +1,4 @@
-<div class="gantt unselectable" gantt-scroll-manager>
+<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener="ganttTotalWidth">
     <gantt-labels>
         <div class="gantt-labels-header">
             <gantt-row-header></gantt-row-header>
@@ -69,13 +69,14 @@
     <!-- Body template -->
     <script type="text/ng-template" id="template/default.body.tmpl.html">
         <div ng-transclude class="gantt-body"
-             ng-style="{'width': gantt.width+'px'}"></div>
+             ng-style="{'width': gantt.width +'px'}"></div>
     </script>
 
     <!-- Header template -->
     <script type="text/ng-template" id="template/default.header.tmpl.html">
         <div ng-transclude class="gantt-header"
-             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></div>
+             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"
+             ng-style="ganttTotalWidth - labelsWidth > gantt.width && {'width': gantt.width + 'px'} || {}"></div>
     </script>
 
     <!-- Row label template -->
@@ -99,7 +100,9 @@
     <script type="text/ng-template" id="template/default.labels.tmpl.html">
         <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"
              ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
-             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>
+             gantt-labels-resize="$parent.allowLabelsResizing"
+             gantt-labels-resize-width="$parent.labelsWidth"
+             gantt-labels-resize-min-width="50"></div>
     </script>
 
     <!-- Header columns template -->

@@ -2765,6 +2765,25 @@ gantt.directive('ganttVerticalScrollReceiver', function() {
     };
 });
 
+gantt.directive('ganttElementWidthListener', [function() {
+    // Updates the limit filters if the user scrolls the gantt chart
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+            var scopeVariable = $attrs.ganttElementWidthListener;
+            if (scopeVariable === '') {
+                scopeVariable = 'elementWidth';
+            }
+
+            $scope.$watch(function() {
+               $scope[scopeVariable] = $element.outerWidth();
+            });
+        }]
+    };
+}]);
+
+
 gantt.service('ganttSortManager', [ function() {
     // Contains the row which the user wants to sort (the one he started to drag)
 
@@ -3609,7 +3628,7 @@ gantt.factory('ganttSmartEvent', [function() {
 }]);
 angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/default.gantt.tmpl.html',
-        '<div class="gantt unselectable" gantt-scroll-manager>\n' +
+        '<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener="ganttTotalWidth">\n' +
         '    <gantt-labels>\n' +
         '        <div class="gantt-labels-header">\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
@@ -3680,13 +3699,14 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/default.body.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body"\n' +
-        '             ng-style="{\'width\': gantt.width+\'px\'}"></div>\n' +
+        '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
         '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
-        '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"></div>\n' +
+        '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
+        '             ng-style="ganttTotalWidth - labelsWidth > gantt.width && {\'width\': gantt.width + \'px\'} || {}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
@@ -3710,7 +3730,9 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
         '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
         '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
-        '             gantt-labels-resize="allowLabelsResizing" gantt-labels-resize-width="labelsWidth" gantt-labels-resize-min-width="50"></div>\n' +
+        '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
+        '             gantt-labels-resize-width="$parent.labelsWidth"\n' +
+        '             gantt-labels-resize-min-width="50"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header columns template -->\n' +
