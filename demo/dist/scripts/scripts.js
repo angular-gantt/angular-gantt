@@ -9,9 +9,8 @@
  * Main module of the application.
  */
 angular.module('angularGanttDemoApp', [
-    'gantt',
-    'ngAnimate',
-    'mgcrea.ngStrap'
+    'gantt', // angular-gantt.
+    'mgcrea.ngStrap' // handle bootstrap properly in angularJS applications.
 ]);
 
 'use strict';
@@ -95,7 +94,7 @@ angular.module('angularGanttDemoApp')
         });
 
         $scope.addSamples = function() {
-            //$scope.loadTimespans(Sample.getSampleTimespans().timespan1);
+            $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
             $scope.loadData(Sample.getSampleData().data1);
         };
 

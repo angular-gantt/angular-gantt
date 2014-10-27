@@ -14,6 +14,16 @@ gantt.directive('ganttHeader', [function() {
         },
         controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
             $scope.template.header = new Header($element);
+
+            $scope.getHeaderStyle = function() {
+                var css = {};
+
+                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width) {
+                    css.width = $scope.gantt.width + 'px';
+                }
+
+                return css;
+            };
         }]
     };
 }]);

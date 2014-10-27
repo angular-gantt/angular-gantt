@@ -9,7 +9,6 @@
  * Main module of the application.
  */
 angular.module('angularGanttDemoApp', [
-    'gantt',
-    'ngAnimate',
-    'mgcrea.ngStrap'
+    'gantt', // angular-gantt.
+    'mgcrea.ngStrap' // handle bootstrap properly in angularJS applications.
 ]);

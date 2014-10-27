@@ -2704,7 +2704,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS
 }]);
 
 
-gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(Scrollable, debounce, layout, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -2719,6 +2719,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.template.scrollable = new Scrollable($element);
 
+            var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
 
             $element.bind('scroll', debounce(function() {
@@ -2752,6 +2753,25 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
                     });
                 }
             });
+
+            $scope.getScrollableCss = function() {
+                var css = {};
+
+                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width + scrollBarWidth) {
+                    css.width = $scope.gantt.width + scrollBarWidth + 'px';
+                }
+
+                if ($scope.maxHeight > 0) {
+                    css['max-height'] = $scope.maxHeight - $scope.template.header.getHeight() + 'px';
+                    css['overflow-y'] = 'auto';
+                } else {
+                    css['overflow-y'] = 'hidden';
+                }
+
+                return css;
+            };
+
+
         }]
     };
 }]);
@@ -2777,7 +2797,7 @@ gantt.directive('ganttElementWidthListener', [function() {
         controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
             var scopeVariable = $attrs.ganttElementWidthListener;
             if (scopeVariable === '') {
-                scopeVariable = 'elementWidth';
+                scopeVariable = 'ganttElementWidth';
             }
 
             $scope.$watch(function() {
@@ -3465,6 +3485,16 @@ gantt.directive('ganttHeader', [function() {
         },
         controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
             $scope.template.header = new Header($element);
+
+            $scope.getHeaderStyle = function() {
+                var css = {};
+
+                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width) {
+                    css.width = $scope.gantt.width + 'px';
+                }
+
+                return css;
+            };
         }]
     };
 }]);
@@ -3570,6 +3600,43 @@ gantt.service('ganttEnableNgAnimate', ['$injector', function($injector) {
 }]);
 
 
+gantt.service('ganttLayout', ['$document', function($document) {
+    return {
+        /**
+         * Compute the width of scrollbar.
+         *
+         * @returns {number} width of the scrollbar, in px.
+         */
+        getScrollBarWidth: function() {
+            var inner = $document[0].createElement('p');
+            inner.style.width = '100%';
+            inner.style.height = '200px';
+
+            var outer = $document[0].createElement('div');
+            outer.style.position = 'absolute';
+            outer.style.top = '0px';
+            outer.style.left = '0px';
+            outer.style.visibility = 'hidden';
+            outer.style.width = '200px';
+            outer.style.height = '150px';
+            outer.style.overflow = 'hidden';
+            outer.appendChild (inner);
+
+            $document[0].body.appendChild (outer);
+            var w1 = inner.offsetWidth;
+            outer.style.overflow = 'scroll';
+            var w2 = inner.offsetWidth;
+            if (w1 === w2) {
+                w2 = outer.clientWidth;
+            }
+            $document[0].body.removeChild (outer);
+
+            return (w1 - w2);
+        }
+    };
+}]);
+
+
 gantt.service('ganttMouseButton', [ function() {
     // Mouse button cross browser normalization
 
@@ -3632,7 +3699,7 @@ gantt.factory('ganttSmartEvent', [function() {
 }]);
 angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/default.gantt.tmpl.html',
-        '<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener="ganttTotalWidth">\n' +
+        '<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener>\n' +
         '    <gantt-labels>\n' +
         '        <div class="gantt-labels-header">\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
@@ -3710,7 +3777,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
         '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
-        '             ng-style="ganttTotalWidth - labelsWidth > gantt.width && {\'width\': gantt.width + \'px\'} || {}"></div>\n' +
+        '             ng-style="getHeaderStyle()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
@@ -3770,9 +3837,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <!-- Scrollable template -->\n' +
         '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
-        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - template.header.getHeight())+\'px\',\n' +
-        '        \'overflow-y\': \'auto\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')} ||\n' +
-        '        {\'overflow-y\': \'hidden\', \'overflow-x\': (gantt.rows.length == 0 && \'hidden\' || \'auto\')})"></div>\n' +
+        '             ng-style="getScrollableCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Rows template -->\n' +

@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_EVENTS', function(Scrollable, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(Scrollable, debounce, layout, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -14,6 +14,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.template.scrollable = new Scrollable($element);
 
+            var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
 
             $element.bind('scroll', debounce(function() {
@@ -47,6 +48,25 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'GANTT_E
                     });
                 }
             });
+
+            $scope.getScrollableCss = function() {
+                var css = {};
+
+                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width + scrollBarWidth) {
+                    css.width = $scope.gantt.width + scrollBarWidth + 'px';
+                }
+
+                if ($scope.maxHeight > 0) {
+                    css['max-height'] = $scope.maxHeight - $scope.template.header.getHeight() + 'px';
+                    css['overflow-y'] = 'auto';
+                } else {
+                    css['overflow-y'] = 'hidden';
+                }
+
+                return css;
+            };
+
+
         }]
     };
 }]);

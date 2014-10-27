@@ -7,7 +7,7 @@ gantt.directive('ganttElementWidthListener', [function() {
         controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
             var scopeVariable = $attrs.ganttElementWidthListener;
             if (scopeVariable === '') {
-                scopeVariable = 'elementWidth';
+                scopeVariable = 'ganttElementWidth';
             }
 
             $scope.$watch(function() {
