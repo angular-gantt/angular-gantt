@@ -101,6 +101,28 @@ angular.module('angularGanttDemoApp')
             $scope.clearData();
         };
 
+        var rowEvent = function(event, data) {
+            if (!$scope.options.readOnly && $scope.options.draw) {
+                // Example to draw task inside row
+                if ((data.evt.target ? data.evt.target : data.evt.srcElement).className.indexOf('gantt-row') > -1) {
+                    var startDate = data.date;
+                    var endDate = moment(startDate);
+                    //endDate.setDate(endDate.getDate());
+                    var infoTask = {
+                        id: Uuid.randomUuid(),  // Unique id of the task.
+                        name: 'Drawn task', // Name shown on top of each task.
+                        from: startDate, // Date can be a String, Timestamp or Date object.
+                        to: endDate,// Date can be a String, Timestamp or Date object.
+                        color: '#AA8833' // Color of the task in HEX format (Optional).
+                    };
+                    var task = data.row.addTask(infoTask);
+                    task.isCreating = true;
+                    task.updatePosAndSize();
+                    data.row.updateVisibleTasks();
+                }
+            }
+        };
+
         var logScrollEvent = function(event, data) {
             if (angular.equals(data.direction, 'left')) {
                 // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
@@ -163,27 +185,6 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.ROW_CHANGED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_ADDED, logTaskEvent);
         $scope.$on(GANTT_EVENTS.ROW_REMOVED, logTaskEvent);
-
-        var rowEvent = function(event, data) {
-            if (!$scope.options.readOnly && $scope.options.draw) {
-                // Example to draw task inside row
-                if ((data.evt.target ? data.evt.target : data.evt.srcElement).className.indexOf('gantt-row') > -1) {
-                    var startDate = data.date;
-                    var endDate = moment(startDate);
-                    //endDate.setDate(endDate.getDate());
-                    var infoTask = {
-                        id: Uuid.randomUuid(),  // Unique id of the task.
-                        name: 'Drawn task', // Name shown on top of each task.
-                        from: startDate, // Date can be a String, Timestamp or Date object.
-                        to: endDate,// Date can be a String, Timestamp or Date object.
-                        color: '#AA8833' // Color of the task in HEX format (Optional).
-                    };
-                    var task = data.row.addTask(infoTask);
-                    task.isCreating = true;
-                    task.updatePosAndSize();
-                }
-            }
-        };
 
         $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, rowEvent);
 
