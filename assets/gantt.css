@@ -84,6 +84,10 @@
     height: 100%;
 }
 
+.gantt-body-rows {
+    overflow-x: hidden;
+}
+
 .gantt-body-background {
     position: absolute;
     height: 100%;

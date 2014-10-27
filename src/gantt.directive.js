@@ -70,7 +70,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             filterRow: '=?', // Row filter as a angularJS expression
             filterRowComparator: '=?', // Comparator to use for the row filter
             viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
-            width: '=?', // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
             allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
@@ -110,12 +109,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }
             if ($scope.viewScale === undefined) {
                 $scope.viewScale = 'day';
-            }
-            if ($scope.width === undefined) {
-                $scope.width = 0;
-            }
-            if ($scope.columnWidth === undefined) {
-                $scope.columnWidth = 30;
             }
             if ($scope.columnMagnet === undefined) {
                 $scope.columnMagnet = '15 minutes';

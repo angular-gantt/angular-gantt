@@ -1,5 +1,7 @@
 'use strict';
-gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'GANTT_EVENTS', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, GANTT_EVENTS) {
+gantt.factory('Gantt', [
+    '$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'ganttLayout', 'GANTT_EVENTS',
+    function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, layout, GANTT_EVENTS) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
@@ -49,6 +51,12 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.setCurrentDate($scope.currentDateValue);
+            }
+        });
+
+        $scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                updateColumnsMeta();
             }
         });
 
@@ -168,20 +176,60 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.previousColumns = [];
             self.nextColumns = [];
 
+            updateColumnsMeta();
+
+            return true;
+        };
+
+        var setColumnsWidth = function(width, originalWidth, columns) {
+            if (width && originalWidth && columns) {
+
+                var widthFactor = Math.abs(width / originalWidth);
+
+                angular.forEach(columns, function(column) {
+                    column.left = widthFactor * column.originalSize.left;
+                    column.width = widthFactor * column.originalSize.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                    });
+                });
+            }
+        };
+
+        var updateColumnsMeta = function() {
             var lastColumn = self.getLastColumn();
+            self.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
+
+            if ($scope.columnWidth === undefined) {
+                var newWidth = $scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0);
+
+                if ($scope.maxHeight > 0) {
+                    newWidth = newWidth - layout.getScrollBarWidth();
+                }
+
+                setColumnsWidth(newWidth, self.originalWidth, self.previousColumns);
+                setColumnsWidth(newWidth, self.originalWidth, self.columns);
+                setColumnsWidth(newWidth, self.originalWidth, self.nextColumns);
+
+                angular.forEach(self.headers, function(header) {
+                    setColumnsWidth(newWidth, self.originalWidth, header);
+                });
+            }
+
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
             if (self._currentDate !== undefined) {
                 self.setCurrentDate(self._currentDate);
             }
+            $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
 
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
 
             updateVisibleColumns();
             updateVisibleObjects();
-
-            return true;
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -238,7 +286,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
             self.columnGenerator = new ColumnGenerator($scope);
-            self.headerGenerator = new HeaderGenerator.instance($scope);
+            self.headerGenerator = new HeaderGenerator($scope);
         };
 
         var getDefaultFrom = function() {
@@ -281,7 +329,6 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 to = getExpandedTo(to);
             }
             generateColumns(from, to);
-            updateVisibleColumns();
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.

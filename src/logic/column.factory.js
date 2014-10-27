@@ -19,6 +19,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.cropped = false;
         self.columnMagnetValue = columnMagnetValue;
         self.columnMagnetUnit = columnMagnetUnit;
+        self.originalSize = {left: self.left, width: self.width};
 
         if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
             var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
@@ -89,6 +90,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 timeFrame.hidden = hidden;
                 timeFrame.left = position;
                 timeFrame.width = timeFramePosition;
+                timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
             });
 
             if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {

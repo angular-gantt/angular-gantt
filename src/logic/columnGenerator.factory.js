@@ -1,8 +1,12 @@
 'use strict';
 gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
     var ColumnGenerator = function($scope) {
-        var width = $scope.width;
+        var self = this;
+
         var columnWidth = $scope.columnWidth;
+        if (columnWidth === undefined) {
+            columnWidth = 20;
+        }
         var unit = $scope.viewScale;
         var calendar = $scope.calendar;
         var timeFramesWorkingMode = $scope.timeFramesWorkingMode;
@@ -20,7 +24,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
         }
 
         // Generates one column for each time unit between the given from and to date.
-        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+        self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
                 throw 'to or maximumWidth must be defined';
             }
@@ -75,8 +79,6 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 generatedCols.reverse();
             }
 
-            setWidth(width, left, generatedCols);
-
             return generatedCols;
         };
 
@@ -85,23 +87,6 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
 
         var isToDateToExclude = function(to) {
             return moment(to).add(1, unit).startOf(unit) === to;
-        };
-
-        var setWidth = function(width, originalWidth, columns) {
-            if (width && originalWidth && columns) {
-
-                var widthFactor = Math.abs(width / originalWidth);
-
-                angular.forEach(columns, function(column) {
-                    column.left = widthFactor * column.left;
-                    column.width = widthFactor * column.width;
-
-                    angular.forEach(column.timeFrames, function(timeFrame) {
-                        timeFrame.left = widthFactor * timeFrame.left;
-                        timeFrame.width = widthFactor * timeFrame.width;
-                    });
-                });
-            }
         };
     };
     return ColumnGenerator;

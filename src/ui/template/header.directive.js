@@ -15,10 +15,10 @@ gantt.directive('ganttHeader', [function() {
         controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
             $scope.template.header = new Header($element);
 
-            $scope.getHeaderStyle = function() {
+            $scope.getHeaderCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width) {
+                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
                     css.width = $scope.gantt.width + 'px';
                 }
 

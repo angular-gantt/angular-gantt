@@ -76,7 +76,7 @@
     <script type="text/ng-template" id="template/default.header.tmpl.html">
         <div ng-transclude class="gantt-header"
              ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"
-             ng-style="getHeaderStyle()"></div>
+             ng-style="getHeaderCss()"></div>
     </script>
 
     <!-- Row label template -->
@@ -102,7 +102,8 @@
              ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
              gantt-labels-resize="$parent.allowLabelsResizing"
              gantt-labels-resize-width="$parent.labelsWidth"
-             gantt-labels-resize-min-width="50"></div>
+             gantt-labels-resize-min-width="50"
+             gantt-element-width-listener="$parent.labelsWidth"></div>
     </script>
 
     <!-- Header columns template -->

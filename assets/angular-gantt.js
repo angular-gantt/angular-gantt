@@ -78,7 +78,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             filterRow: '=?', // Row filter as a angularJS expression
             filterRowComparator: '=?', // Comparator to use for the row filter
             viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
-            width: '=?', // Defines the preferred width of gantt. If defined, columns will be resized accordingly.
             columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
             allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
             allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
@@ -118,12 +117,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }
             if ($scope.viewScale === undefined) {
                 $scope.viewScale = 'day';
-            }
-            if ($scope.width === undefined) {
-                $scope.width = 0;
-            }
-            if ($scope.columnWidth === undefined) {
-                $scope.columnWidth = 30;
             }
             if ($scope.columnMagnet === undefined) {
                 $scope.columnMagnet = '15 minutes';
@@ -787,6 +780,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         self.cropped = false;
         self.columnMagnetValue = columnMagnetValue;
         self.columnMagnetUnit = columnMagnetUnit;
+        self.originalSize = {left: self.left, width: self.width};
 
         if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
             var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
@@ -857,6 +851,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 timeFrame.hidden = hidden;
                 timeFrame.left = position;
                 timeFrame.width = timeFramePosition;
+                timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
             });
 
             if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
@@ -1015,8 +1010,12 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
 
 gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
     var ColumnGenerator = function($scope) {
-        var width = $scope.width;
+        var self = this;
+
         var columnWidth = $scope.columnWidth;
+        if (columnWidth === undefined) {
+            columnWidth = 20;
+        }
         var unit = $scope.viewScale;
         var calendar = $scope.calendar;
         var timeFramesWorkingMode = $scope.timeFramesWorkingMode;
@@ -1034,7 +1033,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
         }
 
         // Generates one column for each time unit between the given from and to date.
-        this.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+        self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
                 throw 'to or maximumWidth must be defined';
             }
@@ -1089,8 +1088,6 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 generatedCols.reverse();
             }
 
-            setWidth(width, left, generatedCols);
-
             return generatedCols;
         };
 
@@ -1099,23 +1096,6 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
 
         var isToDateToExclude = function(to) {
             return moment(to).add(1, unit).startOf(unit) === to;
-        };
-
-        var setWidth = function(width, originalWidth, columns) {
-            if (width && originalWidth && columns) {
-
-                var widthFactor = Math.abs(width / originalWidth);
-
-                angular.forEach(columns, function(column) {
-                    column.left = widthFactor * column.left;
-                    column.width = widthFactor * column.width;
-
-                    angular.forEach(column.timeFrames, function(timeFrame) {
-                        timeFrame.left = widthFactor * timeFrame.left;
-                        timeFrame.width = widthFactor * timeFrame.width;
-                    });
-                });
-            }
         };
     };
     return ColumnGenerator;
@@ -1172,7 +1152,9 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
 }]);
 
 
-gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'GANTT_EVENTS', function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, GANTT_EVENTS) {
+gantt.factory('Gantt', [
+    '$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'ganttLayout', 'GANTT_EVENTS',
+    function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, layout, GANTT_EVENTS) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
@@ -1222,6 +1204,12 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.setCurrentDate($scope.currentDateValue);
+            }
+        });
+
+        $scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                updateColumnsMeta();
             }
         });
 
@@ -1341,20 +1329,60 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
             self.previousColumns = [];
             self.nextColumns = [];
 
+            updateColumnsMeta();
+
+            return true;
+        };
+
+        var setColumnsWidth = function(width, originalWidth, columns) {
+            if (width && originalWidth && columns) {
+
+                var widthFactor = Math.abs(width / originalWidth);
+
+                angular.forEach(columns, function(column) {
+                    column.left = widthFactor * column.originalSize.left;
+                    column.width = widthFactor * column.originalSize.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                    });
+                });
+            }
+        };
+
+        var updateColumnsMeta = function() {
             var lastColumn = self.getLastColumn();
+            self.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
+
+            if ($scope.columnWidth === undefined) {
+                var newWidth = $scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0);
+
+                if ($scope.maxHeight > 0) {
+                    newWidth = newWidth - layout.getScrollBarWidth();
+                }
+
+                setColumnsWidth(newWidth, self.originalWidth, self.previousColumns);
+                setColumnsWidth(newWidth, self.originalWidth, self.columns);
+                setColumnsWidth(newWidth, self.originalWidth, self.nextColumns);
+
+                angular.forEach(self.headers, function(header) {
+                    setColumnsWidth(newWidth, self.originalWidth, header);
+                });
+            }
+
             self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
             if (self._currentDate !== undefined) {
                 self.setCurrentDate(self._currentDate);
             }
+            $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
 
             self.updateTasksPosAndSize();
             self.updateTimespansPosAndSize();
 
             updateVisibleColumns();
             updateVisibleObjects();
-
-            return true;
         };
 
         var expandExtendedColumnsForPosition = function(x) {
@@ -1411,7 +1439,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
         // The headers are shown depending on the defined view scale.
         self.buildGenerators = function() {
             self.columnGenerator = new ColumnGenerator($scope);
-            self.headerGenerator = new HeaderGenerator.instance($scope);
+            self.headerGenerator = new HeaderGenerator($scope);
         };
 
         var getDefaultFrom = function() {
@@ -1454,7 +1482,6 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
                 to = getExpandedTo(to);
             }
             generateColumns(from, to);
-            updateVisibleColumns();
         };
 
         // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
@@ -1791,7 +1818,7 @@ gantt.factory('Gantt', ['$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGene
 }]);
 
 
-gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHeader) {
+gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
     var generateHeader = function(headerFormatFunction, columns, unit) {
         var generatedHeaders = [];
         var header;
@@ -1799,60 +1826,61 @@ gantt.factory('GanttHeaderGenerator', [ 'GanttColumnHeader', function(ColumnHead
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
                 var label = col.date.format(headerFormatFunction(unit));
-                header = new ColumnHeader(col.date, unit, col.left, col.width, label);
+                header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
+                header.left = col.left;
+                header.width = col.width;
                 generatedHeaders.push(header);
             } else {
+                header.originalSize.width += col.originalSize.width;
                 header.width += col.width;
             }
         }
         return generatedHeaders;
     };
 
-    return {
-        instance: function($scope) {
-            this.generate = function(columns) {
-                var units = [];
-                if ($scope.headers === undefined) {
-                    units = [];
-                    if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
-                        units.push('year');
-                    }
-                    if (['quarter'].indexOf($scope.viewScale) > -1) {
-                        units.push('quarter');
-                    }
-                    if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
-                        units.push('month');
-                    }
-                    if (['day', 'week'].indexOf($scope.viewScale) > -1) {
-                        units.push('week');
-                    }
-                    if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
-                        units.push('day');
-                    }
-                    if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
-                        units.push('hour');
-                    }
-                    if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
-                        units.push('minute');
-                    }
-                    if (['second'].indexOf($scope.viewScale) > -1) {
-                        units.push('second');
-                    }
-                    if (units.length === 0) {
-                        units.push($scope.viewScale);
-                    }
-                } else {
-                    units = $scope.headers;
+    return function($scope) {
+        this.generate = function(columns) {
+            var units = [];
+            if ($scope.headers === undefined) {
+                units = [];
+                if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
+                    units.push('year');
                 }
+                if (['quarter'].indexOf($scope.viewScale) > -1) {
+                    units.push('quarter');
+                }
+                if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
+                    units.push('month');
+                }
+                if (['day', 'week'].indexOf($scope.viewScale) > -1) {
+                    units.push('week');
+                }
+                if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
+                    units.push('day');
+                }
+                if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
+                    units.push('hour');
+                }
+                if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
+                    units.push('minute');
+                }
+                if (['second'].indexOf($scope.viewScale) > -1) {
+                    units.push('second');
+                }
+                if (units.length === 0) {
+                    units.push($scope.viewScale);
+                }
+            } else {
+                units = $scope.headers;
+            }
 
-                var headers = [];
-                angular.forEach(units, function(unit) {
-                    headers.push(generateHeader($scope.getHeaderFormat, columns, unit));
-                });
+            var headers = [];
+            angular.forEach(units, function(unit) {
+                headers.push(generateHeader($scope.getHeaderFormat, columns, unit));
+            });
 
-                return headers;
-            };
-        }
+            return headers;
+        };
     };
 }]);
 
@@ -2439,7 +2467,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
 
             var resize = function(x) {
                 if ($scope.width === 0) {
-                    $scope.width = $element[0].offsetWidth;
+                    $scope.width = $element.outerWidth();
                 }
 
                 $scope.width += x - originalPos;
@@ -2453,7 +2481,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
             var isInResizeArea = function(e) {
                 var x = mouseOffset.getOffset(e).x;
 
-                return x > $element[0].offsetWidth - resizeAreaWidth;
+                return x > $element.outerWidth() - resizeAreaWidth;
             };
 
             var enableResizeMode = function(e) {
@@ -2759,10 +2787,12 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
                 }
             });
 
+
+
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width + scrollBarWidth) {
+                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
                     css.width = $scope.gantt.width + scrollBarWidth + 'px';
                 }
 
@@ -2805,8 +2835,15 @@ gantt.directive('ganttElementWidthListener', [function() {
                 scopeVariable = 'ganttElementWidth';
             }
 
-            $scope.$watch(function() {
-               $scope[scopeVariable] = $element.outerWidth();
+            var effectiveScope = $scope;
+
+            while(scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = $scope.$parent;
+            }
+
+            effectiveScope.$watch(function() {
+                effectiveScope[scopeVariable] = $element.outerWidth();
             });
         }]
     };
@@ -3491,10 +3528,10 @@ gantt.directive('ganttHeader', [function() {
         controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
             $scope.template.header = new Header($element);
 
-            $scope.getHeaderStyle = function() {
+            $scope.getHeaderCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width) {
+                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
                     css.width = $scope.gantt.width + 'px';
                 }
 
@@ -3782,7 +3819,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
         '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
-        '             ng-style="getHeaderStyle()"></div>\n' +
+        '             ng-style="getHeaderCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
@@ -3808,7 +3845,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
         '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
         '             gantt-labels-resize-width="$parent.labelsWidth"\n' +
-        '             gantt-labels-resize-min-width="50"></div>\n' +
+        '             gantt-labels-resize-min-width="50"\n' +
+        '             gantt-element-width-listener="$parent.labelsWidth"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header columns template -->\n' +

@@ -185,10 +185,12 @@ review those projects documentations.
   Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
   [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
-- **column-width** (default `30`)
+- **column-width**
 
   How wide are the columns in `px`. This allows you add logic like `column-width="scale == 'day' ?  50 : 20"` to 
   have wider columns for days than for other column scales.
+  
+  If `undefined`, gantt will adjust columns width to fill available space.
 
 - **column-magnet** (default `15 minutes`)
 
@@ -431,10 +433,6 @@ review those projects documentations.
   - `month`
   - `quarter`
   - `year`
-
-- **width** (default: `0` = Disabled)
-
-  Width of the gantt in `px`. If defined, `columns-width` will have no effect.
 
 ### <a name="objects"></a> Objects
   An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).

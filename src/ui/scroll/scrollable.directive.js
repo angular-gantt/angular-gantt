@@ -49,10 +49,12 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
                 }
             });
 
+
+
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - $scope.labelsWidth > $scope.gantt.width + scrollBarWidth) {
+                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
                     css.width = $scope.gantt.width + scrollBarWidth + 'px';
                 }
 

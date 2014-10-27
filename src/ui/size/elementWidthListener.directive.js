@@ -10,8 +10,15 @@ gantt.directive('ganttElementWidthListener', [function() {
                 scopeVariable = 'ganttElementWidth';
             }
 
-            $scope.$watch(function() {
-               $scope[scopeVariable] = $element.outerWidth();
+            var effectiveScope = $scope;
+
+            while(scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = $scope.$parent;
+            }
+
+            effectiveScope.$watch(function() {
+                effectiveScope[scopeVariable] = $element.outerWidth();
             });
         }]
     };
