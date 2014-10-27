@@ -95,6 +95,11 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
                 angular.forEach(columns, function(column) {
                     column.left = widthFactor * column.left;
                     column.width = widthFactor * column.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.left;
+                        timeFrame.width = widthFactor * timeFrame.width;
+                    });
                 });
             }
         };
