@@ -92,7 +92,7 @@ The event 'event:gantt-ready' can be used to get notified as soon as it's ready.
    ```js
     $scope.$on('event:gantt-ready', function() {
         // Start using the Gantt e.g. load data
-    };
+    });
     ```
 
 ### <a name="run-from-sources"></a> Run from sources
@@ -110,7 +110,7 @@ Then, run `grunt serve` from `demo` directory to run the demo.
 ### <a name="build"></a> Build
 1. Install (http://gruntjs.com/)(http://gruntjs.com/)
 2. Run `npm install` to install node dependencies
-3  Run `bower install` to install bower dependencies
+3. Run `bower install` to install bower dependencies
 4. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
 5. Run `grunt` from `demo` directory to build demo distribution
 
