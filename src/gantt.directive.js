@@ -49,7 +49,10 @@ gantt.constant('GANTT_EVENTS',
         'ROW_LABELS_RESIZED': 'event:gantt-row-labels-resized',
 
         'TIMESPAN_ADDED': 'event:gantt-timespan-added',
-        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
+        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed',
+
+        'TASKS_FILTERED': 'event:gantt-tasks-filtered',
+        'ROWS_FILTERED': 'event:gantt-rows-filtered'
     });
 
 gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate, GANTT_EVENTS) {

@@ -11,6 +11,7 @@ gantt.factory('Gantt', [
 
         self.rowsMap = {};
         self.rows = [];
+        self.filteredRows = [];
         self.visibleRows = [];
 
         self.timespansMap = {};
@@ -71,13 +72,45 @@ gantt.factory('Gantt', [
         };
 
         var updateVisibleRows = function() {
-            self.visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
+            var oldFilteredRows = self.filteredRows;
+            if ($scope.filterRow) {
+                self.filteredRows = $filter('filter')(self.rows, $scope.filterRow, $scope.filterRowComparator);
+            } else {
+                self.filteredRows = self.rows;
+            }
+
+            var filterEventData;
+            if (!angular.equals(oldFilteredRows, self.filteredRows)) {
+                filterEventData = {rows: self.rows, filteredRows: self.filteredRows};
+            }
+
+            // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
+            self.visibleRows = self.filteredRows;
+            if (filterEventData !== undefined) {
+                $scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
+            }
         };
 
         var updateVisibleTasks = function() {
-            angular.forEach(self.rows, function(row) {
+            var oldFilteredTasks = [];
+            var filteredTasks = [];
+            var tasks = [];
+
+            angular.forEach(self.filteredRows, function(row) {
+                oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
+                filteredTasks = filteredTasks.concat(row.filteredTasks);
+                tasks = tasks.concat(row.tasks);
             });
+
+            var filterEventData;
+            if (!angular.equals(oldFilteredTasks, filteredTasks)) {
+                filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
+            }
+
+            if (filterEventData !== undefined) {
+                $scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
+            }
         };
 
         var updateVisibleObjects = function() {
@@ -508,6 +541,8 @@ gantt.factory('Gantt', [
                 row = new Row(rowData.id, self, rowData.name, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
+                self.filteredRows.push(row);
+                self.visibleRows.push(row);
                 $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
             }
 
@@ -553,14 +588,32 @@ gantt.factory('Gantt', [
             if (rowId in self.rowsMap) {
                 delete self.rowsMap[rowId]; // Remove from map
 
-                for (var i = 0, l = self.rows.length; i < l; i++) {
-                    var row = self.rows[i];
+                var removedRow;
+                var row;
+                for (var i = self.rows.length -1; i >=0 ; i--) {
+                    row = self.rows[i];
                     if (row.id === rowId) {
+                        removedRow = row;
                         self.rows.splice(i, 1); // Remove from array
-                        $scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': row});
-                        return row;
                     }
                 }
+
+                for (i = self.filteredRows.length -1; i >=0 ; i--) {
+                    row = self.filteredRows[i];
+                    if (row.id === rowId) {
+                        self.filteredRows.splice(i, 1); // Remove from filtered array
+                    }
+                }
+
+                for (i = self.visibleRows.length -1; i >=0 ; i--) {
+                    row = self.visibleRows[i];
+                    if (row.id === rowId) {
+                        self.visibleRows.splice(i, 1); // Remove from visible array
+                    }
+                }
+
+                $scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
+                return row;
             }
 
             return undefined;
@@ -570,6 +623,8 @@ gantt.factory('Gantt', [
         self.removeAllRows = function() {
             self.rowsMap = {};
             self.rows = [];
+            self.filteredRows = [];
+            self.visibleRows = [];
             self.highestRowOrder = 0;
             self.clearColumns();
             self.scrollAnchor = undefined;

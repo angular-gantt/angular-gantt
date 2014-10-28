@@ -57,7 +57,10 @@ gantt.constant('GANTT_EVENTS',
         'ROW_LABELS_RESIZED': 'event:gantt-row-labels-resized',
 
         'TIMESPAN_ADDED': 'event:gantt-timespan-added',
-        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed'
+        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed',
+
+        'TASKS_FILTERED': 'event:gantt-tasks-filtered',
+        'ROWS_FILTERED': 'event:gantt-rows-filtered'
     });
 
 gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate, GANTT_EVENTS) {
@@ -1179,6 +1182,7 @@ gantt.factory('Gantt', [
 
         self.rowsMap = {};
         self.rows = [];
+        self.filteredRows = [];
         self.visibleRows = [];
 
         self.timespansMap = {};
@@ -1239,13 +1243,45 @@ gantt.factory('Gantt', [
         };
 
         var updateVisibleRows = function() {
-            self.visibleRows = $filter('ganttRowLimit')(self.rows, $scope.filterRow, $scope.filterRowComparator);
+            var oldFilteredRows = self.filteredRows;
+            if ($scope.filterRow) {
+                self.filteredRows = $filter('filter')(self.rows, $scope.filterRow, $scope.filterRowComparator);
+            } else {
+                self.filteredRows = self.rows;
+            }
+
+            var filterEventData;
+            if (!angular.equals(oldFilteredRows, self.filteredRows)) {
+                filterEventData = {rows: self.rows, filteredRows: self.filteredRows};
+            }
+
+            // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
+            self.visibleRows = self.filteredRows;
+            if (filterEventData !== undefined) {
+                $scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
+            }
         };
 
         var updateVisibleTasks = function() {
-            angular.forEach(self.rows, function(row) {
+            var oldFilteredTasks = [];
+            var filteredTasks = [];
+            var tasks = [];
+
+            angular.forEach(self.filteredRows, function(row) {
+                oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
+                filteredTasks = filteredTasks.concat(row.filteredTasks);
+                tasks = tasks.concat(row.tasks);
             });
+
+            var filterEventData;
+            if (!angular.equals(oldFilteredTasks, filteredTasks)) {
+                filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
+            }
+
+            if (filterEventData !== undefined) {
+                $scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
+            }
         };
 
         var updateVisibleObjects = function() {
@@ -1676,6 +1712,8 @@ gantt.factory('Gantt', [
                 row = new Row(rowData.id, self, rowData.name, order, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
+                self.filteredRows.push(row);
+                self.visibleRows.push(row);
                 $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
             }
 
@@ -1721,14 +1759,32 @@ gantt.factory('Gantt', [
             if (rowId in self.rowsMap) {
                 delete self.rowsMap[rowId]; // Remove from map
 
-                for (var i = 0, l = self.rows.length; i < l; i++) {
-                    var row = self.rows[i];
+                var removedRow;
+                var row;
+                for (var i = self.rows.length -1; i >=0 ; i--) {
+                    row = self.rows[i];
                     if (row.id === rowId) {
+                        removedRow = row;
                         self.rows.splice(i, 1); // Remove from array
-                        $scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': row});
-                        return row;
                     }
                 }
+
+                for (i = self.filteredRows.length -1; i >=0 ; i--) {
+                    row = self.filteredRows[i];
+                    if (row.id === rowId) {
+                        self.filteredRows.splice(i, 1); // Remove from filtered array
+                    }
+                }
+
+                for (i = self.visibleRows.length -1; i >=0 ; i--) {
+                    row = self.visibleRows[i];
+                    if (row.id === rowId) {
+                        self.visibleRows.splice(i, 1); // Remove from visible array
+                    }
+                }
+
+                $scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
+                return row;
             }
 
             return undefined;
@@ -1738,6 +1794,8 @@ gantt.factory('Gantt', [
         self.removeAllRows = function() {
             self.rowsMap = {};
             self.rows = [];
+            self.filteredRows = [];
+            self.visibleRows = [];
             self.highestRowOrder = 0;
             self.clearColumns();
             self.scrollAnchor = undefined;
@@ -1912,6 +1970,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
         self.to = undefined;
         self.tasksMap = {};
         self.tasks = [];
+        self.filteredTasks = [];
         self.visibleTasks = [];
         self.data = data;
 
@@ -1927,6 +1986,8 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
                 task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
+                self.filteredTasks.push(task);
+                self.visibleTasks.push(task);
             }
 
             self.sortTasks();
@@ -1943,6 +2004,8 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
 
             self.tasksMap[task.id] = task;
             self.tasks.push(task);
+            self.filteredTasks.push(task);
+            self.visibleTasks.push(task);
             task.row = self;
 
             self.sortTasks();
@@ -1956,7 +2019,12 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
         };
 
         self.updateVisibleTasks = function() {
-            self.visibleTasks = $filter('ganttTaskLimit')(self.tasks, self.gantt);
+            if (gantt.$scope.filterTask) {
+                self.filteredTasks = $filter('filter')(self.tasks, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
+            } else {
+                self.filteredTasks = self.tasks;
+            }
+            self.visibleTasks = $filter('ganttTaskLimit')(self.filteredTasks, self.gantt);
         };
 
         self.updateTasksPosAndSize = function() {
@@ -1970,22 +2038,40 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
             if (taskId in self.tasksMap) {
                 delete self.tasksMap[taskId]; // Remove from map
 
-                for (var i = 0, l = self.tasks.length; i < l; i++) {
-                    var task = self.tasks[i];
+                var task;
+                var removedTask;
+                for (var i = self.tasks.length - 1; i >= 0; i--) {
+                    task = self.tasks[i];
                     if (task.id === taskId) {
+                        removedTask = task;
                         self.tasks.splice(i, 1); // Remove from array
 
                         // Update earliest or latest date info as this may change
                         if (self.from - task.from === 0 || self.to - task.to === 0) {
                             self.setFromTo();
                         }
-
-                        if (!disableEmit) {
-                            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': task});
-                        }
-                        return task;
                     }
                 }
+
+                for (i = self.filteredTasks.length - 1; i >= 0; i--) {
+                    task = self.filteredTasks[i];
+                    if (task.id === taskId) {
+                        self.filteredTasks.splice(i, 1); // Remove from filtered array
+                    }
+                }
+
+                for (i = self.visibleTasks.length - 1; i >= 0; i--) {
+                    task = self.visibleTasks[i];
+                    if (task.id === taskId) {
+                        self.visibleTasks.splice(i, 1); // Remove from visible array
+                    }
+                }
+
+                if (!disableEmit) {
+                    self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': removedTask});
+                }
+
+                return removedTask;
             }
         };
 
@@ -2397,29 +2483,11 @@ gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($tim
 }]);
 
 
-gantt.filter('ganttRowLimit', ['$filter', function($filter) {
-    // Returns only the rows which are visible on the screen
-    // Use the rows height and position to decide if a row is still visible
-    // TODO
-
-    return function(input, filterRow, filterRowComparator) {
-        if (filterRow) {
-            input = $filter('filter')(input, filterRow, filterRowComparator);
-        }
-        return input;
-    };
-}]);
-
-
-gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
+gantt.filter('ganttTaskLimit', [function() {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
     return function(input, gantt) {
-        if (gantt.$scope.filterTask) {
-            input = $filter('filter')(input, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
-        }
-
         var res = [];
         for (var i = 0, l = input.length; i < l; i++) {
             var task = input[i];

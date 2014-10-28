@@ -538,6 +538,10 @@ All event names are prefixed with `event:gantt-`. You can also use constants by 
 - **row-labels-resized**
 
   Row labels have been resized.
+  
+- **tasks-filtered**, **rows-filtered**
+
+  Tasks/Rows have been filtered out.
 
 ### <a name="contribute"></a> Contribute
 

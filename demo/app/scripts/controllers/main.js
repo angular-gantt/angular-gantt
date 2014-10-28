@@ -207,4 +207,12 @@ angular.module('angularGanttDemoApp')
 
         $scope.$on(GANTT_EVENTS.READY, logTaskEvent);
         $scope.$on(GANTT_EVENTS.SCROLL, logScrollEvent);
+
+        $scope.$on(GANTT_EVENTS.ROWS_FILTERED, function(event, data) {
+            console.log('$scope.$on: ' + event.name + ': ' + data.filteredRows.length + '/' +  data.rows.length + ' rows displayed.');
+        });
+
+        $scope.$on(GANTT_EVENTS.TASKS_FILTERED, function(event, data) {
+            console.log('$scope.$on: ' + event.name + ': ' + data.filteredTasks.length + '/' + data.tasks.length + ' tasks displayed.');
+        });
     });

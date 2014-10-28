@@ -1,13 +1,9 @@
 'use strict';
-gantt.filter('ganttTaskLimit', ['$filter', function($filter) {
+gantt.filter('ganttTaskLimit', [function() {
     // Returns only the tasks which are visible on the screen
     // Use the task width and position to decide if a task is still visible
 
     return function(input, gantt) {
-        if (gantt.$scope.filterTask) {
-            input = $filter('filter')(input, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
-        }
-
         var res = [];
         for (var i = 0, l = input.length; i < l; i++) {
             var task = input[i];
