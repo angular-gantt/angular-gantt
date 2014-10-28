@@ -443,7 +443,7 @@ review those projects documentations.
     id: "...",  // Unique id of the row.
     name: "...", // Name shown on the left side of each row.
     order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
-    tasks: [] // Array containing the row tasks to add.
+    tasks: [] // Array containing <Task> tasks to add in this row.
 }
 ```
 
@@ -460,11 +460,15 @@ review those projects documentations.
     est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
     lct: <Date> // See "est".
     data: <Any> // Custom object. Use this to attach your own data (Optional).
-    progress: { // Progress bar to display (Optional).
-        percent: <Number> // Percentage of advancement, from 0 to 100.
-        color: "...", Color of the completion bar in HEX format
-        classes: <Array|String> // Array or String of class names which should be applied to the completion bar. See ng-class documentation for details (Optional).
-    }
+    progress: <Number|Progress> // The progress of this task, as a percent number or a <Progress> object (Optional).
+}
+```
+
+- **Progress**
+```js
+{
+    percent: <Number> // Percentage of advancement, from 0 to 100.
+    color: "...", Color of the completion bar in HEX format
 }
 ```
 

@@ -16,7 +16,11 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
         self.truncatedRight = false;
         self.data = data;
         if (progress !== undefined) {
-            self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
+            if (typeof progress === 'object') {
+                self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
+            } else {
+                self.progress = new TaskProgress(self, progress);
+            }
         }
 
         if (est !== undefined && lct !== undefined) {

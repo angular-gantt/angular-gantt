@@ -291,24 +291,23 @@ angular.module('angularGanttDemoApp')
                         ]},
                         {'id': 'c65c2672-445d-4297-a7f2-30de241b3145', 'name': 'Kickoff', 'order': 2, 'tasks': [
                             {'id': '4e197e4d-02a4-490e-b920-4881c3ba8eb7', 'name': 'Day 1', 'color': '#9FC5F8', 'from': new Date(2013, 9, 7, 9, 0, 0), 'to': new Date(2013, 9, 7, 17, 0, 0),
-                                'progress': {'percent': 100, 'color': '#6699FF'}},
+                                'progress': {'percent': 100, 'color': '#3C8CF8'}},
                             {'id': '451046c0-9b17-4eaf-aee0-4e17fcfce6ae', 'name': 'Day 2', 'color': '#9FC5F8', 'from': new Date(2013, 9, 8, 9, 0, 0), 'to': new Date(2013, 9, 8, 17, 0, 0),
-                                'progress': {'percent': 100, 'color': '#6699FF'}},
+                                'progress': {'percent': 100, 'color': '#3C8CF8'}},
                             {'id': 'fcc568c5-53b0-4046-8f19-265ebab34c0b', 'name': 'Day 3', 'color': '#9FC5F8', 'from': new Date(2013, 9, 9, 8, 30, 0), 'to': new Date(2013, 9, 9, 12, 0, 0),
-                                'progress': {'percent': 100, 'color': '#6699FF'}}
+                                'progress': {'percent': 100, 'color': '#3C8CF8'}}
                         ]},
                         {'id': 'dd2e7a97-1622-4521-a807-f29960218785', 'name': 'Create concept', 'order': 3, 'tasks': [
                             {'id': '9c17a6c8-ce8c-4426-8693-a0965ff0fe69', 'name': 'Create concept', 'color': '#F1C232', 'from': new Date(2013, 9, 10, 8, 0, 0), 'to': new Date(2013, 9, 16, 18, 0, 0), 'est': new Date(2013, 9, 8, 8, 0, 0), 'lct': new Date(2013, 9, 18, 20, 0, 0),
-                             'progress': {'percent': 100, 'color': '#6699FF'}
-                            }
+                                'progress': 100}
                         ]},
                         {'id': 'eede0c9a-6777-4b55-9359-1eada309404e', 'name': 'Finalize concept', 'order': 4, 'tasks': [
                             {'id': '30b8f544-5a45-4357-9a72-dd0181fba49f', 'name': 'Finalize concept', 'color': '#F1C232', 'from': new Date(2013, 9, 17, 8, 0, 0), 'to': new Date(2013, 9, 18, 18, 0, 0),
-                                'progress': {'percent': 100, 'color': '#6699FF'}}
+                                'progress': 100}
                         ]},
                         {'id': 'b5318fd9-5d70-4eb1-9c05-65647b9aefe6', 'name': 'Sprint 1', 'order': 5, 'tasks': [
                             {'id': 'd1fdf100-534c-4198-afb9-7bcaef0696f0', 'name': 'Product list view', 'color': '#F1C232', 'from': new Date(2013, 9, 21, 8, 0, 0), 'to': new Date(2013, 9, 25, 15, 0, 0),
-                                'progress': {'percent': 25, 'color': '#6699FF'}}
+                                'progress': 25}
                         ]},
                         {'id': 'cfb29cd5-1737-4027-9778-bb3058fbed9c', 'name': 'Sprint 2', 'order': 6, 'tasks': [
                             {'id': '57638ba3-dfff-476d-ab9a-30fda1e44b50', 'name': 'Order basket', 'color': '#F1C232', 'from': new Date(2013, 9, 28, 8, 0, 0), 'to': new Date(2013, 10, 1, 15, 0, 0)}

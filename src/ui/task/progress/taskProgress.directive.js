@@ -18,7 +18,7 @@ gantt.directive('ganttTaskProgress', [function() {
                 if ($scope.progress.color) {
                     css['background-color'] = $scope.progress.color;
                 } else {
-                    css['background-color'] = '#6699FF';
+                    css['background-color'] = '#6BC443';
                 }
 
                 css.width = $scope.progress.percent + '%';

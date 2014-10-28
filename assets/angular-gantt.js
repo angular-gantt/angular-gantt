@@ -2151,7 +2151,11 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
         self.truncatedRight = false;
         self.data = data;
         if (progress !== undefined) {
-            self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
+            if (typeof progress === 'object') {
+                self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
+            } else {
+                self.progress = new TaskProgress(self, progress);
+            }
         }
 
         if (est !== undefined && lct !== undefined) {
@@ -3114,7 +3118,7 @@ gantt.directive('ganttTaskProgress', [function() {
                 if ($scope.progress.color) {
                     css['background-color'] = $scope.progress.color;
                 } else {
-                    css['background-color'] = '#6699FF';
+                    css['background-color'] = '#6BC443';
                 }
 
                 css.width = $scope.progress.percent + '%';
