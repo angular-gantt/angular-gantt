@@ -76,9 +76,13 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
         var self = this;
 
         self.evaluator = options.evaluator;
-        self.date = options.date;
-        self.start = options.start;
-        self.end = options.end;
+        if (options.date) {
+            self.start = moment(options.date).startOf('day');
+            self.end = moment(options.date).endOf('day');
+        } else {
+            self.start = options.start;
+            self.end = options.end;
+        }
         if (options.targets instanceof Array) {
             self.targets = options.targets;
         } else {
@@ -91,8 +95,6 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 return self.evaluator(date);
             } else if (self.start && self.end) {
                 return date >= self.start && date <= self.end;
-            } else if (self.date) {
-                return self.date.year() === date.year() && self.date.dayOfYear() === date.dayOfYear();
             } else {
                 return false;
             }
@@ -260,6 +262,10 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 }
             });
 
+            var dateYear = date.year();
+            var dateMonth = date.month();
+            var dateDate = date.date();
+
             var validatedTimeFrames = [];
             if (timeFrames.length === 0) {
                 angular.forEach(self.timeFrames, function(timeFrame) {
@@ -273,13 +279,15 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 timeFrame = timeFrame.clone();
 
                 if (timeFrame.start !== undefined) {
-                    timeFrame.start.year(date.year());
-                    timeFrame.start.dayOfYear(date.dayOfYear());
+                    timeFrame.start.year(dateYear);
+                    timeFrame.start.month(dateMonth);
+                    timeFrame.start.date(dateDate);
                 }
 
                 if (timeFrame.end !== undefined) {
-                    timeFrame.end.year(date.year());
-                    timeFrame.end.dayOfYear(date.dayOfYear());
+                    timeFrame.end.year(dateYear);
+                    timeFrame.end.month(dateMonth);
+                    timeFrame.end.date(dateDate);
 
                     if (moment(timeFrame.end).startOf('day') === timeFrame.end) {
                         timeFrame.end.add(1, 'day');
@@ -350,8 +358,8 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                             timeFrame = timeFrame.clone();
                             var newSolvedTimeFrame = solvedTimeFrame.clone();
 
-                            solvedTimeFrame.end = timeFrame.start.clone();
-                            newSolvedTimeFrame.start = timeFrame.end.clone();
+                            solvedTimeFrame.end = moment(timeFrame.start);
+                            newSolvedTimeFrame.start = moment(timeFrame.end);
 
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
@@ -364,7 +372,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
 
                             timeFrame = timeFrame.clone();
 
-                            solvedTimeFrame.end = timeFrame.start.clone();
+                            solvedTimeFrame.end = moment(timeFrame.start);
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
 
                             dispatched = true;
@@ -372,7 +380,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                             // timeFrame is dispatched on two solvedTimeFrame.
                             // Second part
 
-                            solvedTimeFrame.start = timeFrame.end.clone();
+                            solvedTimeFrame.start = moment(timeFrame.end);
                             dispatched = false;
                             treated = true;
                         }
