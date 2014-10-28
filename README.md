@@ -108,7 +108,7 @@ This will create a symbolic link in `demo/bower_components` pointing to your loc
 Then, run `grunt serve` from `demo` directory to run the demo.
 
 ### <a name="build"></a> Build
-1. Install (http://gruntjs.com/)(http://gruntjs.com/)
+1. Install [npm](https://www.npmjs.org/), [bower](http://bower.io/) and [grunt](http://gruntjs.com/)
 2. Run `npm install` to install node dependencies
 3. Run `bower install` to install bower dependencies
 4. Run `grunt` to build angular-gantt.js and angular-gantt.min.js
