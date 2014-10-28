@@ -154,7 +154,7 @@
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
-            <gantt-task-completion ng-if="task.completion !== undefined" completion="task.completion"></gantt-task-completion>
+            <gantt-task-progress ng-if="task.progress !== undefined" progress="task.progress"></gantt-task-progress>
         </div>
     </script>
 
@@ -178,9 +178,9 @@
              ng-style='getCss()' ng-class='getClass()'></div>
     </script>
 
-    <!-- Task completion template -->
-    <script type="text/ng-template" id="template/default.taskCompletion.tmpl.html">
-        <div class='gantt-task-completion' ng-style="getCss()" ng-class="completion.classes"></div>
+    <!-- Task progress template -->
+    <script type="text/ng-template" id="template/default.taskProgress.tmpl.html">
+        <div class='gantt-task-progress' ng-style="getCss()" ng-class="progress.classes"></div>
     </script>
 
     <!-- Row template -->

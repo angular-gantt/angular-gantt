@@ -1,6 +1,6 @@
 'use strict';
-gantt.factory('GanttTask', ['moment', 'GanttTaskCompletion', function(moment, TaskCompletion) {
-    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, completion) {
+gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, TaskProgress) {
+    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, progress) {
         var self = this;
 
         self.id = id;
@@ -15,8 +15,8 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskCompletion', function(moment, Ta
         self.truncatedLeft = false;
         self.truncatedRight = false;
         self.data = data;
-        if (completion !== undefined) {
-            self.completion = new TaskCompletion(self, completion.percent, completion.color, completion.classes);
+        if (progress !== undefined) {
+            self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
         }
 
         if (est !== undefined && lct !== undefined) {
@@ -127,7 +127,7 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskCompletion', function(moment, Ta
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.completion);
+            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.progress);
         };
     };
 
