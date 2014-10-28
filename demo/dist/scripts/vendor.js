@@ -38896,8 +38896,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
                 // Add move event handlers
                 var taskMoveHandler = debounce(function(evt) {
-                    clearScrollInterval();
-                    handleMove(mode, evt);
+                    if ($scope.task.isMoving) {
+                        // As this function is defered, disableMoveMode may have been called before.
+                        // Without this check, TASK_CHANGED event is not fired for faster moves.
+                        // See github issue #190
+                        clearScrollInterval();
+                        handleMove(mode, evt);
+                    }
                 }, 5);
                 smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
 
@@ -38942,10 +38947,11 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                     $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
-                $scope.task.modeMode = undefined;
+                $scope.task.moveMode = undefined;
 
                 // Raise task changed event
                 if (taskHasBeenChanged === true) {
+                    taskHasBeenChanged = false;
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
                     $scope.$emit(GANTT_EVENTS.TASK_CHANGED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
