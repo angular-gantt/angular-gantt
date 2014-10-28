@@ -1,6 +1,6 @@
 'use strict';
-gantt.factory('GanttTask', ['moment', function(moment) {
-    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
+gantt.factory('GanttTask', ['moment', 'GanttTaskCompletion', function(moment, TaskCompletion) {
+    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, completion) {
         var self = this;
 
         self.id = id;
@@ -15,6 +15,9 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         self.truncatedLeft = false;
         self.truncatedRight = false;
         self.data = data;
+        if (completion !== undefined) {
+            self.completion = new TaskCompletion(self, completion.percent, completion.color, completion.classes);
+        }
 
         if (est !== undefined && lct !== undefined) {
             self.est = moment(est);  //Earliest Start Time
@@ -124,7 +127,7 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.completion);
         };
     };
 

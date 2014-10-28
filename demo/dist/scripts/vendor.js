@@ -37492,7 +37492,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
                 task = self.tasksMap[taskData.id];
                 task.copy(taskData);
             } else {
-                task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct);
+                task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.completion);
                 self.tasksMap[taskData.id] = task;
                 self.tasks.push(task);
                 self.filteredTasks.push(task);
@@ -37643,8 +37643,8 @@ gantt.factory('GanttScrollable', [function() {
 }]);
 
 
-gantt.factory('GanttTask', ['moment', function(moment) {
-    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct) {
+gantt.factory('GanttTask', ['moment', 'GanttTaskCompletion', function(moment, TaskCompletion) {
+    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, completion) {
         var self = this;
 
         self.id = id;
@@ -37659,6 +37659,9 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         self.truncatedLeft = false;
         self.truncatedRight = false;
         self.data = data;
+        if (completion !== undefined) {
+            self.completion = new TaskCompletion(self, completion.percent, completion.color, completion.classes);
+        }
 
         if (est !== undefined && lct !== undefined) {
             self.est = moment(est);  //Earliest Start Time
@@ -37768,11 +37771,28 @@ gantt.factory('GanttTask', ['moment', function(moment) {
         };
 
         self.clone = function() {
-            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
+            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.completion);
         };
     };
 
     return Task;
+}]);
+
+
+gantt.factory('GanttTaskCompletion', [function() {
+    var TaskCompletion = function(task, percent, color, classes) {
+        var self = this;
+
+        self.task = task;
+        self.percent = percent;
+        self.color = color;
+        self.classes = classes;
+
+        self.clone = function() {
+            return new TaskCompletion(self.percent, self.color, self.classes);
+        };
+    };
+    return TaskCompletion;
 }]);
 
 
@@ -38579,6 +38599,39 @@ gantt.directive('ganttBounds', [function() {
                     $scope.visible = newValue === true;
                 }
             });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttTaskCompletion', [function() {
+    // Displays a box representing the earliest allowable start time and latest completion time for a job
+
+    return {
+        restrict: 'E',
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.taskCompletion.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        replace: true,
+        scope: { completion: '=' },
+        controller: ['$scope', function($scope) {
+            $scope.getCss = function() {
+                var css = {};
+
+                if ($scope.completion.color) {
+                    css['background-color'] = $scope.completion.color;
+                } else {
+                    css['background-color'] = '#6699FF';
+                }
+
+                css.width = $scope.completion.percent + '%';
+
+                return css;
+            };
         }]
     };
 }]);
@@ -39489,6 +39542,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
+        '            <gantt-task-completion ng-if="task.completion !== undefined" completion="task.completion"></gantt-task-completion>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -39510,6 +39564,11 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
         '        <div ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
         '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Task completion template -->\n' +
+        '    <script type="text/ng-template" id="template/default.taskCompletion.tmpl.html">\n' +
+        '        <div class=\'gantt-task-completion\' ng-style="getCss()" ng-class="completion.classes"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +

@@ -167,6 +167,13 @@
     border-radius: 2px;
 }
 
+.gantt-task-completion {
+    position: relative;
+    top: 2px; bottom: 0;
+    height: 25%;
+    border-radius: 2px;
+}
+
 .gantt-task-milestone {
     position: absolute;
     margin: auto;
@@ -178,10 +185,13 @@
 }
 
 .gantt-task-content {
+    position: relative;
     margin-left: 5px;
     margin-right: 5px;
     margin-top: 0.3em;
+    text-align: center;
     overflow: hidden;
+    z-index: 10;
 }
 
 .gantt-task {

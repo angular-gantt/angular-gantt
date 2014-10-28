@@ -460,6 +460,11 @@ review those projects documentations.
     est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
     lct: <Date> // See "est".
     data: <Any> // Custom object. Use this to attach your own data (Optional).
+    completion: { // Completion bar to display (Optional).
+        percent: <Number> // Percentage of advancement, from 0 to 100.
+        color: "...", Color of the completion bar in HEX format
+        classes: <Array|String> // Array or String of class names which should be applied to the completion bar. See ng-class documentation for details (Optional).
+    }
 }
 ```
 
