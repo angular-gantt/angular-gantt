@@ -8,7 +8,7 @@ gantt.factory('GanttHeader', [function() {
         };
 
         this.getHeight = function() {
-            return this.$element.outerHeight();
+            return this.$element[0].offsetHeight;
         };
     };
     return Header;
