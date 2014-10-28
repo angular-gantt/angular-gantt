@@ -165,13 +165,13 @@ module.exports = function (grunt) {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
         ignorePath:  /\.\.\//,
-        exclude: [/bower_components\/jquery/]
+        exclude: [/bower_components\/jquery/, /bower_components\/bootstrap\/.*\.js/]
       },
       test: {
           devDependencies: true,
           src: 'test/karma.conf.js',
           ignorePath:  /\.\.\//,
-          exclude: [/bower_components\/jquery/],
+          exclude: [/bower_components\/jquery/, /bower_components\/bootstrap\/.*\.js/],
           fileTypes: {
               js: {
                   block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
