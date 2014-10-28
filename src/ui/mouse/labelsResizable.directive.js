@@ -30,7 +30,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
 
             var resize = function(x) {
                 if ($scope.width === 0) {
-                    $scope.width = $element.outerWidth();
+                    $scope.width = $element[0].offsetWidth;
                 }
 
                 $scope.width += x - originalPos;
@@ -44,7 +44,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
             var isInResizeArea = function(e) {
                 var x = mouseOffset.getOffset(e).x;
 
-                return x > $element.outerWidth() - resizeAreaWidth;
+                return x > $element[0].offsetWidth - resizeAreaWidth;
             };
 
             var enableResizeMode = function(e) {

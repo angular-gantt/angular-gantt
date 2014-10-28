@@ -18,7 +18,7 @@ gantt.directive('ganttElementWidthListener', [function() {
             }
 
             effectiveScope.$watch(function() {
-                effectiveScope[scopeVariable] = $element.outerWidth();
+                effectiveScope[scopeVariable] = $element[0].offsetWidth;
             });
         }]
     };
