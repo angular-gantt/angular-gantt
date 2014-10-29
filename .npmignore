@@ -6,7 +6,6 @@
 /.travis.yml
 /.npmignore
 /*.html
-/*.js
 /*.iml
 /*.tgz
 /bower_components/
