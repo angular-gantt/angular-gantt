@@ -37,34 +37,45 @@ angular.module('angularGanttDemoApp')
             toDate: undefined,
             showLabelsColumn: true,
             currentDate: 'line',
-            currentDateValue : new Date(2013, 9, 23, 11, 20, 0),
+            currentDateValue: new Date(2013, 9, 23, 11, 20, 0),
             draw: false,
             readOnly: false,
             filterTask: undefined,
             filterRow: undefined,
-            timeFrames:
-                 {'day': {
+            timeFrames: {
+                'day': {
                     start: moment('8:00', 'HH:mm'),
-                        end: moment('20:00', 'HH:mm'),
-                        working: true,
-                        default: true
-                    },
-                 'noon': {
-                     start: moment('12:00', 'HH:mm'),
-                     end: moment('13:30', 'HH:mm'),
-                     working: false,
-                     default: true
-                 },
-                 'weekend': {
-                     working: false
-                 }
+                    end: moment('20:00', 'HH:mm'),
+                    working: true,
+                    default: true
                 },
+                'noon': {
+                    start: moment('12:00', 'HH:mm'),
+                    end: moment('13:30', 'HH:mm'),
+                    working: false,
+                    default: true
+                },
+                'weekend': {
+                    working: false
+                },
+                'holiday': {
+                    working: false,
+                    color: 'red',
+                    classes: ['gantt-timeframe-holiday']
+                }
+            },
             dateFrames: {
                 'weekend': {
                     evaluator: function(date) {
                         return date.isoWeekday() === 6 || date.isoWeekday() === 7;
                     },
                     targets: ['weekend']
+                },
+                '11-november': {
+                    evaluator: function(date) {
+                        return date.month() === 10 && date.date() === 11;
+                    },
+                    targets: ['holiday']
                 }
             },
             timeFramesNonWorkingMode: 'visible',
@@ -103,14 +114,18 @@ angular.module('angularGanttDemoApp')
         $scope.removeSomeSamples = function() {
             $scope.removeData([
                 {'id': 'c65c2672-445d-4297-a7f2-30de241b3145'}, // Remove all Kickoff meetings
-                {'id': '2f85dbeb-0845-404e-934e-218bf39750c0', 'tasks': [
+                {
+                    'id': '2f85dbeb-0845-404e-934e-218bf39750c0', 'tasks': [
                     {'id': 'f55549b5-e449-4b0c-9f4b-8b33381f7d76'},
                     {'id': '5e997eb3-4311-46b1-a1b4-7e8663ea8b0b'},
                     {'id': '6fdfd775-7b22-42ec-a12c-21a64c9e7a9e'}
-                ]}, // Remove some Milestones
-                {'id': 'cfb29cd5-1737-4027-9778-bb3058fbed9c', 'tasks': [
+                ]
+                }, // Remove some Milestones
+                {
+                    'id': 'cfb29cd5-1737-4027-9778-bb3058fbed9c', 'tasks': [
                     {'id': '57638ba3-dfff-476d-ab9a-30fda1e44b50'}
-                ]} // Remove order basket from Sprint 2
+                ]
+                } // Remove order basket from Sprint 2
             ]);
         };
 
@@ -134,7 +149,7 @@ angular.module('angularGanttDemoApp')
                     };
                     var task = data.row.addTask(infoTask);
                     task.isCreating = true;
-                    $scope.$apply(function() {
+                    $scope.$apply(function() {
                         task.updatePosAndSize();
                         data.row.updateVisibleTasks();
                     });
@@ -167,12 +182,12 @@ angular.module('angularGanttDemoApp')
                     propertyValue = propertyValue.name;
                 } else if (property === 'column') {
                     propertyValue = propertyValue.date.format() + ' <---> ' + propertyValue.endDate.format();
-                }  else if (property === 'row') {
+                } else if (property === 'row') {
                     propertyValue = propertyValue.name;
                 } else if (property === 'date') {
                     propertyValue = propertyValue.format();
                 }
-                output += property + ': ' + propertyValue +'; ';
+                output += property + ': ' + propertyValue + '; ';
             }
             console.log('$scope.$on: ' + event.name + ': ' + output);
         };
@@ -228,7 +243,7 @@ angular.module('angularGanttDemoApp')
         $scope.$on(GANTT_EVENTS.SCROLL, logScrollEvent);
 
         $scope.$on(GANTT_EVENTS.ROWS_FILTERED, function(event, data) {
-            console.log('$scope.$on: ' + event.name + ': ' + data.filteredRows.length + '/' +  data.rows.length + ' rows displayed.');
+            console.log('$scope.$on: ' + event.name + ': ' + data.filteredRows.length + '/' + data.rows.length + ' rows displayed.');
         });
 
         $scope.$on(GANTT_EVENTS.TASKS_FILTERED, function(event, data) {

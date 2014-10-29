@@ -14,6 +14,16 @@ gantt.directive('ganttTimeFrame', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.timeFrame.$element = $element;
+
+            $scope.getClass = function() {
+                var classes = ['gantt-timeframe' + ($scope.timeFrame.working ? '' : '-non') + '-working'];
+
+                if ($scope.timeFrame.classes) {
+                    classes = classes.concat($scope.timeFrame.classes);
+                }
+                return classes;
+            };
+
         }]
     };
 }]);

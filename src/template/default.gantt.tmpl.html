@@ -130,8 +130,8 @@
 
     <script type="text/ng-template" id="template/default.timeFrame.tmpl.html">
         <div class="gantt-timeframe"
-             ng-class="timeFrame.working && 'gantt-timeframe-working' || 'gantt-timeframe-non-working'"
-             ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px'}"></div>
+             ng-class="getClass()"
+             ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px', 'background-color': timeFrame.color && timeFrame.color || ''}"></div>
     </script>
 
     <!-- Scrollable template -->

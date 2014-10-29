@@ -21,6 +21,8 @@ describe('Unit: Calendar', function() {
         expect(expected.start).toEqual(actual.start);
         expect(expected.end).toEqual(actual.end);
         expect(expected.working).toEqual(actual.working);
+        expect(expected.color).toEqual(actual.color);
+        expect(expected.classes).toEqual(actual.classes);
     };
 
     beforeEach(inject(['GanttCalendar', 'moment', function(_Calendar_, _moment_) {
@@ -42,10 +44,12 @@ describe('Unit: Calendar', function() {
                 'noon': {
                     start: moment('12:00', 'HH:mm'),
                     end: moment('13:30', 'HH:mm'),
+                    color: 'red',
+                    classes: 'noon-css',
                     working: false,
                     default: true
                 },
-                'dummy':{
+                'dummy': {
                     start: moment('20:00', 'HH:mm'),
                     end: moment('22:30', 'HH:mm'),
                     working: false,
@@ -75,10 +79,12 @@ describe('Unit: Calendar', function() {
                 'noon': {
                     start: moment('12:00', 'HH:mm'),
                     end: moment('13:30', 'HH:mm'),
+                    color: 'red',
+                    classes: 'noon-css',
                     working: false,
                     default: true
                 },
-                'closed':{
+                'closed': {
                     working: false
                 }
             };
@@ -92,7 +98,7 @@ describe('Unit: Calendar', function() {
                     },
                     targets: ['closed']
                 },
-                'halloween':{
+                'halloween': {
                     date: moment('2014-10-31', 'YYYY-MM-DD'),
                     targets: ['day']
                 },
@@ -134,10 +140,12 @@ describe('Unit: Calendar', function() {
                 'noon': {
                     start: moment('12:00', 'HH:mm'),
                     end: moment('13:30', 'HH:mm'),
+                    color: 'red',
+                    classes: 'noon-css',
                     working: false,
                     default: true
                 },
-                'dummy':{
+                'dummy': {
                     start: moment('20:00', 'HH:mm'),
                     end: moment('22:30', 'HH:mm'),
                     working: false,
@@ -163,6 +171,8 @@ describe('Unit: Calendar', function() {
 
             expect(timeFrames[2].start).toEqual(cal.timeFrames.noon.start);
             expect(timeFrames[2].end).toEqual(cal.timeFrames.noon.end);
+            expect(timeFrames[2].classes).toEqual(cal.timeFrames.noon.classes);
+            expect(timeFrames[2].color).toEqual(cal.timeFrames.noon.color);
             expect(timeFrames[2].working).toBeFalsy();
 
             expect(timeFrames[3].start).toEqual(cal.timeFrames.noon.end);
@@ -207,10 +217,12 @@ describe('Unit: Calendar', function() {
                 'noon': {
                     start: moment('12:00', 'HH:mm'),
                     end: moment('13:30', 'HH:mm'),
+                    color: 'red',
+                    classes: 'noon-css',
                     working: false,
                     default: true
                 },
-                'dummy':{
+                'dummy': {
                     start: moment('20:00', 'HH:mm'),
                     end: moment('22:30', 'HH:mm'),
                     working: false,
@@ -224,6 +236,8 @@ describe('Unit: Calendar', function() {
             expect(timeFrames.length).toBe(1);
 
             expect(timeFrames[0].working).toBeFalsy();
+            expect(timeFrames[0].color).toBe('red');
+            expect(timeFrames[0].classes).toBe('noon-css');
         });
 
     it('solve to a working timeFrame when nothing is registered',
@@ -235,6 +249,73 @@ describe('Unit: Calendar', function() {
             expect(timeFrames.length).toBe(1);
 
             expect(timeFrames[0].working).toBeTruthy();
+        });
+
+    it('solves timeFrames using dateFrames',
+        function() {
+            var cal = new Calendar();
+
+            var inputTimeFrames = {
+                'day': {
+                    start: moment('8:00', 'HH:mm'),
+                    end: moment('20:00', 'HH:mm'),
+                    working: true,
+                    default: true
+                },
+                'noon': {
+                    start: moment('12:00', 'HH:mm'),
+                    end: moment('13:30', 'HH:mm'),
+                    working: false,
+                    default: true
+                },
+                'weekend': {
+                    working: false
+                },
+                'holiday': {
+                    working: false,
+                    color: 'red',
+                    classes: ['gantt-timeframe-holiday']
+                }
+            };
+
+            var inputDateFrames = {
+                'weekend': {
+                    evaluator: function(date) {
+                        return date.isoWeekday() === 6 || date.isoWeekday() === 7;
+                    },
+                    targets: ['weekend']
+                },
+                '11-november': {
+                    evaluator: function(date) {
+                        return date.month() === 10 && date.date() === 11;
+                    },
+                    targets: ['holiday']
+                }
+            };
+
+            cal.registerTimeFrames(inputTimeFrames);
+            cal.registerDateFrames(inputDateFrames);
+
+            var timeFrames = cal.getTimeFrames(moment().month(10).date(11));
+            timeFrames = cal.solve(timeFrames);
+            expect(timeFrames.length).toBe(1);
+
+            expect(timeFrames[0].working).toBeFalsy();
+            expect(timeFrames[0].color).toBe('red');
+            expect(timeFrames[0].classes.length).toBe(1);
+            expect(timeFrames[0].classes[0]).toBe('gantt-timeframe-holiday');
+
+            timeFrames = cal.getTimeFrames(moment().day(6));
+            timeFrames = cal.solve(timeFrames);
+            expect(timeFrames.length).toBe(1);
+
+            expect(timeFrames[0].working).toBeFalsy();
+            expect(timeFrames[0].color).toBeUndefined();
+            expect(timeFrames[0].classes).toBeUndefined();
+
+            timeFrames = cal.getTimeFrames(moment().month(3).date(5).day(3));
+            timeFrames = cal.solve(timeFrames);
+            expect(timeFrames.length).toBe(3);
         });
 
 });

@@ -11,7 +11,8 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
      * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
      * @param {boolean} working is this timeFrame flagged as working.
      * @param {boolean} default is this timeFrame will be used as default.
-     * @param {string} cssClass css class attached to this timeFrame.
+     * @param {color} css color attached to this timeFrame.
+     * @param {string} classes css classes attached to this timeFrame.
      *
      * @constructor
      */
@@ -26,7 +27,8 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
         self.end = options.end;
         self.working = options.working;
         self.default = options.default;
-        self.cssClass = options.cssClass;
+        self.color = options.color;
+        self.classes = options.classes;
 
         self.getDuration = function() {
             return self.end.diff(self.start, 'milliseconds');
@@ -315,6 +317,8 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          */
         self.solve = function(timeFrames, startDate, endDate) {
             var defaultWorking = timeFrames.length === 0;
+            var color;
+            var classes;
             var minDate;
             var maxDate;
 
@@ -324,6 +328,15 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 }
                 if (maxDate === undefined || maxDate < timeFrame.end) {
                     maxDate = timeFrame.end;
+                }
+                if (color === undefined && timeFrame.color) {
+                    color = timeFrame.color;
+                }
+                if (timeFrame.classes !== undefined) {
+                    if (classes === undefined) {
+                        classes = [];
+                    }
+                    classes = classes.concat(timeFrame.classes);
                 }
             });
 
@@ -335,7 +348,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 endDate = maxDate;
             }
 
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking})];
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
 
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return -timeFrame.getDuration();
