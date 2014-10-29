@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/angular-gantt/angular-gantt-demo.git"
+    "url": "git://github.com/angular-gantt/angular-gantt.git"
   },
   "dependencies": {},
   "devDependencies": {
