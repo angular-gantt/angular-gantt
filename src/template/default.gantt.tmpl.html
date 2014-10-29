@@ -9,7 +9,7 @@
             <div gantt-vertical-scroll-receiver style="position: relative">
                 <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
-                        <span>{{ row.name }}</span>
+                        <span class="gantt-labels-text">{{ row.name }}</span>
                     </gantt-sortable>
                 </gantt-row-label>
             </div>
@@ -32,6 +32,8 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
+                     ng-class="row.classes"
+                     ng-style="{'background-color': row.color, 'height': row.height}"
                      ng-repeat="row in gantt.visibleRows track by $index">
                 </div>
             </div>
@@ -83,7 +85,8 @@
     <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">
         <div ng-transclude class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
-             ng-class-even="'gantt-background-row-alt'">
+             ng-class-even="'gantt-background-row-alt'"
+             ng-class="row.classes" ng-style="{'background-color': row.color, 'height': row.height}">
         </div>
     </script>
 
@@ -185,7 +188,7 @@
 
     <!-- Row template -->
     <script type="text/ng-template" id="template/default.row.tmpl.html">
-        <div ng-transclude class="gantt-row gantt-row-height"></div>
+        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{'height': row.height}"></div>
     </script>
 
 </div>

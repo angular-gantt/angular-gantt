@@ -453,6 +453,9 @@ review those projects documentations.
     id: "...",  // Unique id of the row.
     name: "...", // Name shown on the left side of each row.
     order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
+    height: "..." // Height of the row (Optional).
+    color: "..." , // Color of the task in HEX format (Optional).
+    classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
     tasks: [] // Array containing <Task> tasks to add in this row.
 }
 ```

@@ -14,7 +14,7 @@ angular.module('angularGanttDemoApp')
                 return {
                     'data1': [
                         // Order is optional. If not specified it will be assigned automatically
-                        {'id': '2f85dbeb-0845-404e-934e-218bf39750c0', 'name': 'Milestones', 'order': 0, 'tasks': [
+                        {'id': '2f85dbeb-0845-404e-934e-218bf39750c0', 'name': 'Milestones', 'order': 0, 'height': '3em', classes: 'gantt-row-milestone', 'color': '#45607D', 'tasks': [
                             // Dates can be specified as string, timestamp or javascript date object. The data attribute can be used to attach a custom object
                             {'id': 'f55549b5-e449-4b0c-9f4b-8b33381f7d76', 'name': 'Kickoff', 'color': '#93C47D', 'from': '2013-10-07T09:00:00', 'to': '2013-10-07T10:00:00', 'data': 'Can contain any custom data or object'},
                             {'id': '5e997eb3-4311-46b1-a1b4-7e8663ea8b0b', 'name': 'Concept approval', 'color': '#93C47D', 'from': new Date(2013, 9, 18, 18, 0, 0), 'to': new Date(2013, 9, 18, 18, 0, 0), 'est': new Date(2013, 9, 16, 7, 0, 0), 'lct': new Date(2013, 9, 19, 0, 0, 0)},

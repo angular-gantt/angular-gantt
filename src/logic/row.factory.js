@@ -1,12 +1,15 @@
 'use strict';
 gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
-    var Row = function(id, gantt, name, order, data) {
+    var Row = function(id, gantt, name, order, height, color, classes, data) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
         self.name = name;
         self.order = order;
+        self.height = height;
+        self.color = color;
+        self.classes = classes;
         self.from = undefined;
         self.to = undefined;
         self.tasksMap = {};
@@ -147,6 +150,9 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
 
         self.copy = function(row) {
             self.name = row.name;
+            self.height = row.height;
+            self.color = row.color;
+            self.classes = row.classes;
             self.data = row.data;
 
             if (row.order !== undefined) {
@@ -155,7 +161,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
         };
 
         self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.name, self.order, self.data);
+            var clone = new Row(self.id, self.gantt, self.name, self.order, self.height, self.color, self.classes, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }

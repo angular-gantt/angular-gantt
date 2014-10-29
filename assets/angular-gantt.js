@@ -1722,7 +1722,7 @@ gantt.factory('Gantt', [
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, self, rowData.name, order, rowData.data);
+                row = new Row(rowData.id, self, rowData.name, order, rowData.height, rowData.color, rowData.classes, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
                 self.filteredRows.push(row);
@@ -1972,13 +1972,16 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
 
 
 gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
-    var Row = function(id, gantt, name, order, data) {
+    var Row = function(id, gantt, name, order, height, color, classes, data) {
         var self = this;
 
         self.id = id;
         self.gantt = gantt;
         self.name = name;
         self.order = order;
+        self.height = height;
+        self.color = color;
+        self.classes = classes;
         self.from = undefined;
         self.to = undefined;
         self.tasksMap = {};
@@ -2119,6 +2122,9 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
 
         self.copy = function(row) {
             self.name = row.name;
+            self.height = row.height;
+            self.color = row.color;
+            self.classes = row.classes;
             self.data = row.data;
 
             if (row.order !== undefined) {
@@ -2127,7 +2133,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
         };
 
         self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.name, self.order, self.data);
+            var clone = new Row(self.id, self.gantt, self.name, self.order, self.height, self.color, self.classes, self.data);
             for (var i = 0, l = self.tasks.length; i < l; i++) {
                 clone.addTask(self.tasks[i].clone());
             }
@@ -3919,7 +3925,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">\n' +
         '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
-        '                        <span>{{ row.name }}</span>\n' +
+        '                        <span class="gantt-labels-text">{{ row.name }}</span>\n' +
         '                    </gantt-sortable>\n' +
         '                </gantt-row-label>\n' +
         '            </div>\n' +
@@ -3942,6 +3948,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                <div class="gantt-row-height"\n' +
         '                     ng-class-odd="\'gantt-background-row\'"\n' +
         '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                     ng-class="row.classes"\n' +
+        '                     ng-style="{\'background-color\': row.color, \'height\': row.height}"\n' +
         '                     ng-repeat="row in gantt.visibleRows track by $index">\n' +
         '                </div>\n' +
         '            </div>\n' +
@@ -3993,7 +4001,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
-        '             ng-class-even="\'gantt-background-row-alt\'">\n' +
+        '             ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '             ng-class="row.classes" ng-style="{\'background-color\': row.color, \'height\': row.height}">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -4095,7 +4104,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height"></div>\n' +
+        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '</div>\n' +

@@ -538,7 +538,7 @@ gantt.factory('Gantt', [
                     self.highestRowOrder = order + 1;
                 }
 
-                row = new Row(rowData.id, self, rowData.name, order, rowData.data);
+                row = new Row(rowData.id, self, rowData.name, order, rowData.height, rowData.color, rowData.classes, rowData.data);
                 self.rowsMap[rowData.id] = row;
                 self.rows.push(row);
                 self.filteredRows.push(row);
