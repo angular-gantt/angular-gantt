@@ -333,6 +333,16 @@ review those projects documentations.
   
   After resolution of TimeFrame for each day, TimeFrame can be displayed or cropped from the gantt using
   `time-frames-working-mode` and `time-frames-non-working-mode`.
+  
+  You can also add `color` and `classes` properties on TimeFrame object to define custom style on displayed timeFrames.
+  
+  ```js  
+  closed: {
+       working: false // We don't work when it's closed
+       color: 'green' // Display in green because green is a nice color :)
+       classes: ['gantt-closed-timeframe'] // Give one or many class names to customize using CSS.       
+   }
+  ```
 
 - **time-frames-working-mode** (default `hidden`), 
 
