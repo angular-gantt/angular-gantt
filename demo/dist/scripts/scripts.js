@@ -134,8 +134,10 @@ angular.module('angularGanttDemoApp')
                     };
                     var task = data.row.addTask(infoTask);
                     task.isCreating = true;
-                    task.updatePosAndSize();
-                    data.row.updateVisibleTasks();
+                    $scope.$apply(function() {
+                        task.updatePosAndSize();
+                        data.row.updateVisibleTasks();
+                    });
                 }
             }
         };
