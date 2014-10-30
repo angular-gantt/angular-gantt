@@ -1,7 +1,9 @@
 'use strict';
-gantt.factory('GanttHeader', [function() {
-    var Header= function($element) {
-        this.$element = $element;
+gantt.factory('GanttHeader', ['GanttHeaderColumns', function(HeaderColumns) {
+    var Header = function(gantt) {
+        this.gantt = gantt;
+
+        this.columns = new HeaderColumns(this);
 
         this.getWidth = function() {
             return this.$element.width();

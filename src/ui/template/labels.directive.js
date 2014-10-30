@@ -12,8 +12,8 @@ gantt.directive('ganttLabels', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttLabels', function($scope, $element, Labels) {
-            $scope.template.labels = new Labels($element);
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.labels.$element = $element;
         }]
     };
 }]);

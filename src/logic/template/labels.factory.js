@@ -1,10 +1,12 @@
 'use strict';
 gantt.factory('GanttLabels', [function() {
-    var Labels= function($element) {
-        this.$element = $element;
+    var Labels= function(gantt) {
+        var self = this;
+
+        this.gantt = gantt;
 
         this.getWidth = function() {
-            return this.$element.width();
+            return self.$element.width();
         };
     };
     return Labels;

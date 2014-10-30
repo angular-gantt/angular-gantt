@@ -20,8 +20,8 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
             var windowElement = angular.element($window);
             var ganttRowElement = $scope.row.$element;
-            var ganttBodyElement = $scope.template.body.$element;
-            var ganttScrollElement = $scope.template.scrollable.$element;
+            var ganttBodyElement = $scope.row.gantt.body.$element;
+            var ganttScrollElement = $scope.row.gantt.scroll.$element;
 
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;

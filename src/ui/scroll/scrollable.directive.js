@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(Scrollable, debounce, layout, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(debounce, layout, GANTT_EVENTS) {
     return {
         restrict: 'E',
         transclude: true,
@@ -12,7 +12,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.template.scrollable = new Scrollable($element);
+            $scope.gantt.scroll.$element = $element;
 
             var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
@@ -44,7 +44,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
                 if (!angular.equals(newValue, oldValue) && newValue > 0 && $scope.gantt.scrollAnchor !== undefined) {
                     // Ugly but prevents screen flickering (unlike $timeout)
                     $scope.$$postDigest(function() {
-                        $scope.scrollToDate($scope.gantt.scrollAnchor);
+                        $scope.gantt.scroll.scrollToDate($scope.gantt.scrollAnchor);
                     });
                 }
             });
@@ -59,7 +59,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
                 }
 
                 if ($scope.maxHeight > 0) {
-                    css['max-height'] = $scope.maxHeight - $scope.template.header.getHeight() + 'px';
+                    css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
                 } else {
                     css['overflow-y'] = 'hidden';

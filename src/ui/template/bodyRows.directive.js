@@ -12,8 +12,8 @@ gantt.directive('ganttBodyRows', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttBodyRows', function($scope, $element, BodyRows) {
-            $scope.template.body.rows = new BodyRows($element);
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.body.rows.$element = $element;
         }]
     };
 }]);

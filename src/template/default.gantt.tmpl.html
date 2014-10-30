@@ -4,7 +4,7 @@
             <gantt-row-header></gantt-row-header>
         </div>
         <div class="gantt-labels-body"
-             ng-style="(maxHeight > 0 && {'max-height': (maxHeight-template.header.getHeight())+'px'} || {})"
+             ng-style="(maxHeight > 0 && {'max-height': (maxHeight-gantt.header.getHeight())+'px'} || {})"
              ng-show="gantt.columns.length > 0">
             <div gantt-vertical-scroll-receiver style="position: relative">
                 <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">

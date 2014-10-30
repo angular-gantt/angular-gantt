@@ -1,13 +1,18 @@
 'use strict';
 gantt.factory('Gantt', [
-    '$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'ganttLayout', 'GANTT_EVENTS',
-    function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, layout, GANTT_EVENTS) {
+    '$filter', 'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'ganttLayout', 'GANTT_EVENTS',
+    function($filter, Scroll, Body, Header, Labels, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, layout, GANTT_EVENTS) {
 
     // Gantt logic. Manages the columns, rows and sorting functionality.
     var Gantt = function($scope, $element) {
         var self = this;
         self.$scope = $scope;
         self.$element = $element;
+
+        self.scroll = new Scroll(self);
+        self.body = new Body(self);
+        self.header = new Header(self);
+        self.labels = new Labels(self);
 
         self.rowsMap = {};
         self.rows = [];
@@ -141,8 +146,8 @@ gantt.factory('Gantt', [
         });
 
         var setScrollAnchor = function() {
-            if ($scope.template.scrollable && $scope.template.scrollable.$element && self.columns.length > 0) {
-                var el = $scope.template.scrollable.$element[0];
+            if (self.scroll.$element && self.columns.length > 0) {
+                var el = self.scroll.$element[0];
                 var center = el.scrollLeft + el.offsetWidth / 2;
 
                 self.scrollAnchor = self.getDateByPosition(center);

@@ -254,33 +254,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
                 $scope.gantt.sortRows($scope.sortMode);
             };
 
-            // Scroll to the specified x
-            $scope.scrollTo = function(x) {
-                $scope.template.scrollable.$element[0].scrollLeft = x;
-                $scope.template.scrollable.$element.triggerHandler('scroll');
-            };
-
-            // Scroll to the left side by specified x
-            $scope.scrollToLeft = function(x) {
-                $scope.template.scrollable.$element[0].scrollLeft -= x;
-                $scope.template.scrollable.$element.triggerHandler('scroll');
-            };
-
-            // Scroll to the right side by specified x
-            $scope.scrollToRight = function(x) {
-                $scope.template.scrollable.$element[0].scrollLeft += x;
-                $scope.template.scrollable.$element.triggerHandler('scroll');
-            };
-
-            // Tries to center the specified date
-            $scope.scrollToDate = function(date) {
-                var position = $scope.gantt.getPositionByDate(date);
-
-                if (position !== undefined) {
-                    $scope.template.scrollable.$element[0].scrollLeft = position - $scope.template.scrollable.$element[0].offsetWidth / 2;
-                }
-            };
-
             var lastAutoExpand;
             var autoExpandCoolDownPeriod = 500;
             $scope.autoExpandColumns = function(el, date, direction) {
@@ -350,7 +323,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             $scope.clearData({ fn: $scope.removeAllData});
 
             // Scroll to specified date handler.
-            $scope.centerDate({ fn: $scope.scrollToDate});
+            $scope.centerDate({ fn: $scope.gantt.scroll.scrollToDate});
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.$emit(GANTT_EVENTS.READY);

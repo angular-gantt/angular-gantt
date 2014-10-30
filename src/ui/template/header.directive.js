@@ -12,8 +12,8 @@ gantt.directive('ganttHeader', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
-            $scope.template.header = new Header($element);
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.header.$element = $element;
 
             $scope.getHeaderCss = function() {
                 var css = {};

@@ -1,7 +1,10 @@
 'use strict';
-gantt.factory('GanttBody', [function() {
-    var Body= function($element) {
-        this.$element = $element;
+gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', function(BodyColumns, BodyRows) {
+    var Body= function(gantt) {
+        this.gantt = gantt;
+
+        this.columns = new BodyColumns(this);
+        this.rows = new BodyRows(this);
 
         this.getWidth = function() {
             return this.$element.width();

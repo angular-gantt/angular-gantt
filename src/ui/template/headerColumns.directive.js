@@ -12,8 +12,8 @@ gantt.directive('ganttHeaderColumns', [function() {
                 return tAttrs.templateUrl;
             }
         },
-        controller: ['$scope', '$element', 'GanttHeaderColumns', function($scope, $element, HeaderColumns) {
-            $scope.template.header.columns = new HeaderColumns($element);
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.header.columns.$element = $element;
         }]
     };
 }]);
