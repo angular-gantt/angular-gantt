@@ -5,7 +5,7 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
             var data = {evt:evt, element:element, task:task};
             if (gantt !== undefined && evt !== undefined) {
                 var x = mouseOffset.getOffset(evt).x;
-                data.column = gantt.getColumnByPosition(x + task.left);
+                data.column = gantt.columnsManager.getColumnByPosition(x + task.left);
                 data.date = gantt.getDateByPosition(x + task.left);
             }
             return data;
@@ -15,7 +15,7 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
             var data = {evt:evt, element:element, row:row};
             if (gantt !== undefined && evt !== undefined) {
                 var x = mouseOffset.getOffset(evt).x;
-                data.column = gantt.getColumnByPosition(x);
+                data.column = gantt.columnsManager.getColumnByPosition(x);
                 data.date = gantt.getDateByPosition(x);
             }
             return data;

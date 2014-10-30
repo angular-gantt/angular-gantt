@@ -55,6 +55,7 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
 
         self.copy = function(timespan) {
             self.name = timespan.name;
+            self.gantt = timespan.gantt;
             self.color = timespan.color;
             self.classes = timespan.classes;
             self.priority = timespan.priority;

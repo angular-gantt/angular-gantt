@@ -20,8 +20,8 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
             var windowElement = angular.element($window);
             var ganttRowElement = $scope.row.$element;
-            var ganttBodyElement = $scope.row.gantt.body.$element;
-            var ganttScrollElement = $scope.row.gantt.scroll.$element;
+            var ganttBodyElement = $scope.row.rowsManager.gantt.body.$element;
+            var ganttScrollElement = $scope.row.rowsManager.gantt.scroll.$element;
 
             var taskHasBeenChanged = false;
             var mouseOffsetInEm;
@@ -196,7 +196,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                     return $scope.task.row;
                 } else {
                     var visibleRows = [];
-                    angular.forEach($scope.task.row.gantt.rows, function(row) {
+                    angular.forEach($scope.task.row.rowsManager.rows, function(row) {
                         if (!row.hidden) {
                             visibleRows.push(row);
                         }

@@ -4,7 +4,7 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
         var self = this;
 
         self.id = id;
-        self.gantt = row.gantt;
+        self.rowsManager = row.rowsManager;
         self.row = row;
         self.name = name;
         self.color = color;
@@ -31,7 +31,7 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
         self._fromLabel = undefined;
         self.getFromLabel = function() {
             if (self._fromLabel === undefined) {
-                self._fromLabel = self.from.format(self.gantt.$scope.tooltipDateFormat);
+                self._fromLabel = self.from.format(self.rowsManager.gantt.$scope.tooltipDateFormat);
             }
             return self._fromLabel;
         };
@@ -39,7 +39,7 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
         self._toLabel = undefined;
         self.getToLabel = function() {
             if (self._toLabel === undefined) {
-                self._toLabel = self.to.format(self.gantt.$scope.tooltipDateFormat);
+                self._toLabel = self.to.format(self.rowsManager.gantt.$scope.tooltipDateFormat);
             }
             return self._toLabel;
         };
@@ -56,25 +56,25 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
         // Updates the pos and size of the task according to the from - to date
         self.updatePosAndSize = function() {
-            self.modelLeft = self.gantt.getPositionByDate(self.from);
-            self.modelWidth = self.gantt.getPositionByDate(self.to) - self.modelLeft;
+            self.modelLeft = self.rowsManager.gantt.getPositionByDate(self.from);
+            self.modelWidth = self.rowsManager.gantt.getPositionByDate(self.to) - self.modelLeft;
 
-            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.gantt.width;
+            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.rowsManager.gantt.width;
 
-            self.left = Math.min(Math.max(self.modelLeft, 0), self.gantt.width);
+            self.left = Math.min(Math.max(self.modelLeft, 0), self.rowsManager.gantt.width);
             if (self.modelLeft < 0) {
                 self.truncatedLeft = true;
-                if (self.modelWidth + self.modelLeft > self.gantt.width) {
+                if (self.modelWidth + self.modelLeft > self.rowsManager.gantt.width) {
                     self.truncatedRight = true;
-                    self.width = self.gantt.width;
+                    self.width = self.rowsManager.gantt.width;
                 } else {
                     self.truncatedRight = false;
                     self.width = self.modelWidth + self.modelLeft;
                 }
-            } else if (self.modelWidth + self.modelLeft > self.gantt.width) {
+            } else if (self.modelWidth + self.modelLeft > self.rowsManager.gantt.width) {
                 self.truncatedRight = true;
                 self.truncatedLeft = false;
-                self.width = self.gantt.width - self.modelLeft;
+                self.width = self.rowsManager.gantt.width - self.modelLeft;
             } else {
                 self.truncatedLeft = false;
                 self.truncatedRight = false;
@@ -83,14 +83,14 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
             if (self.est !== undefined && self.lct !== undefined) {
                 self.bounds = {};
-                self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
+                self.bounds.left = self.rowsManager.gantt.getPositionByDate(self.est);
+                self.bounds.width = self.rowsManager.gantt.getPositionByDate(self.lct) - self.bounds.left;
             }
         };
 
         // Expands the start of the task to the specified position (in em)
         self.setFrom = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true);
+            self.from = self.rowsManager.gantt.getDateByPosition(x, true);
             self._fromLabel = undefined;
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
@@ -99,7 +99,7 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
         // Expands the end of the task to the specified position (in em)
         self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x, true);
+            self.to = self.rowsManager.gantt.getDateByPosition(x, true);
             self._toLabel = undefined;
             self.row.setFromToByTask(self);
             self.updatePosAndSize();
@@ -108,10 +108,10 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
         // Moves the task to the specified position (in em)
         self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true);
+            self.from = self.rowsManager.gantt.getDateByPosition(x, true);
             self._fromLabel = undefined;
-            var newTaskLeft = self.gantt.getPositionByDate(self.from);
-            self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
+            var newTaskLeft = self.rowsManager.gantt.getPositionByDate(self.from);
+            self.to = self.rowsManager.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
             self._toLabel = undefined;
             self.row.setFromToByTask(self);
             self.updatePosAndSize();

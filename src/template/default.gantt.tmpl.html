@@ -4,10 +4,10 @@
             <gantt-row-header></gantt-row-header>
         </div>
         <div class="gantt-labels-body"
-             ng-style="(maxHeight > 0 && {'max-height': (maxHeight-gantt.header.getHeight())+'px'} || {})"
-             ng-show="gantt.columns.length > 0">
+             ng-style="(maxHeight > 0 && {'max-height': (maxHeight - gantt.header.getHeight())+'px'} || {})"
+             ng-show="gantt.columnsManager.columns.length > 0">
             <div gantt-vertical-scroll-receiver style="position: relative">
-                <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">
+                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
                     <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">
                         <span class="gantt-labels-text">{{ row.name }}</span>
                     </gantt-sortable>
@@ -17,7 +17,7 @@
     </gantt-labels>
     <gantt-header>
         <gantt-header-columns>
-            <div ng-repeat="header in gantt.visibleHeaders">
+            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
                 <div class="gantt-header-row gantt-header-row-bottom">
                     <gantt-column-header ng-repeat="column in header track by $index">
                         {{ column.label }}
@@ -34,14 +34,14 @@
                      ng-class-even="'gantt-background-row-alt'"
                      ng-class="row.classes"
                      ng-style="{'background-color': row.color, 'height': row.height}"
-                     ng-repeat="row in gantt.visibleRows track by $index">
+                     ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
                 </div>
             </div>
             <div class="gantt-body-foreground">
-                <div class="gantt-current-date-line" ng-if="currentDate === 'line' && currentDatePosition >= 0 && currentDatePosition <= gantt.width" ng-style="{'left': currentDatePosition + 'px' }"></div>
+                <div class="gantt-current-date-line" ng-if="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
             </div>
             <gantt-body-columns class="gantt-body-columns">
-                <gantt-column ng-repeat="column in gantt.visibleColumns track by $index">
+                <gantt-column ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">
                     <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>
                 </gantt-column>
             </gantt-body-columns>
@@ -49,12 +49,12 @@
                 <div class="gantt-timespan"
                      ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'px', 'width': timespan.width +'px', 'z-index': (timespan.priority || 0)}"
                      ng-class="timespan.classes"
-                     ng-repeat="timespan in gantt.timespans">
+                     ng-repeat="timespan in gantt.timespansManager.timespans">
                     <gantt-tooltip ng-model="timespan" date-format="'MMM d'">
                         <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>
                     </gantt-tooltip>
                 </div>
-                <gantt-row ng-repeat="row in gantt.visibleRows track by $index">
+                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
                     <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>
                 </gantt-row>
             </gantt-body-rows>
@@ -77,7 +77,7 @@
     <!-- Header template -->
     <script type="text/ng-template" id="template/default.header.tmpl.html">
         <div ng-transclude class="gantt-header"
-             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"
+             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
              ng-style="getHeaderCss()"></div>
     </script>
 
@@ -93,8 +93,8 @@
     <!-- Row header template -->
     <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">
         <div class="gantt-labels-header-row"
-             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"
-             ng-style="{'margin-top': ((gantt.getActiveHeadersCount()-1)*2)+'em'}">
+             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
+             ng-style="{'margin-top': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+'em'}">
             <span>Name</span>
         </div>
     </script>

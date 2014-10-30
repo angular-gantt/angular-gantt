@@ -13,7 +13,7 @@ gantt.filter('ganttTaskLimit', [function() {
                 res.push(task);
             } else {
                 // If the task can be drawn with gantt columns only.
-                if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().endDate) {
+                if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
 
                     var scrollLeft = gantt.$scope.scrollLeft;
                     var scrollWidth = gantt.$scope.scrollWidth;
