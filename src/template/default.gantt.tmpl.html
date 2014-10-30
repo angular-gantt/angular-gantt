@@ -54,7 +54,7 @@
                         <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>
                     </gantt-tooltip>
                 </div>
-                <gantt-row ng-repeat="row in gantt.visibleRows track by row.id">
+                <gantt-row ng-repeat="row in gantt.visibleRows track by $index">
                     <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>
                 </gantt-row>
             </gantt-body-rows>

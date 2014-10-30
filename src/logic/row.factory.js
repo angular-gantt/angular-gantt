@@ -66,7 +66,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
             if (gantt.$scope.filterTask) {
                 self.filteredTasks = $filter('filter')(self.tasks, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
             } else {
-                self.filteredTasks = self.tasks;
+                self.filteredTasks = self.tasks.slice(0);
             }
             self.visibleTasks = $filter('ganttTaskLimit')(self.filteredTasks, self.gantt);
         };

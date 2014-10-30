@@ -76,7 +76,7 @@ gantt.factory('Gantt', [
             if ($scope.filterRow) {
                 self.filteredRows = $filter('filter')(self.rows, $scope.filterRow, $scope.filterRowComparator);
             } else {
-                self.filteredRows = self.rows;
+                self.filteredRows = self.rows.slice(0);
             }
 
             var filterEventData;

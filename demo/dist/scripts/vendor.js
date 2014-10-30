@@ -36769,7 +36769,7 @@ gantt.factory('Gantt', [
             if ($scope.filterRow) {
                 self.filteredRows = $filter('filter')(self.rows, $scope.filterRow, $scope.filterRowComparator);
             } else {
-                self.filteredRows = self.rows;
+                self.filteredRows = self.rows.slice(0);
             }
 
             var filterEventData;
@@ -37547,7 +37547,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
             if (gantt.$scope.filterTask) {
                 self.filteredTasks = $filter('filter')(self.tasks, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
             } else {
-                self.filteredTasks = self.tasks;
+                self.filteredTasks = self.tasks.slice(0);
             }
             self.visibleTasks = $filter('ganttTaskLimit')(self.filteredTasks, self.gantt);
         };
@@ -39479,7 +39479,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>\n' +
         '                    </gantt-tooltip>\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.visibleRows track by row.id">\n' +
+        '                <gantt-row ng-repeat="row in gantt.visibleRows track by $index">\n' +
         '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>\n' +
         '                </gantt-row>\n' +
         '            </gantt-body-rows>\n' +
