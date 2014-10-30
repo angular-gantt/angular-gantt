@@ -3169,7 +3169,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
             var scrollTriggerDistance = 5;
 
             var windowElement = angular.element($window);
-            var ganttRowElement = $scope.row.$element;
+            var ganttRowElement = $scope.row.$element || angular.element($element[0].parentElement);
             var ganttBodyElement = $scope.template.body.$element;
             var ganttScrollElement = $scope.template.scrollable.$element;
 
