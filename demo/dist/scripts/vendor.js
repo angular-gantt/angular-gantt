@@ -38638,7 +38638,7 @@ gantt.directive('ganttTaskProgress', [function() {
             }
         },
         replace: true,
-        scope: { progress: '=' },
+        scope: { progress: '=ganttTaskProgressValue' },
         controller: ['$scope', function($scope) {
             $scope.getCss = function() {
                 var css = {};
@@ -39582,7 +39582,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
-        '            <gantt-task-progress ng-if="task.progress !== undefined" progress="task.progress"></gantt-task-progress>\n' +
+        '            <gantt-task-progress ng-if="task.progress !== undefined" gantt-task-progress-value="task.progress"></gantt-task-progress>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +

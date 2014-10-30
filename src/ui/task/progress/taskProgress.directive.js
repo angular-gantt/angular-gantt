@@ -10,7 +10,7 @@ gantt.directive('ganttTaskProgress', [function() {
             }
         },
         replace: true,
-        scope: { progress: '=' },
+        scope: { progress: '=ganttTaskProgressValue' },
         controller: ['$scope', function($scope) {
             $scope.getCss = function() {
                 var css = {};
