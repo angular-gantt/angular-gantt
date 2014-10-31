@@ -8,7 +8,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
             columnWidth = 20;
         }
         var unit = columnsManager.gantt.$scope.viewScale;
-        var calendar = columnsManager.gantt.$scope.calendar;
+        var calendar = columnsManager.gantt.calendar;
         var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
         var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
 

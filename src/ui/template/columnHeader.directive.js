@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttColumnHeader', ['GanttEvents', function(Events) {
     return {
         restrict: 'E',
         transclude: true,
@@ -13,15 +13,15 @@ gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Ev
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
+                $scope.gantt.api.columns.raise.click(Events.buildColumnEventData(evt, $element, $scope.column));
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_DBL_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
+                $scope.gantt.api.columns.raise.dblclick(Events.buildColumnEventData(evt, $element, $scope.column));
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CONTEXTMENU, Events.buildColumnEventData(evt, $element, $scope.column));
+                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
             });
         }]
     };

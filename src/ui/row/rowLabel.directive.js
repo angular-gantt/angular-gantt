@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttRowLabel', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRowLabel', ['GanttEvents', function(Events) {
     return {
         restrict: 'E',
         transclude: true,
@@ -13,23 +13,23 @@ gantt.directive('ganttRowLabel', ['GanttEvents', 'GANTT_EVENTS', function(Events
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.mousedown(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_MOUSEUP, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.mouseup(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.click(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.dblclick(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.contextmenu(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
 

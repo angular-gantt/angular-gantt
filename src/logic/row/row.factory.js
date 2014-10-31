@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, moment, $filter) {
     var Row = function(id, rowsManager, name, order, height, color, classes, data) {
         this.id = id;
         this.rowsManager = rowsManager;
@@ -35,7 +35,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
 
         this.sortTasks();
         this.setFromToByTask(task);
-        this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
+        this.rowsManager.gantt.api.tasks.raise.add({'task': task});
         return task;
     };
 
@@ -57,7 +57,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
         task.updatePosAndSize();
         this.updateVisibleTasks();
 
-        this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
+        this.rowsManager.gantt.api.tasks.raise.move({'oldRow': oldRow, 'task': task});
 
     };
 
@@ -111,7 +111,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
             }
 
             if (!disableEmit) {
-                this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': removedTask});
+                this.rowsManager.gantt.api.tasks.raise.remove({'task': removedTask});
             }
 
             return removedTask;

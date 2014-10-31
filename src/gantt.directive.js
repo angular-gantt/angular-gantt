@@ -1,61 +1,7 @@
 'use strict';
 /*global gantt: true*/
 var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.constant('GANTT_EVENTS',
-    {
-        'READY': 'event:gantt-ready',
-        'SCROLL': 'event:gantt-scroll',
-
-        'TASK_ADDED': 'event:gantt-task-added',
-        'TASK_CHANGED': 'event:gantt-task-changed',
-        'TASK_REMOVED': 'event:gantt-task-removed',
-        'TASK_MOVED': 'event:gantt-task-moved',
-        'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
-        'TASK_MOVE': 'event:gantt-task-move',
-        'TASK_MOVE_END': 'event:gantt-task-move-end',
-        'TASK_RESIZE_BEGIN': 'event:gantt-task-resize-begin',
-        'TASK_RESIZE': 'event:gantt-task-resize',
-        'TASK_RESIZE_END': 'event:gantt-task-resize-end',
-        'TASK_CLICKED': 'event:gantt-task-clicked',
-        'TASK_DBL_CLICKED': 'event:gantt-task-dblclicked',
-        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
-
-        'COLUMN_CLICKED': 'event:gantt-column-clicked',
-        'COLUMN_DBL_CLICKED': 'event:gantt-column-dblclicked',
-        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
-
-        'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
-        'ROW_MOUSEUP': 'event:gantt-row-mouseup',
-        'ROW_CLICKED': 'event:gantt-row-clicked',
-        'ROW_DBL_CLICKED': 'event:gantt-row-dblclicked',
-        'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
-        'ROW_CHANGED': 'event:gantt-row-changed',
-        'ROW_ADDED': 'event:gantt-row-added',
-        'ROW_REMOVED': 'event:gantt-row-removed',
-        'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
-
-        'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
-        'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
-        'ROW_LABEL_CLICKED': 'event:gantt-row-label-clicked',
-        'ROW_LABEL_DBL_CLICKED': 'event:gantt-row-label-dblclicked',
-        'ROW_LABEL_CONTEXTMENU': 'event:gantt-row-label-contextmenu',
-
-        'ROW_HEADER_MOUSEDOWN': 'event:gantt-row-header-mousedown',
-        'ROW_HEADER_MOUSEUP': 'event:gantt-row-header-mouseup',
-        'ROW_HEADER_CLICKED': 'event:gantt-row-header-clicked',
-        'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblclicked',
-        'ROW_HEADER_CONTEXTMENU': 'event:gantt-row-header-contextmenu',
-
-        'ROW_LABELS_RESIZED': 'event:gantt-row-labels-resized',
-
-        'TIMESPAN_ADDED': 'event:gantt-timespan-added',
-        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed',
-
-        'TASKS_FILTERED': 'event:gantt-tasks-filtered',
-        'ROWS_FILTERED': 'event:gantt-rows-filtered'
-    });
-
-gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate) {
     return {
         restrict: 'EA',
         replace: true,
@@ -99,12 +45,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',
-            loadTimespans: '&',
-            clearTimespans: '&',
-            loadData: '&',
-            removeData: '&',
-            clearData: '&',
-            centerDate: '&'
+            api: '=?'
         },
         controller: ['$scope', '$element', function($scope, $element) {
             // Initialize defaults
@@ -172,39 +113,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             // Disable animation if ngAnimate is present, as it drops down performance.
             enableNgAnimate(false, $element);
 
-            $scope.calendar = new Calendar();
-            $scope.calendar.registerTimeFrames($scope.timeFrames);
-            $scope.calendar.registerDateFrames($scope.dateFrames);
-
-            $scope.$watch('timeFrames', function() {
-                $scope.calendar.clearTimeFrames();
-                $scope.calendar.registerTimeFrames($scope.timeFrames);
-            });
-
-            $scope.$watch('dateFrames', function() {
-                $scope.calendar.clearDateFrames();
-                $scope.calendar.registerDateFrames($scope.dateFrames);
-            });
-
             $scope.gantt = new Gantt($scope, $element);
-
-            // Remove specified rows and tasks.
-            $scope.removeData({ fn: function(data) {$scope.gantt.removeData(data);}});
-
-            // Load data handler.
-            // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: function(data) {$scope.gantt.loadData(data);}});
-            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.timespansManager.loadTimespans(timespans);}});
-
-            // Clear data handler.
-            $scope.clearData({ fn: function() {$scope.gantt.clearData();}});
-            $scope.clearTimespans({ fn: function() {$scope.gantt.timespansManager.clearTimespans();}});
-
-            // Scroll to specified date handler.
-            $scope.centerDate({ fn: function(date) {$scope.gantt.scroll.scrollToDate(date);}});
-
-            // Gantt is initialized. Signal that the Gantt is ready.
-            $scope.$emit(GANTT_EVENTS.READY);
         }
         ]};
 }]);

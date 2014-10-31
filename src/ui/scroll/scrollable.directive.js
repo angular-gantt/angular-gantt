@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(debounce, layout, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(debounce, layout) {
     return {
         restrict: 'E',
         transclude: true,
@@ -51,19 +51,19 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENT
 
                 if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.from;
+                    date = $scope.gantt.columnsManager.from;
                 } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
-                    date = $scope.gantt.to;
+                    date = $scope.gantt.columnsManager.to;
                 }
 
                 lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
-                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft, date: date, direction: direction});
+                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft, date: date, direction: direction});
                 } else {
-                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
+                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft});
                 }
             }, 5));
 

@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', function(Timespan, GANTT_EVENTS) {
+gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
     var GanttTimespansManager = function(gantt) {
         var self = this;
 
@@ -14,6 +14,12 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', functio
                 self.loadTimespans(newValue);
             }
         });
+
+        this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
+
+        this.gantt.api.registerEvent('timespans', 'add');
+        this.gantt.api.registerEvent('timespans', 'change');
     };
 
     // Adds or updates timespans
@@ -34,12 +40,13 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', functio
             timespan = this.timespansMap[timespanData.id];
             timespan.copy(timespanData);
             isUpdate = true;
+            this.gantt.api.timespans.raise.change({timespan: timespan});
         } else {
             timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
                 timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
             this.timespansMap[timespanData.id] = timespan;
             this.timespans.push(timespan);
-            this.gantt.$scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
+            this.gantt.api.timespans.raise.add({timespan: timespan});
         }
 
         timespan.updatePosAndSize();

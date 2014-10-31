@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS', function($timeout, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -28,8 +28,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS
             };
 
             $element.bind('scroll', updateListeners);
-
-            $scope.$on(GANTT_EVENTS.ROW_ADDED, debounce(function() {
+            $scope.gantt.api.rows.on.change($scope, debounce(function() {
                 updateListeners();
             }, 5));
 

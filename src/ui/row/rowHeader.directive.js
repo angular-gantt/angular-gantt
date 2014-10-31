@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRowHeader', [function() {
     return {
         restrict: 'E',
         transclude: true,
@@ -12,24 +12,26 @@ gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Event
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.rowHeader.$element = $element;
+
             $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_MOUSEDOWN, {evt: evt});
+                this.gantt.api.rowHeader.raise.mousedown({evt: evt});
             });
 
             $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_MOUSEUP, {evt: evt});
+                this.gantt.api.rowHeader.raise.mouseup({evt: evt});
             });
 
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_CLICKED, {evt: evt});
+                this.gantt.api.rowHeader.raise.click({evt: evt});
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, {evt: evt});
+                this.gantt.api.rowHeader.raise.dblclick({evt: evt});
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, {evt: evt});
+                this.gantt.api.rowHeader.raise.contextmenu({evt: evt});
             });
 
 

@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENTS', function(Row, $filter, moment, GANTT_EVENTS) {
+gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row, $filter, moment) {
     var RowsManager = function(gantt) {
         var self = this;
 
@@ -35,6 +35,39 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         });
 
         this.updateVisibleObjects();
+
+        this.gantt.api.registerMethod('rows', 'add', RowsManager.prototype.addRow, this);
+        this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
+        this.gantt.api.registerMethod('rows', 'swap', RowsManager.prototype.swapRows, this);
+
+        this.gantt.api.registerEvent('tasks', 'add');
+        this.gantt.api.registerEvent('tasks', 'change');
+        this.gantt.api.registerEvent('tasks', 'remove');
+        this.gantt.api.registerEvent('tasks', 'move');
+        this.gantt.api.registerEvent('tasks', 'moveBegin');
+        this.gantt.api.registerEvent('tasks', 'moveEnd');
+        this.gantt.api.registerEvent('tasks', 'resize');
+        this.gantt.api.registerEvent('tasks', 'resizeBegin');
+        this.gantt.api.registerEvent('tasks', 'resizeEnd');
+        this.gantt.api.registerEvent('tasks', 'click');
+        this.gantt.api.registerEvent('tasks', 'dblclick');
+        this.gantt.api.registerEvent('tasks', 'contextmenu');
+
+        this.gantt.api.registerEvent('tasks', 'filter');
+
+        this.gantt.api.registerEvent('rows', 'mousedown');
+        this.gantt.api.registerEvent('rows', 'mouseup');
+        this.gantt.api.registerEvent('rows', 'click');
+        this.gantt.api.registerEvent('rows', 'dblclick');
+        this.gantt.api.registerEvent('rows', 'contextmenu');
+
+        this.gantt.api.registerEvent('rows', 'add');
+        this.gantt.api.registerEvent('rows', 'change');
+        this.gantt.api.registerEvent('rows', 'remove');
+        this.gantt.api.registerEvent('rows', 'orderChange');
+
+        this.gantt.api.registerEvent('rows', 'filter');
+
     };
 
     RowsManager.prototype.addRow = function(rowData) {
@@ -45,7 +78,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
             row = this.rowsMap[rowData.id];
             row.copy(rowData);
             isUpdate = true;
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
+            this.gantt.api.rows.raise.change({'row': row});
         } else {
             var order = rowData.order;
 
@@ -63,7 +96,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
             this.rows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
+            this.gantt.api.rows.raise.add({'row': row});
         }
 
         if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
@@ -102,7 +135,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
                 }
             }
 
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
+            this.gantt.api.rows.raise.remove({'row': removedRow});
             return row;
         }
 
@@ -124,7 +157,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
                         row.removeTask(rowData.tasks[j].id);
                     }
 
-                    this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
+                    this.gantt.api.rows.raise.change({'row': row});
                 }
             } else {
                 // Delete the complete row
@@ -168,10 +201,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         b.order = order;
 
         // Raise change events
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
+        this.gantt.api.rows.raise.change({'row': a});
+        this.gantt.api.rows.raise.orderChange({'row': a});
+        this.gantt.api.rows.raise.change({'row': b});
+        this.gantt.api.rows.raise.orderChange({'row': b});
 
         // Switch to custom sort mode and trigger sort
         if (this.gantt.$scope.sortMode !== 'custom') {
@@ -202,7 +235,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
         this.visibleRows = this.filteredRows;
         if (filterEventData !== undefined) {
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
+            this.gantt.api.rows.raise.filter(filterEventData);
         }
     };
 
@@ -224,7 +257,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         }
 
         if (filterEventData !== undefined) {
-            this.gantt.$scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
+            this.gantt.api.tasks.raise.filter(filterEventData);
         }
     };
 

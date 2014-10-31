@@ -2,6 +2,13 @@
 gantt.factory('GanttScroll', [function() {
     var Scroll = function(gantt) {
         this.gantt = gantt;
+
+        this.gantt.api.registerEvent('scroll', 'scroll');
+
+        this.gantt.api.registerMethod('scroll', 'to', Scroll.prototype.scrollTo, this);
+        this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
+        this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
+        this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
     };
 
     /**

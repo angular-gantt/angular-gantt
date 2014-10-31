@@ -1,6 +1,5 @@
 'use strict';
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
-
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events) {
     return {
         restrict: 'E',
         require: '^ganttRow',
@@ -42,7 +41,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.click(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
                     evt.stopPropagation();
@@ -53,7 +52,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 $scope.$apply(function() {
                     // Only raise dbl click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_DBL_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.dblclick(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
                     evt.stopPropagation();
@@ -64,7 +63,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_CONTEXTMENU, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.contextmenu(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
                     evt.stopPropagation();
@@ -126,7 +125,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                             }
                         }
                         $scope.task.moveTo(x);
-                        $scope.$emit(GANTT_EVENTS.TASK_MOVE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.move(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
                 } else if (mode === 'E') {
                     if ($scope.taskOutOfRange !== 'truncate') {
@@ -137,7 +136,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setTo(x);
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 } else {
                     if ($scope.taskOutOfRange !== 'truncate') {
                         if (x > $scope.task.left + $scope.task.width) {
@@ -147,7 +146,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setFrom(x);
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
                 taskHasBeenChanged = true;
@@ -243,9 +242,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 // Raise task move start event
                 if (!$scope.task.isMoving) {
                     if (mode === 'M') {
-                        $scope.$emit(GANTT_EVENTS.TASK_MOVE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.moveBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     } else {
-                        $scope.$emit(GANTT_EVENTS.TASK_RESIZE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
                 }
 
@@ -260,7 +259,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 var taskMoveHandler = debounce(function(evt) {
                     if ($scope.task.isMoving) {
                         // As this function is defered, disableMoveMode may have been called before.
-                        // Without this check, TASK_CHANGED event is not fired for faster moves.
+                        // Without this check, task.changed event is not fired for faster moves.
                         // See github issue #190
                         clearScrollInterval();
                         handleMove(mode, evt);
@@ -304,9 +303,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
                 // Raise move end event
                 if ($scope.task.moveMode === 'M') {
-                    $scope.$emit(GANTT_EVENTS.TASK_MOVE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.moveEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 } else {
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
                 $scope.task.moveMode = undefined;
@@ -315,7 +314,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 if (taskHasBeenChanged === true) {
                     taskHasBeenChanged = false;
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.$emit(GANTT_EVENTS.TASK_CHANGED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.change(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
             };
 

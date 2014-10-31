@@ -52,7 +52,14 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.buildGenerator();
         this.clearColumns();
         this.updateColumns();
-        this.updateVisibleColumns();
+
+        this.gantt.api.registerMethod('columns', 'build', this.buildGenerator, this);
+        this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
+        this.gantt.api.registerMethod('columns', 'update', this.updateColumns, this);
+
+        this.gantt.api.registerEvent('columns', 'click');
+        this.gantt.api.registerEvent('columns', 'dblclick');
+        this.gantt.api.registerEvent('columns', 'contextmenu');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {

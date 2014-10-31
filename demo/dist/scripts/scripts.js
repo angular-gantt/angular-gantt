@@ -25,7 +25,7 @@ angular.module('angularGanttDemoApp', [
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', function($scope, $timeout, Uuid, Sample, moment, GANTT_EVENTS) {
+    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'Uuid', 'Sample', 'moment', function($scope, $timeout, $log, Uuid, Sample, moment) {
         $scope.options = {
             mode: 'custom',
             scale: 'day',
@@ -79,7 +79,83 @@ angular.module('angularGanttDemoApp')
                 }
             },
             timeFramesNonWorkingMode: 'visible',
-            columnMagnet: '5 minutes'
+            columnMagnet: '5 minutes',
+            api: function(api) {
+                $scope.api = api;
+
+                api.core.on.ready($scope, function() {
+                    $scope.addSamples();
+                });
+
+                api.scroll.on.scroll($scope, logScrollEvent);
+
+                var addEventName = function(eventName, func) {
+                    return function(data) {
+                        return func({name: eventName}, data);
+                    };
+                };
+
+                api.columns.on.click($scope, addEventName('columns.on.click', logTaskEvent));
+                api.columns.on.dblclick($scope, addEventName('columns.on.dblclick', logTaskEvent));
+                api.columns.on.contextmenu($scope, addEventName('columns.on.contextmenu', logTaskEvent));
+
+                api.tasks.on.click($scope, addEventName('tasks.on.click', logTaskEvent));
+                api.tasks.on.dblclick($scope, addEventName('tasks.on.dblclick', logTaskEvent));
+                api.tasks.on.contextmenu($scope, addEventName('tasks.on.contextmenu', logTaskEvent));
+
+                api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
+                api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
+                api.tasks.on.remove($scope, addEventName('tasks.on.remove', logTaskEvent));
+
+                api.tasks.on.moveBegin($scope, addEventName('tasks.on.moveBegin', logTaskEvent));
+                //api.tasks.on.move($scope, addEventName('tasks.on.move', logTaskEvent));
+                api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', logTaskEvent));
+
+                api.tasks.on.resizeBegin($scope, addEventName('tasks.on.resizeBegin', logTaskEvent));
+                //api.tasks.on.resize($scope, addEventName('tasks.on.resize', logTaskEvent));
+                api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
+
+                api.rows.on.mousedown($scope, addEventName('rows.on.mousedown', logTaskEvent));
+                api.rows.on.mouseup($scope, addEventName('rows.on.mouseup', logTaskEvent));
+                api.rows.on.click($scope, addEventName('rows.on.click', logTaskEvent));
+                api.rows.on.dblclick($scope, addEventName('rows.on.dblclick', logTaskEvent));
+                api.rows.on.contextmenu($scope, addEventName('rows.on.contextmenu', logTaskEvent));
+
+                api.rows.on.add($scope, addEventName('rows.on.add', logTaskEvent));
+                api.rows.on.change($scope, addEventName('rows.on.change', logTaskEvent));
+                api.rows.on.orderChange($scope, addEventName('rows.on.orderChange', logTaskEvent));
+                api.rows.on.remove($scope, addEventName('rows.on.remove', logTaskEvent));
+
+                api.labels.on.mousedown($scope, addEventName('labels.on.mousedown', logTaskEvent));
+                api.labels.on.mouseup($scope, addEventName('labels.on.mouseup', logTaskEvent));
+                api.labels.on.click($scope, addEventName('labels.on.click', logTaskEvent));
+                api.labels.on.dblclick($scope, addEventName('labels.on.dblclick', logTaskEvent));
+                api.labels.on.contextmenu($scope, addEventName('labels.on.contextmenu', logTaskEvent));
+
+                api.labels.on.resize($scope, addEventName('labels.on.resize', logTaskEvent));
+
+                api.rowHeader.on.mousedown($scope, addEventName('rowHeader.on.mousedown', logTaskEvent));
+                api.rowHeader.on.mouseup($scope, addEventName('rowHeader.on.mouseup', logTaskEvent));
+                api.rowHeader.on.click($scope, addEventName('rowHeader.on.click', logTaskEvent));
+                api.rowHeader.on.dblclick($scope, addEventName('rowHeader.on.dblclick', logTaskEvent));
+                api.rowHeader.on.contextmenu($scope, addEventName('rowHeader.on.contextmenu', logTaskEvent));
+
+                api.timespans.on.add($scope, addEventName('timespans.on.add', logTaskEvent));
+
+                api.rows.on.mousedown($scope, handleDraw);
+
+                api.core.on.ready($scope, function() {
+                    $log.log('[Event] core.on.ready');
+                });
+
+                api.rows.on.filter($scope, function(data) {
+                    $log.log('[Event] rows.on.filter: ' + data.filteredRows.length + '/' + data.rows.length + ' rows displayed.');
+                });
+
+                api.tasks.on.filter($scope, function(data) {
+                    $log.log('[Event] tasks.on.filter: ' + data.filteredTasks.length + '/' + data.tasks.length + ' tasks displayed.');
+                });
+            }
         };
 
         $scope.$watch('fromDate+toDate', function() {
@@ -99,20 +175,13 @@ angular.module('angularGanttDemoApp')
             }
         });
 
-        $scope.$on(GANTT_EVENTS.READY, function() {
-            $scope.addSamples();
-            $timeout(function() {
-                $scope.scrollToDate($scope.options.currentDateValue);
-            }, 0, true);
-        });
-
         $scope.addSamples = function() {
-            $scope.loadTimespans(Sample.getSampleTimespans().timespan1);
-            $scope.loadData(Sample.getSampleData().data1);
+            $scope.api.timespans.load(Sample.getSampleTimespans().timespan1);
+            $scope.api.data.load(Sample.getSampleData().data1);
         };
 
         $scope.removeSomeSamples = function() {
-            $scope.removeData([
+            $scope.api.data.remove([
                 {'id': 'c65c2672-445d-4297-a7f2-30de241b3145'}, // Remove all Kickoff meetings
                 {
                     'id': '2f85dbeb-0845-404e-934e-218bf39750c0', 'tasks': [
@@ -130,10 +199,10 @@ angular.module('angularGanttDemoApp')
         };
 
         $scope.removeSamples = function() {
-            $scope.clearData();
+            $scope.api.data.clear();
         };
 
-        var rowEvent = function(event, data) {
+        var handleDraw = function(data) {
             if (!$scope.options.readOnly && $scope.options.draw) {
                 // Example to draw task inside row
                 if ((data.evt.target ? data.evt.target : data.evt.srcElement).className.indexOf('gantt-row') > -1) {
@@ -157,13 +226,13 @@ angular.module('angularGanttDemoApp')
             }
         };
 
-        var logScrollEvent = function(event, data) {
+        var logScrollEvent = function(data) {
             if (angular.equals(data.direction, 'left')) {
                 // Raised if the user scrolled to the left side of the Gantt. Use this event to load more data.
-                console.log('Scroll event: Left ' + data.left);
+                $log.log('Scroll event: Left ' + data.left);
             } else if (angular.equals(data.direction, 'right')) {
                 // Raised if the user scrolled to the right side of the Gantt. Use this event to load more data.
-                console.log('Scroll event: Right');
+                $log.log('Scroll event: Right');
             }
         };
 
@@ -189,67 +258,9 @@ angular.module('angularGanttDemoApp')
                 }
                 output += property + ': ' + propertyValue + '; ';
             }
-            console.log('$scope.$on: ' + event.name + ': ' + output);
+            $log.log('[Event] ' + event.name + ': ' + output);
         };
-
-        $scope.$on(GANTT_EVENTS.TASK_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_DBL_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_CONTEXTMENU, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_ADDED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_CHANGED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_REMOVED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_MOVE_BEGIN, logTaskEvent);
-        //$scope.$on(GANTT_EVENTS.TASK_MOVE, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_MOVE_END, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_RESIZE_BEGIN, logTaskEvent);
-        //$scope.$on(GANTT_EVENTS.TASK_RESIZE, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TASK_RESIZE_END, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.COLUMN_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.COLUMN_DBL_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.COLUMN_CONTEXTMENU, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_MOUSEUP, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_DBL_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_CONTEXTMENU, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.ROW_ORDER_CHANGED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_CHANGED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_ADDED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_REMOVED, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.ROW_MOUSEDOWN, rowEvent);
-
-        $scope.$on(GANTT_EVENTS.ROW_LABEL_MOUSEDOWN, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_LABEL_MOUSEUP, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_LABEL_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_LABEL_DBL_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_LABEL_CONTEXTMENU, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.ROW_HEADER_MOUSEDOWN, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_HEADER_MOUSEUP, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_HEADER_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.ROW_LABELS_RESIZED, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.TIMESPAN_ADDED, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.TIMESPAN_CHANGED, logTaskEvent);
-
-        $scope.$on(GANTT_EVENTS.READY, logTaskEvent);
-        $scope.$on(GANTT_EVENTS.SCROLL, logScrollEvent);
-
-        $scope.$on(GANTT_EVENTS.ROWS_FILTERED, function(event, data) {
-            console.log('$scope.$on: ' + event.name + ': ' + data.filteredRows.length + '/' + data.rows.length + ' rows displayed.');
-        });
-
-        $scope.$on(GANTT_EVENTS.TASKS_FILTERED, function(event, data) {
-            console.log('$scope.$on: ' + event.name + ': ' + data.filteredTasks.length + '/' + data.tasks.length + ' tasks displayed.');
-        });
-    });
+    }]);
 
 'use strict';
 

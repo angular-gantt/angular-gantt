@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
+gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
 
     return {
         restrict: 'A',
@@ -81,7 +81,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
                     'cursor': ''
                 });
 
-                $scope.$emit(GANTT_EVENTS.ROW_LABELS_RESIZED, { width: $scope.width });
+                $scope.gantt.api.labels.raise.resize({ width: $scope.width });
             };
         }]
     };

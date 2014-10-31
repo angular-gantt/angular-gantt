@@ -9,61 +9,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 
 var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.constant('GANTT_EVENTS',
-    {
-        'READY': 'event:gantt-ready',
-        'SCROLL': 'event:gantt-scroll',
-
-        'TASK_ADDED': 'event:gantt-task-added',
-        'TASK_CHANGED': 'event:gantt-task-changed',
-        'TASK_REMOVED': 'event:gantt-task-removed',
-        'TASK_MOVED': 'event:gantt-task-moved',
-        'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
-        'TASK_MOVE': 'event:gantt-task-move',
-        'TASK_MOVE_END': 'event:gantt-task-move-end',
-        'TASK_RESIZE_BEGIN': 'event:gantt-task-resize-begin',
-        'TASK_RESIZE': 'event:gantt-task-resize',
-        'TASK_RESIZE_END': 'event:gantt-task-resize-end',
-        'TASK_CLICKED': 'event:gantt-task-clicked',
-        'TASK_DBL_CLICKED': 'event:gantt-task-dblclicked',
-        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
-
-        'COLUMN_CLICKED': 'event:gantt-column-clicked',
-        'COLUMN_DBL_CLICKED': 'event:gantt-column-dblclicked',
-        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
-
-        'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
-        'ROW_MOUSEUP': 'event:gantt-row-mouseup',
-        'ROW_CLICKED': 'event:gantt-row-clicked',
-        'ROW_DBL_CLICKED': 'event:gantt-row-dblclicked',
-        'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
-        'ROW_CHANGED': 'event:gantt-row-changed',
-        'ROW_ADDED': 'event:gantt-row-added',
-        'ROW_REMOVED': 'event:gantt-row-removed',
-        'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
-
-        'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
-        'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
-        'ROW_LABEL_CLICKED': 'event:gantt-row-label-clicked',
-        'ROW_LABEL_DBL_CLICKED': 'event:gantt-row-label-dblclicked',
-        'ROW_LABEL_CONTEXTMENU': 'event:gantt-row-label-contextmenu',
-
-        'ROW_HEADER_MOUSEDOWN': 'event:gantt-row-header-mousedown',
-        'ROW_HEADER_MOUSEUP': 'event:gantt-row-header-mouseup',
-        'ROW_HEADER_CLICKED': 'event:gantt-row-header-clicked',
-        'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblclicked',
-        'ROW_HEADER_CONTEXTMENU': 'event:gantt-row-header-contextmenu',
-
-        'ROW_LABELS_RESIZED': 'event:gantt-row-labels-resized',
-
-        'TIMESPAN_ADDED': 'event:gantt-timespan-added',
-        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed',
-
-        'TASKS_FILTERED': 'event:gantt-tasks-filtered',
-        'ROWS_FILTERED': 'event:gantt-rows-filtered'
-    });
-
-gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate, GANTT_EVENTS) {
+gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate) {
     return {
         restrict: 'EA',
         replace: true,
@@ -107,12 +53,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',
-            loadTimespans: '&',
-            clearTimespans: '&',
-            loadData: '&',
-            removeData: '&',
-            clearData: '&',
-            centerDate: '&'
+            api: '=?'
         },
         controller: ['$scope', '$element', function($scope, $element) {
             // Initialize defaults
@@ -180,42 +121,233 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             // Disable animation if ngAnimate is present, as it drops down performance.
             enableNgAnimate(false, $element);
 
-            $scope.calendar = new Calendar();
-            $scope.calendar.registerTimeFrames($scope.timeFrames);
-            $scope.calendar.registerDateFrames($scope.dateFrames);
-
-            $scope.$watch('timeFrames', function() {
-                $scope.calendar.clearTimeFrames();
-                $scope.calendar.registerTimeFrames($scope.timeFrames);
-            });
-
-            $scope.$watch('dateFrames', function() {
-                $scope.calendar.clearDateFrames();
-                $scope.calendar.registerDateFrames($scope.dateFrames);
-            });
-
             $scope.gantt = new Gantt($scope, $element);
-
-            // Remove specified rows and tasks.
-            $scope.removeData({ fn: function(data) {$scope.gantt.removeData(data);}});
-
-            // Load data handler.
-            // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: function(data) {$scope.gantt.loadData(data);}});
-            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.timespansManager.loadTimespans(timespans);}});
-
-            // Clear data handler.
-            $scope.clearData({ fn: function() {$scope.gantt.clearData();}});
-            $scope.clearTimespans({ fn: function() {$scope.gantt.timespansManager.clearTimespans();}});
-
-            // Scroll to specified date handler.
-            $scope.centerDate({ fn: function(date) {$scope.gantt.scroll.scrollToDate(date);}});
-
-            // Gantt is initialized. Signal that the Gantt is ready.
-            $scope.$emit(GANTT_EVENTS.READY);
         }
         ]};
 }]);
+
+
+// This file is adapted from Angular UI ngGrid project
+// MIT License
+// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.12/src/js/core/factories/GridApi.js
+(function() {
+
+    angular.module('gantt')
+        .factory('GanttApi', ['$q', '$rootScope', 'ganttUtils',
+            function($q, $rootScope, utils) {
+                /**
+                 * @ngdoc function
+                 * @name gantt.class:GanttApi
+                 * @description GanttApi provides the ability to register public methods events inside the gantt and allow
+                 * for other components to use the api via featureName.methodName and featureName.on.eventName(function(args){}
+                 * @param {object} gantt gantt that owns api
+                 */
+                var GanttApi = function GanttApi(gantt) {
+                    this.gantt = gantt;
+                    this.listeners = [];
+                    this.apiId = utils.newId();
+                };
+
+                /**
+                 * @ngdoc function
+                 * @name gantt.class:suppressEvents
+                 * @methodOf gantt.class:GanttApi
+                 * @description Used to execute a function while disabling the specified event listeners.
+                 * Disables the listenerFunctions, executes the callbackFn, and then enables
+                 * the listenerFunctions again
+                 * @param {object} listenerFuncs listenerFunc or array of listenerFuncs to suppress. These must be the same
+                 * functions that were used in the .on.eventName method
+                 * @param {object} callBackFn function to execute
+                 * @example
+                 * <pre>
+                 *    var navigate = function (newRowCol, oldRowCol){
+                 *       //do something on navigate
+                 *    }
+                 *
+                 *    ganttApi.cellNav.on.navigate(scope,navigate);
+                 *
+                 *
+                 *    //call the scrollTo event and suppress our navigate listener
+                 *    //scrollTo will still raise the event for other listeners
+                 *    ganttApi.suppressEvents(navigate, function(){
+                 *       ganttApi.cellNav.scrollTo(aRow, aCol);
+                 *    });
+                 *
+                 * </pre>
+                 */
+                GanttApi.prototype.suppressEvents = function(listenerFuncs, callBackFn) {
+                    var self = this;
+                    var listeners = angular.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+
+                    //find all registered listeners
+                    var foundListeners = [];
+                    listeners.forEach(function(l) {
+                        foundListeners = self.listeners.filter(function(lstnr) {
+                            return l === lstnr.handler;
+                        });
+                    });
+
+                    //deregister all the listeners
+                    foundListeners.forEach(function(l) {
+                        l.dereg();
+                    });
+
+                    callBackFn();
+
+                    //reregister all the listeners
+                    foundListeners.forEach(function(l) {
+                        l.dereg = registerEventWithAngular(l.scope, l.eventId, l.handler, self.gantt);
+                    });
+
+                };
+
+                /**
+                 * @ngdoc function
+                 * @name registerEvent
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers a new event for the given feature
+                 * @param {string} featureName name of the feature that raises the event
+                 * @param {string} eventName  name of the event
+                 */
+                GanttApi.prototype.registerEvent = function(featureName, eventName) {
+                    var self = this;
+                    if (!self[featureName]) {
+                        self[featureName] = {};
+                    }
+
+                    var feature = self[featureName];
+                    if (!feature.on) {
+                        feature.on = {};
+                        feature.raise = {};
+                    }
+
+                    var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
+
+                    feature.raise[eventName] = function() {
+                        $rootScope.$broadcast.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+                    };
+
+                    feature.on[eventName] = function(scope, handler) {
+                        var dereg = registerEventWithAngular(scope, eventId, handler, self.gantt);
+
+                        //track our listener so we can turn off and on
+                        var listener = {handler: handler, dereg: dereg, eventId: eventId, scope: scope};
+                        self.listeners.push(listener);
+
+                        //destroy tracking when scope is destroyed
+                        //wanted to remove the listener from the array but angular does
+                        //strange things in scope.$destroy so I could not access the listener array
+                        scope.$on('$destroy', function() {
+                            listener.dereg = null;
+                            listener.handler = null;
+                            listener.eventId = null;
+                            listener.scope = null;
+                        });
+                    };
+                };
+
+                function registerEventWithAngular(scope, eventId, handler, gantt) {
+                    return scope.$on(eventId, function() {
+                        var args = Array.prototype.slice.call(arguments);
+                        args.splice(0, 1); //remove evt argument
+                        handler.apply(gantt.api, args);
+                    });
+                }
+
+                /**
+                 * @ngdoc function
+                 * @name registerEventsFromObject
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers features and events from a simple objectMap.
+                 * eventObjectMap must be in this format (multiple features allowed)
+                 * <pre>
+                 * {featureName:
+                 *        {
+                 *          eventNameOne:function(args){},
+                 *          eventNameTwo:function(args){}
+                 *        }
+                 *  }
+                 * </pre>
+                 * @param {object} eventObjectMap map of feature/event names
+                 */
+                GanttApi.prototype.registerEventsFromObject = function(eventObjectMap) {
+                    var self = this;
+                    var features = [];
+                    angular.forEach(eventObjectMap, function(featProp, featPropName) {
+                        var feature = {name: featPropName, events: []};
+                        angular.forEach(featProp, function(prop, propName) {
+                            feature.events.push(propName);
+                        });
+                        features.push(feature);
+                    });
+
+                    features.forEach(function(feature) {
+                        feature.events.forEach(function(event) {
+                            self.registerEvent(feature.name, event);
+                        });
+                    });
+
+                };
+
+                /**
+                 * @ngdoc function
+                 * @name registerMethod
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers a new event for the given feature
+                 * @param {string} featureName name of the feature
+                 * @param {string} methodName  name of the method
+                 * @param {object} callBackFn function to execute
+                 * @param {object} thisArg binds callBackFn 'this' to thisArg.  Defaults to ganttApi.gantt
+                 */
+                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, thisArg) {
+                    if (!this[featureName]) {
+                        this[featureName] = {};
+                    }
+
+                    var feature = this[featureName];
+
+                    feature[methodName] = utils.createBoundedWrapper(thisArg || this.gantt, callBackFn);
+                };
+
+                /**
+                 * @ngdoc function
+                 * @name registerMethodsFromObject
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers features and methods from a simple objectMap.
+                 * eventObjectMap must be in this format (multiple features allowed)
+                 * <br>
+                 * {featureName:
+                 *        {
+                 *          methodNameOne:function(args){},
+                 *          methodNameTwo:function(args){}
+                 *        }
+                 * @param {object} eventObjectMap map of feature/event names
+                 * @param {object} thisArg binds this to thisArg for all functions.  Defaults to GanttApi.gantt
+                 */
+                GanttApi.prototype.registerMethodsFromObject = function(methodMap, thisArg) {
+                    var self = this;
+                    var features = [];
+                    angular.forEach(methodMap, function(featProp, featPropName) {
+                        var feature = {name: featPropName, methods: []};
+                        angular.forEach(featProp, function(prop, propName) {
+                            feature.methods.push({name: propName, fn: prop});
+                        });
+                        features.push(feature);
+                    });
+
+                    features.forEach(function(feature) {
+                        feature.methods.forEach(function(method) {
+                            self.registerMethod(feature.name, method.name, method.fn, thisArg);
+                        });
+                    });
+
+                };
+
+                return GanttApi;
+
+            }]);
+
+})();
 
 
 /**
@@ -938,7 +1070,7 @@ gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column
             columnWidth = 20;
         }
         var unit = columnsManager.gantt.$scope.viewScale;
-        var calendar = columnsManager.gantt.$scope.calendar;
+        var calendar = columnsManager.gantt.calendar;
         var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
         var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
 
@@ -1094,7 +1226,14 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.buildGenerator();
         this.clearColumns();
         this.updateColumns();
-        this.updateVisibleColumns();
+
+        this.gantt.api.registerMethod('columns', 'build', this.buildGenerator, this);
+        this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
+        this.gantt.api.registerMethod('columns', 'update', this.updateColumns, this);
+
+        this.gantt.api.registerEvent('columns', 'click');
+        this.gantt.api.registerEvent('columns', 'dblclick');
+        this.gantt.api.registerEvent('columns', 'contextmenu');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {
@@ -1444,8 +1583,8 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
 
 
 gantt.factory('Gantt', [
-    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
-    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
+    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
+    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
@@ -1453,8 +1592,15 @@ gantt.factory('Gantt', [
             this.$scope = $scope;
             this.$element = $element;
 
+            this.api = new GanttApi(this);
+
+            this.calendar = new Calendar(this);
+            this.calendar.registerTimeFrames(this.$scope.timeFrames);
+            this.calendar.registerDateFrames(this.$scope.dateFrames);
+
             this.scroll = new Scroll(this);
             this.body = new Body(this);
+            this.rowHeader = new RowHeader(this);
             this.header = new Header(this);
             this.labels = new Labels(this);
 
@@ -1472,6 +1618,29 @@ gantt.factory('Gantt', [
                     self.loadData(newValue);
                 }
             });
+
+            this.api.registerEvent('core', 'ready');
+
+            this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
+            this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
+
+            this.api.registerMethod('data', 'load', this.loadData, this);
+            this.api.registerMethod('data', 'remove', this.removeData, this);
+            this.api.registerMethod('data', 'clear', this.clearData, this);
+
+            this.api.registerMethod('calendar', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+            this.api.registerMethod('calendar', 'clearTimeframe', this.calendar.clearTimeFrames, this.calendar);
+            this.api.registerMethod('calendar', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+            this.api.registerMethod('calendar', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+            this.api.registerMethod('calendar', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+            this.api.registerMethod('calendar', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+
+            if (angular.isFunction(this.$scope.api)) {
+                this.$scope.api(this.api);
+            }
+
+            // Gantt is initialized. Signal that the Gantt is ready.
+            this.api.core.raise.ready(this.api);
         };
 
         // Returns the exact column date at the given position x (in em)
@@ -1531,7 +1700,7 @@ gantt.factory('Gantt', [
     }]);
 
 
-gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
+gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, moment, $filter) {
     var Row = function(id, rowsManager, name, order, height, color, classes, data) {
         this.id = id;
         this.rowsManager = rowsManager;
@@ -1567,7 +1736,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
 
         this.sortTasks();
         this.setFromToByTask(task);
-        this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
+        this.rowsManager.gantt.api.tasks.raise.add({'task': task});
         return task;
     };
 
@@ -1589,7 +1758,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
         task.updatePosAndSize();
         this.updateVisibleTasks();
 
-        this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
+        this.rowsManager.gantt.api.tasks.raise.move({'oldRow': oldRow, 'task': task});
 
     };
 
@@ -1643,7 +1812,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
             }
 
             if (!disableEmit) {
-                this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': removedTask});
+                this.rowsManager.gantt.api.tasks.raise.remove({'task': removedTask});
             }
 
             return removedTask;
@@ -1703,7 +1872,21 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', fun
 }]);
 
 
-gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENTS', function(Row, $filter, moment, GANTT_EVENTS) {
+gantt.factory('GanttRowHeader', [function() {
+    var RowHeader = function(gantt) {
+        this.gantt = gantt;
+
+        this.gantt.api.registerEvent('rowHeader', 'mousedown');
+        this.gantt.api.registerEvent('rowHeader', 'mouseup');
+        this.gantt.api.registerEvent('rowHeader', 'click');
+        this.gantt.api.registerEvent('rowHeader', 'dblclick');
+        this.gantt.api.registerEvent('rowHeader', 'contextmenu');
+    };
+    return RowHeader;
+}]);
+
+
+gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row, $filter, moment) {
     var RowsManager = function(gantt) {
         var self = this;
 
@@ -1739,6 +1922,39 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         });
 
         this.updateVisibleObjects();
+
+        this.gantt.api.registerMethod('rows', 'add', RowsManager.prototype.addRow, this);
+        this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
+        this.gantt.api.registerMethod('rows', 'swap', RowsManager.prototype.swapRows, this);
+
+        this.gantt.api.registerEvent('tasks', 'add');
+        this.gantt.api.registerEvent('tasks', 'change');
+        this.gantt.api.registerEvent('tasks', 'remove');
+        this.gantt.api.registerEvent('tasks', 'move');
+        this.gantt.api.registerEvent('tasks', 'moveBegin');
+        this.gantt.api.registerEvent('tasks', 'moveEnd');
+        this.gantt.api.registerEvent('tasks', 'resize');
+        this.gantt.api.registerEvent('tasks', 'resizeBegin');
+        this.gantt.api.registerEvent('tasks', 'resizeEnd');
+        this.gantt.api.registerEvent('tasks', 'click');
+        this.gantt.api.registerEvent('tasks', 'dblclick');
+        this.gantt.api.registerEvent('tasks', 'contextmenu');
+
+        this.gantt.api.registerEvent('tasks', 'filter');
+
+        this.gantt.api.registerEvent('rows', 'mousedown');
+        this.gantt.api.registerEvent('rows', 'mouseup');
+        this.gantt.api.registerEvent('rows', 'click');
+        this.gantt.api.registerEvent('rows', 'dblclick');
+        this.gantt.api.registerEvent('rows', 'contextmenu');
+
+        this.gantt.api.registerEvent('rows', 'add');
+        this.gantt.api.registerEvent('rows', 'change');
+        this.gantt.api.registerEvent('rows', 'remove');
+        this.gantt.api.registerEvent('rows', 'orderChange');
+
+        this.gantt.api.registerEvent('rows', 'filter');
+
     };
 
     RowsManager.prototype.addRow = function(rowData) {
@@ -1749,7 +1965,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
             row = this.rowsMap[rowData.id];
             row.copy(rowData);
             isUpdate = true;
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
+            this.gantt.api.rows.raise.change({'row': row});
         } else {
             var order = rowData.order;
 
@@ -1767,7 +1983,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
             this.rows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
+            this.gantt.api.rows.raise.add({'row': row});
         }
 
         if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
@@ -1806,7 +2022,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
                 }
             }
 
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
+            this.gantt.api.rows.raise.remove({'row': removedRow});
             return row;
         }
 
@@ -1828,7 +2044,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
                         row.removeTask(rowData.tasks[j].id);
                     }
 
-                    this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
+                    this.gantt.api.rows.raise.change({'row': row});
                 }
             } else {
                 // Delete the complete row
@@ -1872,10 +2088,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         b.order = order;
 
         // Raise change events
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
+        this.gantt.api.rows.raise.change({'row': a});
+        this.gantt.api.rows.raise.orderChange({'row': a});
+        this.gantt.api.rows.raise.change({'row': b});
+        this.gantt.api.rows.raise.orderChange({'row': b});
 
         // Switch to custom sort mode and trigger sort
         if (this.gantt.$scope.sortMode !== 'custom') {
@@ -1906,7 +2122,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
         this.visibleRows = this.filteredRows;
         if (filterEventData !== undefined) {
-            this.gantt.$scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
+            this.gantt.api.rows.raise.filter(filterEventData);
         }
     };
 
@@ -1928,7 +2144,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         }
 
         if (filterEventData !== undefined) {
-            this.gantt.$scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
+            this.gantt.api.tasks.raise.filter(filterEventData);
         }
     };
 
@@ -2181,6 +2397,10 @@ gantt.factory('GanttHeader', ['GanttHeaderColumns', function(HeaderColumns) {
     var Header = function(gantt) {
         this.gantt = gantt;
         this.columns = new HeaderColumns(this);
+
+        this.getHeight = function() {
+            return this.$element[0].offsetHeight;
+        };
     };
     return Header;
 }]);
@@ -2197,6 +2417,13 @@ gantt.factory('GanttHeaderColumns', [function() {
 gantt.factory('GanttLabels', [function() {
     var Labels= function(gantt) {
         this.gantt = gantt;
+
+        this.gantt.api.registerEvent('labels', 'mousedown');
+        this.gantt.api.registerEvent('labels', 'mouseup');
+        this.gantt.api.registerEvent('labels', 'click');
+        this.gantt.api.registerEvent('labels', 'dblclick');
+        this.gantt.api.registerEvent('labels', 'contextmenu');
+        this.gantt.api.registerEvent('labels', 'resize');
     };
     return Labels;
 }]);
@@ -2205,6 +2432,13 @@ gantt.factory('GanttLabels', [function() {
 gantt.factory('GanttScroll', [function() {
     var Scroll = function(gantt) {
         this.gantt = gantt;
+
+        this.gantt.api.registerEvent('scroll', 'scroll');
+
+        this.gantt.api.registerMethod('scroll', 'to', Scroll.prototype.scrollTo, this);
+        this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
+        this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
+        this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
     };
 
     /**
@@ -2328,7 +2562,7 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
 }]);
 
 
-gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', function(Timespan, GANTT_EVENTS) {
+gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
     var GanttTimespansManager = function(gantt) {
         var self = this;
 
@@ -2343,6 +2577,12 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', functio
                 self.loadTimespans(newValue);
             }
         });
+
+        this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
+
+        this.gantt.api.registerEvent('timespans', 'add');
+        this.gantt.api.registerEvent('timespans', 'change');
     };
 
     // Adds or updates timespans
@@ -2363,12 +2603,13 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', functio
             timespan = this.timespansMap[timespanData.id];
             timespan.copy(timespanData);
             isUpdate = true;
+            this.gantt.api.timespans.raise.change({timespan: timespan});
         } else {
             timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
                 timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
             this.timespansMap[timespanData.id] = timespan;
             this.timespans.push(timespan);
-            this.gantt.$scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
+            this.gantt.api.timespans.raise.add({timespan: timespan});
         }
 
         timespan.updatePosAndSize();
@@ -2417,6 +2658,23 @@ gantt.service('ganttBinarySearch', [ function() {
         }
     };
 }]);
+
+gantt.service('ganttUtils', [function() {
+    return {
+        createBoundedWrapper: function(object, method) {
+            return function() {
+                return method.apply(object, arguments);
+            };
+        },
+        newId: (function() {
+            var seedId = new Date().getTime();
+            return function() {
+                return seedId += 1;
+            };
+        })()
+    };
+}]);
+
 
 gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
     // Returns only the columns which are visible on the screen
@@ -2492,7 +2750,7 @@ gantt.filter('ganttTaskLimit', [function() {
 }]);
 
 
-gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
+gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
 
     return {
         restrict: 'A',
@@ -2574,7 +2832,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
                     'cursor': ''
                 });
 
-                $scope.$emit(GANTT_EVENTS.ROW_LABELS_RESIZED, { width: $scope.width });
+                $scope.gantt.api.labels.raise.resize({ width: $scope.width });
             };
         }]
     };
@@ -2599,7 +2857,7 @@ gantt.directive('ganttRightClick', ['$parse', function($parse) {
     };
 }]);
 
-gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRow', ['GanttEvents', function(Events) {
     return {
         restrict: 'E',
         require: '^ganttBody',
@@ -2616,23 +2874,23 @@ gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GAN
             $scope.row.$element = $element;
 
             $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.row.rowsManager.gantt.api.rows.raise.mousedown(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_MOUSEUP, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.row.rowsManager.gantt.api.rows.raise.mouseup(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.row.rowsManager.gantt.api.rows.raise.click(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.row.rowsManager.gantt.api.rows.raise.dblclick(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.row.rowsManager.gantt.api.rows.raise.contextmenu(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
 
@@ -2641,7 +2899,7 @@ gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GAN
 }]);
 
 
-gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRowHeader', [function() {
     return {
         restrict: 'E',
         transclude: true,
@@ -2654,24 +2912,26 @@ gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Event
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.rowHeader.$element = $element;
+
             $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_MOUSEDOWN, {evt: evt});
+                this.gantt.api.rowHeader.raise.mousedown({evt: evt});
             });
 
             $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_MOUSEUP, {evt: evt});
+                this.gantt.api.rowHeader.raise.mouseup({evt: evt});
             });
 
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_CLICKED, {evt: evt});
+                this.gantt.api.rowHeader.raise.click({evt: evt});
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, {evt: evt});
+                this.gantt.api.rowHeader.raise.dblclick({evt: evt});
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, {evt: evt});
+                this.gantt.api.rowHeader.raise.contextmenu({evt: evt});
             });
 
 
@@ -2680,7 +2940,7 @@ gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Event
 }]);
 
 
-gantt.directive('ganttRowLabel', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttRowLabel', ['GanttEvents', function(Events) {
     return {
         restrict: 'E',
         transclude: true,
@@ -2694,23 +2954,23 @@ gantt.directive('ganttRowLabel', ['GanttEvents', 'GANTT_EVENTS', function(Events
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.mousedown(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_MOUSEUP, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.mouseup(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.click(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.dblclick(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
+                $scope.gantt.api.labels.raise.contextmenu(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
             });
 
 
@@ -2747,7 +3007,7 @@ gantt.directive('ganttScrollManager', function() {
 });
 
 
-gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS', function($timeout, debounce, GANTT_EVENTS) {
+gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -2776,8 +3036,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS
             };
 
             $element.bind('scroll', updateListeners);
-
-            $scope.$on(GANTT_EVENTS.ROW_ADDED, debounce(function() {
+            $scope.gantt.api.rows.on.change($scope, debounce(function() {
                 updateListeners();
             }, 5));
 
@@ -2793,7 +3052,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS
 }]);
 
 
-gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(debounce, layout, GANTT_EVENTS) {
+gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(debounce, layout) {
     return {
         restrict: 'E',
         transclude: true,
@@ -2845,19 +3104,19 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENT
 
                 if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.from;
+                    date = $scope.gantt.columnsManager.from;
                 } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
-                    date = $scope.gantt.to;
+                    date = $scope.gantt.columnsManager.to;
                 }
 
                 lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
-                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft, date: date, direction: direction});
+                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft, date: date, direction: direction});
                 } else {
-                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
+                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft});
                 }
             }, 5));
 
@@ -3106,8 +3365,7 @@ gantt.directive('ganttTaskProgress', [function() {
 }]);
 
 
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
-
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events) {
     return {
         restrict: 'E',
         require: '^ganttRow',
@@ -3149,7 +3407,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.click(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
                     evt.stopPropagation();
@@ -3160,7 +3418,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 $scope.$apply(function() {
                     // Only raise dbl click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_DBL_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.dblclick(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
                     evt.stopPropagation();
@@ -3171,7 +3429,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 $scope.$apply(function() {
                     // Only raise click event if there was no task update event
                     if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_CONTEXTMENU, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.contextmenu(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
 
                     evt.stopPropagation();
@@ -3233,7 +3491,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                             }
                         }
                         $scope.task.moveTo(x);
-                        $scope.$emit(GANTT_EVENTS.TASK_MOVE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.move(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
                 } else if (mode === 'E') {
                     if ($scope.taskOutOfRange !== 'truncate') {
@@ -3244,7 +3502,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setTo(x);
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 } else {
                     if ($scope.taskOutOfRange !== 'truncate') {
                         if (x > $scope.task.left + $scope.task.width) {
@@ -3254,7 +3512,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setFrom(x);
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
                 taskHasBeenChanged = true;
@@ -3350,9 +3608,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 // Raise task move start event
                 if (!$scope.task.isMoving) {
                     if (mode === 'M') {
-                        $scope.$emit(GANTT_EVENTS.TASK_MOVE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.moveBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     } else {
-                        $scope.$emit(GANTT_EVENTS.TASK_RESIZE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     }
                 }
 
@@ -3367,7 +3625,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 var taskMoveHandler = debounce(function(evt) {
                     if ($scope.task.isMoving) {
                         // As this function is defered, disableMoveMode may have been called before.
-                        // Without this check, TASK_CHANGED event is not fired for faster moves.
+                        // Without this check, task.changed event is not fired for faster moves.
                         // See github issue #190
                         clearScrollInterval();
                         handleMove(mode, evt);
@@ -3411,9 +3669,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
                 // Raise move end event
                 if ($scope.task.moveMode === 'M') {
-                    $scope.$emit(GANTT_EVENTS.TASK_MOVE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.moveEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 } else {
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
 
                 $scope.task.moveMode = undefined;
@@ -3422,7 +3680,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 if (taskHasBeenChanged === true) {
                     taskHasBeenChanged = false;
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.$emit(GANTT_EVENTS.TASK_CHANGED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.change(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                 }
             };
 
@@ -3603,7 +3861,7 @@ gantt.directive('ganttColumn', [function() {
 }]);
 
 
-gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
+gantt.directive('ganttColumnHeader', ['GanttEvents', function(Events) {
     return {
         restrict: 'E',
         transclude: true,
@@ -3617,15 +3875,15 @@ gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Ev
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
+                $scope.gantt.api.columns.raise.click(Events.buildColumnEventData(evt, $element, $scope.column));
             });
 
             $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_DBL_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
+                $scope.gantt.api.columns.raise.dblclick(Events.buildColumnEventData(evt, $element, $scope.column));
             });
 
             $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CONTEXTMENU, Events.buildColumnEventData(evt, $element, $scope.column));
+                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
             });
         }]
     };
