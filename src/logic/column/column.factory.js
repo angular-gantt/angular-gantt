@@ -207,7 +207,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
         return date;
     };
 
-    var getDayTimeFrame = function(date) {
+    Column.prototype.getDayTimeFrame = function(date) {
         var dtf = this.daysTimeFrames[getDateKey(date)];
         if (dtf === undefined) {
             return [];
@@ -221,7 +221,7 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
 
         if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
             var croppedDate = date;
-            var timeFrames = getDayTimeFrame(croppedDate);
+            var timeFrames = this.getDayTimeFrame(croppedDate);
             for (var i=0; i < timeFrames.length; i++) {
                 var timeFrame = timeFrames[i];
                 if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {

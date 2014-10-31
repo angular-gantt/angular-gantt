@@ -186,8 +186,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
                 $scope.calendar.registerDateFrames($scope.dateFrames);
             });
 
-            // Gantt logic
-            $scope.template = {};
             $scope.gantt = new Gantt($scope, $element);
 
             // Remove specified rows and tasks.
@@ -196,11 +194,11 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
             $scope.loadData({ fn: function(data) {$scope.gantt.loadData(data);}});
-            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.loadTimespans(timespans);}});
+            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.timespansManager.loadTimespans(timespans);}});
 
             // Clear data handler.
             $scope.clearData({ fn: function() {$scope.gantt.clearData();}});
-            $scope.clearTimespans({ fn: function() {$scope.gantt.clearTimespans();}});
+            $scope.clearTimespans({ fn: function() {$scope.gantt.timespansManager.clearTimespans();}});
 
             // Scroll to specified date handler.
             $scope.centerDate({ fn: function(date) {$scope.gantt.scroll.scrollToDate(date);}});

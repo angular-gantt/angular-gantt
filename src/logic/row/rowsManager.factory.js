@@ -160,6 +160,27 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         this.updateVisibleRows();
     };
 
+    // Swaps two rows and changes the sort order to custom to display the swapped rows
+    RowsManager.prototype.swapRows = function(a, b) {
+        // Swap the two rows
+        var order = a.order;
+        a.order = b.order;
+        b.order = order;
+
+        // Raise change events
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
+
+        // Switch to custom sort mode and trigger sort
+        if (this.gantt.$scope.sortMode !== 'custom') {
+            this.gantt.$scope.sortMode = 'custom'; // Sort will be triggered by the watcher
+        } else {
+            this.sortRows();
+        }
+    };
+
     RowsManager.prototype.updateVisibleObjects = function() {
         this.updateVisibleRows();
         this.updateVisibleTasks();

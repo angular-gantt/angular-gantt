@@ -35703,8 +35703,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
                 $scope.calendar.registerDateFrames($scope.dateFrames);
             });
 
-            // Gantt logic
-            $scope.template = {};
             $scope.gantt = new Gantt($scope, $element);
 
             // Remove specified rows and tasks.
@@ -35713,11 +35711,11 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
             $scope.loadData({ fn: function(data) {$scope.gantt.loadData(data);}});
-            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.loadTimespans(timespans);}});
+            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.timespansManager.loadTimespans(timespans);}});
 
             // Clear data handler.
             $scope.clearData({ fn: function() {$scope.gantt.clearData();}});
-            $scope.clearTimespans({ fn: function() {$scope.gantt.clearTimespans();}});
+            $scope.clearTimespans({ fn: function() {$scope.gantt.timespansManager.clearTimespans();}});
 
             // Scroll to specified date handler.
             $scope.centerDate({ fn: function(date) {$scope.gantt.scroll.scrollToDate(date);}});
@@ -36955,8 +36953,8 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
 
 
 gantt.factory('Gantt', [
-    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'GANTT_EVENTS',
-    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, GANTT_EVENTS) {
+    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
+    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
@@ -37021,8 +37019,6 @@ gantt.factory('Gantt', [
             }
 
             this.columnsManager.updateColumns();
-            this.rowsManager.updateTasksPosAndSize();
-            this.rowsManager.updateVisibleObjects();
             this.rowsManager.sortRows();
         };
 
@@ -37038,43 +37034,6 @@ gantt.factory('Gantt', [
         Gantt.prototype.clearData = function() {
             this.rowsManager.removeAll();
             this.columnsManager.clearColumns();
-        };
-
-        // Removes all timespans
-        Gantt.prototype.clearTimespans = function() {
-            this.timespansManager.removeAllTimespans();
-        };
-
-        // Swaps two rows and changes the sort order to custom to display the swapped rows
-        Gantt.prototype.swapRows = function(a, b) {
-            // Swap the two rows
-            var order = a.order;
-            a.order = b.order;
-            b.order = order;
-
-            // Raise change events
-            this.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-            this.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-            this.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-            this.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
-
-            // Switch to custom sort mode and trigger sort
-            if (this.$scope.sortMode !== 'custom') {
-                this.$scope.sortMode = 'custom'; // Sort will be triggered by the watcher
-            } else {
-                this.rowsManager.sortRows();
-            }
-        };
-
-        // Sort rows by the specified sort mode (name, order, custom)
-        // and by Ascending or Descending
-        Gantt.prototype.sortRows = function() {
-            this.rowsManager.sortRows();
-        };
-
-        // Adds or updates timespans
-        Gantt.prototype.loadTimespans = function(timespans) {
-            this.timespansManager.loadTimespans(timespans);
         };
 
         return Gantt;
@@ -37412,6 +37371,27 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
         }
 
         this.updateVisibleRows();
+    };
+
+    // Swaps two rows and changes the sort order to custom to display the swapped rows
+    RowsManager.prototype.swapRows = function(a, b) {
+        // Swap the two rows
+        var order = a.order;
+        a.order = b.order;
+        b.order = order;
+
+        // Raise change events
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
+        this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
+
+        // Switch to custom sort mode and trigger sort
+        if (this.gantt.$scope.sortMode !== 'custom') {
+            this.gantt.$scope.sortMode = 'custom'; // Sort will be triggered by the watcher
+        } else {
+            this.sortRows();
+        }
     };
 
     RowsManager.prototype.updateVisibleObjects = function() {
@@ -39427,7 +39407,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-sortable swap="row.rowsManager.gantt.swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
+        '                    <gantt-sortable swap="row.rowsManager.swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
         '                        <span class="gantt-labels-text">{{ row.name }}</span>\n' +
         '                    </gantt-sortable>\n' +
         '                </gantt-row-label>\n' +

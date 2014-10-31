@@ -1,7 +1,7 @@
 'use strict';
 gantt.factory('Gantt', [
-    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'GANTT_EVENTS',
-    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, GANTT_EVENTS) {
+    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
+    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
@@ -66,8 +66,6 @@ gantt.factory('Gantt', [
             }
 
             this.columnsManager.updateColumns();
-            this.rowsManager.updateTasksPosAndSize();
-            this.rowsManager.updateVisibleObjects();
             this.rowsManager.sortRows();
         };
 
@@ -83,43 +81,6 @@ gantt.factory('Gantt', [
         Gantt.prototype.clearData = function() {
             this.rowsManager.removeAll();
             this.columnsManager.clearColumns();
-        };
-
-        // Removes all timespans
-        Gantt.prototype.clearTimespans = function() {
-            this.timespansManager.removeAllTimespans();
-        };
-
-        // Swaps two rows and changes the sort order to custom to display the swapped rows
-        Gantt.prototype.swapRows = function(a, b) {
-            // Swap the two rows
-            var order = a.order;
-            a.order = b.order;
-            b.order = order;
-
-            // Raise change events
-            this.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-            this.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-            this.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-            this.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
-
-            // Switch to custom sort mode and trigger sort
-            if (this.$scope.sortMode !== 'custom') {
-                this.$scope.sortMode = 'custom'; // Sort will be triggered by the watcher
-            } else {
-                this.rowsManager.sortRows();
-            }
-        };
-
-        // Sort rows by the specified sort mode (name, order, custom)
-        // and by Ascending or Descending
-        Gantt.prototype.sortRows = function() {
-            this.rowsManager.sortRows();
-        };
-
-        // Adds or updates timespans
-        Gantt.prototype.loadTimespans = function(timespans) {
-            this.timespansManager.loadTimespans(timespans);
         };
 
         return Gantt;
