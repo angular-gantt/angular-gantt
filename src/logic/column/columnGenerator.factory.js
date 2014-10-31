@@ -1,22 +1,22 @@
 'use strict';
 gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-    var ColumnGenerator = function($scope) {
+    var ColumnGenerator = function(columnsManager) {
         var self = this;
 
-        var columnWidth = $scope.columnWidth;
+        var columnWidth = columnsManager.gantt.$scope.columnWidth;
         if (columnWidth === undefined) {
             columnWidth = 20;
         }
-        var unit = $scope.viewScale;
-        var calendar = $scope.calendar;
-        var timeFramesWorkingMode = $scope.timeFramesWorkingMode;
-        var timeFramesNonWorkingMode = $scope.timeFramesNonWorkingMode;
+        var unit = columnsManager.gantt.$scope.viewScale;
+        var calendar = columnsManager.gantt.$scope.calendar;
+        var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
+        var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
 
         var columnMagnetValue;
         var columnMagnetUnit;
 
-        if ($scope.columnMagnet) {
-            var splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+        if (columnsManager.gantt.$scope.columnMagnet) {
+            var splittedColumnMagnet = columnsManager.gantt.$scope.columnMagnet.trim().split(' ');
             if (splittedColumnMagnet.length > 1) {
                 columnMagnetValue = parseInt(splittedColumnMagnet[0]);
                 columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];

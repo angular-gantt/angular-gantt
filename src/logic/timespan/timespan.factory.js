@@ -1,74 +1,71 @@
 'use strict';
 gantt.factory('GanttTimespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
-        var self = this;
-
-        self.id = id;
-        self.gantt = gantt;
-        self.name = name;
-        self.color = color;
-        self.classes = classes;
-        self.priority = priority;
-        self.from = moment(from);
-        self.to = moment(to);
-        self.data = data;
+        this.id = id;
+        this.gantt = gantt;
+        this.name = name;
+        this.color = color;
+        this.classes = classes;
+        this.priority = priority;
+        this.from = moment(from);
+        this.to = moment(to);
+        this.data = data;
 
         if (est !== undefined && lct !== undefined) {
-            self.est = moment(est);  //Earliest Start Time
-            self.lct = moment(lct);  //Latest Completion Time
+            this.est = moment(est);  //Earliest Start Time
+            this.lct = moment(lct);  //Latest Completion Time
         }
+    };
 
-        self.hasBounds = function() {
-            return self.bounds !== undefined;
-        };
+    Timespan.prototype.hasBounds = function() {
+        return this.bounds !== undefined;
+    };
 
-        // Updates the pos and size of the timespan according to the from - to date
-        self.updatePosAndSize = function() {
-            self.left = self.gantt.getPositionByDate(self.from);
-            self.width = self.gantt.getPositionByDate(self.to) - self.left;
+    // Updates the pos and size of the timespan according to the from - to date
+    Timespan.prototype.updatePosAndSize = function() {
+        this.left = this.gantt.getPositionByDate(this.from);
+        this.width = this.gantt.getPositionByDate(this.to) - this.left;
 
-            if (self.est !== undefined && self.lct !== undefined) {
-                self.bounds = {};
-                self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
-            }
-        };
+        if (this.est !== undefined && this.lct !== undefined) {
+            this.bounds = {};
+            this.bounds.left = this.gantt.getPositionByDate(this.est);
+            this.bounds.width = this.gantt.getPositionByDate(this.lct) - this.bounds.left;
+        }
+    };
 
-        // Expands the start of the timespan to the specified position (in em)
-        self.setFrom = function(x) {
-            self.from = self.gantt.getDateByPosition(x);
-            self.updatePosAndSize();
-        };
+    // Expands the start of the timespan to the specified position (in em)
+    Timespan.prototype.setFrom = function(x) {
+        this.from = this.gantt.getDateByPosition(x);
+        this.updatePosAndSize();
+    };
 
-        // Expands the end of the timespan to the specified position (in em)
-        self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x);
-            self.updatePosAndSize();
-        };
+    // Expands the end of the timespan to the specified position (in em)
+    Timespan.prototype.setTo = function(x) {
+        this.to = this.gantt.getDateByPosition(x);
+        this.updatePosAndSize();
+    };
 
-        // Moves the timespan to the specified position (in em)
-        self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x);
-            self.to = self.gantt.getDateByPosition(x + self.width);
-            self.updatePosAndSize();
-        };
+    // Moves the timespan to the specified position (in em)
+    Timespan.prototype.moveTo = function(x) {
+        this.from = this.gantt.getDateByPosition(x);
+        this.to = this.gantt.getDateByPosition(x + this.width);
+        this.updatePosAndSize();
+    };
 
-        self.copy = function(timespan) {
-            self.name = timespan.name;
-            self.gantt = timespan.gantt;
-            self.color = timespan.color;
-            self.classes = timespan.classes;
-            self.priority = timespan.priority;
-            self.from = moment(timespan.from);
-            self.to = moment(timespan.to);
-            self.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
-            self.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
-            self.data = timespan.data;
-        };
+    Timespan.prototype.copy = function(timespan) {
+        this.name = timespan.name;
+        this.color = timespan.color;
+        this.classes = timespan.classes;
+        this.priority = timespan.priority;
+        this.from = moment(timespan.from);
+        this.to = moment(timespan.to);
+        this.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
+        this.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
+        this.data = timespan.data;
+    };
 
-        self.clone = function() {
-            return new Timespan(self.id, self.gantt, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
-        };
+    Timespan.prototype.clone = function() {
+        return new Timespan(this.id, this.gantt, this.name, this.color, this.classes, this.priority, this.from, this.to, this.data, this.est, this.lct);
     };
 
     return Timespan;

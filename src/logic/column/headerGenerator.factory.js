@@ -1,12 +1,12 @@
 'use strict';
 gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
-    var generateHeader = function(headerFormatFunction, columns, unit) {
+    var generateHeader = function(columnsManager, columns, unit) {
         var generatedHeaders = [];
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
-                var label = col.date.format(headerFormatFunction(unit));
+                var label = col.date.format(columnsManager.getHeaderFormat(unit));
                 header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
                 header.left = col.left;
                 header.width = col.width;
@@ -19,45 +19,45 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
         return generatedHeaders;
     };
 
-    return function($scope) {
+    return function(columnsManager) {
         this.generate = function(columns) {
             var units = [];
-            if ($scope.headers === undefined) {
+            if (columnsManager.gantt.$scope.headers === undefined) {
                 units = [];
-                if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
+                if (['year', 'quarter', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('year');
                 }
-                if (['quarter'].indexOf($scope.viewScale) > -1) {
+                if (['quarter'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('quarter');
                 }
-                if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
+                if (['day', 'week', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('month');
                 }
-                if (['day', 'week'].indexOf($scope.viewScale) > -1) {
+                if (['day', 'week'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('week');
                 }
-                if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
+                if (['hour', 'day'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('day');
                 }
-                if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
+                if (['hour', 'minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('hour');
                 }
-                if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
+                if (['minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('minute');
                 }
-                if (['second'].indexOf($scope.viewScale) > -1) {
+                if (['second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('second');
                 }
                 if (units.length === 0) {
-                    units.push($scope.viewScale);
+                    units.push(columnsManager.gantt.$scope.viewScale);
                 }
             } else {
-                units = $scope.headers;
+                units = columnsManager.gantt.$scope.headers;
             }
 
             var headers = [];
             angular.forEach(units, function(unit) {
-                headers.push(generateHeader($scope.getHeaderFormat, columns, unit));
+                headers.push(generateHeader(columnsManager, columns, unit));
             });
 
             return headers;

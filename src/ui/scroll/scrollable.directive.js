@@ -17,6 +17,33 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENT
             var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
 
+            var lastAutoExpand;
+            var autoExpandCoolDownPeriod = 500;
+            var autoExpandColumns = function(el, date, direction) {
+                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                    return;
+                }
+
+                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
+                    return;
+                }
+
+                var from, to;
+                var expandHour = 1, expandDay = 31;
+
+                if (direction === 'left') {
+                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    to = date;
+                } else {
+                    from = date;
+                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                }
+
+                $scope.fromDate = from;
+                $scope.toDate = to;
+                lastAutoExpand = Date.now();
+            };
+
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
                 var direction;
@@ -33,7 +60,7 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENT
                 lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
-                    $scope.autoExpandColumns(el, date, direction);
+                    autoExpandColumns(el, date, direction);
                     $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft, date: date, direction: direction});
                 } else {
                     $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});

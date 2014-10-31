@@ -3,35 +3,35 @@ gantt.factory('GanttCurrentDateManager', [function() {
     var GanttCurrentDateManager = function(gantt) {
         var self = this;
 
-        self.gantt = gantt;
+        this.gantt = gantt;
 
-        self.date = undefined;
-        self.position = undefined;
-        self.currentDateColumn = undefined;
+        this.date = undefined;
+        this.position = undefined;
+        this.currentDateColumn = undefined;
 
-        self.gantt.$scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.setCurrentDate(self.gantt.currentDateValue);
+                self.setCurrentDate(self.gantt.$scope.currentDateValue);
             }
         });
+    };
 
-        self.setCurrentDate = function(currentDate) {
-            self.date = currentDate;
-            if (self.currentDateColumn !== undefined) {
-                self.currentDateColumn.currentDate = undefined;
-                delete self.currentDateColumn;
+    GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
+        this.date = currentDate;
+        if (this.currentDateColumn !== undefined) {
+            this.currentDateColumn.currentDate = undefined;
+            delete this.currentDateColumn;
+        }
+
+        if (this.date !== undefined) {
+            var column = this.gantt.columnsManager.getColumnByDate(this.date);
+            if (column !== undefined) {
+                column.currentDate = this.date;
+                this.currentDateColumn = column;
             }
+        }
 
-            if (self.date !== undefined) {
-                var column = self.gantt.columnsManager.getColumnByDate(self.date);
-                if (column !== undefined) {
-                    column.currentDate = self.date;
-                    self.currentDateColumn = column;
-                }
-            }
-
-            self.position = self.gantt.getPositionByDate(self.date);
-        };
+        this.position = this.gantt.getPositionByDate(this.date);
     };
     return GanttCurrentDateManager;
 }]);

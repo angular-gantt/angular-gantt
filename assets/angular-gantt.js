@@ -108,6 +108,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             columnMagnet: '=?',
             data: '=?',
             loadTimespans: '&',
+            clearTimespans: '&',
             loadData: '&',
             removeData: '&',
             clearData: '&',
@@ -176,28 +177,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
                 $scope.tooltipDateFormat = 'MMM DD, HH:mm';
             }
 
-            var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
-            var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
-            var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
-
-            $scope.getHeaderFormat = function(unit) {
-                var format;
-                if ($scope.headersFormats !== undefined) {
-                    format = $scope.headersFormats[unit];
-                }
-                if (format === undefined) {
-                    if (['millisecond', 'second', 'minute', 'hour'].indexOf($scope.viewScale) > -1) {
-                        format = defaultDayHeadersFormats[unit];
-                    } else if (['month', 'quarter', 'year'].indexOf($scope.viewScale) > -1) {
-                        format = defaultYearHeadersFormats[unit];
-                    }
-                    if (format === undefined) {
-                        format = defaultHeadersFormats[unit];
-                    }
-                }
-                return format;
-            };
-
             // Disable animation if ngAnimate is present, as it drops down performance.
             enableNgAnimate(false, $element);
 
@@ -219,119 +198,20 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             $scope.template = {};
             $scope.gantt = new Gantt($scope, $element);
 
-            $scope.$watch('sortMode', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.sortRows();
-                }
-            });
-
-            $scope.$watch('timespans', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllTimespans();
-                    $scope.setTimespans(newValue);
-                }
-            });
-
-            $scope.$watch('data', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllData();
-                    $scope.setData(newValue);
-                }
-            });
-
-            // Swaps two rows and changes the sort order to custom to display the swapped rows
-            $scope.swapRows = function(a, b) {
-                $scope.gantt.swapRows(a, b);
-
-                // Raise change events
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
-
-                // Switch to custom sort mode and trigger sort
-                if ($scope.sortMode !== 'custom') {
-                    $scope.sortMode = 'custom'; // Sort will be triggered by the watcher
-                } else {
-                    $scope.sortRows();
-                }
-            };
-
-            // Sort rows by the current sort mode
-            $scope.sortRows = function() {
-                $scope.gantt.sortRows($scope.sortMode);
-            };
-
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
-            $scope.autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
-                    return;
-                }
-
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
-                }
-
-                var from, to;
-                var expandHour = 1, expandDay = 31;
-
-                if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
-                } else {
-                    from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
-                }
-
-                $scope.fromDate = from;
-                $scope.toDate = to;
-                lastAutoExpand = Date.now();
-            };
-
-            // Add or update rows and tasks
-            $scope.setData = function(data) {
-                $scope.gantt.addData(data);
-                $scope.sortRows();
-            };
-
             // Remove specified rows and tasks.
-            $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data);
-                $scope.sortRows();
-            }});
-
-            // Clear all existing rows and tasks
-            $scope.removeAllData = function() {
-                // Clears rows, task and columns
-                $scope.gantt.removeAllRows();
-                // Restore default columns
-                $scope.gantt.updateColumns();
-            };
-
-            // Clear all existing timespans
-            $scope.removeAllTimespans = function() {
-                // Clears rows, task and columns
-                $scope.gantt.removeAllTimespans();
-                // Restore default columns
-                $scope.gantt.updateColumns();
-            };
-
-            // Add or update timespans
-            $scope.setTimespans = function(timespans) {
-                $scope.gantt.addTimespans(timespans);
-            };
+            $scope.removeData({ fn: function(data) {$scope.gantt.removeData(data);}});
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: $scope.setData});
-            $scope.loadTimespans({ fn: $scope.setTimespans});
+            $scope.loadData({ fn: function(data) {$scope.gantt.loadData(data);}});
+            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.loadTimespans(timespans);}});
 
             // Clear data handler.
-            $scope.clearData({ fn: $scope.removeAllData});
+            $scope.clearData({ fn: function() {$scope.gantt.clearData();}});
+            $scope.clearTimespans({ fn: function() {$scope.gantt.clearTimespans();}});
 
             // Scroll to specified date handler.
-            $scope.centerDate({ fn: $scope.gantt.scroll.scrollToDate});
+            $scope.centerDate({ fn: function(date) {$scope.gantt.scroll.scrollToDate(date);}});
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.$emit(GANTT_EVENTS.READY);
@@ -358,27 +238,27 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
      * @constructor
      */
     var TimeFrame = function(options) {
-        var self = this;
-
         if (options === undefined) {
             options = {};
         }
 
-        self.start = options.start;
-        self.end = options.end;
-        self.working = options.working;
-        self.default = options.default;
-        self.color = options.color;
-        self.classes = options.classes;
-
-        self.getDuration = function() {
-            return self.end.diff(self.start, 'milliseconds');
-        };
-
-        self.clone = function() {
-            return new TimeFrame(self);
-        };
+        this.start = options.start;
+        this.end = options.end;
+        this.working = options.working;
+        this.default = options.default;
+        this.color = options.color;
+        this.classes = options.classes;
     };
+
+
+    TimeFrame.prototype.getDuration = function() {
+        return this.end.diff(this.start, 'milliseconds');
+    };
+
+    TimeFrame.prototype.clone = function() {
+        return new TimeFrame(this);
+    };
+
     /**
      * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
      *
@@ -387,21 +267,21 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
      * @constructor
      */
     var TimeFrameMapping = function(func) {
-        var self = this;
-        self.func = func;
-
-        self.getTimeFrames = function(date) {
-            var ret = self.func(date);
-            if (!(ret instanceof Array)) {
-                ret = [ret];
-            }
-            return ret;
-        };
-
-        self.clone = function() {
-            return new TimeFrameMapping(self.func);
-        };
+        this.func = func;
     };
+
+    TimeFrameMapping.prototype.getTimeFrames = function(date) {
+        var ret = this.func(date);
+        if (!(ret instanceof Array)) {
+            ret = [ret];
+        }
+        return ret;
+    };
+
+    TimeFrameMapping.prototype.clone = function() {
+        return new TimeFrameMapping(this.func);
+    };
+
     /**
      * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
      * a date (date) or a date range (start, end). parameters are given using options object.
@@ -416,38 +296,36 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
      * @constructor
      */
     var DateFrame = function(options) {
-        var self = this;
-
-        self.evaluator = options.evaluator;
+        this.evaluator = options.evaluator;
         if (options.date) {
-            self.start = moment(options.date).startOf('day');
-            self.end = moment(options.date).endOf('day');
+            this.start = moment(options.date).startOf('day');
+            this.end = moment(options.date).endOf('day');
         } else {
-            self.start = options.start;
-            self.end = options.end;
+            this.start = options.start;
+            this.end = options.end;
         }
         if (options.targets instanceof Array) {
-            self.targets = options.targets;
+            this.targets = options.targets;
         } else {
-            self.targets = [options.targets];
+            this.targets = [options.targets];
         }
-        self.default = options.default;
-
-        self.dateMatch = function(date) {
-            if (self.evaluator) {
-                return self.evaluator(date);
-            } else if (self.start && self.end) {
-                return date >= self.start && date <= self.end;
-            } else {
-                return false;
-            }
-        };
-
-
-        self.clone = function() {
-            return new DateFrame(self);
-        };
+        this.default = options.default;
     };
+
+    DateFrame.prototype.dateMatch = function(date) {
+        if (this.evaluator) {
+            return this.evaluator(date);
+        } else if (this.start && this.end) {
+            return date >= this.start && date <= this.end;
+        } else {
+            return false;
+        }
+    };
+
+    DateFrame.prototype.clone = function() {
+        return new DateFrame(this);
+    };
+
 
 
     /**
@@ -457,302 +335,301 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
      * @constructor
      */
     var Calendar = function() {
-        var self = this;
+        this.timeFrames = {};
+        this.timeFrameMappings = {};
+        this.dateFrames = {};
+    };
 
-        self.timeFrames = {};
-        self.timeFrameMappings = {};
-        self.dateFrames = {};
+    /**
+     * Remove all objects.
+     */
+    Calendar.prototype.clear = function() {
+        this.timeFrames = {};
+        this.timeFrameMappings = {};
+        this.dateFrames = {};
+    };
 
-        /**
-         * Remove all objects.
-         */
-        self.clear = function() {
-            self.timeFrames = {};
-            self.timeFrameMappings = {};
-            self.dateFrames = {};
-        };
+    /**
+     * Register TimeFrame objects.
+     *
+     * @param {object} timeFrames with names of timeFrames for keys and TimeFrame objects for values.
+     */
+    Calendar.prototype.registerTimeFrames = function(timeFrames) {
+        angular.forEach(timeFrames, function(timeFrame, name) {
+            this.timeFrames[name] = new TimeFrame(timeFrame);
+        }, this);
+    };
 
-        /**
-         * Register TimeFrame objects.
-         *
-         * @param {object} timeFrames with names of timeFrames for keys and TimeFrame objects for values.
-         */
-        self.registerTimeFrames = function(timeFrames) {
-            angular.forEach(timeFrames, function(timeFrame, name) {
-                self.timeFrames[name] = new TimeFrame(timeFrame);
-            });
-        };
+    /**
+     * Removes TimeFrame objects.
+     *
+     * @param {array} timeFrames names of timeFrames to remove.
+     */
+    Calendar.prototype.removeTimeFrames = function(timeFrames) {
+        angular.forEach(timeFrames, function(name) {
+            delete this.timeFrames[name];
+        }, this);
+    };
 
-        /**
-         * Removes TimeFrame objects.
-         *
-         * @param {array} timeFrames names of timeFrames to remove.
-         */
-        self.removeTimeFrames = function(timeFrames) {
-            angular.forEach(timeFrames, function(name) {
-                delete self.timeFrames[name];
-            });
-        };
+    /**
+     * Remove all TimeFrame objects.
+     */
+    Calendar.prototype.clearTimeFrames = function() {
+        this.timeFrames = {};
+    };
 
-        /**
-         * Remove all TimeFrame objects.
-         */
-        self.clearTimeFrames = function() {
-            self.timeFrames = {};
-        };
+    /**
+     * Register TimeFrameMapping objects.
+     *
+     * @param {object} mappings object with names of timeFrames mappings for keys and TimeFrameMapping objects for values.
+     */
+    Calendar.prototype.registerTimeFrameMappings = function(mappings) {
+        angular.forEach(mappings, function(timeFrameMapping, name) {
+            this.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
+        }, this);
+    };
 
-        /**
-         * Register TimeFrameMapping objects.
-         *
-         * @param {object} mappings object with names of timeFrames mappings for keys and TimeFrameMapping objects for values.
-         */
-        self.registerTimeFrameMappings = function(mappings) {
-            angular.forEach(mappings, function(timeFrameMapping, name) {
-                self.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
-            });
-        };
+    /**
+     * Removes TimeFrameMapping objects.
+     *
+     * @param {array} mappings names of timeFrame mappings to remove.
+     */
+    Calendar.prototype.removeTimeFrameMappings = function(mappings) {
+        angular.forEach(mappings, function(name) {
+            delete this.timeFrameMappings[name];
+        }, this);
+    };
 
-        /**
-         * Removes TimeFrameMapping objects.
-         *
-         * @param {array} mappings names of timeFrame mappings to remove.
-         */
-        self.removeTimeFrameMappings = function(mappings) {
-            angular.forEach(mappings, function(name) {
-                delete self.timeFrameMappings[name];
-            });
-        };
+    /**
+     * Removes all TimeFrameMapping objects.
+     */
+    Calendar.prototype.clearTimeFrameMappings = function() {
+        this.timeFrameMappings = {};
+    };
 
-        /**
-         * Removes all TimeFrameMapping objects.
-         */
-        self.clearTimeFrameMappings = function() {
-            self.timeFrameMappings = {};
-        };
+    /**
+     * Register DateFrame objects.
+     *
+     * @param {object} dateFrames object with names of dateFrames for keys and DateFrame objects for values.
+     */
+    Calendar.prototype.registerDateFrames = function(dateFrames) {
+        angular.forEach(dateFrames, function(dateFrame, name) {
+            this.dateFrames[name] = new DateFrame(dateFrame);
+        }, this);
+    };
 
-        /**
-         * Register DateFrame objects.
-         *
-         * @param {object} dateFrames object with names of dateFrames for keys and DateFrame objects for values.
-         */
-        self.registerDateFrames = function(dateFrames) {
-            angular.forEach(dateFrames, function(dateFrame, name) {
-                self.dateFrames[name] = new DateFrame(dateFrame);
-            });
-        };
+    /**
+     * Remove DateFrame objects.
+     *
+     * @param {array} mappings names of date frames to remove.
+     */
+    Calendar.prototype.removeDateFrames = function(dateFrames) {
+        angular.forEach(dateFrames, function(name) {
+            delete this.dateFrames[name];
+        }, this);
+    };
 
-        /**
-         * Remove DateFrame objects.
-         *
-         * @param {array} mappings names of date frames to remove.
-         */
-        self.removeDateFrames = function(dateFrames) {
-            angular.forEach(dateFrames, function(name) {
-                delete self.dateFrames[name];
-            });
-        };
+    /**
+     * Removes all DateFrame objects.
+     */
+    Calendar.prototype.clearDateFrames = function() {
+        this.dateFrames = {};
+    };
 
-        /**
-         * Removes all DateFrame objects.
-         */
-        self.clearDateFrames = function() {
-            self.dateFrames = {};
-        };
-
-        var getDateFrames = function(date) {
-            var dateFrames = [];
-            angular.forEach(self.dateFrames, function(dateFrame) {
-                if (dateFrame.dateMatch(date)) {
+    var filterDateFrames = function(inputDateFrames, date) {
+        var dateFrames = [];
+        angular.forEach(inputDateFrames, function(dateFrame) {
+            if (dateFrame.dateMatch(date)) {
+                dateFrames.push(dateFrame);
+            }
+        });
+        if (dateFrames.length === 0) {
+            angular.forEach(inputDateFrames, function(dateFrame) {
+                if (dateFrame.default) {
                     dateFrames.push(dateFrame);
                 }
             });
-            if (dateFrames.length === 0) {
-                angular.forEach(self.dateFrames, function(dateFrame) {
-                    if (dateFrame.default) {
-                        dateFrames.push(dateFrame);
-                    }
-                });
-            }
-            return dateFrames;
-        };
-
-        /**
-         * Retrieves TimeFrame objects for a given date, using whole configuration for this Calendar object.
-         *
-         * @param {moment} date
-         *
-         * @return {array} an array of TimeFrame objects.
-         */
-        self.getTimeFrames = function(date) {
-            var timeFrames = [];
-            var dateFrames = getDateFrames(date);
-
-            angular.forEach(dateFrames, function(dateFrame) {
-                if (dateFrame !== undefined) {
-                    angular.forEach(dateFrame.targets, function(timeFrameMappingName) {
-                        var timeFrameMapping = self.timeFrameMappings[timeFrameMappingName];
-                        if (timeFrameMapping !== undefined) {
-                            // If a timeFrame mapping is found
-                            timeFrames.push(timeFrameMapping.getTimeFrames());
-                        } else {
-                            // If no timeFrame mapping is found, try using direct timeFrame
-                            var timeFrame = self.timeFrames[timeFrameMappingName];
-                            if (timeFrame !== undefined) {
-                                timeFrames.push(timeFrame);
-                            }
-                        }
-                    });
-                }
-            });
-
-            var dateYear = date.year();
-            var dateMonth = date.month();
-            var dateDate = date.date();
-
-            var validatedTimeFrames = [];
-            if (timeFrames.length === 0) {
-                angular.forEach(self.timeFrames, function(timeFrame) {
-                    if (timeFrame.default) {
-                        timeFrames.push(timeFrame);
-                    }
-                });
-            }
-
-            angular.forEach(timeFrames, function(timeFrame) {
-                timeFrame = timeFrame.clone();
-
-                if (timeFrame.start !== undefined) {
-                    timeFrame.start.year(dateYear);
-                    timeFrame.start.month(dateMonth);
-                    timeFrame.start.date(dateDate);
-                }
-
-                if (timeFrame.end !== undefined) {
-                    timeFrame.end.year(dateYear);
-                    timeFrame.end.month(dateMonth);
-                    timeFrame.end.date(dateDate);
-
-                    if (moment(timeFrame.end).startOf('day') === timeFrame.end) {
-                        timeFrame.end.add(1, 'day');
-                    }
-                }
-
-                validatedTimeFrames.push(timeFrame);
-            });
-
-            return validatedTimeFrames;
-        };
-
-        /**
-         * Solve timeFrames using two rules.
-         *
-         * 1) If at least one working timeFrame is defined, everything outside
-         * defined timeFrames is considered as non-working. Else it's considered
-         * as working.
-         *
-         * 2) Smaller timeFrames have priority over larger one.
-         *
-         * @param {array} timeFrames Array of timeFrames to solve
-         * @param {moment} startDate
-         * @param {moment} endDate
-         */
-        self.solve = function(timeFrames, startDate, endDate) {
-            var defaultWorking = timeFrames.length === 0;
-            var color;
-            var classes;
-            var minDate;
-            var maxDate;
-
-            angular.forEach(timeFrames, function(timeFrame) {
-                if (minDate === undefined || minDate > timeFrame.start) {
-                    minDate = timeFrame.start;
-                }
-                if (maxDate === undefined || maxDate < timeFrame.end) {
-                    maxDate = timeFrame.end;
-                }
-                if (color === undefined && timeFrame.color) {
-                    color = timeFrame.color;
-                }
-                if (timeFrame.classes !== undefined) {
-                    if (classes === undefined) {
-                        classes = [];
-                    }
-                    classes = classes.concat(timeFrame.classes);
-                }
-            });
-
-            if (startDate === undefined) {
-                startDate = minDate;
-            }
-
-            if (endDate === undefined) {
-                endDate = maxDate;
-            }
-
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
-
-            var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
-                return -timeFrame.getDuration();
-            });
-
-            angular.forEach(orderedTimeFrames, function(timeFrame) {
-                var tmpSolvedTimeFrames = solvedTimeFrames.slice();
-
-                var i=0;
-                var dispatched = false;
-                var treated = false;
-                angular.forEach(solvedTimeFrames, function(solvedTimeFrame) {
-                    if (!treated) {
-                        if (timeFrame.end > solvedTimeFrame.start && timeFrame.start < solvedTimeFrame.end) {
-                            // timeFrame is included in this solvedTimeFrame.
-                            // solvedTimeFrame:|ssssssssssssssssssssssssssssssssss|
-                            //       timeFrame:          |tttttt|
-                            //          result:|sssssssss|tttttt|sssssssssssssssss|
-
-                            timeFrame = timeFrame.clone();
-                            var newSolvedTimeFrame = solvedTimeFrame.clone();
-
-                            solvedTimeFrame.end = moment(timeFrame.start);
-                            newSolvedTimeFrame.start = moment(timeFrame.end);
-
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
-                            treated = true;
-                        } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
-                            // timeFrame is dispatched on two solvedTimeFrame.
-                            // First part
-                            // solvedTimeFrame:|sssssssssssssssssssssssssssssssssss|s+1;s+1;s+1;s+1;s+1;s+1|
-                            //       timeFrame:                                |tttttt|
-                            //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
-
-                            timeFrame = timeFrame.clone();
-
-                            solvedTimeFrame.end = moment(timeFrame.start);
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
-
-                            dispatched = true;
-                        } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
-                            // timeFrame is dispatched on two solvedTimeFrame.
-                            // Second part
-
-                            solvedTimeFrame.start = moment(timeFrame.end);
-                            dispatched = false;
-                            treated = true;
-                        }
-                        i++;
-                    }
-                });
-
-                solvedTimeFrames = tmpSolvedTimeFrames;
-            });
-
-            solvedTimeFrames = $filter('filter')(solvedTimeFrames, function(timeFrame) {
-                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
-            });
-
-            return solvedTimeFrames;
-
-        };
+        }
+        return dateFrames;
     };
+
+    /**
+     * Retrieves TimeFrame objects for a given date, using whole configuration for this Calendar object.
+     *
+     * @param {moment} date
+     *
+     * @return {array} an array of TimeFrame objects.
+     */
+    Calendar.prototype.getTimeFrames = function(date) {
+        var timeFrames = [];
+        var dateFrames = filterDateFrames(this.dateFrames, date);
+
+        angular.forEach(dateFrames, function(dateFrame) {
+            if (dateFrame !== undefined) {
+                angular.forEach(dateFrame.targets, function(timeFrameMappingName) {
+                    var timeFrameMapping = this.timeFrameMappings[timeFrameMappingName];
+                    if (timeFrameMapping !== undefined) {
+                        // If a timeFrame mapping is found
+                        timeFrames.push(timeFrameMapping.getTimeFrames());
+                    } else {
+                        // If no timeFrame mapping is found, try using direct timeFrame
+                        var timeFrame = this.timeFrames[timeFrameMappingName];
+                        if (timeFrame !== undefined) {
+                            timeFrames.push(timeFrame);
+                        }
+                    }
+                }, this);
+            }
+        }, this);
+
+        var dateYear = date.year();
+        var dateMonth = date.month();
+        var dateDate = date.date();
+
+        var validatedTimeFrames = [];
+        if (timeFrames.length === 0) {
+            angular.forEach(this.timeFrames, function(timeFrame) {
+                if (timeFrame.default) {
+                    timeFrames.push(timeFrame);
+                }
+            });
+        }
+
+        angular.forEach(timeFrames, function(timeFrame) {
+            timeFrame = timeFrame.clone();
+
+            if (timeFrame.start !== undefined) {
+                timeFrame.start.year(dateYear);
+                timeFrame.start.month(dateMonth);
+                timeFrame.start.date(dateDate);
+            }
+
+            if (timeFrame.end !== undefined) {
+                timeFrame.end.year(dateYear);
+                timeFrame.end.month(dateMonth);
+                timeFrame.end.date(dateDate);
+
+                if (moment(timeFrame.end).startOf('day') === timeFrame.end) {
+                    timeFrame.end.add(1, 'day');
+                }
+            }
+
+            validatedTimeFrames.push(timeFrame);
+        });
+
+        return validatedTimeFrames;
+    };
+
+    /**
+     * Solve timeFrames using two rules.
+     *
+     * 1) If at least one working timeFrame is defined, everything outside
+     * defined timeFrames is considered as non-working. Else it's considered
+     * as working.
+     *
+     * 2) Smaller timeFrames have priority over larger one.
+     *
+     * @param {array} timeFrames Array of timeFrames to solve
+     * @param {moment} startDate
+     * @param {moment} endDate
+     */
+    Calendar.prototype.solve = function(timeFrames, startDate, endDate) {
+        var defaultWorking = timeFrames.length === 0;
+        var color;
+        var classes;
+        var minDate;
+        var maxDate;
+
+        angular.forEach(timeFrames, function(timeFrame) {
+            if (minDate === undefined || minDate > timeFrame.start) {
+                minDate = timeFrame.start;
+            }
+            if (maxDate === undefined || maxDate < timeFrame.end) {
+                maxDate = timeFrame.end;
+            }
+            if (color === undefined && timeFrame.color) {
+                color = timeFrame.color;
+            }
+            if (timeFrame.classes !== undefined) {
+                if (classes === undefined) {
+                    classes = [];
+                }
+                classes = classes.concat(timeFrame.classes);
+            }
+        });
+
+        if (startDate === undefined) {
+            startDate = minDate;
+        }
+
+        if (endDate === undefined) {
+            endDate = maxDate;
+        }
+
+        var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
+
+        var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
+            return -timeFrame.getDuration();
+        });
+
+        angular.forEach(orderedTimeFrames, function(timeFrame) {
+            var tmpSolvedTimeFrames = solvedTimeFrames.slice();
+
+            var i=0;
+            var dispatched = false;
+            var treated = false;
+            angular.forEach(solvedTimeFrames, function(solvedTimeFrame) {
+                if (!treated) {
+                    if (timeFrame.end > solvedTimeFrame.start && timeFrame.start < solvedTimeFrame.end) {
+                        // timeFrame is included in this solvedTimeFrame.
+                        // solvedTimeFrame:|ssssssssssssssssssssssssssssssssss|
+                        //       timeFrame:          |tttttt|
+                        //          result:|sssssssss|tttttt|sssssssssssssssss|
+
+                        timeFrame = timeFrame.clone();
+                        var newSolvedTimeFrame = solvedTimeFrame.clone();
+
+                        solvedTimeFrame.end = moment(timeFrame.start);
+                        newSolvedTimeFrame.start = moment(timeFrame.end);
+
+                        tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
+                        treated = true;
+                    } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
+                        // timeFrame is dispatched on two solvedTimeFrame.
+                        // First part
+                        // solvedTimeFrame:|sssssssssssssssssssssssssssssssssss|s+1;s+1;s+1;s+1;s+1;s+1|
+                        //       timeFrame:                                |tttttt|
+                        //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
+
+                        timeFrame = timeFrame.clone();
+
+                        solvedTimeFrame.end = moment(timeFrame.start);
+                        tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
+
+                        dispatched = true;
+                    } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
+                        // timeFrame is dispatched on two solvedTimeFrame.
+                        // Second part
+
+                        solvedTimeFrame.start = moment(timeFrame.end);
+                        dispatched = false;
+                        treated = true;
+                    }
+                    i++;
+                }
+            });
+
+            solvedTimeFrames = tmpSolvedTimeFrames;
+        });
+
+        solvedTimeFrames = $filter('filter')(solvedTimeFrames, function(timeFrame) {
+            return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+        });
+
+        return solvedTimeFrames;
+
+    };
+
     return Calendar;
 }]);
 
@@ -761,35 +638,35 @@ gantt.factory('GanttCurrentDateManager', [function() {
     var GanttCurrentDateManager = function(gantt) {
         var self = this;
 
-        self.gantt = gantt;
+        this.gantt = gantt;
 
-        self.date = undefined;
-        self.position = undefined;
-        self.currentDateColumn = undefined;
+        this.date = undefined;
+        this.position = undefined;
+        this.currentDateColumn = undefined;
 
-        self.gantt.$scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.setCurrentDate(self.gantt.currentDateValue);
+                self.setCurrentDate(self.gantt.$scope.currentDateValue);
             }
         });
+    };
 
-        self.setCurrentDate = function(currentDate) {
-            self.date = currentDate;
-            if (self.currentDateColumn !== undefined) {
-                self.currentDateColumn.currentDate = undefined;
-                delete self.currentDateColumn;
+    GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
+        this.date = currentDate;
+        if (this.currentDateColumn !== undefined) {
+            this.currentDateColumn.currentDate = undefined;
+            delete this.currentDateColumn;
+        }
+
+        if (this.date !== undefined) {
+            var column = this.gantt.columnsManager.getColumnByDate(this.date);
+            if (column !== undefined) {
+                column.currentDate = this.date;
+                this.currentDateColumn = column;
             }
+        }
 
-            if (self.date !== undefined) {
-                var column = self.gantt.columnsManager.getColumnByDate(self.date);
-                if (column !== undefined) {
-                    column.currentDate = self.date;
-                    self.currentDateColumn = column;
-                }
-            }
-
-            self.position = self.gantt.getPositionByDate(self.date);
-        };
+        this.position = this.gantt.getPositionByDate(this.date);
     };
     return GanttCurrentDateManager;
 }]);
@@ -799,27 +676,30 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
     // Used to display the Gantt grid and header.
     // The columns are generated by the column generator.
     var Column = function(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit) {
+        this.date = date;
+        this.endDate = endDate;
+        this.left = left;
+        this.width = width;
+        this.calendar = calendar;
+        this.duration = this.endDate.diff(this.date, 'milliseconds');
+        this.timeFramesWorkingMode = timeFramesWorkingMode;
+        this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
+        this.timeFrames = [];
+        this.visibleTimeFrames = [];
+        this.daysTimeFrames = {};
+        this.cropped = false;
+        this.columnMagnetValue = columnMagnetValue;
+        this.columnMagnetUnit = columnMagnetUnit;
+        this.originalSize = {left: this.left, width: this.width};
+        this.updateTimeFrames();
+    };
+
+    var getDateKey = function(date) {
+        return date.year() + '-' + date.month() + '-' + date.date();
+    };
+
+    Column.prototype.updateTimeFrames = function() {
         var self = this;
-
-        self.date = date;
-        self.endDate = endDate;
-        self.left = left;
-        self.width = width;
-        self.calendar = calendar;
-        self.duration = self.endDate.diff(self.date, 'milliseconds');
-        self.timeFramesWorkingMode = timeFramesWorkingMode;
-        self.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
-        self.timeFrames = [];
-        self.visibleTimeFrames = [];
-        self.daysTimeFrames = {};
-        self.cropped = false;
-        self.columnMagnetValue = columnMagnetValue;
-        self.columnMagnetUnit = columnMagnetUnit;
-        self.originalSize = {left: self.left, width: self.width};
-
-        var getDateKey = function(date) {
-            return date.year() + '-' + date.month() + '-' + date.date();
-        };
 
         if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
             var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
@@ -935,139 +815,140 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                 }
             }
         }
+    };
 
-        self.clone = function() {
-            return new Column(moment(self.date), moment(self.endDate), self.left, self.width, self.calendar);
-        };
+    Column.prototype.clone = function() {
+        return new Column(moment(this.date), moment(this.endDate), this.left, this.width, this.calendar);
+    };
 
-        self.containsDate = function(date) {
-            return date > self.date && date <= self.endDate;
-        };
+    Column.prototype.containsDate = function(date) {
+        return date > this.date && date <= this.endDate;
+    };
 
-        self.equals = function(other) {
-            return self.date === other.date;
-        };
+    Column.prototype.equals = function(other) {
+        return this.date === other.date;
+    };
 
-        self.getMagnetDate = function(date) {
-            if (self.columnMagnetValue > 0 && self.columnMagnetUnit !== undefined) {
-                date = moment(date);
-                var value = date.get(self.columnMagnetUnit);
-                var magnetValue = Math.round(value/self.columnMagnetValue) * self.columnMagnetValue;
-                date.startOf(self.columnMagnetUnit);
-                date.set(self.columnMagnetUnit, magnetValue);
+    Column.prototype.getMagnetDate = function(date) {
+        if (this.columnMagnetValue > 0 && this.columnMagnetUnit !== undefined) {
+            date = moment(date);
+            var value = date.get(this.columnMagnetUnit);
+            var magnetValue = Math.round(value/this.columnMagnetValue) * this.columnMagnetValue;
+            date.startOf(this.columnMagnetUnit);
+            date.set(this.columnMagnetUnit, magnetValue);
+            return date;
+        }
+        return date;
+    };
+
+    var getDateByPositionUsingTimeFrames = function(timeFrames, position) {
+        for (var i=0; i < timeFrames.length; i++) {
+            // TODO: performance optimization could be done.
+            var timeFrame = timeFrames[i];
+            if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
+                var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
+                var date = moment(timeFrame.start).add(positionDuration, 'milliseconds');
                 return date;
             }
-            return date;
-        };
+        }
+    };
 
-        var getDateByPositionUsingTimeFrames = function(timeFrames, position) {
+    Column.prototype.getDateByPosition = function(position, magnet) {
+        var positionDuration;
+        var date;
+
+        if (position < 0) {
+            position = 0;
+        }
+        if (position > this.width) {
+            position = this.width;
+        }
+
+        if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+            date = getDateByPositionUsingTimeFrames(this.timeFrames, position);
+        }
+
+        if (date === undefined) {
+            positionDuration = this.duration / this.width * position;
+            date = moment(this.date).add(positionDuration, 'milliseconds');
+        }
+
+        if (magnet) {
+            return this.getMagnetDate(date);
+        }
+
+        return date;
+    };
+
+    Column.prototype.getDayTimeFrame = function(date) {
+        var dtf = this.daysTimeFrames[getDateKey(date)];
+        if (dtf === undefined) {
+            return [];
+        }
+        return dtf;
+    };
+
+    Column.prototype.getPositionByDate = function(date) {
+        var positionDuration;
+        var position;
+
+        if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+            var croppedDate = date;
+            var timeFrames = this.getDayTimeFrame(croppedDate);
             for (var i=0; i < timeFrames.length; i++) {
-                // TODO: performance optimization could be done.
                 var timeFrame = timeFrames[i];
-                if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
-                    var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
-                    var date = moment(timeFrame.start).add(positionDuration, 'milliseconds');
-                    return date;
-                }
-            }
-        };
-
-        self.getDateByPosition = function(position, magnet) {
-            var positionDuration;
-            var date;
-
-            if (position < 0) {
-                position = 0;
-            }
-            if (position > self.width) {
-                position = self.width;
-            }
-
-            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
-                date = getDateByPositionUsingTimeFrames(self.timeFrames, position);
-            }
-
-            if (date === undefined) {
-                positionDuration = self.duration / self.width * position;
-                date = moment(self.date).add(positionDuration, 'milliseconds');
-            }
-
-            if (magnet) {
-                return self.getMagnetDate(date);
-            }
-
-            return date;
-        };
-
-        var getDayTimeFrame = function(date) {
-            var dtf = self.daysTimeFrames[getDateKey(date)];
-            if (dtf === undefined) {
-                return [];
-            }
-            return dtf;
-        };
-
-        self.getPositionByDate = function(date) {
-            var positionDuration;
-            var position;
-
-            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
-                var croppedDate = date;
-                var timeFrames = getDayTimeFrame(croppedDate);
-                for (var i=0; i < timeFrames.length; i++) {
-                    var timeFrame = timeFrames[i];
-                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
-                        if (timeFrame.cropped) {
-                            if (timeFrames.length > i+1) {
-                                croppedDate = timeFrames[i+1].start;
-                            } else {
-                                croppedDate = timeFrame.end;
-                            }
+                if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
+                    if (timeFrame.cropped) {
+                        if (timeFrames.length > i+1) {
+                            croppedDate = timeFrames[i+1].start;
                         } else {
-                            positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
-                            position = positionDuration / timeFrame.getDuration() * timeFrame.width;
-                            return self.left + timeFrame.left + position;
+                            croppedDate = timeFrame.end;
                         }
+                    } else {
+                        positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
+                        position = positionDuration / timeFrame.getDuration() * timeFrame.width;
+                        return this.left + timeFrame.left + position;
                     }
                 }
             }
+        }
 
-            positionDuration = date.diff(self.date, 'milliseconds');
-            position = positionDuration / self.duration * self.width;
+        positionDuration = date.diff(this.date, 'milliseconds');
+        position = positionDuration / this.duration * this.width;
 
-            if (position < 0) {
-                position = 0;
-            }
+        if (position < 0) {
+            position = 0;
+        }
 
-            if (position > self.width) {
-                position = self.width;
-            }
+        if (position > this.width) {
+            position = this.width;
+        }
 
-            return self.left + position;
-        };
+        return this.left + position;
     };
+
     return Column;
 }]);
 
 
 gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-    var ColumnGenerator = function($scope) {
+    var ColumnGenerator = function(columnsManager) {
         var self = this;
 
-        var columnWidth = $scope.columnWidth;
+        var columnWidth = columnsManager.gantt.$scope.columnWidth;
         if (columnWidth === undefined) {
             columnWidth = 20;
         }
-        var unit = $scope.viewScale;
-        var calendar = $scope.calendar;
-        var timeFramesWorkingMode = $scope.timeFramesWorkingMode;
-        var timeFramesNonWorkingMode = $scope.timeFramesNonWorkingMode;
+        var unit = columnsManager.gantt.$scope.viewScale;
+        var calendar = columnsManager.gantt.$scope.calendar;
+        var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
+        var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
 
         var columnMagnetValue;
         var columnMagnetUnit;
 
-        if ($scope.columnMagnet) {
-            var splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+        if (columnsManager.gantt.$scope.columnMagnet) {
+            var splittedColumnMagnet = columnsManager.gantt.$scope.columnMagnet.trim().split(' ');
             if (splittedColumnMagnet.length > 1) {
                 columnMagnetValue = parseInt(splittedColumnMagnet[0]);
                 columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
@@ -1166,25 +1047,25 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
     var ColumnsManager = function(gantt) {
         var self = this;
 
-        self.gantt = gantt;
+        this.gantt = gantt;
 
-        self.headerGenerator = undefined;
-        self.columnGenerator = undefined;
+        this.headerGenerator = undefined;
+        this.columnGenerator = undefined;
 
-        self.from = undefined;
-        self.to = undefined;
+        this.from = undefined;
+        this.to = undefined;
 
-        self.columns = [];
-        self.visibleColumns = [];
-        self.previousColumns = [];
-        self.nextColumns = [];
+        this.columns = [];
+        this.visibleColumns = [];
+        this.previousColumns = [];
+        this.nextColumns = [];
 
-        self.headers = {};
-        self.visibleHeaders = {};
+        this.headers = {};
+        this.visibleHeaders = {};
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        self.gantt.$scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.buildGenerator();
                 self.clearColumns();
@@ -1192,263 +1073,287 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             }
         });
 
-        self.gantt.$scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateColumns();
             }
         });
 
-        self.gantt.$scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateColumnsMeta();
             }
         });
 
-        self.gantt.$scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateVisibleColumns();
             }
         });
 
-        self.scrollAnchor = undefined;
-        var setScrollAnchor = function() {
-            if (self.gantt.scroll.$element && self.columns.length > 0) {
-                var el = self.gantt.scroll.$element[0];
-                var center = el.scrollLeft + el.offsetWidth / 2;
+        this.scrollAnchor = undefined;
 
-                self.scrollAnchor = self.gantt.getDateByPosition(center);
-            }
-        };
+        this.buildGenerator();
+        this.clearColumns();
+        this.updateColumns();
+        this.updateVisibleColumns();
+    };
 
-        self.buildGenerator = function() {
-            self.columnGenerator = new ColumnGenerator(self.gantt.$scope);
-            self.headerGenerator = new HeaderGenerator(self.gantt.$scope);
-        };
+    ColumnsManager.prototype.setScrollAnchor = function() {
+        if (this.gantt.scroll.$element && this.columns.length > 0) {
+            var el = this.gantt.scroll.$element[0];
+            var center = el.scrollLeft + el.offsetWidth / 2;
 
-        self.clearColumns = function() {
-            setScrollAnchor();
+            this.scrollAnchor = this.gantt.getDateByPosition(center);
+        }
+    };
 
-            self.from = undefined;
-            self.to = undefined;
+    ColumnsManager.prototype.buildGenerator = function() {
+        this.columnGenerator = new ColumnGenerator(this);
+        this.headerGenerator = new HeaderGenerator(this);
+    };
 
-            self.columns = [];
-            self.visibleColumns = [];
-            self.previousColumns = [];
-            self.nextColumns = [];
+    ColumnsManager.prototype.clearColumns = function() {
+        this.setScrollAnchor();
 
-            self.headers = [];
-            self.visibleHeaders = {};
-        };
+        this.from = undefined;
+        this.to = undefined;
 
-        self.updateColumns = function() {
-            var from = self.gantt.$scope.fromDate;
-            var to = self.gantt.$scope.toDate;
-            if (self.gantt.$scope.taskOutOfRange === 'expand') {
-                from = self.gantt.rowsManager.getExpandedFrom(from);
-                to = self.gantt.rowsManager.getExpandedTo(to);
-            }
-            self.generateColumns(from, to);
-        };
+        this.columns = [];
+        this.visibleColumns = [];
+        this.previousColumns = [];
+        this.nextColumns = [];
 
-        self.generateColumns = function(from, to) {
+        this.headers = [];
+        this.visibleHeaders = {};
+    };
+
+    ColumnsManager.prototype.updateColumns = function() {
+        var from = this.gantt.$scope.fromDate;
+        var to = this.gantt.$scope.toDate;
+        if (this.gantt.$scope.taskOutOfRange === 'expand') {
+            from = this.gantt.rowsManager.getExpandedFrom(from);
+            to = this.gantt.rowsManager.getExpandedTo(to);
+        }
+        this.generateColumns(from, to);
+    };
+
+    ColumnsManager.prototype.generateColumns = function(from, to) {
+        if (!from) {
+            from = this.gantt.rowsManager.getDefaultFrom();
             if (!from) {
-                from = self.gantt.rowsManager.getDefaultFrom();
-                if (!from) {
-                    return false;
-                }
-            }
-
-            if (!to) {
-                to = self.gantt.rowsManager.getDefaultTo();
-                if (!to) {
-                    return false;
-                }
-            }
-
-            if (self.from === from && self.to === to) {
                 return false;
             }
+        }
 
-            setScrollAnchor();
-
-            self.from = from;
-            self.to = to;
-
-            self.columns = self.columnGenerator.generate(from, to);
-            self.headers = self.headerGenerator.generate(self.columns);
-            self.previousColumns = [];
-            self.nextColumns = [];
-
-            self.updateColumnsMeta();
-
-            return true;
-        };
-
-        self.updateColumnsMeta = function() {
-            var lastColumn = self.getLastColumn();
-            self.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
-
-            if (self.gantt.$scope.columnWidth === undefined) {
-                var newWidth = self.gantt.$scope.ganttElementWidth - (self.gantt.$scope.showLabelsColumn ? self.gantt.$scope.labelsWidth : 0);
-
-                if (self.gantt.$scope.maxHeight > 0) {
-                    newWidth = newWidth - layout.getScrollBarWidth();
-                }
-
-                layout.setColumnsWidth(newWidth, self.gantt.originalWidth, self.previousColumns);
-                layout.setColumnsWidth(newWidth, self.gantt.originalWidth, self.columns);
-                layout.setColumnsWidth(newWidth, self.gantt.originalWidth, self.nextColumns);
-
-                angular.forEach(self.headers, function(header) {
-                    layout.setColumnsWidth(newWidth, self.gantt.originalWidth, header);
-                });
+        if (!to) {
+            to = this.gantt.rowsManager.getDefaultTo();
+            if (!to) {
+                return false;
             }
+        }
 
-            self.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
-
-            self.gantt.rowsManager.updateTasksPosAndSize();
-            self.gantt.timespansManager.updateTimespansPosAndSize();
-
-            self.updateVisibleColumns();
-            self.gantt.rowsManager.updateVisibleObjects();
-
-            self.gantt.currentDateManager.setCurrentDate(self.gantt.$scope.currentDateValue);
-        };
-
-        // Returns the last Gantt column or undefined
-        self.getLastColumn = function(extended) {
-            var columns = self.columns;
-            if (extended) {
-                columns = self.nextColumns;
-            }
-            if (columns && columns.length > 0) {
-                return columns[columns.length - 1];
-            } else {
-                return undefined;
-            }
-        };
-
-        // Returns the first Gantt column or undefined
-        self.getFirstColumn = function(extended) {
-            var columns = self.columns;
-            if (extended) {
-                columns = self.previousColumns;
-            }
-
-            if (columns && columns.length > 0) {
-                return columns[0];
-            } else {
-                return undefined;
-            }
-        };
-
-        // Returns the column at the given or next possible date
-        self.getColumnByDate = function(date) {
-            expandExtendedColumnsForDate(date);
-            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
-            var columns = bs.get(extendedColumns, date, function(c) {
-                return c.date;
-            });
-            return columns[0] !== undefined ? columns[0] : columns[1];
-        };
-
-        // Returns the column at the given position x (in em)
-        self.getColumnByPosition = function(x) {
-            expandExtendedColumnsForPosition(x);
-            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
-            return bs.get(extendedColumns, x, function(c) {
-                return c.left;
-            })[0];
-        };
-
-        var expandExtendedColumnsForPosition = function(x) {
-            if (x < 0) {
-                var firstColumn = self.getFirstColumn();
-                var from = firstColumn.date;
-                var firstExtendedColumn = self.getFirstColumn(true);
-                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    self.previousColumns = self.columnGenerator.generate(from, undefined, -x, 0, true);
-                }
-                return true;
-            } else if (x > self.width) {
-                var lastColumn = self.getLastColumn();
-                var endDate = lastColumn.getDateByPosition(lastColumn.width);
-                var lastExtendedColumn = self.getLastColumn(true);
-                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, undefined, x - self.width, self.width, false);
-                }
-                return true;
-            }
+        if (this.from === from && this.to === to) {
             return false;
-        };
+        }
 
-        var expandExtendedColumnsForDate = function(date) {
-            var firstColumn = self.getFirstColumn();
-            var from;
-            if (firstColumn) {
-                from = firstColumn.date;
-            }
+        this.setScrollAnchor();
 
-            var lastColumn = self.getLastColumn();
-            var endDate;
-            if (lastColumn) {
-                endDate = lastColumn.getDateByPosition(lastColumn.width);
-            }
+        this.from = from;
+        this.to = to;
 
-            if (from && date < from) {
-                var firstExtendedColumn = self.getFirstColumn(true);
-                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
-                    self.previousColumns = self.columnGenerator.generate(from, date, undefined, 0, true);
-                }
-                return true;
-            } else if (endDate && date > endDate) {
-                var lastExtendedColumn = self.getLastColumn(true);
-                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, date, undefined, self.width, false);
-                }
-                return true;
-            }
-            return false;
-        };
+        this.columns = this.columnGenerator.generate(from, to);
+        this.headers = this.headerGenerator.generate(this.columns);
+        this.previousColumns = [];
+        this.nextColumns = [];
 
-        // Returns the number of active headers
-        self.getActiveHeadersCount = function() {
-            var size = 0, key;
-            for (key in self.headers) {
-                if (self.headers.hasOwnProperty(key)) {
-                    size++;
-                }
-            }
-            return size;
-        };
+        this.updateColumnsMeta();
 
-        self.updateVisibleColumns = function() {
-            self.visibleColumns = $filter('ganttColumnLimit')(self.columns, self.gantt.$scope.scrollLeft, self.gantt.$scope.scrollWidth);
-
-            angular.forEach(self.headers, function(headers, key) {
-                if (self.headers.hasOwnProperty(key)) {
-                    self.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, self.gantt.$scope.scrollLeft, self.gantt.$scope.scrollWidth);
-                }
-            });
-        };
-
-        self.buildGenerator();
-        self.clearColumns();
-        self.updateColumns();
-        self.updateVisibleColumns();
+        return true;
     };
+
+    ColumnsManager.prototype.updateColumnsMeta = function() {
+        var lastColumn = this.getLastColumn();
+        this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
+
+        if (this.gantt.$scope.columnWidth === undefined) {
+            var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
+
+            if (this.gantt.$scope.maxHeight > 0) {
+                newWidth = newWidth - layout.getScrollBarWidth();
+            }
+
+            layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.previousColumns);
+            layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.columns);
+            layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.nextColumns);
+
+            angular.forEach(this.headers, function(header) {
+                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, header);
+            }, this);
+        }
+
+        this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+
+        this.gantt.rowsManager.updateTasksPosAndSize();
+        this.gantt.timespansManager.updateTimespansPosAndSize();
+
+        this.updateVisibleColumns();
+        this.gantt.rowsManager.updateVisibleObjects();
+
+        this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
+    };
+
+    // Returns the last Gantt column or undefined
+    ColumnsManager.prototype.getLastColumn = function(extended) {
+        var columns = this.columns;
+        if (extended) {
+            columns = this.nextColumns;
+        }
+        if (columns && columns.length > 0) {
+            return columns[columns.length - 1];
+        } else {
+            return undefined;
+        }
+    };
+
+    // Returns the first Gantt column or undefined
+    ColumnsManager.prototype.getFirstColumn = function(extended) {
+        var columns = this.columns;
+        if (extended) {
+            columns = this.previousColumns;
+        }
+
+        if (columns && columns.length > 0) {
+            return columns[0];
+        } else {
+            return undefined;
+        }
+    };
+
+    // Returns the column at the given or next possible date
+    ColumnsManager.prototype.getColumnByDate = function(date) {
+        this.expandExtendedColumnsForDate(date);
+        var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
+        var columns = bs.get(extendedColumns, date, function(c) {
+            return c.date;
+        });
+        return columns[0] !== undefined ? columns[0] : columns[1];
+    };
+
+    // Returns the column at the given position x (in em)
+    ColumnsManager.prototype.getColumnByPosition = function(x) {
+        this.expandExtendedColumnsForPosition(x);
+        var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
+        return bs.get(extendedColumns, x, function(c) {
+            return c.left;
+        })[0];
+    };
+
+    ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
+        if (x < 0) {
+            var firstColumn = this.getFirstColumn();
+            var from = firstColumn.date;
+            var firstExtendedColumn = this.getFirstColumn(true);
+            if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                this.previousColumns = this.columnGenerator.generate(from, undefined, -x, 0, true);
+            }
+            return true;
+        } else if (x > this.width) {
+            var lastColumn = this.getLastColumn();
+            var endDate = lastColumn.getDateByPosition(lastColumn.width);
+            var lastExtendedColumn = this.getLastColumn(true);
+            if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                this.nextColumns = this.columnGenerator.generate(endDate, undefined, x - this.width, this.width, false);
+            }
+            return true;
+        }
+        return false;
+    };
+
+    ColumnsManager.prototype.expandExtendedColumnsForDate = function(date) {
+        var firstColumn = this.getFirstColumn();
+        var from;
+        if (firstColumn) {
+            from = firstColumn.date;
+        }
+
+        var lastColumn = this.getLastColumn();
+        var endDate;
+        if (lastColumn) {
+            endDate = lastColumn.getDateByPosition(lastColumn.width);
+        }
+
+        if (from && date < from) {
+            var firstExtendedColumn = this.getFirstColumn(true);
+            if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                this.previousColumns = this.columnGenerator.generate(from, date, undefined, 0, true);
+            }
+            return true;
+        } else if (endDate && date > endDate) {
+            var lastExtendedColumn = this.getLastColumn(true);
+            if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                this.nextColumns = this.columnGenerator.generate(endDate, date, undefined, this.width, false);
+            }
+            return true;
+        }
+        return false;
+    };
+
+    // Returns the number of active headers
+    ColumnsManager.prototype.getActiveHeadersCount = function() {
+        var size = 0, key;
+        for (key in this.headers) {
+            if (this.headers.hasOwnProperty(key)) {
+                size++;
+            }
+        }
+        return size;
+    };
+
+    ColumnsManager.prototype.updateVisibleColumns = function() {
+        this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
+
+        angular.forEach(this.headers, function(headers, key) {
+            if (this.headers.hasOwnProperty(key)) {
+                this.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
+            }
+        }, this);
+    };
+
+    var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+    var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
+    var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
+
+    ColumnsManager.prototype.getHeaderFormat = function(unit) {
+        var format;
+        if (this.gantt.$scope.headersFormats !== undefined) {
+            format = this.gantt.$scope.headersFormats[unit];
+        }
+        if (format === undefined) {
+            if (['millisecond', 'second', 'minute', 'hour'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                format = defaultDayHeadersFormats[unit];
+            } else if (['month', 'quarter', 'year'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                format = defaultYearHeadersFormats[unit];
+            }
+            if (format === undefined) {
+                format = defaultHeadersFormats[unit];
+            }
+        }
+        return format;
+    };
+
     return ColumnsManager;
 }]);
 
 
 gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
-    var generateHeader = function(headerFormatFunction, columns, unit) {
+    var generateHeader = function(columnsManager, columns, unit) {
         var generatedHeaders = [];
         var header;
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
             if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
-                var label = col.date.format(headerFormatFunction(unit));
+                var label = col.date.format(columnsManager.getHeaderFormat(unit));
                 header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
                 header.left = col.left;
                 header.width = col.width;
@@ -1461,45 +1366,45 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
         return generatedHeaders;
     };
 
-    return function($scope) {
+    return function(columnsManager) {
         this.generate = function(columns) {
             var units = [];
-            if ($scope.headers === undefined) {
+            if (columnsManager.gantt.$scope.headers === undefined) {
                 units = [];
-                if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
+                if (['year', 'quarter', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('year');
                 }
-                if (['quarter'].indexOf($scope.viewScale) > -1) {
+                if (['quarter'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('quarter');
                 }
-                if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
+                if (['day', 'week', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('month');
                 }
-                if (['day', 'week'].indexOf($scope.viewScale) > -1) {
+                if (['day', 'week'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('week');
                 }
-                if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
+                if (['hour', 'day'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('day');
                 }
-                if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
+                if (['hour', 'minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('hour');
                 }
-                if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
+                if (['minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('minute');
                 }
-                if (['second'].indexOf($scope.viewScale) > -1) {
+                if (['second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
                     units.push('second');
                 }
                 if (units.length === 0) {
-                    units.push($scope.viewScale);
+                    units.push(columnsManager.gantt.$scope.viewScale);
                 }
             } else {
-                units = $scope.headers;
+                units = columnsManager.gantt.$scope.headers;
             }
 
             var headers = [];
             angular.forEach(units, function(unit) {
-                headers.push(generateHeader($scope.getHeaderFormat, columns, unit));
+                headers.push(generateHeader(columnsManager, columns, unit));
             });
 
             return headers;
@@ -1541,106 +1446,126 @@ gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
 
 
 gantt.factory('Gantt', [
-    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
-    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
+    'GanttScroll', 'GanttBody', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'GANTT_EVENTS',
+    function(Scroll, Body, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, GANTT_EVENTS) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
 
-            self.$scope = $scope;
-            self.$element = $element;
+            this.$scope = $scope;
+            this.$element = $element;
 
-            self.scroll = new Scroll(self);
-            self.body = new Body(self);
-            self.header = new Header(self);
-            self.labels = new Labels(self);
+            this.scroll = new Scroll(this);
+            this.body = new Body(this);
+            this.header = new Header(this);
+            this.labels = new Labels(this);
 
-            self.rowsManager = new RowsManager(self);
-            self.columnsManager = new ColumnsManager(self);
-            self.timespansManager = new TimespansManager(self);
-            self.currentDateManager = new CurrentDateManager(self);
+            this.rowsManager = new RowsManager(this);
+            this.columnsManager = new ColumnsManager(this);
+            this.timespansManager = new TimespansManager(this);
+            this.currentDateManager = new CurrentDateManager(this);
 
-            self.originalWidth = 0;
-            self.width = 0;
+            this.originalWidth = 0;
+            this.width = 0;
 
-            // Returns the exact column date at the given position x (in em)
-            self.getDateByPosition = function(x, magnet) {
-                var column = self.columnsManager.getColumnByPosition(x);
-                if (column !== undefined) {
-                    return column.getDateByPosition(x - column.left, magnet);
-                } else {
-                    return undefined;
+            this.$scope.$watch('data', function(newValue, oldValue) {
+                if (!angular.equals(newValue, oldValue)) {
+                    self.clearData();
+                    self.loadData(newValue);
                 }
-            };
+            });
+        };
 
-            // Returns the position inside the Gantt calculated by the given date
-            self.getPositionByDate = function(date) {
-                if (date === undefined) {
-                    return undefined;
-                }
+        // Returns the exact column date at the given position x (in em)
+        Gantt.prototype.getDateByPosition = function(x, magnet) {
+            var column = this.columnsManager.getColumnByPosition(x);
+            if (column !== undefined) {
+                return column.getDateByPosition(x - column.left, magnet);
+            } else {
+                return undefined;
+            }
+        };
 
-                if (!moment.isMoment(moment)) {
-                    date = moment(date);
-                }
+        // Returns the position inside the Gantt calculated by the given date
+        Gantt.prototype.getPositionByDate = function(date) {
+            if (date === undefined) {
+                return undefined;
+            }
 
-                var column = self.columnsManager.getColumnByDate(date);
-                if (column !== undefined) {
-                    return column.getPositionByDate(date);
-                } else {
-                    return undefined;
-                }
-            };
+            if (!moment.isMoment(moment)) {
+                date = moment(date);
+            }
 
-            // Adds or update rows and tasks.
-            self.addData = function(data) {
-                for (var i = 0, l = data.length; i < l; i++) {
-                    var rowData = data[i];
-                    self.rowsManager.addRow(rowData);
-                }
+            var column = this.columnsManager.getColumnByDate(date);
+            if (column !== undefined) {
+                return column.getPositionByDate(date);
+            } else {
+                return undefined;
+            }
+        };
 
-                self.columnsManager.updateColumns();
-                self.rowsManager.updateTasksPosAndSize();
-                self.rowsManager.updateVisibleObjects();
-            };
+        // Adds or update rows and tasks.
+        Gantt.prototype.loadData = function(data) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var rowData = data[i];
+                this.rowsManager.addRow(rowData);
+            }
 
-            // Removes specified rows or tasks.
-            // If a row has no tasks inside the complete row will be deleted.
-            self.removeData = function(data) {
-                self.rowsManager.removeData(data);
-                self.columnsManager.updateColumns();
-            };
+            this.columnsManager.updateColumns();
+            this.rowsManager.updateTasksPosAndSize();
+            this.rowsManager.updateVisibleObjects();
+            this.rowsManager.sortRows();
+        };
 
-            // Removes all rows and tasks
-            self.removeAllRows = function() {
-                self.rowsManager.removeAll();
-                self.columnsManager.clearColumns();
-            };
+        // Removes specified rows or tasks.
+        // If a row has no tasks inside the complete row will be deleted.
+        Gantt.prototype.removeData = function(data) {
+            this.rowsManager.removeData(data);
+            this.columnsManager.updateColumns();
+            this.rowsManager.sortRows();
+        };
 
-            // Removes all timespans
-            self.removeAllTimespans = function() {
-                self.timespansManager.removeAllTimespans();
-            };
+        // Removes all rows and tasks
+        Gantt.prototype.clearData = function() {
+            this.rowsManager.removeAll();
+            this.columnsManager.clearColumns();
+        };
 
-            // Swaps two rows and changes the sort order to custom to display the swapped rows
-            self.swapRows = function(a, b) {
-                // Swap the two rows
-                var order = a.order;
-                a.order = b.order;
-                b.order = order;
-            };
+        // Removes all timespans
+        Gantt.prototype.clearTimespans = function() {
+            this.timespansManager.removeAllTimespans();
+        };
 
-            // Sort rows by the specified sort mode (name, order, custom)
-            // and by Ascending or Descending
-            self.sortRows = function(expression) {
-                self.rowsManager.sortRows(expression);
-            };
+        // Swaps two rows and changes the sort order to custom to display the swapped rows
+        Gantt.prototype.swapRows = function(a, b) {
+            // Swap the two rows
+            var order = a.order;
+            a.order = b.order;
+            b.order = order;
 
-            // Adds or updates timespans
-            self.addTimespans = function(timespans) {
-                self.timespansManager.addTimespans(timespans);
-                self.columnsManager.updateColumns();
-            };
+            // Raise change events
+            this.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
+            this.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
+            this.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
+            this.$scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
 
+            // Switch to custom sort mode and trigger sort
+            if (this.$scope.sortMode !== 'custom') {
+                this.$scope.sortMode = 'custom'; // Sort will be triggered by the watcher
+            } else {
+                this.rowsManager.sortRows();
+            }
+        };
+
+        // Sort rows by the specified sort mode (name, order, custom)
+        // and by Ascending or Descending
+        Gantt.prototype.sortRows = function() {
+            this.rowsManager.sortRows();
+        };
+
+        // Adds or updates timespans
+        Gantt.prototype.loadTimespans = function(timespans) {
+            this.timespansManager.loadTimespans(timespans);
         };
 
         return Gantt;
@@ -1649,172 +1574,170 @@ gantt.factory('Gantt', [
 
 gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
     var Row = function(id, rowsManager, name, order, height, color, classes, data) {
-        var self = this;
+        this.id = id;
+        this.rowsManager = rowsManager;
+        this.name = name;
+        this.order = order;
+        this.height = height;
+        this.color = color;
+        this.classes = classes;
+        this.from = undefined;
+        this.to = undefined;
+        this.tasksMap = {};
+        this.tasks = [];
+        this.filteredTasks = [];
+        this.visibleTasks = [];
+        this.data = data;
+    };
 
-        self.id = id;
-        self.rowsManager = rowsManager;
-        self.name = name;
-        self.order = order;
-        self.height = height;
-        self.color = color;
-        self.classes = classes;
-        self.from = undefined;
-        self.to = undefined;
-        self.tasksMap = {};
-        self.tasks = [];
-        self.filteredTasks = [];
-        self.visibleTasks = [];
-        self.data = data;
+    // Adds a task to a specific row. Merges the task if there is already one with the same id
+    Row.prototype.addTask = function(taskData) {
+        // Copy to new task (add) or merge with existing (update)
+        var task;
 
-        // Adds a task to a specific row. Merges the task if there is already one with the same id
-        self.addTask = function(taskData) {
-            // Copy to new task (add) or merge with existing (update)
+        if (taskData.id in this.tasksMap) {
+            task = this.tasksMap[taskData.id];
+            task.copy(taskData);
+        } else {
+            task = new Task(taskData.id, this, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.progress);
+            this.tasksMap[taskData.id] = task;
+            this.tasks.push(task);
+            this.filteredTasks.push(task);
+            this.visibleTasks.push(task);
+        }
+
+        this.sortTasks();
+        this.setFromToByTask(task);
+        this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
+        return task;
+    };
+
+    // Removes the task from the existing row and adds it to he current one
+    Row.prototype.moveTaskToRow = function(task) {
+        var oldRow = task.row;
+        oldRow.removeTask(task.id, true);
+        oldRow.updateVisibleTasks();
+
+        this.tasksMap[task.id] = task;
+        this.tasks.push(task);
+        this.filteredTasks.push(task);
+        this.visibleTasks.push(task);
+        task.row = this;
+
+        this.sortTasks();
+        this.setFromToByTask(task);
+
+        task.updatePosAndSize();
+        this.updateVisibleTasks();
+
+        this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
+
+    };
+
+    Row.prototype.updateVisibleTasks = function() {
+        if (this.rowsManager.gantt.$scope.filterTask) {
+            this.filteredTasks = $filter('filter')(this.tasks, this.rowsManager.gantt.$scope.filterTask, this.rowsManager.gantt.$scope.filterTaskComparator);
+        } else {
+            this.filteredTasks = this.tasks.slice(0);
+        }
+        this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+    };
+
+    Row.prototype.updateTasksPosAndSize = function() {
+        for (var j = 0, k = this.tasks.length; j < k; j++) {
+            this.tasks[j].updatePosAndSize();
+        }
+    };
+
+    // Remove the specified task from the row
+    Row.prototype.removeTask = function(taskId, disableEmit) {
+        if (taskId in this.tasksMap) {
+            delete this.tasksMap[taskId]; // Remove from map
+
             var task;
+            var removedTask;
+            for (var i = this.tasks.length - 1; i >= 0; i--) {
+                task = this.tasks[i];
+                if (task.id === taskId) {
+                    removedTask = task;
+                    this.tasks.splice(i, 1); // Remove from array
 
-            if (taskData.id in self.tasksMap) {
-                task = self.tasksMap[taskData.id];
-                task.copy(taskData);
-            } else {
-                task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.progress);
-                self.tasksMap[taskData.id] = task;
-                self.tasks.push(task);
-                self.filteredTasks.push(task);
-                self.visibleTasks.push(task);
-            }
-
-            self.sortTasks();
-            self.setFromToByTask(task);
-            self.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
-            return task;
-        };
-
-        // Removes the task from the existing row and adds it to he current one
-        self.moveTaskToRow = function(task) {
-            var oldRow = task.row;
-            oldRow.removeTask(task.id, true);
-            oldRow.updateVisibleTasks();
-
-            self.tasksMap[task.id] = task;
-            self.tasks.push(task);
-            self.filteredTasks.push(task);
-            self.visibleTasks.push(task);
-            task.row = self;
-
-            self.sortTasks();
-            self.setFromToByTask(task);
-
-            task.updatePosAndSize();
-            self.updateVisibleTasks();
-
-            self.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
-
-        };
-
-        self.updateVisibleTasks = function() {
-            if (self.rowsManager.gantt.$scope.filterTask) {
-                self.filteredTasks = $filter('filter')(self.tasks, self.rowsManager.gantt.$scope.filterTask, self.rowsManager.gantt.$scope.filterTaskComparator);
-            } else {
-                self.filteredTasks = self.tasks.slice(0);
-            }
-            self.visibleTasks = $filter('ganttTaskLimit')(self.filteredTasks, self.rowsManager.gantt);
-        };
-
-        self.updateTasksPosAndSize = function() {
-            for (var j = 0, k = self.tasks.length; j < k; j++) {
-                self.tasks[j].updatePosAndSize();
-            }
-        };
-
-        // Remove the specified task from the row
-        self.removeTask = function(taskId, disableEmit) {
-            if (taskId in self.tasksMap) {
-                delete self.tasksMap[taskId]; // Remove from map
-
-                var task;
-                var removedTask;
-                for (var i = self.tasks.length - 1; i >= 0; i--) {
-                    task = self.tasks[i];
-                    if (task.id === taskId) {
-                        removedTask = task;
-                        self.tasks.splice(i, 1); // Remove from array
-
-                        // Update earliest or latest date info as this may change
-                        if (self.from - task.from === 0 || self.to - task.to === 0) {
-                            self.setFromTo();
-                        }
+                    // Update earliest or latest date info as this may change
+                    if (this.from - task.from === 0 || this.to - task.to === 0) {
+                        this.setFromTo();
                     }
                 }
+            }
 
-                for (i = self.filteredTasks.length - 1; i >= 0; i--) {
-                    task = self.filteredTasks[i];
-                    if (task.id === taskId) {
-                        self.filteredTasks.splice(i, 1); // Remove from filtered array
-                    }
+            for (i = this.filteredTasks.length - 1; i >= 0; i--) {
+                task = this.filteredTasks[i];
+                if (task.id === taskId) {
+                    this.filteredTasks.splice(i, 1); // Remove from filtered array
                 }
+            }
 
-                for (i = self.visibleTasks.length - 1; i >= 0; i--) {
-                    task = self.visibleTasks[i];
-                    if (task.id === taskId) {
-                        self.visibleTasks.splice(i, 1); // Remove from visible array
-                    }
+            for (i = this.visibleTasks.length - 1; i >= 0; i--) {
+                task = this.visibleTasks[i];
+                if (task.id === taskId) {
+                    this.visibleTasks.splice(i, 1); // Remove from visible array
                 }
-
-                if (!disableEmit) {
-                    self.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': removedTask});
-                }
-
-                return removedTask;
-            }
-        };
-
-        // Calculate the earliest from and latest to date of all tasks in a row
-        self.setFromTo = function() {
-            self.from = undefined;
-            self.to = undefined;
-            for (var j = 0, k = self.tasks.length; j < k; j++) {
-                self.setFromToByTask(self.tasks[j]);
-            }
-        };
-
-        self.setFromToByTask = function(task) {
-            if (self.from === undefined) {
-                self.from = moment(task.from);
-            } else if (task.from < self.from) {
-                self.from = moment(task.from);
             }
 
-            if (self.to === undefined) {
-                self.to = moment(task.to);
-            } else if (task.to > self.to) {
-                self.to = moment(task.to);
+            if (!disableEmit) {
+                this.rowsManager.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': removedTask});
             }
-        };
 
-        self.sortTasks = function() {
-            self.tasks.sort(function(t1, t2) {
-                return t1.left - t2.left;
-            });
-        };
+            return removedTask;
+        }
+    };
 
-        self.copy = function(row) {
-            self.name = row.name;
-            self.height = row.height;
-            self.color = row.color;
-            self.classes = row.classes;
-            self.data = row.data;
+    // Calculate the earliest from and latest to date of all tasks in a row
+    Row.prototype.setFromTo = function() {
+        this.from = undefined;
+        this.to = undefined;
+        for (var j = 0, k = this.tasks.length; j < k; j++) {
+            this.setFromToByTask(this.tasks[j]);
+        }
+    };
 
-            if (row.order !== undefined) {
-                self.order = row.order;
-            }
-        };
+    Row.prototype.setFromToByTask = function(task) {
+        if (this.from === undefined) {
+            this.from = moment(task.from);
+        } else if (task.from < this.from) {
+            this.from = moment(task.from);
+        }
 
-        self.clone = function() {
-            var clone = new Row(self.id, self.rowsManager, self.name, self.order, self.height, self.color, self.classes, self.data);
-            for (var i = 0, l = self.tasks.length; i < l; i++) {
-                clone.addTask(self.tasks[i].clone());
-            }
-            return clone;
-        };
+        if (this.to === undefined) {
+            this.to = moment(task.to);
+        } else if (task.to > this.to) {
+            this.to = moment(task.to);
+        }
+    };
+
+    Row.prototype.sortTasks = function() {
+        this.tasks.sort(function(t1, t2) {
+            return t1.left - t2.left;
+        });
+    };
+
+    Row.prototype.copy = function(row) {
+        this.name = row.name;
+        this.height = row.height;
+        this.color = row.color;
+        this.classes = row.classes;
+        this.data = row.data;
+
+        if (row.order !== undefined) {
+            this.order = row.order;
+        }
+    };
+
+    Row.prototype.clone = function() {
+        var clone = new Row(this.id, this.rowsManager, this.name, this.order, this.height, this.color, this.classes, this.data);
+        for (var i = 0, l = this.tasks.length; i < l; i++) {
+            clone.addTask(this.tasks[i].clone());
+        }
+        return clone;
     };
 
     return Row;
@@ -1825,396 +1748,406 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', 'GANTT_EVENT
     var RowsManager = function(gantt) {
         var self = this;
 
-        self.gantt = gantt;
+        this.gantt = gantt;
 
-        self.rowsMap = {};
-        self.rows = [];
-        self.filteredRows = [];
-        self.visibleRows = [];
+        this.rowsMap = {};
+        this.rows = [];
+        this.filteredRows = [];
+        this.visibleRows = [];
 
-        self.gantt.$scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateVisibleTasks();
             }
         });
 
-        self.gantt.$scope.$watch('filterTask+filterTaskComparator', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('filterTask+filterTaskComparator', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateVisibleTasks();
             }
         });
 
-       self.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
+       this.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateVisibleRows();
             }
         });
 
-        self.addRow = function(rowData) {
-            // Copy to new row (add) or merge with existing (update)
-            var row, isUpdate = false;
-
-            if (rowData.id in self.rowsMap) {
-                row = self.rowsMap[rowData.id];
-                row.copy(rowData);
-                isUpdate = true;
-                self.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
-            } else {
-                var order = rowData.order;
-
-                // Check if the row has a order predefined. If not assign one
-                if (order === undefined) {
-                    order = self.highestRowOrder;
-                }
-
-                if (order >= self.highestRowOrder) {
-                    self.highestRowOrder = order + 1;
-                }
-
-                row = new Row(rowData.id, self, rowData.name, order, rowData.height, rowData.color, rowData.classes, rowData.data);
-                self.rowsMap[rowData.id] = row;
-                self.rows.push(row);
-                self.filteredRows.push(row);
-                self.visibleRows.push(row);
-                self.gantt.$scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
+        this.gantt.$scope.$watch('sortMode', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.sortRows();
             }
+        });
+
+        this.updateVisibleObjects();
+    };
+
+    RowsManager.prototype.addRow = function(rowData) {
+        // Copy to new row (add) or merge with existing (update)
+        var row, isUpdate = false;
+
+        if (rowData.id in this.rowsMap) {
+            row = this.rowsMap[rowData.id];
+            row.copy(rowData);
+            isUpdate = true;
+            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
+        } else {
+            var order = rowData.order;
+
+            // Check if the row has a order predefined. If not assign one
+            if (order === undefined) {
+                order = this.highestRowOrder;
+            }
+
+            if (order >= this.highestRowOrder) {
+                this.highestRowOrder = order + 1;
+            }
+
+            row = new Row(rowData.id, this, rowData.name, order, rowData.height, rowData.color, rowData.classes, rowData.data);
+            this.rowsMap[rowData.id] = row;
+            this.rows.push(row);
+            this.filteredRows.push(row);
+            this.visibleRows.push(row);
+            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
+        }
+
+        if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
+            for (var i = 0, l = rowData.tasks.length; i < l; i++) {
+                row.addTask(rowData.tasks[i]);
+            }
+        }
+        return isUpdate;
+    };
+
+    RowsManager.prototype.removeRow = function(rowId) {
+        if (rowId in this.rowsMap) {
+            delete this.rowsMap[rowId]; // Remove from map
+
+            var removedRow;
+            var row;
+            for (var i = this.rows.length - 1; i >= 0; i--) {
+                row = this.rows[i];
+                if (row.id === rowId) {
+                    removedRow = row;
+                    this.rows.splice(i, 1); // Remove from array
+                }
+            }
+
+            for (i = this.filteredRows.length - 1; i >= 0; i--) {
+                row = this.filteredRows[i];
+                if (row.id === rowId) {
+                    this.filteredRows.splice(i, 1); // Remove from filtered array
+                }
+            }
+
+            for (i = this.visibleRows.length - 1; i >= 0; i--) {
+                row = this.visibleRows[i];
+                if (row.id === rowId) {
+                    this.visibleRows.splice(i, 1); // Remove from visible array
+                }
+            }
+
+            this.gantt.$scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
+            return row;
+        }
+
+        return undefined;
+    };
+
+    RowsManager.prototype.removeData = function(data) {
+        for (var i = 0, l = data.length; i < l; i++) {
+            var rowData = data[i];
+            var row;
 
             if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-                for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                    row.addTask(rowData.tasks[i]);
-                }
-            }
-            return isUpdate;
-        };
+                // Only delete the specified tasks but not the row and the other tasks
 
-        self.removeRow = function(rowId) {
-            if (rowId in self.rowsMap) {
-                delete self.rowsMap[rowId]; // Remove from map
+                if (rowData.id in this.rowsMap) {
+                    row = this.rowsMap[rowData.id];
 
-                var removedRow;
-                var row;
-                for (var i = self.rows.length - 1; i >= 0; i--) {
-                    row = self.rows[i];
-                    if (row.id === rowId) {
-                        removedRow = row;
-                        self.rows.splice(i, 1); // Remove from array
+                    for (var j = 0, k = rowData.tasks.length; j < k; j++) {
+                        row.removeTask(rowData.tasks[j].id);
                     }
+
+                    this.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
                 }
-
-                for (i = self.filteredRows.length - 1; i >= 0; i--) {
-                    row = self.filteredRows[i];
-                    if (row.id === rowId) {
-                        self.filteredRows.splice(i, 1); // Remove from filtered array
-                    }
-                }
-
-                for (i = self.visibleRows.length - 1; i >= 0; i--) {
-                    row = self.visibleRows[i];
-                    if (row.id === rowId) {
-                        self.visibleRows.splice(i, 1); // Remove from visible array
-                    }
-                }
-
-                self.gantt.$scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
-                return row;
-            }
-
-            return undefined;
-        };
-
-        self.removeData = function(data) {
-            for (var i = 0, l = data.length; i < l; i++) {
-                var rowData = data[i];
-                var row;
-
-                if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-                    // Only delete the specified tasks but not the row and the other tasks
-
-                    if (rowData.id in self.rowsMap) {
-                        row = self.rowsMap[rowData.id];
-
-                        for (var j = 0, k = rowData.tasks.length; j < k; j++) {
-                            row.removeTask(rowData.tasks[j].id);
-                        }
-
-                        self.gantt.$scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
-                    }
-                } else {
-                    // Delete the complete row
-                    row = self.removeRow(rowData.id);
-                }
-            }
-            self.updateVisibleObjects();
-        };
-
-        self.removeAll = function() {
-            self.rowsMap = {};
-            self.rows = [];
-            self.filteredRows = [];
-            self.visibleRows = [];
-        };
-
-        self.sortRows = function(expression) {
-            var reverse = false;
-            if (expression.charAt(0) === '-') {
-                reverse = true;
-                expression = expression.substr(1);
-            }
-
-            var angularOrderBy = $filter('orderBy');
-            if (expression === 'custom') {
-                self.rows = angularOrderBy(self.rows, 'order', reverse);
             } else {
-                self.rows = angularOrderBy(self.rows, expression, reverse);
+                // Delete the complete row
+                row = this.removeRow(rowData.id);
             }
-
-            self.updateVisibleRows();
-        };
-
-        self.updateVisibleObjects = function() {
-            self.updateVisibleRows();
-            self.updateVisibleTasks();
-        };
-
-        self.updateVisibleRows = function() {
-            var oldFilteredRows = self.filteredRows;
-            if (self.gantt.$scope.filterRow) {
-                self.filteredRows = $filter('filter')(self.rows, self.gantt.$scope.filterRow, self.gantt.$scope.filterRowComparator);
-            } else {
-                self.filteredRows = self.rows.slice(0);
-            }
-
-            var filterEventData;
-            if (!angular.equals(oldFilteredRows, self.filteredRows)) {
-                filterEventData = {rows: self.rows, filteredRows: self.filteredRows};
-            }
-
-            // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
-            self.visibleRows = self.filteredRows;
-            if (filterEventData !== undefined) {
-                self.gantt.$scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
-            }
-        };
-
-        self.updateVisibleTasks = function() {
-            var oldFilteredTasks = [];
-            var filteredTasks = [];
-            var tasks = [];
-
-            angular.forEach(self.filteredRows, function(row) {
-                oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
-                row.updateVisibleTasks();
-                filteredTasks = filteredTasks.concat(row.filteredTasks);
-                tasks = tasks.concat(row.tasks);
-            });
-
-            var filterEventData;
-            if (!angular.equals(oldFilteredTasks, filteredTasks)) {
-                filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
-            }
-
-            if (filterEventData !== undefined) {
-                self.gantt.$scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
-            }
-        };
-
-        // Update the position/size of all tasks in the Gantt
-        self.updateTasksPosAndSize = function() {
-            for (var i = 0, l = self.rows.length; i < l; i++) {
-                self.rows[i].updateTasksPosAndSize();
-            }
-        };
-
-        self.getExpandedFrom = function(from) {
-            from = from ? moment(from) : from;
-
-            var minRowFrom = from;
-            angular.forEach(self.rows, function(row) {
-                if (minRowFrom === undefined || minRowFrom > row.from) {
-                    minRowFrom = row.from;
-                }
-            });
-            if (minRowFrom && (!from || minRowFrom < from)) {
-                return minRowFrom;
-            }
-            return from;
-        };
-
-        self.getExpandedTo = function(to) {
-            to = to ? moment(to) : to;
-
-            var maxRowTo = to;
-            angular.forEach(self.rows, function(row) {
-                if (maxRowTo === undefined || maxRowTo < row.to) {
-                    maxRowTo = row.to;
-                }
-            });
-            if (maxRowTo && (!self.gantt.$scope.toDate || maxRowTo > self.gantt.$scope.toDate)) {
-                return maxRowTo;
-            }
-            return to;
-        };
-
-        self.getDefaultFrom = function() {
-            var defaultFrom;
-            angular.forEach(self.rows, function(row) {
-                if (defaultFrom === undefined || row.from < defaultFrom) {
-                    defaultFrom = row.from;
-                }
-            });
-            return defaultFrom;
-        };
-
-        self.getDefaultTo = function() {
-            var defaultTo;
-            angular.forEach(self.rows, function(row) {
-                if (defaultTo === undefined || row.to > defaultTo) {
-                    defaultTo = row.to;
-                }
-            });
-            return defaultTo;
-        };
-
-        self.updateVisibleObjects();
+        }
+        this.updateVisibleObjects();
     };
+
+    RowsManager.prototype.removeAll = function() {
+        this.rowsMap = {};
+        this.rows = [];
+        this.filteredRows = [];
+        this.visibleRows = [];
+    };
+
+    RowsManager.prototype.sortRows = function() {
+        var expression = this.gantt.$scope.sortMode;
+
+        var reverse = false;
+        if (expression.charAt(0) === '-') {
+            reverse = true;
+            expression = expression.substr(1);
+        }
+
+        var angularOrderBy = $filter('orderBy');
+        if (expression === 'custom') {
+            this.rows = angularOrderBy(this.rows, 'order', reverse);
+        } else {
+            this.rows = angularOrderBy(this.rows, expression, reverse);
+        }
+
+        this.updateVisibleRows();
+    };
+
+    RowsManager.prototype.updateVisibleObjects = function() {
+        this.updateVisibleRows();
+        this.updateVisibleTasks();
+    };
+
+    RowsManager.prototype.updateVisibleRows = function() {
+        var oldFilteredRows = this.filteredRows;
+        if (this.gantt.$scope.filterRow) {
+            this.filteredRows = $filter('filter')(this.rows, this.gantt.$scope.filterRow, this.gantt.$scope.filterRowComparator);
+        } else {
+            this.filteredRows = this.rows.slice(0);
+        }
+
+        var filterEventData;
+        if (!angular.equals(oldFilteredRows, this.filteredRows)) {
+            filterEventData = {rows: this.rows, filteredRows: this.filteredRows};
+        }
+
+        // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
+        this.visibleRows = this.filteredRows;
+        if (filterEventData !== undefined) {
+            this.gantt.$scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
+        }
+    };
+
+    RowsManager.prototype.updateVisibleTasks = function() {
+        var oldFilteredTasks = [];
+        var filteredTasks = [];
+        var tasks = [];
+
+        angular.forEach(this.filteredRows, function(row) {
+            oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
+            row.updateVisibleTasks();
+            filteredTasks = filteredTasks.concat(row.filteredTasks);
+            tasks = tasks.concat(row.tasks);
+        });
+
+        var filterEventData;
+        if (!angular.equals(oldFilteredTasks, filteredTasks)) {
+            filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
+        }
+
+        if (filterEventData !== undefined) {
+            this.gantt.$scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
+        }
+    };
+
+    // Update the position/size of all tasks in the Gantt
+    RowsManager.prototype.updateTasksPosAndSize = function() {
+        for (var i = 0, l = this.rows.length; i < l; i++) {
+            this.rows[i].updateTasksPosAndSize();
+        }
+    };
+
+    RowsManager.prototype.getExpandedFrom = function(from) {
+        from = from ? moment(from) : from;
+
+        var minRowFrom = from;
+        angular.forEach(this.rows, function(row) {
+            if (minRowFrom === undefined || minRowFrom > row.from) {
+                minRowFrom = row.from;
+            }
+        });
+        if (minRowFrom && (!from || minRowFrom < from)) {
+            return minRowFrom;
+        }
+        return from;
+    };
+
+    RowsManager.prototype.getExpandedTo = function(to) {
+        to = to ? moment(to) : to;
+
+        var maxRowTo = to;
+        angular.forEach(this.rows, function(row) {
+            if (maxRowTo === undefined || maxRowTo < row.to) {
+                maxRowTo = row.to;
+            }
+        });
+        if (maxRowTo && (!this.gantt.$scope.toDate || maxRowTo > this.gantt.$scope.toDate)) {
+            return maxRowTo;
+        }
+        return to;
+    };
+
+    RowsManager.prototype.getDefaultFrom = function() {
+        var defaultFrom;
+        angular.forEach(this.rows, function(row) {
+            if (defaultFrom === undefined || row.from < defaultFrom) {
+                defaultFrom = row.from;
+            }
+        });
+        return defaultFrom;
+    };
+
+    RowsManager.prototype.getDefaultTo = function() {
+        var defaultTo;
+        angular.forEach(this.rows, function(row) {
+            if (defaultTo === undefined || row.to > defaultTo) {
+                defaultTo = row.to;
+            }
+        });
+        return defaultTo;
+    };
+
     return RowsManager;
 }]);
 
 
 gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, TaskProgress) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, progress) {
-        var self = this;
+        this.id = id;
+        this.rowsManager = row.rowsManager;
+        this.row = row;
+        this.name = name;
+        this.color = color;
+        this.classes = classes;
+        this.priority = priority;
+        this.from = moment(from);
+        this.to = moment(to);
+        this.truncatedLeft = false;
+        this.truncatedRight = false;
+        this.data = data;
 
-        self.id = id;
-        self.rowsManager = row.rowsManager;
-        self.row = row;
-        self.name = name;
-        self.color = color;
-        self.classes = classes;
-        self.priority = priority;
-        self.from = moment(from);
-        self.to = moment(to);
-        self.truncatedLeft = false;
-        self.truncatedRight = false;
-        self.data = data;
         if (progress !== undefined) {
             if (typeof progress === 'object') {
-                self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
+                this.progress = new TaskProgress(this, progress.percent, progress.color, progress.classes);
             } else {
-                self.progress = new TaskProgress(self, progress);
+                this.progress = new TaskProgress(this, progress);
             }
         }
 
         if (est !== undefined && lct !== undefined) {
-            self.est = moment(est);  //Earliest Start Time
-            self.lct = moment(lct);  //Latest Completion Time
+            this.est = moment(est);  //Earliest Start Time
+            this.lct = moment(lct);  //Latest Completion Time
         }
 
-        self._fromLabel = undefined;
-        self.getFromLabel = function() {
-            if (self._fromLabel === undefined) {
-                self._fromLabel = self.from.format(self.rowsManager.gantt.$scope.tooltipDateFormat);
-            }
-            return self._fromLabel;
-        };
+        this._fromLabel = undefined;
+        this._toLabel = undefined;
+    };
 
-        self._toLabel = undefined;
-        self.getToLabel = function() {
-            if (self._toLabel === undefined) {
-                self._toLabel = self.to.format(self.rowsManager.gantt.$scope.tooltipDateFormat);
-            }
-            return self._toLabel;
-        };
 
-        self.checkIfMilestone = function() {
-            self.isMilestone = self.from - self.to === 0;
-        };
+    Task.prototype.getFromLabel = function() {
+        if (this._fromLabel === undefined) {
+            this._fromLabel = this.from.format(this.rowsManager.gantt.$scope.tooltipDateFormat);
+        }
+        return this._fromLabel;
+    };
 
-        self.checkIfMilestone();
+    Task.prototype.getToLabel = function() {
+        if (this._toLabel === undefined) {
+            this._toLabel = this.to.format(this.rowsManager.gantt.$scope.tooltipDateFormat);
+        }
+        return this._toLabel;
+    };
 
-        self.hasBounds = function() {
-            return self.bounds !== undefined;
-        };
+    Task.prototype.checkIfMilestone = function() {
+        this.isMilestone = this.from - this.to === 0;
+    };
 
-        // Updates the pos and size of the task according to the from - to date
-        self.updatePosAndSize = function() {
-            self.modelLeft = self.rowsManager.gantt.getPositionByDate(self.from);
-            self.modelWidth = self.rowsManager.gantt.getPositionByDate(self.to) - self.modelLeft;
+    Task.prototype.checkIfMilestone();
 
-            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.rowsManager.gantt.width;
+    Task.prototype.hasBounds = function() {
+        return this.bounds !== undefined;
+    };
 
-            self.left = Math.min(Math.max(self.modelLeft, 0), self.rowsManager.gantt.width);
-            if (self.modelLeft < 0) {
-                self.truncatedLeft = true;
-                if (self.modelWidth + self.modelLeft > self.rowsManager.gantt.width) {
-                    self.truncatedRight = true;
-                    self.width = self.rowsManager.gantt.width;
-                } else {
-                    self.truncatedRight = false;
-                    self.width = self.modelWidth + self.modelLeft;
-                }
-            } else if (self.modelWidth + self.modelLeft > self.rowsManager.gantt.width) {
-                self.truncatedRight = true;
-                self.truncatedLeft = false;
-                self.width = self.rowsManager.gantt.width - self.modelLeft;
+    // Updates the pos and size of the task according to the from - to date
+    Task.prototype.updatePosAndSize = function() {
+        this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.from);
+        this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.to) - this.modelLeft;
+
+        this.outOfRange = this.modelLeft + this.modelWidth < 0 || this.modelLeft > this.rowsManager.gantt.width;
+
+        this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
+        if (this.modelLeft < 0) {
+            this.truncatedLeft = true;
+            if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                this.truncatedRight = true;
+                this.width = this.rowsManager.gantt.width;
             } else {
-                self.truncatedLeft = false;
-                self.truncatedRight = false;
-                self.width = self.modelWidth;
+                this.truncatedRight = false;
+                this.width = this.modelWidth + this.modelLeft;
             }
+        } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+            this.truncatedRight = true;
+            this.truncatedLeft = false;
+            this.width = this.rowsManager.gantt.width - this.modelLeft;
+        } else {
+            this.truncatedLeft = false;
+            this.truncatedRight = false;
+            this.width = this.modelWidth;
+        }
 
-            if (self.est !== undefined && self.lct !== undefined) {
-                self.bounds = {};
-                self.bounds.left = self.rowsManager.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.rowsManager.gantt.getPositionByDate(self.lct) - self.bounds.left;
-            }
-        };
+        if (this.est !== undefined && this.lct !== undefined) {
+            this.bounds = {};
+            this.bounds.left = this.rowsManager.gantt.getPositionByDate(this.est);
+            this.bounds.width = this.rowsManager.gantt.getPositionByDate(this.lct) - this.bounds.left;
+        }
+    };
 
-        // Expands the start of the task to the specified position (in em)
-        self.setFrom = function(x) {
-            self.from = self.rowsManager.gantt.getDateByPosition(x, true);
-            self._fromLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-            self.checkIfMilestone();
-        };
+    // Expands the start of the task to the specified position (in em)
+    Task.prototype.setFrom = function(x) {
+        this.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        this._fromLabel = undefined;
+        this.row.setFromToByTask(this);
+        this.updatePosAndSize();
+        this.checkIfMilestone();
+    };
 
-        // Expands the end of the task to the specified position (in em)
-        self.setTo = function(x) {
-            self.to = self.rowsManager.gantt.getDateByPosition(x, true);
-            self._toLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-            self.checkIfMilestone();
-        };
+    // Expands the end of the task to the specified position (in em)
+    Task.prototype.setTo = function(x) {
+        this.to = this.rowsManager.gantt.getDateByPosition(x, true);
+        this._toLabel = undefined;
+        this.row.setFromToByTask(this);
+        this.updatePosAndSize();
+        this.checkIfMilestone();
+    };
 
-        // Moves the task to the specified position (in em)
-        self.moveTo = function(x) {
-            self.from = self.rowsManager.gantt.getDateByPosition(x, true);
-            self._fromLabel = undefined;
-            var newTaskLeft = self.rowsManager.gantt.getPositionByDate(self.from);
-            self.to = self.rowsManager.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
-            self._toLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-        };
+    // Moves the task to the specified position (in em)
+    Task.prototype.moveTo = function(x) {
+        this.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        this._fromLabel = undefined;
+        var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.from);
+        this.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
+        this._toLabel = undefined;
+        this.row.setFromToByTask(this);
+        this.updatePosAndSize();
+    };
 
-        self.copy = function(task) {
-            self.name = task.name;
-            self.color = task.color;
-            self.classes = task.classes;
-            self.priority = task.priority;
-            self.from = moment(task.from);
-            self.to = moment(task.to);
-            self.est = task.est !== undefined ? moment(task.est) : undefined;
-            self.lct = task.lct !== undefined ? moment(task.lct) : undefined;
-            self.data = task.data;
-            self.isMilestone = task.isMilestone;
-        };
+    Task.prototype.copy = function(task) {
+        this.name = task.name;
+        this.color = task.color;
+        this.classes = task.classes;
+        this.priority = task.priority;
+        this.from = moment(task.from);
+        this.to = moment(task.to);
+        this.est = task.est !== undefined ? moment(task.est) : undefined;
+        this.lct = task.lct !== undefined ? moment(task.lct) : undefined;
+        this.data = task.data;
+        this.isMilestone = task.isMilestone;
+    };
 
-        self.clone = function() {
-            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.progress);
-        };
+    Task.prototype.clone = function() {
+        return new Task(this.id, this.row, this.name, this.color, this.classes, this.priority, this.from, this.to, this.data, this.est, this.lct, this.progress);
     };
 
     return Task;
@@ -2223,17 +2156,16 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
 gantt.factory('GanttTaskProgress', [function() {
     var TaskProgress = function(task, percent, color, classes) {
-        var self = this;
-
-        self.task = task;
-        self.percent = percent;
-        self.color = color;
-        self.classes = classes;
-
-        self.clone = function() {
-            return new TaskProgress(self.task, self.percent, self.color, self.classes);
-        };
+        this.task = task;
+        this.percent = percent;
+        this.color = color;
+        this.classes = classes;
     };
+
+    TaskProgress.prototype.clone = function() {
+        return new TaskProgress(this.task, this.percent, this.color, this.classes);
+    };
+
     return TaskProgress;
 }]);
 
@@ -2244,10 +2176,6 @@ gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', function(BodyCo
 
         this.columns = new BodyColumns(this);
         this.rows = new BodyRows(this);
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
     };
     return Body;
 }]);
@@ -2256,10 +2184,6 @@ gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', function(BodyCo
 gantt.factory('GanttBodyColumns', [function() {
     var BodyColumns = function($element) {
         this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
     };
     return BodyColumns;
 }]);
@@ -2268,10 +2192,6 @@ gantt.factory('GanttBodyColumns', [function() {
 gantt.factory('GanttBodyRows', [function() {
     var BodyRows = function($element) {
         this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
     };
     return BodyRows;
 }]);
@@ -2280,16 +2200,7 @@ gantt.factory('GanttBodyRows', [function() {
 gantt.factory('GanttHeader', ['GanttHeaderColumns', function(HeaderColumns) {
     var Header = function(gantt) {
         this.gantt = gantt;
-
         this.columns = new HeaderColumns(this);
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-
-        this.getHeight = function() {
-            return this.$element[0].offsetHeight;
-        };
     };
     return Header;
 }]);
@@ -2298,10 +2209,6 @@ gantt.factory('GanttHeader', ['GanttHeaderColumns', function(HeaderColumns) {
 gantt.factory('GanttHeaderColumns', [function() {
     var HeaderColumns = function($element) {
         this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
     };
     return HeaderColumns;
 }]);
@@ -2309,142 +2216,132 @@ gantt.factory('GanttHeaderColumns', [function() {
 
 gantt.factory('GanttLabels', [function() {
     var Labels= function(gantt) {
-        var self = this;
-
         this.gantt = gantt;
-
-        this.getWidth = function() {
-            return self.$element.width();
-        };
     };
     return Labels;
 }]);
 
 
 gantt.factory('GanttScroll', [function() {
-    var Scrollable = function(gantt) {
-        var self = this;
-
-        self.gantt = gantt;
-
-        /**
-         * Scroll to a position
-         *
-         * @param {number} position Position to scroll to.
-         */
-        self.scrollTo = function(position) {
-            self.$element[0].scrollLeft = position;
-            self.$element.triggerHandler('scroll');
-        };
-
-        /**
-         * Scroll to the left side
-         *
-         * @param {number} offset Offset to scroll.
-         */
-        self.scrollToLeft = function(offset) {
-            self.$element[0].scrollLeft -= offset;
-            self.$element.triggerHandler('scroll');
-        };
-
-        /**
-         * Scroll to the right side
-         *
-         * @param {number} offset Offset to scroll.
-         */
-        self.scrollToRight = function(offset) {
-            self.$element[0].scrollLeft += offset;
-            self.$element.triggerHandler('scroll');
-        };
-
-        // Tries to center the specified date
-        /**
-         * Scroll to a date
-         *
-         * @param {moment} date moment to scroll to.
-         */
-        self.scrollToDate = function(date) {
-            var position = self.gantt.getPositionByDate(date);
-
-            if (position !== undefined) {
-                self.$element[0].scrollLeft = position - self.$element[0].offsetWidth / 2;
-            }
-        };
+    var Scroll = function(gantt) {
+        this.gantt = gantt;
     };
-    return Scrollable;
+
+    /**
+     * Scroll to a position
+     *
+     * @param {number} position Position to scroll to.
+     */
+    Scroll.prototype.scrollTo = function(position) {
+        this.$element[0].scrollLeft = position;
+        this.$element.triggerHandler('scroll');
+    };
+
+    /**
+     * Scroll to the left side
+     *
+     * @param {number} offset Offset to scroll.
+     */
+    Scroll.prototype.scrollToLeft = function(offset) {
+        this.$element[0].scrollLeft -= offset;
+        this.$element.triggerHandler('scroll');
+    };
+
+    /**
+     * Scroll to the right side
+     *
+     * @param {number} offset Offset to scroll.
+     */
+    Scroll.prototype.scrollToRight = function(offset) {
+        this.$element[0].scrollLeft += offset;
+        this.$element.triggerHandler('scroll');
+    };
+
+    // Tries to center the specified date
+    /**
+     * Scroll to a date
+     *
+     * @param {moment} date moment to scroll to.
+     */
+    Scroll.prototype.scrollToDate = function(date) {
+        var position = this.gantt.getPositionByDate(date);
+
+        if (position !== undefined) {
+            this.$element[0].scrollLeft = position - this.$element[0].offsetWidth / 2;
+        }
+    };
+
+    return Scroll;
 }]);
 
 
 gantt.factory('GanttTimespan', ['moment', function(moment) {
     var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
-        var self = this;
-
-        self.id = id;
-        self.gantt = gantt;
-        self.name = name;
-        self.color = color;
-        self.classes = classes;
-        self.priority = priority;
-        self.from = moment(from);
-        self.to = moment(to);
-        self.data = data;
+        this.id = id;
+        this.gantt = gantt;
+        this.name = name;
+        this.color = color;
+        this.classes = classes;
+        this.priority = priority;
+        this.from = moment(from);
+        this.to = moment(to);
+        this.data = data;
 
         if (est !== undefined && lct !== undefined) {
-            self.est = moment(est);  //Earliest Start Time
-            self.lct = moment(lct);  //Latest Completion Time
+            this.est = moment(est);  //Earliest Start Time
+            this.lct = moment(lct);  //Latest Completion Time
         }
+    };
 
-        self.hasBounds = function() {
-            return self.bounds !== undefined;
-        };
+    Timespan.prototype.hasBounds = function() {
+        return this.bounds !== undefined;
+    };
 
-        // Updates the pos and size of the timespan according to the from - to date
-        self.updatePosAndSize = function() {
-            self.left = self.gantt.getPositionByDate(self.from);
-            self.width = self.gantt.getPositionByDate(self.to) - self.left;
+    // Updates the pos and size of the timespan according to the from - to date
+    Timespan.prototype.updatePosAndSize = function() {
+        this.left = this.gantt.getPositionByDate(this.from);
+        this.width = this.gantt.getPositionByDate(this.to) - this.left;
 
-            if (self.est !== undefined && self.lct !== undefined) {
-                self.bounds = {};
-                self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
-            }
-        };
+        if (this.est !== undefined && this.lct !== undefined) {
+            this.bounds = {};
+            this.bounds.left = this.gantt.getPositionByDate(this.est);
+            this.bounds.width = this.gantt.getPositionByDate(this.lct) - this.bounds.left;
+        }
+    };
 
-        // Expands the start of the timespan to the specified position (in em)
-        self.setFrom = function(x) {
-            self.from = self.gantt.getDateByPosition(x);
-            self.updatePosAndSize();
-        };
+    // Expands the start of the timespan to the specified position (in em)
+    Timespan.prototype.setFrom = function(x) {
+        this.from = this.gantt.getDateByPosition(x);
+        this.updatePosAndSize();
+    };
 
-        // Expands the end of the timespan to the specified position (in em)
-        self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x);
-            self.updatePosAndSize();
-        };
+    // Expands the end of the timespan to the specified position (in em)
+    Timespan.prototype.setTo = function(x) {
+        this.to = this.gantt.getDateByPosition(x);
+        this.updatePosAndSize();
+    };
 
-        // Moves the timespan to the specified position (in em)
-        self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x);
-            self.to = self.gantt.getDateByPosition(x + self.width);
-            self.updatePosAndSize();
-        };
+    // Moves the timespan to the specified position (in em)
+    Timespan.prototype.moveTo = function(x) {
+        this.from = this.gantt.getDateByPosition(x);
+        this.to = this.gantt.getDateByPosition(x + this.width);
+        this.updatePosAndSize();
+    };
 
-        self.copy = function(timespan) {
-            self.name = timespan.name;
-            self.gantt = timespan.gantt;
-            self.color = timespan.color;
-            self.classes = timespan.classes;
-            self.priority = timespan.priority;
-            self.from = moment(timespan.from);
-            self.to = moment(timespan.to);
-            self.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
-            self.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
-            self.data = timespan.data;
-        };
+    Timespan.prototype.copy = function(timespan) {
+        this.name = timespan.name;
+        this.color = timespan.color;
+        this.classes = timespan.classes;
+        this.priority = timespan.priority;
+        this.from = moment(timespan.from);
+        this.to = moment(timespan.to);
+        this.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
+        this.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
+        this.data = timespan.data;
+    };
 
-        self.clone = function() {
-            return new Timespan(self.id, self.gantt, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
-        };
+    Timespan.prototype.clone = function() {
+        return new Timespan(this.id, this.gantt, this.name, this.color, this.classes, this.priority, this.from, this.to, this.data, this.est, this.lct);
     };
 
     return Timespan;
@@ -2455,52 +2352,61 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', 'GANTT_EVENTS', functio
     var GanttTimespansManager = function(gantt) {
         var self = this;
 
-        self.gantt = gantt;
+        this.gantt = gantt;
 
-        self.timespansMap = {};
-        self.timespans = [];
+        this.timespansMap = {};
+        this.timespans = [];
 
-        // Adds or updates timespans
-        self.addTimespans = function(timespans) {
-            for (var i = 0, l = timespans.length; i < l; i++) {
-                var timespanData = timespans[i];
-                self.addTimespan(timespanData);
+        this.gantt.$scope.$watch('timespans', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.clearTimespans();
+                self.loadTimespans(newValue);
             }
-        };
-
-        // Adds a timespan or merges the timespan if there is already one with the same id
-        self.addTimespan = function(timespanData) {
-            // Copy to new timespan (add) or merge with existing (update)
-            var timespan, isUpdate = false;
-
-            if (timespanData.id in self.timespansMap) {
-                timespan = self.timespansMap[timespanData.id];
-                timespan.copy(timespanData);
-                isUpdate = true;
-            } else {
-                timespan = new Timespan(timespanData.id, self.gantt, timespanData.name, timespanData.color,
-                    timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
-                self.timespansMap[timespanData.id] = timespan;
-                self.timespans.push(timespan);
-                self.gantt.$scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
-            }
-
-            timespan.updatePosAndSize();
-            return isUpdate;
-        };
-
-        // Removes all timespans
-        self.removeAllTimespans = function() {
-            self.timespansMap = {};
-            self.timespans = [];
-        };
-
-        self.updateTimespansPosAndSize = function() {
-            for (var i = 0, l = self.timespans.length; i < l; i++) {
-                self.timespans[i].updatePosAndSize();
-            }
-        };
+        });
     };
+
+    // Adds or updates timespans
+    GanttTimespansManager.prototype.loadTimespans = function(timespans) {
+        for (var i = 0, l = timespans.length; i < l; i++) {
+            var timespanData = timespans[i];
+            this.loadTimespan(timespanData);
+        }
+        this.gantt.columnsManager.updateColumns();
+    };
+
+    // Adds a timespan or merges the timespan if there is already one with the same id
+    GanttTimespansManager.prototype.loadTimespan = function(timespanData) {
+        // Copy to new timespan (add) or merge with existing (update)
+        var timespan, isUpdate = false;
+
+        if (timespanData.id in this.timespansMap) {
+            timespan = this.timespansMap[timespanData.id];
+            timespan.copy(timespanData);
+            isUpdate = true;
+        } else {
+            timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
+                timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
+            this.timespansMap[timespanData.id] = timespan;
+            this.timespans.push(timespan);
+            this.gantt.$scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
+        }
+
+        timespan.updatePosAndSize();
+        return isUpdate;
+    };
+
+    // Removes all timespans
+    GanttTimespansManager.prototype.clearTimespans = function() {
+        this.timespansMap = {};
+        this.timespans = [];
+    };
+
+    GanttTimespansManager.prototype.updateTimespansPosAndSize = function() {
+        for (var i = 0, l = this.timespans.length; i < l; i++) {
+            this.timespans[i].updatePosAndSize();
+        }
+    };
+
     return GanttTimespansManager;
 }]);
 
@@ -2925,6 +2831,33 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENT
             var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
 
+            var lastAutoExpand;
+            var autoExpandCoolDownPeriod = 500;
+            var autoExpandColumns = function(el, date, direction) {
+                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                    return;
+                }
+
+                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
+                    return;
+                }
+
+                var from, to;
+                var expandHour = 1, expandDay = 31;
+
+                if (direction === 'left') {
+                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    to = date;
+                } else {
+                    from = date;
+                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                }
+
+                $scope.fromDate = from;
+                $scope.toDate = to;
+                lastAutoExpand = Date.now();
+            };
+
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
                 var direction;
@@ -2941,7 +2874,7 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'GANTT_EVENT
                 lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
-                    $scope.autoExpandColumns(el, date, direction);
+                    autoExpandColumns(el, date, direction);
                     $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft, date: date, direction: direction});
                 } else {
                     $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
@@ -3985,7 +3918,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
+        '                    <gantt-sortable swap="row.rowsManager.gantt.swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
         '                        <span class="gantt-labels-text">{{ row.name }}</span>\n' +
         '                    </gantt-sortable>\n' +
         '                </gantt-row-label>\n' +

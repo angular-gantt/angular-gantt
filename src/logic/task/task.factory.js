@@ -1,138 +1,139 @@
 'use strict';
 gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, TaskProgress) {
     var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, progress) {
-        var self = this;
+        this.id = id;
+        this.rowsManager = row.rowsManager;
+        this.row = row;
+        this.name = name;
+        this.color = color;
+        this.classes = classes;
+        this.priority = priority;
+        this.from = moment(from);
+        this.to = moment(to);
+        this.truncatedLeft = false;
+        this.truncatedRight = false;
+        this.data = data;
 
-        self.id = id;
-        self.rowsManager = row.rowsManager;
-        self.row = row;
-        self.name = name;
-        self.color = color;
-        self.classes = classes;
-        self.priority = priority;
-        self.from = moment(from);
-        self.to = moment(to);
-        self.truncatedLeft = false;
-        self.truncatedRight = false;
-        self.data = data;
         if (progress !== undefined) {
             if (typeof progress === 'object') {
-                self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
+                this.progress = new TaskProgress(this, progress.percent, progress.color, progress.classes);
             } else {
-                self.progress = new TaskProgress(self, progress);
+                this.progress = new TaskProgress(this, progress);
             }
         }
 
         if (est !== undefined && lct !== undefined) {
-            self.est = moment(est);  //Earliest Start Time
-            self.lct = moment(lct);  //Latest Completion Time
+            this.est = moment(est);  //Earliest Start Time
+            this.lct = moment(lct);  //Latest Completion Time
         }
 
-        self._fromLabel = undefined;
-        self.getFromLabel = function() {
-            if (self._fromLabel === undefined) {
-                self._fromLabel = self.from.format(self.rowsManager.gantt.$scope.tooltipDateFormat);
-            }
-            return self._fromLabel;
-        };
+        this._fromLabel = undefined;
+        this._toLabel = undefined;
+    };
 
-        self._toLabel = undefined;
-        self.getToLabel = function() {
-            if (self._toLabel === undefined) {
-                self._toLabel = self.to.format(self.rowsManager.gantt.$scope.tooltipDateFormat);
-            }
-            return self._toLabel;
-        };
 
-        self.checkIfMilestone = function() {
-            self.isMilestone = self.from - self.to === 0;
-        };
+    Task.prototype.getFromLabel = function() {
+        if (this._fromLabel === undefined) {
+            this._fromLabel = this.from.format(this.rowsManager.gantt.$scope.tooltipDateFormat);
+        }
+        return this._fromLabel;
+    };
 
-        self.checkIfMilestone();
+    Task.prototype.getToLabel = function() {
+        if (this._toLabel === undefined) {
+            this._toLabel = this.to.format(this.rowsManager.gantt.$scope.tooltipDateFormat);
+        }
+        return this._toLabel;
+    };
 
-        self.hasBounds = function() {
-            return self.bounds !== undefined;
-        };
+    Task.prototype.checkIfMilestone = function() {
+        this.isMilestone = this.from - this.to === 0;
+    };
 
-        // Updates the pos and size of the task according to the from - to date
-        self.updatePosAndSize = function() {
-            self.modelLeft = self.rowsManager.gantt.getPositionByDate(self.from);
-            self.modelWidth = self.rowsManager.gantt.getPositionByDate(self.to) - self.modelLeft;
+    Task.prototype.checkIfMilestone();
 
-            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.rowsManager.gantt.width;
+    Task.prototype.hasBounds = function() {
+        return this.bounds !== undefined;
+    };
 
-            self.left = Math.min(Math.max(self.modelLeft, 0), self.rowsManager.gantt.width);
-            if (self.modelLeft < 0) {
-                self.truncatedLeft = true;
-                if (self.modelWidth + self.modelLeft > self.rowsManager.gantt.width) {
-                    self.truncatedRight = true;
-                    self.width = self.rowsManager.gantt.width;
-                } else {
-                    self.truncatedRight = false;
-                    self.width = self.modelWidth + self.modelLeft;
-                }
-            } else if (self.modelWidth + self.modelLeft > self.rowsManager.gantt.width) {
-                self.truncatedRight = true;
-                self.truncatedLeft = false;
-                self.width = self.rowsManager.gantt.width - self.modelLeft;
+    // Updates the pos and size of the task according to the from - to date
+    Task.prototype.updatePosAndSize = function() {
+        this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.from);
+        this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.to) - this.modelLeft;
+
+        this.outOfRange = this.modelLeft + this.modelWidth < 0 || this.modelLeft > this.rowsManager.gantt.width;
+
+        this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
+        if (this.modelLeft < 0) {
+            this.truncatedLeft = true;
+            if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                this.truncatedRight = true;
+                this.width = this.rowsManager.gantt.width;
             } else {
-                self.truncatedLeft = false;
-                self.truncatedRight = false;
-                self.width = self.modelWidth;
+                this.truncatedRight = false;
+                this.width = this.modelWidth + this.modelLeft;
             }
+        } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+            this.truncatedRight = true;
+            this.truncatedLeft = false;
+            this.width = this.rowsManager.gantt.width - this.modelLeft;
+        } else {
+            this.truncatedLeft = false;
+            this.truncatedRight = false;
+            this.width = this.modelWidth;
+        }
 
-            if (self.est !== undefined && self.lct !== undefined) {
-                self.bounds = {};
-                self.bounds.left = self.rowsManager.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.rowsManager.gantt.getPositionByDate(self.lct) - self.bounds.left;
-            }
-        };
+        if (this.est !== undefined && this.lct !== undefined) {
+            this.bounds = {};
+            this.bounds.left = this.rowsManager.gantt.getPositionByDate(this.est);
+            this.bounds.width = this.rowsManager.gantt.getPositionByDate(this.lct) - this.bounds.left;
+        }
+    };
 
-        // Expands the start of the task to the specified position (in em)
-        self.setFrom = function(x) {
-            self.from = self.rowsManager.gantt.getDateByPosition(x, true);
-            self._fromLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-            self.checkIfMilestone();
-        };
+    // Expands the start of the task to the specified position (in em)
+    Task.prototype.setFrom = function(x) {
+        this.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        this._fromLabel = undefined;
+        this.row.setFromToByTask(this);
+        this.updatePosAndSize();
+        this.checkIfMilestone();
+    };
 
-        // Expands the end of the task to the specified position (in em)
-        self.setTo = function(x) {
-            self.to = self.rowsManager.gantt.getDateByPosition(x, true);
-            self._toLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-            self.checkIfMilestone();
-        };
+    // Expands the end of the task to the specified position (in em)
+    Task.prototype.setTo = function(x) {
+        this.to = this.rowsManager.gantt.getDateByPosition(x, true);
+        this._toLabel = undefined;
+        this.row.setFromToByTask(this);
+        this.updatePosAndSize();
+        this.checkIfMilestone();
+    };
 
-        // Moves the task to the specified position (in em)
-        self.moveTo = function(x) {
-            self.from = self.rowsManager.gantt.getDateByPosition(x, true);
-            self._fromLabel = undefined;
-            var newTaskLeft = self.rowsManager.gantt.getPositionByDate(self.from);
-            self.to = self.rowsManager.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
-            self._toLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-        };
+    // Moves the task to the specified position (in em)
+    Task.prototype.moveTo = function(x) {
+        this.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        this._fromLabel = undefined;
+        var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.from);
+        this.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
+        this._toLabel = undefined;
+        this.row.setFromToByTask(this);
+        this.updatePosAndSize();
+    };
 
-        self.copy = function(task) {
-            self.name = task.name;
-            self.color = task.color;
-            self.classes = task.classes;
-            self.priority = task.priority;
-            self.from = moment(task.from);
-            self.to = moment(task.to);
-            self.est = task.est !== undefined ? moment(task.est) : undefined;
-            self.lct = task.lct !== undefined ? moment(task.lct) : undefined;
-            self.data = task.data;
-            self.isMilestone = task.isMilestone;
-        };
+    Task.prototype.copy = function(task) {
+        this.name = task.name;
+        this.color = task.color;
+        this.classes = task.classes;
+        this.priority = task.priority;
+        this.from = moment(task.from);
+        this.to = moment(task.to);
+        this.est = task.est !== undefined ? moment(task.est) : undefined;
+        this.lct = task.lct !== undefined ? moment(task.lct) : undefined;
+        this.data = task.data;
+        this.isMilestone = task.isMilestone;
+    };
 
-        self.clone = function() {
-            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.progress);
-        };
+    Task.prototype.clone = function() {
+        return new Task(this.id, this.row, this.name, this.color, this.classes, this.priority, this.from, this.to, this.data, this.est, this.lct, this.progress);
     };
 
     return Task;

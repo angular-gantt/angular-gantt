@@ -5,10 +5,6 @@ gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', function(BodyCo
 
         this.columns = new BodyColumns(this);
         this.rows = new BodyRows(this);
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
     };
     return Body;
 }]);

@@ -100,6 +100,7 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             columnMagnet: '=?',
             data: '=?',
             loadTimespans: '&',
+            clearTimespans: '&',
             loadData: '&',
             removeData: '&',
             clearData: '&',
@@ -168,28 +169,6 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
                 $scope.tooltipDateFormat = 'MMM DD, HH:mm';
             }
 
-            var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
-            var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
-            var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
-
-            $scope.getHeaderFormat = function(unit) {
-                var format;
-                if ($scope.headersFormats !== undefined) {
-                    format = $scope.headersFormats[unit];
-                }
-                if (format === undefined) {
-                    if (['millisecond', 'second', 'minute', 'hour'].indexOf($scope.viewScale) > -1) {
-                        format = defaultDayHeadersFormats[unit];
-                    } else if (['month', 'quarter', 'year'].indexOf($scope.viewScale) > -1) {
-                        format = defaultYearHeadersFormats[unit];
-                    }
-                    if (format === undefined) {
-                        format = defaultHeadersFormats[unit];
-                    }
-                }
-                return format;
-            };
-
             // Disable animation if ngAnimate is present, as it drops down performance.
             enableNgAnimate(false, $element);
 
@@ -211,119 +190,20 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             $scope.template = {};
             $scope.gantt = new Gantt($scope, $element);
 
-            $scope.$watch('sortMode', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.sortRows();
-                }
-            });
-
-            $scope.$watch('timespans', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllTimespans();
-                    $scope.setTimespans(newValue);
-                }
-            });
-
-            $scope.$watch('data', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllData();
-                    $scope.setData(newValue);
-                }
-            });
-
-            // Swaps two rows and changes the sort order to custom to display the swapped rows
-            $scope.swapRows = function(a, b) {
-                $scope.gantt.swapRows(a, b);
-
-                // Raise change events
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
-
-                // Switch to custom sort mode and trigger sort
-                if ($scope.sortMode !== 'custom') {
-                    $scope.sortMode = 'custom'; // Sort will be triggered by the watcher
-                } else {
-                    $scope.sortRows();
-                }
-            };
-
-            // Sort rows by the current sort mode
-            $scope.sortRows = function() {
-                $scope.gantt.sortRows($scope.sortMode);
-            };
-
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
-            $scope.autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
-                    return;
-                }
-
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
-                }
-
-                var from, to;
-                var expandHour = 1, expandDay = 31;
-
-                if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
-                } else {
-                    from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
-                }
-
-                $scope.fromDate = from;
-                $scope.toDate = to;
-                lastAutoExpand = Date.now();
-            };
-
-            // Add or update rows and tasks
-            $scope.setData = function(data) {
-                $scope.gantt.addData(data);
-                $scope.sortRows();
-            };
-
             // Remove specified rows and tasks.
-            $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data);
-                $scope.sortRows();
-            }});
-
-            // Clear all existing rows and tasks
-            $scope.removeAllData = function() {
-                // Clears rows, task and columns
-                $scope.gantt.removeAllRows();
-                // Restore default columns
-                $scope.gantt.updateColumns();
-            };
-
-            // Clear all existing timespans
-            $scope.removeAllTimespans = function() {
-                // Clears rows, task and columns
-                $scope.gantt.removeAllTimespans();
-                // Restore default columns
-                $scope.gantt.updateColumns();
-            };
-
-            // Add or update timespans
-            $scope.setTimespans = function(timespans) {
-                $scope.gantt.addTimespans(timespans);
-            };
+            $scope.removeData({ fn: function(data) {$scope.gantt.removeData(data);}});
 
             // Load data handler.
             // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: $scope.setData});
-            $scope.loadTimespans({ fn: $scope.setTimespans});
+            $scope.loadData({ fn: function(data) {$scope.gantt.loadData(data);}});
+            $scope.loadTimespans({ fn: function(timespans) {$scope.gantt.loadTimespans(timespans);}});
 
             // Clear data handler.
-            $scope.clearData({ fn: $scope.removeAllData});
+            $scope.clearData({ fn: function() {$scope.gantt.clearData();}});
+            $scope.clearTimespans({ fn: function() {$scope.gantt.clearTimespans();}});
 
             // Scroll to specified date handler.
-            $scope.centerDate({ fn: $scope.gantt.scroll.scrollToDate});
+            $scope.centerDate({ fn: function(date) {$scope.gantt.scroll.scrollToDate(date);}});
 
             // Gantt is initialized. Signal that the Gantt is ready.
             $scope.$emit(GANTT_EVENTS.READY);
