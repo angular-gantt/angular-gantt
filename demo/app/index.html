@@ -154,14 +154,8 @@
                                 </div>
                                 <div class="panel-collapse" bs-collapse-target>
                                     <div class="panel-body">
-                                        <gantt first-day-of-week="1"
-                                               filter-task="{'name': options.filterTask}"
+                                        <gantt filter-task="{'name': options.filterTask}"
                                                filter-row="{'name': options.filterRow}"
-                                               load-data="loadData = fn"
-                                               load-timespans="loadTimespans = fn"
-                                               center-date="scrollToDate = fn"
-                                               remove-data="removeData = fn"
-                                               clear-data="clearData = fn"
                                                allow-task-moving="!options.readOnly"
                                                allow-task-resizing="!options.readOnly"
                                                allow-task-row-switching="!options.readOnly"
@@ -176,7 +170,6 @@
                                                current-date="options.currentDate"
                                                current-date-value="options.currentDateValue"
                                                max-height="options.maxHeight && 300 || 0"
-                                               on-scroll="scrollEvent(event)"
                                                headers-formats="options.headersFormats"
                                                headers="options.headers"
                                                time-frames="options.timeFrames"

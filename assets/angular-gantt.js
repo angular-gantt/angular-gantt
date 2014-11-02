@@ -9,7 +9,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 
 var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate) {
+gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate) {
     return {
         restrict: 'EA',
         replace: true,
@@ -53,70 +53,15 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',
-            api: '=?'
+            api: '=?',
+            options: '=?'
         },
         controller: ['$scope', '$element', function($scope, $element) {
-            // Initialize defaults
-            if ($scope.sortMode === undefined) {
-                $scope.sortMode = 'name';
+            for (var option in $scope.options) {
+                $scope[option] = $scope.options[option];
             }
-            if ($scope.viewScale === undefined) {
-                $scope.viewScale = 'day';
-            }
-            if ($scope.columnMagnet === undefined) {
-                $scope.columnMagnet = '15 minutes';
-            }
-            if ($scope.allowTaskMoving === undefined) {
-                $scope.allowTaskMoving = true;
-            }
-            if ($scope.allowTaskResizing === undefined) {
-                $scope.allowTaskResizing = true;
-            }
-            if ($scope.allowTaskRowSwitching === undefined) {
-                $scope.allowTaskRowSwitching = true;
-            }
-            if ($scope.allowRowSorting === undefined) {
-                $scope.allowRowSorting = true;
-            }
-            if ($scope.allowLabelsResizing === undefined) {
-                $scope.allowLabelsResizing = true;
-            }
-            if ($scope.currentDateValue === undefined) {
-                $scope.currentDateValue = moment();
-            }
-            if ($scope.currentDate === undefined) {
-                $scope.currentDate = 'line';
-            }
-            if ($scope.maxHeight === undefined) {
-                $scope.maxHeight = 0;
-            }
-            if ($scope.autoExpand === undefined) {
-                $scope.autoExpand = 'none';
-            }
-            if ($scope.taskOutOfRange === undefined) {
-                $scope.taskOutOfRange = 'truncate';
-            }
-            if ($scope.labelsWidth === undefined) {
-                $scope.labelsWidth = 0;
-            }
-            if ($scope.showLabelsColumn === undefined) {
-                $scope.showLabelsColumn = true;
-            }
-            if ($scope.showTooltips === undefined) {
-                $scope.showTooltips = true;
-            }
-            if ($scope.timeFramesWorkingMode === undefined) {
-                $scope.timeFramesWorkingMode = 'hidden';
-            }
-            if ($scope.timeFramesNonWorkingMode === undefined) {
-                $scope.timeFramesNonWorkingMode = 'visible';
-            }
-            if ($scope.columnMagnet === undefined) {
-                $scope.columnMagnet = '15 minutes';
-            }
-            if ($scope.tooltipDateFormat === undefined) {
-                $scope.tooltipDateFormat = 'MMM DD, HH:mm';
-            }
+
+            Options.initialize($scope);
 
             // Disable animation if ngAnimate is present, as it drops down performance.
             enableNgAnimate(false, $element);
@@ -348,6 +293,65 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             }]);
 
 })();
+
+
+gantt.factory('GanttOptions', ['moment', function(moment) {
+    return {initialize: function(options) {
+        options.api = options.api || angular.noop();
+
+        options.data = options.data || [];
+
+        options.timespans = options.timespans || [];
+
+        options.sortMode = options.sortMode || 'name';
+
+        options.filterTask = options.filterTask || undefined;
+        options.filterTaskComparator = options.filterTaskComparator || undefined;
+
+        options.filterRow = options.filterRow || undefined;
+        options.filterRowComparator = options.filterRowComparator || undefined;
+
+        options.viewScale = options.viewScale || 'day';
+        options.columnMagnet = options.columnMagnet || '15 minutes';
+        options.columnWidth = options.columnWidth || undefined;
+
+        options.fromDate = options.fromDate || undefined;
+        options.toDate = options.toDate || undefined;
+
+        options.allowTaskMoving = options.allowTaskMoving !== false || true;
+        options.allowTaskResizing = options.allowTaskResizing !== false || true;
+        options.allowTaskRowSwitching = options.allowTaskRowSwitching !== false || true;
+        options.allowRowSorting = options.allowRowSorting !== false || true;
+        options.allowLabelsResizing = options.allowLabelsResizing !== false || true;
+
+        options.currentDate = options.currentDate || 'line';
+        options.currentDateValue = options.currentDateValue || moment();
+
+        options.autoExpand = options.autoExpand || 'none';
+        options.taskOutOfRange = options.taskOutOfRange || 'truncate';
+
+        options.maxHeight = options.maxHeight || 0;
+
+        options.labelsWidth = options.labelsWidth || undefined;
+
+        options.showLabelsColumn = options.showLabelsColumn !== false || true;
+        options.showTooltips = options.showTooltips !== false || true;
+
+        options.headers = options.headers || undefined;
+        options.headersFormats = options.headersFormats || undefined;
+
+        options.timeFrames = options.timeFrames || [];
+        options.dateFrames = options.dateFrames || [];
+
+        options.timeFramesWorkingMode = options.timeFramesWorkingMode || 'hidden';
+        options.timeFramesNonWorkingMode = options.timeFramesNonWorkingMode || 'visible';
+
+        options.tooltipDateFormat = options.tooltipDateFormat || 'MMM DD, HH:mm';
+
+        return options;
+    }
+    };
+}]);
 
 
 /**

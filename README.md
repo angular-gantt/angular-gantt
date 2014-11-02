@@ -383,6 +383,23 @@ review those projects documentations.
 - **max-height** (default: `0` = Disabled)
 
   Maximum height of the Gantt. It will show a vertical scroll bar if the content does not fit inside.
+  
+- **options**
+
+  Configure the gantt using as a plain old javascript object, keys of `options` representing the configuration
+  attributes.
+
+  ```html
+  <gantt options="options"></gantt>
+  ```
+
+  ```js
+  $scope.options = {
+    data: {...},
+    auto-expand: 'both', 
+    ...
+  }
+  ```
 
 - **remove-data**
 
