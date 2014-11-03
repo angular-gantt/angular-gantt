@@ -23,6 +23,14 @@ gantt.directive('ganttColumnHeader', ['GanttEvents', function(Events) {
             $element.bind('contextmenu', function(evt) {
                 $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
             });
+
+            $element.bind('mousedown', function(evt) {
+                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
+            });
+            
+            $element.bind('mouseup', function(evt) {
+                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
+            });
         }]
     };
 }]);

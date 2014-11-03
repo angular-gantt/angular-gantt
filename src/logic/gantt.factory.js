@@ -45,12 +45,12 @@ gantt.factory('Gantt', [
             this.api.registerMethod('data', 'remove', this.removeData, this);
             this.api.registerMethod('data', 'clear', this.clearData, this);
 
-            this.api.registerMethod('calendar', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
-            this.api.registerMethod('calendar', 'clearTimeframe', this.calendar.clearTimeFrames, this.calendar);
-            this.api.registerMethod('calendar', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
-            this.api.registerMethod('calendar', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
-            this.api.registerMethod('calendar', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
-            this.api.registerMethod('calendar', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+            this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+            this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
             if (angular.isFunction(this.$scope.api)) {
                 this.$scope.api(this.api);
@@ -95,7 +95,7 @@ gantt.factory('Gantt', [
                 this.rowsManager.addRow(rowData);
             }
 
-            this.columnsManager.updateColumns();
+            this.columnsManager.generateColumns();
             this.rowsManager.sortRows();
         };
 
@@ -103,7 +103,7 @@ gantt.factory('Gantt', [
         // If a row has no tasks inside the complete row will be deleted.
         Gantt.prototype.removeData = function(data) {
             this.rowsManager.removeData(data);
-            this.columnsManager.updateColumns();
+            this.columnsManager.generateColumns();
             this.rowsManager.sortRows();
         };
 

@@ -28,7 +28,7 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             var timespanData = timespans[i];
             this.loadTimespan(timespanData);
         }
-        this.gantt.columnsManager.updateColumns();
+        this.gantt.columnsManager.generateColumns();
     };
 
     // Adds a timespan or merges the timespan if there is already one with the same id

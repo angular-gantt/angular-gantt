@@ -11,7 +11,7 @@
  - [Build](#build)
  - [Attributes](#attributes)
  - [Objects](#objects)
- - [Events](#events)
+ - [API](#api)
  - [Contribute](#contribute)
  - [License](#license)
 
@@ -121,6 +121,12 @@ For any features related to date, like date formats, week numbering, custom cale
 review those projects documentations.
 
 ### <a name="attributes"></a> Attributes
+- **api**
+
+  Registers an API Object to control the component from application and listen/raise events.
+  
+  See [API section](#api) for more details.
+
 - **auto-expand** (default `none`)
 
   Define if the date range will be extended when the user scroll to the left or right edge.
@@ -150,17 +156,6 @@ review those projects documentations.
   Rows can be manually sorted by drag and drop. This will set `sort-mode` to `custom` as soon as the user
   starts sorting.
 
-- **center-date**
-
-  Function (`fn`) called to center the specified date.
-
-  Usage:
-  Specify the gantt property:
-    `center-date="scrollToDate = fn"`
-
-  In your code call:
-    `$scope.scrollToDate(new Date());`
-
 - **current-date** (default `line`)
 
   How current date is displayed.
@@ -178,12 +173,6 @@ review those projects documentations.
 
   In your code call:
     `$scope.getToday = new Date();`
-
-- **clear-data**
-
-  Function (`fn`) called to removes all rows and tasks at once.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
 - **column-width**
 
@@ -204,6 +193,12 @@ review those projects documentations.
   - `30 minutes`
   - `1 hour`
   - `3 hours`
+
+- **data**
+
+  Specify the data model for the gantt chart. 
+    
+  See [objects section](#objects).
 
 - **filter-task**, **filter-task-comparator**
 
@@ -226,12 +221,6 @@ review those projects documentations.
 
   Ensures that the chart rendering goes at least to this date. This is useful for showing the chart even without any 
   tasks, or empty time after the last task, or truncate next tasks.
-
-- **data**
-
-  Specify the data model for the gantt chart. 
-    
-  See [objects section](#objects).
 
 - **headers**
 
@@ -360,26 +349,6 @@ review those projects documentations.
     - `hidden`
     - `cropped`
 
-- **load-data**
-
-  Function (`fn`) called to load more data to the Gantt.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
-  
-  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
-
-  As an alternative, you can use the `data` property to directly assign the data model.
-
-- **load-timespans**
-
-  Function (`fn`) called to load timespans into the Gantt.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
-
-  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
-
-  As an alternative, you can use the `timespans` property to directly assign the data model.
-
 - **max-height** (default: `0` = Disabled)
 
   Maximum height of the Gantt. It will show a vertical scroll bar if the content does not fit inside.
@@ -387,7 +356,7 @@ review those projects documentations.
 - **options**
 
   Configure the gantt using as a plain old javascript object, keys of `options` representing the configuration
-  attributes.
+  attributes. camelCased version of attributes must be used as key (`autoExpand` instead of `auto-expand`).
 
   ```html
   <gantt options="options"></gantt>
@@ -396,16 +365,10 @@ review those projects documentations.
   ```js
   $scope.options = {
     data: {...},
-    auto-expand: 'both', 
+    autoExpand: 'both', 
     ...
   }
   ```
-
-- **remove-data**
-
-  Function (`fn`) called to remove more data from the Gantt. It is possible to remove complete rows or specific tasks.
-  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
-  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
 
 - **show-tooltips** (default: `true`)
 
@@ -514,73 +477,249 @@ review those projects documentations.
 }
 ```
 
-### <a name="events"></a> Events
+### <a name="API"></a> API
 
-Angular-gantt emits many events using native AngularJS [$scope.$on(name, listener)](https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$on).
+angular-gantt has an API to control the component from application and listen/raise events.
 
-    $scope.$on('event:gantt-<event-name>', function(evt, data) {
-        // Implement this callback to perform what you need
-        // ...
-    })`;
+To use this API, you need to register the API Object using `api` attribute.
 
-All event names are prefixed with `event:gantt-`. You can also use constants by injecting
-`GANTT_EVENTS` from `gantt` module.
+  Example:
+  ```html
+  <gantt api="myApi"></gantt>
+  ```
+  
+  ```js
+  $scope.myApi = function(api) {
+    api.core.on.ready() {
+     // Loading data manually ...
+     api.data.loadData(...);
+    }
+  }
+  ```
 
-- **ready**
+API Object contains features, like `api.core`, `api.data`, `api.rows` or `api.columns`.
+
+Each feature has attached methods, like `api.data.load(data)` or `api.core.getDateByPosition(position)`.
+
+On each features, `on` is used to register listeners on events, and `raise` to fire events manually.
+
+
+```js
+// Calling method called 'methodName' from a feature called 'featureName'.
+api.featureName.methodName();
+
+// Listening an event called 'eventName' from a feature called 'featureName'.
+// $scope is required as it uses $scope.$on internally.
+api.featureName.on.eventName($scope, function(data) {
+    // Called when 'eventName' is raised.
+});
+
+// Raising an event called 'eventName' from a feature called 'featureName'.
+api.featureName.raise.eventName(data);
+
+```
+#### Methods
+
+##### core
+
+- **api.core.getDateByPosition(position)**
+
+  Retrieves the date from position in gantt.
+
+- **api.core.getPositionByDate(date)**
+
+  Retrieves the position in gantt from date.
+
+##### data
+
+- **api.data.load(data)**
+
+  Loads more data to the Gantt.
+
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  
+  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
+
+  As an alternative, you can use the `data` property to directly assign the data model.
+
+- **api.data.remove(data)**
+
+  Removes data from the Gantt.
+  
+  It is possible to remove complete rows or specific tasks
+  
+  Take a look at demo files demo/app/index.html and demo/app/scripts/controllers/main.js to see how this callback is used.
+
+- **api.data.clear()**
+
+  Removes all rows and tasks at once.
+
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  
+##### timespans
+
+- **api.timespans.load(timespans)**
+
+  Loads timespans to the Gantt.
+  
+  Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
+  [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
+  
+  An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
+  
+  As an alternative, you can use the `timespans` property to directly assign the data model.
+
+- **api.timespans.clear()**
+
+  Removes all timespans at once.
+
+##### columns
+
+- **api.columns.clear()**
+
+  Removes all columns.
+
+- **api.columns.generate()**
+
+  Generates all columns and display them.
+
+##### rows
+
+- **api.rows.add()**
+
+  Adds a single row.
+
+- **api.rows.sort()**
+
+  Sort rows based on `sort-mode` value.
+
+- **api.rows.swap(row1, row2)**
+
+  Swap two rows. `sort-mode` must be equals to `custom`.
+
+##### timeframes
+
+- **api.timeframes.registerTimeFrames(timeframes)**
+
+  Register an array of TimeFrame objects.
+
+- **api.timeframes.clearTimeframes()**
+
+  Removes all registered TimeFrame objects.
+
+- **api.timeframes.registerDateFrames(timeframes)**
+
+  Register an array of DateFrame objects.
+
+- **api.timeframes.clearDateFrames()**
+
+  Removes all registered DateFrame objects.
+
+- **api.timeframes.registerTimeFrameMappings(timeframes)**
+
+  Register an array of TimeFrameMapping objects.
+
+- **api.timeframes.clearTimeFrameMappings()**
+
+  Removes all registered TimeFrameMapping objects.
+
+##### scroll
+
+- **api.scroll.to(position)**
+
+  Scrolls to position.
+
+- **api.scroll.toDate(date)**
+
+  Scrolls to date.
+
+- **api.scroll.left(offset)**
+
+  Moves scroll to left by offset.
+
+- **api.scroll.right(offset)**
+
+  Moves scroll to right by offset.
+
+#### Events
+
+##### core
+
+- **api.core.on.ready**
 
   Gantt is initialized and ready to load data.
 
-- **scroll**
+##### tasks
 
-  The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.
-
-- **task-added**, **task-changed**, **task-removed**
+- **api.tasks.on.add**, **api.tasks.on.change**, **api.tasks.on.remove**
 
   A task has been added, changed or removed
 
-- **task-clicked**, **task-dblclicked**, **task-contextmenu**
+- **api.tasks.on.click**, **api.tasks.on.dblclick**, **api.tasks.on.contextmenu**
 
   A task has been clicked, double clicked or right clicked.
-
-- **task-move-begin**, **task-move**, **task-move-end**
+  
+- **api.tasks.on.moveBegin**, **api.tasks.on.move**, **api.tasks.on.moveEnd**
 
   A task is starting to move, moving or has stopped moving.
 
-- **task-resize-begin**, **on-task-resize**, **on-task-resize-end**
+- **api.tasks.on.resizeBegin**, **api.tasks.on.resize**, **api.tasks.on.resizeEnd**
 
   A task is starting to resize, moving or has stopped moving.
+  
+- **api.tasks.on.filter**
 
-- **timespan-added**, **timespan-changed**, **timespan-removed**
+  Tasks have been filtered out.
+  
+##### timespans
+
+- **api.timespans.on.add**, **api.timespans.on.change**, **api.timespans.on.remove**
 
   A timespan has been added, changed or removed.
+
+##### columns
+
+- **api.columns.on.click**, **api.columns.on.dblclick**, **api.columns.on.contextmenu**
   
-- **row-added**, **row-changed**, **row-removed**, **row-order-changed**
+  A column header has been clicked, double clicked or right clicked.
+  
+##### rows
+  
+- **api.rows.on.add**, **api.rows.on.change**, **api.rows.on.remove**, **api.rows.on.orderChange**
 
   A row has been added, changed or removed. The row changed event and row order changed event is raised if the custom sort order has been changed by the user.
 
-- **row-clicked**, **row-dblclicked**, **row-contextmenu**, **row-mousedown**, **row-mouseup**
+- **api.rows.on.click**, **api.rows.on.dblclick**, **api.rows.on.contextmenu**, **api.rows.on.mousedown**, **api.rows.on.mouseup**
 
   A row has been clicked, double clicked, right clicked, mouse downed or mouse upped.
 
-- **column-clicked**, **column-dblclicked**, **column-contextmenu**
+- **api.rows.on.filter**
+
+  Rows have been filtered out.
   
-  A column header has been clicked, double clicked or right clicked.
+##### rowHeaders
 
-- **row-label-clicked**, **row-label-dblclicked**, **row-label-contextmenu**, **row-label-mousedown**, **row-label-mouseup**
-
-  A row label has been clicked, double clicked, right clicked, mouse downed or mouse upped.
-
-- **row-header-clicked**, **row-header-dblclicked**, **row-header-contextmenu**, **row-header-mousedown**, **row-header-mouseup**
+- **row-header-clicked**, **row-header-dblclick**, **row-header-contextmenu**, **row-header-mousedown**, **row-header-mouseup**
 
   A row header has been clicked, double clicked, right clicked, mouse downed or mouse upped.
 
-- **row-labels-resized**
+##### labels
+
+- **api.labels.on.click**, **api.labels.on.dblclick**, **api.labels.on.contextmenu**, **api.labels.on.mousedown**, **api.labels.on.mouseup**
+
+  A row label has been clicked, double clicked, right clicked, mouse downed or mouse upped.
+
+- **api.labels.on.resize**
 
   Row labels have been resized.
-  
-- **tasks-filtered**, **rows-filtered**
 
-  Tasks/Rows have been filtered out.
+##### scroll
+
+- **api.scroll.on.scroll**
+
+  The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.
 
 ### <a name="contribute"></a> Contribute
 

@@ -36708,17 +36708,17 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        this.gantt.$scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('viewScale+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.buildGenerator();
                 self.clearColumns();
-                self.updateColumns();
+                self.generateColumns();
             }
         });
 
         this.gantt.$scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.updateColumns();
+                self.generateColumns();
             }
         });
 
@@ -36737,16 +36737,16 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.scrollAnchor = undefined;
 
         this.buildGenerator();
-        this.clearColumns();
-        this.updateColumns();
+        this.generateColumns();
 
-        this.gantt.api.registerMethod('columns', 'build', this.buildGenerator, this);
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
-        this.gantt.api.registerMethod('columns', 'update', this.updateColumns, this);
+        this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
 
         this.gantt.api.registerEvent('columns', 'click');
         this.gantt.api.registerEvent('columns', 'dblclick');
         this.gantt.api.registerEvent('columns', 'contextmenu');
+        this.gantt.api.registerEvent('columns', 'mousedown');
+        this.gantt.api.registerEvent('columns', 'mouseup');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {
@@ -36778,17 +36778,15 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.visibleHeaders = {};
     };
 
-    ColumnsManager.prototype.updateColumns = function() {
-        var from = this.gantt.$scope.fromDate;
-        var to = this.gantt.$scope.toDate;
-        if (this.gantt.$scope.taskOutOfRange === 'expand') {
-            from = this.gantt.rowsManager.getExpandedFrom(from);
-            to = this.gantt.rowsManager.getExpandedTo(to);
-        }
-        this.generateColumns(from, to);
-    };
-
     ColumnsManager.prototype.generateColumns = function(from, to) {
+        if (!from) {
+            from = this.gantt.$scope.fromDate;
+        }
+
+        if (!to) {
+            to = this.gantt.$scope.toDate;
+        }
+
         if (!from) {
             from = this.gantt.rowsManager.getDefaultFrom();
             if (!from) {
@@ -36801,6 +36799,11 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             if (!to) {
                 return false;
             }
+        }
+
+        if (this.gantt.$scope.taskOutOfRange === 'expand') {
+            from = this.gantt.rowsManager.getExpandedFrom(from);
+            to = this.gantt.rowsManager.getExpandedTo(to);
         }
 
         if (this.from === from && this.to === to) {
@@ -37141,12 +37144,12 @@ gantt.factory('Gantt', [
             this.api.registerMethod('data', 'remove', this.removeData, this);
             this.api.registerMethod('data', 'clear', this.clearData, this);
 
-            this.api.registerMethod('calendar', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
-            this.api.registerMethod('calendar', 'clearTimeframe', this.calendar.clearTimeFrames, this.calendar);
-            this.api.registerMethod('calendar', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
-            this.api.registerMethod('calendar', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
-            this.api.registerMethod('calendar', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
-            this.api.registerMethod('calendar', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+            this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+            this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
             if (angular.isFunction(this.$scope.api)) {
                 this.$scope.api(this.api);
@@ -37191,7 +37194,7 @@ gantt.factory('Gantt', [
                 this.rowsManager.addRow(rowData);
             }
 
-            this.columnsManager.updateColumns();
+            this.columnsManager.generateColumns();
             this.rowsManager.sortRows();
         };
 
@@ -37199,7 +37202,7 @@ gantt.factory('Gantt', [
         // If a row has no tasks inside the complete row will be deleted.
         Gantt.prototype.removeData = function(data) {
             this.rowsManager.removeData(data);
-            this.columnsManager.updateColumns();
+            this.columnsManager.generateColumns();
             this.rowsManager.sortRows();
         };
 
@@ -37389,11 +37392,11 @@ gantt.factory('GanttRowHeader', [function() {
     var RowHeader = function(gantt) {
         this.gantt = gantt;
 
-        this.gantt.api.registerEvent('rowHeader', 'mousedown');
-        this.gantt.api.registerEvent('rowHeader', 'mouseup');
-        this.gantt.api.registerEvent('rowHeader', 'click');
-        this.gantt.api.registerEvent('rowHeader', 'dblclick');
-        this.gantt.api.registerEvent('rowHeader', 'contextmenu');
+        this.gantt.api.registerEvent('rowHeaders', 'mousedown');
+        this.gantt.api.registerEvent('rowHeaders', 'mouseup');
+        this.gantt.api.registerEvent('rowHeaders', 'click');
+        this.gantt.api.registerEvent('rowHeaders', 'dblclick');
+        this.gantt.api.registerEvent('rowHeaders', 'contextmenu');
     };
     return RowHeader;
 }]);
@@ -38104,7 +38107,7 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             var timespanData = timespans[i];
             this.loadTimespan(timespanData);
         }
-        this.gantt.columnsManager.updateColumns();
+        this.gantt.columnsManager.generateColumns();
     };
 
     // Adds a timespan or merges the timespan if there is already one with the same id
@@ -38428,23 +38431,23 @@ gantt.directive('ganttRowHeader', [function() {
             $scope.gantt.rowHeader.$element = $element;
 
             $element.bind('mousedown', function(evt) {
-                this.gantt.api.rowHeader.raise.mousedown({evt: evt});
+                this.gantt.api.rowHeaders.raise.mousedown({evt: evt});
             });
 
             $element.bind('mouseup', function(evt) {
-                this.gantt.api.rowHeader.raise.mouseup({evt: evt});
+                this.gantt.api.rowHeaders.raise.mouseup({evt: evt});
             });
 
             $element.bind('click', function(evt) {
-                this.gantt.api.rowHeader.raise.click({evt: evt});
+                this.gantt.api.rowHeaders.raise.click({evt: evt});
             });
 
             $element.bind('dblclick', function(evt) {
-                this.gantt.api.rowHeader.raise.dblclick({evt: evt});
+                this.gantt.api.rowHeaders.raise.dblclick({evt: evt});
             });
 
             $element.bind('contextmenu', function(evt) {
-                this.gantt.api.rowHeader.raise.contextmenu({evt: evt});
+                this.gantt.api.rowHeaders.raise.contextmenu({evt: evt});
             });
 
 
@@ -39396,6 +39399,14 @@ gantt.directive('ganttColumnHeader', ['GanttEvents', function(Events) {
             });
 
             $element.bind('contextmenu', function(evt) {
+                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
+            });
+
+            $element.bind('mousedown', function(evt) {
+                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
+            });
+            
+            $element.bind('mouseup', function(evt) {
                 $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
             });
         }]

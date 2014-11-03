@@ -15,23 +15,23 @@ gantt.directive('ganttRowHeader', [function() {
             $scope.gantt.rowHeader.$element = $element;
 
             $element.bind('mousedown', function(evt) {
-                this.gantt.api.rowHeader.raise.mousedown({evt: evt});
+                this.gantt.api.rowHeaders.raise.mousedown({evt: evt});
             });
 
             $element.bind('mouseup', function(evt) {
-                this.gantt.api.rowHeader.raise.mouseup({evt: evt});
+                this.gantt.api.rowHeaders.raise.mouseup({evt: evt});
             });
 
             $element.bind('click', function(evt) {
-                this.gantt.api.rowHeader.raise.click({evt: evt});
+                this.gantt.api.rowHeaders.raise.click({evt: evt});
             });
 
             $element.bind('dblclick', function(evt) {
-                this.gantt.api.rowHeader.raise.dblclick({evt: evt});
+                this.gantt.api.rowHeaders.raise.dblclick({evt: evt});
             });
 
             $element.bind('contextmenu', function(evt) {
-                this.gantt.api.rowHeader.raise.contextmenu({evt: evt});
+                this.gantt.api.rowHeaders.raise.contextmenu({evt: evt});
             });
 
 

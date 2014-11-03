@@ -134,11 +134,11 @@ angular.module('angularGanttDemoApp')
 
                 api.labels.on.resize($scope, addEventName('labels.on.resize', logTaskEvent));
 
-                api.rowHeader.on.mousedown($scope, addEventName('rowHeader.on.mousedown', logTaskEvent));
-                api.rowHeader.on.mouseup($scope, addEventName('rowHeader.on.mouseup', logTaskEvent));
-                api.rowHeader.on.click($scope, addEventName('rowHeader.on.click', logTaskEvent));
-                api.rowHeader.on.dblclick($scope, addEventName('rowHeader.on.dblclick', logTaskEvent));
-                api.rowHeader.on.contextmenu($scope, addEventName('rowHeader.on.contextmenu', logTaskEvent));
+                api.rowHeaders.on.mousedown($scope, addEventName('rowHeader.on.mousedown', logTaskEvent));
+                api.rowHeaders.on.mouseup($scope, addEventName('rowHeader.on.mouseup', logTaskEvent));
+                api.rowHeaders.on.click($scope, addEventName('rowHeader.on.click', logTaskEvent));
+                api.rowHeaders.on.dblclick($scope, addEventName('rowHeader.on.dblclick', logTaskEvent));
+                api.rowHeaders.on.contextmenu($scope, addEventName('rowHeader.on.contextmenu', logTaskEvent));
 
                 api.timespans.on.add($scope, addEventName('timespans.on.add', logTaskEvent));
 
