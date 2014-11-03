@@ -24,6 +24,11 @@ gantt.directive('ganttTimeFrame', [function() {
                 return classes;
             };
 
+            $scope.gantt.api.directives.raise.new('ganttTimeFrame', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTimeFrame', $scope, $element);
+            });
+
         }]
     };
 }]);

@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton) {
     return {
         restrict: 'E',
         require: '^ganttRow',
@@ -34,39 +34,6 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
                         enableMoveMode(mode, offsetX, evt);
                     }
-                });
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.click(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
-                });
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise dbl click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.dblclick(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
-                });
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.contextmenu(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
                 });
             });
 
@@ -125,7 +92,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                             }
                         }
                         $scope.task.moveTo(x);
-                        $scope.row.rowsManager.gantt.api.tasks.raise.move(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.move($scope.task);
                     }
                 } else if (mode === 'E') {
                     if ($scope.taskOutOfRange !== 'truncate') {
@@ -136,7 +103,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setTo(x);
-                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize($scope.task);
                 } else {
                     if ($scope.taskOutOfRange !== 'truncate') {
                         if (x > $scope.task.left + $scope.task.width) {
@@ -146,7 +113,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setFrom(x);
-                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize($scope.task);
                 }
 
                 taskHasBeenChanged = true;
@@ -238,13 +205,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 }
             };
 
-            var enableMoveMode = function(mode, x, evt) {
+            var enableMoveMode = function(mode, x) {
                 // Raise task move start event
                 if (!$scope.task.isMoving) {
                     if (mode === 'M') {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.moveBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.moveBegin($scope.task);
                     } else {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.resizeBegin($scope.task);
                     }
                 }
 
@@ -285,7 +252,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 });
             };
 
-            var disableMoveMode = function(evt) {
+            var disableMoveMode = function() {
                 $scope.task.isMoving = false;
 
                 // Stop any active auto scroll
@@ -303,9 +270,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
                 // Raise move end event
                 if ($scope.task.moveMode === 'M') {
-                    $scope.row.rowsManager.gantt.api.tasks.raise.moveEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.moveEnd($scope.task);
                 } else {
-                    $scope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resizeEnd($scope.task);
                 }
 
                 $scope.task.moveMode = undefined;
@@ -314,7 +281,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 if (taskHasBeenChanged === true) {
                     taskHasBeenChanged = false;
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.row.rowsManager.gantt.api.tasks.raise.change(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.change($scope.task);
                 }
             };
 
@@ -326,6 +293,11 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 // Enable the move mode again if this was the case.
                 enableMoveMode('M', $scope.task.mouseOffsetX);
             }
+
+            $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
+            });
         }]
     };
 }]);

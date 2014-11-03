@@ -78,6 +78,11 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
                 $scope.css.opacity = 0;
                 $scope.visible = false;
             };
+
+            $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
+            });
         }]
     };
 }]);

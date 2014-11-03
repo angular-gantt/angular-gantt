@@ -61,9 +61,9 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(deb
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
-                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft, date: date, direction: direction});
+                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
                 } else {
-                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft});
+                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
                 }
             }, 5));
 
@@ -95,7 +95,10 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(deb
                 return css;
             };
 
-
+            $scope.gantt.api.directives.raise.new('ganttScrollable', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttScrollable', $scope, $element);
+            });
         }]
     };
 }]);

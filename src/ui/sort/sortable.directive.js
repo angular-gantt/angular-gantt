@@ -33,7 +33,7 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
 
                     if (targetRow.id !== sortManager.startRow.id) {
                         $scope.$apply(function () {
-                            $scope.swap({a: targetRow, b: sortManager.startRow});
+                            $scope.swap(targetRow, sortManager.startRow);
                         });
                     }
                 }
@@ -66,6 +66,11 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
                     'cursor': 'auto'
                 });
             };
+
+            $scope.row.rowsManager.gantt.api.directives.raise.new('ganttSortable', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.row.rowsManager.gantt.api.directives.raise.destroy('ganttSortable', $scope, $element);
+            });
         }]
     };
 }]);

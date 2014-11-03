@@ -14,6 +14,11 @@ gantt.directive('ganttBody', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.body.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttBody', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttBody', $scope, $element);
+            });
         }]
     };
 }]);

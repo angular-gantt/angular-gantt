@@ -59,6 +59,11 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
             enableNgAnimate(false, $element);
 
             $scope.gantt = new Gantt($scope, $element);
+
+            $scope.gantt.api.directives.raise.new('gantt', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('gantt', $scope, $element);
+            });
         }
         ]};
 }]);

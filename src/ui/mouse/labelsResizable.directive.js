@@ -81,7 +81,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
                     'cursor': ''
                 });
 
-                $scope.gantt.api.labels.raise.resize({ width: $scope.width });
+                $scope.gantt.api.labels.raise.resize($scope.width);
             };
         }]
     };

@@ -24,6 +24,11 @@ gantt.directive('ganttHeader', [function() {
 
                 return css;
             };
+
+            $scope.gantt.api.directives.raise.new('ganttHeader', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttHeader', $scope, $element);
+            });
         }]
     };
 }]);

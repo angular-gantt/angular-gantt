@@ -54,12 +54,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
-
-        this.gantt.api.registerEvent('columns', 'click');
-        this.gantt.api.registerEvent('columns', 'dblclick');
-        this.gantt.api.registerEvent('columns', 'contextmenu');
-        this.gantt.api.registerEvent('columns', 'mousedown');
-        this.gantt.api.registerEvent('columns', 'mouseup');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {

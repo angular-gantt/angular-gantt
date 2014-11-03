@@ -14,6 +14,11 @@ gantt.directive('ganttHeaderColumns', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.header.columns.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttHeaderColumns', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttHeaderColumns', $scope, $element);
+            });
         }]
     };
 }]);

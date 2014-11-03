@@ -587,10 +587,6 @@ api.featureName.raise.eventName(data);
 
 ##### rows
 
-- **api.rows.add()**
-
-  Adds a single row.
-
 - **api.rows.sort()**
 
   Sort rows based on `sort-mode` value.
@@ -647,77 +643,63 @@ api.featureName.raise.eventName(data);
 
 ##### core
 
-- **api.core.on.ready**
+- **api.core.on.ready(api)**
 
   Gantt is initialized and ready to load data.
+  
+##### directives
+
+- **api.directives.on.new(directiveName, directiveScope, element)**
+
+  A directive has been added to the DOM.
+  
+- **api.directives.on.destroy(directiveName, directiveScope, element)**
+
+  A directive will be removed from the DOM.
 
 ##### tasks
 
-- **api.tasks.on.add**, **api.tasks.on.change**, **api.tasks.on.remove**
+- **api.tasks.on.add(task)**, **api.tasks.on.change(task)**, **api.tasks.on.remove(task)**
 
   A task has been added, changed or removed
-
-- **api.tasks.on.click**, **api.tasks.on.dblclick**, **api.tasks.on.contextmenu**
-
-  A task has been clicked, double clicked or right clicked.
   
-- **api.tasks.on.moveBegin**, **api.tasks.on.move**, **api.tasks.on.moveEnd**
+- **api.tasks.on.moveBegin(task)**, **api.tasks.on.move(task, fromRow)**, **api.tasks.on.moveEnd(task)**
 
   A task is starting to move, moving or has stopped moving.
 
-- **api.tasks.on.resizeBegin**, **api.tasks.on.resize**, **api.tasks.on.resizeEnd**
+- **api.tasks.on.resizeBegin(task)**, **api.tasks.on.resize(task)**, **api.tasks.on.resizeEnd(task)**
 
   A task is starting to resize, moving or has stopped moving.
   
-- **api.tasks.on.filter**
+- **api.tasks.on.filter(tasks, filteredTasks)**
 
   Tasks have been filtered out.
   
 ##### timespans
 
-- **api.timespans.on.add**, **api.timespans.on.change**, **api.timespans.on.remove**
+- **api.timespans.on.add(timespan)**, **api.timespans.on.change(timespan)**, **api.timespans.on.remove(timespan)**
 
   A timespan has been added, changed or removed.
-
-##### columns
-
-- **api.columns.on.click**, **api.columns.on.dblclick**, **api.columns.on.contextmenu**
-  
-  A column header has been clicked, double clicked or right clicked.
   
 ##### rows
   
-- **api.rows.on.add**, **api.rows.on.change**, **api.rows.on.remove**, **api.rows.on.orderChange**
+- **api.rows.on.add(row)**, **api.rows.on.change(row)**, **api.rows.on.remove(row)**, **api.rows.on.orderChange(row)**
 
   A row has been added, changed or removed. The row changed event and row order changed event is raised if the custom sort order has been changed by the user.
 
-- **api.rows.on.click**, **api.rows.on.dblclick**, **api.rows.on.contextmenu**, **api.rows.on.mousedown**, **api.rows.on.mouseup**
-
-  A row has been clicked, double clicked, right clicked, mouse downed or mouse upped.
-
-- **api.rows.on.filter**
+- **api.rows.on.filter(rows, filteredRows)**
 
   Rows have been filtered out.
   
-##### rowHeaders
-
-- **row-header-clicked**, **row-header-dblclick**, **row-header-contextmenu**, **row-header-mousedown**, **row-header-mouseup**
-
-  A row header has been clicked, double clicked, right clicked, mouse downed or mouse upped.
-
 ##### labels
 
-- **api.labels.on.click**, **api.labels.on.dblclick**, **api.labels.on.contextmenu**, **api.labels.on.mousedown**, **api.labels.on.mouseup**
-
-  A row label has been clicked, double clicked, right clicked, mouse downed or mouse upped.
-
-- **api.labels.on.resize**
+- **api.labels.on.resize(width)**
 
   Row labels have been resized.
 
 ##### scroll
 
-- **api.scroll.on.scroll**
+- **api.scroll.on.scroll(left, date, direction)**
 
   The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.
 

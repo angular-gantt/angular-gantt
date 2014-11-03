@@ -35,7 +35,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
         this.sortTasks();
         this.setFromToByTask(task);
-        this.rowsManager.gantt.api.tasks.raise.add({'task': task});
+        this.rowsManager.gantt.api.tasks.raise.add(task);
         return task;
     };
 
@@ -57,7 +57,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         task.updatePosAndSize();
         this.updateVisibleTasks();
 
-        this.rowsManager.gantt.api.tasks.raise.move({'oldRow': oldRow, 'task': task});
+        this.rowsManager.gantt.api.tasks.raise.move(task, oldRow);
 
     };
 
@@ -111,7 +111,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             }
 
             if (!disableEmit) {
-                this.rowsManager.gantt.api.tasks.raise.remove({'task': removedTask});
+                this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
             }
 
             return removedTask;

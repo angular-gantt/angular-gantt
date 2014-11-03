@@ -67,6 +67,11 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
             enableNgAnimate(false, $element);
 
             $scope.gantt = new Gantt($scope, $element);
+
+            $scope.gantt.api.directives.raise.new('gantt', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('gantt', $scope, $element);
+            });
         }
         ]};
 }]);
@@ -1232,12 +1237,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
-
-        this.gantt.api.registerEvent('columns', 'click');
-        this.gantt.api.registerEvent('columns', 'dblclick');
-        this.gantt.api.registerEvent('columns', 'contextmenu');
-        this.gantt.api.registerEvent('columns', 'mousedown');
-        this.gantt.api.registerEvent('columns', 'mouseup');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {
@@ -1628,6 +1627,9 @@ gantt.factory('Gantt', [
 
             this.api.registerEvent('core', 'ready');
 
+            this.api.registerEvent('directives', 'new');
+            this.api.registerEvent('directives', 'destroy');
+
             this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
             this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
 
@@ -1743,7 +1745,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
         this.sortTasks();
         this.setFromToByTask(task);
-        this.rowsManager.gantt.api.tasks.raise.add({'task': task});
+        this.rowsManager.gantt.api.tasks.raise.add(task);
         return task;
     };
 
@@ -1765,7 +1767,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         task.updatePosAndSize();
         this.updateVisibleTasks();
 
-        this.rowsManager.gantt.api.tasks.raise.move({'oldRow': oldRow, 'task': task});
+        this.rowsManager.gantt.api.tasks.raise.move(task, oldRow);
 
     };
 
@@ -1819,7 +1821,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             }
 
             if (!disableEmit) {
-                this.rowsManager.gantt.api.tasks.raise.remove({'task': removedTask});
+                this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
             }
 
             return removedTask;
@@ -1882,12 +1884,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 gantt.factory('GanttRowHeader', [function() {
     var RowHeader = function(gantt) {
         this.gantt = gantt;
-
-        this.gantt.api.registerEvent('rowHeaders', 'mousedown');
-        this.gantt.api.registerEvent('rowHeaders', 'mouseup');
-        this.gantt.api.registerEvent('rowHeaders', 'click');
-        this.gantt.api.registerEvent('rowHeaders', 'dblclick');
-        this.gantt.api.registerEvent('rowHeaders', 'contextmenu');
     };
     return RowHeader;
 }]);
@@ -1916,7 +1912,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             }
         });
 
-       this.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateVisibleRows();
             }
@@ -1930,7 +1926,6 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         this.updateVisibleObjects();
 
-        this.gantt.api.registerMethod('rows', 'add', RowsManager.prototype.addRow, this);
         this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
         this.gantt.api.registerMethod('rows', 'swap', RowsManager.prototype.swapRows, this);
 
@@ -1943,17 +1938,8 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         this.gantt.api.registerEvent('tasks', 'resize');
         this.gantt.api.registerEvent('tasks', 'resizeBegin');
         this.gantt.api.registerEvent('tasks', 'resizeEnd');
-        this.gantt.api.registerEvent('tasks', 'click');
-        this.gantt.api.registerEvent('tasks', 'dblclick');
-        this.gantt.api.registerEvent('tasks', 'contextmenu');
 
         this.gantt.api.registerEvent('tasks', 'filter');
-
-        this.gantt.api.registerEvent('rows', 'mousedown');
-        this.gantt.api.registerEvent('rows', 'mouseup');
-        this.gantt.api.registerEvent('rows', 'click');
-        this.gantt.api.registerEvent('rows', 'dblclick');
-        this.gantt.api.registerEvent('rows', 'contextmenu');
 
         this.gantt.api.registerEvent('rows', 'add');
         this.gantt.api.registerEvent('rows', 'change');
@@ -1972,7 +1958,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             row = this.rowsMap[rowData.id];
             row.copy(rowData);
             isUpdate = true;
-            this.gantt.api.rows.raise.change({'row': row});
+            this.gantt.api.rows.raise.change(row);
         } else {
             var order = rowData.order;
 
@@ -1990,7 +1976,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             this.rows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
-            this.gantt.api.rows.raise.add({'row': row});
+            this.gantt.api.rows.raise.add(row);
         }
 
         if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
@@ -2029,7 +2015,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 }
             }
 
-            this.gantt.api.rows.raise.remove({'row': removedRow});
+            this.gantt.api.rows.raise.remove(removedRow);
             return row;
         }
 
@@ -2051,7 +2037,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                         row.removeTask(rowData.tasks[j].id);
                     }
 
-                    this.gantt.api.rows.raise.change({'row': row});
+                    this.gantt.api.rows.raise.change(row);
                 }
             } else {
                 // Delete the complete row
@@ -2095,10 +2081,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         b.order = order;
 
         // Raise change events
-        this.gantt.api.rows.raise.change({'row': a});
-        this.gantt.api.rows.raise.orderChange({'row': a});
-        this.gantt.api.rows.raise.change({'row': b});
-        this.gantt.api.rows.raise.orderChange({'row': b});
+        this.gantt.api.rows.raise.change(a);
+        this.gantt.api.rows.raise.orderChange(a);
+        this.gantt.api.rows.raise.change(b);
+        this.gantt.api.rows.raise.orderChange(b);
 
         // Switch to custom sort mode and trigger sort
         if (this.gantt.$scope.sortMode !== 'custom') {
@@ -2121,15 +2107,13 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             this.filteredRows = this.rows.slice(0);
         }
 
-        var filterEventData;
-        if (!angular.equals(oldFilteredRows, this.filteredRows)) {
-            filterEventData = {rows: this.rows, filteredRows: this.filteredRows};
-        }
+
+        var raiseEvent = !angular.equals(oldFilteredRows, this.filteredRows);
 
         // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
         this.visibleRows = this.filteredRows;
-        if (filterEventData !== undefined) {
-            this.gantt.api.rows.raise.filter(filterEventData);
+        if (raiseEvent) {
+            this.gantt.api.rows.raise.filter(this.rows, this.filteredRows);
         }
     };
 
@@ -2145,13 +2129,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             tasks = tasks.concat(row.tasks);
         });
 
-        var filterEventData;
-        if (!angular.equals(oldFilteredTasks, filteredTasks)) {
-            filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
-        }
+        var filterEvent = !angular.equals(oldFilteredTasks, filteredTasks);
 
-        if (filterEventData !== undefined) {
-            this.gantt.api.tasks.raise.filter(filterEventData);
+        if (filterEvent) {
+            this.gantt.api.tasks.raise.filter(tasks, filteredTasks);
         }
     };
 
@@ -2424,12 +2405,6 @@ gantt.factory('GanttHeaderColumns', [function() {
 gantt.factory('GanttLabels', [function() {
     var Labels= function(gantt) {
         this.gantt = gantt;
-
-        this.gantt.api.registerEvent('labels', 'mousedown');
-        this.gantt.api.registerEvent('labels', 'mouseup');
-        this.gantt.api.registerEvent('labels', 'click');
-        this.gantt.api.registerEvent('labels', 'dblclick');
-        this.gantt.api.registerEvent('labels', 'contextmenu');
         this.gantt.api.registerEvent('labels', 'resize');
     };
     return Labels;
@@ -2610,13 +2585,13 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             timespan = this.timespansMap[timespanData.id];
             timespan.copy(timespanData);
             isUpdate = true;
-            this.gantt.api.timespans.raise.change({timespan: timespan});
+            this.gantt.api.timespans.raise.change(timespan);
         } else {
             timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
                 timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
             this.timespansMap[timespanData.id] = timespan;
             this.timespans.push(timespan);
-            this.gantt.api.timespans.raise.add({timespan: timespan});
+            this.gantt.api.timespans.raise.add(timespan);
         }
 
         timespan.updatePosAndSize();
@@ -2839,7 +2814,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
                     'cursor': ''
                 });
 
-                $scope.gantt.api.labels.raise.resize({ width: $scope.width });
+                $scope.gantt.api.labels.raise.resize($scope.width);
             };
         }]
     };
@@ -2863,128 +2838,6 @@ gantt.directive('ganttRightClick', ['$parse', function($parse) {
         }
     };
 }]);
-
-gantt.directive('ganttRow', ['GanttEvents', function(Events) {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.row.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.row.$element = $element;
-
-            $element.bind('mousedown', function(evt) {
-                $scope.row.rowsManager.gantt.api.rows.raise.mousedown(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('mouseup', function(evt) {
-                $scope.row.rowsManager.gantt.api.rows.raise.mouseup(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.row.rowsManager.gantt.api.rows.raise.click(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.row.rowsManager.gantt.api.rows.raise.dblclick(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.row.rowsManager.gantt.api.rows.raise.contextmenu(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttRowHeader', [function() {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.rowHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.rowHeader.$element = $element;
-
-            $element.bind('mousedown', function(evt) {
-                this.gantt.api.rowHeaders.raise.mousedown({evt: evt});
-            });
-
-            $element.bind('mouseup', function(evt) {
-                this.gantt.api.rowHeaders.raise.mouseup({evt: evt});
-            });
-
-            $element.bind('click', function(evt) {
-                this.gantt.api.rowHeaders.raise.click({evt: evt});
-            });
-
-            $element.bind('dblclick', function(evt) {
-                this.gantt.api.rowHeaders.raise.dblclick({evt: evt});
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                this.gantt.api.rowHeaders.raise.contextmenu({evt: evt});
-            });
-
-
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttRowLabel', ['GanttEvents', function(Events) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.rowLabel.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('mousedown', function(evt) {
-                $scope.gantt.api.labels.raise.mousedown(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('mouseup', function(evt) {
-                $scope.gantt.api.labels.raise.mouseup(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.gantt.api.labels.raise.click(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.gantt.api.labels.raise.dblclick(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.gantt.api.labels.raise.contextmenu(Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-
-        }]
-    };
-}]);
-
 
 gantt.directive('ganttHorizontalScrollReceiver', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
@@ -3121,9 +2974,9 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(deb
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
-                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft, date: date, direction: direction});
+                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
                 } else {
-                    $scope.gantt.api.scroll.raise.scroll({left: el.scrollLeft});
+                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
                 }
             }, 5));
 
@@ -3155,7 +3008,10 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(deb
                 return css;
             };
 
-
+            $scope.gantt.api.directives.raise.new('ganttScrollable', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttScrollable', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3239,7 +3095,7 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
 
                     if (targetRow.id !== sortManager.startRow.id) {
                         $scope.$apply(function () {
-                            $scope.swap({a: targetRow, b: sortManager.startRow});
+                            $scope.swap(targetRow, sortManager.startRow);
                         });
                     }
                 }
@@ -3272,9 +3128,15 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
                     'cursor': 'auto'
                 });
             };
+
+            $scope.row.rowsManager.gantt.api.directives.raise.new('ganttSortable', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.row.rowsManager.gantt.api.directives.raise.destroy('ganttSortable', $scope, $element);
+            });
         }]
     };
 }]);
+
 
 gantt.directive('ganttBounds', [function() {
     // Displays a box representing the earliest allowable start time and latest completion time for a job
@@ -3290,7 +3152,7 @@ gantt.directive('ganttBounds', [function() {
         },
         replace: true,
         scope: { task: '=ngModel' },
-        controller: ['$scope', function($scope) {
+        controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
             if (!$scope.task.hasBounds()) {
@@ -3336,6 +3198,11 @@ gantt.directive('ganttBounds', [function() {
                     $scope.visible = newValue === true;
                 }
             });
+
+            $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttBounds', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3344,6 +3211,7 @@ gantt.directive('ganttBounds', [function() {
 gantt.directive('ganttTaskProgress', [function() {
     return {
         restrict: 'E',
+        requires: '^ganttTask',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
                 return 'template/default.taskProgress.tmpl.html';
@@ -3352,27 +3220,31 @@ gantt.directive('ganttTaskProgress', [function() {
             }
         },
         replace: true,
-        scope: { progress: '=ganttTaskProgressValue' },
-        controller: ['$scope', function($scope) {
+        controller: ['$scope', '$element', function($scope, $element) {
             $scope.getCss = function() {
                 var css = {};
 
-                if ($scope.progress.color) {
-                    css['background-color'] = $scope.progress.color;
+                if ($scope.task.progress.color) {
+                    css['background-color'] = $scope.task.progress.color;
                 } else {
                     css['background-color'] = '#6BC443';
                 }
 
-                css.width = $scope.progress.percent + '%';
+                css.width = $scope.task.progress.percent + '%';
 
                 return css;
             };
+
+            $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
+            });
         }]
     };
 }]);
 
 
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events) {
+gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton) {
     return {
         restrict: 'E',
         require: '^ganttRow',
@@ -3407,39 +3279,6 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
                         enableMoveMode(mode, offsetX, evt);
                     }
-                });
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.click(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
-                });
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise dbl click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.dblclick(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
-                });
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.contextmenu(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
                 });
             });
 
@@ -3498,7 +3337,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                             }
                         }
                         $scope.task.moveTo(x);
-                        $scope.row.rowsManager.gantt.api.tasks.raise.move(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.move($scope.task);
                     }
                 } else if (mode === 'E') {
                     if ($scope.taskOutOfRange !== 'truncate') {
@@ -3509,7 +3348,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setTo(x);
-                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize($scope.task);
                 } else {
                     if ($scope.taskOutOfRange !== 'truncate') {
                         if (x > $scope.task.left + $scope.task.width) {
@@ -3519,7 +3358,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                         }
                     }
                     $scope.task.setFrom(x);
-                    $scope.row.rowsManager.gantt.api.tasks.raise.resize(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resize($scope.task);
                 }
 
                 taskHasBeenChanged = true;
@@ -3611,13 +3450,13 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 }
             };
 
-            var enableMoveMode = function(mode, x, evt) {
+            var enableMoveMode = function(mode, x) {
                 // Raise task move start event
                 if (!$scope.task.isMoving) {
                     if (mode === 'M') {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.moveBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.moveBegin($scope.task);
                     } else {
-                        $scope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                        $scope.row.rowsManager.gantt.api.tasks.raise.resizeBegin($scope.task);
                     }
                 }
 
@@ -3658,7 +3497,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 });
             };
 
-            var disableMoveMode = function(evt) {
+            var disableMoveMode = function() {
                 $scope.task.isMoving = false;
 
                 // Stop any active auto scroll
@@ -3676,9 +3515,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
                 // Raise move end event
                 if ($scope.task.moveMode === 'M') {
-                    $scope.row.rowsManager.gantt.api.tasks.raise.moveEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.moveEnd($scope.task);
                 } else {
-                    $scope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.resizeEnd($scope.task);
                 }
 
                 $scope.task.moveMode = undefined;
@@ -3687,7 +3526,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 if (taskHasBeenChanged === true) {
                     taskHasBeenChanged = false;
                     $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.row.rowsManager.gantt.api.tasks.raise.change(Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+                    $scope.row.rowsManager.gantt.api.tasks.raise.change($scope.task);
                 }
             };
 
@@ -3699,6 +3538,11 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 // Enable the move mode again if this was the case.
                 enableMoveMode('M', $scope.task.mouseOffsetX);
             }
+
+            $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3783,6 +3627,11 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
                 $scope.css.opacity = 0;
                 $scope.visible = false;
             };
+
+            $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3803,6 +3652,11 @@ gantt.directive('ganttBody', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.body.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttBody', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttBody', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3823,6 +3677,11 @@ gantt.directive('ganttBodyColumns', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.body.columns.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttBodyColumns', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttBodyColumns', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3843,6 +3702,11 @@ gantt.directive('ganttBodyRows', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.body.rows.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttBodyRows', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttBodyRows', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3863,12 +3727,17 @@ gantt.directive('ganttColumn', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.column.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttColumn', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttColumn', $scope, $element);
+            });
         }]
     };
 }]);
 
 
-gantt.directive('ganttColumnHeader', ['GanttEvents', function(Events) {
+gantt.directive('ganttColumnHeader', [function() {
     return {
         restrict: 'E',
         transclude: true,
@@ -3881,24 +3750,9 @@ gantt.directive('ganttColumnHeader', ['GanttEvents', function(Events) {
             }
         },
         controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('click', function(evt) {
-                $scope.gantt.api.columns.raise.click(Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.gantt.api.columns.raise.dblclick(Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('mousedown', function(evt) {
-                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-            
-            $element.bind('mouseup', function(evt) {
-                $scope.gantt.api.columns.raise.contextmenu(Events.buildColumnEventData(evt, $element, $scope.column));
+            $scope.gantt.api.directives.raise.new('ganttColumnHeader', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttColumnHeader', $scope, $element);
             });
         }]
     };
@@ -3930,6 +3784,11 @@ gantt.directive('ganttHeader', [function() {
 
                 return css;
             };
+
+            $scope.gantt.api.directives.raise.new('ganttHeader', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttHeader', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3950,6 +3809,11 @@ gantt.directive('ganttHeaderColumns', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.header.columns.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttHeaderColumns', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttHeaderColumns', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3970,6 +3834,83 @@ gantt.directive('ganttLabels', [function() {
         },
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.gantt.labels.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttLabels', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttLabels', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttRow', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttBody',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.row.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.row.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttRow', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttRow', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttRowHeader', [function() {
+    return {
+        restrict: 'E',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.rowHeader.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.rowHeader.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttRowHeader', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttRowHeader', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttRowLabel', [function() {
+    return {
+        restrict: 'E',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.rowLabel.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+
+            $scope.gantt.api.directives.raise.new('ganttRowLabel', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttRowLabel', $scope, $element);
+            });
         }]
     };
 }]);
@@ -3999,6 +3940,11 @@ gantt.directive('ganttTimeFrame', [function() {
                 }
                 return classes;
             };
+
+            $scope.gantt.api.directives.raise.new('ganttTimeFrame', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTimeFrame', $scope, $element);
+            });
 
         }]
     };
@@ -4320,7 +4266,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
-        '            <gantt-task-progress ng-if="task.progress !== undefined" gantt-task-progress-value="task.progress"></gantt-task-progress>\n' +
+        '            <gantt-task-progress ng-if="task.progress !== undefined"></gantt-task-progress>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +

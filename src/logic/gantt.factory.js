@@ -38,6 +38,9 @@ gantt.factory('Gantt', [
 
             this.api.registerEvent('core', 'ready');
 
+            this.api.registerEvent('directives', 'new');
+            this.api.registerEvent('directives', 'destroy');
+
             this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
             this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
 

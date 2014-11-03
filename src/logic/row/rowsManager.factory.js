@@ -22,7 +22,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             }
         });
 
-       this.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateVisibleRows();
             }
@@ -36,7 +36,6 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         this.updateVisibleObjects();
 
-        this.gantt.api.registerMethod('rows', 'add', RowsManager.prototype.addRow, this);
         this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
         this.gantt.api.registerMethod('rows', 'swap', RowsManager.prototype.swapRows, this);
 
@@ -49,17 +48,8 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         this.gantt.api.registerEvent('tasks', 'resize');
         this.gantt.api.registerEvent('tasks', 'resizeBegin');
         this.gantt.api.registerEvent('tasks', 'resizeEnd');
-        this.gantt.api.registerEvent('tasks', 'click');
-        this.gantt.api.registerEvent('tasks', 'dblclick');
-        this.gantt.api.registerEvent('tasks', 'contextmenu');
 
         this.gantt.api.registerEvent('tasks', 'filter');
-
-        this.gantt.api.registerEvent('rows', 'mousedown');
-        this.gantt.api.registerEvent('rows', 'mouseup');
-        this.gantt.api.registerEvent('rows', 'click');
-        this.gantt.api.registerEvent('rows', 'dblclick');
-        this.gantt.api.registerEvent('rows', 'contextmenu');
 
         this.gantt.api.registerEvent('rows', 'add');
         this.gantt.api.registerEvent('rows', 'change');
@@ -78,7 +68,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             row = this.rowsMap[rowData.id];
             row.copy(rowData);
             isUpdate = true;
-            this.gantt.api.rows.raise.change({'row': row});
+            this.gantt.api.rows.raise.change(row);
         } else {
             var order = rowData.order;
 
@@ -96,7 +86,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             this.rows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
-            this.gantt.api.rows.raise.add({'row': row});
+            this.gantt.api.rows.raise.add(row);
         }
 
         if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
@@ -135,7 +125,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 }
             }
 
-            this.gantt.api.rows.raise.remove({'row': removedRow});
+            this.gantt.api.rows.raise.remove(removedRow);
             return row;
         }
 
@@ -157,7 +147,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                         row.removeTask(rowData.tasks[j].id);
                     }
 
-                    this.gantt.api.rows.raise.change({'row': row});
+                    this.gantt.api.rows.raise.change(row);
                 }
             } else {
                 // Delete the complete row
@@ -201,10 +191,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         b.order = order;
 
         // Raise change events
-        this.gantt.api.rows.raise.change({'row': a});
-        this.gantt.api.rows.raise.orderChange({'row': a});
-        this.gantt.api.rows.raise.change({'row': b});
-        this.gantt.api.rows.raise.orderChange({'row': b});
+        this.gantt.api.rows.raise.change(a);
+        this.gantt.api.rows.raise.orderChange(a);
+        this.gantt.api.rows.raise.change(b);
+        this.gantt.api.rows.raise.orderChange(b);
 
         // Switch to custom sort mode and trigger sort
         if (this.gantt.$scope.sortMode !== 'custom') {
@@ -227,15 +217,13 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             this.filteredRows = this.rows.slice(0);
         }
 
-        var filterEventData;
-        if (!angular.equals(oldFilteredRows, this.filteredRows)) {
-            filterEventData = {rows: this.rows, filteredRows: this.filteredRows};
-        }
+
+        var raiseEvent = !angular.equals(oldFilteredRows, this.filteredRows);
 
         // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
         this.visibleRows = this.filteredRows;
-        if (filterEventData !== undefined) {
-            this.gantt.api.rows.raise.filter(filterEventData);
+        if (raiseEvent) {
+            this.gantt.api.rows.raise.filter(this.rows, this.filteredRows);
         }
     };
 
@@ -251,13 +239,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             tasks = tasks.concat(row.tasks);
         });
 
-        var filterEventData;
-        if (!angular.equals(oldFilteredTasks, filteredTasks)) {
-            filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
-        }
+        var filterEvent = !angular.equals(oldFilteredTasks, filteredTasks);
 
-        if (filterEventData !== undefined) {
-            this.gantt.api.tasks.raise.filter(filterEventData);
+        if (filterEvent) {
+            this.gantt.api.tasks.raise.filter(tasks, filteredTasks);
         }
     };
 

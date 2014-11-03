@@ -40,13 +40,13 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             timespan = this.timespansMap[timespanData.id];
             timespan.copy(timespanData);
             isUpdate = true;
-            this.gantt.api.timespans.raise.change({timespan: timespan});
+            this.gantt.api.timespans.raise.change(timespan);
         } else {
             timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
                 timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
             this.timespansMap[timespanData.id] = timespan;
             this.timespans.push(timespan);
-            this.gantt.api.timespans.raise.add({timespan: timespan});
+            this.gantt.api.timespans.raise.add(timespan);
         }
 
         timespan.updatePosAndSize();

@@ -13,7 +13,7 @@ gantt.directive('ganttBounds', [function() {
         },
         replace: true,
         scope: { task: '=ngModel' },
-        controller: ['$scope', function($scope) {
+        controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
             if (!$scope.task.hasBounds()) {
@@ -58,6 +58,11 @@ gantt.directive('ganttBounds', [function() {
                 if ($scope.task.hasBounds()) {
                     $scope.visible = newValue === true;
                 }
+            });
+
+            $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttBounds', $scope, $element);
             });
         }]
     };
