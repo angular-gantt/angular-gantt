@@ -36710,7 +36710,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        this.gantt.$scope.$watch('viewScale+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet+fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('viewScale+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet+fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.generateColumns();
             }
@@ -36728,12 +36728,21 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             }
         });
 
-        this.scrollAnchor = undefined;
+        this.gantt.api.data.on.load(this.gantt.$scope, function() {
+            self.generateColumns();
+            self.gantt.rowsManager.sortRows();
+        });
 
-        this.generateColumns();
+        this.gantt.api.data.on.remove(this.gantt.$scope, function() {
+            self.gantt.rowsManager.sortRows();
+        });
+
+        this.scrollAnchor = undefined;
 
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
+
+        this.gantt.api.registerEvent('columns', 'generate');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {
@@ -36758,6 +36767,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.headers = [];
         this.visibleHeaders = {};
+
+        this.gantt.api.columns.raise.clear();
     };
 
     ColumnsManager.prototype.generateColumns = function(from, to) {
@@ -36802,8 +36813,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.nextColumns = [];
 
         this.updateColumnsMeta();
-
-        return true;
+        this.gantt.api.columns.raise.generate(this.columns, this.headers);
     };
 
     ColumnsManager.prototype.updateColumnsMeta = function() {
@@ -37092,9 +37102,32 @@ gantt.factory('Gantt', [
 
             this.api = new GanttApi(this);
 
+            this.api.registerEvent('core', 'ready');
+
+            this.api.registerEvent('directives', 'new');
+            this.api.registerEvent('directives', 'destroy');
+
+            this.api.registerEvent('data', 'load');
+            this.api.registerEvent('data', 'remove');
+            this.api.registerMethod('data', 'clear', this.clearData, this);
+
+            this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
+            this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
+
+            this.api.registerMethod('data', 'load', this.loadData, this);
+            this.api.registerMethod('data', 'remove', this.removeData, this);
+            this.api.registerMethod('data', 'clear', this.clearData, this);
+
             this.calendar = new Calendar(this);
             this.calendar.registerTimeFrames(this.$scope.timeFrames);
             this.calendar.registerDateFrames(this.$scope.dateFrames);
+
+            this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+            this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+            this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
             this.scroll = new Scroll(this);
             this.body = new Body(this);
@@ -37116,25 +37149,6 @@ gantt.factory('Gantt', [
                     self.loadData(newValue);
                 }
             });
-
-            this.api.registerEvent('core', 'ready');
-
-            this.api.registerEvent('directives', 'new');
-            this.api.registerEvent('directives', 'destroy');
-
-            this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
-            this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
-
-            this.api.registerMethod('data', 'load', this.loadData, this);
-            this.api.registerMethod('data', 'remove', this.removeData, this);
-            this.api.registerMethod('data', 'clear', this.clearData, this);
-
-            this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
-            this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
             if (angular.isFunction(this.$scope.api)) {
                 this.$scope.api(this.api);
@@ -37174,27 +37188,32 @@ gantt.factory('Gantt', [
 
         // Adds or update rows and tasks.
         Gantt.prototype.loadData = function(data) {
+            if (!angular.isArray(data)) {
+                data = [data];
+            }
+
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
                 this.rowsManager.addRow(rowData);
             }
-
-            this.columnsManager.generateColumns();
-            this.rowsManager.sortRows();
+            this.api.data.raise.load(this.$scope, data);
         };
 
         // Removes specified rows or tasks.
         // If a row has no tasks inside the complete row will be deleted.
         Gantt.prototype.removeData = function(data) {
+            if (!angular.isArray(data)) {
+                data = [data];
+            }
+
             this.rowsManager.removeData(data);
-            this.columnsManager.generateColumns();
-            this.rowsManager.sortRows();
+            this.api.data.raise.remove(this.$scope, data);
         };
 
         // Removes all rows and tasks
         Gantt.prototype.clearData = function() {
             this.rowsManager.removeAll();
-            this.columnsManager.clearColumns();
+            this.api.data.raise.clear(this.$scope);
         };
 
         return Gantt;
@@ -38053,19 +38072,24 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
         });
 
         this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'remove', this.removeTimespans, this);
         this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
 
         this.gantt.api.registerEvent('timespans', 'add');
+        this.gantt.api.registerEvent('timespans', 'remove');
         this.gantt.api.registerEvent('timespans', 'change');
     };
 
     // Adds or updates timespans
     GanttTimespansManager.prototype.loadTimespans = function(timespans) {
+        if (!angular.isArray(timespans)) {
+            timespans = [timespans];
+        }
+
         for (var i = 0, l = timespans.length; i < l; i++) {
             var timespanData = timespans[i];
             this.loadTimespan(timespanData);
         }
-        this.gantt.columnsManager.generateColumns();
     };
 
     // Adds a timespan or merges the timespan if there is already one with the same id
@@ -38088,6 +38112,40 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
 
         timespan.updatePosAndSize();
         return isUpdate;
+    };
+
+    GanttTimespansManager.prototype.removeTimespans = function(timespans) {
+        if (!angular.isArray(timespans)) {
+            timespans = [timespans];
+        }
+
+        for (var i = 0, l = timespans.length; i < l; i++) {
+            var timespanData = timespans[i];
+            // Delete the timespan
+            this.removeTimespan(timespanData.id);
+        }
+        this.updateVisibleObjects();
+    };
+
+    GanttTimespansManager.prototype.removeTimespan = function(timespanId) {
+        if (timespanId in this.timespansMap) {
+            delete this.timespansMap[timespanId]; // Remove from map
+
+            var removedTimespan;
+            var timespan;
+            for (var i = this.timespans.length - 1; i >= 0; i--) {
+                timespan = this.timespans[i];
+                if (timespan.id === timespanId) {
+                    removedTimespan = timespan;
+                    this.timespans.splice(i, 1); // Remove from array
+                }
+            }
+
+            this.gantt.api.timespans.raise.remove(removedTimespan);
+            return removedTimespan;
+        }
+
+        return undefined;
     };
 
     // Removes all timespans
@@ -38562,7 +38620,7 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
         template: '<div ng-transclude></div>',
         replace: true,
         transclude: true,
-        scope: { row: '=ngModel', swap: '&', active: '=?' },
+        scope: { row: '=ngModel', active: '=?' },
         controller: ['$scope', '$element', function($scope, $element) {
             $element.bind('mousedown', function() {
                 if ($scope.active !== true) {
@@ -38587,7 +38645,7 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
 
                     if (targetRow.id !== sortManager.startRow.id) {
                         $scope.$apply(function () {
-                            $scope.swap(targetRow, sortManager.startRow);
+                            $scope.row.rowsManager.swapRows(targetRow, sortManager.startRow);
                         });
                     }
                 }
@@ -39609,7 +39667,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-sortable swap="row.rowsManager.swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
+        '                    <gantt-sortable active="allowRowSorting" ng-model="row">\n' +
         '                        <span class="gantt-labels-text">{{ row.name }}</span>\n' +
         '                    </gantt-sortable>\n' +
         '                </gantt-row-label>\n' +

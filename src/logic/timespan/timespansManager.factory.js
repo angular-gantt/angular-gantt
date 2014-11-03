@@ -16,19 +16,24 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
         });
 
         this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'remove', this.removeTimespans, this);
         this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
 
         this.gantt.api.registerEvent('timespans', 'add');
+        this.gantt.api.registerEvent('timespans', 'remove');
         this.gantt.api.registerEvent('timespans', 'change');
     };
 
     // Adds or updates timespans
     GanttTimespansManager.prototype.loadTimespans = function(timespans) {
+        if (!angular.isArray(timespans)) {
+            timespans = [timespans];
+        }
+
         for (var i = 0, l = timespans.length; i < l; i++) {
             var timespanData = timespans[i];
             this.loadTimespan(timespanData);
         }
-        this.gantt.columnsManager.generateColumns();
     };
 
     // Adds a timespan or merges the timespan if there is already one with the same id
@@ -51,6 +56,40 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
 
         timespan.updatePosAndSize();
         return isUpdate;
+    };
+
+    GanttTimespansManager.prototype.removeTimespans = function(timespans) {
+        if (!angular.isArray(timespans)) {
+            timespans = [timespans];
+        }
+
+        for (var i = 0, l = timespans.length; i < l; i++) {
+            var timespanData = timespans[i];
+            // Delete the timespan
+            this.removeTimespan(timespanData.id);
+        }
+        this.updateVisibleObjects();
+    };
+
+    GanttTimespansManager.prototype.removeTimespan = function(timespanId) {
+        if (timespanId in this.timespansMap) {
+            delete this.timespansMap[timespanId]; // Remove from map
+
+            var removedTimespan;
+            var timespan;
+            for (var i = this.timespans.length - 1; i >= 0; i--) {
+                timespan = this.timespans[i];
+                if (timespan.id === timespanId) {
+                    removedTimespan = timespan;
+                    this.timespans.splice(i, 1); // Remove from array
+                }
+            }
+
+            this.gantt.api.timespans.raise.remove(removedTimespan);
+            return removedTimespan;
+        }
+
+        return undefined;
     };
 
     // Removes all timespans

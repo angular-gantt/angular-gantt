@@ -571,6 +571,10 @@ api.featureName.raise.eventName(data);
   
   As an alternative, you can use the `timespans` property to directly assign the data model.
 
+- **api.timespans.remove(timespans)**
+
+  Removes timespans from the Gantt.
+
 - **api.timespans.clear()**
 
   Removes all timespans at once.
@@ -647,6 +651,20 @@ api.featureName.raise.eventName(data);
 
   Gantt is initialized and ready to load data.
   
+##### data
+
+- **api.data.on.load(data)**
+
+  Data has been loaded.
+  
+- **api.data.on.remove(data)**
+
+  Data has been removed.
+
+- **api.data.on.clear()**
+    
+  Data has been cleared.
+  
 ##### directives
 
 - **api.directives.on.new(directiveName, directiveScope, element)**
@@ -690,6 +708,16 @@ api.featureName.raise.eventName(data);
 - **api.rows.on.filter(rows, filteredRows)**
 
   Rows have been filtered out.
+
+##### columns
+  
+- **api.columns.on.generate(columns, headers)**
+
+  Columns have been generated.
+  
+- **api.columns.on.clear()**
+
+  Columns have been cleared.
   
 ##### labels
 

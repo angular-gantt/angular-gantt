@@ -18,7 +18,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        this.gantt.$scope.$watch('viewScale+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet+fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('viewScale+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet+fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.generateColumns();
             }
@@ -36,12 +36,21 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             }
         });
 
-        this.scrollAnchor = undefined;
+        this.gantt.api.data.on.load(this.gantt.$scope, function() {
+            self.generateColumns();
+            self.gantt.rowsManager.sortRows();
+        });
 
-        this.generateColumns();
+        this.gantt.api.data.on.remove(this.gantt.$scope, function() {
+            self.gantt.rowsManager.sortRows();
+        });
+
+        this.scrollAnchor = undefined;
 
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
+
+        this.gantt.api.registerEvent('columns', 'generate');
     };
 
     ColumnsManager.prototype.setScrollAnchor = function() {
@@ -66,6 +75,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.headers = [];
         this.visibleHeaders = {};
+
+        this.gantt.api.columns.raise.clear();
     };
 
     ColumnsManager.prototype.generateColumns = function(from, to) {
@@ -110,8 +121,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.nextColumns = [];
 
         this.updateColumnsMeta();
-
-        return true;
+        this.gantt.api.columns.raise.generate(this.columns, this.headers);
     };
 
     ColumnsManager.prototype.updateColumnsMeta = function() {

@@ -8,7 +8,7 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
         template: '<div ng-transclude></div>',
         replace: true,
         transclude: true,
-        scope: { row: '=ngModel', swap: '&', active: '=?' },
+        scope: { row: '=ngModel', active: '=?' },
         controller: ['$scope', '$element', function($scope, $element) {
             $element.bind('mousedown', function() {
                 if ($scope.active !== true) {
@@ -33,7 +33,7 @@ gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($doc
 
                     if (targetRow.id !== sortManager.startRow.id) {
                         $scope.$apply(function () {
-                            $scope.swap(targetRow, sortManager.startRow);
+                            $scope.row.rowsManager.swapRows(targetRow, sortManager.startRow);
                         });
                     }
                 }

@@ -64,19 +64,18 @@ angular.module('angularGanttDemoApp')
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '5 minutes',
             api: function(api) {
+                // API Object is used to control methods and events from angular-gantt.
                 $scope.api = api;
 
                 api.core.on.ready($scope, function() {
+                    // When gantt is ready, load data.
+                    // `data` attribute could have been used too.
                     $scope.addSamples();
                 });
 
+                // Log various events to console
                 api.scroll.on.scroll($scope, logScrollEvent);
-
-                var addEventName = function(eventName, func) {
-                    return function(data) {
-                        return func(eventName, data);
-                    };
-                };
+                api.core.on.ready($scope, logReadyEvent);
 
                 api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
                 api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
@@ -98,9 +97,15 @@ angular.module('angularGanttDemoApp')
                 api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
 
                 api.timespans.on.add($scope, addEventName('timespans.on.add', logTimespanEvent));
+                api.columns.on.generate($scope, logColumnsGenerateEvent);
 
+                api.rows.on.filter($scope, logRowsFilterEvent);
+                api.tasks.on.filter($scope, logTasksFilterEvent);
+
+                // Add draw support using API directives.on.new event.
                 api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
+                        // When gantt-row directive is added
                         var drawHandler = function(evt) {
                             if (!$scope.options.readOnly && $scope.options.draw) {
                                 // Example to draw task inside row
@@ -131,6 +136,7 @@ angular.module('angularGanttDemoApp')
                     }
                 });
 
+                // Remove draw support when row is removed from DOM.
                 api.directives.on.destroy($scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
                         element.off('mousedown', directiveScope.drawHandler);
@@ -138,17 +144,6 @@ angular.module('angularGanttDemoApp')
                     }
                 });
 
-                api.core.on.ready($scope, function() {
-                    $log.log('[Event] core.on.ready');
-                });
-
-                api.rows.on.filter($scope, function(rows, filteredRows) {
-                    $log.log('[Event] rows.on.filter: ' + filteredRows.length + '/' + rows.length + ' rows displayed.');
-                });
-
-                api.tasks.on.filter($scope, function(tasks, filteredTasks) {
-                    $log.log('[Event] tasks.on.filter: ' + filteredTasks.length + '/' + tasks.length + ' tasks displayed.');
-                });
             }
         };
 
@@ -157,23 +152,23 @@ angular.module('angularGanttDemoApp')
             $scope.options.toDate = $scope.toDate;
         });
 
-        $scope.$watch('options.scale', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                if (newValue === 'quarter') {
-                    $scope.options.headersFormats = {'quarter': '[Q]Q YYYY'};
-                    $scope.options.headers = ['quarter'];
-                } else {
-                    $scope.options.headersFormats = undefined;
-                    $scope.options.headers = undefined;
-                }
+        $scope.$watch('options.scale', function(newValue) {
+            if (newValue === 'quarter') {
+                $scope.options.headersFormats = {'quarter': '[Q]Q YYYY'};
+                $scope.options.headers = ['quarter'];
+            } else {
+                $scope.options.headersFormats = undefined;
+                $scope.options.headers = undefined;
             }
         });
 
+        // Reload data action
         $scope.addSamples = function() {
             $scope.api.timespans.load(Sample.getSampleTimespans().timespan1);
             $scope.api.data.load(Sample.getSampleData().data1);
         };
 
+        // Remove data action
         $scope.removeSomeSamples = function() {
             $scope.api.data.remove([
                 {'id': 'c65c2672-445d-4297-a7f2-30de241b3145'}, // Remove all Kickoff meetings
@@ -192,29 +187,63 @@ angular.module('angularGanttDemoApp')
             ]);
         };
 
+        // Clear data action
         $scope.removeSamples = function() {
             $scope.api.data.clear();
         };
 
+        // Event handler
         var logScrollEvent = function(left, date, direction) {
             if (date !== undefined) {
                 $log.log('[Event] api.on.scroll: ' + left + ', ' + (date === undefined ? 'undefined' : date.format()) + ', ' + direction);
             }
         };
 
+        // Event handler
         var logTaskEvent = function(eventName, task) {
             $log.log('[Event] ' + eventName + ': ' + task.name);
         };
 
+        // Event handler
         var logRowEvent = function(eventName, row) {
             $log.log('[Event] ' + eventName + ': ' + row.name);
         };
 
+        // Event handler
         var logTimespanEvent = function(eventName, timespan) {
             $log.log('[Event] ' + eventName + ': ' + timespan.name);
         };
 
+        // Event handler
         var logLabelsEvent = function(eventName, width) {
             $log.log('[Event] ' + eventName + ': ' + width);
         };
+
+        // Event handler
+        var logColumnsGenerateEvent = function(columns, headers) {
+            $log.log('[Event] ' + 'columns.on.generate' + ': ' + columns + ', ' + headers);
+        };
+
+        // Event handler
+        var logRowsFilterEvent = function(rows, filteredRows) {
+            $log.log('[Event] rows.on.filter: ' + filteredRows.length + '/' + rows.length + ' rows displayed.');
+        };
+
+        // Event handler
+        var logTasksFilterEvent = function(tasks, filteredTasks) {
+            $log.log('[Event] tasks.on.filter: ' + filteredTasks.length + '/' + tasks.length + ' tasks displayed.');
+        };
+
+        // Event handler
+        var logReadyEvent = function() {
+            $log.log('[Event] core.on.ready');
+        };
+
+        // Event utility function
+        var addEventName = function(eventName, func) {
+            return function(data) {
+                return func(eventName, data);
+            };
+        };
+
     }]);
