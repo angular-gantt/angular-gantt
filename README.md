@@ -85,15 +85,18 @@ other dependencies declared in your project.
         var myApp = angular.module('myApp', ['gantt']);
 2. Put directive `gantt` into your HTML code at the position you would like to show the Gantt chart.
 
-        <gantt></gantt>
+        <gantt api=ganttApi></gantt>
 3. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. 
-The event 'event:gantt-ready' can be used to get notified as soon as it's ready.
+The event `core.on.ready` can be used to get notified as soon as it's ready.
 
-   ```js
-    $scope.$on('event:gantt-ready', function() {
-        // Start using the Gantt e.g. load data
-    });
-    ```
+  ```js
+  $scope.ganttApi = function(api) {
+    api.core.on.ready($scope, function() {
+      // Start using the Gantt e.g. load data
+      api.data.load(...);
+    }
+  }
+  ```
 
 ### <a name="run-from-sources"></a> Run from sources
 
@@ -491,7 +494,7 @@ To use this API, you need to register the API Object using `api` attribute.
   ```js
   $scope.myApi = function(api) {
     api.core.on.ready() {
-     // Loading data manually ...
+     // Load data manually ...
      api.data.loadData(...);
     }
   }
