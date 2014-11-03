@@ -36697,9 +36697,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.gantt = gantt;
 
-        this.headerGenerator = undefined;
-        this.columnGenerator = undefined;
-
         this.from = undefined;
         this.to = undefined;
 
@@ -36713,15 +36710,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        this.gantt.$scope.$watch('viewScale+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.buildGenerator();
-                self.clearColumns();
-                self.generateColumns();
-            }
-        });
-
-        this.gantt.$scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
+        this.gantt.$scope.$watch('viewScale+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet+fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.generateColumns();
             }
@@ -36741,7 +36730,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.scrollAnchor = undefined;
 
-        this.buildGenerator();
         this.generateColumns();
 
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
@@ -36755,11 +36743,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
             this.scrollAnchor = this.gantt.getDateByPosition(center);
         }
-    };
-
-    ColumnsManager.prototype.buildGenerator = function() {
-        this.columnGenerator = new ColumnGenerator(this);
-        this.headerGenerator = new HeaderGenerator(this);
     };
 
     ColumnsManager.prototype.clearColumns = function() {
@@ -36805,17 +36788,16 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             to = this.gantt.rowsManager.getExpandedTo(to);
         }
 
-        if (this.from === from && this.to === to) {
-            return false;
-        }
-
         this.setScrollAnchor();
 
         this.from = from;
         this.to = to;
 
-        this.columns = this.columnGenerator.generate(from, to);
-        this.headers = this.headerGenerator.generate(this.columns);
+        var columnGenerator = new ColumnGenerator(this);
+        var headerGenerator = new HeaderGenerator(this);
+
+        this.columns = columnGenerator.generate(from, to);
+        this.headers = headerGenerator.generate(this.columns);
         this.previousColumns = [];
         this.nextColumns = [];
 
@@ -36907,7 +36889,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             var from = firstColumn.date;
             var firstExtendedColumn = this.getFirstColumn(true);
             if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                this.previousColumns = this.columnGenerator.generate(from, undefined, -x, 0, true);
+                this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
             }
             return true;
         } else if (x > this.width) {
@@ -36915,7 +36897,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             var endDate = lastColumn.getDateByPosition(lastColumn.width);
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                this.nextColumns = this.columnGenerator.generate(endDate, undefined, x - this.width, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.width, this.width, false);
             }
             return true;
         }
@@ -36938,13 +36920,13 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         if (from && date < from) {
             var firstExtendedColumn = this.getFirstColumn(true);
             if (!firstExtendedColumn || firstExtendedColumn.date > date) {
-                this.previousColumns = this.columnGenerator.generate(from, date, undefined, 0, true);
+                this.previousColumns = new ColumnGenerator(this).generate(from, date, undefined, 0, true);
             }
             return true;
         } else if (endDate && date > endDate) {
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                this.nextColumns = this.columnGenerator.generate(endDate, date, undefined, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.width, false);
             }
             return true;
         }
@@ -36965,6 +36947,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
     ColumnsManager.prototype.updateVisibleColumns = function() {
         this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
 
+        this.visibleHeaders = {};
         angular.forEach(this.headers, function(headers, key) {
             if (this.headers.hasOwnProperty(key)) {
                 this.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
@@ -38883,7 +38866,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                     if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
                         mousePos.x -= scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollToLeft(scrollSpeed);
+                        $scope.row.rowsManager.gantt.api.scroll.left(scrollSpeed);
                     }
                 } else {
                     // Scroll to the right
@@ -38893,7 +38876,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                     if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
                         mousePos.x += scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollToRight(scrollSpeed);
+                        $scope.row.rowsManager.gantt.api.scroll.right(scrollSpeed);
                     }
                 }
 

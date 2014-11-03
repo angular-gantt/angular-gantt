@@ -3357,7 +3357,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                     if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
                         mousePos.x -= scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollToLeft(scrollSpeed);
+                        $scope.row.rowsManager.gantt.api.scroll.left(scrollSpeed);
                     }
                 } else {
                     // Scroll to the right
@@ -3367,7 +3367,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                     if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
                         mousePos.x += scrollSpeed;
                         keepOnScrolling = true;
-                        $scope.scrollToRight(scrollSpeed);
+                        $scope.row.rowsManager.gantt.api.scroll.right(scrollSpeed);
                     }
                 }
 
