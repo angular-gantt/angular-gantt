@@ -41,6 +41,12 @@ gantt.factory('Gantt', [
             }
         });
 
+        $scope.$watchCollection('headers+headersFormats', function(newValues, oldValues) {
+            if (!angular.equals(newValues, oldValues)) {
+                self.rebuildColumns();
+            }
+        });
+
         $scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateColumns();
