@@ -36740,7 +36740,13 @@ gantt.factory('Gantt', [
             }
         });
 
-        $scope.$watchCollection('headers+headersFormats', function(newValues, oldValues) {
+        $scope.$watchCollection('headers', function(newValues, oldValues) {
+            if (!angular.equals(newValues, oldValues)) {
+                self.rebuildColumns();
+            }
+        });
+
+        $scope.$watchCollection('headersFormats', function(newValues, oldValues) {
             if (!angular.equals(newValues, oldValues)) {
                 self.rebuildColumns();
             }
