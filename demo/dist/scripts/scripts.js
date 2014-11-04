@@ -164,7 +164,7 @@ angular.module('angularGanttDemoApp')
             }
         };
 
-        $scope.$watch('fromDate+toDate', function() {
+        $scope.$watchGroup(['fromDate', 'toDate'], function() {
             $scope.options.fromDate = $scope.fromDate;
             $scope.options.toDate = $scope.toDate;
         });

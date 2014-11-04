@@ -9,10 +9,8 @@ gantt.factory('GanttCurrentDateManager', [function() {
         this.position = undefined;
         this.currentDateColumn = undefined;
 
-        this.gantt.$scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.setCurrentDate(self.gantt.$scope.currentDateValue);
-            }
+        this.gantt.$scope.$watchGroup(['currentDate', 'currentDateValue'], function() {
+            self.setCurrentDate(self.gantt.$scope.currentDateValue);
         });
     };
 

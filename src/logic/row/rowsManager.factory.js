@@ -10,28 +10,20 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         this.filteredRows = [];
         this.visibleRows = [];
 
-        this.gantt.$scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.updateVisibleTasks();
-            }
+        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function() {
+            self.updateVisibleTasks();
         });
 
-        this.gantt.$scope.$watch('filterTask+filterTaskComparator', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.updateVisibleTasks();
-            }
+        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function() {
+            self.updateVisibleTasks();
         });
 
-        this.gantt.$scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.updateVisibleRows();
-            }
+        this.gantt.$scope.$watch(['filterRow', 'filterRowComparator'], function() {
+            self.updateVisibleRows();
         });
 
-        this.gantt.$scope.$watch('sortMode', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.sortRows();
-            }
+        this.gantt.$scope.$watch('sortMode', function() {
+            self.sortRows();
         });
 
         this.updateVisibleObjects();

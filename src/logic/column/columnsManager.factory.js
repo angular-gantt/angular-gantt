@@ -18,34 +18,24 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        this.gantt.$scope.$watch('viewScale+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet+fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.generateColumns();
-            }
+        this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function() {
+            self.generateColumns();
         });
 
-        this.gantt.$scope.$watchCollection('headers', function(newValues, oldValues) {
-            if (!angular.equals(newValues, oldValues)) {
-                self.generateColumns();
-            }
+        this.gantt.$scope.$watchCollection('headers', function() {
+            self.generateColumns();
         });
 
-        this.gantt.$scope.$watchCollection('headersFormats', function(newValues, oldValues) {
-            if (!angular.equals(newValues, oldValues)) {
-                self.generateColumns();
-            }
+        this.gantt.$scope.$watchCollection('headersFormats', function() {
+            self.generateColumns();
         });
 
-        this.gantt.$scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.updateColumnsMeta();
-            }
+        this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function() {
+            self.updateColumnsMeta();
         });
 
-        this.gantt.$scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.updateVisibleColumns();
-            }
+        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function() {
+            self.updateVisibleColumns();
         });
 
         this.gantt.api.data.on.load(this.gantt.$scope, function() {
