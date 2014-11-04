@@ -325,10 +325,10 @@ gantt.factory('GanttOptions', ['moment', function(moment) {
         options.fromDate = options.fromDate || undefined;
         options.toDate = options.toDate || undefined;
 
-        options.allowTaskMoving = options.allowTaskMoving !== false || true;
-        options.allowTaskResizing = options.allowTaskResizing !== false || true;
-        options.allowTaskRowSwitching = options.allowTaskRowSwitching !== false || true;
-        options.allowLabelsResizing = options.allowLabelsResizing !== false || true;
+        options.allowTaskMoving = options.allowTaskMoving !== undefined ? !!options.allowTaskMoving : true;
+        options.allowTaskResizing = options.allowTaskResizing !== undefined ? !!options.allowTaskResizing : true;
+        options.allowTaskRowSwitching = options.allowTaskRowSwitching !== undefined ? !!options.allowTaskRowSwitching : true;
+        options.allowLabelsResizing = options.allowLabelsResizing !== undefined ? !!options.allowLabelsResizing : true;
 
         options.currentDate = options.currentDate || 'line';
         options.currentDateValue = options.currentDateValue || moment();
@@ -340,8 +340,8 @@ gantt.factory('GanttOptions', ['moment', function(moment) {
 
         options.labelsWidth = options.labelsWidth || undefined;
 
-        options.showLabelsColumn = options.showLabelsColumn !== false || true;
-        options.showTooltips = options.showTooltips !== false || true;
+        options.showLabelsColumn = options.showLabelsColumn !== undefined ? !!options.showLabelsColumn : true;
+        options.showTooltips = options.showTooltips !== undefined ? !!options.showTooltips : true;
 
         options.headers = options.headers || undefined;
         options.headersFormats = options.headersFormats || undefined;
