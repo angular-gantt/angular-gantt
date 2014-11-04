@@ -8,9 +8,7 @@
              ng-show="gantt.columnsManager.columns.length > 0">
             <div gantt-vertical-scroll-receiver style="position: relative">
                 <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
-                    <gantt-sortable active="allowRowSorting" ng-model="row">
-                        <span class="gantt-labels-text">{{ row.name }}</span>
-                    </gantt-sortable>
+                    <span class="gantt-labels-text">{{ row.name }}</span>
                 </gantt-row-label>
             </div>
         </div>

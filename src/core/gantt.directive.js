@@ -1,7 +1,7 @@
 'use strict';
 /*global gantt: true*/
 var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate) {
+gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
     return {
         restrict: 'EA',
         replace: true,
@@ -59,6 +59,9 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
             enableNgAnimate(false, $element);
 
             $scope.gantt = new Gantt($scope, $element);
+            this.gantt = $scope.gantt;
+
+            this.pluginsData = {};
 
             $scope.gantt.api.directives.raise.new('gantt', $scope, $element);
             $scope.$on('$destroy', function() {

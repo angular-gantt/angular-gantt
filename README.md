@@ -12,6 +12,7 @@
  - [Attributes](#attributes)
  - [Objects](#objects)
  - [API](#api)
+ - [Plugins](#plugins)
  - [Contribute](#contribute)
  - [License](#license)
 
@@ -736,6 +737,23 @@ api.featureName.raise.eventName(data);
 - **api.scroll.on.scroll(left, date, direction)**
 
   The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.
+
+### <a name="plugins"></a> Plugins
+
+Plugins are additional features that are not included in [angular-gantt.js](assets/angular-gantt.js) distribution file.
+
+Each plugin is available under [plugins](src/plugins) folder as a standalone file.
+
+Plugins are also available as a single packaged [angular-gantt-plugins.js](assets/angular-gantt-plugins.js) file.
+
+#### Sortable
+
+Sort rows by drag & drop on rows label.
+
+Usage:
+```js
+<gantt gantt-sortable></gantt>
+```
 
 ### <a name="contribute"></a> Contribute
 

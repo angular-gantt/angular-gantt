@@ -8,7 +8,7 @@
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'Uuid', 'Sample', 'ganttMouseOffset', 'GanttEvents', 'moment', function($scope, $timeout, $log, Uuid, Sample, mouseOffset, Events, moment) {
+    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'Uuid', 'Sample', 'ganttMouseOffset', 'moment', function($scope, $timeout, $log, Uuid, Sample, mouseOffset, moment) {
         $scope.options = {
             mode: 'custom',
             scale: 'day',

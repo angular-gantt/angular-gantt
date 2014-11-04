@@ -22,21 +22,29 @@ module.exports = function(grunt) {
                 sourceMap: true,
                 // Replace all 'use strict' statements in the code with a single one at the top
                 banner: '/*\n' +
-                    'Project: angular-gantt for AngularJS\n' +
-                    'Author: Marco Schweighauser\n' +
-                    'Contributors: Rémi Alvergnat\n' +
-                    'License: MIT.\n' +
-                    'Github: https://github.com/angular-gantt/angular-gantt\n' +
-                    '*/\n' +
-                    '\'use strict\';\n',
+                'Project: angular-gantt for AngularJS\n' +
+                'Author: Marco Schweighauser\n' +
+                'Contributors: Rémi Alvergnat\n' +
+                'License: MIT.\n' +
+                'Github: https://github.com/angular-gantt/angular-gantt\n' +
+                '*/\n' +
+                '\'use strict\';\n',
                 process: function(src) {
                     return src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1\n')
-                            .replace(/(^|\n)[ \t]*(\/\*\s*global\s+.*?:\s+.*?\*\/);?\s*/g, '$1\n');
+                        .replace(/(^|\n)[ \t]*(\/\*\s*global\s+.*?:\s+.*?\*\/);?\s*/g, '$1\n');
                 }
             },
-            dist: {
-                src: ['src/**/*.js', '.tmp/generated/**/*.js'],
+            core: {
+                src: ['src/core/**/*.js', '.tmp/generated/**/*.js'],
                 dest: 'assets/<%= pkg.name %>.js'
+            },
+            plugins: {
+                src: ['src/plugins/**/*.js'],
+                dest: 'assets/<%= pkg.name %>-plugins.js'
+            },
+            sortable: {
+                src: ['src/plugins/sortable/*.js'],
+                dest: 'assets/<%= pkg.name %>-sortable-plugin.js'
             }
         },
         uglify: {
@@ -44,9 +52,14 @@ module.exports = function(grunt) {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\nuse strict;\n',
                 sourceMap: true
             },
-            dist: {
+            core: {
                 files: {
-                    'assets/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+                    'assets/<%= pkg.name %>.min.js': ['<%= concat.core.dest %>']
+                }
+            },
+            plugins: {
+                files: {
+                    'assets/<%= pkg.name %>-plugins.min.js': ['<%= concat.plugins.dest %>']
                 }
             }
         },

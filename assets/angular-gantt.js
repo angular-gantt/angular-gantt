@@ -9,7 +9,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 
 var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate) {
+gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
     return {
         restrict: 'EA',
         replace: true,
@@ -67,6 +67,9 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
             enableNgAnimate(false, $element);
 
             $scope.gantt = new Gantt($scope, $element);
+            this.gantt = $scope.gantt;
+
+            this.pluginsData = {};
 
             $scope.gantt.api.directives.raise.new('gantt', $scope, $element);
             $scope.$on('$destroy', function() {
@@ -1552,38 +1555,6 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
             return headers;
         };
     };
-}]);
-
-
-gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
-    return {
-        buildTaskEventData: function(evt, element, task, gantt) {
-            var data = {evt:evt, element:element, task:task};
-            if (gantt !== undefined && evt !== undefined) {
-                var x = mouseOffset.getOffset(evt).x;
-                data.column = gantt.columnsManager.getColumnByPosition(x + task.left);
-                data.date = gantt.getDateByPosition(x + task.left);
-            }
-            return data;
-        },
-
-        buildRowEventData: function(evt, element, row, gantt) {
-            var data = {evt:evt, element:element, row:row};
-            if (gantt !== undefined && evt !== undefined) {
-                var x = mouseOffset.getOffset(evt).x;
-                data.column = gantt.columnsManager.getColumnByPosition(x);
-                data.date = gantt.getDateByPosition(x);
-            }
-            return data;
-        },
-
-        buildColumnEventData: function(evt, element, column) {
-            var data = {evt:evt, element:element, column:column};
-            return data;
-        }
-    };
-
-
 }]);
 
 
@@ -3108,89 +3079,6 @@ gantt.directive('ganttElementWidthListener', [function() {
 }]);
 
 
-gantt.service('ganttSortManager', [ function() {
-    // Contains the row which the user wants to sort (the one he started to drag)
-
-    return { startRow: undefined };
-}]);
-
-gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($document, sortManager) {
-    // Provides the row sort functionality to any Gantt row
-    // Uses the sortableState to share the current row
-
-    return {
-        restrict: 'E',
-        template: '<div ng-transclude></div>',
-        replace: true,
-        transclude: true,
-        scope: { row: '=ngModel', active: '=?' },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('mousedown', function() {
-                if ($scope.active !== true) {
-                    return;
-                }
-
-                enableDragMode();
-
-                var disableHandler = function() {
-                    $scope.$apply(function() {
-                        angular.element($document[0].body).unbind('mouseup', disableHandler);
-                        disableDragMode();
-                    });
-                };
-                angular.element($document[0].body).bind('mouseup', disableHandler);
-            });
-
-            $element.bind('mousemove', function(e) {
-                if (isInDragMode()) {
-                    var elementBelowMouse = angular.element($document[0].elementFromPoint(e.clientX, e.clientY));
-                    var targetRow = elementBelowMouse.controller('ngModel').$modelValue;
-
-                    if (targetRow.id !== sortManager.startRow.id) {
-                        $scope.$apply(function () {
-                            $scope.row.rowsManager.swapRows(targetRow, sortManager.startRow);
-                        });
-                    }
-                }
-            });
-
-            var isInDragMode = function() {
-                return sortManager.startRow !== undefined && !angular.equals($scope.row, sortManager.startRow);
-            };
-
-            var enableDragMode = function() {
-                sortManager.startRow = $scope.row;
-                $element.css('cursor', 'move');
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '-moz-none',
-                    '-webkit-user-select': 'none',
-                    '-ms-user-select': 'none',
-                    'user-select': 'none',
-                    'cursor': 'no-drop'
-                });
-            };
-
-            var disableDragMode = function() {
-                sortManager.startRow = undefined;
-                $element.css('cursor', 'pointer');
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '',
-                    '-webkit-user-select': '',
-                    '-ms-user-select': '',
-                    'user-select': '',
-                    'cursor': 'auto'
-                });
-            };
-
-            $scope.row.rowsManager.gantt.api.directives.raise.new('ganttSortable', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.row.rowsManager.gantt.api.directives.raise.destroy('ganttSortable', $scope, $element);
-            });
-        }]
-    };
-}]);
-
-
 gantt.directive('ganttBounds', [function() {
     // Displays a box representing the earliest allowable start time and latest completion time for a job
 
@@ -4170,9 +4058,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-sortable active="allowRowSorting" ng-model="row">\n' +
-        '                        <span class="gantt-labels-text">{{ row.name }}</span>\n' +
-        '                    </gantt-sortable>\n' +
+        '                    <span class="gantt-labels-text">{{ row.name }}</span>\n' +
         '                </gantt-row-label>\n' +
         '            </div>\n' +
         '        </div>\n' +

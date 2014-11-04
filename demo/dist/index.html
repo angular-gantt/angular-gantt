@@ -145,7 +145,8 @@
                                 </div>
                                 <div class="panel-collapse" bs-collapse-target>
                                     <div class="panel-body">
-                                        <gantt filter-task="{'name': options.filterTask}"
+                                        <gantt gantt-sortable="true"
+                                               filter-task="{'name': options.filterTask}"
                                                filter-row="{'name': options.filterRow}"
                                                allow-task-moving="!options.readOnly"
                                                allow-task-resizing="!options.readOnly"
