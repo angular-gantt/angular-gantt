@@ -23,7 +23,6 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
             allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
             allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
             allowTaskRowSwitching: '=?', // If false then tasks can be moved inside their current row only. The user can not move it to another row.
-            allowRowSorting: '=?', // Set to true if the user should be able to re-order rows.
             allowLabelsResizing: '=?', // Set to true if the user should be able to resize the label section.
             fromDate: '=?', // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)

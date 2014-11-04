@@ -155,11 +155,6 @@ review those projects documentations.
 
   Tasks can be moved to a different row.
 
-- **allow-row-sorting** (default `true`)
-
-  Rows can be manually sorted by drag and drop. This will set `sort-mode` to `custom` as soon as the user
-  starts sorting.
-
 - **current-date** (default `line`)
 
   How current date is displayed.

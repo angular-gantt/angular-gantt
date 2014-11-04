@@ -25,7 +25,6 @@ gantt.factory('GanttOptions', ['moment', function(moment) {
         options.allowTaskMoving = options.allowTaskMoving !== false || true;
         options.allowTaskResizing = options.allowTaskResizing !== false || true;
         options.allowTaskRowSwitching = options.allowTaskRowSwitching !== false || true;
-        options.allowRowSorting = options.allowRowSorting !== false || true;
         options.allowLabelsResizing = options.allowLabelsResizing !== false || true;
 
         options.currentDate = options.currentDate || 'line';
