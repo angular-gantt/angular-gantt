@@ -147,11 +147,6 @@ angular.module('angularGanttDemoApp')
             }
         };
 
-        $scope.$watchGroup(['fromDate', 'toDate'], function() {
-            $scope.options.fromDate = $scope.fromDate;
-            $scope.options.toDate = $scope.toDate;
-        });
-
         $scope.$watch('options.scale', function(newValue) {
             if (newValue === 'quarter') {
                 $scope.options.headersFormats = {'quarter': '[Q]Q YYYY'};
