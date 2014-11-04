@@ -12,22 +12,34 @@ gantt.directive('ganttBounds', [function() {
             }
         },
         replace: true,
-        scope: { task: '=ngModel' },
+        scope: {task: '=ngModel'},
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            if (!$scope.task.hasBounds()) {
-                $scope.visible = false;
-            }
+            $scope.bounds = undefined;
+
+            $scope.$watchGroup(['task.est', 'task.lct'], function() {
+                if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
+                    $scope.bounds = {};
+                    $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
+                    $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.lct) - $scope.bounds.left;
+                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
+                } else {
+                    $scope.bounds = undefined;
+                    $scope.visible = false;
+                }
+            });
+
+            $scope.visible = $scope.bounds !== undefined;
 
             $scope.getCss = function() {
-                if ($scope.task.hasBounds()) {
-                    css.width = $scope.task.bounds.width + 'px';
+                if ($scope.bounds !== undefined) {
+                    css.width = $scope.bounds.width + 'px';
 
                     if ($scope.task.isMilestone === true || $scope.task.width === 0) {
-                        css.left = ($scope.task.bounds.left - ($scope.task.left - 0.3)) + 'px';
+                        css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
                     } else {
-                        css.left = ($scope.task.bounds.left - $scope.task.left) + 'px';
+                        css.left = ($scope.bounds.left - $scope.task.left) + 'px';
                     }
                 }
 
@@ -49,13 +61,13 @@ gantt.directive('ganttBounds', [function() {
             };
 
             $scope.$watch('task.isMouseOver', function() {
-                if ($scope.task.hasBounds() && !$scope.task.isMoving) {
+                if ($scope.bounds !== undefined && !$scope.task.isMoving) {
                     $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
                 }
             });
 
             $scope.$watch('task.isMoving', function(newValue) {
-                if ($scope.task.hasBounds()) {
+                if ($scope.bounds !== undefined) {
                     $scope.visible = newValue === true;
                 }
             });

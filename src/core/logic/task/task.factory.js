@@ -52,10 +52,6 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
     Task.prototype.checkIfMilestone();
 
-    Task.prototype.hasBounds = function() {
-        return this.bounds !== undefined;
-    };
-
     // Updates the pos and size of the task according to the from - to date
     Task.prototype.updatePosAndSize = function() {
         this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.from);
@@ -81,12 +77,6 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
             this.truncatedLeft = false;
             this.truncatedRight = false;
             this.width = this.modelWidth;
-        }
-
-        if (this.est !== undefined && this.lct !== undefined) {
-            this.bounds = {};
-            this.bounds.left = this.rowsManager.gantt.getPositionByDate(this.est);
-            this.bounds.width = this.rowsManager.gantt.getPositionByDate(this.lct) - this.bounds.left;
         }
     };
 

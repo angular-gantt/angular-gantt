@@ -17,20 +17,10 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
         }
     };
 
-    Timespan.prototype.hasBounds = function() {
-        return this.bounds !== undefined;
-    };
-
     // Updates the pos and size of the timespan according to the from - to date
     Timespan.prototype.updatePosAndSize = function() {
         this.left = this.gantt.getPositionByDate(this.from);
         this.width = this.gantt.getPositionByDate(this.to) - this.left;
-
-        if (this.est !== undefined && this.lct !== undefined) {
-            this.bounds = {};
-            this.bounds.left = this.gantt.getPositionByDate(this.est);
-            this.bounds.width = this.gantt.getPositionByDate(this.lct) - this.bounds.left;
-        }
     };
 
     // Expands the start of the timespan to the specified position (in em)

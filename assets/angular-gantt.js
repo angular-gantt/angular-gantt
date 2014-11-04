@@ -2235,10 +2235,6 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
     Task.prototype.checkIfMilestone();
 
-    Task.prototype.hasBounds = function() {
-        return this.bounds !== undefined;
-    };
-
     // Updates the pos and size of the task according to the from - to date
     Task.prototype.updatePosAndSize = function() {
         this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.from);
@@ -2264,12 +2260,6 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
             this.truncatedLeft = false;
             this.truncatedRight = false;
             this.width = this.modelWidth;
-        }
-
-        if (this.est !== undefined && this.lct !== undefined) {
-            this.bounds = {};
-            this.bounds.left = this.rowsManager.gantt.getPositionByDate(this.est);
-            this.bounds.width = this.rowsManager.gantt.getPositionByDate(this.lct) - this.bounds.left;
         }
     };
 
@@ -2474,20 +2464,10 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
         }
     };
 
-    Timespan.prototype.hasBounds = function() {
-        return this.bounds !== undefined;
-    };
-
     // Updates the pos and size of the timespan according to the from - to date
     Timespan.prototype.updatePosAndSize = function() {
         this.left = this.gantt.getPositionByDate(this.from);
         this.width = this.gantt.getPositionByDate(this.to) - this.left;
-
-        if (this.est !== undefined && this.lct !== undefined) {
-            this.bounds = {};
-            this.bounds.left = this.gantt.getPositionByDate(this.est);
-            this.bounds.width = this.gantt.getPositionByDate(this.lct) - this.bounds.left;
-        }
     };
 
     // Expands the start of the timespan to the specified position (in em)
@@ -3090,22 +3070,34 @@ gantt.directive('ganttBounds', [function() {
             }
         },
         replace: true,
-        scope: { task: '=ngModel' },
+        scope: {task: '=ngModel'},
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            if (!$scope.task.hasBounds()) {
-                $scope.visible = false;
-            }
+            $scope.bounds = undefined;
+
+            $scope.$watchGroup(['task.est', 'task.lct'], function() {
+                if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
+                    $scope.bounds = {};
+                    $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
+                    $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.lct) - $scope.bounds.left;
+                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
+                } else {
+                    $scope.bounds = undefined;
+                    $scope.visible = false;
+                }
+            });
+
+            $scope.visible = $scope.bounds !== undefined;
 
             $scope.getCss = function() {
-                if ($scope.task.hasBounds()) {
-                    css.width = $scope.task.bounds.width + 'px';
+                if ($scope.bounds !== undefined) {
+                    css.width = $scope.bounds.width + 'px';
 
                     if ($scope.task.isMilestone === true || $scope.task.width === 0) {
-                        css.left = ($scope.task.bounds.left - ($scope.task.left - 0.3)) + 'px';
+                        css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
                     } else {
-                        css.left = ($scope.task.bounds.left - $scope.task.left) + 'px';
+                        css.left = ($scope.bounds.left - $scope.task.left) + 'px';
                     }
                 }
 
@@ -3127,13 +3119,13 @@ gantt.directive('ganttBounds', [function() {
             };
 
             $scope.$watch('task.isMouseOver', function() {
-                if ($scope.task.hasBounds() && !$scope.task.isMoving) {
+                if ($scope.bounds !== undefined && !$scope.task.isMoving) {
                     $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
                 }
             });
 
             $scope.$watch('task.isMoving', function(newValue) {
-                if ($scope.task.hasBounds()) {
+                if ($scope.bounds !== undefined) {
                     $scope.visible = newValue === true;
                 }
             });
@@ -4198,7 +4190,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
         '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
-        '            <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>\n' +
+        '            <gantt-bounds ng-model="task"></gantt-bounds>\n' +
         '            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
