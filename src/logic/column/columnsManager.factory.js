@@ -24,6 +24,18 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             }
         });
 
+        this.gantt.$scope.$watchCollection('headers', function(newValues, oldValues) {
+            if (!angular.equals(newValues, oldValues)) {
+                self.generateColumns();
+            }
+        });
+
+        this.gantt.$scope.$watchCollection('headersFormats', function(newValues, oldValues) {
+            if (!angular.equals(newValues, oldValues)) {
+                self.generateColumns();
+            }
+        });
+
         this.gantt.$scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateColumnsMeta();

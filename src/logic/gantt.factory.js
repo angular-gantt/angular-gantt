@@ -38,6 +38,22 @@ gantt.factory('Gantt', [
             this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
             this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
+            $scope.$watch('timeFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    this.calendar.clearTimeFrames();
+                    this.calendar.registerTimeFrames($scope.timeFrames);
+                    this.columnsManager.generateColumns();
+                }
+            });
+
+            $scope.$watch('dateFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    this.calendar.clearTimeFrames();
+                    this.calendar.registerTimeFrames($scope.timeFrames);
+                    this.columnsManager.generateColumns();
+                }
+            });
+
             this.scroll = new Scroll(this);
             this.body = new Body(this);
             this.rowHeader = new RowHeader(this);

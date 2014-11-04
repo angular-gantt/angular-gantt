@@ -32,7 +32,7 @@
 - Configurable (Any scale, (non)working time frames and days, ...)
 
 ### <a name="dependencies"></a> Dependencies
-- [AngularJS](https://angularjs.org)
+- [AngularJS](https://angularjs.org) >= 1.3
 - [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
 
 ### <a name="install"></a> Install
@@ -276,42 +276,45 @@ review those projects documentations.
   
   Example:
     ```html
-    <gantt calendar-time-frames="timeFrames" calendar-date-frames="dateFrames"></gantt>
+    <gantt time-frames="timeFrames" date-frames="dateFrames"></gantt>
     ```
   
     ```js
-    $scope.timeFrames = {day: {
+    $scope.timeFrames = {
+                        day: {
                             start: moment('8:00', 'HH:mm'),
                                 end: moment('20:00', 'HH:mm'),
                                 working: true, // This is a working period
                                 default: true // It will be used for each day
                             },
-                         noon: {
-                             start: moment('12:00', 'HH:mm'),
-                             end: moment('13:30', 'HH:mm'),
-                             working: false, // This is a resting period
-                             default: true // It will be used for each day
-                         },
-                         closed: {
-                             working: false // We don't work when it's closed
-                         }
-                       };
+                        noon: {
+                            start: moment('12:00', 'HH:mm'),
+                            end: moment('13:30', 'HH:mm'),
+                            working: false, // This is a resting period
+                            default: true // It will be used for each day
+                        },
+                        closed: {
+                            working: false // We don't work when it's closed
+                        }
+    };
     
-    $scope.dateFrames = {halloween:{
-                           date: moment('2014-10-31', 'YYYY-MM-DD'), // A specific date
-                           targets: ['day'] // Use timeFrame named day for halloween. We won't close for noon.
+    $scope.dateFrames = {
+                        halloween:{
+                            date: moment('2014-10-31', 'YYYY-MM-DD'), // A specific date
+                            targets: ['day'] // Use timeFrame named day for halloween. We won't close for noon.
                         },
                         holidays: {
-                            start: moment('2014-08-15', 'YYYY-MM-DD'), // A date range
-                            end: moment('2014-08-30', 'YYYY-MM-DD'),
-                            targets: ['closed'] // use timeFrame named closed for this date range.
+                             start: moment('2014-08-15', 'YYYY-MM-DD'), // A date range
+                             end: moment('2014-08-30', 'YYYY-MM-DD'),
+                             targets: ['closed'] // use timeFrame named closed for this date range.
                         }, 
                         weekend: {
-                            evaluator: function(date) { // A custom function evaluated for each day in the gantt
-                                return date.isoWeekday() === 6 || date.isoWeekday() === 7;
-                            },
-                            targets: ['closed'] // Use timeFrame named closed for saturday and sunday.
-                        };
+                             evaluator: function(date) { // A custom function evaluated for each day in the gantt
+                                 return date.isoWeekday() === 6 || date.isoWeekday() === 7;
+                             },
+                             targets: ['closed'] // Use timeFrame named closed for saturday and sunday.
+                        }
+    };
 
     ```
   

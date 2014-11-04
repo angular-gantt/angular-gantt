@@ -1207,6 +1207,18 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             }
         });
 
+        this.gantt.$scope.$watchCollection('headers', function(newValues, oldValues) {
+            if (!angular.equals(newValues, oldValues)) {
+                self.generateColumns();
+            }
+        });
+
+        this.gantt.$scope.$watchCollection('headersFormats', function(newValues, oldValues) {
+            if (!angular.equals(newValues, oldValues)) {
+                self.generateColumns();
+            }
+        });
+
         this.gantt.$scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
                 self.updateColumnsMeta();
@@ -1486,10 +1498,15 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
     var generateHeader = function(columnsManager, columns, unit) {
         var generatedHeaders = [];
         var header;
+        var prevColDateVal;
+
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
+            var colDateVal = col.date.get(unit);
+            if (i === 0 || prevColDateVal !== colDateVal) {
+                prevColDateVal = colDateVal;
                 var label = col.date.format(columnsManager.getHeaderFormat(unit));
+
                 header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
                 header.left = col.left;
                 header.width = col.width;
@@ -1500,6 +1517,7 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
             }
         }
         return generatedHeaders;
+
     };
 
     return function(columnsManager) {
@@ -1619,6 +1637,22 @@ gantt.factory('Gantt', [
             this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
             this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
             this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+
+            $scope.$watch('timeFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    this.calendar.clearTimeFrames();
+                    this.calendar.registerTimeFrames($scope.timeFrames);
+                    this.columnsManager.generateColumns();
+                }
+            });
+
+            $scope.$watch('dateFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    this.calendar.clearTimeFrames();
+                    this.calendar.registerTimeFrames($scope.timeFrames);
+                    this.columnsManager.generateColumns();
+                }
+            });
 
             this.scroll = new Scroll(this);
             this.body = new Body(this);
