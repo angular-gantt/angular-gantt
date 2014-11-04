@@ -37,9 +37,7 @@ gantt.factory('Gantt', [
         // All those changes need a recalculation of the header columns
         $scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.buildGenerators();
-                self.clearColumns();
-                self.updateColumns();
+                self.rebuildColumns();
             }
         });
 
@@ -352,6 +350,12 @@ gantt.factory('Gantt', [
                 }
             });
             return defaultTo;
+        };
+
+        self.rebuildColumns = function() {
+            self.buildGenerators();
+            self.clearColumns();
+            self.updateColumns();
         };
 
         self.updateColumns = function() {
@@ -710,9 +714,8 @@ gantt.factory('Gantt', [
 
             $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
         };
-        self.buildGenerators();
-        self.clearColumns();
-        self.updateColumns();
+
+        self.rebuildColumns();
         self.setCurrentDate($scope.currentDateValue);
     };
 

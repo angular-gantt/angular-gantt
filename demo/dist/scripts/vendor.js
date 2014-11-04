@@ -35714,14 +35714,20 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             $scope.calendar.registerTimeFrames($scope.timeFrames);
             $scope.calendar.registerDateFrames($scope.dateFrames);
 
-            $scope.$watch('timeFrames', function() {
-                $scope.calendar.clearTimeFrames();
-                $scope.calendar.registerTimeFrames($scope.timeFrames);
+            $scope.$watch('timeFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    $scope.calendar.clearTimeFrames();
+                    $scope.calendar.registerTimeFrames($scope.timeFrames);
+                    $scope.gantt.rebuildColumns();
+                }
             });
 
-            $scope.$watch('dateFrames', function() {
-                $scope.calendar.clearDateFrames();
-                $scope.calendar.registerDateFrames($scope.dateFrames);
+            $scope.$watch('dateFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    $scope.calendar.clearDateFrames();
+                    $scope.calendar.registerDateFrames($scope.dateFrames);
+                    $scope.gantt.rebuildColumns();
+                }
             });
 
             // Gantt logic
@@ -36730,9 +36736,7 @@ gantt.factory('Gantt', [
         // All those changes need a recalculation of the header columns
         $scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
             if (!angular.equals(newValue, oldValue)) {
-                self.buildGenerators();
-                self.clearColumns();
-                self.updateColumns();
+                self.rebuildColumns();
             }
         });
 
@@ -37045,6 +37049,12 @@ gantt.factory('Gantt', [
                 }
             });
             return defaultTo;
+        };
+
+        self.rebuildColumns = function() {
+            self.buildGenerators();
+            self.clearColumns();
+            self.updateColumns();
         };
 
         self.updateColumns = function() {
@@ -37403,9 +37413,8 @@ gantt.factory('Gantt', [
 
             $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
         };
-        self.buildGenerators();
-        self.clearColumns();
-        self.updateColumns();
+
+        self.rebuildColumns();
         self.setCurrentDate($scope.currentDateValue);
     };
 

@@ -197,14 +197,20 @@ gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset'
             $scope.calendar.registerTimeFrames($scope.timeFrames);
             $scope.calendar.registerDateFrames($scope.dateFrames);
 
-            $scope.$watch('timeFrames', function() {
-                $scope.calendar.clearTimeFrames();
-                $scope.calendar.registerTimeFrames($scope.timeFrames);
+            $scope.$watch('timeFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    $scope.calendar.clearTimeFrames();
+                    $scope.calendar.registerTimeFrames($scope.timeFrames);
+                    $scope.gantt.rebuildColumns();
+                }
             });
 
-            $scope.$watch('dateFrames', function() {
-                $scope.calendar.clearDateFrames();
-                $scope.calendar.registerDateFrames($scope.dateFrames);
+            $scope.$watch('dateFrames', function(newValues, oldValues) {
+                if (!angular.equals(newValues, oldValues)) {
+                    $scope.calendar.clearDateFrames();
+                    $scope.calendar.registerDateFrames($scope.dateFrames);
+                    $scope.gantt.rebuildColumns();
+                }
             });
 
             // Gantt logic
