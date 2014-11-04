@@ -3,10 +3,15 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
     var generateHeader = function(headerFormatFunction, columns, unit) {
         var generatedHeaders = [];
         var header;
+        var prevColDateVal;
+
         for (var i = 0, l = columns.length; i < l; i++) {
             var col = columns[i];
-            if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
+            var colDateVal = col.date.get(unit);
+            if (i === 0 || prevColDateVal !== colDateVal) {
+                prevColDateVal = colDateVal;
                 var label = col.date.format(headerFormatFunction(unit));
+
                 header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
                 header.left = col.left;
                 header.width = col.width;
