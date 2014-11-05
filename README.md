@@ -717,7 +717,7 @@ api.featureName.raise.eventName(data);
 
 Plugins are additional features that are not included in [angular-gantt.js](assets/angular-gantt.js) distribution file.
 
-Each plugin is available under [plugins](src/plugins) folder as a standalone file.
+Each plugin is available under [assets](assets/) folder as a standalone `angular-gantt-<plugin>.js` file.
 
 Plugins are also available as a single packaged [angular-gantt-plugins.js](assets/angular-gantt-plugins.js) file.
 
