@@ -45,6 +45,10 @@ module.exports = function(grunt) {
             sortable: {
                 src: ['src/plugins/sortable/*.js'],
                 dest: 'assets/<%= pkg.name %>-sortable-plugin.js'
+            },
+            movable: {
+                src: ['src/plugins/movable/*.js'],
+                dest: 'assets/<%= pkg.name %>-movable-plugin.js'
             }
         },
         uglify: {
@@ -61,7 +65,18 @@ module.exports = function(grunt) {
                 files: {
                     'assets/<%= pkg.name %>-plugins.min.js': ['<%= concat.plugins.dest %>']
                 }
+            },
+            sortable: {
+                files: {
+                    'assets/<%= pkg.name %>-sortable.min.js': ['<%= concat.sortable.dest %>']
+                }
+            },
+            movable: {
+                files: {
+                    'assets/<%= pkg.name %>-movable.min.js': ['<%= concat.movable.dest %>']
+                }
             }
+
         },
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js'],

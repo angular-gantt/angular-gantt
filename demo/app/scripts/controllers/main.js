@@ -71,78 +71,80 @@ angular.module('angularGanttDemoApp')
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
                     $scope.addSamples();
-                });
 
-                // Log various events to console
-                api.scroll.on.scroll($scope, logScrollEvent);
-                api.core.on.ready($scope, logReadyEvent);
+                    // Log various events to console
+                    api.scroll.on.scroll($scope, logScrollEvent);
+                    api.core.on.ready($scope, logReadyEvent);
 
-                api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
-                api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
-                api.tasks.on.remove($scope, addEventName('tasks.on.remove', logTaskEvent));
+                    api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
+                    api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
+                    api.tasks.on.remove($scope, addEventName('tasks.on.remove', logTaskEvent));
 
-                api.tasks.on.moveBegin($scope, addEventName('tasks.on.moveBegin', logTaskEvent));
-                //api.tasks.on.move($scope, addEventName('tasks.on.move', logTaskEvent));
-                api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', logTaskEvent));
+                    api.tasks.on.moveBegin($scope, addEventName('tasks.on.moveBegin', logTaskEvent));
+                    //api.tasks.on.move($scope, addEventName('tasks.on.move', logTaskEvent));
+                    api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', logTaskEvent));
 
-                api.tasks.on.resizeBegin($scope, addEventName('tasks.on.resizeBegin', logTaskEvent));
-                //api.tasks.on.resize($scope, addEventName('tasks.on.resize', logTaskEvent));
-                api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
+                    api.tasks.on.resizeBegin($scope, addEventName('tasks.on.resizeBegin', logTaskEvent));
+                    //api.tasks.on.resize($scope, addEventName('tasks.on.resize', logTaskEvent));
+                    api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
 
-                api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
-                api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));
-                api.rows.on.orderChange($scope, addEventName('rows.on.orderChange', logRowEvent));
-                api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
+                    api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
+                    api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));
+                    api.rows.on.orderChange($scope, addEventName('rows.on.orderChange', logRowEvent));
+                    api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
 
-                api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
+                    api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
 
-                api.timespans.on.add($scope, addEventName('timespans.on.add', logTimespanEvent));
-                api.columns.on.generate($scope, logColumnsGenerateEvent);
+                    api.timespans.on.add($scope, addEventName('timespans.on.add', logTimespanEvent));
+                    api.columns.on.generate($scope, logColumnsGenerateEvent);
 
-                api.rows.on.filter($scope, logRowsFilterEvent);
-                api.tasks.on.filter($scope, logTasksFilterEvent);
+                    api.rows.on.filter($scope, logRowsFilterEvent);
+                    api.tasks.on.filter($scope, logTasksFilterEvent);
 
-                // Add draw support using API directives.on.new event.
-                api.directives.on.new($scope, function(directiveName, directiveScope, element) {
-                    if (directiveName === 'ganttRow') {
-                        // When gantt-row directive is added
-                        var drawHandler = function(evt) {
-                            if (!$scope.options.readOnly && $scope.options.draw) {
-                                // Example to draw task inside row
+                    // Add draw support using API directives.on.new event.
+                    api.directives.on.new($scope, function(directiveName, directiveScope, element) {
+                        if (directiveName === 'ganttRow') {
+                            // When gantt-row directive is added
+                            var drawHandler = function(evt) {
+                                if (!$scope.options.readOnly && $scope.options.draw) {
+                                    // Example to draw task inside row
 
-                                if ((evt.target ? evt.target : evt.srcElement).className.indexOf('gantt-row') > -1) {
-                                    var startDate = $scope.api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
-                                    var endDate = moment(startDate);
-                                    //endDate.setDate(endDate.getDate());
-                                    var infoTask = {
-                                        id: Uuid.randomUuid(),  // Unique id of the task.
-                                        name: 'Drawn task', // Name shown on top of each task.
-                                        from: startDate, // Date can be a String, Timestamp or Date object.
-                                        to: endDate,// Date can be a String, Timestamp or Date object.
-                                        color: '#AA8833' // Color of the task in HEX format (Optional).
-                                    };
-                                    var task = directiveScope.row.addTask(infoTask);
-                                    task.isCreating = true;
-                                    directiveScope.$apply(function() {
-                                        task.updatePosAndSize();
-                                        directiveScope.row.updateVisibleTasks();
-                                    });
+                                    if ((evt.target ? evt.target : evt.srcElement).className.indexOf('gantt-row') > -1) {
+                                        var startDate = $scope.api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
+                                        var endDate = moment(startDate);
+                                        //endDate.setDate(endDate.getDate());
+                                        var infoTask = {
+                                            id: Uuid.randomUuid(),  // Unique id of the task.
+                                            name: 'Drawn task', // Name shown on top of each task.
+                                            from: startDate, // Date can be a String, Timestamp or Date object.
+                                            to: endDate,// Date can be a String, Timestamp or Date object.
+                                            color: '#AA8833' // Color of the task in HEX format (Optional).
+                                        };
+                                        var task = directiveScope.row.addTask(infoTask);
+                                        task.isCreating = true;
+                                        directiveScope.$apply(function() {
+                                            task.updatePosAndSize();
+                                            directiveScope.row.updateVisibleTasks();
+                                        });
+                                    }
                                 }
-                            }
-                        };
+                            };
 
-                        element.on('mousedown', drawHandler);
-                        directiveScope.drawHandler = drawHandler;
-                    }
+                            element.on('mousedown', drawHandler);
+                            directiveScope.drawHandler = drawHandler;
+                        }
+                    });
+
+                    // Remove draw support when row is removed from DOM.
+                    api.directives.on.destroy($scope, function(directiveName, directiveScope, element) {
+                        if (directiveName === 'ganttRow') {
+                            element.off('mousedown', directiveScope.drawHandler);
+                            delete directiveScope.drawHandler;
+                        }
+                    });
                 });
 
-                // Remove draw support when row is removed from DOM.
-                api.directives.on.destroy($scope, function(directiveName, directiveScope, element) {
-                    if (directiveName === 'ganttRow') {
-                        element.off('mousedown', directiveScope.drawHandler);
-                        delete directiveScope.drawHandler;
-                    }
-                });
+
 
             }
         };

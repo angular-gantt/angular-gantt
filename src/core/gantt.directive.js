@@ -1,10 +1,10 @@
 'use strict';
 /*global gantt: true*/
 var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
+gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
     return {
         restrict: 'EA',
-        replace: true,
+        transclude: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
                 return 'template/default.gantt.tmpl.html';
@@ -20,9 +20,6 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
             filterRowComparator: '=?', // Comparator to use for the row filter
             viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
             columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
-            allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
-            allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
-            allowTaskRowSwitching: '=?', // If false then tasks can be moved inside their current row only. The user can not move it to another row.
             allowLabelsResizing: '=?', // Set to true if the user should be able to resize the label section.
             fromDate: '=?', // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
             toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
@@ -59,13 +56,15 @@ gantt.directive('gantt', ['Gantt', 'GanttOptions', 'GanttCalendar', 'moment', 'g
 
             $scope.gantt = new Gantt($scope, $element);
             this.gantt = $scope.gantt;
+        }],
+        link: function(scope, element) {
+            // Gantt is initialized. Signal that the Gantt is ready.
+            scope.gantt.api.core.raise.ready(scope.gantt.api);
 
-            this.pluginsData = {};
-
-            $scope.gantt.api.directives.raise.new('gantt', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('gantt', $scope, $element);
+            scope.gantt.api.directives.raise.new('gantt', scope, element);
+            scope.$on('$destroy', function() {
+                scope.gantt.api.directives.raise.destroy('gantt', scope, element);
             });
         }
-        ]};
+    };
 }]);

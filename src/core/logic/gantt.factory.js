@@ -78,9 +78,6 @@ gantt.factory('Gantt', [
             if (angular.isFunction(this.$scope.api)) {
                 this.$scope.api(this.api);
             }
-
-            // Gantt is initialized. Signal that the Gantt is ready.
-            this.api.core.raise.ready(this.api);
         };
 
         // Returns the exact column date at the given position x (in em)

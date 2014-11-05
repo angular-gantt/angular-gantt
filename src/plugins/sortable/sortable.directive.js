@@ -1,29 +1,25 @@
 'use strict';
-
 gantt.directive('ganttSortable', ['$document', function($document) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
     return {
-        restrict: 'A',
+        restrict: 'E',
         require: '^gantt',
+        scope: {
+            enabled: '=?'
+        },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            if (ganttCtrl.pluginsData.sortable === undefined) {
-                ganttCtrl.pluginsData.sortable = {};
+            if (scope.enabled === undefined) {
+                scope.enabled = true;
             }
-            var sortableData = ganttCtrl.pluginsData.sortable;
-
-            var active = true;
-            attrs.$observe('ganttSortable', function(value) {
-                active = value !== false;
-            });
 
             api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                 if (directiveName === 'ganttRowLabel') {
                     rowElement.bind('mousedown', function() {
-                        if (active !== true) {
+                        if (!scope.enabled) {
                             return;
                         }
 
@@ -44,20 +40,20 @@ gantt.directive('ganttSortable', ['$document', function($document) {
                             elementBelowMouse = angular.element(elementBelowMouse);
                             var targetRow = elementBelowMouse.scope().row;
 
-                            if (targetRow.id !== sortableData.startRow.id) {
+                            if (targetRow.id !== scope.startRow.id) {
                                 rowScope.$apply(function () {
-                                    rowScope.row.rowsManager.swapRows(targetRow, sortableData.startRow);
+                                    rowScope.row.rowsManager.swapRows(targetRow, scope.startRow);
                                 });
                             }
                         }
                     });
 
                     var isInDragMode = function() {
-                        return sortableData.startRow !== undefined && !angular.equals(rowScope.row, sortableData.startRow);
+                        return scope.startRow !== undefined && !angular.equals(rowScope.row, scope.startRow);
                     };
 
                     var enableDragMode = function() {
-                        sortableData.startRow = rowScope.row;
+                        scope.startRow = rowScope.row;
                         rowElement.css('cursor', 'move');
                         angular.element($document[0].body).css({
                             '-moz-user-select': '-moz-none',
@@ -69,7 +65,7 @@ gantt.directive('ganttSortable', ['$document', function($document) {
                     };
 
                     var disableDragMode = function() {
-                        sortableData.startRow = undefined;
+                        scope.startRow = undefined;
                         rowElement.css('cursor', 'pointer');
                         angular.element($document[0].body).css({
                             '-moz-user-select': '',

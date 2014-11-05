@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttOptions', ['moment', function(moment) {
+gantt.factory('ganttOptions', ['moment', function(moment) {
     return {initialize: function(options) {
         options.api = options.api || angular.noop();
 
@@ -22,9 +22,6 @@ gantt.factory('GanttOptions', ['moment', function(moment) {
         options.fromDate = options.fromDate || undefined;
         options.toDate = options.toDate || undefined;
 
-        options.allowTaskMoving = options.allowTaskMoving !== undefined ? !!options.allowTaskMoving : true;
-        options.allowTaskResizing = options.allowTaskResizing !== undefined ? !!options.allowTaskResizing : true;
-        options.allowTaskRowSwitching = options.allowTaskRowSwitching !== undefined ? !!options.allowTaskRowSwitching : true;
         options.allowLabelsResizing = options.allowLabelsResizing !== undefined ? !!options.allowLabelsResizing : true;
 
         options.currentDate = options.currentDate || 'line';

@@ -34,12 +34,6 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         this.gantt.api.registerEvent('tasks', 'add');
         this.gantt.api.registerEvent('tasks', 'change');
         this.gantt.api.registerEvent('tasks', 'remove');
-        this.gantt.api.registerEvent('tasks', 'move');
-        this.gantt.api.registerEvent('tasks', 'moveBegin');
-        this.gantt.api.registerEvent('tasks', 'moveEnd');
-        this.gantt.api.registerEvent('tasks', 'resize');
-        this.gantt.api.registerEvent('tasks', 'resizeBegin');
-        this.gantt.api.registerEvent('tasks', 'resizeEnd');
 
         this.gantt.api.registerEvent('tasks', 'filter');
 

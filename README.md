@@ -143,18 +143,6 @@ review those projects documentations.
 
   Row label section can be resized.
 
-- **allow-task-moving** (default `true`)
-
-  Tasks can be moved inside a row.
-
-- **allow-task-resizing** (default `true`)
-
-  Tasks can be resized.
-
-- **allow-task-row-switching** (default: `true`)
-
-  Tasks can be moved to a different row.
-
 - **current-date** (default `line`)
 
   How current date is displayed.
@@ -683,14 +671,6 @@ api.featureName.raise.eventName(data);
 
   A task has been added, changed or removed
   
-- **api.tasks.on.moveBegin(task)**, **api.tasks.on.move(task, fromRow)**, **api.tasks.on.moveEnd(task)**
-
-  A task is starting to move, moving or has stopped moving.
-
-- **api.tasks.on.resizeBegin(task)**, **api.tasks.on.resize(task)**, **api.tasks.on.resizeEnd(task)**
-
-  A task is starting to resize, moving or has stopped moving.
-  
 - **api.tasks.on.filter(tasks, filteredTasks)**
 
   Tasks have been filtered out.
@@ -745,10 +725,48 @@ Plugins are also available as a single packaged [angular-gantt-plugins.js](asset
 
 Sort rows by drag & drop on rows label.
 
-Usage:
 ```js
-<gantt gantt-sortable></gantt>
+<gantt>
+    <gantt-sortable></gantt-sortable>
+</gantt>
 ```
+
+#### Movable
+
+Move and resize rows.
+
+```js
+<gantt>
+    <gantt-movable allow-moving="true" 
+                   allow-resizing="true"
+                   allow-row-switching="true">
+    <gantt-movable/>
+</gantt>
+```
+
+##### Attributes
+
+- **allow-moving** (default `true`)
+
+  Tasks can be moved inside a row.
+
+- **allow-resizing** (default `true`)
+
+  Tasks can be resized.
+
+- **allow-row-switching** (default: `true`)
+
+  Tasks can be moved to a different row.
+
+##### Events
+  
+- **api.tasks.on.moveBegin(task)**, **api.tasks.on.move(task, fromRow)**, **api.tasks.on.moveEnd(task)**
+
+  A task is starting to move, moving or has stopped moving.
+
+- **api.tasks.on.resizeBegin(task)**, **api.tasks.on.resize(task)**, **api.tasks.on.resizeEnd(task)**
+
+  A task is starting to resize, moving or has stopped moving.
 
 ### <a name="contribute"></a> Contribute
 

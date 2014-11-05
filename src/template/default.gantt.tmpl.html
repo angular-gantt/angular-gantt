@@ -1,4 +1,4 @@
-<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener>
+<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>
     <gantt-labels>
         <div class="gantt-labels-header">
             <gantt-row-header></gantt-row-header>
@@ -59,6 +59,8 @@
         </gantt-body>
     </gantt-scrollable>
 
+    <!-- Plugins -->
+    <ng-transclude></ng-transclude>
 
     <!--
     ******* Inline templates *******
