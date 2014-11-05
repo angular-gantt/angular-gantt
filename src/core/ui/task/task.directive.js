@@ -12,6 +12,8 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
         },
         replace: true,
         controller: ['$scope', '$element', function($scope, $element) {
+            $scope.task.$element = $element;
+
             var resizeAreaWidthBig = 5;
             var resizeAreaWidthSmall = 3;
             var scrollSpeed = 15;
@@ -44,22 +46,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 } else {
                     $element.css('cursor', '');
                 }
-
-                $scope.task.mouseX = e.clientX;
             }, 5));
-
-            $element.bind('mouseenter', function(e) {
-                $scope.$apply(function() {
-                    $scope.task.mouseX = e.clientX;
-                    $scope.task.isMouseOver = true;
-                });
-            });
-
-            $element.bind('mouseleave', function() {
-                $scope.$apply(function() {
-                    $scope.task.isMouseOver = false;
-                });
-            });
 
             var handleMove = function(mode, evt) {
                 if ($scope.task.isMoving === false) {

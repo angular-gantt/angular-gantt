@@ -151,7 +151,7 @@
         <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
             <gantt-bounds ng-model="task"></gantt-bounds>
-            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>
+            <gantt-tooltip ng-model="task"></gantt-tooltip>
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
@@ -161,7 +161,7 @@
 
     <!-- Tooltip template -->
     <script type="text/ng-template" id="template/default.tooltip.tmpl.html">
-        <div class="gantt-task-info" ng-style="css">
+        <div ng-show="showTooltips" class="gantt-task-info" ng-style="css">
             <div class="gantt-task-info-content">
                 {{ task.name }}</br>
                 <small>
@@ -175,8 +175,8 @@
 
     <!-- Task bounds template -->
     <script type="text/ng-template" id="template/default.bounds.tmpl.html">
-        <div ng-show='visible' class='gantt-task-bounds'
-             ng-style='getCss()' ng-class='getClass()'></div>
+        <div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds"
+             ng-style="getCss()" ng-class="getClass()"></div>
     </script>
 
     <!-- Task progress template -->

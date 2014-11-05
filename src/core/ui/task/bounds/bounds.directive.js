@@ -16,21 +16,27 @@ gantt.directive('ganttBounds', [function() {
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            $scope.bounds = undefined;
-
             $scope.$watchGroup(['task.est', 'task.lct'], function() {
                 if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
                     $scope.bounds = {};
                     $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
                     $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.lct) - $scope.bounds.left;
-                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
                 } else {
                     $scope.bounds = undefined;
-                    $scope.visible = false;
                 }
             });
 
-            $scope.visible = $scope.bounds !== undefined;
+            $scope.task.$element.bind('mouseenter', function() {
+                $scope.$apply(function() {
+                    $scope.isTaskMouseOver = true;
+                });
+            });
+
+            $scope.task.$element.bind('mouseleave', function() {
+                $scope.$apply(function() {
+                    $scope.isTaskMouseOver = false;
+                });
+            });
 
             $scope.getCss = function() {
                 if ($scope.bounds !== undefined) {
@@ -59,18 +65,6 @@ gantt.directive('ganttBounds', [function() {
                     return 'gantt-task-bounds-in';
                 }
             };
-
-            $scope.$watch('task.isMouseOver', function() {
-                if ($scope.bounds !== undefined && !$scope.task.isMoving) {
-                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
-                }
-            });
-
-            $scope.$watch('task.isMoving', function(newValue) {
-                if ($scope.bounds !== undefined) {
-                    $scope.visible = newValue === true;
-                }
-            });
 
             $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
             $scope.$on('$destroy', function() {

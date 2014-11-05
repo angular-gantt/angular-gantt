@@ -38280,24 +38280,18 @@ gantt.filter('ganttTaskLimit', [function() {
         var res = [];
         for (var i = 0, l = input.length; i < l; i++) {
             var task = input[i];
+            // If the task can be drawn with gantt columns only.
+            if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
 
-            if (task.isMoving) {
-                // If the task is moving, be sure to keep it existing.
-                res.push(task);
-            } else {
-                // If the task can be drawn with gantt columns only.
-                if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
+                var scrollLeft = gantt.$scope.scrollLeft;
+                var scrollWidth = gantt.$scope.scrollWidth;
 
-                    var scrollLeft = gantt.$scope.scrollLeft;
-                    var scrollWidth = gantt.$scope.scrollWidth;
+                // If task has a visible part on the screen
+                if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                    task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                    task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
 
-                    // If task has a visible part on the screen
-                    if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
-
-                        res.push(task);
-                    }
+                    res.push(task);
                 }
             }
 
@@ -38648,21 +38642,27 @@ gantt.directive('ganttBounds', [function() {
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            $scope.bounds = undefined;
-
             $scope.$watchGroup(['task.est', 'task.lct'], function() {
                 if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
                     $scope.bounds = {};
                     $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
                     $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.lct) - $scope.bounds.left;
-                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
                 } else {
                     $scope.bounds = undefined;
-                    $scope.visible = false;
                 }
             });
 
-            $scope.visible = $scope.bounds !== undefined;
+            $scope.task.$element.bind('mouseenter', function() {
+                $scope.$apply(function() {
+                    $scope.isTaskMouseOver = true;
+                });
+            });
+
+            $scope.task.$element.bind('mouseleave', function() {
+                $scope.$apply(function() {
+                    $scope.isTaskMouseOver = false;
+                });
+            });
 
             $scope.getCss = function() {
                 if ($scope.bounds !== undefined) {
@@ -38691,18 +38691,6 @@ gantt.directive('ganttBounds', [function() {
                     return 'gantt-task-bounds-in';
                 }
             };
-
-            $scope.$watch('task.isMouseOver', function() {
-                if ($scope.bounds !== undefined && !$scope.task.isMoving) {
-                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
-                }
-            });
-
-            $scope.$watch('task.isMoving', function(newValue) {
-                if ($scope.bounds !== undefined) {
-                    $scope.visible = newValue === true;
-                }
-            });
 
             $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
             $scope.$on('$destroy', function() {
@@ -38762,6 +38750,8 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
         },
         replace: true,
         controller: ['$scope', '$element', function($scope, $element) {
+            $scope.task.$element = $element;
+
             var resizeAreaWidthBig = 5;
             var resizeAreaWidthSmall = 3;
             var scrollSpeed = 15;
@@ -38794,22 +38784,7 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 } else {
                     $element.css('cursor', '');
                 }
-
-                $scope.task.mouseX = e.clientX;
             }, 5));
-
-            $element.bind('mouseenter', function(e) {
-                $scope.$apply(function() {
-                    $scope.task.mouseX = e.clientX;
-                    $scope.task.isMouseOver = true;
-                });
-            });
-
-            $element.bind('mouseleave', function() {
-                $scope.$apply(function() {
-                    $scope.task.isMouseOver = false;
-                });
-            });
 
             var handleMove = function(mode, evt) {
                 if ($scope.task.isMoving === false) {
@@ -39069,23 +39044,46 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
         controller: ['$scope', '$element', function($scope, $element) {
             var bodyElement = angular.element($document[0].body);
             var parentElement = $element.parent();
-            $scope.visible = false;
+            var showTooltipPromise;
+            var mousePositionX;
+
             $scope.css = {};
 
-            $scope.$watch('task.isMouseOver', function(newValue) {
+            $scope.$watch('isTaskMouseOver', function(newValue) {
+                if (showTooltipPromise) {
+                    $timeout.cancel(showTooltipPromise);
+                }
                 if (newValue === true) {
-                    showTooltip($scope.task.mouseX);
-                } else if (newValue === false && $scope.task.isMoving === false) {
-                    hideTooltip();
+                    showTooltipPromise = $timeout(function() {
+                        showTooltip(mousePositionX);
+                    }, 500);
+                } else {
+                    if (!$scope.task.isMoving) {
+                        hideTooltip();
+                    }
                 }
             });
 
+            $scope.task.$element.bind('mousemove', function(evt) {
+                mousePositionX = evt.clientX;
+            });
+
+            $scope.task.$element.bind('mouseenter', function(evt) {
+                $scope.$apply(function() {
+                    $scope.mouseEnterX = evt.clientX;
+                    $scope.isTaskMouseOver = true;
+                });
+            });
+
+            $scope.task.$element.bind('mouseleave', function() {
+                $scope.$apply(function() {
+                    $scope.mouseEnterX = undefined;
+                    $scope.isTaskMouseOver = false;
+                });
+            });
+
             var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                if ($scope.visible === true) {
-                    updateTooltip(e.clientX);
-                } else {
-                    showTooltip(e.clientX);
-                }
+                updateTooltip(e.clientX);
             }, 5, false));
 
             $scope.$watch('task.isMoving', function(newValue) {
@@ -39103,8 +39101,6 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
             };
 
             var showTooltip = function(x) {
-                $scope.visible = true;
-
                 $timeout(function() {
                     updateTooltip(x);
 
@@ -39115,22 +39111,20 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
             };
 
             var updateTooltip = function(x) {
-                $element.removeClass('gantt-task-infoArrow');
-                $element.removeClass('gantt-task-infoArrowR');
-
                 // Check if info is overlapping with view port
                 if (x + $element[0].offsetWidth > getViewPortWidth()) {
                     $scope.css.left = (x + 20 - $element[0].offsetWidth) + 'px';
                     $element.addClass('gantt-task-infoArrowR'); // Right aligned info
+                    $element.removeClass('gantt-task-infoArrow');
                 } else {
                     $scope.css.left = (x - 20) + 'px';
                     $element.addClass('gantt-task-infoArrow');
+                    $element.removeClass('gantt-task-infoArrowR');
                 }
             };
 
             var hideTooltip = function() {
                 $scope.css.opacity = 0;
-                $scope.visible = false;
             };
 
             $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
@@ -39765,7 +39759,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
         '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
         '            <gantt-bounds ng-model="task"></gantt-bounds>\n' +
-        '            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>\n' +
+        '            <gantt-tooltip ng-model="task"></gantt-tooltip>\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
@@ -39775,7 +39769,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Tooltip template -->\n' +
         '    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">\n' +
-        '        <div class="gantt-task-info" ng-style="css">\n' +
+        '        <div ng-show="showTooltips" class="gantt-task-info" ng-style="css">\n' +
         '            <div class="gantt-task-info-content">\n' +
         '                {{ task.name }}</br>\n' +
         '                <small>\n' +
@@ -39789,8 +39783,8 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '\n' +
         '    <!-- Task bounds template -->\n' +
         '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
-        '        <div ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
-        '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
+        '        <div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds"\n' +
+        '             ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task progress template -->\n' +
