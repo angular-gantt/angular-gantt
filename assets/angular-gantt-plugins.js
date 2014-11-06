@@ -6,18 +6,6 @@ License: MIT.
 Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
-angular.module('gantt.0.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.1.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.2.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/default.taskBounds.tmpl.html',
         '<div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()">\n' +
@@ -27,6 +15,12 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
 
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
 
+}]);
+
+angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/progress/default.taskProgress.tmpl.html',
+        '<div ng-cloak class=\'gantt-task-progress\' ng-style="getCss()" ng-class="task.progress.classes"></div>\n' +
+        '');
 }]);
 
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {

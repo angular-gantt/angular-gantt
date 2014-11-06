@@ -41,7 +41,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         });
 
         this.gantt.api.data.on.load(this.gantt.$scope, function() {
-            if (self.from > self.gantt.rowsManager.getDefaultFrom() ||
+            if (self.from === undefined || self.to === undefined ||
+                self.from > self.gantt.rowsManager.getDefaultFrom() ||
                 self.to < self.gantt.rowsManager.getDefaultTo()) {
                 self.generateColumns();
             }

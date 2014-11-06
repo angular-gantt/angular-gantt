@@ -111,7 +111,7 @@ gantt.factory('Gantt', [
         // Adds or update rows and tasks.
         Gantt.prototype.loadData = function(data) {
             if (!angular.isArray(data)) {
-                data = [data];
+                data = data !== undefined ? [data] : [];
             }
 
             for (var i = 0, l = data.length; i < l; i++) {
@@ -125,7 +125,7 @@ gantt.factory('Gantt', [
         // If a row has no tasks inside the complete row will be deleted.
         Gantt.prototype.removeData = function(data) {
             if (!angular.isArray(data)) {
-                data = [data];
+                data = data !== undefined ? [data] : [];
             }
 
             this.rowsManager.removeData(data);

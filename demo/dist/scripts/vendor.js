@@ -36793,7 +36793,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         });
 
         this.gantt.api.data.on.load(this.gantt.$scope, function() {
-            if (self.from > self.gantt.rowsManager.getDefaultFrom() ||
+            if (self.from === undefined || self.to === undefined ||
+                self.from > self.gantt.rowsManager.getDefaultFrom() ||
                 self.to < self.gantt.rowsManager.getDefaultTo()) {
                 self.generateColumns();
             }
@@ -37255,7 +37256,7 @@ gantt.factory('Gantt', [
         // Adds or update rows and tasks.
         Gantt.prototype.loadData = function(data) {
             if (!angular.isArray(data)) {
-                data = [data];
+                data = data !== undefined ? [data] : [];
             }
 
             for (var i = 0, l = data.length; i < l; i++) {
@@ -37269,7 +37270,7 @@ gantt.factory('Gantt', [
         // If a row has no tasks inside the complete row will be deleted.
         Gantt.prototype.removeData = function(data) {
             if (!angular.isArray(data)) {
-                data = [data];
+                data = data !== undefined ? [data] : [];
             }
 
             this.rowsManager.removeData(data);
@@ -38281,23 +38282,27 @@ gantt.filter('ganttTaskLimit', [function() {
 
     return function(input, gantt) {
         var res = [];
-        for (var i = 0, l = input.length; i < l; i++) {
-            var task = input[i];
-            // If the task can be drawn with gantt columns only.
-            if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
+        var firstColumn = gantt.columnsManager.getFirstColumn();
+        var lastColumn = gantt.columnsManager.getLastColumn();
 
-                var scrollLeft = gantt.$scope.scrollLeft;
-                var scrollWidth = gantt.$scope.scrollWidth;
+        if (firstColumn !== undefined && lastColumn !== undefined) {
+            for (var i = 0, l = input.length; i < l; i++) {
+                var task = input[i];
+                // If the task can be drawn with gantt columns only.
+                if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                // If task has a visible part on the screen
-                if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                    task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                    task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+                    var scrollLeft = gantt.$scope.scrollLeft;
+                    var scrollWidth = gantt.$scope.scrollWidth;
 
-                    res.push(task);
+                    // If task has a visible part on the screen
+                    if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                        res.push(task);
+                    }
                 }
             }
-
         }
 
         return res;
@@ -39358,18 +39363,6 @@ License: MIT.
 Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
-angular.module('gantt.0.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.1.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.2.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/default.taskBounds.tmpl.html',
         '<div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()">\n' +
@@ -39379,6 +39372,12 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
 
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
 
+}]);
+
+angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/progress/default.taskProgress.tmpl.html',
+        '<div ng-cloak class=\'gantt-task-progress\' ng-style="getCss()" ng-class="task.progress.classes"></div>\n' +
+        '');
 }]);
 
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {

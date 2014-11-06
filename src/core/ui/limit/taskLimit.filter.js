@@ -5,23 +5,27 @@ gantt.filter('ganttTaskLimit', [function() {
 
     return function(input, gantt) {
         var res = [];
-        for (var i = 0, l = input.length; i < l; i++) {
-            var task = input[i];
-            // If the task can be drawn with gantt columns only.
-            if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
+        var firstColumn = gantt.columnsManager.getFirstColumn();
+        var lastColumn = gantt.columnsManager.getLastColumn();
 
-                var scrollLeft = gantt.$scope.scrollLeft;
-                var scrollWidth = gantt.$scope.scrollWidth;
+        if (firstColumn !== undefined && lastColumn !== undefined) {
+            for (var i = 0, l = input.length; i < l; i++) {
+                var task = input[i];
+                // If the task can be drawn with gantt columns only.
+                if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                // If task has a visible part on the screen
-                if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                    task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                    task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+                    var scrollLeft = gantt.$scope.scrollLeft;
+                    var scrollWidth = gantt.$scope.scrollWidth;
 
-                    res.push(task);
+                    // If task has a visible part on the screen
+                    if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                        res.push(task);
+                    }
                 }
             }
-
         }
 
         return res;
