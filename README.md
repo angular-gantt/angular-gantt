@@ -69,12 +69,14 @@ other dependencies declared in your project.
 
 4. Add the [assets/angular-gantt.js](assets/angular-gantt.js) and [assets/gantt.css](assets/gantt.css) files to your HTML code.
 
-        <head>
-            <link rel="stylesheet" href="assets/gantt.css"/>
-        </head>
-        <body>
-            <script src="assets/angular-gantt.js"></script>
-        </body>
+  ```html
+  <head>
+    <link rel="stylesheet" href="assets/gantt.css"/>
+  </head>
+  <body>
+    <script src="assets/angular-gantt.js"></script>
+  </body>
+  ```
 
 5. For a sample app see the files [demo/app/index.html](demo/app/index.html) and 
    [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js).
@@ -83,10 +85,15 @@ other dependencies declared in your project.
 
 1. Include the module `gantt` to your Angular app modules.
 
-        var myApp = angular.module('myApp', ['gantt']);
+  ```js
+  var myApp = angular.module('myApp', ['gantt']);
+  ```
 2. Put directive `gantt` into your HTML code at the position you would like to show the Gantt chart.
 
-        <gantt api=ganttApi></gantt>
+  ```html
+  <gantt api=ganttApi></gantt>
+  ```
+
 3. Any operation on the Gantt (like loading data) must be made after the chart has been initialized. 
 The event `core.on.ready` can be used to get notified as soon as it's ready.
 
