@@ -41,7 +41,6 @@ gantt.factory('GanttScroll', [function() {
         this.$element.triggerHandler('scroll');
     };
 
-    // Tries to center the specified date
     /**
      * Scroll to a date
      *

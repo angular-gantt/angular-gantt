@@ -16,6 +16,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.headers = {};
         this.visibleHeaders = {};
 
+        this.scrollAnchor = undefined;
+
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
         this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function() {
@@ -51,8 +53,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             self.gantt.rowsManager.sortRows();
         });
 
-        this.scrollAnchor = undefined;
-
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
 
@@ -65,6 +65,17 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             var center = el.scrollLeft + el.offsetWidth / 2;
 
             this.scrollAnchor = this.gantt.getDateByPosition(center);
+        }
+    };
+
+    ColumnsManager.prototype.scrollToScrollAnchor = function() {
+        var self = this;
+
+        if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+            // Ugly but prevents screen flickering (unlike $timeout)
+            this.gantt.$scope.$$postDigest(function() {
+                self.gantt.api.scroll.toDate(self.scrollAnchor);
+            });
         }
     };
 
@@ -127,6 +138,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.nextColumns = [];
 
         this.updateColumnsMeta();
+        this.scrollToScrollAnchor();
         this.gantt.api.columns.raise.generate(this.columns, this.headers);
     };
 

@@ -1194,6 +1194,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.headers = {};
         this.visibleHeaders = {};
 
+        this.scrollAnchor = undefined;
+
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
         this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function() {
@@ -1229,8 +1231,6 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             self.gantt.rowsManager.sortRows();
         });
 
-        this.scrollAnchor = undefined;
-
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
 
@@ -1243,6 +1243,17 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
             var center = el.scrollLeft + el.offsetWidth / 2;
 
             this.scrollAnchor = this.gantt.getDateByPosition(center);
+        }
+    };
+
+    ColumnsManager.prototype.scrollToScrollAnchor = function() {
+        var self = this;
+
+        if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+            // Ugly but prevents screen flickering (unlike $timeout)
+            this.gantt.$scope.$$postDigest(function() {
+                self.gantt.api.scroll.toDate(self.scrollAnchor);
+            });
         }
     };
 
@@ -1305,6 +1316,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.nextColumns = [];
 
         this.updateColumnsMeta();
+        this.scrollToScrollAnchor();
         this.gantt.api.columns.raise.generate(this.columns, this.headers);
     };
 
@@ -2419,7 +2431,6 @@ gantt.factory('GanttScroll', [function() {
         this.$element.triggerHandler('scroll');
     };
 
-    // Tries to center the specified date
     /**
      * Scroll to a date
      *
@@ -2966,17 +2977,6 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(deb
                     $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
                 }
             }, 5));
-
-            $scope.$watch('gantt.columns.length', function(newValue) {
-                if (newValue > 0 && $scope.gantt.scrollAnchor !== undefined) {
-                    // Ugly but prevents screen flickering (unlike $timeout)
-                    $scope.$$postDigest(function() {
-                        $scope.gantt.scroll.scrollToDate($scope.gantt.scrollAnchor);
-                    });
-                }
-            });
-
-
 
             $scope.getScrollableCss = function() {
                 var css = {};

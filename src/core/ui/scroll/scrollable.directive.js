@@ -67,17 +67,6 @@ gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(deb
                 }
             }, 5));
 
-            $scope.$watch('gantt.columns.length', function(newValue) {
-                if (newValue > 0 && $scope.gantt.scrollAnchor !== undefined) {
-                    // Ugly but prevents screen flickering (unlike $timeout)
-                    $scope.$$postDigest(function() {
-                        $scope.gantt.scroll.scrollToDate($scope.gantt.scrollAnchor);
-                    });
-                }
-            });
-
-
-
             $scope.getScrollableCss = function() {
                 var css = {};
 
