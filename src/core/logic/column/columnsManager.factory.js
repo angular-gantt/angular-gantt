@@ -39,7 +39,11 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         });
 
         this.gantt.api.data.on.load(this.gantt.$scope, function() {
-            self.generateColumns();
+            if (self.from > self.gantt.rowsManager.getDefaultFrom() ||
+                self.to < self.gantt.rowsManager.getDefaultTo()) {
+                self.generateColumns();
+            }
+
             self.gantt.rowsManager.sortRows();
         });
 

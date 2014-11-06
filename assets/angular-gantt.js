@@ -1217,7 +1217,11 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         });
 
         this.gantt.api.data.on.load(this.gantt.$scope, function() {
-            self.generateColumns();
+            if (self.from > self.gantt.rowsManager.getDefaultFrom() ||
+                self.to < self.gantt.rowsManager.getDefaultTo()) {
+                self.generateColumns();
+            }
+
             self.gantt.rowsManager.sortRows();
         });
 
@@ -3752,7 +3756,7 @@ gantt.factory('ganttSmartEvent', [function() {
 }]);
 angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/default.gantt.tmpl.html',
-        '<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener>\n' +
+        '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
         '    <gantt-labels>\n' +
         '        <div class="gantt-labels-header">\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
