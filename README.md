@@ -187,17 +187,23 @@ review those projects documentations.
     
   See [objects section](#objects).
 
-- **filter-task**, **filter-task-comparator**
+- <a name="attribute-filter-task"></a>**filter-task**, **filter-task-comparator**
 
   Expression to filter on visible tasks using angularJS `$filter('filter')`. 
-  Value of `filter-task` is `expression`, and `filter-task-comparator` is `comparator`
+  Value of `filter-task` is `expression` (`string`|`Object`|`function(value, index)`)), and `filter-task-comparator`
+  is `comparator` (`function(actual, expected)`|`boolean`|`undefined`)
   as defined in [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter).
 
-- **filter-row**, **filter-row-comparator**
+  When using a function, call [api.rows.refresh()](#api-rows-refresh) to refresh filtering when required.
+
+- <a name="attribute-filter-row"></a>**filter-row**, **filter-row-comparator**
 
   Expression to filter on visible rows using angularJS `$filter('filter')`.
-  Value of `filter-row` is `expression`, and `filter-row-comparator` is `comparator`
+  Value of `filter-row` is `expression` (`string`|`Object`|`function(value, index)`)), and `filter-row-comparator`
+  is `comparator` (`function(actual, expected)`|`boolean`|`undefined`)
   as defined in  [angularJS filter filter](https://docs.angularjs.org/api/ng/filter/filter)).
+
+  When using a function, call [api.rows.refresh()](#api-rows-refresh) to refresh filtering when required.
 
 - **from-date**
 
@@ -574,6 +580,11 @@ api.featureName.raise.eventName(data);
 - **api.columns.generate()**
 
   Generates all columns and display them.
+  
+- <a name="api-columns-refresh"></a>**api.columns.refresh()**
+  
+  Refresh columns and current date. It will also apply filters, and may be required if you use 
+  [filter-task](#attribute-filter-task) or [filter-row](#attribute-filter-row) with a function.
 
 ##### rows
 
@@ -584,6 +595,11 @@ api.featureName.raise.eventName(data);
 - **api.rows.swap(row1, row2)**
 
   Swap two rows. `sort-mode` must be equals to `custom`.
+
+- <a name="api-rows-refresh"></a>**api.rows.refresh()**
+
+  Refresh rows. It will also apply filters, and may be required if you use [filter-task](#attribute-filter-task) or
+  [filter-row](#attribute-filter-row) with a function.
 
 ##### timeframes
 

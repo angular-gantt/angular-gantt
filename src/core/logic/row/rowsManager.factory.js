@@ -30,11 +30,11 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
         this.gantt.api.registerMethod('rows', 'swap', RowsManager.prototype.swapRows, this);
+        this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
 
         this.gantt.api.registerEvent('tasks', 'add');
         this.gantt.api.registerEvent('tasks', 'change');
         this.gantt.api.registerEvent('tasks', 'remove');
-
         this.gantt.api.registerEvent('tasks', 'filter');
 
         this.gantt.api.registerEvent('rows', 'add');

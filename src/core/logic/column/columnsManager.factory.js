@@ -55,6 +55,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
         this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
+        this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
 
         this.gantt.api.registerEvent('columns', 'generate');
     };
