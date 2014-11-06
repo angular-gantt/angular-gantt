@@ -7,7 +7,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
 
-gantt.directive('ganttSortable', ['$document', function($document) {
+angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', function($document) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 

@@ -1,16 +1,17 @@
 'use strict';
-gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
     return {
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'template/default.tooltip.tmpl.html';
+                return 'plugins/tooltips/default.tooltip.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
         },
+        scope: true,
         replace: true,
         controller: ['$scope', '$element', function($scope, $element) {
             var bodyElement = angular.element($document[0].body);
@@ -78,6 +79,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
                     $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
                     $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
                     $scope.css.opacity = 1;
+                    $scope.css['z-index'] = 10;
                 }, 0, true);
             };
 
@@ -96,6 +98,7 @@ gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'gant
 
             var hideTooltip = function() {
                 $scope.css.opacity = 0;
+                $scope.css['z-index'] = -10;
             };
 
             $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);

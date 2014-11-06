@@ -1,0 +1,10 @@
+<div ng-show="showTooltips" class="gantt-task-info" ng-cloak ng-style="css">
+    <div class="gantt-task-info-content">
+        {{ task.name }}</br>
+        <small>
+            {{
+            task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + ' - ' + task.getToLabel());
+            }}
+        </small>
+    </div>
+</div>

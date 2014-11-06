@@ -8,12 +8,17 @@ module.exports = function(grunt) {
             options: {
                 quoteChar: '\'',
                 indentString: '    ',
-                module: 'ganttTemplates',
+                module: 'gantt.templates',
                 singleModule: true
             },
-            main: {
+            core: {
                 src: ['src/template/**/*.html'],
-                dest: '.tmp/generated/html2js.js'
+                dest: '.tmp/generated/core/html2js.js'
+            },
+            tooltips: {
+                module: 'gantt.tooltips.templates',
+                src: ['src/plugins/tooltips/**/*.html'],
+                dest: '.tmp/generated/plugins/tooltips/html2js.js'
             }
         },
         concat: {
@@ -35,20 +40,24 @@ module.exports = function(grunt) {
                 }
             },
             core: {
-                src: ['src/core/**/*.js', '.tmp/generated/**/*.js'],
+                src: ['src/core/*.js', 'src/core/**/*.js', '.tmp/generated/core/**/*.js'],
                 dest: 'assets/<%= pkg.name %>.js'
             },
             plugins: {
-                src: ['src/plugins/**/*.js'],
+                src: ['.tmp/generated/plugins/**/*.js', 'src/plugins/*.js', 'src/plugins/**/*.js'],
                 dest: 'assets/<%= pkg.name %>-plugins.js'
             },
             sortable: {
-                src: ['src/plugins/sortable/*.js'],
+                src: ['src/plugins/sortable.js', 'src/plugins/sortable/**/*.js'],
                 dest: 'assets/<%= pkg.name %>-sortable-plugin.js'
             },
             movable: {
-                src: ['src/plugins/movable/*.js'],
+                src: ['src/plugins/movable/movable.js', 'src/plugins/movable/**/*.js'],
                 dest: 'assets/<%= pkg.name %>-movable-plugin.js'
+            },
+            tooltips: {
+                src: ['.tmp/generated/plugins/tooltips/**/*.js', 'src/plugins/tooltips.js', 'src/plugins/tooltips/**/*.js'],
+                dest: 'assets/<%= pkg.name %>-tooltips-plugin.js'
             }
         },
         uglify: {
@@ -74,6 +83,11 @@ module.exports = function(grunt) {
             movable: {
                 files: {
                     'assets/<%= pkg.name %>-movable.min.js': ['<%= concat.movable.dest %>']
+                }
+            },
+            tooltips: {
+                files: {
+                    'assets/<%= pkg.name %>-tooltips.min.js': ['<%= concat.tooltips.dest %>']
                 }
             }
 

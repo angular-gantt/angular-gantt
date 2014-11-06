@@ -8,7 +8,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 'use strict';
 
 
-var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
+var gantt = angular.module('gantt', ['gantt.templates', 'angularMoment']);
 gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
     return {
         restrict: 'EA',
@@ -3167,8 +3167,6 @@ gantt.directive('ganttTask', [function() {
         },
         replace: true,
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.task.$element = $element;
-
             $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
             $scope.$on('$destroy', function() {
                 $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
@@ -3178,108 +3176,24 @@ gantt.directive('ganttTask', [function() {
 }]);
 
 
-gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
-    // This tooltip displays more information about a task
-
+gantt.directive('ganttTaskContent', [function() {
     return {
         restrict: 'E',
+        require: '^ganttTask',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'template/default.tooltip.tmpl.html';
+                return 'template/default.taskContent.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
         },
         replace: true,
         controller: ['$scope', '$element', function($scope, $element) {
-            var bodyElement = angular.element($document[0].body);
-            var parentElement = $element.parent();
-            var showTooltipPromise;
-            var mousePositionX;
+            $scope.task.$element = $element;
 
-            $scope.css = {};
-
-            $scope.$watch('isTaskMouseOver', function(newValue) {
-                if (showTooltipPromise) {
-                    $timeout.cancel(showTooltipPromise);
-                }
-                if (newValue === true) {
-                    showTooltipPromise = $timeout(function() {
-                        showTooltip(mousePositionX);
-                    }, 500);
-                } else {
-                    if (!$scope.task.isMoving) {
-                        hideTooltip();
-                    }
-                }
-            });
-
-            $scope.task.$element.bind('mousemove', function(evt) {
-                mousePositionX = evt.clientX;
-            });
-
-            $scope.task.$element.bind('mouseenter', function(evt) {
-                $scope.$apply(function() {
-                    $scope.mouseEnterX = evt.clientX;
-                    $scope.isTaskMouseOver = true;
-                });
-            });
-
-            $scope.task.$element.bind('mouseleave', function() {
-                $scope.$apply(function() {
-                    $scope.mouseEnterX = undefined;
-                    $scope.isTaskMouseOver = false;
-                });
-            });
-
-            var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                updateTooltip(e.clientX);
-            }, 5, false));
-
-            $scope.$watch('task.isMoving', function(newValue) {
-                if (newValue === true) {
-                    mouseMoveHandler.bind();
-                } else if (newValue === false) {
-                    mouseMoveHandler.unbind();
-                    hideTooltip();
-                }
-            });
-
-            var getViewPortWidth = function() {
-                var d = $document[0];
-                return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
-            };
-
-            var showTooltip = function(x) {
-                $timeout(function() {
-                    updateTooltip(x);
-
-                    $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
-                    $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
-                    $scope.css.opacity = 1;
-                }, 0, true);
-            };
-
-            var updateTooltip = function(x) {
-                // Check if info is overlapping with view port
-                if (x + $element[0].offsetWidth > getViewPortWidth()) {
-                    $scope.css.left = (x + 20 - $element[0].offsetWidth) + 'px';
-                    $element.addClass('gantt-task-infoArrowR'); // Right aligned info
-                    $element.removeClass('gantt-task-infoArrow');
-                } else {
-                    $scope.css.left = (x - 20) + 'px';
-                    $element.addClass('gantt-task-infoArrow');
-                    $element.removeClass('gantt-task-infoArrowR');
-                }
-            };
-
-            var hideTooltip = function() {
-                $scope.css.opacity = 0;
-            };
-
-            $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
+            $scope.gantt.api.directives.raise.new('ganttTaskContent', $scope, $element);
             $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
+                $scope.gantt.api.directives.raise.destroy('ganttTaskContent', $scope, $element);
             });
         }]
     };
@@ -3754,7 +3668,7 @@ gantt.factory('ganttSmartEvent', [function() {
 
     return smartEvent;
 }]);
-angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/default.gantt.tmpl.html',
         '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
         '    <gantt-labels>\n' +
@@ -3806,9 +3720,6 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '                     ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'px\', \'width\': timespan.width +\'px\', \'z-index\': (timespan.priority || 0)}"\n' +
         '                     ng-class="timespan.classes"\n' +
         '                     ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
-        '                    <gantt-tooltip ng-model="timespan" date-format="\'MMM d\'">\n' +
-        '                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>\n' +
-        '                    </gantt-tooltip>\n' +
         '                </div>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
         '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>\n' +
@@ -3910,26 +3821,18 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
         '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
-        '            <gantt-bounds ng-model="task"></gantt-bounds>\n' +
-        '            <gantt-tooltip ng-model="task"></gantt-tooltip>\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
-        '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
+        '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
+        '            <gantt-bounds ng-model="task"></gantt-bounds>\n' +
         '            <gantt-task-progress ng-if="task.progress !== undefined"></gantt-task-progress>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <!-- Tooltip template -->\n' +
-        '    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">\n' +
-        '        <div ng-show="showTooltips" class="gantt-task-info" ng-style="css">\n' +
-        '            <div class="gantt-task-info-content">\n' +
-        '                {{ task.name }}</br>\n' +
-        '                <small>\n' +
-        '                    {{\n' +
-        '                    task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + \' - \' + task.getToLabel());\n' +
-        '                    }}\n' +
-        '                </small>\n' +
-        '            </div>\n' +
+        '    <!-- Task content template -->\n' +
+        '    <script type="text/ng-template" id="template/default.taskContent.tmpl.html">\n' +
+        '        <div class="gantt-task-content-container">\n' +
+        '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -3943,6 +3846,7 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    <script type="text/ng-template" id="template/default.taskProgress.tmpl.html">\n' +
         '        <div class=\'gantt-task-progress\' ng-style="getCss()" ng-class="progress.classes"></div>\n' +
         '    </script>\n' +
+        '\n' +
         '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +

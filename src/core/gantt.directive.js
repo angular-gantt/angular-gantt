@@ -1,6 +1,6 @@
 'use strict';
 /*global gantt: true*/
-var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
+var gantt = angular.module('gantt', ['gantt.templates', 'angularMoment']);
 gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
     return {
         restrict: 'EA',

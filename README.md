@@ -360,10 +360,6 @@ review those projects documentations.
   }
   ```
 
-- **show-tooltips** (default: `true`)
-
-  Show tooltip when the user hovers over a task.
-
 - **sort-mode** (default: `name`)
 
   Sorts the rows by given expression.
@@ -721,11 +717,30 @@ Each plugin is available under [assets](assets/) folder as a standalone `angular
 
 Plugins are also available as a single packaged [angular-gantt-plugins.js](assets/angular-gantt-plugins.js) file.
 
+To use a plugin:
+ - Add the plugin module dependency to your application module in javascript.
+ 
+ ```js
+ // To load <plugin> into your application
+ angular.module('myApp', ['gantt', 'gantt.<plugin>']);
+ ```
+ - Add the plugin directive as a child element of the gantt in html.
+ 
+ ```html
+ <gantt>
+     <gantt-plugin></gantt-plugin>
+ </gantt>
+ ```
+
 #### Sortable
 
 Sort rows by drag & drop on rows label.
 
 ```js
+angular.module('myApp', ['gantt', 'gantt.sortable']);
+```
+
+```html
 <gantt>
     <gantt-sortable></gantt-sortable>
 </gantt>
@@ -736,11 +751,29 @@ Sort rows by drag & drop on rows label.
 Move and resize rows.
 
 ```js
+angular.module('myApp', ['gantt', 'gantt.movable']);
+```
+
+```html
 <gantt>
     <gantt-movable allow-moving="true" 
                    allow-resizing="true"
                    allow-row-switching="true">
     <gantt-movable/>
+</gantt>
+```
+
+#### Tooltips
+
+Display tooltips when moving mouse over a task.
+
+```js
+angular.module('myApp', ['gantt', 'gantt.tooltips']);
+```
+
+```html
+<gantt>
+    <gantt-tooltips><gantt-tooltips/>
 </gantt>
 ```
 

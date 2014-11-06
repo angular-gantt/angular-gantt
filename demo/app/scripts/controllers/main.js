@@ -218,7 +218,7 @@ angular.module('angularGanttDemoApp')
 
         // Event handler
         var logColumnsGenerateEvent = function(columns, headers) {
-            $log.log('[Event] ' + 'columns.on.generate' + ': ' + columns + ', ' + headers);
+            $log.log('[Event] ' + 'columns.on.generate' + ': ' + columns.length + ' column(s), ' + headers.length + ' header(s)');
         };
 
         // Event handler

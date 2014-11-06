@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('ganttMovableOptions', [function() {
+angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
     return {
         initialize: function(options) {
 

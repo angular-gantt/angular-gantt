@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', '$window', '$document', '$timeout',
+angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', '$window', '$document', '$timeout',
     function(mouseButton, mouseOffset, debounce, smartEvent, movableOptions, $window, $document, $timeout) {
         // Provides moving and resizing of tasks
         return {
@@ -19,6 +19,7 @@ gantt.directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttD
                 api.registerEvent('tasks', 'resize');
                 api.registerEvent('tasks', 'resizeBegin');
                 api.registerEvent('tasks', 'resizeEnd');
+                api.registerEvent('tasks', 'change');
 
                 if (scope.options && typeof(scope.options.movable) === 'object') {
                     for (var option in scope.options.movable) {
@@ -29,7 +30,7 @@ gantt.directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttD
                 movableOptions.initialize(scope);
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                    if (directiveName === 'ganttTask') {
+                    if (directiveName === 'ganttTaskContent') {
                         var resizeAreaWidthBig = 5;
                         var resizeAreaWidthSmall = 3;
                         var scrollSpeed = 15;

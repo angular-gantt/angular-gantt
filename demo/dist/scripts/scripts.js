@@ -10,6 +10,9 @@
  */
 angular.module('angularGanttDemoApp', [
     'gantt', // angular-gantt.
+    'gantt.sortable',
+    'gantt.movable',
+    'gantt.tooltips',
     'mgcrea.ngStrap' // handle bootstrap properly in angularJS applications.
 ]).config(['$compileProvider', function(/*$compileProvider*/) {
     // Wait angular.js#9515 fix to disable debug info.
@@ -237,7 +240,7 @@ angular.module('angularGanttDemoApp')
 
         // Event handler
         var logColumnsGenerateEvent = function(columns, headers) {
-            $log.log('[Event] ' + 'columns.on.generate' + ': ' + columns + ', ' + headers);
+            $log.log('[Event] ' + 'columns.on.generate' + ': ' + columns.length + ' column(s), ' + headers.length + ' header(s)');
         };
 
         // Event handler

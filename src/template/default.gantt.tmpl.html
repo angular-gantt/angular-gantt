@@ -48,9 +48,6 @@
                      ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'px', 'width': timespan.width +'px', 'z-index': (timespan.priority || 0)}"
                      ng-class="timespan.classes"
                      ng-repeat="timespan in gantt.timespansManager.timespans">
-                    <gantt-tooltip ng-model="timespan" date-format="'MMM d'">
-                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>
-                    </gantt-tooltip>
                 </div>
                 <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
                     <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>
@@ -152,26 +149,18 @@
     <script type="text/ng-template" id="template/default.task.tmpl.html">
         <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
              ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
-            <gantt-bounds ng-model="task"></gantt-bounds>
-            <gantt-tooltip ng-model="task"></gantt-tooltip>
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
-            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
+            <gantt-task-content></gantt-task-content>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
+            <gantt-bounds ng-model="task"></gantt-bounds>
             <gantt-task-progress ng-if="task.progress !== undefined"></gantt-task-progress>
         </div>
     </script>
 
-    <!-- Tooltip template -->
-    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">
-        <div ng-show="showTooltips" class="gantt-task-info" ng-style="css">
-            <div class="gantt-task-info-content">
-                {{ task.name }}</br>
-                <small>
-                    {{
-                    task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + ' - ' + task.getToLabel());
-                    }}
-                </small>
-            </div>
+    <!-- Task content template -->
+    <script type="text/ng-template" id="template/default.taskContent.tmpl.html">
+        <div class="gantt-task-content-container">
+            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
         </div>
     </script>
 
@@ -185,6 +174,7 @@
     <script type="text/ng-template" id="template/default.taskProgress.tmpl.html">
         <div class='gantt-task-progress' ng-style="getCss()" ng-class="progress.classes"></div>
     </script>
+
 
     <!-- Row template -->
     <script type="text/ng-template" id="template/default.row.tmpl.html">
