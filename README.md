@@ -449,8 +449,6 @@ review those projects documentations.
     color: "..." , // Color of the task in HEX format (Optional).
     classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
     priority: <Number> // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
-    est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
-    lct: <Date> // See "est".
     data: <Any> // Custom object. Use this to attach your own data (Optional).
     progress: <Number|Progress> // The progress of this task, as a percent number or a <Progress> object (Optional).
 }
@@ -823,6 +821,33 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
 - **api.tasks.on.resizeBegin(task)**, **api.tasks.on.resize(task)**, **api.tasks.on.resizeEnd(task)**
 
   A task is starting to resize, moving or has stopped moving.
+
+#### Bounds
+
+Display bounds when moving mouse over a task.
+
+```js
+angular.module('myApp', ['gantt', 'gantt.tooltips']);
+```
+
+```html
+<gantt>
+    <gantt-tooltips><gantt-tooltips/>
+</gantt>
+```
+
+To define bounds on a task, you need to add `est` and `lct` property on task object model.
+
+```js
+{
+    id: "...",
+    name: "...",
+    from: <Date>,
+    to: <Date>,
+    est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
+    lct: <Date> // See "est".
+}
+```
 
 ### <a name="contribute"></a> Contribute
 

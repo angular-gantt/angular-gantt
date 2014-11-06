@@ -1,7 +1,7 @@
 'use strict';
 /*jshint undef:false */
 module.exports = function(grunt) {
-    var plugins = ['sortable', 'movable', 'tooltips'];
+    var plugins = ['sortable', 'movable', 'tooltips', 'bounds'];
 
     var config = {
         pkg: grunt.file.readJSON('package.json'),

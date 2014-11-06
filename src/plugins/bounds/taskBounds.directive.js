@@ -1,18 +1,18 @@
 'use strict';
-gantt.directive('ganttBounds', [function() {
+gantt.directive('ganttTaskBounds', [function() {
     // Displays a box representing the earliest allowable start time and latest completion time for a job
 
     return {
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bounds.tmpl.html';
+                return 'plugins/bounds/default.taskBounds.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
         },
         replace: true,
-        scope: {task: '=ngModel'},
+        scope: true,
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 

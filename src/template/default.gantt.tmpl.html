@@ -152,7 +152,6 @@
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <gantt-task-content></gantt-task-content>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
-            <gantt-bounds ng-model="task"></gantt-bounds>
             <gantt-task-progress ng-if="task.progress !== undefined"></gantt-task-progress>
         </div>
     </script>
@@ -162,12 +161,6 @@
         <div class="gantt-task-content-container">
             <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
         </div>
-    </script>
-
-    <!-- Task bounds template -->
-    <script type="text/ng-template" id="template/default.bounds.tmpl.html">
-        <div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds"
-             ng-style="getCss()" ng-class="getClass()"></div>
     </script>
 
     <!-- Task progress template -->
