@@ -18,7 +18,7 @@ gantt.factory('Gantt', [
 
             this.api.registerEvent('data', 'load');
             this.api.registerEvent('data', 'remove');
-            this.api.registerMethod('data', 'clear', this.clearData, this);
+            this.api.registerEvent('data', 'clear', this.clearData, this);
 
             this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
             this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
