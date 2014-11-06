@@ -18,7 +18,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             self.updateVisibleTasks();
         });
 
-        this.gantt.$scope.$watch(['filterRow', 'filterRowComparator'], function() {
+        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function() {
             self.updateVisibleRows();
         });
 
