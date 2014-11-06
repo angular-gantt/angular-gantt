@@ -1,51 +1,65 @@
 'use strict';
 gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, moment, $filter) {
-    var Row = function(id, rowsManager, name, order, height, color, classes, data) {
-        this.id = id;
+    var Row = function(rowsManager, model) {
         this.rowsManager = rowsManager;
+        this.model = model;
+
+        this.from = undefined;
+        this.to = undefined;
+
+        this.tasksMap = {};
+        this.tasks = [];
+        this.filteredTasks = [];
+        this.visibleTasks = [];
+
+        /*
+        this.id = id;
         this.name = name;
         this.order = order;
         this.height = height;
         this.color = color;
         this.classes = classes;
-        this.from = undefined;
-        this.to = undefined;
-        this.tasksMap = {};
-        this.tasks = [];
-        this.filteredTasks = [];
-        this.visibleTasks = [];
         this.data = data;
+        */
     };
 
     // Adds a task to a specific row. Merges the task if there is already one with the same id
-    Row.prototype.addTask = function(taskData) {
+    Row.prototype.addTask = function(taskModel) {
         // Copy to new task (add) or merge with existing (update)
-        var task;
+        var task, isUpdate;
 
-        if (taskData.id in this.tasksMap) {
-            task = this.tasksMap[taskData.id];
-            task.copy(taskData);
+        if (taskModel.id in this.tasksMap) {
+            task = this.tasksMap[taskModel.id];
+            task.model = taskModel;
+            isUpdate = true;
         } else {
-            task = new Task(taskData.id, this, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.progress);
-            this.tasksMap[taskData.id] = task;
+            task = new Task(this, taskModel);
+            this.tasksMap[taskModel.id] = task;
             this.tasks.push(task);
             this.filteredTasks.push(task);
             this.visibleTasks.push(task);
+            isUpdate = true;
         }
 
         this.sortTasks();
         this.setFromToByTask(task);
-        this.rowsManager.gantt.api.tasks.raise.add(task);
+
+        if (isUpdate) {
+            this.rowsManager.gantt.api.tasks.raise.change(task);
+        } else {
+            this.rowsManager.gantt.api.tasks.raise.add(task);
+        }
+
         return task;
     };
 
     // Removes the task from the existing row and adds it to he current one
     Row.prototype.moveTaskToRow = function(task) {
         var oldRow = task.row;
-        oldRow.removeTask(task.id, true);
+        oldRow.removeTask(task.model.id, true);
         oldRow.updateVisibleTasks();
 
-        this.tasksMap[task.id] = task;
+        this.tasksMap[task.model.id] = task;
         this.tasks.push(task);
         this.filteredTasks.push(task);
         this.visibleTasks.push(task);
@@ -63,7 +77,19 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
     Row.prototype.updateVisibleTasks = function() {
         if (this.rowsManager.gantt.$scope.filterTask) {
-            this.filteredTasks = $filter('filter')(this.tasks, this.rowsManager.gantt.$scope.filterTask, this.rowsManager.gantt.$scope.filterTaskComparator);
+            var filterTask = this.rowsManager.gantt.$scope.filterTask;
+            if (typeof(filterTask) === 'object') {
+                filterTask = {model: filterTask};
+            }
+
+            var filterTaskComparator = this.rowsManager.gantt.$scope.filterTaskComparator;
+            if (typeof(filterTaskComparator) === 'function') {
+                filterTaskComparator = function(actual, expected) {
+                    return this.rowsManager.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                };
+            }
+
+            this.filteredTasks = $filter('filter')(this.tasks, filterTask, filterTaskComparator);
         } else {
             this.filteredTasks = this.tasks.slice(0);
         }
@@ -85,12 +111,12 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             var removedTask;
             for (var i = this.tasks.length - 1; i >= 0; i--) {
                 task = this.tasks[i];
-                if (task.id === taskId) {
+                if (task.model.id === taskId) {
                     removedTask = task;
                     this.tasks.splice(i, 1); // Remove from array
 
                     // Update earliest or latest date info as this may change
-                    if (this.from - task.from === 0 || this.to - task.to === 0) {
+                    if (this.from - task.model.from === 0 || this.to - task.model.to === 0) {
                         this.setFromTo();
                     }
                 }
@@ -98,14 +124,14 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
             for (i = this.filteredTasks.length - 1; i >= 0; i--) {
                 task = this.filteredTasks[i];
-                if (task.id === taskId) {
+                if (task.model.id === taskId) {
                     this.filteredTasks.splice(i, 1); // Remove from filtered array
                 }
             }
 
             for (i = this.visibleTasks.length - 1; i >= 0; i--) {
                 task = this.visibleTasks[i];
-                if (task.id === taskId) {
+                if (task.model.id === taskId) {
                     this.visibleTasks.splice(i, 1); // Remove from visible array
                 }
             }
@@ -129,15 +155,15 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
     Row.prototype.setFromToByTask = function(task) {
         if (this.from === undefined) {
-            this.from = moment(task.from);
-        } else if (task.from < this.from) {
-            this.from = moment(task.from);
+            this.from = moment(task.model.from);
+        } else if (task.model.from < this.from) {
+            this.from = moment(task.model.from);
         }
 
         if (this.to === undefined) {
-            this.to = moment(task.to);
-        } else if (task.to > this.to) {
-            this.to = moment(task.to);
+            this.to = moment(task.model.to);
+        } else if (task.model.to > this.to) {
+            this.to = moment(task.model.to);
         }
     };
 
@@ -147,20 +173,8 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         });
     };
 
-    Row.prototype.copy = function(row) {
-        this.name = row.name;
-        this.height = row.height;
-        this.color = row.color;
-        this.classes = row.classes;
-        this.data = row.data;
-
-        if (row.order !== undefined) {
-            this.order = row.order;
-        }
-    };
-
     Row.prototype.clone = function() {
-        var clone = new Row(this.id, this.rowsManager, this.name, this.order, this.height, this.color, this.classes, this.data);
+        var clone = new Row(this.rowsManager, angular.copy(this));
         for (var i = 0, l = this.tasks.length; i < l; i++) {
             clone.addTask(this.tasks[i].clone());
         }

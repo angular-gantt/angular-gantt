@@ -8,7 +8,7 @@
              ng-show="gantt.columnsManager.columns.length > 0">
             <div gantt-vertical-scroll-receiver style="position: relative">
                 <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
-                    <span class="gantt-labels-text">{{ row.name }}</span>
+                    <span class="gantt-labels-text">{{ row.model.name }}</span>
                 </gantt-row-label>
             </div>
         </div>
@@ -30,8 +30,8 @@
                 <div class="gantt-row-height"
                      ng-class-odd="'gantt-background-row'"
                      ng-class-even="'gantt-background-row-alt'"
-                     ng-class="row.classes"
-                     ng-style="{'background-color': row.color, 'height': row.height}"
+                     ng-class="row.model.classes"
+                     ng-style="{'background-color': row.model.color, 'height': row.model.height}"
                      ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
                 </div>
             </div>
@@ -50,7 +50,7 @@
                      ng-repeat="timespan in gantt.timespansManager.timespans">
                 </div>
                 <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
-                    <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>
+                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id"></gantt-task>
                 </gantt-row>
             </gantt-body-rows>
         </gantt-body>
@@ -83,7 +83,7 @@
         <div ng-transclude class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'"
-             ng-class="row.classes" ng-style="{'background-color': row.color, 'height': row.height}">
+             ng-class="row.model.classes" ng-style="{'background-color': row.model.color, 'height': row.model.height}">
         </div>
     </script>
 
@@ -147,31 +147,24 @@
 
     <!-- Task template -->
     <script type="text/ng-template" id="template/default.task.tmpl.html">
-        <div ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"
-             ng-style="{'left': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.isMoving === true && 1  || task.priority || ''), 'background-color': task.color}">
+        <div ng-class="(task.isMilestone() === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.model.classes)"
+             ng-style="{'left': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.isMoving === true && 1  || task.model.priority || ''), 'background-color': task.model.color}">
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <gantt-task-content></gantt-task-content>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
-            <gantt-task-progress ng-if="task.progress !== undefined"></gantt-task-progress>
         </div>
     </script>
 
     <!-- Task content template -->
     <script type="text/ng-template" id="template/default.taskContent.tmpl.html">
         <div class="gantt-task-content-container">
-            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.name) }}</span></div>
+            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && '&nbsp;' || task.model.name) }}</span></div>
         </div>
     </script>
 
-    <!-- Task progress template -->
-    <script type="text/ng-template" id="template/default.taskProgress.tmpl.html">
-        <div class='gantt-task-progress' ng-style="getCss()" ng-class="progress.classes"></div>
-    </script>
-
-
     <!-- Row template -->
     <script type="text/ng-template" id="template/default.row.tmpl.html">
-        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{'height': row.height}"></div>
+        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{'height': row.model.height}"></div>
     </script>
 
 </div>

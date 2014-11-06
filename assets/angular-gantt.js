@@ -1571,8 +1571,8 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
 
 
 gantt.factory('Gantt', [
-    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
-    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
+    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
+    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
@@ -1630,6 +1630,8 @@ gantt.factory('Gantt', [
             this.rowHeader = new RowHeader(this);
             this.header = new Header(this);
             this.labels = new Labels(this);
+
+            this.objectModel = new ObjectModel(this.api);
 
             this.rowsManager = new RowsManager(this);
             this.columnsManager = new ColumnsManager(this);
@@ -1713,53 +1715,116 @@ gantt.factory('Gantt', [
     }]);
 
 
+gantt.factory('GanttObjectModel', ['moment', function(moment) {
+    var ObjectModel = function(api) {
+        this.api = api;
+
+        this.api.registerEvent('tasks', 'clean');
+        this.api.registerEvent('rows', 'clean');
+        this.api.registerEvent('timespans', 'clean');
+    };
+
+    ObjectModel.prototype.cleanTask = function(model) {
+        if (model.from !== undefined && !moment.isMoment(model.from)) {
+            model.from = moment(model.from);
+        }
+
+        if (model.to !== undefined && !moment.isMoment(model.to)) {
+            model.to = moment(model.to);
+        }
+
+        this.api.tasks.raise.clean(model);
+    };
+
+    ObjectModel.prototype.cleanRow = function(model) {
+        if (model.from !== undefined && !moment.isMoment(model.from)) {
+            model.from = moment(model.from);
+        }
+
+        if (model.to !== undefined && !moment.isMoment(model.to)) {
+            model.to = moment(model.to);
+        }
+
+        this.api.rows.raise.clean(model);
+    };
+
+    ObjectModel.prototype.cleanTimespan = function(model) {
+        if (model.from !== undefined && !moment.isMoment(model.from)) {
+            model.from = moment(model.from);
+        }
+
+        if (model.to !== undefined && !moment.isMoment(model.to)) {
+            model.to = moment(model.to);
+        }
+
+        this.api.timespans.raise.clean(model);
+    };
+
+    return ObjectModel;
+}]);
+
+
 gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, moment, $filter) {
-    var Row = function(id, rowsManager, name, order, height, color, classes, data) {
-        this.id = id;
+    var Row = function(rowsManager, model) {
         this.rowsManager = rowsManager;
+        this.model = model;
+
+        this.from = undefined;
+        this.to = undefined;
+
+        this.tasksMap = {};
+        this.tasks = [];
+        this.filteredTasks = [];
+        this.visibleTasks = [];
+
+        /*
+        this.id = id;
         this.name = name;
         this.order = order;
         this.height = height;
         this.color = color;
         this.classes = classes;
-        this.from = undefined;
-        this.to = undefined;
-        this.tasksMap = {};
-        this.tasks = [];
-        this.filteredTasks = [];
-        this.visibleTasks = [];
         this.data = data;
+        */
     };
 
     // Adds a task to a specific row. Merges the task if there is already one with the same id
-    Row.prototype.addTask = function(taskData) {
+    Row.prototype.addTask = function(taskModel) {
         // Copy to new task (add) or merge with existing (update)
-        var task;
+        var task, isUpdate;
 
-        if (taskData.id in this.tasksMap) {
-            task = this.tasksMap[taskData.id];
-            task.copy(taskData);
+        if (taskModel.id in this.tasksMap) {
+            task = this.tasksMap[taskModel.id];
+            task.model = taskModel;
+            isUpdate = true;
         } else {
-            task = new Task(taskData.id, this, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.progress);
-            this.tasksMap[taskData.id] = task;
+            task = new Task(this, taskModel);
+            this.tasksMap[taskModel.id] = task;
             this.tasks.push(task);
             this.filteredTasks.push(task);
             this.visibleTasks.push(task);
+            isUpdate = true;
         }
 
         this.sortTasks();
         this.setFromToByTask(task);
-        this.rowsManager.gantt.api.tasks.raise.add(task);
+
+        if (isUpdate) {
+            this.rowsManager.gantt.api.tasks.raise.change(task);
+        } else {
+            this.rowsManager.gantt.api.tasks.raise.add(task);
+        }
+
         return task;
     };
 
     // Removes the task from the existing row and adds it to he current one
     Row.prototype.moveTaskToRow = function(task) {
         var oldRow = task.row;
-        oldRow.removeTask(task.id, true);
+        oldRow.removeTask(task.model.id, true);
         oldRow.updateVisibleTasks();
 
-        this.tasksMap[task.id] = task;
+        this.tasksMap[task.model.id] = task;
         this.tasks.push(task);
         this.filteredTasks.push(task);
         this.visibleTasks.push(task);
@@ -1777,7 +1842,19 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
     Row.prototype.updateVisibleTasks = function() {
         if (this.rowsManager.gantt.$scope.filterTask) {
-            this.filteredTasks = $filter('filter')(this.tasks, this.rowsManager.gantt.$scope.filterTask, this.rowsManager.gantt.$scope.filterTaskComparator);
+            var filterTask = this.rowsManager.gantt.$scope.filterTask;
+            if (typeof(filterTask) === 'object') {
+                filterTask = {model: filterTask};
+            }
+
+            var filterTaskComparator = this.rowsManager.gantt.$scope.filterTaskComparator;
+            if (typeof(filterTaskComparator) === 'function') {
+                filterTaskComparator = function(actual, expected) {
+                    return this.rowsManager.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                };
+            }
+
+            this.filteredTasks = $filter('filter')(this.tasks, filterTask, filterTaskComparator);
         } else {
             this.filteredTasks = this.tasks.slice(0);
         }
@@ -1799,12 +1876,12 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             var removedTask;
             for (var i = this.tasks.length - 1; i >= 0; i--) {
                 task = this.tasks[i];
-                if (task.id === taskId) {
+                if (task.model.id === taskId) {
                     removedTask = task;
                     this.tasks.splice(i, 1); // Remove from array
 
                     // Update earliest or latest date info as this may change
-                    if (this.from - task.from === 0 || this.to - task.to === 0) {
+                    if (this.from - task.model.from === 0 || this.to - task.model.to === 0) {
                         this.setFromTo();
                     }
                 }
@@ -1812,14 +1889,14 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
             for (i = this.filteredTasks.length - 1; i >= 0; i--) {
                 task = this.filteredTasks[i];
-                if (task.id === taskId) {
+                if (task.model.id === taskId) {
                     this.filteredTasks.splice(i, 1); // Remove from filtered array
                 }
             }
 
             for (i = this.visibleTasks.length - 1; i >= 0; i--) {
                 task = this.visibleTasks[i];
-                if (task.id === taskId) {
+                if (task.model.id === taskId) {
                     this.visibleTasks.splice(i, 1); // Remove from visible array
                 }
             }
@@ -1843,15 +1920,15 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
 
     Row.prototype.setFromToByTask = function(task) {
         if (this.from === undefined) {
-            this.from = moment(task.from);
-        } else if (task.from < this.from) {
-            this.from = moment(task.from);
+            this.from = moment(task.model.from);
+        } else if (task.model.from < this.from) {
+            this.from = moment(task.model.from);
         }
 
         if (this.to === undefined) {
-            this.to = moment(task.to);
-        } else if (task.to > this.to) {
-            this.to = moment(task.to);
+            this.to = moment(task.model.to);
+        } else if (task.model.to > this.to) {
+            this.to = moment(task.model.to);
         }
     };
 
@@ -1861,20 +1938,8 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         });
     };
 
-    Row.prototype.copy = function(row) {
-        this.name = row.name;
-        this.height = row.height;
-        this.color = row.color;
-        this.classes = row.classes;
-        this.data = row.data;
-
-        if (row.order !== undefined) {
-            this.order = row.order;
-        }
-    };
-
     Row.prototype.clone = function() {
-        var clone = new Row(this.id, this.rowsManager, this.name, this.order, this.height, this.color, this.classes, this.data);
+        var clone = new Row(this.rowsManager, angular.copy(this));
         for (var i = 0, l = this.tasks.length; i < l; i++) {
             clone.addTask(this.tasks[i].clone());
         }
@@ -1940,17 +2005,17 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
     };
 
-    RowsManager.prototype.addRow = function(rowData) {
+    RowsManager.prototype.addRow = function(rowModel) {
         // Copy to new row (add) or merge with existing (update)
         var row, isUpdate = false;
 
-        if (rowData.id in this.rowsMap) {
-            row = this.rowsMap[rowData.id];
-            row.copy(rowData);
+        if (rowModel.id in this.rowsMap) {
+            row = this.rowsMap[rowModel.id];
+            row.copy(rowModel);
             isUpdate = true;
             this.gantt.api.rows.raise.change(row);
         } else {
-            var order = rowData.order;
+            var order = rowModel.order;
 
             // Check if the row has a order predefined. If not assign one
             if (order === undefined) {
@@ -1961,17 +2026,19 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 this.highestRowOrder = order + 1;
             }
 
-            row = new Row(rowData.id, this, rowData.name, order, rowData.height, rowData.color, rowData.classes, rowData.data);
-            this.rowsMap[rowData.id] = row;
+            row = new Row(this, rowModel);
+            this.rowsMap[rowModel.id] = row;
             this.rows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
             this.gantt.api.rows.raise.add(row);
         }
 
-        if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-            for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                row.addTask(rowData.tasks[i]);
+        if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
+            for (var i = 0, l = rowModel.tasks.length; i < l; i++) {
+                var taskModel = rowModel.tasks[i];
+                this.gantt.objectModel.cleanTask(taskModel);
+                row.addTask(taskModel);
             }
         }
         return isUpdate;
@@ -2055,7 +2122,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         var angularOrderBy = $filter('orderBy');
         if (expression === 'custom') {
-            this.rows = angularOrderBy(this.rows, 'order', reverse);
+            this.rows = angularOrderBy(this.rows, 'model.order', reverse);
         } else {
             this.rows = angularOrderBy(this.rows, expression, reverse);
         }
@@ -2066,9 +2133,9 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
     // Swaps two rows and changes the sort order to custom to display the swapped rows
     RowsManager.prototype.swapRows = function(a, b) {
         // Swap the two rows
-        var order = a.order;
-        a.order = b.order;
-        b.order = order;
+        var order = a.model.order;
+        a.model.order = b.model.order;
+        b.model.order = order;
 
         // Raise change events
         this.gantt.api.rows.raise.change(a);
@@ -2092,7 +2159,19 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
     RowsManager.prototype.updateVisibleRows = function() {
         var oldFilteredRows = this.filteredRows;
         if (this.gantt.$scope.filterRow) {
-            this.filteredRows = $filter('filter')(this.rows, this.gantt.$scope.filterRow, this.gantt.$scope.filterRowComparator);
+            var filterRow = this.gantt.$scope.filterRow;
+            if (typeof(filterRow) === 'object') {
+                filterRow = {model: filterRow};
+            }
+
+            var filterRowComparator = this.gantt.$scope.filterRowComparator;
+            if (typeof(filterRowComparator) === 'function') {
+                filterRowComparator = function(actual, expected) {
+                    return this.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                };
+            }
+
+            this.filteredRows = $filter('filter')(this.rows, filterRow, filterRowComparator);
         } else {
             this.filteredRows = this.rows.slice(0);
         }
@@ -2187,65 +2266,34 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 }]);
 
 
-gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, TaskProgress) {
-    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, progress) {
-        this.id = id;
+gantt.factory('GanttTask', [function() {
+    var Task = function(row, model) {
         this.rowsManager = row.rowsManager;
         this.row = row;
+        this.model = model;
+        this.truncatedLeft = false;
+        this.truncatedRight = false;
+
+        /*
+        this.id = id;
         this.name = name;
         this.color = color;
         this.classes = classes;
         this.priority = priority;
-        this.from = moment(from);
-        this.to = moment(to);
-        this.truncatedLeft = false;
-        this.truncatedRight = false;
+        this.model.from = moment(from);
+        this.model.to = moment(to);
         this.data = data;
-
-        if (progress !== undefined) {
-            if (typeof progress === 'object') {
-                this.progress = new TaskProgress(this, progress.percent, progress.color, progress.classes);
-            } else {
-                this.progress = new TaskProgress(this, progress);
-            }
-        }
-
-        if (est !== undefined && lct !== undefined) {
-            this.est = moment(est);  //Earliest Start Time
-            this.lct = moment(lct);  //Latest Completion Time
-        }
-
-        this._fromLabel = undefined;
-        this._toLabel = undefined;
+        */
     };
 
-
-    Task.prototype.getFromLabel = function() {
-        if (this._fromLabel === undefined) {
-            this._fromLabel = this.from.format(this.rowsManager.gantt.$scope.tooltipDateFormat);
-        }
-        return this._fromLabel;
+    Task.prototype.isMilestone = function() {
+        return !this.model.to || this.model.from - this.model.to === 0;
     };
-
-    Task.prototype.getToLabel = function() {
-        if (this._toLabel === undefined) {
-            this._toLabel = this.to.format(this.rowsManager.gantt.$scope.tooltipDateFormat);
-        }
-        return this._toLabel;
-    };
-
-    Task.prototype.checkIfMilestone = function() {
-        this.isMilestone = this.from - this.to === 0;
-    };
-
-    Task.prototype.checkIfMilestone();
 
     // Updates the pos and size of the task according to the from - to date
     Task.prototype.updatePosAndSize = function() {
-        this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.from);
-        this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.to) - this.modelLeft;
-
-        this.outOfRange = this.modelLeft + this.modelWidth < 0 || this.modelLeft > this.rowsManager.gantt.width;
+        this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+        this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
 
         this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
         if (this.modelLeft < 0) {
@@ -2270,67 +2318,32 @@ gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, Task
 
     // Expands the start of the task to the specified position (in em)
     Task.prototype.setFrom = function(x) {
-        this.from = this.rowsManager.gantt.getDateByPosition(x, true);
-        this._fromLabel = undefined;
+        this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
         this.row.setFromToByTask(this);
         this.updatePosAndSize();
-        this.checkIfMilestone();
     };
 
     // Expands the end of the task to the specified position (in em)
     Task.prototype.setTo = function(x) {
-        this.to = this.rowsManager.gantt.getDateByPosition(x, true);
-        this._toLabel = undefined;
+        this.model.to = this.rowsManager.gantt.getDateByPosition(x, true);
         this.row.setFromToByTask(this);
         this.updatePosAndSize();
-        this.checkIfMilestone();
     };
 
     // Moves the task to the specified position (in em)
     Task.prototype.moveTo = function(x) {
-        this.from = this.rowsManager.gantt.getDateByPosition(x, true);
-        this._fromLabel = undefined;
-        var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.from);
-        this.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
-        this._toLabel = undefined;
+        this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+        this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
         this.row.setFromToByTask(this);
         this.updatePosAndSize();
     };
 
-    Task.prototype.copy = function(task) {
-        this.name = task.name;
-        this.color = task.color;
-        this.classes = task.classes;
-        this.priority = task.priority;
-        this.from = moment(task.from);
-        this.to = moment(task.to);
-        this.est = task.est !== undefined ? moment(task.est) : undefined;
-        this.lct = task.lct !== undefined ? moment(task.lct) : undefined;
-        this.data = task.data;
-        this.isMilestone = task.isMilestone;
-    };
-
     Task.prototype.clone = function() {
-        return new Task(this.id, this.row, this.name, this.color, this.classes, this.priority, this.from, this.to, this.data, this.est, this.lct, this.progress);
+        return new Task(this.row, angular.copy(this.model));
     };
 
     return Task;
-}]);
-
-
-gantt.factory('GanttTaskProgress', [function() {
-    var TaskProgress = function(task, percent, color, classes) {
-        this.task = task;
-        this.percent = percent;
-        this.color = color;
-        this.classes = classes;
-    };
-
-    TaskProgress.prototype.clone = function() {
-        return new TaskProgress(this.task, this.percent, this.color, this.classes);
-    };
-
-    return TaskProgress;
 }]);
 
 
@@ -2450,10 +2463,13 @@ gantt.factory('GanttScroll', [function() {
 }]);
 
 
-gantt.factory('GanttTimespan', ['moment', function(moment) {
-    var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
-        this.id = id;
+gantt.factory('GanttTimespan', [function() {
+    var Timespan = function(gantt, model) {
         this.gantt = gantt;
+        this.model = model;
+
+        /*
+        this.id = id;
         this.name = name;
         this.color = color;
         this.classes = classes;
@@ -2461,17 +2477,13 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
         this.from = moment(from);
         this.to = moment(to);
         this.data = data;
-
-        if (est !== undefined && lct !== undefined) {
-            this.est = moment(est);  //Earliest Start Time
-            this.lct = moment(lct);  //Latest Completion Time
-        }
+        */
     };
 
     // Updates the pos and size of the timespan according to the from - to date
     Timespan.prototype.updatePosAndSize = function() {
-        this.left = this.gantt.getPositionByDate(this.from);
-        this.width = this.gantt.getPositionByDate(this.to) - this.left;
+        this.left = this.gantt.getPositionByDate(this.model.from);
+        this.width = this.gantt.getPositionByDate(this.model.to) - this.left;
     };
 
     // Expands the start of the timespan to the specified position (in em)
@@ -2493,20 +2505,8 @@ gantt.factory('GanttTimespan', ['moment', function(moment) {
         this.updatePosAndSize();
     };
 
-    Timespan.prototype.copy = function(timespan) {
-        this.name = timespan.name;
-        this.color = timespan.color;
-        this.classes = timespan.classes;
-        this.priority = timespan.priority;
-        this.from = moment(timespan.from);
-        this.to = moment(timespan.to);
-        this.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
-        this.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
-        this.data = timespan.data;
-    };
-
     Timespan.prototype.clone = function() {
-        return new Timespan(this.id, this.gantt, this.name, this.color, this.classes, this.priority, this.from, this.to, this.data, this.est, this.lct);
+        return new Timespan(this.gantt, angular.copy(this.model));
     };
 
     return Timespan;
@@ -2541,29 +2541,29 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
     // Adds or updates timespans
     GanttTimespansManager.prototype.loadTimespans = function(timespans) {
         if (!angular.isArray(timespans)) {
-            timespans = [timespans];
+            timespans = timespans !== undefined ? [timespans] : [];
         }
 
         for (var i = 0, l = timespans.length; i < l; i++) {
-            var timespanData = timespans[i];
-            this.loadTimespan(timespanData);
+            var timespanModel = timespans[i];
+            this.gantt.objectModel.cleanTimespan(timespanModel);
+            this.loadTimespan(timespanModel);
         }
     };
 
     // Adds a timespan or merges the timespan if there is already one with the same id
-    GanttTimespansManager.prototype.loadTimespan = function(timespanData) {
+    GanttTimespansManager.prototype.loadTimespan = function(timespanModel) {
         // Copy to new timespan (add) or merge with existing (update)
         var timespan, isUpdate = false;
 
-        if (timespanData.id in this.timespansMap) {
-            timespan = this.timespansMap[timespanData.id];
-            timespan.copy(timespanData);
+        if (timespanModel.id in this.timespansMap) {
+            timespan = this.timespansMap[timespanModel.id];
+            timespan.model = timespanModel;
             isUpdate = true;
             this.gantt.api.timespans.raise.change(timespan);
         } else {
-            timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
-                timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
-            this.timespansMap[timespanData.id] = timespan;
+            timespan = new Timespan(this.gantt, timespanModel);
+            this.timespansMap[timespanModel.id] = timespan;
             this.timespans.push(timespan);
             this.gantt.api.timespans.raise.add(timespan);
         }
@@ -2717,7 +2717,7 @@ gantt.filter('ganttTaskLimit', [function() {
             for (var i = 0, l = input.length; i < l; i++) {
                 var task = input[i];
                 // If the task can be drawn with gantt columns only.
-                if (task.to > gantt.columnsManager.getFirstColumn().date && task.from < gantt.columnsManager.getLastColumn().endDate) {
+                if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
                     var scrollLeft = gantt.$scope.scrollLeft;
                     var scrollWidth = gantt.$scope.scrollWidth;
@@ -3052,90 +3052,6 @@ gantt.directive('ganttElementWidthListener', [function() {
 }]);
 
 
-gantt.directive('ganttTaskProgress', [function() {
-    return {
-        restrict: 'E',
-        requires: '^ganttTask',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.taskProgress.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.getCss = function() {
-                var css = {};
-
-                if ($scope.task.progress.color) {
-                    css['background-color'] = $scope.task.progress.color;
-                } else {
-                    css['background-color'] = '#6BC443';
-                }
-
-                css.width = $scope.task.progress.percent + '%';
-
-                return css;
-            };
-
-            $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
-            });
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttTask', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttRow',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.task.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.task.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
-            });
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttTaskContent', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttTask',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.taskContent.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.task.$contentElement = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttTaskContent', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTaskContent', $scope, $element);
-            });
-        }]
-    };
-}]);
-
-
 gantt.directive('ganttBody', [function() {
     return {
         restrict: 'E',
@@ -3415,6 +3331,54 @@ gantt.directive('ganttRowLabel', [function() {
 }]);
 
 
+gantt.directive('ganttTask', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttRow',
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.task.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        replace: true,
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.task.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttTaskContent', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttTask',
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.taskContent.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        replace: true,
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.task.$contentElement = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttTaskContent', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTaskContent', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
 gantt.directive('ganttTimeFrame', [function() {
     return {
         restrict: 'E',
@@ -3616,7 +3580,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
         '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <span class="gantt-labels-text">{{ row.name }}</span>\n' +
+        '                    <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
         '                </gantt-row-label>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -3638,8 +3602,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div class="gantt-row-height"\n' +
         '                     ng-class-odd="\'gantt-background-row\'"\n' +
         '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                     ng-class="row.classes"\n' +
-        '                     ng-style="{\'background-color\': row.color, \'height\': row.height}"\n' +
+        '                     ng-class="row.model.classes"\n' +
+        '                     ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}"\n' +
         '                     ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
         '                </div>\n' +
         '            </div>\n' +
@@ -3658,7 +3622,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                     ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
         '                </div>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>\n' +
+        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id"></gantt-task>\n' +
         '                </gantt-row>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
@@ -3691,7 +3655,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div ng-transclude class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="row.classes" ng-style="{\'background-color\': row.color, \'height\': row.height}">\n' +
+        '             ng-class="row.model.classes" ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -3755,31 +3719,24 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
-        '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
-        '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
+        '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
+        '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
-        '            <gantt-task-progress ng-if="task.progress !== undefined"></gantt-task-progress>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/default.taskContent.tmpl.html">\n' +
         '        <div class="gantt-task-content-container">\n' +
-        '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
+        '            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && \'&nbsp;\' || task.model.name) }}</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <!-- Task progress template -->\n' +
-        '    <script type="text/ng-template" id="template/default.taskProgress.tmpl.html">\n' +
-        '        <div class=\'gantt-task-progress\' ng-style="getCss()" ng-class="progress.classes"></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.height}"></div>\n' +
+        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.model.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '</div>\n' +

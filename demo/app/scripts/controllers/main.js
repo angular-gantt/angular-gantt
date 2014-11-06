@@ -23,8 +23,8 @@ angular.module('angularGanttDemoApp')
             currentDateValue: new Date(2013, 9, 23, 11, 20, 0),
             draw: false,
             readOnly: false,
-            filterTask: undefined,
-            filterRow: undefined,
+            filterTask: '',
+            filterRow: '',
             timeFrames: {
                 'day': {
                     start: moment('8:00', 'HH:mm'),

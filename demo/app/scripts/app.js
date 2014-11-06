@@ -14,6 +14,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.movable',
     'gantt.tooltips',
     'gantt.bounds',
+    'gantt.progress',
     'mgcrea.ngStrap' // handle bootstrap properly in angularJS applications.
 ]).config(['$compileProvider', function(/*$compileProvider*/) {
     // Wait angular.js#9515 fix to disable debug info.

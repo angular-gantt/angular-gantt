@@ -27,29 +27,29 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
     // Adds or updates timespans
     GanttTimespansManager.prototype.loadTimespans = function(timespans) {
         if (!angular.isArray(timespans)) {
-            timespans = [timespans];
+            timespans = timespans !== undefined ? [timespans] : [];
         }
 
         for (var i = 0, l = timespans.length; i < l; i++) {
-            var timespanData = timespans[i];
-            this.loadTimespan(timespanData);
+            var timespanModel = timespans[i];
+            this.gantt.objectModel.cleanTimespan(timespanModel);
+            this.loadTimespan(timespanModel);
         }
     };
 
     // Adds a timespan or merges the timespan if there is already one with the same id
-    GanttTimespansManager.prototype.loadTimespan = function(timespanData) {
+    GanttTimespansManager.prototype.loadTimespan = function(timespanModel) {
         // Copy to new timespan (add) or merge with existing (update)
         var timespan, isUpdate = false;
 
-        if (timespanData.id in this.timespansMap) {
-            timespan = this.timespansMap[timespanData.id];
-            timespan.copy(timespanData);
+        if (timespanModel.id in this.timespansMap) {
+            timespan = this.timespansMap[timespanModel.id];
+            timespan.model = timespanModel;
             isUpdate = true;
             this.gantt.api.timespans.raise.change(timespan);
         } else {
-            timespan = new Timespan(timespanData.id, this.gantt, timespanData.name, timespanData.color,
-                timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
-            this.timespansMap[timespanData.id] = timespan;
+            timespan = new Timespan(this.gantt, timespanModel);
+            this.timespansMap[timespanModel.id] = timespan;
             this.timespans.push(timespan);
             this.gantt.api.timespans.raise.add(timespan);
         }

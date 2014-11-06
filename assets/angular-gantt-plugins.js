@@ -8,13 +8,18 @@ Github: https://github.com/angular-gantt/angular-gantt
 'use strict';
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/default.taskBounds.tmpl.html',
-        '<div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()">\n' +
-        '</div>\n' +
+        '<div ng-show="bounds && isTaskMouseOver" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '');
 }]);
 
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
 
+}]);
+
+angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/progress/default.taskProgress.tmpl.html',
+        '<div ng-cloak class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
+        '');
 }]);
 
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
@@ -25,10 +30,10 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
     $templateCache.put('plugins/tooltips/default.tooltip.tmpl.html',
         '<div ng-show="showTooltips && visible" class="gantt-task-info" ng-cloak ng-style="css">\n' +
         '    <div class="gantt-task-info-content">\n' +
-        '        {{ task.name }}</br>\n' +
+        '        {{ task.model.name }}</br>\n' +
         '        <small>\n' +
         '            {{\n' +
-        '            task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + \' - \' + task.getToLabel());\n' +
+        '            task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel());\n' +
         '            }}\n' +
         '        </small>\n' +
         '    </div>\n' +
@@ -37,7 +42,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 }]);
 
 
-angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['$compile', '$timeout', function($compile, $timeout) {
+angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', function(moment, $compile) {
     return {
         restrict: 'E',
         require: '^gantt',
@@ -46,11 +51,16 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
 
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    $timeout(function() {
-                        // TODO: Don't really understand why it fails without $timeout wrapping ...
-                        taskElement.append($compile('<gantt-task-bounds ng-model="task"></gantt-bounds>')(taskScope));
-                    });
+                    taskElement.append($compile('<gantt-task-bounds></gantt-bounds>')(taskScope));
+                }
+            });
 
+            api.tasks.on.clean(scope, function(model) {
+                if (model.est !== undefined && !moment.isMoment(model.est)) {
+                    model.est = moment(model.est);  //Earliest Start Time
+                }
+                if (model.lct !== undefined && !moment.isMoment(model.lct)) {
+                    model.lct = moment(model.lct);  //Latest Completion Time
                 }
             });
         }
@@ -140,7 +150,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (mode === 'M') {
                                 if (scope.allowRowSwitching) {
                                     var targetRow = getRowByY(mousePos.y);
-                                    if (targetRow !== undefined && taskScope.task.row.id !== targetRow.id) {
+                                    if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
                                         targetRow.moveTaskToRow(taskScope.task);
                                     }
                                 }
@@ -365,6 +375,33 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
     }]);
 
 
+angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', function(moment, $compile) {
+    return {
+        restrict: 'E',
+        require: '^gantt',
+        link: function(scope, element, attrs, ganttCtrl) {
+            var api = ganttCtrl.gantt.api;
+
+            api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                if (directiveName === 'ganttTask') {
+                    taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(taskScope));
+                }
+            });
+
+            api.tasks.on.clean(scope, function(model) {
+                if (model.est !== undefined && !moment.isMoment(model.est)) {
+                    model.est = moment(model.est); //Earliest Start Time
+                }
+
+                if (model.lct !== undefined && !moment.isMoment(model.lct)) {
+                    model.lct = moment(model.lct); //Latest Completion Time
+                }
+            });
+        }
+    };
+}]);
+
+
 angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', function($document) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
@@ -406,7 +443,7 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                             elementBelowMouse = angular.element(elementBelowMouse);
                             var targetRow = elementBelowMouse.scope().row;
 
-                            if (targetRow.id !== scope.startRow.id) {
+                            if (targetRow.model.id !== scope.startRow.model.id) {
                                 rowScope.$apply(function () {
                                     rowScope.row.rowsManager.swapRows(targetRow, scope.startRow);
                                 });
@@ -449,7 +486,7 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
 }]);
 
 
-angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$timeout', function($compile, $timeout) {
+angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
     return {
         restrict: 'E',
         require: '^gantt',
@@ -458,11 +495,7 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
 
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    $timeout(function() {
-                        // TODO: Don't really understand why it fails without $timeout wrapping ...
-                        taskElement.prepend($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
-                    });
-
+                    taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
                 }
             });
         }
@@ -487,11 +520,11 @@ gantt.directive('ganttTaskBounds', [function() {
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            $scope.$watchGroup(['task.est', 'task.lct', 'task.left', 'task.width'], function() {
-                if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
+            $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
+                if ($scope.task.model.est !== undefined && $scope.task.model.lct !== undefined) {
                     $scope.bounds = {};
-                    $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
-                    $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.lct) - $scope.bounds.left;
+                    $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
+                    $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct) - $scope.bounds.left;
                 } else {
                     $scope.bounds = undefined;
                 }
@@ -513,7 +546,7 @@ gantt.directive('ganttTaskBounds', [function() {
                 if ($scope.bounds !== undefined) {
                     css.width = $scope.bounds.width + 'px';
 
-                    if ($scope.task.isMilestone === true || $scope.task.width === 0) {
+                    if ($scope.task.isMilestone() === true || $scope.task.width === 0) {
                         css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
                     } else {
                         css.left = ($scope.bounds.left - $scope.task.left) + 'px';
@@ -524,12 +557,12 @@ gantt.directive('ganttTaskBounds', [function() {
             };
 
             $scope.getClass = function() {
-                if ($scope.task.est === undefined || $scope.task.lct === undefined) {
+                if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
                     return 'gantt-task-bounds-in';
-                } else if ($scope.task.est > $scope.task.from) {
+                } else if ($scope.task.model.est > $scope.task.model.from) {
                     return 'gantt-task-bounds-out';
                 }
-                else if ($scope.task.lct < $scope.task.to) {
+                else if ($scope.task.model.lct < $scope.task.model.to) {
                     return 'gantt-task-bounds-out';
                 }
                 else {
@@ -560,6 +593,64 @@ angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
 }]);
 
 
+gantt.directive('ganttTaskProgress', [function() {
+    return {
+        restrict: 'E',
+        requires: '^ganttTask',
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'plugins/progress/default.taskProgress.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        replace: true,
+        scope: true,
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.getClasses = function() {
+                var classes = [];
+
+                if ($scope.task.model.progress !== undefined && (typeof($scope.task.model.progress) !== 'object')) {
+                    classes = $scope.task.model.classes;
+                }
+
+                return classes;
+            };
+
+            $scope.getCss = function() {
+                var css = {};
+
+                var progress;
+                if ($scope.task.model.progress !== undefined) {
+                    if (typeof($scope.task.model.progress) === 'object') {
+                        progress = $scope.task.model.progress;
+                    } else {
+                        progress = {percent: $scope.task.model.progress};
+                    }
+                }
+
+                if (progress) {
+                    if (progress.color) {
+                        css['background-color'] = progress.color;
+                    } else {
+                        css['background-color'] = '#6BC443';
+                    }
+
+                    css.width = progress.percent + '%';
+                }
+
+                return css;
+            };
+
+            $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
 angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
     // This tooltip displays more information about a task
 
@@ -582,6 +673,14 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
 
             $scope.css = {};
             $scope.visible = false;
+
+            $scope.getFromLabel = function() {
+                return $scope.task.model.from.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+            };
+
+            $scope.getToLabel = function() {
+                return $scope.task.model.to.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+            };
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {

@@ -1,5 +1,5 @@
 'use strict';
-angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$timeout', function($compile, $timeout) {
+angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
     return {
         restrict: 'E',
         require: '^gantt',
@@ -8,11 +8,7 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
 
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    $timeout(function() {
-                        // TODO: Don't really understand why it fails without $timeout wrapping ...
-                        taskElement.prepend($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
-                    });
-
+                    taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
                 }
             });
         }

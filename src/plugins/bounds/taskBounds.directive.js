@@ -16,11 +16,11 @@ gantt.directive('ganttTaskBounds', [function() {
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            $scope.$watchGroup(['task.est', 'task.lct', 'task.left', 'task.width'], function() {
-                if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
+            $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
+                if ($scope.task.model.est !== undefined && $scope.task.model.lct !== undefined) {
                     $scope.bounds = {};
-                    $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
-                    $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.lct) - $scope.bounds.left;
+                    $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
+                    $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct) - $scope.bounds.left;
                 } else {
                     $scope.bounds = undefined;
                 }
@@ -42,7 +42,7 @@ gantt.directive('ganttTaskBounds', [function() {
                 if ($scope.bounds !== undefined) {
                     css.width = $scope.bounds.width + 'px';
 
-                    if ($scope.task.isMilestone === true || $scope.task.width === 0) {
+                    if ($scope.task.isMilestone() === true || $scope.task.width === 0) {
                         css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
                     } else {
                         css.left = ($scope.bounds.left - $scope.task.left) + 'px';
@@ -53,12 +53,12 @@ gantt.directive('ganttTaskBounds', [function() {
             };
 
             $scope.getClass = function() {
-                if ($scope.task.est === undefined || $scope.task.lct === undefined) {
+                if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
                     return 'gantt-task-bounds-in';
-                } else if ($scope.task.est > $scope.task.from) {
+                } else if ($scope.task.model.est > $scope.task.model.from) {
                     return 'gantt-task-bounds-out';
                 }
-                else if ($scope.task.lct < $scope.task.to) {
+                else if ($scope.task.model.lct < $scope.task.model.to) {
                     return 'gantt-task-bounds-out';
                 }
                 else {

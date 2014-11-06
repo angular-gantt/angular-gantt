@@ -81,7 +81,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (mode === 'M') {
                                 if (scope.allowRowSwitching) {
                                     var targetRow = getRowByY(mousePos.y);
-                                    if (targetRow !== undefined && taskScope.task.row.id !== targetRow.id) {
+                                    if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
                                         targetRow.moveTaskToRow(taskScope.task);
                                     }
                                 }

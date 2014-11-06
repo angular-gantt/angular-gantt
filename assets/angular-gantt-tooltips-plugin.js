@@ -7,7 +7,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
 
-angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$timeout', function($compile, $timeout) {
+angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
     return {
         restrict: 'E',
         require: '^gantt',
@@ -16,11 +16,7 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
 
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    $timeout(function() {
-                        // TODO: Don't really understand why it fails without $timeout wrapping ...
-                        taskElement.prepend($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
-                    });
-
+                    taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
                 }
             });
         }
@@ -50,6 +46,14 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
 
             $scope.css = {};
             $scope.visible = false;
+
+            $scope.getFromLabel = function() {
+                return $scope.task.model.from.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+            };
+
+            $scope.getToLabel = function() {
+                return $scope.task.model.to.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+            };
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {

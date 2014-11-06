@@ -40,7 +40,7 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                             elementBelowMouse = angular.element(elementBelowMouse);
                             var targetRow = elementBelowMouse.scope().row;
 
-                            if (targetRow.id !== scope.startRow.id) {
+                            if (targetRow.model.id !== scope.startRow.model.id) {
                                 rowScope.$apply(function () {
                                     rowScope.row.rowsManager.swapRows(targetRow, scope.startRow);
                                 });

@@ -426,7 +426,7 @@ review those projects documentations.
 ### <a name="objects"></a> Objects
   An example of the data definition can be found in [demo sample file](demo/app/scripts/services/sample.js).
 
-- **Row**
+- **<Row> Object**
 ```js
 {
     id: "...",  // Unique id of the row.
@@ -439,7 +439,7 @@ review those projects documentations.
 }
 ```
 
-- **Task**
+- **<Task> Object**
 ```js
 {
     id: "...",  // Unique id of the task.
@@ -450,19 +450,10 @@ review those projects documentations.
     classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
     priority: <Number> // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
     data: <Any> // Custom object. Use this to attach your own data (Optional).
-    progress: <Number|Progress> // The progress of this task, as a percent number or a <Progress> object (Optional).
 }
 ```
 
-- **Progress**
-```js
-{
-    percent: <Number> // Percentage of advancement, from 0 to 100.
-    color: "...", Color of the completion bar in HEX format
-}
-```
-
-- **Timespan**
+- **<Timespan> Object**
 ```js
 {
     id: "...",  // Unique id of the timespan.
@@ -692,11 +683,19 @@ api.featureName.raise.eventName(data);
 
   Tasks have been filtered out.
   
+- **api.tasks.on.clean(taskModel)**
+
+  Model of a task has been cleaned and will be loaded.
+  
 ##### timespans
 
 - **api.timespans.on.add(timespan)**, **api.timespans.on.change(timespan)**, **api.timespans.on.remove(timespan)**
 
   A timespan has been added, changed or removed.
+  
+- **api.timespans.on.clean(taskModel)**
+  
+  Model of a timespans has been cleaned and will be loaded.
   
 ##### rows
   
@@ -707,6 +706,10 @@ api.featureName.raise.eventName(data);
 - **api.rows.on.filter(rows, filteredRows)**
 
   Rows have been filtered out.
+  
+- **api.rows.on.clean(taskModel)**
+  
+  Model of a row has been cleaned and will be loaded.
 
 ##### columns
   
@@ -846,6 +849,41 @@ To define bounds on a task, you need to add `est` and `lct` property on task obj
     to: <Date>,
     est: <Date> // When est and lct are defined a time window will be displayed around the task (Optional).
     lct: <Date> // See "est".
+}
+```
+
+#### Progress
+
+Display a visual indicator showing progressiong of tasks.
+
+```js
+angular.module('myApp', ['gantt', 'gantt.progress']);
+```
+
+```html
+<gantt>
+    <gantt-progress><gantt-progress/>
+</gantt>
+```
+
+To define bounds on a task, you need to add `progress` and `lct` property on task object model.
+
+```js
+{
+    id: "...",
+    name: "...",
+    from: <Date>,
+    to: <Date>,
+    progress: <Number|Progress> // The progress of this task, as a percent number or a <Progress> object (Optional).
+}
+```
+
+- **<Progress> Object**
+```js
+{
+    percent: <Number> // Percentage of advancement, from 0 to 100.
+    color: "...", Color of the completion bar in HEX format
+    classes: [], Array of class name to apply to progress bar
 }
 ```
 

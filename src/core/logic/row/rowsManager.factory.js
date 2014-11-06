@@ -46,17 +46,17 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
     };
 
-    RowsManager.prototype.addRow = function(rowData) {
+    RowsManager.prototype.addRow = function(rowModel) {
         // Copy to new row (add) or merge with existing (update)
         var row, isUpdate = false;
 
-        if (rowData.id in this.rowsMap) {
-            row = this.rowsMap[rowData.id];
-            row.copy(rowData);
+        if (rowModel.id in this.rowsMap) {
+            row = this.rowsMap[rowModel.id];
+            row.copy(rowModel);
             isUpdate = true;
             this.gantt.api.rows.raise.change(row);
         } else {
-            var order = rowData.order;
+            var order = rowModel.order;
 
             // Check if the row has a order predefined. If not assign one
             if (order === undefined) {
@@ -67,17 +67,19 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 this.highestRowOrder = order + 1;
             }
 
-            row = new Row(rowData.id, this, rowData.name, order, rowData.height, rowData.color, rowData.classes, rowData.data);
-            this.rowsMap[rowData.id] = row;
+            row = new Row(this, rowModel);
+            this.rowsMap[rowModel.id] = row;
             this.rows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
             this.gantt.api.rows.raise.add(row);
         }
 
-        if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-            for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                row.addTask(rowData.tasks[i]);
+        if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
+            for (var i = 0, l = rowModel.tasks.length; i < l; i++) {
+                var taskModel = rowModel.tasks[i];
+                this.gantt.objectModel.cleanTask(taskModel);
+                row.addTask(taskModel);
             }
         }
         return isUpdate;
@@ -161,7 +163,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         var angularOrderBy = $filter('orderBy');
         if (expression === 'custom') {
-            this.rows = angularOrderBy(this.rows, 'order', reverse);
+            this.rows = angularOrderBy(this.rows, 'model.order', reverse);
         } else {
             this.rows = angularOrderBy(this.rows, expression, reverse);
         }
@@ -172,9 +174,9 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
     // Swaps two rows and changes the sort order to custom to display the swapped rows
     RowsManager.prototype.swapRows = function(a, b) {
         // Swap the two rows
-        var order = a.order;
-        a.order = b.order;
-        b.order = order;
+        var order = a.model.order;
+        a.model.order = b.model.order;
+        b.model.order = order;
 
         // Raise change events
         this.gantt.api.rows.raise.change(a);
@@ -198,7 +200,19 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
     RowsManager.prototype.updateVisibleRows = function() {
         var oldFilteredRows = this.filteredRows;
         if (this.gantt.$scope.filterRow) {
-            this.filteredRows = $filter('filter')(this.rows, this.gantt.$scope.filterRow, this.gantt.$scope.filterRowComparator);
+            var filterRow = this.gantt.$scope.filterRow;
+            if (typeof(filterRow) === 'object') {
+                filterRow = {model: filterRow};
+            }
+
+            var filterRowComparator = this.gantt.$scope.filterRowComparator;
+            if (typeof(filterRowComparator) === 'function') {
+                filterRowComparator = function(actual, expected) {
+                    return this.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                };
+            }
+
+            this.filteredRows = $filter('filter')(this.rows, filterRow, filterRowComparator);
         } else {
             this.filteredRows = this.rows.slice(0);
         }
