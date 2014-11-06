@@ -6,6 +6,26 @@ License: MIT.
 Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
+angular.module('gantt.0.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.1.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.2.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/tooltips/default.tooltip.tmpl.html',
         '<div ng-show="showTooltips" class="gantt-task-info" ng-cloak ng-style="css">\n' +

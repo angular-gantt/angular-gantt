@@ -1,8 +1,9 @@
 'use strict';
 /*jshint undef:false */
 module.exports = function(grunt) {
+    var plugins = ['sortable', 'movable', 'tooltips'];
 
-    grunt.initConfig({
+    var config = {
         pkg: grunt.file.readJSON('package.json'),
         html2js: {
             options: {
@@ -14,11 +15,6 @@ module.exports = function(grunt) {
             core: {
                 src: ['src/template/**/*.html'],
                 dest: '.tmp/generated/core/html2js.js'
-            },
-            tooltips: {
-                module: 'gantt.tooltips.templates',
-                src: ['src/plugins/tooltips/**/*.html'],
-                dest: '.tmp/generated/plugins/tooltips/html2js.js'
             }
         },
         concat: {
@@ -46,18 +42,6 @@ module.exports = function(grunt) {
             plugins: {
                 src: ['.tmp/generated/plugins/**/*.js', 'src/plugins/*.js', 'src/plugins/**/*.js'],
                 dest: 'assets/<%= pkg.name %>-plugins.js'
-            },
-            sortable: {
-                src: ['src/plugins/sortable.js', 'src/plugins/sortable/**/*.js'],
-                dest: 'assets/<%= pkg.name %>-sortable-plugin.js'
-            },
-            movable: {
-                src: ['src/plugins/movable/movable.js', 'src/plugins/movable/**/*.js'],
-                dest: 'assets/<%= pkg.name %>-movable-plugin.js'
-            },
-            tooltips: {
-                src: ['.tmp/generated/plugins/tooltips/**/*.js', 'src/plugins/tooltips.js', 'src/plugins/tooltips/**/*.js'],
-                dest: 'assets/<%= pkg.name %>-tooltips-plugin.js'
             }
         },
         uglify: {
@@ -74,23 +58,7 @@ module.exports = function(grunt) {
                 files: {
                     'assets/<%= pkg.name %>-plugins.min.js': ['<%= concat.plugins.dest %>']
                 }
-            },
-            sortable: {
-                files: {
-                    'assets/<%= pkg.name %>-sortable.min.js': ['<%= concat.sortable.dest %>']
-                }
-            },
-            movable: {
-                files: {
-                    'assets/<%= pkg.name %>-movable.min.js': ['<%= concat.movable.dest %>']
-                }
-            },
-            tooltips: {
-                files: {
-                    'assets/<%= pkg.name %>-tooltips.min.js': ['<%= concat.tooltips.dest %>']
-                }
             }
-
         },
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js'],
@@ -109,7 +77,25 @@ module.exports = function(grunt) {
                 singleRun: true
             }
         }
-    });
+    };
+
+    for (var i=0; i<plugins.length; i++) {
+        var plugin = plugins[i];
+        config.html2js[plugin] = {
+            module: 'gantt.' + plugin + '.templates',
+            src: ['src/plugins/' + plugin + '/**/*.html'],
+            dest: '.tmp/generated/plugins/' + plugin + '/html2js.js'
+        };
+        config.concat[plugin] = {
+            src: ['src/plugins/' + plugin + '.js', 'src/plugins/' + plugin + '/**/*.js'],
+                dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.js'
+        };
+        var uglifyFiles = {};
+        uglifyFiles['assets/<%= pkg.name %>-' + plugin + '.min.js'] = ['<%= concat.' + plugin + '.dest %>'];
+        config.uglify[plugin] = {files: uglifyFiles};
+    }
+
+    grunt.initConfig(config);
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');

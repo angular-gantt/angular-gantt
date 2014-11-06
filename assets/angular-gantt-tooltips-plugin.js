@@ -6,21 +6,6 @@ License: MIT.
 Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
-angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/tooltips/default.tooltip.tmpl.html',
-        '<div ng-show="showTooltips" class="gantt-task-info" ng-cloak ng-style="css">\n' +
-        '    <div class="gantt-task-info-content">\n' +
-        '        {{ task.name }}</br>\n' +
-        '        <small>\n' +
-        '            {{\n' +
-        '            task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + \' - \' + task.getToLabel());\n' +
-        '            }}\n' +
-        '        </small>\n' +
-        '    </div>\n' +
-        '</div>\n' +
-        '');
-}]);
-
 
 angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$timeout', function($compile, $timeout) {
     return {
