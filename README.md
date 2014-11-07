@@ -843,7 +843,6 @@ To define bounds on a task, you need to add `est` and `lct` property on task obj
 
 ```js
 {
-    id: "...",
     name: "...",
     from: <Date>,
     to: <Date>,
@@ -854,7 +853,7 @@ To define bounds on a task, you need to add `est` and `lct` property on task obj
 
 #### Progress
 
-Display a visual indicator showing progressiong of tasks.
+Display a visual indicator showing progress of tasks.
 
 ```js
 angular.module('myApp', ['gantt', 'gantt.progress']);
@@ -870,7 +869,6 @@ To define bounds on a task, you need to add `progress` and `lct` property on tas
 
 ```js
 {
-    id: "...",
     name: "...",
     from: <Date>,
     to: <Date>,
