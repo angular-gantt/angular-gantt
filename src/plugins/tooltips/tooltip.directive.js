@@ -20,6 +20,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             var mousePositionX;
 
             $scope.css = {};
+            $scope.visible = false;
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {
@@ -28,7 +29,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
                 if (newValue === true) {
                     showTooltipPromise = $timeout(function() {
                         showTooltip(mousePositionX);
-                    }, 500);
+                    }, 500, true);
                 } else {
                     if (!$scope.task.isMoving) {
                         hideTooltip();
@@ -73,13 +74,14 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             };
 
             var showTooltip = function(x) {
+                $scope.visible = true;
+
                 $timeout(function() {
                     updateTooltip(x);
 
                     $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
                     $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
                     $scope.css.opacity = 1;
-                    $scope.css['z-index'] = 10;
                 }, 0, true);
             };
 
@@ -98,7 +100,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
 
             var hideTooltip = function() {
                 $scope.css.opacity = 0;
-                $scope.css['z-index'] = -10;
+                $scope.visible = false;
             };
 
             $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);

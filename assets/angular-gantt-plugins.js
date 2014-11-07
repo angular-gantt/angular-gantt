@@ -17,19 +17,13 @@ angular.module('gantt.movable.templates', []).run(['$templateCache', function($t
 
 }]);
 
-angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/progress/default.taskProgress.tmpl.html',
-        '<div ng-cloak class=\'gantt-task-progress\' ng-style="getCss()" ng-class="task.progress.classes"></div>\n' +
-        '');
-}]);
-
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
 
 angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/tooltips/default.tooltip.tmpl.html',
-        '<div ng-show="showTooltips" class="gantt-task-info" ng-cloak ng-style="css">\n' +
+        '<div ng-show="showTooltips && visible" class="gantt-task-info" ng-cloak ng-style="css">\n' +
         '    <div class="gantt-task-info-content">\n' +
         '        {{ task.name }}</br>\n' +
         '        <small>\n' +
@@ -587,6 +581,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             var mousePositionX;
 
             $scope.css = {};
+            $scope.visible = false;
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {
@@ -595,7 +590,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
                 if (newValue === true) {
                     showTooltipPromise = $timeout(function() {
                         showTooltip(mousePositionX);
-                    }, 500);
+                    }, 500, true);
                 } else {
                     if (!$scope.task.isMoving) {
                         hideTooltip();
@@ -640,13 +635,14 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             };
 
             var showTooltip = function(x) {
+                $scope.visible = true;
+
                 $timeout(function() {
                     updateTooltip(x);
 
                     $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
                     $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
                     $scope.css.opacity = 1;
-                    $scope.css['z-index'] = 10;
                 }, 0, true);
             };
 
@@ -665,7 +661,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
 
             var hideTooltip = function() {
                 $scope.css.opacity = 0;
-                $scope.css['z-index'] = -10;
+                $scope.visible = false;
             };
 
             $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
