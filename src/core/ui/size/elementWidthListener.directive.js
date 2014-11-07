@@ -14,11 +14,13 @@ gantt.directive('ganttElementWidthListener', [function() {
 
             while(scopeVariable.indexOf('$parent.') === 0) {
                 scopeVariable = scopeVariable.substring('$parent.'.length);
-                effectiveScope = $scope.$parent;
+                effectiveScope = effectiveScope.$parent;
             }
 
             effectiveScope.$watch(function() {
-                effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                if ($element[0].offsetWidth > 0) {
+                    effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                }
             });
         }]
     };

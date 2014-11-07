@@ -99,7 +99,7 @@
     <!-- Labels template -->
     <script type="text/ng-template" id="template/default.labels.tmpl.html">
         <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"
-             ng-style="(labelsWidth > 0 && {'width': labelsWidth+'px'} || {})"
+             ng-style="($parent.labelsWidth > 0 && {'width': $parent.labelsWidth+'px'} || {})"
              gantt-labels-resize="$parent.allowLabelsResizing"
              gantt-labels-resize-width="$parent.labelsWidth"
              gantt-labels-resize-min-width="50"

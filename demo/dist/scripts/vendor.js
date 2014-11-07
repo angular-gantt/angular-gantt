@@ -38708,11 +38708,13 @@ gantt.directive('ganttElementWidthListener', [function() {
 
             while(scopeVariable.indexOf('$parent.') === 0) {
                 scopeVariable = scopeVariable.substring('$parent.'.length);
-                effectiveScope = $scope.$parent;
+                effectiveScope = effectiveScope.$parent;
             }
 
             effectiveScope.$watch(function() {
-                effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                if ($element[0].offsetWidth > 0) {
+                    effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                }
             });
         }]
     };
@@ -39374,7 +39376,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Labels template -->\n' +
         '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
         '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
-        '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
+        '             ng-style="($parent.labelsWidth > 0 && {\'width\': $parent.labelsWidth+\'px\'} || {})"\n' +
         '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
         '             gantt-labels-resize-width="$parent.labelsWidth"\n' +
         '             gantt-labels-resize-min-width="50"\n' +
