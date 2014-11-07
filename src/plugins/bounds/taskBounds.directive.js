@@ -16,7 +16,7 @@ gantt.directive('ganttTaskBounds', [function() {
         controller: ['$scope', '$element', function($scope, $element) {
             var css = {};
 
-            $scope.$watchGroup(['task.est', 'task.lct'], function() {
+            $scope.$watchGroup(['task.est', 'task.lct', 'task.left', 'task.width'], function() {
                 if ($scope.task.est !== undefined && $scope.task.lct !== undefined) {
                     $scope.bounds = {};
                     $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.est);
