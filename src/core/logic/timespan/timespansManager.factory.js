@@ -79,7 +79,7 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             var timespan;
             for (var i = this.timespans.length - 1; i >= 0; i--) {
                 timespan = this.timespans[i];
-                if (timespan.id === timespanId) {
+                if (timespan.model.id === timespanId) {
                     removedTimespan = timespan;
                     this.timespans.splice(i, 1); // Remove from array
                 }

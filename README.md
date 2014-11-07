@@ -429,7 +429,7 @@ review those projects documentations.
 - **<Row> Object**
 ```js
 {
-    id: "...",  // Unique id of the row.
+    id: "...",  // Unique id of the row (Optional).
     name: "...", // Name shown on the left side of each row.
     order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
     height: "..." // Height of the row (Optional).
@@ -442,7 +442,7 @@ review those projects documentations.
 - **<Task> Object**
 ```js
 {
-    id: "...",  // Unique id of the task.
+    id: "...",  // Unique id of the task (Optional).
     name: "...", // Name shown on top of each task.
     from: <Date>, // Date can be a String, Timestamp or Date object.
     to: <Date>, // Date can be a String, Timestamp or Date object.
@@ -456,7 +456,7 @@ review those projects documentations.
 - **<Timespan> Object**
 ```js
 {
-    id: "...",  // Unique id of the timespan.
+    id: "...",  // Unique id of the timespan (Optional).
     name: "...", // Name shown on top of each timespan.
     from: <Date>, // Date can be a String, Timestamp or Date object.
     to: <Date>, // Date can be a String, Timestamp or Date object.

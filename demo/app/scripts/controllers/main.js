@@ -8,7 +8,10 @@
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'Uuid', 'Sample', 'ganttMouseOffset', 'moment', function($scope, $timeout, $log, Uuid, Sample, mouseOffset, moment) {
+    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'ganttUtils', 'Sample', 'ganttMouseOffset', 'moment', function($scope, $timeout, $log, utils, Sample, mouseOffset, moment) {
+        var data = Sample.getSampleData().data1;
+        var timespans = Sample.getSampleTimespans().timespan1;
+
         $scope.options = {
             mode: 'custom',
             scale: 'day',
@@ -114,7 +117,7 @@ angular.module('angularGanttDemoApp')
                                         var endDate = moment(startDate);
                                         //endDate.setDate(endDate.getDate());
                                         var infoTask = {
-                                            id: Uuid.randomUuid(),  // Unique id of the task.
+                                            id: utils.randomUuid(),  // Unique id of the task.
                                             name: 'Drawn task', // Name shown on top of each task.
                                             from: startDate, // Date can be a String, Timestamp or Date object.
                                             to: endDate,// Date can be a String, Timestamp or Date object.
@@ -161,24 +164,23 @@ angular.module('angularGanttDemoApp')
 
         // Reload data action
         $scope.addSamples = function() {
-            $scope.api.timespans.load(Sample.getSampleTimespans().timespan1);
-            $scope.api.data.load(Sample.getSampleData().data1);
+            $scope.api.timespans.load(timespans);
+            $scope.api.data.load(data);
         };
 
         // Remove data action
         $scope.removeSomeSamples = function() {
             $scope.api.data.remove([
-                {'id': 'c65c2672-445d-4297-a7f2-30de241b3145'}, // Remove all Kickoff meetings
+                {'id': data[2].id}, // Remove Kickoff row
                 {
-                    'id': '2f85dbeb-0845-404e-934e-218bf39750c0', 'tasks': [
-                    {'id': 'f55549b5-e449-4b0c-9f4b-8b33381f7d76'},
-                    {'id': '5e997eb3-4311-46b1-a1b4-7e8663ea8b0b'},
-                    {'id': '6fdfd775-7b22-42ec-a12c-21a64c9e7a9e'}
+                    'id': data[0].id, 'tasks': [
+                    {'id': data[0].tasks[0].id},
+                    {'id': data[0].tasks[3].id}
                 ]
                 }, // Remove some Milestones
                 {
-                    'id': 'cfb29cd5-1737-4027-9778-bb3058fbed9c', 'tasks': [
-                    {'id': '57638ba3-dfff-476d-ab9a-30fda1e44b50'}
+                    'id': data[6].id, 'tasks': [
+                    {'id':  data[6].tasks[0].id}
                 ]
                 } // Remove order basket from Sprint 2
             ]);

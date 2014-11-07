@@ -28,6 +28,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         // Copy to new task (add) or merge with existing (update)
         var task, isUpdate;
 
+        this.rowsManager.gantt.objectModel.cleanTask(taskModel);
         if (taskModel.id in this.tasksMap) {
             task = this.tasksMap[taskModel.id];
             task.model = taskModel;

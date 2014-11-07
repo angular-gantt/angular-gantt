@@ -50,9 +50,11 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         // Copy to new row (add) or merge with existing (update)
         var row, isUpdate = false;
 
+        this.gantt.objectModel.cleanRow(rowModel);
+
         if (rowModel.id in this.rowsMap) {
             row = this.rowsMap[rowModel.id];
-            row.copy(rowModel);
+            row.model = rowModel;
             isUpdate = true;
             this.gantt.api.rows.raise.change(row);
         } else {
@@ -78,7 +80,6 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
             for (var i = 0, l = rowModel.tasks.length; i < l; i++) {
                 var taskModel = rowModel.tasks[i];
-                this.gantt.objectModel.cleanTask(taskModel);
                 row.addTask(taskModel);
             }
         }
@@ -93,7 +94,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             var row;
             for (var i = this.rows.length - 1; i >= 0; i--) {
                 row = this.rows[i];
-                if (row.id === rowId) {
+                if (row.model.id === rowId) {
                     removedRow = row;
                     this.rows.splice(i, 1); // Remove from array
                 }
@@ -101,14 +102,14 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
             for (i = this.filteredRows.length - 1; i >= 0; i--) {
                 row = this.filteredRows[i];
-                if (row.id === rowId) {
+                if (row.model.id === rowId) {
                     this.filteredRows.splice(i, 1); // Remove from filtered array
                 }
             }
 
             for (i = this.visibleRows.length - 1; i >= 0; i--) {
                 row = this.visibleRows[i];
-                if (row.id === rowId) {
+                if (row.model.id === rowId) {
                     this.visibleRows.splice(i, 1); // Remove from visible array
                 }
             }

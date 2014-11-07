@@ -1,5 +1,5 @@
 'use strict';
-gantt.factory('GanttObjectModel', ['moment', function(moment) {
+gantt.factory('GanttObjectModel', ['ganttUtils', 'moment', function(utils, moment) {
     var ObjectModel = function(api) {
         this.api = api;
 
@@ -9,6 +9,10 @@ gantt.factory('GanttObjectModel', ['moment', function(moment) {
     };
 
     ObjectModel.prototype.cleanTask = function(model) {
+        if (model.id === undefined) {
+            model.id = utils.randomUuid();
+        }
+
         if (model.from !== undefined && !moment.isMoment(model.from)) {
             model.from = moment(model.from);
         }
@@ -21,6 +25,10 @@ gantt.factory('GanttObjectModel', ['moment', function(moment) {
     };
 
     ObjectModel.prototype.cleanRow = function(model) {
+        if (model.id === undefined) {
+            model.id = utils.randomUuid();
+        }
+
         if (model.from !== undefined && !moment.isMoment(model.from)) {
             model.from = moment(model.from);
         }
@@ -33,6 +41,10 @@ gantt.factory('GanttObjectModel', ['moment', function(moment) {
     };
 
     ObjectModel.prototype.cleanTimespan = function(model) {
+        if (model.id === undefined) {
+            model.id = utils.randomUuid();
+        }
+
         if (model.from !== undefined && !moment.isMoment(model.from)) {
             model.from = moment(model.from);
         }
