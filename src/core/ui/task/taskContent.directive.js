@@ -12,7 +12,7 @@ gantt.directive('ganttTaskContent', [function() {
         },
         replace: true,
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.task.$element = $element;
+            $scope.task.$contentElement = $element;
 
             $scope.gantt.api.directives.raise.new('ganttTaskContent', $scope, $element);
             $scope.$on('$destroy', function() {
