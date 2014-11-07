@@ -44,6 +44,16 @@ module.exports = function(grunt) {
                 dest: 'assets/<%= pkg.name %>-plugins.js'
             }
         },
+        concatCss: {
+            core: {
+                src: ['src/core/*.css', 'src/core/**/*.css'],
+                dest: 'assets/<%= pkg.name %>.css'
+            },
+            plugins: {
+                src: ['src/plugins/*.css', 'src/plugins/**/*.css'],
+                dest: 'assets/<%= pkg.name %>-plugins.css'
+            }
+        },
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\nuse strict;\n',
@@ -60,6 +70,16 @@ module.exports = function(grunt) {
                 }
             }
         },
+        cssmin: {
+            core: {
+                src: ['src/core/*.css'],
+                dest: 'assets/<%= pkg.name %>.min.css'
+            },
+            plugins: {
+                src: ['src/plugins/*.css', 'src/plugins/**/*.css'],
+                dest: 'assets/<%= pkg.name %>-plugins.min.css'
+            }
+        },
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js'],
             options: {
@@ -68,7 +88,7 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            files: ['<%= jshint.files %>', 'src/**/*.html'],
+            files: ['<%= jshint.files %>', 'src/**/*.css', 'src/**/*.html'],
             tasks: ['build']
         },
         karma: {
@@ -79,7 +99,7 @@ module.exports = function(grunt) {
         }
     };
 
-    for (var i=0; i<plugins.length; i++) {
+    for (var i = 0; i < plugins.length; i++) {
         var plugin = plugins[i];
         config.html2js[plugin] = {
             module: 'gantt.' + plugin + '.templates',
@@ -88,7 +108,15 @@ module.exports = function(grunt) {
         };
         config.concat[plugin] = {
             src: ['src/plugins/' + plugin + '.js', 'src/plugins/' + plugin + '/**/*.js'],
-                dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.js'
+            dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.js'
+        };
+        config.concatCss[plugin] = {
+            src: ['src/plugins/' + plugin + '.css', 'src/plugins/' + plugin + '/**/*.css'],
+            dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.css'
+        };
+        config.cssmin[plugin] = {
+            src: ['src/plugins/' + plugin + '.css', 'src/plugins/' + plugin + '/**/*.css'],
+            dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.min.css'
         };
         var uglifyFiles = {};
         uglifyFiles['assets/<%= pkg.name %>-' + plugin + '.min.js'] = ['<%= concat.' + plugin + '.dest %>'];
@@ -101,14 +129,22 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
 
     grunt.loadNpmTasks('grunt-html2js');
 
     grunt.loadNpmTasks('grunt-karma');
 
+    // I can't find any other method to call concat 2 times with distinct options.
+    // See https://github.com/gruntjs/grunt-contrib-concat/issues/113
+    // Start of ugliness
+    grunt.renameTask('concat', 'concatCss');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    // End of ugliness
+
     grunt.registerTask('test', ['karma']);
 
-    grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'uglify']);
+    grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'concatCss', 'uglify', 'cssmin']);
 
     grunt.registerTask('default', ['build', 'test']);
 

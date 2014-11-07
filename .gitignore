@@ -5,5 +5,5 @@
 /bower_components/
 /node_modules/
 /gh-pages/
-/assets/*.min.js
+/assets/*.min.*
 /assets/*.map

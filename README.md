@@ -741,12 +741,14 @@ Each plugin is available under [assets](assets/) folder as a standalone `angular
 
 Plugins are also available as a single packaged [angular-gantt-plugins.js](assets/angular-gantt-plugins.js) file.
 
+Some plugins also have additionnal CSS, available as standalone file and single packaged file.
+
 To use a plugin:
  - Add the plugin module dependency to your application module in javascript.
  
  ```js
- // To load <plugin> into your application
- angular.module('myApp', ['gantt', 'gantt.<plugin>']);
+ // To load plugin into your application
+ angular.module('myApp', ['gantt', 'gantt.plugin']);
  ```
  - Add the plugin directive as a child element of the gantt in html.
  
@@ -755,6 +757,10 @@ To use a plugin:
      <gantt-plugin></gantt-plugin>
  </gantt>
  ```
+ 
+ - Add the CSS file if exists to your HTML.
+ 
+ <
 
 #### Sortable
 
@@ -801,6 +807,10 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
 </gantt>
 ```
 
+```html
+<link rel="stylesheet" href="angular-gantt-tooltips.css">
+```
+
 ##### Attributes
 
 - **allow-moving** (default `true`)
@@ -839,6 +849,10 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
 </gantt>
 ```
 
+```html
+<link rel="stylesheet" href="angular-gantt-bounds.css">
+```
+
 To define bounds on a task, you need to add `est` and `lct` property on task object model.
 
 ```js
@@ -863,6 +877,10 @@ angular.module('myApp', ['gantt', 'gantt.progress']);
 <gantt>
     <gantt-progress><gantt-progress/>
 </gantt>
+```
+
+```html
+<link rel="stylesheet" href="angular-gantt-progress.css">
 ```
 
 To define bounds on a task, you need to add `progress` and `lct` property on task object model.

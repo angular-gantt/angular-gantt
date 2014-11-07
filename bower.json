@@ -9,7 +9,9 @@
   "description": "The gantt chart directive for AngularJS",
   "main": [
     "./assets/angular-gantt.js",
-    "./assets/gantt.css"
+    "./assets/angular-gantt.css",
+    "./assets/angular-gantt-plugins.js",
+    "./assets/angular-gantt-plugins.css"
   ],
   "keywords": [
     "gantt",
