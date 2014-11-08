@@ -38,7 +38,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                 movableOptions.initialize(scope);
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                    if (directiveName === 'ganttTaskContent') {
+                    if (directiveName === 'ganttTask') {
                         var resizeAreaWidthBig = 5;
                         var resizeAreaWidthSmall = 3;
                         var scrollSpeed = 15;

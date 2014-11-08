@@ -35978,7 +35978,7 @@ gantt.factory('ganttOptions', ['moment', function(moment) {
 
         options.timespans = options.timespans || [];
 
-        options.sortMode = options.sortMode || 'name';
+        options.sortMode = options.sortMode || undefined;
 
         options.filterTask = options.filterTask || undefined;
         options.filterTaskComparator = options.filterTaskComparator || undefined;
@@ -37266,6 +37266,7 @@ gantt.factory('Gantt', [
             this.api.registerMethod('data', 'load', this.loadData, this);
             this.api.registerMethod('data', 'remove', this.removeData, this);
             this.api.registerMethod('data', 'clear', this.clearData, this);
+            this.api.registerMethod('data', 'get', this.getData, this);
 
             this.calendar = new Calendar(this);
             this.calendar.registerTimeFrames(this.$scope.timeFrames);
@@ -37317,6 +37318,37 @@ gantt.factory('Gantt', [
                 }
             });
 
+            this.$scope.$watchCollection('data', function(newData, oldData) {
+                var i, l, toRemoveData;
+                if (oldData !== undefined) {
+                    toRemoveData = oldData.slice();
+                } else {
+                    toRemoveData = [];
+                }
+
+                if (newData !== undefined) {
+                    for (i= 0, l=newData.length; i<l; i++) {
+                        var newRow = newData[i];
+
+                        if (newRow.id !== undefined) {
+                            var newRowIndex = toRemoveData.indexOf(newRow);
+                            if (newRowIndex > -1) {
+                                toRemoveData.splice(newRowIndex, 1);
+                            }
+                        }
+                    }
+                }
+
+                for (i= 0, l=toRemoveData.length; i<l; i++) {
+                    var toRemove = toRemoveData[i];
+                    self.rowsManager.removeRow(toRemove.id);
+                }
+
+                if (newData !== undefined) {
+                    self.loadData(newData);
+                }
+            });
+
             if (angular.isFunction(this.$scope.api)) {
                 this.$scope.api(this.api);
             }
@@ -37356,11 +37388,16 @@ gantt.factory('Gantt', [
                 data = data !== undefined ? [data] : [];
             }
 
+            this.$scope.data = data;
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
                 this.rowsManager.addRow(rowData);
             }
             this.api.data.raise.load(this.$scope, data);
+        };
+
+        Gantt.prototype.getData = function() {
+            return this.$scope.data;
         };
 
         // Removes specified rows or tasks.
@@ -37457,16 +37494,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         this.tasks = [];
         this.filteredTasks = [];
         this.visibleTasks = [];
-
-        /*
-        this.id = id;
-        this.name = name;
-        this.order = order;
-        this.height = height;
-        this.color = color;
-        this.classes = classes;
-        this.data = data;
-        */
     };
 
     // Adds a task to a specific row. Merges the task if there is already one with the same id
@@ -37477,6 +37504,9 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         this.rowsManager.gantt.objectModel.cleanTask(taskModel);
         if (taskModel.id in this.tasksMap) {
             task = this.tasksMap[taskModel.id];
+            if (task.model === taskModel) {
+                return;
+            }
             task.model = taskModel;
             isUpdate = true;
         } else {
@@ -37485,6 +37515,13 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             this.tasks.push(task);
             this.filteredTasks.push(task);
             this.visibleTasks.push(task);
+
+            if (this.model.tasks === undefined) {
+                this.model.tasks = [];
+            }
+            if (this.model.tasks.indexOf(taskModel) === -1) {
+                this.model.tasks.push(taskModel);
+            }
         }
 
         this.sortTasks();
@@ -37582,6 +37619,13 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
                 }
             }
 
+            if (this.model.tasks !== undefined) {
+                var taskIndex = this.model.tasks.indexOf(removedTask.model);
+                if (taskIndex > -1) {
+                    this.model.tasks.splice(taskIndex, 1);
+                }
+            }
+
             if (!disableEmit) {
                 this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
             }
@@ -37622,7 +37666,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
     Row.prototype.clone = function() {
         var clone = new Row(this.rowsManager, angular.copy(this));
         for (var i = 0, l = this.tasks.length; i < l; i++) {
-            clone.addTask(this.tasks[i].clone());
+            clone.addTask(this.tasks[i].model);
         }
         return clone;
     };
@@ -37639,7 +37683,7 @@ gantt.factory('GanttRowHeader', [function() {
 }]);
 
 
-gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row, $filter, moment) {
+gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment', function(Row, arrays, $filter, moment) {
     var RowsManager = function(gantt) {
         var self = this;
 
@@ -37647,8 +37691,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         this.rowsMap = {};
         this.rows = [];
+        this.sortedRows = [];
         this.filteredRows = [];
         this.visibleRows = [];
+        this.rowsTaskWatchers = [];
 
         this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function() {
             self.updateVisibleTasks();
@@ -37666,10 +37712,8 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
             self.sortRows();
         });
 
-        this.updateVisibleObjects();
-
         this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
-        this.gantt.api.registerMethod('rows', 'swap', RowsManager.prototype.swapRows, this);
+        this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
         this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
 
         this.gantt.api.registerEvent('tasks', 'add');
@@ -37680,10 +37724,11 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         this.gantt.api.registerEvent('rows', 'add');
         this.gantt.api.registerEvent('rows', 'change');
         this.gantt.api.registerEvent('rows', 'remove');
-        this.gantt.api.registerEvent('rows', 'orderChange');
+        this.gantt.api.registerEvent('rows', 'move');
 
         this.gantt.api.registerEvent('rows', 'filter');
 
+        this.updateVisibleObjects();
     };
 
     RowsManager.prototype.addRow = function(rowModel) {
@@ -37694,26 +37739,27 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
 
         if (rowModel.id in this.rowsMap) {
             row = this.rowsMap[rowModel.id];
+            if (row.model === rowModel) {
+                return;
+            }
             row.model = rowModel;
             isUpdate = true;
             this.gantt.api.rows.raise.change(row);
         } else {
-            var order = rowModel.order;
-
-            // Check if the row has a order predefined. If not assign one
-            if (order === undefined) {
-                order = this.highestRowOrder;
-            }
-
-            if (order >= this.highestRowOrder) {
-                this.highestRowOrder = order + 1;
-            }
-
             row = new Row(this, rowModel);
             this.rowsMap[rowModel.id] = row;
             this.rows.push(row);
+            this.sortedRows.push(row);
             this.filteredRows.push(row);
             this.visibleRows.push(row);
+
+            if (this.gantt.$scope.data === undefined) {
+                this.gantt.$scope.data = [];
+            }
+            if (this.gantt.$scope.data.indexOf(rowModel) === -1) {
+                this.gantt.$scope.data.push(rowModel);
+            }
+
             this.gantt.api.rows.raise.add(row);
         }
 
@@ -37723,6 +37769,45 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 row.addTask(taskModel);
             }
         }
+
+        if (!isUpdate) {
+            var watcher = this.gantt.$scope.$watchCollection(function() {return rowModel.tasks;}, function(newTasks, oldTasks) {
+                var i, l, toRemoveTasks;
+                if (oldTasks !== undefined) {
+                    toRemoveTasks = oldTasks.slice();
+                } else {
+                    toRemoveTasks = [];
+                }
+
+                if (newTasks !== undefined) {
+                    for (i= 0, l=newTasks.length; i<l; i++) {
+                        var newTask = newTasks[i];
+
+                        if (newTask.id !== undefined) {
+                            var newTaskIndex = toRemoveTasks.indexOf(newTask);
+                            if (newTaskIndex > -1) {
+                                toRemoveTasks.splice(newTaskIndex, 1);
+                            }
+                        }
+                    }
+                }
+
+                for (i= 0, l = toRemoveTasks.length; i<l; i++) {
+                    var toRemove = toRemoveTasks[i];
+                    row.removeTask(toRemove.id);
+                }
+
+                if (newTasks !== undefined) {
+                    for (i= 0, l = newTasks.length; i<l; i++) {
+                        var toAdd = newTasks[i];
+                        row.addTask(toAdd);
+                    }
+                }
+            });
+
+            this.rowsTaskWatchers.push(watcher);
+        }
+
         return isUpdate;
     };
 
@@ -37737,6 +37822,15 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 if (row.model.id === rowId) {
                     removedRow = row;
                     this.rows.splice(i, 1); // Remove from array
+                    var deregisterFunction = this.rowsTaskWatchers.splice(i, 1); // Remove watcher
+                    deregisterFunction[0]();
+                }
+            }
+
+            for (i = this.sortedRows.length - 1; i >= 0; i--) {
+                row = this.sortedRows[i];
+                if (row.model.id === rowId) {
+                    this.sortedRows.splice(i, 1); // Remove from sorted array
                 }
             }
 
@@ -37752,6 +37846,11 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 if (row.model.id === rowId) {
                     this.visibleRows.splice(i, 1); // Remove from visible array
                 }
+            }
+
+            var index = this.gantt.$scope.data.indexOf(removedRow.model);
+            if (index > -1) {
+                this.gantt.$scope.data.splice(index, 1);
             }
 
             this.gantt.api.rows.raise.remove(removedRow);
@@ -37789,48 +37888,77 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
     RowsManager.prototype.removeAll = function() {
         this.rowsMap = {};
         this.rows = [];
+        this.sortedRows = [];
         this.filteredRows = [];
         this.visibleRows = [];
+        this.gantt.$scope.data = [];
+        for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
+            var deregisterFunction = this.rowsTaskWatchers[i];
+            deregisterFunction();
+        }
+        this.rowsTaskWatchers = [];
     };
 
     RowsManager.prototype.sortRows = function() {
         var expression = this.gantt.$scope.sortMode;
 
-        var reverse = false;
-        if (expression.charAt(0) === '-') {
-            reverse = true;
-            expression = expression.substr(1);
-        }
+        if (expression !== undefined) {
+            var reverse = false;
+            if (expression.charAt(0) === '-') {
+                reverse = true;
+                expression = expression.substr(1);
+            }
 
-        var angularOrderBy = $filter('orderBy');
-        if (expression === 'custom') {
-            this.rows = angularOrderBy(this.rows, 'model.order', reverse);
+            var angularOrderBy = $filter('orderBy');
+            this.sortedRows = angularOrderBy(this.rows, expression, reverse);
         } else {
-            this.rows = angularOrderBy(this.rows, expression, reverse);
+            this.sortedRows = this.rows.slice();
         }
 
         this.updateVisibleRows();
     };
 
-    // Swaps two rows and changes the sort order to custom to display the swapped rows
-    RowsManager.prototype.swapRows = function(a, b) {
-        // Swap the two rows
-        var order = a.model.order;
-        a.model.order = b.model.order;
-        b.model.order = order;
-
-        // Raise change events
-        this.gantt.api.rows.raise.change(a);
-        this.gantt.api.rows.raise.orderChange(a);
-        this.gantt.api.rows.raise.change(b);
-        this.gantt.api.rows.raise.orderChange(b);
-
-        // Switch to custom sort mode and trigger sort
-        if (this.gantt.$scope.sortMode !== 'custom') {
-            this.gantt.$scope.sortMode = 'custom'; // Sort will be triggered by the watcher
-        } else {
-            this.sortRows();
+    /**
+     * Applies current view sort to data model.
+     */
+    RowsManager.prototype.applySort = function() {
+        var tmpData = [];
+        var rows = [];
+        for (var i = 0, l = this.sortedRows.length; i < l; i++) {
+            tmpData.push(this.sortedRows[i].model);
+            rows.push(this.sortedRows[i]);
         }
+
+        this.gantt.$scope.data = tmpData;
+        this.rows = rows;
+    };
+
+    RowsManager.prototype.moveRow = function(row, targetRow) {
+        var targetRowIndex = this.rows.indexOf(targetRow);
+        var rowIndex = this.rows.indexOf(row);
+
+        if (targetRowIndex > -1 && rowIndex > -1 && targetRowIndex !== rowIndex) {
+            arrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
+            arrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
+            arrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
+
+            if (this.gantt.$scope.sortMode !== undefined) {
+                // Apply current sort to model
+                this.applySort();
+
+                this.gantt.$scope.sortMode = undefined;
+                this.sortRows();
+            } else {
+                arrays.moveToIndex(this.sortedRows, rowIndex, targetRowIndex);
+            }
+
+            this.gantt.api.rows.raise.change(row);
+            this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
+
+            this.updateVisibleRows();
+        }
+
+
     };
 
     RowsManager.prototype.updateVisibleObjects = function() {
@@ -37853,9 +37981,9 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
                 };
             }
 
-            this.filteredRows = $filter('filter')(this.rows, filterRow, filterRowComparator);
+            this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
         } else {
-            this.filteredRows = this.rows.slice(0);
+            this.filteredRows = this.sortedRows.slice(0);
         }
 
 
@@ -37864,7 +37992,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', '$filter', 'moment', function(Row
         // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
         this.visibleRows = this.filteredRows;
         if (raiseEvent) {
-            this.gantt.api.rows.raise.filter(this.rows, this.filteredRows);
+            this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
         }
     };
 
@@ -37955,17 +38083,6 @@ gantt.factory('GanttTask', [function() {
         this.model = model;
         this.truncatedLeft = false;
         this.truncatedRight = false;
-
-        /*
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.classes = classes;
-        this.priority = priority;
-        this.model.from = moment(from);
-        this.model.to = moment(to);
-        this.data = data;
-        */
     };
 
     Task.prototype.isMilestone = function() {
@@ -38301,6 +38418,22 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
     };
 
     return GanttTimespansManager;
+}]);
+
+
+gantt.service('ganttArrays', [function() {
+    return {
+        moveToIndex: function (array, oldIndex, newIndex) {
+            if (newIndex >= array.length) {
+                var k = newIndex - array.length;
+                while ((k--) + 1) {
+                    array.push(undefined);
+                }
+            }
+            array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+            return array;
+        }
+    };
 }]);
 
 
@@ -39040,6 +39173,10 @@ gantt.directive('ganttTask', [function() {
         controller: ['$scope', '$element', function($scope, $element) {
             $scope.task.$element = $element;
 
+            $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
+               $scope.task.updatePosAndSize();
+            });
+
             $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
             $scope.$on('$destroy', function() {
                 $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
@@ -39539,7 +39676,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                 movableOptions.initialize(scope);
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                    if (directiveName === 'ganttTaskContent') {
+                    if (directiveName === 'ganttTask') {
                         var resizeAreaWidthBig = 5;
                         var resizeAreaWidthSmall = 3;
                         var scrollSpeed = 15;
@@ -39883,9 +40020,9 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                             elementBelowMouse = angular.element(elementBelowMouse);
                             var targetRow = elementBelowMouse.scope().row;
 
-                            if (targetRow.model.id !== scope.startRow.model.id) {
+                            if (targetRow !== undefined && scope.startRow !== undefined && targetRow !== scope.startRow) {
                                 rowScope.$apply(function () {
-                                    rowScope.row.rowsManager.swapRows(targetRow, scope.startRow);
+                                    rowScope.row.rowsManager.moveRow(scope.startRow, targetRow);
                                 });
                             }
                         }

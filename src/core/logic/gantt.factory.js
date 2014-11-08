@@ -26,6 +26,7 @@ gantt.factory('Gantt', [
             this.api.registerMethod('data', 'load', this.loadData, this);
             this.api.registerMethod('data', 'remove', this.removeData, this);
             this.api.registerMethod('data', 'clear', this.clearData, this);
+            this.api.registerMethod('data', 'get', this.getData, this);
 
             this.calendar = new Calendar(this);
             this.calendar.registerTimeFrames(this.$scope.timeFrames);
@@ -77,6 +78,37 @@ gantt.factory('Gantt', [
                 }
             });
 
+            this.$scope.$watchCollection('data', function(newData, oldData) {
+                var i, l, toRemoveData;
+                if (oldData !== undefined) {
+                    toRemoveData = oldData.slice();
+                } else {
+                    toRemoveData = [];
+                }
+
+                if (newData !== undefined) {
+                    for (i= 0, l=newData.length; i<l; i++) {
+                        var newRow = newData[i];
+
+                        if (newRow.id !== undefined) {
+                            var newRowIndex = toRemoveData.indexOf(newRow);
+                            if (newRowIndex > -1) {
+                                toRemoveData.splice(newRowIndex, 1);
+                            }
+                        }
+                    }
+                }
+
+                for (i= 0, l=toRemoveData.length; i<l; i++) {
+                    var toRemove = toRemoveData[i];
+                    self.rowsManager.removeRow(toRemove.id);
+                }
+
+                if (newData !== undefined) {
+                    self.loadData(newData);
+                }
+            });
+
             if (angular.isFunction(this.$scope.api)) {
                 this.$scope.api(this.api);
             }
@@ -116,11 +148,16 @@ gantt.factory('Gantt', [
                 data = data !== undefined ? [data] : [];
             }
 
+            this.$scope.data = data;
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
                 this.rowsManager.addRow(rowData);
             }
             this.api.data.raise.load(this.$scope, data);
+        };
+
+        Gantt.prototype.getData = function() {
+            return this.$scope.data;
         };
 
         // Removes specified rows or tasks.

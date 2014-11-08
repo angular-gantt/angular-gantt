@@ -8,13 +8,15 @@
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'ganttUtils', 'Sample', 'ganttMouseOffset', 'moment', function($scope, $timeout, $log, utils, Sample, mouseOffset, moment) {
-        var data = Sample.getSampleData().data1;
-        var timespans = Sample.getSampleTimespans().timespan1;
+    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'ganttUtils', 'GanttObjectModel', 'Sample', 'ganttMouseOffset', 'ganttDebounce', 'moment', function($scope, $timeout, $log, utils, ObjectModel, Sample, mouseOffset, debounce, moment) {
+        var objectModel;
+        var data;
+        var timespans;
 
         $scope.options = {
             mode: 'custom',
             scale: 'day',
+            sortMode: undefined,
             maxHeight: false,
             width: false,
             autoExpand: 'none',
@@ -73,7 +75,7 @@ angular.module('angularGanttDemoApp')
                 api.core.on.ready($scope, function() {
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
-                    $scope.addSamples();
+                    $scope.load();
 
                     // Log various events to console
                     api.scroll.on.scroll($scope, logScrollEvent);
@@ -93,7 +95,7 @@ angular.module('angularGanttDemoApp')
 
                     api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
                     api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));
-                    api.rows.on.orderChange($scope, addEventName('rows.on.orderChange', logRowEvent));
+                    api.rows.on.move($scope, addEventName('rows.on.orderChange', logRowEvent));
                     api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
 
                     api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
@@ -158,6 +160,8 @@ angular.module('angularGanttDemoApp')
                             delete directiveScope.drawHandler;
                         }
                     });
+
+                    objectModel = new ObjectModel(api);
                 });
             }
         };
@@ -173,13 +177,26 @@ angular.module('angularGanttDemoApp')
         });
 
         // Reload data action
-        $scope.addSamples = function() {
+        $scope.load = function() {
+            data = Sample.getSampleData().data1;
+            timespans = Sample.getSampleTimespans().timespan1;
+
             $scope.api.timespans.load(timespans);
             $scope.api.data.load(data);
+
+            $scope.live.task = data[3].tasks[0];
+            $scope.live.row = data[0];
+        };
+
+        $scope.reload = function() {
+            $scope.api.timespans.clear();
+            $scope.api.data.clear();
+
+            $scope.load();
         };
 
         // Remove data action
-        $scope.removeSomeSamples = function() {
+        $scope.remove = function() {
             $scope.api.data.remove([
                 {'id': data[2].id}, // Remove Kickoff row
                 {
@@ -190,16 +207,85 @@ angular.module('angularGanttDemoApp')
                 }, // Remove some Milestones
                 {
                     'id': data[6].id, 'tasks': [
-                    {'id':  data[6].tasks[0].id}
+                    {'id': data[6].tasks[0].id}
                 ]
                 } // Remove order basket from Sprint 2
             ]);
         };
 
         // Clear data action
-        $scope.removeSamples = function() {
+        $scope.clear = function() {
             $scope.api.data.clear();
         };
+
+        $scope.live = {};
+
+        var debounceValue = 1000;
+
+        $scope.$watch('live.taskJson', debounce(function(taskJson) {
+            if (taskJson !== undefined) {
+                var task = angular.fromJson(taskJson);
+                objectModel.cleanTask(task);
+                angular.extend($scope.live.task, task);
+            }
+        }, debounceValue));
+
+        $scope.$watch('live.rowJson', debounce(function(rowJson) {
+            if (rowJson !== undefined) {
+                var row = angular.fromJson(rowJson);
+                objectModel.cleanRow(row);
+                var tasks = row.tasks;
+
+                delete row.tasks;
+                angular.extend($scope.live.row, row);
+
+                var newTasks = {};
+                var i, l;
+
+                if (tasks !== undefined) {
+                    for (i = 0, l = tasks.length; i < l; i++) {
+                        objectModel.cleanTask(tasks[i]);
+                    }
+
+                    for (i = 0, l = tasks.length; i < l; i++) {
+                        newTasks[tasks[i].id] = tasks[i];
+                    }
+
+                    if ($scope.live.row.tasks === undefined) {
+                        $scope.live.row.tasks = [];
+                    }
+                    for (i = $scope.live.row.tasks.length-1; i >= 0; i--) {
+                        var existingTask = $scope.live.row.tasks[i];
+                        var newTask = newTasks[existingTask.id];
+                        if (newTask === undefined) {
+                            $scope.live.row.tasks.splice(i, 1);
+                        } else {
+                            objectModel.cleanTask(newTask);
+                            angular.extend(existingTask, newTask);
+                            delete newTasks[existingTask.id];
+                        }
+                    }
+                } else {
+                    delete $scope.live.row.tasks;
+                }
+
+                angular.forEach(newTasks, function(newTask) {
+                    $scope.live.row.tasks.push(newTask);
+                });
+            }
+        }, debounceValue));
+
+        $scope.$watchCollection('live.task', debounce(function(task) {
+            $scope.live.taskJson = angular.toJson(task, true);
+        }, debounceValue));
+
+        $scope.$watchCollection('live.row', debounce(function(row) {
+            $scope.live.rowJson = angular.toJson(row, true);
+        }, debounceValue));
+
+        $scope.$watchCollection('live.row.tasks', debounce(function() {
+            $scope.live.rowJson = angular.toJson($scope.live.row, true);
+        }, debounceValue));
 
         // Event handler
         var logScrollEvent = function(left, date, direction) {

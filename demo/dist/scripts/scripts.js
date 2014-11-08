@@ -32,13 +32,15 @@ angular.module('angularGanttDemoApp', [
  * Controller of the angularGanttDemoApp
  */
 angular.module('angularGanttDemoApp')
-    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'ganttUtils', 'Sample', 'ganttMouseOffset', 'moment', function($scope, $timeout, $log, utils, Sample, mouseOffset, moment) {
-        var data = Sample.getSampleData().data1;
-        var timespans = Sample.getSampleTimespans().timespan1;
+    .controller('MainCtrl', ['$scope', '$timeout', '$log', 'ganttUtils', 'GanttObjectModel', 'Sample', 'ganttMouseOffset', 'ganttDebounce', 'moment', function($scope, $timeout, $log, utils, ObjectModel, Sample, mouseOffset, debounce, moment) {
+        var objectModel;
+        var data;
+        var timespans;
 
         $scope.options = {
             mode: 'custom',
             scale: 'day',
+            sortMode: undefined,
             maxHeight: false,
             width: false,
             autoExpand: 'none',
@@ -97,7 +99,7 @@ angular.module('angularGanttDemoApp')
                 api.core.on.ready($scope, function() {
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
-                    $scope.addSamples();
+                    $scope.load();
 
                     // Log various events to console
                     api.scroll.on.scroll($scope, logScrollEvent);
@@ -117,7 +119,7 @@ angular.module('angularGanttDemoApp')
 
                     api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
                     api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));
-                    api.rows.on.orderChange($scope, addEventName('rows.on.orderChange', logRowEvent));
+                    api.rows.on.move($scope, addEventName('rows.on.orderChange', logRowEvent));
                     api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
 
                     api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
@@ -182,6 +184,8 @@ angular.module('angularGanttDemoApp')
                             delete directiveScope.drawHandler;
                         }
                     });
+
+                    objectModel = new ObjectModel(api);
                 });
             }
         };
@@ -197,13 +201,26 @@ angular.module('angularGanttDemoApp')
         });
 
         // Reload data action
-        $scope.addSamples = function() {
+        $scope.load = function() {
+            data = Sample.getSampleData().data1;
+            timespans = Sample.getSampleTimespans().timespan1;
+
             $scope.api.timespans.load(timespans);
             $scope.api.data.load(data);
+
+            $scope.live.task = data[3].tasks[0];
+            $scope.live.row = data[0];
+        };
+
+        $scope.reload = function() {
+            $scope.api.timespans.clear();
+            $scope.api.data.clear();
+
+            $scope.load();
         };
 
         // Remove data action
-        $scope.removeSomeSamples = function() {
+        $scope.remove = function() {
             $scope.api.data.remove([
                 {'id': data[2].id}, // Remove Kickoff row
                 {
@@ -214,16 +231,85 @@ angular.module('angularGanttDemoApp')
                 }, // Remove some Milestones
                 {
                     'id': data[6].id, 'tasks': [
-                    {'id':  data[6].tasks[0].id}
+                    {'id': data[6].tasks[0].id}
                 ]
                 } // Remove order basket from Sprint 2
             ]);
         };
 
         // Clear data action
-        $scope.removeSamples = function() {
+        $scope.clear = function() {
             $scope.api.data.clear();
         };
+
+        $scope.live = {};
+
+        var debounceValue = 1000;
+
+        $scope.$watch('live.taskJson', debounce(function(taskJson) {
+            if (taskJson !== undefined) {
+                var task = angular.fromJson(taskJson);
+                objectModel.cleanTask(task);
+                angular.extend($scope.live.task, task);
+            }
+        }, debounceValue));
+
+        $scope.$watch('live.rowJson', debounce(function(rowJson) {
+            if (rowJson !== undefined) {
+                var row = angular.fromJson(rowJson);
+                objectModel.cleanRow(row);
+                var tasks = row.tasks;
+
+                delete row.tasks;
+                angular.extend($scope.live.row, row);
+
+                var newTasks = {};
+                var i, l;
+
+                if (tasks !== undefined) {
+                    for (i = 0, l = tasks.length; i < l; i++) {
+                        objectModel.cleanTask(tasks[i]);
+                    }
+
+                    for (i = 0, l = tasks.length; i < l; i++) {
+                        newTasks[tasks[i].id] = tasks[i];
+                    }
+
+                    if ($scope.live.row.tasks === undefined) {
+                        $scope.live.row.tasks = [];
+                    }
+                    for (i = $scope.live.row.tasks.length-1; i >= 0; i--) {
+                        var existingTask = $scope.live.row.tasks[i];
+                        var newTask = newTasks[existingTask.id];
+                        if (newTask === undefined) {
+                            $scope.live.row.tasks.splice(i, 1);
+                        } else {
+                            objectModel.cleanTask(newTask);
+                            angular.extend(existingTask, newTask);
+                            delete newTasks[existingTask.id];
+                        }
+                    }
+                } else {
+                    delete $scope.live.row.tasks;
+                }
+
+                angular.forEach(newTasks, function(newTask) {
+                    $scope.live.row.tasks.push(newTask);
+                });
+            }
+        }, debounceValue));
+
+        $scope.$watchCollection('live.task', debounce(function(task) {
+            $scope.live.taskJson = angular.toJson(task, true);
+        }, debounceValue));
+
+        $scope.$watchCollection('live.row', debounce(function(row) {
+            $scope.live.rowJson = angular.toJson(row, true);
+        }, debounceValue));
+
+        $scope.$watchCollection('live.row.tasks', debounce(function() {
+            $scope.live.rowJson = angular.toJson($scope.live.row, true);
+        }, debounceValue));
 
         // Event handler
         var logScrollEvent = function(left, date, direction) {
@@ -297,7 +383,7 @@ angular.module('angularGanttDemoApp')
                 return {
                     'data1': [
                         // Order is optional. If not specified it will be assigned automatically
-                        {'name': 'Milestones', 'order': 0, 'height': '3em', classes: 'gantt-row-milestone', 'color': '#45607D', 'tasks': [
+                        {'name': 'Milestones', 'height': '3em', classes: 'gantt-row-milestone', 'color': '#45607D', 'tasks': [
                             // Dates can be specified as string, timestamp or javascript date object. The data attribute can be used to attach a custom object
                             {'name': 'Kickoff', 'color': '#93C47D', 'from': '2013-10-07T09:00:00', 'to': '2013-10-07T10:00:00', 'data': 'Can contain any custom data or object'},
                             {'name': 'Concept approval', 'color': '#93C47D', 'from': new Date(2013, 9, 18, 18, 0, 0), 'to': new Date(2013, 9, 18, 18, 0, 0), 'est': new Date(2013, 9, 16, 7, 0, 0), 'lct': new Date(2013, 9, 19, 0, 0, 0)},
@@ -305,14 +391,14 @@ angular.module('angularGanttDemoApp')
                             {'name': 'Shop is running', 'color': '#93C47D', 'from': new Date(2013, 10, 22, 12, 0, 0), 'to': new Date(2013, 10, 22, 12, 0, 0)},
                             {'name': 'Go-live', 'color': '#93C47D', 'from': new Date(2013, 10, 29, 16, 0, 0), 'to': new Date(2013, 10, 29, 16, 0, 0)}
                         ], 'data': 'Can contain any custom data or object'},
-                        {'name': 'Status meetings', 'order': 1, 'tasks': [
+                        {'name': 'Status meetings', 'tasks': [
                             {'name': 'Demo', 'color': '#9FC5F8', 'from': new Date(2013, 9, 25, 15, 0, 0), 'to': new Date(2013, 9, 25, 18, 30, 0)},
                             {'name': 'Demo', 'color': '#9FC5F8', 'from': new Date(2013, 10, 1, 15, 0, 0), 'to': new Date(2013, 10, 1, 18, 0, 0)},
                             {'name': 'Demo', 'color': '#9FC5F8', 'from': new Date(2013, 10, 8, 15, 0, 0), 'to': new Date(2013, 10, 8, 18, 0, 0)},
                             {'name': 'Demo', 'color': '#9FC5F8', 'from': new Date(2013, 10, 15, 15, 0, 0), 'to': new Date(2013, 10, 15, 18, 0, 0)},
                             {'name': 'Demo', 'color': '#9FC5F8', 'from': new Date(2013, 10, 24, 9, 0, 0), 'to': new Date(2013, 10, 24, 10, 0, 0)}
                         ]},
-                        {'name': 'Kickoff', 'order': 2, 'tasks': [
+                        {'name': 'Kickoff', 'tasks': [
                             {'name': 'Day 1', 'color': '#9FC5F8', 'from': new Date(2013, 9, 7, 9, 0, 0), 'to': new Date(2013, 9, 7, 17, 0, 0),
                                 'progress': {'percent': 100, 'color': '#3C8CF8'}},
                             {'name': 'Day 2', 'color': '#9FC5F8', 'from': new Date(2013, 9, 8, 9, 0, 0), 'to': new Date(2013, 9, 8, 17, 0, 0),
@@ -320,43 +406,43 @@ angular.module('angularGanttDemoApp')
                             {'name': 'Day 3', 'color': '#9FC5F8', 'from': new Date(2013, 9, 9, 8, 30, 0), 'to': new Date(2013, 9, 9, 12, 0, 0),
                                 'progress': {'percent': 100, 'color': '#3C8CF8'}}
                         ]},
-                        {'name': 'Create concept', 'order': 3, 'tasks': [
+                        {'name': 'Create concept', 'tasks': [
                             {'name': 'Create concept', 'color': '#F1C232', 'from': new Date(2013, 9, 10, 8, 0, 0), 'to': new Date(2013, 9, 16, 18, 0, 0), 'est': new Date(2013, 9, 8, 8, 0, 0), 'lct': new Date(2013, 9, 18, 20, 0, 0),
                                 'progress': 100}
                         ]},
-                        {'name': 'Finalize concept', 'order': 4, 'tasks': [
+                        {'name': 'Finalize concept', 'tasks': [
                             {'name': 'Finalize concept', 'color': '#F1C232', 'from': new Date(2013, 9, 17, 8, 0, 0), 'to': new Date(2013, 9, 18, 18, 0, 0),
                                 'progress': 100}
                         ]},
-                        {'name': 'Sprint 1', 'order': 5, 'tasks': [
+                        {'name': 'Sprint 1', 'tasks': [
                             {'name': 'Product list view', 'color': '#F1C232', 'from': new Date(2013, 9, 21, 8, 0, 0), 'to': new Date(2013, 9, 25, 15, 0, 0),
                                 'progress': 25}
                         ]},
-                        {'name': 'Sprint 2', 'order': 6, 'tasks': [
+                        {'name': 'Sprint 2', 'tasks': [
                             {'name': 'Order basket', 'color': '#F1C232', 'from': new Date(2013, 9, 28, 8, 0, 0), 'to': new Date(2013, 10, 1, 15, 0, 0)}
                         ]},
-                        {'name': 'Sprint 3', 'order': 7, 'tasks': [
+                        {'name': 'Sprint 3', 'tasks': [
                             {'name': 'Checkout', 'color': '#F1C232', 'from': new Date(2013, 10, 4, 8, 0, 0), 'to': new Date(2013, 10, 8, 15, 0, 0)}
                         ]},
-                        {'name': 'Sprint 4', 'order': 8, 'tasks': [
+                        {'name': 'Sprint 4', 'tasks': [
                             {'name': 'Login&Singup and admin view', 'color': '#F1C232', 'from': new Date(2013, 10, 11, 8, 0, 0), 'to': new Date(2013, 10, 15, 15, 0, 0)}
                         ]},
-                        {'name': 'Setup server', 'order': 9, 'tasks': [
+                        {'name': 'Setup server', 'tasks': [
                             {'name': 'HW', 'color': '#F1C232', 'from': new Date(2013, 10, 18, 8, 0, 0), 'to': new Date(2013, 10, 18, 12, 0, 0)}
                         ]},
-                        {'name': 'Config server', 'order': 10, 'tasks': [
+                        {'name': 'Config server', 'tasks': [
                             {'name': 'SW / DNS/ Backups', 'color': '#F1C232', 'from': new Date(2013, 10, 18, 12, 0, 0), 'to': new Date(2013, 10, 21, 18, 0, 0)}
                         ]},
-                        {'name': 'Deployment', 'order': 11, 'tasks': [
+                        {'name': 'Deployment', 'tasks': [
                             {'name': 'Depl. & Final testing', 'color': '#F1C232', 'from': new Date(2013, 10, 21, 8, 0, 0), 'to': new Date(2013, 10, 22, 12, 0, 0)}
                         ]},
-                        {'name': 'Workshop', 'order': 12, 'tasks': [
+                        {'name': 'Workshop', 'tasks': [
                             {'name': 'On-side education', 'color': '#F1C232', 'from': new Date(2013, 10, 24, 9, 0, 0), 'to': new Date(2013, 10, 25, 15, 0, 0)}
                         ]},
-                        {'name': 'Content', 'order': 13, 'tasks': [
+                        {'name': 'Content', 'tasks': [
                             {'name': 'Supervise content creation', 'color': '#F1C232', 'from': new Date(2013, 10, 26, 9, 0, 0), 'to': new Date(2013, 10, 29, 16, 0, 0)}
                         ]},
-                        {'name': 'Documentation', 'order': 14, 'tasks': [
+                        {'name': 'Documentation', 'tasks': [
                             {'name': 'Technical/User documentation', 'color': '#F1C232', 'from': new Date(2013, 10, 26, 8, 0, 0), 'to': new Date(2013, 10, 28, 18, 0, 0)}
                         ]}
                     ]};

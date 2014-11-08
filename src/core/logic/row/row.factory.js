@@ -11,16 +11,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         this.tasks = [];
         this.filteredTasks = [];
         this.visibleTasks = [];
-
-        /*
-        this.id = id;
-        this.name = name;
-        this.order = order;
-        this.height = height;
-        this.color = color;
-        this.classes = classes;
-        this.data = data;
-        */
     };
 
     // Adds a task to a specific row. Merges the task if there is already one with the same id
@@ -31,6 +21,9 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
         this.rowsManager.gantt.objectModel.cleanTask(taskModel);
         if (taskModel.id in this.tasksMap) {
             task = this.tasksMap[taskModel.id];
+            if (task.model === taskModel) {
+                return;
+            }
             task.model = taskModel;
             isUpdate = true;
         } else {
@@ -39,6 +32,13 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             this.tasks.push(task);
             this.filteredTasks.push(task);
             this.visibleTasks.push(task);
+
+            if (this.model.tasks === undefined) {
+                this.model.tasks = [];
+            }
+            if (this.model.tasks.indexOf(taskModel) === -1) {
+                this.model.tasks.push(taskModel);
+            }
         }
 
         this.sortTasks();
@@ -136,6 +136,13 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
                 }
             }
 
+            if (this.model.tasks !== undefined) {
+                var taskIndex = this.model.tasks.indexOf(removedTask.model);
+                if (taskIndex > -1) {
+                    this.model.tasks.splice(taskIndex, 1);
+                }
+            }
+
             if (!disableEmit) {
                 this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
             }
@@ -176,7 +183,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
     Row.prototype.clone = function() {
         var clone = new Row(this.rowsManager, angular.copy(this));
         for (var i = 0, l = this.tasks.length; i < l; i++) {
-            clone.addTask(this.tasks[i].clone());
+            clone.addTask(this.tasks[i].model);
         }
         return clone;
     };

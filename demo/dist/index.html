@@ -56,7 +56,7 @@
                                                     </div>
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
-                                                        <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.mode" ng-options="m for m in ['name', 'from', 'to', 'custom']" bs-select></button>
+                                                        <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" ng-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
                                                     </div>
                                                     <div class="form-group input-append text-center">
                                                         <label class="control-label"><i class="fa fa-filter"></i> Filter Tasks</label><br>
@@ -120,9 +120,9 @@
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-database"></i> Data actions</label><br>
                                                         <div class="btn-group">
-                                                            <button class="btn btn-default" ng-click="addSamples()">Reload</button>
-                                                            <button class="btn btn-default" ng-click="removeSomeSamples()">Remove</button>
-                                                            <button class="btn btn-default" ng-click="removeSamples()">Clear</button>
+                                                            <button class="btn btn-default" ng-click="reload()">Reload</button>
+                                                            <button class="btn btn-default" ng-click="remove()">Remove</button>
+                                                            <button class="btn btn-default" ng-click="clear()">Clear</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -148,7 +148,7 @@
                                         <div gantt
                                                filter-task="{'name': options.filterTask}"
                                                filter-row="{'name': options.filterRow}"
-                                               sort-mode="options.mode"
+                                               sort-mode="options.sortMode"
                                                view-scale="options.scale"
                                                column-width="options.width && {minute: 40, hour: 40, day: 40, week: 150, month: 300, quarter: 500, year: 800}[options.scale] || undefined"
                                                auto-expand="options.autoExpand"
@@ -171,6 +171,18 @@
                                             <gantt-progress></gantt-progress>
                                             <gantt-sortable></gantt-sortable>
                                             <gantt-movable allow-moving="!options.readOnly" allow-resizing="!options.readOnly" allow-row-switching="!options.readOnly"></gantt-movable>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="live-table">
+                                            <div class="live-cell">
+                                                <h4>Task object ({{live.task.name}})</h4>
+                                                <textarea class="live-task" ng-model="live.taskJson"></textarea>
+                                            </div>
+                                            <div class="live-cell">
+                                                <h4>Row object ({{live.row.name}})</h4>
+                                                <textarea class="live-row" ng-model="live.rowJson"></textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

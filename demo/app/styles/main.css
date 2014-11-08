@@ -32,3 +32,23 @@
     vertical-align: middle;
     color: white;
 }
+
+div.live-table {
+    display: table;
+    width : 100%;
+}
+
+div.live-row {
+    display: table-row;
+}
+
+div.live-cell {
+    display: table-cell;
+    padding: 5px;
+    width: 50%;
+}
+
+textarea.live-task, textarea.live-row {
+    width: 100%;
+    height: 300px;
+}

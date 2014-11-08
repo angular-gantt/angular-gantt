@@ -6,17 +6,6 @@ gantt.factory('GanttTask', [function() {
         this.model = model;
         this.truncatedLeft = false;
         this.truncatedRight = false;
-
-        /*
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.classes = classes;
-        this.priority = priority;
-        this.model.from = moment(from);
-        this.model.to = moment(to);
-        this.data = data;
-        */
     };
 
     Task.prototype.isMilestone = function() {

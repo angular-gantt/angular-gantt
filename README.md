@@ -373,16 +373,15 @@ review those projects documentations.
   }
   ```
 
-- **sort-mode** (default: `name`)
+- **sort-mode**
 
   Sorts the rows by given expression.
-  - `name`: Sort by row name
+  - `model.name`: Sort by row name
   - `from`: Sort by the earliest task from date of each row
   - `to`: Sort by the latest task to date of each row
-  - `custom`: Sort by a property called **order** on each row
   - `<expression>`: Sort using an angularJS expression (see [angularJS orderBy filter](https://docs.angularjs.org/api/ng/filter/orderBy)).
 
-  Prepend a `-` in front to sort descending. E.g. `-date`
+  Prepend a `-` in front to sort descending. E.g. `-model.from`
 
 - **task-out-of-range** (default: `expand`)
 
@@ -431,7 +430,6 @@ review those projects documentations.
 {
     id: "...",  // Unique id of the row (Optional).
     name: "...", // Name shown on the left side of each row.
-    order: <Number> // Row order for custom sort mode. Should be a unique number if defined (Optional). Tip: Property can be left away for default behaviour.
     height: "..." // Height of the row (Optional).
     color: "..." , // Color of the task in HEX format (Optional).
     classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
@@ -546,6 +544,10 @@ api.featureName.raise.eventName(data);
   Take a look at demo files [demo/app/index.html](demo/app/index.html) and 
   [demo/app/scripts/controllers/main.js](demo/app/scripts/controllers/main.js) to see how this callback is used.
   
+- **api.data.get()**
+
+  Get the data model binded to gantt.
+
 ##### timespans
 
 - **api.timespans.load(timespans)**
@@ -587,10 +589,10 @@ api.featureName.raise.eventName(data);
 - **api.rows.sort()**
 
   Sort rows based on `sort-mode` value.
-
-- **api.rows.swap(row1, row2)**
-
-  Swap two rows. `sort-mode` must be equals to `custom`.
+  
+- **api.rows.applySort()**
+  
+  Apply the actual sort provided by `sort-mode` to gantt model data.
 
 - <a name="api-rows-refresh"></a>**api.rows.refresh()**
 
@@ -713,21 +715,25 @@ api.featureName.raise.eventName(data);
 
   A timespan has been added, changed or removed.
   
-- **api.timespans.on.clean(taskModel)**
+- **api.timespans.on.clean(timespanModel)**
   
   Model of a timespans has been cleaned and will be loaded.
   
 ##### rows
   
-- **api.rows.on.add(row)**, **api.rows.on.change(row)**, **api.rows.on.remove(row)**, **api.rows.on.orderChange(row)**
+- **api.rows.on.add(row)**, **api.rows.on.change(row)**, **api.rows.on.remove(row)**
 
-  A row has been added, changed or removed. The row changed event and row order changed event is raised if the custom sort order has been changed by the user.
+  A row has been added, changed or removed.
+  
+- **api.rows.on.move(row, oldIndex, newIndex)**
+
+  A row has been moved.
 
 - **api.rows.on.filter(rows, filteredRows)**
 
   Rows have been filtered out.
   
-- **api.rows.on.clean(taskModel)**
+- **api.rows.on.clean(row)**
   
   Model of a row has been cleaned and will be loaded.
 

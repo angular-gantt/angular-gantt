@@ -48,9 +48,9 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                             elementBelowMouse = angular.element(elementBelowMouse);
                             var targetRow = elementBelowMouse.scope().row;
 
-                            if (targetRow.model.id !== scope.startRow.model.id) {
+                            if (targetRow !== undefined && scope.startRow !== undefined && targetRow !== scope.startRow) {
                                 rowScope.$apply(function () {
-                                    rowScope.row.rowsManager.swapRows(targetRow, scope.startRow);
+                                    rowScope.row.rowsManager.moveRow(scope.startRow, targetRow);
                                 });
                             }
                         }

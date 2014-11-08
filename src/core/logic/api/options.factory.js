@@ -7,7 +7,7 @@ gantt.factory('ganttOptions', ['moment', function(moment) {
 
         options.timespans = options.timespans || [];
 
-        options.sortMode = options.sortMode || 'name';
+        options.sortMode = options.sortMode || undefined;
 
         options.filterTask = options.filterTask || undefined;
         options.filterTaskComparator = options.filterTaskComparator || undefined;
