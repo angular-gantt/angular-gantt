@@ -667,7 +667,27 @@ api.featureName.raise.eventName(data);
 
 - **api.directives.on.new(directiveName, directiveScope, element)**
 
-  A directive has been added to the DOM.
+  A directive has been added to the DOM. This event can be used to register DOM events e.g. a mouse click event.
+  
+  Example:
+  ```js
+  api.directives.on.new($scope, function(directiveName, directiveScope, element) {
+                          if (directiveName === 'ganttTask') {
+                              element.bind('click', function(event) {
+                                  event.stopPropagation();
+                                  console.log('task-click: ' + directiveScope.task.model);
+                              });
+                          }
+                      });
+  ```
+  
+  The most important directives for registering DOM events are:
+  - `ganttTask` (task)
+  - `ganttRow` (row)
+  - `ganttRowHeader` (labels header)
+  - `ganttRowLabel` (row label)
+  - `ganttColumnHeader` (column header)
+  - `ganttHeader` (all column headers)
   
 - **api.directives.on.destroy(directiveName, directiveScope, element)**
 

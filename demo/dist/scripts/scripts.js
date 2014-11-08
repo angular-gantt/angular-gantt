@@ -128,6 +128,19 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
 
+                    api.directives.on.new($scope, function(directiveName, directiveScope, element) {
+                        if (directiveName === 'ganttTask') {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
+                                logTaskEvent('task-click', directiveScope.task.model);
+                            });
+                        } else if (directiveName === 'ganttRow') {
+                            element.bind('click', function() {
+                                logRowEvent('row-click', directiveScope.row.model);
+                            });
+                        }
+                    });
+
                     // Add draw support using API directives.on.new event.
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttRow') {
@@ -170,9 +183,6 @@ angular.module('angularGanttDemoApp')
                         }
                     });
                 });
-
-
-
             }
         };
 
