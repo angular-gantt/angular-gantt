@@ -40,17 +40,17 @@ gantt.factory('Gantt', [
 
             $scope.$watch('timeFrames', function(newValues, oldValues) {
                 if (!angular.equals(newValues, oldValues)) {
-                    this.calendar.clearTimeFrames();
-                    this.calendar.registerTimeFrames($scope.timeFrames);
-                    this.columnsManager.generateColumns();
+                    self.calendar.clearTimeFrames();
+                    self.calendar.registerTimeFrames($scope.timeFrames);
+                    self.columnsManager.generateColumns();
                 }
             });
 
             $scope.$watch('dateFrames', function(newValues, oldValues) {
                 if (!angular.equals(newValues, oldValues)) {
-                    this.calendar.clearTimeFrames();
-                    this.calendar.registerTimeFrames($scope.timeFrames);
-                    this.columnsManager.generateColumns();
+                    self.calendar.clearTimeFrames();
+                    self.calendar.registerTimeFrames($scope.timeFrames);
+                    self.columnsManager.generateColumns();
                 }
             });
 
