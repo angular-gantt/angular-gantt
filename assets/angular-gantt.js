@@ -2765,39 +2765,42 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
 
     return {
         restrict: 'A',
+        require: '^gantt',
         scope: { enabled: '=ganttLabelsResize',
             width: '=ganttLabelsResizeWidth',
             minWidth: '=ganttLabelsResizeMinWidth'},
-        controller: ['$scope', '$element', function($scope, $element) {
+        link: function(scope, element, attrs, ganttCtrl) {
+            var api = ganttCtrl.gantt.api;
+
             var resizeAreaWidth = 5;
             var cursor = 'ew-resize';
             var originalPos;
 
-            $element.bind('mousedown', function(e) {
-                if ($scope.enabled && isInResizeArea(e)) {
+            element.bind('mousedown', function(e) {
+                if (scope.enabled && isInResizeArea(e)) {
                     enableResizeMode(e);
                     e.preventDefault();
                 }
             });
 
-            $element.bind('mousemove', function(e) {
-                if ($scope.enabled) {
+            element.bind('mousemove', function(e) {
+                if (scope.enabled) {
                     if (isInResizeArea(e)) {
-                        $element.css('cursor', cursor);
+                        element.css('cursor', cursor);
                     } else {
-                        $element.css('cursor', '');
+                        element.css('cursor', '');
                     }
                 }
             });
 
             var resize = function(x) {
-                if ($scope.width === 0) {
-                    $scope.width = $element[0].offsetWidth;
+                if (scope.width === 0) {
+                    scope.width = element[0].offsetWidth;
                 }
 
-                $scope.width += x - originalPos;
-                if ($scope.width < $scope.minWidth) {
-                    $scope.width = $scope.minWidth;
+                scope.width += x - originalPos;
+                if (scope.width < scope.minWidth) {
+                    scope.width = scope.minWidth;
                 }
 
                 originalPos = x;
@@ -2806,7 +2809,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
             var isInResizeArea = function(e) {
                 var x = mouseOffset.getOffset(e).x;
 
-                return x > $element[0].offsetWidth - resizeAreaWidth;
+                return x > element[0].offsetWidth - resizeAreaWidth;
             };
 
             var enableResizeMode = function(e) {
@@ -2833,7 +2836,7 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
             };
 
             var disableResizeMode = function() {
-                $element.css('cursor', '');
+                element.css('cursor', '');
 
                 angular.element($document[0].body).css({
                     '-moz-user-select': '',
@@ -2843,9 +2846,9 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
                     'cursor': ''
                 });
 
-                $scope.gantt.api.labels.raise.resize($scope.width);
+                api.labels.raise.resize(scope.width);
             };
-        }]
+        }
     };
 }]);
 
