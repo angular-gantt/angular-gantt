@@ -1803,7 +1803,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
     // Adds a task to a specific row. Merges the task if there is already one with the same id
     Row.prototype.addTask = function(taskModel) {
         // Copy to new task (add) or merge with existing (update)
-        var task, isUpdate;
+        var task, isUpdate = false;
 
         this.rowsManager.gantt.objectModel.cleanTask(taskModel);
         if (taskModel.id in this.tasksMap) {
@@ -1816,7 +1816,6 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
             this.tasks.push(task);
             this.filteredTasks.push(task);
             this.visibleTasks.push(task);
-            isUpdate = true;
         }
 
         this.sortTasks();
