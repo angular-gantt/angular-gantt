@@ -37288,8 +37288,8 @@ gantt.factory('Gantt', [
 
             $scope.$watch('dateFrames', function(newValues, oldValues) {
                 if (!angular.equals(newValues, oldValues)) {
-                    self.calendar.clearTimeFrames();
-                    self.calendar.registerTimeFrames($scope.timeFrames);
+                    self.calendar.clearDateFrames();
+                    self.calendar.registerDateFrames($scope.dateFrames);
                     self.columnsManager.generateColumns();
                 }
             });
