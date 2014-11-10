@@ -37279,20 +37279,24 @@ gantt.factory('Gantt', [
             this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
             this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
-            $scope.$watch('timeFrames', function(newValues, oldValues) {
-                if (!angular.equals(newValues, oldValues)) {
-                    self.calendar.clearTimeFrames();
-                    self.calendar.registerTimeFrames($scope.timeFrames);
-                    self.columnsManager.generateColumns();
-                }
-            });
+            $scope.$watchGroup(['timeFrames', 'dateFrames'], function(newValues, oldValues) {
+                var timeFrames = newValues[0];
+                var dateFrames = newValues[1];
 
-            $scope.$watch('dateFrames', function(newValues, oldValues) {
-                if (!angular.equals(newValues, oldValues)) {
-                    self.calendar.clearDateFrames();
-                    self.calendar.registerDateFrames($scope.dateFrames);
-                    self.columnsManager.generateColumns();
+                var oldTimeFrames = oldValues[0];
+                var oldDateFrames = oldValues[1];
+
+                if (!angular.equals(timeFrames, oldTimeFrames)) {
+                    self.calendar.clearTimeFrames();
+                    self.calendar.registerTimeFrames(timeFrames);
                 }
+
+                if (!angular.equals(dateFrames, oldDateFrames)) {
+                    self.calendar.clearDateFrames();
+                    self.calendar.registerDateFrames(dateFrames);
+                }
+
+                self.columnsManager.generateColumns();
             });
 
             this.scroll = new Scroll(this);
