@@ -38472,6 +38472,17 @@ gantt.service('ganttUtils', [function() {
                 return method.apply(object, arguments);
             };
         },
+        firstProperty: function(objects, propertyName, defaultValue) {
+            for (var i= 0, l=objects.length; i<l; i++) {
+                var object = objects[i];
+                if (object !== undefined && propertyName in object) {
+                    if (object[propertyName] !== undefined) {
+                        return object[propertyName];
+                    }
+                }
+            }
+            return defaultValue;
+        },
         random4: function() {
             return Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)
@@ -39679,8 +39690,8 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
 }]);
 
 
-angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', '$window', '$document', '$timeout',
-    function(mouseButton, mouseOffset, debounce, smartEvent, movableOptions, $window, $document, $timeout) {
+angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
+    function(mouseButton, mouseOffset, debounce, smartEvent, movableOptions, utils, $window, $document, $timeout) {
         // Provides moving and resizing of tasks
         return {
             restrict: 'E',
@@ -39728,7 +39739,8 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var scrollInterval;
 
                         taskElement.bind('mousedown', function(evt) {
-                            if (scope.enabled) {
+                            var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                            if (enabled) {
                                 taskScope.$apply(function() {
                                     var mode = getMoveMode(evt);
                                     if (mode !== '' && mouseButton.getButton(evt) === 1) {
@@ -39740,11 +39752,14 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         });
 
                         taskElement.bind('mousemove', debounce(function(e) {
-                            var mode = getMoveMode(e);
-                            if (scope.enabled && mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
-                                taskElement.css('cursor', getCursor(mode));
-                            } else {
-                                taskElement.css('cursor', '');
+                            var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                            if (enabled) {
+                                var mode = getMoveMode(e);
+                                if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                    taskElement.css('cursor', getCursor(mode));
+                                } else {
+                                    taskElement.css('cursor', '');
+                                }
                             }
                         }, 5));
 
@@ -39762,14 +39777,16 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             taskScope.task.mouseOffsetX = mousePos.x;
                             var x = mousePos.x;
                             if (mode === 'M') {
-                                if (scope.allowRowSwitching) {
+                                var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                if (allowRowSwitching) {
                                     var targetRow = getRowByY(mousePos.y);
                                     if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
                                         targetRow.moveTaskToRow(taskScope.task);
                                     }
                                 }
 
-                                if (scope.allowMoving) {
+                                var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+                                if (allowMoving) {
                                     x = x - mouseOffsetInEm;
                                     if (taskScope.taskOutOfRange !== 'truncate') {
                                         if (x < 0) {
@@ -39865,16 +39882,20 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
 
                             var distance = 0;
 
+                            var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
+                            var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                            var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+
                             // Define resize&move area. Make sure the move area does not get too small.
-                            if (scope.allowResizing) {
+                            if (allowResizing) {
                                 distance = taskElement[0].offsetWidth < 10 ? resizeAreaWidthSmall : resizeAreaWidthBig;
                             }
 
-                            if (scope.allowResizing && x > taskElement[0].offsetWidth - distance) {
+                            if (allowResizing && x > taskElement[0].offsetWidth - distance) {
                                 return 'E';
-                            } else if (scope.allowResizing && x < distance) {
+                            } else if (allowResizing && x < distance) {
                                 return 'W';
-                            } else if ((scope.allowMoving || scope.allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
+                            } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
                                 return 'M';
                             } else {
                                 return '';
@@ -40048,7 +40069,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
 }]);
 
 
-angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', function($document) {
+angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', 'ganttUtils', function($document, utils) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
@@ -40074,7 +40095,8 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
             api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                 if (directiveName === 'ganttRowLabel') {
                     rowElement.bind('mousedown', function() {
-                        if (!scope.enabled) {
+                        var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                        if (enabled) {
                             return;
                         }
 
@@ -40276,6 +40298,7 @@ angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
     return {
         initialize: function(options) {
 
+            options.enabled = options.enabled !== undefined ? !!options.enabled : true;
             options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
             options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
             options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
@@ -40358,7 +40381,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
         },
         scope: true,
         replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
+        controller: ['$scope', '$element', 'ganttUtils', function($scope, $element, utils) {
             var bodyElement = angular.element($document[0].body);
             var parentElement = $element.parent();
             var showTooltipPromise;
@@ -40368,18 +40391,21 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             $scope.visible = false;
 
             $scope.getFromLabel = function() {
-                return $scope.task.model.from.format($scope.dateFormat);
+                var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                return $scope.task.model.from.format(dateFormat);
             };
 
             $scope.getToLabel = function() {
-                return $scope.task.model.to.format($scope.dateFormat);
+                var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                return $scope.task.model.to.format(dateFormat);
             };
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {
                     $timeout.cancel(showTooltipPromise);
                 }
-                if ($scope.enabled && newValue === true) {
+                var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                if (enabled && newValue === true) {
                     showTooltipPromise = $timeout(function() {
                         showTooltip(mousePositionX);
                     }, 500, true);

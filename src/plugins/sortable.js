@@ -1,5 +1,5 @@
 'use strict';
-angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', function($document) {
+angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', 'ganttUtils', function($document, utils) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
@@ -25,7 +25,8 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
             api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                 if (directiveName === 'ganttRowLabel') {
                     rowElement.bind('mousedown', function() {
-                        if (!scope.enabled) {
+                        var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                        if (enabled) {
                             return;
                         }
 

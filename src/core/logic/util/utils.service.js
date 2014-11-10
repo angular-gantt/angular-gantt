@@ -6,6 +6,17 @@ gantt.service('ganttUtils', [function() {
                 return method.apply(object, arguments);
             };
         },
+        firstProperty: function(objects, propertyName, defaultValue) {
+            for (var i= 0, l=objects.length; i<l; i++) {
+                var object = objects[i];
+                if (object !== undefined && propertyName in object) {
+                    if (object[propertyName] !== undefined) {
+                        return object[propertyName];
+                    }
+                }
+            }
+            return defaultValue;
+        },
         random4: function() {
             return Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)

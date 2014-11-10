@@ -7,8 +7,8 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
 
-angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', '$window', '$document', '$timeout',
-    function(mouseButton, mouseOffset, debounce, smartEvent, movableOptions, $window, $document, $timeout) {
+angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
+    function(mouseButton, mouseOffset, debounce, smartEvent, movableOptions, utils, $window, $document, $timeout) {
         // Provides moving and resizing of tasks
         return {
             restrict: 'E',
@@ -56,7 +56,8 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var scrollInterval;
 
                         taskElement.bind('mousedown', function(evt) {
-                            if (scope.enabled) {
+                            var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                            if (enabled) {
                                 taskScope.$apply(function() {
                                     var mode = getMoveMode(evt);
                                     if (mode !== '' && mouseButton.getButton(evt) === 1) {
@@ -68,11 +69,14 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         });
 
                         taskElement.bind('mousemove', debounce(function(e) {
-                            var mode = getMoveMode(e);
-                            if (scope.enabled && mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
-                                taskElement.css('cursor', getCursor(mode));
-                            } else {
-                                taskElement.css('cursor', '');
+                            var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                            if (enabled) {
+                                var mode = getMoveMode(e);
+                                if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                    taskElement.css('cursor', getCursor(mode));
+                                } else {
+                                    taskElement.css('cursor', '');
+                                }
                             }
                         }, 5));
 
@@ -90,14 +94,16 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             taskScope.task.mouseOffsetX = mousePos.x;
                             var x = mousePos.x;
                             if (mode === 'M') {
-                                if (scope.allowRowSwitching) {
+                                var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                if (allowRowSwitching) {
                                     var targetRow = getRowByY(mousePos.y);
                                     if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
                                         targetRow.moveTaskToRow(taskScope.task);
                                     }
                                 }
 
-                                if (scope.allowMoving) {
+                                var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+                                if (allowMoving) {
                                     x = x - mouseOffsetInEm;
                                     if (taskScope.taskOutOfRange !== 'truncate') {
                                         if (x < 0) {
@@ -193,16 +199,20 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
 
                             var distance = 0;
 
+                            var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
+                            var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                            var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+
                             // Define resize&move area. Make sure the move area does not get too small.
-                            if (scope.allowResizing) {
+                            if (allowResizing) {
                                 distance = taskElement[0].offsetWidth < 10 ? resizeAreaWidthSmall : resizeAreaWidthBig;
                             }
 
-                            if (scope.allowResizing && x > taskElement[0].offsetWidth - distance) {
+                            if (allowResizing && x > taskElement[0].offsetWidth - distance) {
                                 return 'E';
-                            } else if (scope.allowResizing && x < distance) {
+                            } else if (allowResizing && x < distance) {
                                 return 'W';
-                            } else if ((scope.allowMoving || scope.allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
+                            } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
                                 return 'M';
                             } else {
                                 return '';
@@ -321,6 +331,7 @@ angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
     return {
         initialize: function(options) {
 
+            options.enabled = options.enabled !== undefined ? !!options.enabled : true;
             options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
             options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
             options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;

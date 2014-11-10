@@ -79,7 +79,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
         },
         scope: true,
         replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
+        controller: ['$scope', '$element', 'ganttUtils', function($scope, $element, utils) {
             var bodyElement = angular.element($document[0].body);
             var parentElement = $element.parent();
             var showTooltipPromise;
@@ -89,18 +89,21 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             $scope.visible = false;
 
             $scope.getFromLabel = function() {
-                return $scope.task.model.from.format($scope.dateFormat);
+                var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                return $scope.task.model.from.format(dateFormat);
             };
 
             $scope.getToLabel = function() {
-                return $scope.task.model.to.format($scope.dateFormat);
+                var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                return $scope.task.model.to.format(dateFormat);
             };
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {
                     $timeout.cancel(showTooltipPromise);
                 }
-                if ($scope.enabled && newValue === true) {
+                var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                if (enabled && newValue === true) {
                     showTooltipPromise = $timeout(function() {
                         showTooltip(mousePositionX);
                     }, 500, true);

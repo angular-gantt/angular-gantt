@@ -780,7 +780,11 @@ To use a plugin:
  
  - Add the CSS file if exists to your HTML.
  
- <
+Plugins can be configured using attributes defined for each plugin. 
+
+Some plugins may support specific configuration in some objects of data model, like Row and Task objects.
+
+For example, if plugin named `gantt-plugin`
 
 #### Sortable
 
@@ -792,9 +796,28 @@ angular.module('myApp', ['gantt', 'gantt.sortable']);
 
 ```html
 <gantt>
-    <gantt-sortable></gantt-sortable>
+    <gantt-sortable enabled="..."></gantt-sortable>
 </gantt>
 ```
+
+##### Attributes
+
+- **enabled** (default `true`)
+
+  Enable sort of rows.
+
+Attributes can be defined for a specific <Row> object using an object named `sortable`
+
+```js
+{
+    ...
+    // Inside <Row> object model
+    'sortable': {
+        'enabled': <Boolean>
+    }
+}
+```
+
 
 #### Movable
 
@@ -806,12 +829,14 @@ angular.module('myApp', ['gantt', 'gantt.movable']);
 
 ```html
 <gantt>
-    <gantt-movable allow-moving="true" 
+    <gantt-movable enabled="true",
+                   allow-moving="true" 
                    allow-resizing="true"
                    allow-row-switching="true">
     <gantt-movable/>
 </gantt>
 ```
+
 
 ##### Attributes
 
@@ -830,6 +855,21 @@ angular.module('myApp', ['gantt', 'gantt.movable']);
 - **allow-row-switching** (default: `true`)
 
   Tasks can be moved to a different row.
+
+Attributes can be defined for a specific <Row> or <Task> object using an object named `movable`
+
+```js
+{
+    ...
+    // Inside <Row> or <Task> object model
+    'movable': {
+        'enabled': <Boolean>,
+        'allowMoving': <Boolean>,
+        'allowResizing': <Boolean>,
+        'allowRowSwitching': <Boolean>
+    }
+}
+```
 
 ##### Events
   
@@ -852,7 +892,7 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
 
 ```html
 <gantt>
-    <gantt-tooltips date-format="..." enabled="..."><gantt-tooltips/>
+    <gantt-tooltips enabled="..." date-format="..."><gantt-tooltips/>
 </gantt>
 ```
 
@@ -872,6 +912,19 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
   
   See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
 
+Attributes can be defined for a specific <Row> or <Task> object using an object named `tooltips`
+
+```js
+{
+    ...
+    // Inside <Row> or <Task> object model
+    'tooltips': {
+        'enabled': <Boolean>,
+        'dateFormat': <string>
+    }
+}
+```
+
 #### Bounds
 
 Display bounds when moving mouse over a task.
@@ -882,7 +935,7 @@ angular.module('myApp', ['gantt', 'gantt.bounds']);
 
 ```html
 <gantt>
-    <gantt-bounds><gantt-bounds/>
+    <gantt-bounds enabled="..."><gantt-bounds/>
 </gantt>
 ```
 
@@ -918,7 +971,7 @@ angular.module('myApp', ['gantt', 'gantt.progress']);
 
 ```html
 <gantt>
-    <gantt-progress><gantt-progress/>
+    <gantt-progress enabled="..."><gantt-progress/>
 </gantt>
 ```
 

@@ -178,8 +178,8 @@ angular.module('angularGanttDemoApp')
 
         // Reload data action
         $scope.load = function() {
-            data = Sample.getSampleData().data1;
-            timespans = Sample.getSampleTimespans().timespan1;
+            data = Sample.getSampleData();
+            timespans = Sample.getSampleTimespans();
 
             $scope.api.timespans.load(timespans);
             $scope.api.data.load(data);
