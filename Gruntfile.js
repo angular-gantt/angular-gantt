@@ -96,7 +96,7 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            files: ['<%= jshint.files %>', 'src/**/*.css', 'src/**/*.html'],
+            files: ['src/**/*.js', 'src/**/*.css', 'src/**/*.html'],
             tasks: ['build']
         },
         karma: {
