@@ -3,12 +3,44 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
     return {
         restrict: 'E',
         require: '^gantt',
+        scope: {
+            enabled: '=?'
+        },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
+            var progressScopes = [];
+
+            if (scope.options && typeof(scope.options.progress) === 'object') {
+                for (var option in scope.options.progress) {
+                    scope[option] = scope.options[option];
+                }
+            }
+
+            if (scope.enabled === undefined) {
+                scope.enabled = true;
+            }
+
+            scope.$watch('enabled', function(enabled) {
+                angular.forEach(progressScopes, function(progressScope) {
+                    progressScope.enabled = enabled;
+                });
+            });
+
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(taskScope));
+                    var progressScope = taskScope.$new();
+                    progressScopes.push(progressScope);
+                    progressScope.enabled = scope.enabled;
+
+                    taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(progressScope));
+
+                    progressScope.$on('$destroy', function() {
+                        var scopeIndex = progressScopes.indexOf(progressScope);
+                        if (scopeIndex > -1) {
+                            progressScopes.splice(scopeIndex, 1);
+                        }
+                    });
                 }
             });
 

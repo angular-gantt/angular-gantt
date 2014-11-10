@@ -6,6 +6,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
             restrict: 'E',
             require: '^gantt',
             scope: {
+                enabled: '=',
                 allowMoving: '=?',
                 allowResizing: '=?',
                 allowRowSwitching: '=?'
@@ -47,18 +48,20 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var scrollInterval;
 
                         taskElement.bind('mousedown', function(evt) {
-                            taskScope.$apply(function() {
-                                var mode = getMoveMode(evt);
-                                if (mode !== '' && mouseButton.getButton(evt) === 1) {
-                                    var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
-                                    enableMoveMode(mode, offsetX, evt);
-                                }
-                            });
+                            if (scope.enabled) {
+                                taskScope.$apply(function() {
+                                    var mode = getMoveMode(evt);
+                                    if (mode !== '' && mouseButton.getButton(evt) === 1) {
+                                        var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
+                                        enableMoveMode(mode, offsetX, evt);
+                                    }
+                                });
+                            }
                         });
 
                         taskElement.bind('mousemove', debounce(function(e) {
                             var mode = getMoveMode(e);
-                            if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                            if (scope.enabled && mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
                                 taskElement.css('cursor', getCursor(mode));
                             } else {
                                 taskElement.css('cursor', '');

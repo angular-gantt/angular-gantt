@@ -179,7 +179,7 @@ describe('Unit: Gantt', function() {
             $scope.$digest();
             checkData($scope.data, ganttElement);
 
-            $scope.data[2].tasks.slice(1, 0); // Remove a task
+            $scope.data[2].tasks.splice(1, 0); // Remove a task
             $scope.$digest();
             checkData($scope.data, ganttElement);
 

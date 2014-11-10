@@ -46,8 +46,6 @@ gantt.factory('ganttOptions', ['moment', function(moment) {
         options.timeFramesWorkingMode = options.timeFramesWorkingMode || 'hidden';
         options.timeFramesNonWorkingMode = options.timeFramesNonWorkingMode || 'visible';
 
-        options.tooltipDateFormat = options.tooltipDateFormat || 'MMM DD, HH:mm';
-
         return options;
     }
     };

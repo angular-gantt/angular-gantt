@@ -37,7 +37,6 @@ gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'g
             dateFrames: '=?',
             timeFramesWorkingMode: '=?',
             timeFramesNonWorkingMode: '=?',
-            tooltipDateFormat: '=?',
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',

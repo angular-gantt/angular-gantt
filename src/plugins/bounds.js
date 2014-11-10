@@ -3,12 +3,44 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
     return {
         restrict: 'E',
         require: '^gantt',
+        scope: {
+            enabled: '=?'
+        },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
+            var boundsScopes = [];
+
+            if (scope.options && typeof(scope.options.bounds) === 'object') {
+                for (var option in scope.options.bounds) {
+                    scope[option] = scope.options[option];
+                }
+            }
+
+            if (scope.enabled === undefined) {
+                scope.enabled = true;
+            }
+
+            scope.$watch('enabled', function(enabled) {
+                angular.forEach(boundsScopes, function(boundsScope) {
+                    boundsScope.enabled = enabled;
+                });
+            });
+
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    taskElement.append($compile('<gantt-task-bounds></gantt-bounds>')(taskScope));
+                    var boundsScope = taskScope.$new();
+                    boundsScopes.push(boundsScopes);
+                    boundsScope.enabled = scope.enabled;
+
+                    taskElement.append($compile('<gantt-task-bounds></gantt-bounds>')(boundsScope));
+
+                    boundsScope.$on('$destroy', function() {
+                        var scopeIndex = boundsScopes.indexOf(boundsScope);
+                        if (scopeIndex > -1) {
+                            boundsScopes.splice(scopeIndex, 1);
+                        }
+                    });
                 }
             });
 

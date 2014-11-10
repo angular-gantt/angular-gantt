@@ -404,12 +404,6 @@ review those projects documentations.
   your project, default template is loaded in 
   [$templateCache](https://docs.angularjs.org/api/ng/service/$templateCache) when initializing `gantt` module.
 
-- **tooltip-date-format**
-
-  Format of the dates displayed in tooltip.
-  
-  See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
-
 - **view-scale** (default: `day`)
 
   Column scale using any of [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) supported unit.
@@ -804,7 +798,7 @@ angular.module('myApp', ['gantt', 'gantt.sortable']);
 
 #### Movable
 
-Move and resize rows.
+Move and resize tasks.
 
 ```js
 angular.module('myApp', ['gantt', 'gantt.movable']);
@@ -819,25 +813,11 @@ angular.module('myApp', ['gantt', 'gantt.movable']);
 </gantt>
 ```
 
-#### Tooltips
-
-Display tooltips when moving mouse over a task.
-
-```js
-angular.module('myApp', ['gantt', 'gantt.tooltips']);
-```
-
-```html
-<gantt>
-    <gantt-tooltips><gantt-tooltips/>
-</gantt>
-```
-
-```html
-<link rel="stylesheet" href="angular-gantt-tooltips.css">
-```
-
 ##### Attributes
+
+- **enabled** (default `true`)
+
+  Enable moving and resizing of tasks.
 
 - **allow-moving** (default `true`)
 
@@ -861,9 +841,10 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
 
   A task is starting to resize, moving or has stopped moving.
 
-#### Bounds
 
-Display bounds when moving mouse over a task.
+#### Tooltips
+
+Display tooltips when moving mouse over a task.
 
 ```js
 angular.module('myApp', ['gantt', 'gantt.tooltips']);
@@ -871,7 +852,37 @@ angular.module('myApp', ['gantt', 'gantt.tooltips']);
 
 ```html
 <gantt>
-    <gantt-tooltips><gantt-tooltips/>
+    <gantt-tooltips date-format="..." enabled="..."><gantt-tooltips/>
+</gantt>
+```
+
+```html
+<link rel="stylesheet" href="angular-gantt-tooltips.css">
+```
+
+##### Attributes
+
+- **enabled** (default `true`)
+
+  Enable display of tooltips.
+
+- **date-format** (default `MMM DD, HH:mm`)
+
+  Format of the dates displayed in tooltip.
+  
+  See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
+
+#### Bounds
+
+Display bounds when moving mouse over a task.
+
+```js
+angular.module('myApp', ['gantt', 'gantt.bounds']);
+```
+
+```html
+<gantt>
+    <gantt-bounds><gantt-bounds/>
 </gantt>
 ```
 
@@ -890,6 +901,12 @@ To define bounds on a task, you need to add `est` and `lct` property on task obj
     lct: <Date> // See "est".
 }
 ```
+
+##### Attributes
+
+- **enabled** (default `true`)
+
+  Enable display of bounds box.
 
 #### Progress
 
@@ -928,6 +945,12 @@ To define bounds on a task, you need to add `progress` and `lct` property on tas
     classes: [], Array of class name to apply to progress bar
 }
 ```
+
+##### Attributes
+
+- **enabled** (default `true`)
+
+  Enable display of progress bars.
 
 ### <a name="contribute"></a> Contribute
 

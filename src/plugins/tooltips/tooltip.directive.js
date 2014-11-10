@@ -23,18 +23,18 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             $scope.visible = false;
 
             $scope.getFromLabel = function() {
-                return $scope.task.model.from.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+                return $scope.task.model.from.format($scope.dateFormat);
             };
 
             $scope.getToLabel = function() {
-                return $scope.task.model.to.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+                return $scope.task.model.to.format($scope.dateFormat);
             };
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {
                     $timeout.cancel(showTooltipPromise);
                 }
-                if (newValue === true) {
+                if ($scope.enabled && newValue === true) {
                     showTooltipPromise = $timeout(function() {
                         showTooltip(mousePositionX);
                     }, 500, true);

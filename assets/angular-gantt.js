@@ -45,7 +45,6 @@ gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'g
             dateFrames: '=?',
             timeFramesWorkingMode: '=?',
             timeFramesNonWorkingMode: '=?',
-            tooltipDateFormat: '=?',
             timespans: '=?',
             columnMagnet: '=?',
             data: '=?',
@@ -347,8 +346,6 @@ gantt.factory('ganttOptions', ['moment', function(moment) {
 
         options.timeFramesWorkingMode = options.timeFramesWorkingMode || 'hidden';
         options.timeFramesNonWorkingMode = options.timeFramesNonWorkingMode || 'visible';
-
-        options.tooltipDateFormat = options.tooltipDateFormat || 'MMM DD, HH:mm';
 
         return options;
     }

@@ -11,12 +11,53 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
     return {
         restrict: 'E',
         require: '^gantt',
+        scope: {
+            enabled: '=?',
+            dateFormat: '=?'
+        },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
+            var tooltipScopes = [];
+
+            if (scope.options && typeof(scope.options.tooltips) === 'object') {
+                for (var option in scope.options.tooltips) {
+                    scope[option] = scope.options[option];
+                }
+            }
+
+            if (scope.dateFormat === undefined) {
+                scope.dateFormat = 'MMM DD, HH:mm';
+            }
+            if (scope.enabled === undefined) {
+                scope.enabled = true;
+            }
+
+            scope.$watch('dateFormat', function(dateFormat) {
+                angular.forEach(tooltipScopes, function(tooltipScope) {
+                    tooltipScope.dateFormat = dateFormat;
+                });
+            });
+
+            scope.$watch('enabled', function(enabled) {
+                angular.forEach(tooltipScopes, function(tooltipScope) {
+                    tooltipScope.enabled = enabled;
+                });
+            });
 
             api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                 if (directiveName === 'ganttTask') {
-                    taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(taskScope));
+                    var tooltipScope = taskScope.$new();
+                    tooltipScopes.push(tooltipScope);
+                    tooltipScope.dateFormat = scope.dateFormat;
+                    tooltipScope.enabled = scope.enabled;
+                    taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(tooltipScope));
+
+                    tooltipScope.$on('$destroy', function() {
+                        var scopeIndex = tooltipScopes.indexOf(tooltipScope);
+                        if (scopeIndex > -1) {
+                            tooltipScopes.splice(scopeIndex, 1);
+                        }
+                    });
                 }
             });
         }
@@ -48,18 +89,18 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
             $scope.visible = false;
 
             $scope.getFromLabel = function() {
-                return $scope.task.model.from.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+                return $scope.task.model.from.format($scope.dateFormat);
             };
 
             $scope.getToLabel = function() {
-                return $scope.task.model.to.format($scope.task.rowsManager.gantt.$scope.tooltipDateFormat);
+                return $scope.task.model.to.format($scope.dateFormat);
             };
 
             $scope.$watch('isTaskMouseOver', function(newValue) {
                 if (showTooltipPromise) {
                     $timeout.cancel(showTooltipPromise);
                 }
-                if (newValue === true) {
+                if ($scope.enabled && newValue === true) {
                     showTooltipPromise = $timeout(function() {
                         showTooltip(mousePositionX);
                     }, 500, true);

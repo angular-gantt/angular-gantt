@@ -12,6 +12,12 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
+            if (scope.options && typeof(scope.options.sortable) === 'object') {
+                for (var option in scope.options.sortable) {
+                    scope[option] = scope.options[option];
+                }
+            }
+
             if (scope.enabled === undefined) {
                 scope.enabled = true;
             }
