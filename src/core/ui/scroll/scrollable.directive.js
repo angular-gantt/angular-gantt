@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(debounce, layout) {
+gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'moment', function(debounce, layout, moment) {
     return {
         restrict: 'E',
         transclude: true,

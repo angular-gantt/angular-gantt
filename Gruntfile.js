@@ -81,10 +81,18 @@ module.exports = function(grunt) {
             }
         },
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js'],
-            options: {
-                jshintrc: '.jshintrc',
-                reporter: require('jshint-stylish')
+            src: {
+                options: {
+                    jshintrc: '.jshintrc',
+                    reporter: require('jshint-stylish')
+                },
+                src: ['Gruntfile.js', 'src/**/*.js']
+            },
+            test: {
+                options: {
+                    jshintrc: 'test/spec/.jshintrc'
+                },
+                src:['test/spec/**/*.js']
             }
         },
         watch: {

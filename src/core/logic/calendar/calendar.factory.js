@@ -3,7 +3,7 @@
  * Calendar factory is used to define working periods, non working periods, and other specific period of time,
  * and retrieve effective timeFrames for each day of the gantt.
  */
-gantt.factory('GanttCalendar', ['$filter', function($filter) {
+gantt.factory('GanttCalendar', ['$filter', 'moment', function($filter, moment) {
     /**
      * TimeFrame represents time frame in any day. parameters are given using options object.
      *

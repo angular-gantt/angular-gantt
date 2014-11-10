@@ -18,7 +18,8 @@ gantt.filter('ganttTaskLimit', [function() {
                     var scrollWidth = gantt.$scope.scrollWidth;
 
                     // If task has a visible part on the screen
-                    if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                    if (scrollLeft === undefined && scrollWidth === undefined ||
+                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
                         task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
                         task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
 

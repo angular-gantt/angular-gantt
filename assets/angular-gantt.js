@@ -360,7 +360,7 @@ gantt.factory('ganttOptions', ['moment', function(moment) {
  * Calendar factory is used to define working periods, non working periods, and other specific period of time,
  * and retrieve effective timeFrames for each day of the gantt.
  */
-gantt.factory('GanttCalendar', ['$filter', function($filter) {
+gantt.factory('GanttCalendar', ['$filter', 'moment', function($filter, moment) {
     /**
      * TimeFrame represents time frame in any day. parameters are given using options object.
      *
@@ -1571,8 +1571,8 @@ gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeade
 
 
 gantt.factory('Gantt', [
-    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager',
-    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager) {
+    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'moment',
+    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, moment) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
@@ -2878,7 +2878,8 @@ gantt.filter('ganttTaskLimit', [function() {
                     var scrollWidth = gantt.$scope.scrollWidth;
 
                     // If task has a visible part on the screen
-                    if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                    if (scrollLeft === undefined && scrollWidth === undefined ||
+                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
                         task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
                         task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
 
@@ -3076,7 +3077,7 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
 }]);
 
 
-gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', function(debounce, layout) {
+gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'moment', function(debounce, layout, moment) {
     return {
         restrict: 'E',
         transclude: true,

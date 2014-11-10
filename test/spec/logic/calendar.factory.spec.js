@@ -1,21 +1,10 @@
 'use strict';
-
 describe('Unit: Calendar', function() {
     // Load the module with MainController
     beforeEach(module('gantt'));
 
     var Calendar;
     var moment;
-
-    var objectToArray = function(map) {
-        var array = [];
-        for (var i in map) {
-            if (map.hasOwnProperty(i)) {
-                array.push(map[i]);
-            }
-        }
-        return array;
-    };
 
     var expectTimeFrameToEqual = function(actual, expected) {
         expect(expected.start).toEqual(actual.start);

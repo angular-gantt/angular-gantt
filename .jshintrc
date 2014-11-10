@@ -16,7 +16,6 @@
     "globalstrict": true,
     "globals": {
         "angular": false,
-        "gantt": false,
-        "moment": false
+        "gantt": false
     }
 }
