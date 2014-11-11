@@ -19,6 +19,11 @@ It is build against github master branch, and allows to preview bleeding edge fe
 - Plugin architecture to add custom features and hooks.
 - API to listen events and call methods from your controller.
 
+## Docs
+
+Docs are built using [MkDocs](http://www.mkdocs.org/) and available at
+[ReadTheDocs](http://angular-gantt.readthedocs.org/en/latest/).
+
 ## Dependencies
 - [AngularJS](https://angularjs.org) >= 1.3
 - [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
