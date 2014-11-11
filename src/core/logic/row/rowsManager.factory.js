@@ -12,20 +12,28 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
         this.visibleRows = [];
         this.rowsTaskWatchers = [];
 
-        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function() {
-            self.updateVisibleTasks();
+        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleTasks();
+            }
         });
 
-        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function() {
-            self.updateVisibleTasks();
+        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleTasks();
+            }
         });
 
-        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function() {
-            self.updateVisibleRows();
+        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleRows();
+            }
         });
 
-        this.gantt.$scope.$watch('sortMode', function() {
-            self.sortRows();
+        this.gantt.$scope.$watch('sortMode', function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.sortRows();
+            }
         });
 
         this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
@@ -88,35 +96,37 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
 
         if (!isUpdate) {
             var watcher = this.gantt.$scope.$watchCollection(function() {return rowModel.tasks;}, function(newTasks, oldTasks) {
-                var i, l, toRemoveTasks;
-                if (oldTasks !== undefined) {
-                    toRemoveTasks = oldTasks.slice();
-                } else {
-                    toRemoveTasks = [];
-                }
+                if (newTasks !== oldTasks) {
+                    var i, l, toRemoveTasks;
+                    if (oldTasks !== undefined) {
+                        toRemoveTasks = oldTasks.slice();
+                    } else {
+                        toRemoveTasks = [];
+                    }
 
-                if (newTasks !== undefined) {
-                    for (i= 0, l=newTasks.length; i<l; i++) {
-                        var newTask = newTasks[i];
+                    if (newTasks !== undefined) {
+                        for (i= 0, l=newTasks.length; i<l; i++) {
+                            var newTask = newTasks[i];
 
-                        if (newTask.id !== undefined) {
-                            var newTaskIndex = toRemoveTasks.indexOf(newTask);
-                            if (newTaskIndex > -1) {
-                                toRemoveTasks.splice(newTaskIndex, 1);
+                            if (newTask.id !== undefined) {
+                                var newTaskIndex = toRemoveTasks.indexOf(newTask);
+                                if (newTaskIndex > -1) {
+                                    toRemoveTasks.splice(newTaskIndex, 1);
+                                }
                             }
                         }
                     }
-                }
 
-                for (i= 0, l = toRemoveTasks.length; i<l; i++) {
-                    var toRemove = toRemoveTasks[i];
-                    row.removeTask(toRemove.id);
-                }
+                    for (i= 0, l = toRemoveTasks.length; i<l; i++) {
+                        var toRemove = toRemoveTasks[i];
+                        row.removeTask(toRemove.id);
+                    }
 
-                if (newTasks !== undefined) {
-                    for (i= 0, l = newTasks.length; i<l; i++) {
-                        var toAdd = newTasks[i];
-                        row.addTask(toAdd);
+                    if (newTasks !== undefined) {
+                        for (i= 0, l = newTasks.length; i<l; i++) {
+                            var toAdd = newTasks[i];
+                            row.addTask(toAdd);
+                        }
                     }
                 }
             });

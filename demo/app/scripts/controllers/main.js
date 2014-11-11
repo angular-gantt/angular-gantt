@@ -73,10 +73,6 @@ angular.module('angularGanttDemoApp')
                 $scope.api = api;
 
                 api.core.on.ready($scope, function() {
-                    // When gantt is ready, load data.
-                    // `data` attribute could have been used too.
-                    $scope.load();
-
                     // Log various events to console
                     api.scroll.on.scroll($scope, logScrollEvent);
                     api.core.on.ready($scope, logReadyEvent);
@@ -105,6 +101,10 @@ angular.module('angularGanttDemoApp')
 
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
+
+                    // When gantt is ready, load data.
+                    // `data` attribute could have been used too.
+                    $scope.load();
 
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttTask') {
@@ -165,16 +165,6 @@ angular.module('angularGanttDemoApp')
                 });
             }
         };
-
-        $scope.$watch('options.scale', function(newValue) {
-            if (newValue === 'quarter') {
-                $scope.options.headersFormats = {'quarter': '[Q]Q YYYY'};
-                $scope.options.headers = ['quarter'];
-            } else {
-                $scope.options.headersFormats = undefined;
-                $scope.options.headers = undefined;
-            }
-        });
 
         // Reload data action
         $scope.load = function() {

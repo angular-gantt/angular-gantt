@@ -8,11 +8,9 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
         this.timespansMap = {};
         this.timespans = [];
 
-        this.gantt.$scope.$watch('timespans', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.clearTimespans();
-                self.loadTimespans(newValue);
-            }
+        this.gantt.$scope.$watchCollection('timespans', function(newValue) {
+            self.clearTimespans();
+            self.loadTimespans(newValue);
         });
 
         this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);

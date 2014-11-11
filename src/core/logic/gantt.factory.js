@@ -40,23 +40,25 @@ gantt.factory('Gantt', [
             this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
             $scope.$watchGroup(['timeFrames', 'dateFrames'], function(newValues, oldValues) {
-                var timeFrames = newValues[0];
-                var dateFrames = newValues[1];
+                if (newValues !== oldValues) {
+                    var timeFrames = newValues[0];
+                    var dateFrames = newValues[1];
 
-                var oldTimeFrames = oldValues[0];
-                var oldDateFrames = oldValues[1];
+                    var oldTimeFrames = oldValues[0];
+                    var oldDateFrames = oldValues[1];
 
-                if (!angular.equals(timeFrames, oldTimeFrames)) {
-                    self.calendar.clearTimeFrames();
-                    self.calendar.registerTimeFrames(timeFrames);
+                    if (!angular.equals(timeFrames, oldTimeFrames)) {
+                        self.calendar.clearTimeFrames();
+                        self.calendar.registerTimeFrames(timeFrames);
+                    }
+
+                    if (!angular.equals(dateFrames, oldDateFrames)) {
+                        self.calendar.clearDateFrames();
+                        self.calendar.registerDateFrames(dateFrames);
+                    }
+
+                    self.columnsManager.generateColumns();
                 }
-
-                if (!angular.equals(dateFrames, oldDateFrames)) {
-                    self.calendar.clearDateFrames();
-                    self.calendar.registerDateFrames(dateFrames);
-                }
-
-                self.columnsManager.generateColumns();
             });
 
             this.scroll = new Scroll(this);
@@ -75,12 +77,9 @@ gantt.factory('Gantt', [
             this.originalWidth = 0;
             this.width = 0;
 
-            this.$scope.$watch('data', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    self.clearData();
-                    self.loadData(newValue);
-                }
-            });
+            if (angular.isFunction(this.$scope.api)) {
+                this.$scope.api(this.api);
+            }
 
             this.$scope.$watchCollection('data', function(newData, oldData) {
                 var i, l, toRemoveData;
@@ -112,10 +111,6 @@ gantt.factory('Gantt', [
                     self.loadData(newData);
                 }
             });
-
-            if (angular.isFunction(this.$scope.api)) {
-                this.$scope.api(this.api);
-            }
         };
 
         // Returns the exact column date at the given position x (in em)

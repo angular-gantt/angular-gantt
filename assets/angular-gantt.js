@@ -1195,24 +1195,34 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
         // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
         // All those changes need a recalculation of the header columns
-        this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function() {
-            self.generateColumns();
+        this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.generateColumns();
+            }
         });
 
-        this.gantt.$scope.$watchCollection('headers', function() {
-            self.generateColumns();
+        this.gantt.$scope.$watchCollection('headers', function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.generateColumns();
+            }
         });
 
-        this.gantt.$scope.$watchCollection('headersFormats', function() {
-            self.generateColumns();
+        this.gantt.$scope.$watchCollection('headersFormats', function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.generateColumns();
+            }
         });
 
-        this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function() {
-            self.updateColumnsMeta();
+        this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateColumnsMeta();
+            }
         });
 
-        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function() {
-            self.updateVisibleColumns();
+        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleColumns();
+            }
         });
 
         this.gantt.api.data.on.load(this.gantt.$scope, function() {
@@ -1608,23 +1618,25 @@ gantt.factory('Gantt', [
             this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
             $scope.$watchGroup(['timeFrames', 'dateFrames'], function(newValues, oldValues) {
-                var timeFrames = newValues[0];
-                var dateFrames = newValues[1];
+                if (newValues !== oldValues) {
+                    var timeFrames = newValues[0];
+                    var dateFrames = newValues[1];
 
-                var oldTimeFrames = oldValues[0];
-                var oldDateFrames = oldValues[1];
+                    var oldTimeFrames = oldValues[0];
+                    var oldDateFrames = oldValues[1];
 
-                if (!angular.equals(timeFrames, oldTimeFrames)) {
-                    self.calendar.clearTimeFrames();
-                    self.calendar.registerTimeFrames(timeFrames);
+                    if (!angular.equals(timeFrames, oldTimeFrames)) {
+                        self.calendar.clearTimeFrames();
+                        self.calendar.registerTimeFrames(timeFrames);
+                    }
+
+                    if (!angular.equals(dateFrames, oldDateFrames)) {
+                        self.calendar.clearDateFrames();
+                        self.calendar.registerDateFrames(dateFrames);
+                    }
+
+                    self.columnsManager.generateColumns();
                 }
-
-                if (!angular.equals(dateFrames, oldDateFrames)) {
-                    self.calendar.clearDateFrames();
-                    self.calendar.registerDateFrames(dateFrames);
-                }
-
-                self.columnsManager.generateColumns();
             });
 
             this.scroll = new Scroll(this);
@@ -1643,12 +1655,9 @@ gantt.factory('Gantt', [
             this.originalWidth = 0;
             this.width = 0;
 
-            this.$scope.$watch('data', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    self.clearData();
-                    self.loadData(newValue);
-                }
-            });
+            if (angular.isFunction(this.$scope.api)) {
+                this.$scope.api(this.api);
+            }
 
             this.$scope.$watchCollection('data', function(newData, oldData) {
                 var i, l, toRemoveData;
@@ -1680,10 +1689,6 @@ gantt.factory('Gantt', [
                     self.loadData(newData);
                 }
             });
-
-            if (angular.isFunction(this.$scope.api)) {
-                this.$scope.api(this.api);
-            }
         };
 
         // Returns the exact column date at the given position x (in em)
@@ -2028,20 +2033,28 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
         this.visibleRows = [];
         this.rowsTaskWatchers = [];
 
-        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function() {
-            self.updateVisibleTasks();
+        this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleTasks();
+            }
         });
 
-        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function() {
-            self.updateVisibleTasks();
+        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleTasks();
+            }
         });
 
-        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function() {
-            self.updateVisibleRows();
+        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.updateVisibleRows();
+            }
         });
 
-        this.gantt.$scope.$watch('sortMode', function() {
-            self.sortRows();
+        this.gantt.$scope.$watch('sortMode', function(oldValues, newValues) {
+            if (oldValues !== newValues) {
+                self.sortRows();
+            }
         });
 
         this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
@@ -2104,35 +2117,37 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
 
         if (!isUpdate) {
             var watcher = this.gantt.$scope.$watchCollection(function() {return rowModel.tasks;}, function(newTasks, oldTasks) {
-                var i, l, toRemoveTasks;
-                if (oldTasks !== undefined) {
-                    toRemoveTasks = oldTasks.slice();
-                } else {
-                    toRemoveTasks = [];
-                }
+                if (newTasks !== oldTasks) {
+                    var i, l, toRemoveTasks;
+                    if (oldTasks !== undefined) {
+                        toRemoveTasks = oldTasks.slice();
+                    } else {
+                        toRemoveTasks = [];
+                    }
 
-                if (newTasks !== undefined) {
-                    for (i= 0, l=newTasks.length; i<l; i++) {
-                        var newTask = newTasks[i];
+                    if (newTasks !== undefined) {
+                        for (i= 0, l=newTasks.length; i<l; i++) {
+                            var newTask = newTasks[i];
 
-                        if (newTask.id !== undefined) {
-                            var newTaskIndex = toRemoveTasks.indexOf(newTask);
-                            if (newTaskIndex > -1) {
-                                toRemoveTasks.splice(newTaskIndex, 1);
+                            if (newTask.id !== undefined) {
+                                var newTaskIndex = toRemoveTasks.indexOf(newTask);
+                                if (newTaskIndex > -1) {
+                                    toRemoveTasks.splice(newTaskIndex, 1);
+                                }
                             }
                         }
                     }
-                }
 
-                for (i= 0, l = toRemoveTasks.length; i<l; i++) {
-                    var toRemove = toRemoveTasks[i];
-                    row.removeTask(toRemove.id);
-                }
+                    for (i= 0, l = toRemoveTasks.length; i<l; i++) {
+                        var toRemove = toRemoveTasks[i];
+                        row.removeTask(toRemove.id);
+                    }
 
-                if (newTasks !== undefined) {
-                    for (i= 0, l = newTasks.length; i<l; i++) {
-                        var toAdd = newTasks[i];
-                        row.addTask(toAdd);
+                    if (newTasks !== undefined) {
+                        for (i= 0, l = newTasks.length; i<l; i++) {
+                            var toAdd = newTasks[i];
+                            row.addTask(toAdd);
+                        }
                     }
                 }
             });
@@ -2653,11 +2668,9 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
         this.timespansMap = {};
         this.timespans = [];
 
-        this.gantt.$scope.$watch('timespans', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.clearTimespans();
-                self.loadTimespans(newValue);
-            }
+        this.gantt.$scope.$watchCollection('timespans', function(newValue) {
+            self.clearTimespans();
+            self.loadTimespans(newValue);
         });
 
         this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
