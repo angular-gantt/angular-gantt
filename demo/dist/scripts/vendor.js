@@ -40096,7 +40096,7 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                 if (directiveName === 'ganttRowLabel') {
                     rowElement.bind('mousedown', function() {
                         var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
-                        if (enabled) {
+                        if (!enabled) {
                             return;
                         }
 
@@ -40122,21 +40122,19 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                                     rowScope.row.rowsManager.moveRow(scope.startRow, targetRow);
                                 });
                             }
+                        } else {
+                            rowElement.css('cursor', 'pointer');
                         }
                     });
 
                     var isInDragMode = function() {
-                        return scope.startRow !== undefined && !angular.equals(rowScope.row, scope.startRow);
+                        return scope.startRow !== undefined && !angular.equals(rowScope.row.model.id, scope.startRow.model.id);
                     };
 
                     var enableDragMode = function() {
                         scope.startRow = rowScope.row;
                         rowElement.css('cursor', 'move');
                         angular.element($document[0].body).css({
-                            '-moz-user-select': '-moz-none',
-                            '-webkit-user-select': 'none',
-                            '-ms-user-select': 'none',
-                            'user-select': 'none',
                             'cursor': 'no-drop'
                         });
                     };
@@ -40145,10 +40143,6 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
                         scope.startRow = undefined;
                         rowElement.css('cursor', 'pointer');
                         angular.element($document[0].body).css({
-                            '-moz-user-select': '',
-                            '-webkit-user-select': '',
-                            '-ms-user-select': '',
-                            'user-select': '',
                             'cursor': 'auto'
                         });
                     };
