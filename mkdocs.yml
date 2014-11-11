@@ -1,0 +1,30 @@
+site_name: 'angular-gantt'
+
+site_url: http://angular-gantt.github.io/angular-gantt
+site_description: The gantt chart directive for AngularJS.
+
+repo_url: https://github.com/angular-gantt/angular-gantt
+
+theme: spacelab
+
+pages:
+- [index.md, Home]
+- [getting-started.md, Getting Started]
+- [configuration/data.md, Configuration, Data]
+- [configuration/timespans.md, Configuration, Timespans]
+- [configuration/attributes.md, Configuration, Attributes]
+- [configuration/api.md, Configuration, API]
+- [plugins/plugins.md, Plugins, Plugins]
+- [plugins/sortable.md, Plugins, Sortable]
+- [plugins/movable.md, Plugins, Movable]
+- [plugins/tooltips.md, Plugins, Tooltips]
+- [plugins/bounds.md, Plugins, Bounds]
+- [plugins/progress.md, Plugins, Progress]
+- [sources.md, Sources]
+- [contribute.md, Contribute]
+- [faq.md, FAQ]
+- [about.md, About]
+
+
+
+copyright: Copyright &copy; 2014, <a href="https://github.com/Schweigi">Marco Schweighauser</a>, <a href="https://twitter.com/Toilal">Rémi Alvergnat</a>.

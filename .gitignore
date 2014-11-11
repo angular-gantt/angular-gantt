@@ -7,3 +7,4 @@
 /gh-pages/
 /assets/*.min.*
 /assets/*.map
+/docs/_build/
