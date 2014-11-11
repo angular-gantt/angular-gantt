@@ -25,7 +25,7 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
             api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                 if (directiveName === 'ganttRowLabel') {
                     rowElement.bind('mousedown', function() {
-                        var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                        var enabled = utils.firstProperty([scope.row.model.sortable], 'enabled', scope.enabled);
                         if (!enabled) {
                             return;
                         }
