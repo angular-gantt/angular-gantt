@@ -51,9 +51,8 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
 
                     rowElement.bind('mousemove', function(e) {
                         if (isInDragMode()) {
-                            var elementBelowMouse = $document[0].elementFromPoint(e.clientX, e.clientY);
-                            elementBelowMouse = angular.element(elementBelowMouse);
-                            var targetRow = elementBelowMouse.scope().row;
+                            var targetScope = utils.scopeFromPoint(e.clientX, e.clientY);
+                            var targetRow = targetScope.row;
 
                             if (targetRow !== undefined && scope.startRow !== undefined && targetRow !== scope.startRow) {
                                 rowScope.$apply(function () {

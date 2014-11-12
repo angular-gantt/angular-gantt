@@ -46,7 +46,6 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var scrollTriggerDistance = 5;
 
                         var windowElement = angular.element($window);
-                        var ganttRowElement = taskScope.row.$element;
                         var ganttBodyElement = taskScope.row.rowsManager.gantt.body.$element;
                         var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
 
@@ -96,7 +95,9 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (mode === 'M') {
                                 var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
                                 if (allowRowSwitching) {
-                                    var targetRow = getRowByY(mousePos.y);
+                                    var targetScope = utils.scopeFromPoint(evt.clientX, evt.clientY);
+                                    var targetRow = targetScope.row;
+
                                     if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
                                         targetRow.moveTaskToRow(taskScope.task);
                                     }
@@ -175,22 +176,6 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (scrollInterval !== undefined) {
                                 $timeout.cancel(scrollInterval);
                                 scrollInterval = undefined;
-                            }
-                        };
-
-                        var getRowByY = function(y) {
-                            if (y >= ganttRowElement[0].offsetTop && y <= ganttRowElement[0].offsetTop + ganttRowElement[0].offsetHeight) {
-                                return taskScope.task.row;
-                            } else {
-                                var visibleRows = [];
-                                angular.forEach(taskScope.task.row.rowsManager.rows, function(row) {
-                                    if (!row.hidden) {
-                                        visibleRows.push(row);
-                                    }
-                                });
-                                var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
-                                var pos = Math.floor(y / rowHeight);
-                                return visibleRows[pos];
                             }
                         };
 

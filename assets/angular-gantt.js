@@ -2815,7 +2815,7 @@ gantt.service('ganttBinarySearch', [ function() {
     };
 }]);
 
-gantt.service('ganttUtils', [function() {
+gantt.service('ganttUtils', ['$document', function($document) {
     return {
         createBoundedWrapper: function(object, method) {
             return function() {
@@ -2832,6 +2832,16 @@ gantt.service('ganttUtils', [function() {
                 }
             }
             return defaultValue;
+        },
+        elementFromPoint: function(x, y) {
+            var element = $document[0].elementFromPoint(x, y);
+            return angular.element(element);
+        },
+        scopeFromPoint: function(x, y) {
+            var element = this.elementFromPoint(x, y);
+            if (element !== undefined) {
+                return element.scope();
+            }
         },
         random4: function() {
             return Math.floor((1 + Math.random()) * 0x10000)

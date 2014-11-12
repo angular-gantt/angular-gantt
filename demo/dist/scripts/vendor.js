@@ -38581,7 +38581,7 @@ gantt.service('ganttBinarySearch', [ function() {
     };
 }]);
 
-gantt.service('ganttUtils', [function() {
+gantt.service('ganttUtils', ['$document', function($document) {
     return {
         createBoundedWrapper: function(object, method) {
             return function() {
@@ -38598,6 +38598,16 @@ gantt.service('ganttUtils', [function() {
                 }
             }
             return defaultValue;
+        },
+        elementFromPoint: function(x, y) {
+            var element = $document[0].elementFromPoint(x, y);
+            return angular.element(element);
+        },
+        scopeFromPoint: function(x, y) {
+            var element = this.elementFromPoint(x, y);
+            if (element !== undefined) {
+                return element.scope();
+            }
         },
         random4: function() {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -39845,7 +39855,6 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var scrollTriggerDistance = 5;
 
                         var windowElement = angular.element($window);
-                        var ganttRowElement = taskScope.row.$element;
                         var ganttBodyElement = taskScope.row.rowsManager.gantt.body.$element;
                         var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
 
@@ -39895,7 +39904,9 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (mode === 'M') {
                                 var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
                                 if (allowRowSwitching) {
-                                    var targetRow = getRowByY(mousePos.y);
+                                    var targetScope = utils.scopeFromPoint(evt.clientX, evt.clientY);
+                                    var targetRow = targetScope.row;
+
                                     if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
                                         targetRow.moveTaskToRow(taskScope.task);
                                     }
@@ -39974,22 +39985,6 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (scrollInterval !== undefined) {
                                 $timeout.cancel(scrollInterval);
                                 scrollInterval = undefined;
-                            }
-                        };
-
-                        var getRowByY = function(y) {
-                            if (y >= ganttRowElement[0].offsetTop && y <= ganttRowElement[0].offsetTop + ganttRowElement[0].offsetHeight) {
-                                return taskScope.task.row;
-                            } else {
-                                var visibleRows = [];
-                                angular.forEach(taskScope.task.row.rowsManager.rows, function(row) {
-                                    if (!row.hidden) {
-                                        visibleRows.push(row);
-                                    }
-                                });
-                                var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
-                                var pos = Math.floor(y / rowHeight);
-                                return visibleRows[pos];
                             }
                         };
 
@@ -40229,9 +40224,8 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
 
                     rowElement.bind('mousemove', function(e) {
                         if (isInDragMode()) {
-                            var elementBelowMouse = $document[0].elementFromPoint(e.clientX, e.clientY);
-                            elementBelowMouse = angular.element(elementBelowMouse);
-                            var targetRow = elementBelowMouse.scope().row;
+                            var targetScope = utils.scopeFromPoint(e.clientX, e.clientY);
+                            var targetRow = targetScope.row;
 
                             if (targetRow !== undefined && scope.startRow !== undefined && targetRow !== scope.startRow) {
                                 rowScope.$apply(function () {
