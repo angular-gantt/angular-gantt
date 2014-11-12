@@ -119,6 +119,8 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
                     if (this.from - task.model.from === 0 || this.to - task.model.to === 0) {
                         this.setFromTo();
                     }
+
+                    break;
                 }
             }
 
@@ -126,6 +128,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
                 task = this.filteredTasks[i];
                 if (task.model.id === taskId) {
                     this.filteredTasks.splice(i, 1); // Remove from filtered array
+                    break;
                 }
             }
 
@@ -133,6 +136,7 @@ gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, mome
                 task = this.visibleTasks[i];
                 if (task.model.id === taskId) {
                     this.visibleTasks.splice(i, 1); // Remove from visible array
+                    break;
                 }
             }
 
