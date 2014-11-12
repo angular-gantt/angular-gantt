@@ -34,14 +34,11 @@ other dependencies declared in your project.
 4. Add `angular-gantt.js` and `angular-gantt.css` files to your HTML code.
 
         <head>
-          <link rel="stylesheet" href="assets/gantt.css"/>
+          <link rel="stylesheet" href="assets/angular-gantt.css"/>
         </head>
         <body>
           <script src="assets/angular-gantt.js"></script>
         </body>
-
-5. For a sample app see the files `demo/app/index.html` and 
-   `demo/app/scripts/controllers/main.js`.
 
 ## Usage
 
@@ -68,3 +65,5 @@ other dependencies declared in your project.
             },
           ...
         ]
+
+4. For a sample app see the files in `demo/app/`.
