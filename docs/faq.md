@@ -10,8 +10,12 @@
 
 - ### What are the dependencies ?
 
-     - [AngularJS](https://angularjs.org) >= 1.3
-     - [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
+    - [AngularJS](https://angularjs.org) >= 1.3
+    - [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
+   
+    Plugins may require additional dependencies:
+   
+    - [angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.0.7 ([Sortable](plugins/sortable.md))
 
 - ### Which browser is supported ?
 

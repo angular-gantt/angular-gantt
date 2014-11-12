@@ -13,6 +13,8 @@ gantt.factory('Gantt', [
 
             this.api.registerEvent('core', 'ready');
 
+            this.api.registerEvent('directives', 'preLink');
+            this.api.registerEvent('directives', 'postLink');
             this.api.registerEvent('directives', 'new');
             this.api.registerEvent('directives', 'destroy');
 

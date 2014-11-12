@@ -2,6 +2,10 @@
 
 Sort rows by drag & drop on rows label.
 
+## Dependency
+
+[angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.0.7
+
 ## Usage
 
     angular.module('myApp', ['gantt', 'gantt.sortable']);

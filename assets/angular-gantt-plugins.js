@@ -464,7 +464,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
 }]);
 
 
-angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', 'ganttUtils', function($document, utils) {
+angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSortable', ['ganttUtils', '$compile', function(utils, $compile) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
@@ -489,58 +489,31 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
 
             api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                 if (directiveName === 'ganttRowLabel') {
-                    rowElement.bind('mousedown', function() {
-                        var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
-                        if (!enabled) {
-                            return;
+                    rowScope.checkDraggable = function() {
+                        return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                    };
+
+                    rowScope.onDropSuccess = function() {
+                        rowScope.$evalAsync();
+                    };
+
+                    rowScope.onDrop = function(evt, data) {
+                        var row = rowScope.row.rowsManager.rowsMap[data.id];
+                        if (row !== rowScope) {
+                            rowScope.row.rowsManager.moveRow(row, rowScope.row);
+                            rowScope.$evalAsync();
                         }
-
-                        enableDragMode();
-
-                        var disableHandler = function() {
-                            rowScope.$apply(function() {
-                                angular.element($document[0].body).unbind('mouseup', disableHandler);
-                                disableDragMode();
-                            });
-                        };
-                        angular.element($document[0].body).bind('mouseup', disableHandler);
-                    });
-
-                    rowElement.bind('mousemove', function(e) {
-                        if (isInDragMode()) {
-                            var targetScope = utils.scopeFromPoint(e.clientX, e.clientY);
-                            var targetRow = targetScope.row;
-
-                            if (targetRow !== undefined && scope.startRow !== undefined && targetRow !== scope.startRow) {
-                                rowScope.$apply(function () {
-                                    rowScope.row.rowsManager.moveRow(scope.startRow, targetRow);
-                                });
-                            }
-                        } else {
-                            var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
-                            rowElement.css('cursor', enabled ? 'pointer' : '');
-                        }
-                    });
-
-                    var isInDragMode = function() {
-                        return scope.startRow !== undefined && !angular.equals(rowScope.row.model.id, scope.startRow.model.id);
                     };
 
-                    var enableDragMode = function() {
-                        scope.startRow = rowScope.row;
-                        rowElement.css('cursor', 'move');
-                        angular.element($document[0].body).css({
-                            'cursor': 'no-drop'
-                        });
-                    };
+                    rowElement.attr('ui-draggable', '{{checkDraggable()}}');
+                    rowElement.attr('drag-channel', '\'sortable\'');
+                    rowElement.attr('ui-on-drop', 'onDrop($event, $data)');
+                    rowElement.attr('on-drop-success', 'onDropSuccess()');
 
-                    var disableDragMode = function() {
-                        scope.startRow = undefined;
-                        rowElement.css('cursor', 'pointer');
-                        angular.element($document[0].body).css({
-                            'cursor': 'auto'
-                        });
-                    };
+                    rowElement.attr('drop-channel', '\'sortable\'');
+                    rowElement.attr('drag', 'row.model');
+
+                    $compile(rowElement)(rowScope);
                 }
             });
 

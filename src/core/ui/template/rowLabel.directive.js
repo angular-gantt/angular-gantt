@@ -11,6 +11,16 @@ gantt.directive('ganttRowLabel', [function() {
                 return tAttrs.templateUrl;
             }
         },
+        compile: function () {
+            return {
+                pre: function preLink(scope, iElement, iAttrs, controller) {
+                    scope.gantt.api.directives.raise.preLink('ganttRowLabel', scope, iElement, iAttrs, controller);
+                },
+                post: function postLink(scope, iElement, iAttrs, controller) {
+                    scope.gantt.api.directives.raise.postLink('ganttRowLabel', scope, iElement, iAttrs, controller);
+                }
+            };
+        },
         controller: ['$scope', '$element', function($scope, $element) {
 
             $scope.gantt.api.directives.raise.new('ganttRowLabel', $scope, $element);

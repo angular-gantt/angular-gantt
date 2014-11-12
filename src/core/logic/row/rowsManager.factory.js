@@ -264,6 +264,13 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
     };
 
     RowsManager.prototype.moveRow = function(row, targetRow) {
+        if (this.gantt.$scope.sortMode !== undefined) {
+            // Apply current sort to model
+            this.applySort();
+
+            this.gantt.$scope.sortMode = undefined;
+        }
+
         var targetRowIndex = this.rows.indexOf(targetRow);
         var rowIndex = this.rows.indexOf(row);
 
@@ -272,20 +279,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
             arrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
             arrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
 
-            if (this.gantt.$scope.sortMode !== undefined) {
-                // Apply current sort to model
-                this.applySort();
-
-                this.gantt.$scope.sortMode = undefined;
-                this.sortRows();
-            } else {
-                arrays.moveToIndex(this.sortedRows, rowIndex, targetRowIndex);
-            }
-
             this.gantt.api.rows.raise.change(row);
             this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
 
-            this.updateVisibleRows();
+            this.sortRows();
         }
     };
 

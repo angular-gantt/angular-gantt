@@ -35764,6 +35764,387 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 })();
 
 
+/**
+ * Created with IntelliJ IDEA.
+ * User: Ganaraj.Pr
+ * Date: 11/10/13
+ * Time: 11:27
+ * To change this template use File | Settings | File Templates.
+ */
+
+(function(angular){
+
+function isDnDsSupported(){
+    return 'draggable' in document.createElement("span");
+}
+
+if(!isDnDsSupported()){
+    return;
+}
+
+if (window.jQuery && (-1 == window.jQuery.event.props.indexOf("dataTransfer"))) {
+    window.jQuery.event.props.push("dataTransfer");
+}
+
+var currentData;
+
+angular.module("ang-drag-drop",[])
+    .directive("uiDraggable", [
+        '$parse',
+        '$rootScope',
+        '$dragImage',
+        function ($parse, $rootScope, $dragImage) {
+            return function (scope, element, attrs) {
+                var dragData = "",
+                    isDragHandleUsed = false,
+                    dragHandleClass,
+                    draggingClass = attrs.draggingClass || "on-dragging",
+                    dragTarget;
+
+                element.attr("draggable", false);
+
+                attrs.$observe("uiDraggable", function (newValue) {
+                    if(newValue){
+                        element.attr("draggable", newValue);
+                    }
+                    else{
+                        element.removeAttr("draggable");
+                    }
+
+                });
+
+                if (attrs.drag) {
+                    scope.$watch(attrs.drag, function (newValue) {
+                        dragData = newValue || "";
+                    });
+                }
+
+                if (angular.isString(attrs.dragHandleClass)) {
+                    isDragHandleUsed = true;
+                    dragHandleClass = attrs.dragHandleClass.trim() || "drag-handle";
+
+                    element.bind("mousedown", function (e) {
+                        dragTarget = e.target;
+                    });
+                }
+
+                function dragendHandler(e) {
+                    setTimeout(function() {
+                      element.unbind('$destroy', dragendHandler);
+                    }, 0);
+                    var sendChannel = attrs.dragChannel || "defaultchannel";
+                    $rootScope.$broadcast("ANGULAR_DRAG_END", sendChannel);
+                    if (e.dataTransfer && e.dataTransfer.dropEffect !== "none") {
+                        if (attrs.onDropSuccess) {
+                            var fn = $parse(attrs.onDropSuccess);
+                            scope.$evalAsync(function () {
+                                fn(scope, {$event: e});
+                            });
+                        } else {
+                            if (attrs.onDropFailure) {
+                                var fn = $parse(attrs.onDropFailure);
+                                scope.$evalAsync(function () {
+                                    fn(scope, {$event: e});
+                                });
+                            }
+                        }
+                    }
+                    element.removeClass(draggingClass);
+                }
+
+                element.bind("dragend", dragendHandler);
+
+                element.bind("dragstart", function (e) {
+                    var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
+
+                    if (isDragAllowed) {
+                        var sendChannel = attrs.dragChannel || "defaultchannel";
+                        var sendData = angular.toJson({ data: dragData, channel: sendChannel });
+                        var dragImage = attrs.dragImage || null;
+
+                        element.addClass(draggingClass);
+                        element.bind('$destroy', dragendHandler);
+
+                        if (dragImage) {
+                            var dragImageFn = $parse(attrs.dragImage);
+                            scope.$evalAsync(function() {
+                                var dragImageParameters = dragImageFn(scope, {$event: e});
+                                if (dragImageParameters) {
+                                    if (angular.isString(dragImageParameters)) {
+                                        dragImageParameters = $dragImage.generate(dragImageParameters);
+                                    }
+                                    if (dragImageParameters.image) {
+                                        var xOffset = dragImageParameters.xOffset || 0,
+                                            yOffset = dragImageParameters.yOffset || 0;
+                                        e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
+                                    }
+                                }
+                            });
+                        }
+
+                        e.dataTransfer.setData("dataToSend", sendData);
+                        currentData = angular.fromJson(sendData);
+                        e.dataTransfer.effectAllowed = "copyMove";
+                        $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
+                    }
+                    else {
+                        e.preventDefault();
+                    }
+                });
+            };
+        }
+    ])
+    .directive("uiOnDrop", [
+        '$parse',
+        '$rootScope',
+        function ($parse, $rootScope) {
+            return function (scope, element, attr) {
+                var dragging = 0; //Ref. http://stackoverflow.com/a/10906204
+                var dropChannel = attr.dropChannel || "defaultchannel" ;
+                var dragChannel = "";
+                var dragEnterClass = attr.dragEnterClass || "on-drag-enter";
+                var dragHoverClass = attr.dragHoverClass || "on-drag-hover";
+                var customDragEnterEvent = $parse(attr.onDragEnter);
+                var customDragLeaveEvent = $parse(attr.onDragLeave);
+
+                function onDragOver(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+
+                    var fn = $parse(attr.uiOnDragOver);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
+
+                    e.dataTransfer.dropEffect = e.shiftKey ? 'copy' : 'move';
+                    return false;
+                }
+
+                function onDragLeave(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    dragging--;
+
+                    if (dragging == 0) {
+                        scope.$evalAsync(function () {
+                            customDragEnterEvent(scope, {$event: e});
+                        });
+                        element.removeClass(dragHoverClass);
+                    }
+
+                    var fn = $parse(attr.uiOnDragLeave);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
+                }
+
+                function onDragEnter(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    dragging++;
+
+                    var fn = $parse(attr.uiOnDragEnter);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
+
+                    $rootScope.$broadcast("ANGULAR_HOVER", dragChannel);
+                    scope.$evalAsync(function () {
+                        customDragLeaveEvent(scope, {$event: e});
+                    });
+                    element.addClass(dragHoverClass);
+                }
+
+                function onDrop(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
+                    }
+                    if (e.stopPropagation) {
+                        e.stopPropagation(); // Necessary. Allows us to drop.
+                    }
+
+                    var sendData = e.dataTransfer.getData("dataToSend");
+                    sendData = angular.fromJson(sendData);
+
+                    var fn = $parse(attr.uiOnDrop);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$data: sendData.data, $event: e, $channel: sendData.channel});
+                    });
+                    element.removeClass(dragEnterClass);
+                    dragging = 0;
+                }
+
+                function isDragChannelAccepted(dragChannel, dropChannel) {
+                    if (dropChannel === "*") {
+                        return true;
+                    }
+
+                    var channelMatchPattern = new RegExp("(\\s|[,])+(" + dragChannel + ")(\\s|[,])+", "i");
+
+                    return channelMatchPattern.test("," + dropChannel + ",");
+                }
+
+                function preventNativeDnD(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    e.dataTransfer.dropEffect = "none";
+                    return false;
+                }
+
+			var deregisterDragStart = $rootScope.$on("ANGULAR_DRAG_START", function (event, channel) {
+                    dragChannel = channel;
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+                        if (attr.dropValidate) {
+                            var validateFn = $parse(attr.dropValidate);
+                            var valid = validateFn(scope, {$data: currentData.data, $channel: currentData.channel});
+                            if (!valid) {
+                                element.bind("dragover", preventNativeDnD);
+                                element.bind("dragenter", preventNativeDnD);
+                                element.bind("dragleave", preventNativeDnD);
+                                element.bind("drop", preventNativeDnD);
+								return;
+                            }
+                        }
+
+                        element.bind("dragover", onDragOver);
+                        element.bind("dragenter", onDragEnter);
+                        element.bind("dragleave", onDragLeave);
+
+                        element.bind("drop", onDrop);
+                        element.addClass(dragEnterClass);
+                    }
+					else {
+					    element.bind("dragover", preventNativeDnD);
+					    element.bind("dragenter", preventNativeDnD);
+					    element.bind("dragleave", preventNativeDnD);
+					    element.bind("drop", preventNativeDnD);
+					}
+
+                });
+
+
+
+                var deregisterDragEnd = $rootScope.$on("ANGULAR_DRAG_END", function (e, channel) {
+                    dragChannel = "";
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+
+                        element.unbind("dragover", onDragOver);
+                        element.unbind("dragenter", onDragEnter);
+                        element.unbind("dragleave", onDragLeave);
+
+                        element.unbind("drop", onDrop);
+                        element.removeClass(dragHoverClass);
+                        element.removeClass(dragEnterClass);
+                    }
+
+					element.unbind("dragover", preventNativeDnD);
+					element.unbind("dragenter", preventNativeDnD);
+					element.unbind("dragleave", preventNativeDnD);
+					element.unbind("drop", preventNativeDnD);
+                });
+
+
+                var deregisterDragHover = $rootScope.$on("ANGULAR_HOVER", function (e, channel) {
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+                      element.removeClass(dragHoverClass);
+                    }
+                });
+
+
+                scope.$on('$destroy', function () {
+                    deregisterDragStart();
+                    deregisterDragEnd();
+                    deregisterDragHover();
+                });
+
+
+                attr.$observe('dropChannel', function (value) {
+                    if (value) {
+                        dropChannel = value;
+                    }
+                });
+
+
+            };
+        }
+    ])
+    .constant("$dragImageConfig", {
+        height: 20,
+        width: 200,
+        padding: 10,
+        font: 'bold 11px Arial',
+        fontColor: '#eee8d5',
+        backgroundColor: '#93a1a1',
+        xOffset: 0,
+        yOffset: 0
+    })
+    .service("$dragImage", [
+        '$dragImageConfig',
+        function (defaultConfig) {
+            var ELLIPSIS = '…';
+
+            function fitString(canvas, text, config) {
+                var width = canvas.measureText(text).width;
+                if (width < config.width) {
+                    return text;
+                }
+                while (width + config.padding > config.width) {
+                    text = text.substring(0, text.length - 1);
+                    width = canvas.measureText(text + ELLIPSIS).width;
+                }
+                return text + ELLIPSIS;
+            };
+
+            this.generate = function (text, options) {
+                var config = angular.extend({}, defaultConfig, options || {});
+                var el = document.createElement('canvas');
+
+                el.height = config.height;
+                el.width = config.width;
+
+                var canvas = el.getContext('2d');
+
+                canvas.fillStyle = config.backgroundColor;
+                canvas.fillRect(0, 0, config.width, config.height);
+                canvas.font = config.font;
+                canvas.fillStyle = config.fontColor;
+
+                var title = fitString(canvas, text, config);
+                canvas.fillText(title, 4, config.padding + 4);
+
+                var image = new Image();
+                image.src = el.toDataURL();
+
+                return {
+                    image: image,
+                    xOffset: config.xOffset,
+                    yOffset: config.yOffset
+                };
+            }
+        }
+    ]);
+
+}(angular));
+
 /*
 Project: angular-gantt for AngularJS
 Author: Marco Schweighauser
@@ -37357,6 +37738,8 @@ gantt.factory('Gantt', [
 
             this.api.registerEvent('core', 'ready');
 
+            this.api.registerEvent('directives', 'preLink');
+            this.api.registerEvent('directives', 'postLink');
             this.api.registerEvent('directives', 'new');
             this.api.registerEvent('directives', 'destroy');
 
@@ -38055,6 +38438,13 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
     };
 
     RowsManager.prototype.moveRow = function(row, targetRow) {
+        if (this.gantt.$scope.sortMode !== undefined) {
+            // Apply current sort to model
+            this.applySort();
+
+            this.gantt.$scope.sortMode = undefined;
+        }
+
         var targetRowIndex = this.rows.indexOf(targetRow);
         var rowIndex = this.rows.indexOf(row);
 
@@ -38063,20 +38453,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
             arrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
             arrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
 
-            if (this.gantt.$scope.sortMode !== undefined) {
-                // Apply current sort to model
-                this.applySort();
-
-                this.gantt.$scope.sortMode = undefined;
-                this.sortRows();
-            } else {
-                arrays.moveToIndex(this.sortedRows, rowIndex, targetRowIndex);
-            }
-
             this.gantt.api.rows.raise.change(row);
             this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
 
-            this.updateVisibleRows();
+            this.sortRows();
         }
     };
 
@@ -39286,6 +39666,16 @@ gantt.directive('ganttRowLabel', [function() {
                 return tAttrs.templateUrl;
             }
         },
+        compile: function () {
+            return {
+                pre: function preLink(scope, iElement, iAttrs, controller) {
+                    scope.gantt.api.directives.raise.preLink('ganttRowLabel', scope, iElement, iAttrs, controller);
+                },
+                post: function postLink(scope, iElement, iAttrs, controller) {
+                    scope.gantt.api.directives.raise.postLink('ganttRowLabel', scope, iElement, iAttrs, controller);
+                }
+            };
+        },
         controller: ['$scope', '$element', function($scope, $element) {
 
             $scope.gantt.api.directives.raise.new('ganttRowLabel', $scope, $element);
@@ -39549,9 +39939,9 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
-        '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
-        '                </gantt-row-label>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                    <gantt-row-label></gantt-row-label>\n' +
+        '                </div>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '    </gantt-labels>\n' +
@@ -39559,9 +39949,9 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <gantt-header-columns>\n' +
         '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
         '                <div class="gantt-header-row gantt-header-row-bottom">\n' +
-        '                    <gantt-column-header ng-repeat="column in header track by $index">\n' +
-        '                        {{ column.label }}\n' +
-        '                    </gantt-column-header>\n' +
+        '                    <div ng-repeat="column in header track by $index">\n' +
+        '                        <gantt-column-header ></gantt-column-header>\n' +
+        '                    </div>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '        </gantt-header-columns>\n' +
@@ -39581,9 +39971,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <gantt-column ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
-        '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
-        '                </gantt-column>\n' +
+        '                <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
+        '                    <gantt-column >\n' +
+        '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
+        '                            <gantt-time-frame></gantt-time-frame>\n' +
+        '                        </div>\n' +
+        '                    </gantt-column>\n' +
+        '                </div>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +
@@ -39591,9 +39985,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                     ng-class="timespan.classes"\n' +
         '                     ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id"></gantt-task>\n' +
-        '                </gantt-row>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                    <gantt-row>\n' +
+        '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
+        '                            <gantt-task ></gantt-task>\n' +
+        '                        </div>\n' +
+        '                    </gantt-row>\n' +
+        '                </div>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
         '    </gantt-scrollable>\n' +
@@ -39622,10 +40020,11 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Row label template -->\n' +
         '    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-labels-row gantt-row-height"\n' +
+        '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
         '             ng-class="row.model.classes" ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -39655,8 +40054,10 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-column-header"\n' +
-        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
+        '        <div class="gantt-column-header"\n' +
+        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}">\n' +
+        '            {{ column.label }}\n' +
+        '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body columns template -->\n' +
@@ -40180,7 +40581,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
 }]);
 
 
-angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$document', 'ganttUtils', function($document, utils) {
+angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSortable', ['ganttUtils', '$compile', function(utils, $compile) {
     // Provides the row sort functionality to any Gantt row
     // Uses the sortableState to share the current row
 
@@ -40205,58 +40606,31 @@ angular.module('gantt.sortable', ['gantt']).directive('ganttSortable', ['$docume
 
             api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                 if (directiveName === 'ganttRowLabel') {
-                    rowElement.bind('mousedown', function() {
-                        var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
-                        if (!enabled) {
-                            return;
+                    rowScope.checkDraggable = function() {
+                        return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                    };
+
+                    rowScope.onDropSuccess = function() {
+                        rowScope.$evalAsync();
+                    };
+
+                    rowScope.onDrop = function(evt, data) {
+                        var row = rowScope.row.rowsManager.rowsMap[data.id];
+                        if (row !== rowScope) {
+                            rowScope.row.rowsManager.moveRow(row, rowScope.row);
+                            rowScope.$evalAsync();
                         }
-
-                        enableDragMode();
-
-                        var disableHandler = function() {
-                            rowScope.$apply(function() {
-                                angular.element($document[0].body).unbind('mouseup', disableHandler);
-                                disableDragMode();
-                            });
-                        };
-                        angular.element($document[0].body).bind('mouseup', disableHandler);
-                    });
-
-                    rowElement.bind('mousemove', function(e) {
-                        if (isInDragMode()) {
-                            var targetScope = utils.scopeFromPoint(e.clientX, e.clientY);
-                            var targetRow = targetScope.row;
-
-                            if (targetRow !== undefined && scope.startRow !== undefined && targetRow !== scope.startRow) {
-                                rowScope.$apply(function () {
-                                    rowScope.row.rowsManager.moveRow(scope.startRow, targetRow);
-                                });
-                            }
-                        } else {
-                            var enabled = utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
-                            rowElement.css('cursor', enabled ? 'pointer' : '');
-                        }
-                    });
-
-                    var isInDragMode = function() {
-                        return scope.startRow !== undefined && !angular.equals(rowScope.row.model.id, scope.startRow.model.id);
                     };
 
-                    var enableDragMode = function() {
-                        scope.startRow = rowScope.row;
-                        rowElement.css('cursor', 'move');
-                        angular.element($document[0].body).css({
-                            'cursor': 'no-drop'
-                        });
-                    };
+                    rowElement.attr('ui-draggable', '{{checkDraggable()}}');
+                    rowElement.attr('drag-channel', '\'sortable\'');
+                    rowElement.attr('ui-on-drop', 'onDrop($event, $data)');
+                    rowElement.attr('on-drop-success', 'onDropSuccess()');
 
-                    var disableDragMode = function() {
-                        scope.startRow = undefined;
-                        rowElement.css('cursor', 'pointer');
-                        angular.element($document[0].body).css({
-                            'cursor': 'auto'
-                        });
-                    };
+                    rowElement.attr('drop-channel', '\'sortable\'');
+                    rowElement.attr('drag', 'row.model');
+
+                    $compile(rowElement)(rowScope);
                 }
             });
 

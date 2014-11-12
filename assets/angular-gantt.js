@@ -1591,6 +1591,8 @@ gantt.factory('Gantt', [
 
             this.api.registerEvent('core', 'ready');
 
+            this.api.registerEvent('directives', 'preLink');
+            this.api.registerEvent('directives', 'postLink');
             this.api.registerEvent('directives', 'new');
             this.api.registerEvent('directives', 'destroy');
 
@@ -2289,6 +2291,13 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
     };
 
     RowsManager.prototype.moveRow = function(row, targetRow) {
+        if (this.gantt.$scope.sortMode !== undefined) {
+            // Apply current sort to model
+            this.applySort();
+
+            this.gantt.$scope.sortMode = undefined;
+        }
+
         var targetRowIndex = this.rows.indexOf(targetRow);
         var rowIndex = this.rows.indexOf(row);
 
@@ -2297,20 +2306,10 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
             arrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
             arrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
 
-            if (this.gantt.$scope.sortMode !== undefined) {
-                // Apply current sort to model
-                this.applySort();
-
-                this.gantt.$scope.sortMode = undefined;
-                this.sortRows();
-            } else {
-                arrays.moveToIndex(this.sortedRows, rowIndex, targetRowIndex);
-            }
-
             this.gantt.api.rows.raise.change(row);
             this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
 
-            this.updateVisibleRows();
+            this.sortRows();
         }
     };
 
@@ -3520,6 +3519,16 @@ gantt.directive('ganttRowLabel', [function() {
                 return tAttrs.templateUrl;
             }
         },
+        compile: function () {
+            return {
+                pre: function preLink(scope, iElement, iAttrs, controller) {
+                    scope.gantt.api.directives.raise.preLink('ganttRowLabel', scope, iElement, iAttrs, controller);
+                },
+                post: function postLink(scope, iElement, iAttrs, controller) {
+                    scope.gantt.api.directives.raise.postLink('ganttRowLabel', scope, iElement, iAttrs, controller);
+                }
+            };
+        },
         controller: ['$scope', '$element', function($scope, $element) {
 
             $scope.gantt.api.directives.raise.new('ganttRowLabel', $scope, $element);
@@ -3783,9 +3792,9 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
         '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
         '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
-        '                <gantt-row-label ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
-        '                </gantt-row-label>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                    <gantt-row-label></gantt-row-label>\n' +
+        '                </div>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '    </gantt-labels>\n' +
@@ -3793,9 +3802,9 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <gantt-header-columns>\n' +
         '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
         '                <div class="gantt-header-row gantt-header-row-bottom">\n' +
-        '                    <gantt-column-header ng-repeat="column in header track by $index">\n' +
-        '                        {{ column.label }}\n' +
-        '                    </gantt-column-header>\n' +
+        '                    <div ng-repeat="column in header track by $index">\n' +
+        '                        <gantt-column-header ></gantt-column-header>\n' +
+        '                    </div>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '        </gantt-header-columns>\n' +
@@ -3815,9 +3824,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
         '            </div>\n' +
         '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <gantt-column ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
-        '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
-        '                </gantt-column>\n' +
+        '                <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
+        '                    <gantt-column >\n' +
+        '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
+        '                            <gantt-time-frame></gantt-time-frame>\n' +
+        '                        </div>\n' +
+        '                    </gantt-column>\n' +
+        '                </div>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
         '                <div class="gantt-timespan"\n' +
@@ -3825,9 +3838,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                     ng-class="timespan.classes"\n' +
         '                     ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id"></gantt-task>\n' +
-        '                </gantt-row>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                    <gantt-row>\n' +
+        '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
+        '                            <gantt-task ></gantt-task>\n' +
+        '                        </div>\n' +
+        '                    </gantt-row>\n' +
+        '                </div>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
         '    </gantt-scrollable>\n' +
@@ -3856,10 +3873,11 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Row label template -->\n' +
         '    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-labels-row gantt-row-height"\n' +
+        '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
         '             ng-class="row.model.classes" ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -3889,8 +3907,10 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-column-header"\n' +
-        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
+        '        <div class="gantt-column-header"\n' +
+        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}">\n' +
+        '            {{ column.label }}\n' +
+        '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body columns template -->\n' +
