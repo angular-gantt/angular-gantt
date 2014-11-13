@@ -58,7 +58,7 @@ On each feature, `on` object is used to register listeners, and `raise` object t
 
 Directives events are entry points to build [Template Hooks](customize.md#template-hooks) and [Plugins](write_plugin.md).
 
-- **api.directives.on.new(directiveName, directiveScope, element)**
+- **api.directives.on.new(directiveName, scope, iElement, iAttrs, controller)**
 
     A directive instance controller will be created. It can be used to register
     [DOM Event Listener](customize.md#dom-event-listener) (`click`, `dblclick`, ...) on any directive.
@@ -71,7 +71,7 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
     A directive instance is in postLink phase.
 
-- **api.directives.on.destroy(directiveName, directiveScope, element)**
+- **api.directives.on.destroy(directiveName, scope, iElement, iAttrs, controller)**
 
     A directive instance scope has been destroyed.
 

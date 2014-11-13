@@ -3465,14 +3465,16 @@ gantt.service('GanttDirectiveBuilder', [function() {
                         }
                     };
                 },
-                controller: ['$scope', '$element', function($scope, $element) {
+                controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+                    var controller = this;
+
                     if (controllerFunction !== undefined) {
-                        controllerFunction($scope, $element);
+                        controllerFunction($scope, $element, $attrs, controller);
                     }
 
-                    $scope.gantt.api.directives.raise.new(directiveName, $scope, $element);
+                    $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
                     $scope.$on('$destroy', function() {
-                        $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element);
+                        $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
                     });
                 }]
             };
