@@ -1,5 +1,6 @@
 'use strict';
 /*jshint undef:false */
+/*jshint camelcase:false */
 module.exports = function(grunt) {
     var plugins = ['sortable', 'movable', 'tooltips', 'bounds', 'progress'];
 
