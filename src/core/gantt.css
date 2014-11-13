@@ -31,7 +31,6 @@
 
 .gantt-header {
     overflow: hidden;
-    border-top: 1px solid #dddddd;
 }
 
 .gantt-header-row, .gantt-labels-header-row {
@@ -40,9 +39,10 @@
     -webkit-box-sizing:border-box;
     height: 2em;
     white-space: nowrap;
+    border-top: 1px solid #dddddd;
 }
 
-.gantt-header-row-bottom {
+.gantt-header-row-last, .gantt-labels-header-row-last {
     border-bottom: 1px solid #dddddd;
 }
 

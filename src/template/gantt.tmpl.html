@@ -12,7 +12,7 @@
     <gantt-header>
         <gantt-header-columns>
             <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
-                <div class="gantt-header-row gantt-header-row-bottom">
+                <div class="gantt-header-row" ng-class="$last && 'gantt-header-row-last' || ''">
                     <div ng-repeat="column in header track by $index">
                         <gantt-column-header ></gantt-column-header>
                     </div>
@@ -88,7 +88,7 @@
 
     <!-- Row header template -->
     <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">
-        <div class="gantt-labels-header-row"
+        <div class="gantt-labels-header-row gantt-labels-header-row-last"
              ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
              ng-style="{'margin-top': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+'em'}">
             <span>Name</span>

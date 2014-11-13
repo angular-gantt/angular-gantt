@@ -3670,7 +3670,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
         '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
-        '                <div class="gantt-header-row gantt-header-row-bottom">\n' +
+        '                <div class="gantt-header-row" ng-class="$last && \'gantt-header-row-last\' || \'\'">\n' +
         '                    <div ng-repeat="column in header track by $index">\n' +
         '                        <gantt-column-header ></gantt-column-header>\n' +
         '                    </div>\n' +
@@ -3746,7 +3746,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Row header template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">\n' +
-        '        <div class="gantt-labels-header-row"\n' +
+        '        <div class="gantt-labels-header-row gantt-labels-header-row-last"\n' +
         '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"\n' +
         '             ng-style="{\'margin-top\': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
         '            <span>Name</span>\n' +
