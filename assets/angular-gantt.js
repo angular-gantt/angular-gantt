@@ -2498,10 +2498,12 @@ gantt.factory('GanttTask', [function() {
 }]);
 
 
-gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', function(BodyColumns, BodyRows) {
+gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', 'GanttBodyBackground', 'GanttBodyForeground', function(BodyColumns, BodyRows, BodyBackground, BodyForeground) {
     var Body= function(gantt) {
         this.gantt = gantt;
 
+        this.background = new BodyBackground(this);
+        this.foreground = new BodyForeground(this);
         this.columns = new BodyColumns(this);
         this.rows = new BodyRows(this);
     };
@@ -2509,17 +2511,33 @@ gantt.factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', function(BodyCo
 }]);
 
 
+gantt.factory('GanttBodyBackground', [function() {
+    var GanttBodyBackground = function(body) {
+        this.body = body;
+    };
+    return GanttBodyBackground;
+}]);
+
+
 gantt.factory('GanttBodyColumns', [function() {
-    var BodyColumns = function($element) {
-        this.$element = $element;
+    var BodyColumns = function(body) {
+        this.body = body;
     };
     return BodyColumns;
 }]);
 
 
+gantt.factory('GanttBodyForeground', [function() {
+    var GanttBodyForeground = function(body) {
+        this.body = body;
+    };
+    return GanttBodyForeground;
+}]);
+
+
 gantt.factory('GanttBodyRows', [function() {
-    var BodyRows = function($element) {
-        this.$element = $element;
+    var BodyRows = function(body) {
+        this.body = body;
     };
     return BodyRows;
 }]);
@@ -2618,17 +2636,6 @@ gantt.factory('GanttTimespan', [function() {
     var Timespan = function(gantt, model) {
         this.gantt = gantt;
         this.model = model;
-
-        /*
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.classes = classes;
-        this.priority = priority;
-        this.from = moment(from);
-        this.to = moment(to);
-        this.data = data;
-        */
     };
 
     // Updates the pos and size of the timespan according to the from - to date
@@ -2673,9 +2680,11 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
         this.timespansMap = {};
         this.timespans = [];
 
-        this.gantt.$scope.$watchCollection('timespans', function(newValue) {
-            self.clearTimespans();
-            self.loadTimespans(newValue);
+        this.gantt.$scope.$watchCollection('timespans', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.clearTimespans();
+                self.loadTimespans(newValue);
+            }
         });
 
         this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
@@ -2693,6 +2702,7 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             timespans = timespans !== undefined ? [timespans] : [];
         }
 
+        this.gantt.$scope.timespans = timespans;
         for (var i = 0, l = timespans.length; i < l; i++) {
             var timespanModel = timespans[i];
             this.gantt.objectModel.cleanTimespan(timespanModel);
@@ -3276,6 +3286,31 @@ gantt.directive('ganttBody', [function() {
 }]);
 
 
+gantt.directive('ganttBodyBackground', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttBody',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.bodyBackground.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.body.background.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttBodyBackground', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttBodyBackground', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
 gantt.directive('ganttBodyColumns', [function() {
     return {
         restrict: 'E',
@@ -3295,6 +3330,31 @@ gantt.directive('ganttBodyColumns', [function() {
             $scope.gantt.api.directives.raise.new('ganttBodyColumns', $scope, $element);
             $scope.$on('$destroy', function() {
                 $scope.gantt.api.directives.raise.destroy('ganttBodyColumns', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttBodyForeground', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttBody',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.bodyForeground.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.body.foreground.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttBodyForeground', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttBodyForeground', $scope, $element);
             });
         }]
     };
@@ -3452,6 +3512,52 @@ gantt.directive('ganttLabels', [function() {
             $scope.gantt.api.directives.raise.new('ganttLabels', $scope, $element);
             $scope.$on('$destroy', function() {
                 $scope.gantt.api.directives.raise.destroy('ganttLabels', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttLabelsBody', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttLabels',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.labelsBody.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.api.directives.raise.new('ganttLabelsBody', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttLabelsBody', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttLabelsHeader', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttLabels',
+        transclude: true,
+        replace: true,
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.labelsHeader.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.gantt.api.directives.raise.new('ganttLabelsHeader', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttLabelsHeader', $scope, $element);
             });
         }]
     };
@@ -3627,6 +3733,30 @@ gantt.directive('ganttTimeFrame', [function() {
 }]);
 
 
+gantt.directive('ganttTimespan', [function() {
+    return {
+        restrict: 'E',
+        require: '^ganttRow',
+        templateUrl: function(tElement, tAttrs) {
+            if (tAttrs.templateUrl === undefined) {
+                return 'template/default.timespan.tmpl.html';
+            } else {
+                return tAttrs.templateUrl;
+            }
+        },
+        replace: true,
+        controller: ['$scope', '$element', function($scope, $element) {
+            $scope.timespan.$element = $element;
+
+            $scope.gantt.api.directives.raise.new('ganttTimespan', $scope, $element);
+            $scope.$on('$destroy', function() {
+                $scope.gantt.api.directives.raise.destroy('ganttTimespan', $scope, $element);
+            });
+        }]
+    };
+}]);
+
+
 gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
     function debounce(fn, timeout, invokeApply) {
         var nthCall = 0;
@@ -3785,18 +3915,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
     $templateCache.put('template/default.gantt.tmpl.html',
         '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
         '    <gantt-labels>\n' +
-        '        <div class="gantt-labels-header">\n' +
+        '        <gantt-labels-header>\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
-        '        </div>\n' +
-        '        <div class="gantt-labels-body"\n' +
-        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
-        '             ng-show="gantt.columnsManager.columns.length > 0">\n' +
-        '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
-        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <gantt-row-label></gantt-row-label>\n' +
-        '                </div>\n' +
+        '        </gantt-labels-header>\n' +
+        '        <gantt-labels-body>\n' +
+        '            <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                <gantt-row-label></gantt-row-label>\n' +
         '            </div>\n' +
-        '        </div>\n' +
+        '        </gantt-labels-body>\n' +
         '    </gantt-labels>\n' +
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
@@ -3811,19 +3937,20 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </gantt-header>\n' +
         '    <gantt-scrollable>\n' +
         '        <gantt-body>\n' +
-        '            <div class="gantt-body-background">\n' +
-        '                <div class="gantt-row-height"\n' +
-        '                     ng-class-odd="\'gantt-background-row\'"\n' +
-        '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                     ng-class="row.model.classes"\n' +
-        '                     ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}"\n' +
-        '                     ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '            <gantt-body-background>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                    <div class="gantt-row-height"\n' +
+        '                         ng-class-odd="\'gantt-background-row\'"\n' +
+        '                         ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                         ng-class="row.model.classes"\n' +
+        '                         ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                    </div>\n' +
         '                </div>\n' +
-        '            </div>\n' +
-        '            <div class="gantt-body-foreground">\n' +
+        '            </gantt-body-background>\n' +
+        '            <gantt-body-foreground>\n' +
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
-        '            </div>\n' +
-        '            <gantt-body-columns class="gantt-body-columns">\n' +
+        '            </gantt-body-foreground>\n' +
+        '            <gantt-body-columns>\n' +
         '                <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
         '                    <gantt-column >\n' +
         '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
@@ -3833,10 +3960,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                </div>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
-        '                <div class="gantt-timespan"\n' +
-        '                     ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'px\', \'width\': timespan.width +\'px\', \'z-index\': (timespan.priority || 0)}"\n' +
-        '                     ng-class="timespan.classes"\n' +
-        '                     ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
+        '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
+        '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
         '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
         '                    <gantt-row>\n' +
@@ -3890,6 +4015,21 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <!-- Labels header template-->\n' +
+        '    <script type="text/ng-template" id="template/default.labelsHeader.tmpl.html">\n' +
+        '        <div ng-transclude= class="gantt-labels-header">\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/default.labelsBody.tmpl.html">\n' +
+        '    <div class="gantt-labels-body"\n' +
+        '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
+        '         ng-show="gantt.columnsManager.columns.length > 0">\n' +
+        '        <div ng-transclude gantt-vertical-scroll-receiver style="position: relative">\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '    </script>\n' +
+        '\n' +
         '    <!-- Labels template -->\n' +
         '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
         '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
@@ -3911,6 +4051,16 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}">\n' +
         '            {{ column.label }}\n' +
         '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Body background template -->\n' +
+        '    <script type="text/ng-template" id="template/default.bodyBackground.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-background"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Body foreground template -->\n' +
+        '    <script type="text/ng-template" id="template/default.bodyForeground.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-foreground"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body columns template -->\n' +
@@ -3939,6 +4089,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Rows template -->\n' +
         '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-rows"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Timespan template -->\n' +
+        '    <script type="text/ng-template" id="template/default.timespan.tmpl.html">\n' +
+        '        <div class="gantt-timespan"\n' +
+        '             ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'px\', \'width\': timespan.width +\'px\', \'z-index\': (timespan.priority || 0)}"\n' +
+        '             ng-class="timespan.classes">\n' +
+        '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task template -->\n' +

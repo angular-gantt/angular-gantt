@@ -3,17 +3,6 @@ gantt.factory('GanttTimespan', [function() {
     var Timespan = function(gantt, model) {
         this.gantt = gantt;
         this.model = model;
-
-        /*
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.classes = classes;
-        this.priority = priority;
-        this.from = moment(from);
-        this.to = moment(to);
-        this.data = data;
-        */
     };
 
     // Updates the pos and size of the timespan according to the from - to date

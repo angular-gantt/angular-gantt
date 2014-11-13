@@ -1,7 +1,7 @@
 'use strict';
 gantt.factory('GanttBodyColumns', [function() {
-    var BodyColumns = function($element) {
-        this.$element = $element;
+    var BodyColumns = function(body) {
+        this.body = body;
     };
     return BodyColumns;
 }]);

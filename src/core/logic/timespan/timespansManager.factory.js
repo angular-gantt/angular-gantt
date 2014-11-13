@@ -8,9 +8,11 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
         this.timespansMap = {};
         this.timespans = [];
 
-        this.gantt.$scope.$watchCollection('timespans', function(newValue) {
-            self.clearTimespans();
-            self.loadTimespans(newValue);
+        this.gantt.$scope.$watchCollection('timespans', function(newValue, oldValue) {
+            if (!angular.equals(newValue, oldValue)) {
+                self.clearTimespans();
+                self.loadTimespans(newValue);
+            }
         });
 
         this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
@@ -28,6 +30,7 @@ gantt.factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
             timespans = timespans !== undefined ? [timespans] : [];
         }
 
+        this.gantt.$scope.timespans = timespans;
         for (var i = 0, l = timespans.length; i < l; i++) {
             var timespanModel = timespans[i];
             this.gantt.objectModel.cleanTimespan(timespanModel);
