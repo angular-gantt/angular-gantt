@@ -14,6 +14,7 @@ pages:
 - [configuration/timespans.md, Configuration, Timespans]
 - [configuration/attributes.md, Configuration, Attributes]
 - [configuration/api.md, Configuration, API]
+- [configuration/customize.md, Configuration, Customize]
 - [plugins/plugins.md, Plugins, Plugins]
 - [plugins/sortable.md, Plugins, Sortable]
 - [plugins/movable.md, Plugins, Movable]

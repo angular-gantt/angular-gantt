@@ -24,12 +24,7 @@
         <gantt-body>
             <gantt-body-background>
                 <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
-                    <div class="gantt-row-height"
-                         ng-class-odd="'gantt-background-row'"
-                         ng-class-even="'gantt-background-row-alt'"
-                         ng-class="row.model.classes"
-                         ng-style="{'background-color': row.model.color, 'height': row.model.height}">
-                    </div>
+                    <gantt-row-background></gantt-row-background>
                 </div>
             </gantt-body-background>
             <gantt-body-foreground>
@@ -37,7 +32,7 @@
             </gantt-body-foreground>
             <gantt-body-columns>
                 <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">
-                    <gantt-column >
+                    <gantt-column>
                         <div ng-repeat="timeFrame in column.visibleTimeFrames">
                             <gantt-time-frame></gantt-time-frame>
                         </div>
@@ -141,6 +136,16 @@
     <!-- Body background template -->
     <script type="text/ng-template" id="template/default.bodyBackground.tmpl.html">
         <div ng-transclude class="gantt-body-background"></div>
+    </script>
+
+    <!-- Row background template -->
+    <script type="text/ng-template" id="template/default.rowBackground.tmpl.html">
+        <div class="gantt-row-height"
+             ng-class-odd="'gantt-background-row'"
+             ng-class-even="'gantt-background-row-alt'"
+             ng-class="row.model.classes"
+             ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+        </div>
     </script>
 
     <!-- Body foreground template -->
