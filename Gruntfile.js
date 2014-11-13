@@ -111,9 +111,7 @@ module.exports = function(grunt) {
         coveralls: {
             options: {
                 force: true,
-                debug: true,
                 coverage_dir: 'coverage-results',
-                dryRun: true,
                 recursive: true
             }
         }
