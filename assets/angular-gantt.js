@@ -3730,7 +3730,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Header template -->\n' +
         '    <script type="text/ng-template" id="template/ganttHeader.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
-        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"\n' +
+        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
         '             ng-style="getHeaderCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
@@ -3747,8 +3747,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Row header template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">\n' +
         '        <div class="gantt-labels-header-row gantt-labels-header-row-last"\n' +
-        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"\n' +
-        '             ng-style="{\'margin-top\': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
+        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
+        '             ng-style="{\'margin-top\': ((gantt.columnsManager.headers.length-1)*2)+\'em\'}">\n' +
         '            <span>Name</span>\n' +
         '        </div>\n' +
         '    </script>\n' +

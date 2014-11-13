@@ -72,7 +72,7 @@
     <!-- Header template -->
     <script type="text/ng-template" id="template/ganttHeader.tmpl.html">
         <div ng-transclude class="gantt-header"
-             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
+             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"
              ng-style="getHeaderCss()"></div>
     </script>
 
@@ -89,8 +89,8 @@
     <!-- Row header template -->
     <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">
         <div class="gantt-labels-header-row gantt-labels-header-row-last"
-             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
-             ng-style="{'margin-top': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+'em'}">
+             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"
+             ng-style="{'margin-top': ((gantt.columnsManager.headers.length-1)*2)+'em'}">
             <span>Name</span>
         </div>
     </script>

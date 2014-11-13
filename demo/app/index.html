@@ -107,7 +107,7 @@
                                                         <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
-                                                            <button type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
+                                                            <button ng-disabled="options.scale === 'hour' || options.scale === 'minute'" type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
                                                             <button type="button" class="btn btn-default" ng-model="options.showLabelsColumn" bs-checkbox>Labels</button>
                                                         </div>
                                                     </div>
@@ -160,7 +160,7 @@
                                                filter-row="{'name': options.filterRow}"
                                                sort-mode="options.sortMode"
                                                view-scale="options.scale"
-                                               column-width="options.width && {minute: 40, hour: 40, day: 40, week: 150, month: 300, quarter: 500, year: 800}[options.scale] || undefined"
+                                               column-width="(options.width || options.scale === 'hour' || options.scale === 'minute') && {minute: 40, hour: 40, day: 40, week: 150, month: 300, quarter: 500, year: 800}[options.scale] || undefined"
                                                auto-expand="options.autoExpand"
                                                task-out-of-range="options.taskOutOfRange"
                                                from-date = "options.fromDate"
