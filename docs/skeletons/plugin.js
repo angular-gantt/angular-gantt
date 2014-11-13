@@ -1,5 +1,5 @@
 'use strict';
-angular.module('gantt.xxxxxx', ['gantt', 'gantt.xxxxxx.templates']).directive('ganttXxxxxx', ['$compile', function($compile) {
+angular.module('gantt.xxxxxx', ['gantt', 'gantt.xxxxxx.templates']).directive('ganttXxxxxx', [function() {
     return {
         restrict: 'E',
         require: '^gantt',
@@ -21,7 +21,7 @@ angular.module('gantt.xxxxxx', ['gantt', 'gantt.xxxxxx.templates']).directive('g
                 scope.enabled = true;
             }
 
-            api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement) {
+            api.directives.on.new(scope, function(dName, dScope, dElement, dAttrs, dController) {
                 // Write Template Hooks here...
             });
         }

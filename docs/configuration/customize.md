@@ -64,9 +64,9 @@ directive is added/removed from the DOM by AngularJS. They are entry points for 
 
     $scope.registerApi = function(api) {
     
-      api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement) {
-        if (directiveName === 'xxxxxx') { // 'xxxxxx' is the 'gantt-*' directive name in camelCase.
-          // Use directiveScope and directiveElement and do what you want.
+      api.directives.on.new(scope, function(dName, dScope, dElement, dAttrs, dController) {
+        if (dName === 'xxxxxx') { // 'xxxxxx' is the 'gantt*' directive name in camelCase.
+          // Use dScope, dElement, dAttrs and dController to do what you want.
         }
       });
       
@@ -78,11 +78,10 @@ directive is added/removed from the DOM by AngularJS. They are entry points for 
 
 Any DOM Event Listener (`click`, `dblclick`, ...) can be added on any `gantt-*` directive.
 
-    api.directives.on.new($scope, function(directiveName, directiveScope, directiveElement) {
-      if (directiveName === 'ganttTask') {
-        directiveElement.bind('click', function(event) {
-            event.stopPropagation();
-            $log.info('task-click: ' + directiveScope.task.model);
+    api.directives.on.new($scope, function(dName, dScope, dElement, dAttrs, dController) {
+      if (dName === 'ganttTask') {
+        dElement.bind('click', function(event) {
+            $log.info('task-click: ' + dScope.task.model);
         });
       }
     });
