@@ -12,6 +12,7 @@ angular.module('angularGanttDemoApp')
         var objectModel;
         var data;
         var timespans;
+        var originalData;
 
         $scope.options = {
             mode: 'custom',
@@ -174,6 +175,8 @@ angular.module('angularGanttDemoApp')
             $scope.api.timespans.load(timespans);
             $scope.api.data.load(data);
 
+            originalData = angular.copy(data);
+
             $scope.live.task = data[3].tasks[0];
             $scope.live.row = data[0];
         };
@@ -188,16 +191,16 @@ angular.module('angularGanttDemoApp')
         // Remove data action
         $scope.remove = function() {
             $scope.api.data.remove([
-                {'id': data[2].id}, // Remove Kickoff row
+                {'id': originalData[2].id}, // Remove Kickoff row
                 {
-                    'id': data[0].id, 'tasks': [
-                    {'id': data[0].tasks[0].id},
-                    {'id': data[0].tasks[3].id}
+                    'id': originalData[0].id, 'tasks': [
+                    {'id': originalData[0].tasks[0].id},
+                    {'id': originalData[0].tasks[3].id}
                 ]
                 }, // Remove some Milestones
                 {
-                    'id': data[6].id, 'tasks': [
-                    {'id': data[6].tasks[0].id}
+                    'id': originalData[6].id, 'tasks': [
+                    {'id': originalData[6].tasks[0].id}
                 ]
                 } // Remove order basket from Sprint 2
             ]);

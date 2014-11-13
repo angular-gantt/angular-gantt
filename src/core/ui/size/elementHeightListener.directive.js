@@ -1,11 +1,11 @@
 'use strict';
-gantt.directive('ganttElementWidthListener', [function() {
+gantt.directive('ganttElementHeightListener', [function() {
     return {
         restrict: 'A',
         controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
-            var scopeVariable = $attrs.ganttElementWidthListener;
+            var scopeVariable = $attrs.ganttElementHeightListener;
             if (scopeVariable === '') {
-                scopeVariable = 'ganttElementWidth';
+                scopeVariable = 'ganttElementHeight';
             }
 
             var effectiveScope = $scope;
@@ -16,8 +16,8 @@ gantt.directive('ganttElementWidthListener', [function() {
             }
 
             effectiveScope.$watch(function() {
-                if ($element[0].offsetWidth > 0) {
-                    effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                if ($element[0].offsetHeight > 0) {
+                    effectiveScope[scopeVariable] = $element[0].offsetHeight;
                 }
             });
         }]

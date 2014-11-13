@@ -3035,28 +3035,38 @@ gantt.directive('ganttHorizontalScrollReceiver', function() {
         restrict: 'A',
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollManager.horizontal.push($element[0]);
+            $scope.scrollManager.registerHorizontalReceiver($element);
         }]
     };
 });
+
 
 gantt.directive('ganttScrollManager', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
 
     return {
         restrict: 'A',
-        require: '^gantt',
         controller: ['$scope', function($scope) {
             $scope.scrollManager = {
                 horizontal: [],
-                vertical: []
+                vertical: [],
+
+                registerVerticalReceiver: function (element) {
+                    element.css('position', 'relative');
+                    $scope.scrollManager.vertical.push(element[0]);
+                },
+
+                registerHorizontalReceiver: function (element) {
+                    element.css('position', 'relative');
+                    $scope.scrollManager.horizontal.push(element[0]);
+                }
             };
         }]
     };
 });
 
 
-gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
+gantt.directive('ganttScrollSender', [function() {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -3064,6 +3074,10 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
             var el = $element[0];
+            var labelsWidth;
+            var bodyRowsWidth;
+            var bodyRowsHeight;
+
             var updateListeners = function() {
                 var i, l;
 
@@ -3071,7 +3085,6 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
                     var vElement = $scope.scrollManager.vertical[i];
                     if (vElement.style.top !== -el.scrollTop) {
                         vElement.style.top = -el.scrollTop + 'px';
-                        vElement.style.height = el.scrollHeight + 'px';
                     }
                 }
 
@@ -3079,23 +3092,21 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
                     var hElement = $scope.scrollManager.horizontal[i];
                     if (hElement.style.left !== -el.scrollLeft) {
                         hElement.style.left = -el.scrollLeft + 'px';
-                        hElement.style.width = el.scrollWidth + 'px';
+                        hElement.style.width = bodyRowsWidth + el.scrollLeft + 'px';
                     }
                 }
             };
 
             $element.bind('scroll', updateListeners);
-            $scope.gantt.api.rows.on.change($scope, debounce(function() {
-                updateListeners();
-            }, 5));
 
-            $scope.$watch('gantt.width', function(newValue) {
-                if (newValue === 0) {
-                    $timeout(function() {
-                        updateListeners();
-                    }, 0, true);
-                }
+            $scope.$watchGroup(['labelsWidth', 'bodyRowsWidth', 'bodyRowsHeight'], function(newValues) {
+                labelsWidth = newValues[0];
+                bodyRowsWidth = newValues[1];
+                bodyRowsHeight = newValues[2];
+
+                updateListeners();
             });
+
         }]
     };
 }]);
@@ -3187,14 +3198,39 @@ gantt.directive('ganttVerticalScrollReceiver', function() {
         restrict: 'A',
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollManager.vertical.push($element[0]);
+            $scope.scrollManager.registerVerticalReceiver($element);
         }]
     };
 });
 
-gantt.directive('ganttElementWidthListener', [function() {
-    // Updates the limit filters if the user scrolls the gantt chart
 
+gantt.directive('ganttElementHeightListener', [function() {
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+            var scopeVariable = $attrs.ganttElementHeightListener;
+            if (scopeVariable === '') {
+                scopeVariable = 'ganttElementHeight';
+            }
+
+            var effectiveScope = $scope;
+
+            while(scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = effectiveScope.$parent;
+            }
+
+            effectiveScope.$watch(function() {
+                if ($element[0].offsetHeight > 0) {
+                    effectiveScope[scopeVariable] = $element[0].offsetHeight;
+                }
+            });
+        }]
+    };
+}]);
+
+
+gantt.directive('ganttElementWidthListener', [function() {
     return {
         restrict: 'A',
         controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
@@ -3661,7 +3697,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    </gantt-column>\n' +
         '                </div>\n' +
         '            </gantt-body-columns>\n' +
-        '            <gantt-body-rows>\n' +
+        '            <gantt-body-rows gantt-element-height-listener="$parent.$parent.bodyRowsHeight" gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
         '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
         '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
@@ -3727,7 +3763,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <div class="gantt-labels-body"\n' +
         '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
         '         ng-show="gantt.columnsManager.columns.length > 0">\n' +
-        '        <div ng-transclude gantt-vertical-scroll-receiver style="position: relative">\n' +
+        '        <div ng-transclude gantt-vertical-scroll-receiver>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '    </script>\n' +

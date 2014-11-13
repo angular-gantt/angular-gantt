@@ -4,11 +4,20 @@ gantt.directive('ganttScrollManager', function() {
 
     return {
         restrict: 'A',
-        require: '^gantt',
         controller: ['$scope', function($scope) {
             $scope.scrollManager = {
                 horizontal: [],
-                vertical: []
+                vertical: [],
+
+                registerVerticalReceiver: function (element) {
+                    element.css('position', 'relative');
+                    $scope.scrollManager.vertical.push(element[0]);
+                },
+
+                registerHorizontalReceiver: function (element) {
+                    element.css('position', 'relative');
+                    $scope.scrollManager.horizontal.push(element[0]);
+                }
             };
         }]
     };

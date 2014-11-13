@@ -6,7 +6,7 @@ gantt.directive('ganttVerticalScrollReceiver', function() {
         restrict: 'A',
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollManager.vertical.push($element[0]);
+            $scope.scrollManager.registerVerticalReceiver($element);
         }]
     };
 });

@@ -1,5 +1,5 @@
 'use strict';
-gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
+gantt.directive('ganttScrollSender', [function() {
     // Updates the element which are registered for the horizontal or vertical scroll event
 
     return {
@@ -7,6 +7,10 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
         require: '^ganttScrollManager',
         controller: ['$scope', '$element', function($scope, $element) {
             var el = $element[0];
+            var labelsWidth;
+            var bodyRowsWidth;
+            var bodyRowsHeight;
+
             var updateListeners = function() {
                 var i, l;
 
@@ -14,7 +18,6 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
                     var vElement = $scope.scrollManager.vertical[i];
                     if (vElement.style.top !== -el.scrollTop) {
                         vElement.style.top = -el.scrollTop + 'px';
-                        vElement.style.height = el.scrollHeight + 'px';
                     }
                 }
 
@@ -22,23 +25,21 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
                     var hElement = $scope.scrollManager.horizontal[i];
                     if (hElement.style.left !== -el.scrollLeft) {
                         hElement.style.left = -el.scrollLeft + 'px';
-                        hElement.style.width = el.scrollWidth + 'px';
+                        hElement.style.width = bodyRowsWidth + el.scrollLeft + 'px';
                     }
                 }
             };
 
             $element.bind('scroll', updateListeners);
-            $scope.gantt.api.rows.on.change($scope, debounce(function() {
-                updateListeners();
-            }, 5));
 
-            $scope.$watch('gantt.width', function(newValue) {
-                if (newValue === 0) {
-                    $timeout(function() {
-                        updateListeners();
-                    }, 0, true);
-                }
+            $scope.$watchGroup(['labelsWidth', 'bodyRowsWidth', 'bodyRowsHeight'], function(newValues) {
+                labelsWidth = newValues[0];
+                bodyRowsWidth = newValues[1];
+                bodyRowsHeight = newValues[2];
+
+                updateListeners();
             });
+
         }]
     };
 }]);

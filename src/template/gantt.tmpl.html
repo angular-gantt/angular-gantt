@@ -39,7 +39,7 @@
                     </gantt-column>
                 </div>
             </gantt-body-columns>
-            <gantt-body-rows>
+            <gantt-body-rows gantt-element-height-listener="$parent.$parent.bodyRowsHeight" gantt-element-width-listener="$parent.$parent.bodyRowsWidth">
                 <div ng-repeat="timespan in gantt.timespansManager.timespans">
                     <gantt-timespan></gantt-timespan>
                 </div>
@@ -105,7 +105,7 @@
     <div class="gantt-labels-body"
          ng-style="(maxHeight > 0 && {'max-height': (maxHeight - gantt.header.getHeight())+'px'} || {})"
          ng-show="gantt.columnsManager.columns.length > 0">
-        <div ng-transclude gantt-vertical-scroll-receiver style="position: relative">
+        <div ng-transclude gantt-vertical-scroll-receiver>
         </div>
     </div>
     </script>
