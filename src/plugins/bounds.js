@@ -9,8 +9,7 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            var boundsScopes = [];
-
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.bounds) === 'object') {
                 for (var option in scope.options.bounds) {
                     scope[option] = scope.options[option];
@@ -21,6 +20,7 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
                 scope.enabled = true;
             }
 
+            var boundsScopes = [];
             scope.$watch('enabled', function(enabled) {
                 angular.forEach(boundsScopes, function(boundsScope) {
                     boundsScope.enabled = enabled;

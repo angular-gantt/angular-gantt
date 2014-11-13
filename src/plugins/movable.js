@@ -14,14 +14,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
-                api.registerEvent('tasks', 'move');
-                api.registerEvent('tasks', 'moveBegin');
-                api.registerEvent('tasks', 'moveEnd');
-                api.registerEvent('tasks', 'resize');
-                api.registerEvent('tasks', 'resizeBegin');
-                api.registerEvent('tasks', 'resizeEnd');
-                api.registerEvent('tasks', 'change');
-
+                // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.movable) === 'object') {
                     for (var option in scope.options.movable) {
                         scope[option] = scope.options[option];
@@ -29,6 +22,14 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                 }
 
                 movableOptions.initialize(scope);
+
+                api.registerEvent('tasks', 'move');
+                api.registerEvent('tasks', 'moveBegin');
+                api.registerEvent('tasks', 'moveEnd');
+                api.registerEvent('tasks', 'resize');
+                api.registerEvent('tasks', 'resizeBegin');
+                api.registerEvent('tasks', 'resizeEnd');
+                api.registerEvent('tasks', 'change');
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {

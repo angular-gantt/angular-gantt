@@ -56,7 +56,7 @@ On each feature, `on` object is used to register listeners, and `raise` object t
   
 #### directives
 
-Directives events are entry points to build [Template Directive Hooks](customize.md#template-directive-hooks) (Plugins).
+Directives events are entry points to build [Template Hooks](customize.md#template-hooks) and [Plugins](write_plugin.md).
 
 - **api.directives.on.new(directiveName, directiveScope, element)**
 

@@ -1,6 +1,6 @@
 # Customize
 
-Angular Gantt is highly customizable, using either [Custom Template](#custom-template) or [Directive Template Hooks](#template-directive-hooks).
+Angular Gantt is highly customizable, using either [Custom Template](#custom-template) or [Template Hooks](#template-hooks).
 
 Angular Gantt use a template located in `src/template/default.gantt.tmpl.html`. This template is
 compiled when `gantt` directive is found in your application. It contains custom `gantt-*` directives that represents
@@ -47,16 +47,16 @@ attribute to the URL of this copy.
 This is the easiest method to customize Angular Gantt, but keep in mind you will have to update your custom template
 when updating Angular Gantt.
 
-## Template Directive Hooks
+## Template Hooks
 
-Using the API, hooks can be registered on any template directive.
+Template Hooks can be registered on any template directive.
 
 It allows to fully customize Angular Gantt, without having to change the default template, making update process of
 Angular Gantt easier than with a custom template.
 
 Hooks can be installed using [api.directives.on.new](api.md#directives) event and uninstalled
-using [api.directives.on.destroy](api.md#directives) event. Those events are raised when any template `gantt-*` directive is
-added/removed from the DOM by angularJS. They are entry points for Plugin.
+using [api.directives.on.destroy](api.md#directives) event. Those events are raised when any template `gantt-*`
+directive is added/removed from the DOM by AngularJS. They are entry points for [writing a Plugin](write_plugin.md).
 
     <gantt api=registerApi></gantt>
 
@@ -89,6 +89,6 @@ Any DOM Event Listener (`click`, `dblclick`, ...) can be added on any `gantt-*` 
 
 ### Plugins
 
-Standard plugins are good examples of what can be done using the API. 
+Standard plugins are good examples of what can be done using [Template Hooks](#template-hooks) and the [API](api.md). 
 
 See sources located in `src/plugins`.

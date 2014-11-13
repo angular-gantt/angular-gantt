@@ -2,7 +2,7 @@
 
 Plugins are additional features that are not included in `angular-gantt` main distribution file.
 They can be configured using attributes defined for each plugin, and some plugins may use additional properties from
-[data](../configuration/attributes.md#data).
+[data](attributes.md#data).
 
 Each plugin is available under `assets` folder as standalone `angular-gantt-xxxxxx.js` and `angular-gantt-xxxxxx.css`
 files, where `xxxxxx` plugin is the name of the plugin.
@@ -23,22 +23,22 @@ files, where `xxxxxx` plugin is the name of the plugin.
 
 ## Supported plugins
 
-- ### [Sortable](sortable.md)
+- ### [Sortable](../plugins/sortable.md)
 
     Sort rows by drag & drop on rows label.
 
-- ### [Movable](movable.md)
+- ### [Movable](../plugins/movable.md)
 
     Move and resize tasks.
 
-- ### [Progress](progress.md)
+- ### [Progress](../plugins/progress.md)
 
     Display a visual indicator showing configured progress of tasks.
 
-- ### [Bounds](bounds.md)
+- ### [Bounds](../plugins/bounds.md)
 
     Display configured bounds when moving mouse over a task.
 
-- ### [Tooltips](tooltips.md)
+- ### [Tooltips](../plugins/tooltips.md)
 
     Display tooltips when moving mouse over a task.

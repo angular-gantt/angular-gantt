@@ -9,21 +9,22 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
         },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
-            var tooltipScopes = [];
 
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.tooltips) === 'object') {
                 for (var option in scope.options.tooltips) {
                     scope[option] = scope.options[option];
                 }
             }
 
-            if (scope.dateFormat === undefined) {
-                scope.dateFormat = 'MMM DD, HH:mm';
-            }
             if (scope.enabled === undefined) {
                 scope.enabled = true;
             }
+            if (scope.dateFormat === undefined) {
+                scope.dateFormat = 'MMM DD, HH:mm';
+            }
 
+            var tooltipScopes = [];
             scope.$watch('dateFormat', function(dateFormat) {
                 angular.forEach(tooltipScopes, function(tooltipScope) {
                     tooltipScope.dateFormat = dateFormat;

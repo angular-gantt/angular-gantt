@@ -102,4 +102,4 @@ and modification made to `angular-gantt` will be applied to `data`.
         {name: 'Technical/User documentation', color: '#F1C232', from: new Date(2013, 10, 26, 8, 0, 0), to: new Date(2013, 10, 28, 18, 0, 0)}
     ]}]
 
-*This example use additional [plugins](../plugins/plugins.md) data.*
+*This example use additional [plugins](plugins.md) data.*

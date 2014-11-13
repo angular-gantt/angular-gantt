@@ -9,13 +9,14 @@ theme: spacelab
 
 pages:
 - [index.md, Home]
-- [getting-started.md, Getting Started]
+- [get-started.md, Get Started]
 - [configuration/data.md, Configuration, Data]
 - [configuration/timespans.md, Configuration, Timespans]
 - [configuration/attributes.md, Configuration, Attributes]
-- [configuration/api.md, Configuration, API]
+- [configuration/plugins.md, Configuration, Plugins]
 - [configuration/customize.md, Configuration, Customize]
-- [plugins/plugins.md, Plugins, Plugins]
+- [configuration/api.md, Configuration, API]
+- [configuration/write_plugin.md, Configuration, Write a Plugin]
 - [plugins/sortable.md, Plugins, Sortable]
 - [plugins/movable.md, Plugins, Movable]
 - [plugins/tooltips.md, Plugins, Tooltips]
