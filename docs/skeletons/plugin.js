@@ -1,5 +1,5 @@
 'use strict';
-angular.module('gantt.xxxxxx', ['gantt', 'gantt.xxxxxx.templates']).directive('ganttTooltips', ['$compile', function($compile) {
+angular.module('gantt.xxxxxx', ['gantt', 'gantt.xxxxxx.templates']).directive('ganttXxxxxx', ['$compile', function($compile) {
     return {
         restrict: 'E',
         require: '^gantt',

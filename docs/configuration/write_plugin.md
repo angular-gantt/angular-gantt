@@ -9,7 +9,8 @@ A [plugin](plugins.md) is a child directive of main `gantt` directive
 
 3. Open the plugin file with your favorite editor.
 
-3. Replace `xxxxxx` with the name of the plugin (camelCase notation, `pluginName`). There are 4 matches.
+3. Replace `xxxxxx` with the name of the plugin (camelCase notation, `pluginName`). Take special care
+to directive name, that must be camelCase to (`ganttPluginName`). There are 5 matches.
 
 4. Register plugin in `Gruntfile.js` by adding its dash-delimited name to `plugins` variable.
 
