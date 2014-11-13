@@ -17,8 +17,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            var progressScopes = [];
-
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.progress) === 'object') {
                 for (var option in scope.options.progress) {
                     scope[option] = scope.options[option];
@@ -29,6 +28,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
                 scope.enabled = true;
             }
 
+            var progressScopes = [];
             scope.$watch('enabled', function(enabled) {
                 angular.forEach(progressScopes, function(progressScope) {
                     progressScope.enabled = enabled;
@@ -72,7 +72,7 @@ gantt.directive('ganttTaskProgress', [function() {
         requires: '^ganttTask',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/progress/default.taskProgress.tmpl.html';
+                return 'plugins/progress/taskProgress.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

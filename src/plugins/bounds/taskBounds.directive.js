@@ -6,7 +6,7 @@ gantt.directive('ganttTaskBounds', [function() {
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/bounds/default.taskBounds.tmpl.html';
+                return 'plugins/bounds/taskBounds.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

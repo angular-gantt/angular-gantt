@@ -5,7 +5,7 @@ gantt.directive('ganttTaskProgress', [function() {
         requires: '^ganttTask',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/progress/default.taskProgress.tmpl.html';
+                return 'plugins/progress/taskProgress.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

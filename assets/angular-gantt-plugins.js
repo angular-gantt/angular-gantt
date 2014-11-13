@@ -7,7 +7,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/bounds/default.taskBounds.tmpl.html',
+    $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
         '<div ng-show="bounds && isTaskMouseOver && enabled" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '');
 }]);
@@ -17,7 +17,7 @@ angular.module('gantt.movable.templates', []).run(['$templateCache', function($t
 }]);
 
 angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/progress/default.taskProgress.tmpl.html',
+    $templateCache.put('plugins/progress/taskProgress.tmpl.html',
         '<div ng-cloak ng-show=\'enabled\' class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
         '');
 }]);
@@ -27,7 +27,7 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 }]);
 
 angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/tooltips/default.tooltip.tmpl.html',
+    $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
         '<div ng-show="showTooltips && visible" class="gantt-task-info" ng-cloak ng-style="css">\n' +
         '    <div class="gantt-task-info-content">\n' +
         '        {{ task.model.name }}</br>\n' +
@@ -52,8 +52,7 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            var boundsScopes = [];
-
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.bounds) === 'object') {
                 for (var option in scope.options.bounds) {
                     scope[option] = scope.options[option];
@@ -64,6 +63,7 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
                 scope.enabled = true;
             }
 
+            var boundsScopes = [];
             scope.$watch('enabled', function(enabled) {
                 angular.forEach(boundsScopes, function(boundsScope) {
                     boundsScope.enabled = enabled;
@@ -115,14 +115,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
-                api.registerEvent('tasks', 'move');
-                api.registerEvent('tasks', 'moveBegin');
-                api.registerEvent('tasks', 'moveEnd');
-                api.registerEvent('tasks', 'resize');
-                api.registerEvent('tasks', 'resizeBegin');
-                api.registerEvent('tasks', 'resizeEnd');
-                api.registerEvent('tasks', 'change');
-
+                // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.movable) === 'object') {
                     for (var option in scope.options.movable) {
                         scope[option] = scope.options[option];
@@ -130,6 +123,14 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                 }
 
                 movableOptions.initialize(scope);
+
+                api.registerEvent('tasks', 'move');
+                api.registerEvent('tasks', 'moveBegin');
+                api.registerEvent('tasks', 'moveEnd');
+                api.registerEvent('tasks', 'resize');
+                api.registerEvent('tasks', 'resizeBegin');
+                api.registerEvent('tasks', 'resizeEnd');
+                api.registerEvent('tasks', 'change');
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
@@ -415,8 +416,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            var progressScopes = [];
-
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.progress) === 'object') {
                 for (var option in scope.options.progress) {
                     scope[option] = scope.options[option];
@@ -427,6 +427,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
                 scope.enabled = true;
             }
 
+            var progressScopes = [];
             scope.$watch('enabled', function(enabled) {
                 angular.forEach(progressScopes, function(progressScope) {
                     progressScope.enabled = enabled;
@@ -477,6 +478,7 @@ angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSor
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.sortable) === 'object') {
                 for (var option in scope.options.sortable) {
                     scope[option] = scope.options[option];
@@ -532,21 +534,22 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
         },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
-            var tooltipScopes = [];
 
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.tooltips) === 'object') {
                 for (var option in scope.options.tooltips) {
                     scope[option] = scope.options[option];
                 }
             }
 
-            if (scope.dateFormat === undefined) {
-                scope.dateFormat = 'MMM DD, HH:mm';
-            }
             if (scope.enabled === undefined) {
                 scope.enabled = true;
             }
+            if (scope.dateFormat === undefined) {
+                scope.dateFormat = 'MMM DD, HH:mm';
+            }
 
+            var tooltipScopes = [];
             scope.$watch('dateFormat', function(dateFormat) {
                 angular.forEach(tooltipScopes, function(tooltipScope) {
                     tooltipScope.dateFormat = dateFormat;
@@ -587,7 +590,7 @@ gantt.directive('ganttTaskBounds', [function() {
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/bounds/default.taskBounds.tmpl.html';
+                return 'plugins/bounds/taskBounds.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
@@ -677,7 +680,7 @@ gantt.directive('ganttTaskProgress', [function() {
         requires: '^ganttTask',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/progress/default.taskProgress.tmpl.html';
+                return 'plugins/progress/taskProgress.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
@@ -736,7 +739,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/tooltips/default.tooltip.tmpl.html';
+                return 'plugins/tooltips/tooltip.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

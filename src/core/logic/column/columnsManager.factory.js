@@ -13,8 +13,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.previousColumns = [];
         this.nextColumns = [];
 
-        this.headers = {};
-        this.visibleHeaders = {};
+        this.headers = [];
+        this.visibleHeaders = [];
 
         this.scrollAnchor = undefined;
 
@@ -103,7 +103,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.nextColumns = [];
 
         this.headers = [];
-        this.visibleHeaders = {};
+        this.visibleHeaders = [];
 
         this.gantt.api.columns.raise.clear();
     };
@@ -283,23 +283,15 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
     // Returns the number of active headers
     ColumnsManager.prototype.getActiveHeadersCount = function() {
-        var size = 0, key;
-        for (key in this.headers) {
-            if (this.headers.hasOwnProperty(key)) {
-                size++;
-            }
-        }
-        return size;
+       return this.headers.length;
     };
 
     ColumnsManager.prototype.updateVisibleColumns = function() {
         this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
 
-        this.visibleHeaders = {};
-        angular.forEach(this.headers, function(headers, key) {
-            if (this.headers.hasOwnProperty(key)) {
-                this.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
-            }
+        this.visibleHeaders = [];
+        angular.forEach(this.headers, function(header) {
+            this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
         }, this);
     };
 

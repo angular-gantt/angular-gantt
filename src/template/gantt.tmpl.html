@@ -64,20 +64,20 @@
     -->
 
     <!-- Body template -->
-    <script type="text/ng-template" id="template/default.body.tmpl.html">
+    <script type="text/ng-template" id="template/ganttBody.tmpl.html">
         <div ng-transclude class="gantt-body"
              ng-style="{'width': gantt.width +'px'}"></div>
     </script>
 
     <!-- Header template -->
-    <script type="text/ng-template" id="template/default.header.tmpl.html">
+    <script type="text/ng-template" id="template/ganttHeader.tmpl.html">
         <div ng-transclude class="gantt-header"
              ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
              ng-style="getHeaderCss()"></div>
     </script>
 
     <!-- Row label template -->
-    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">
+    <script type="text/ng-template" id="template/ganttRowLabel.tmpl.html">
         <div class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'"
@@ -87,7 +87,7 @@
     </script>
 
     <!-- Row header template -->
-    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">
+    <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">
         <div class="gantt-labels-header-row"
              ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"
              ng-style="{'margin-top': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+'em'}">
@@ -96,12 +96,12 @@
     </script>
 
     <!-- Labels header template-->
-    <script type="text/ng-template" id="template/default.labelsHeader.tmpl.html">
+    <script type="text/ng-template" id="template/ganttLabelsHeader.tmpl.html">
         <div ng-transclude= class="gantt-labels-header">
         </div>
     </script>
 
-    <script type="text/ng-template" id="template/default.labelsBody.tmpl.html">
+    <script type="text/ng-template" id="template/ganttLabelsBody.tmpl.html">
     <div class="gantt-labels-body"
          ng-style="(maxHeight > 0 && {'max-height': (maxHeight - gantt.header.getHeight())+'px'} || {})"
          ng-show="gantt.columnsManager.columns.length > 0">
@@ -111,7 +111,7 @@
     </script>
 
     <!-- Labels template -->
-    <script type="text/ng-template" id="template/default.labels.tmpl.html">
+    <script type="text/ng-template" id="template/ganttLabels.tmpl.html">
         <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"
              ng-style="($parent.labelsWidth > 0 && {'width': $parent.labelsWidth+'px'} || {})"
              gantt-labels-resize="$parent.allowLabelsResizing"
@@ -121,12 +121,12 @@
     </script>
 
     <!-- Header columns template -->
-    <script type="text/ng-template" id="template/default.headerColumns.tmpl.html">
+    <script type="text/ng-template" id="template/ganttHeaderColumns.tmpl.html">
         <div ng-transclude class="gantt-header-columns"
               gantt-horizontal-scroll-receiver></div>
     </script>
 
-    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">
+    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">
         <div class="gantt-column-header"
               ng-style="{'left': column.left+'px', 'width': column.width+'px'}">
             {{ column.label }}
@@ -134,12 +134,12 @@
     </script>
 
     <!-- Body background template -->
-    <script type="text/ng-template" id="template/default.bodyBackground.tmpl.html">
+    <script type="text/ng-template" id="template/ganttBodyBackground.tmpl.html">
         <div ng-transclude class="gantt-body-background"></div>
     </script>
 
     <!-- Row background template -->
-    <script type="text/ng-template" id="template/default.rowBackground.tmpl.html">
+    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">
         <div class="gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'"
@@ -149,40 +149,40 @@
     </script>
 
     <!-- Body foreground template -->
-    <script type="text/ng-template" id="template/default.bodyForeground.tmpl.html">
+    <script type="text/ng-template" id="template/ganttBodyForeground.tmpl.html">
         <div ng-transclude class="gantt-body-foreground"></div>
     </script>
 
     <!-- Body columns template -->
-    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">
+    <script type="text/ng-template" id="template/ganttBodyColumns.tmpl.html">
         <div ng-transclude class="gantt-body-columns"></div>
     </script>
 
-    <script type="text/ng-template" id="template/default.column.tmpl.html">
+    <script type="text/ng-template" id="template/ganttColumn.tmpl.html">
         <div ng-transclude class="gantt-column"
              ng-class="(column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col'"
              ng-style="{'left': column.left+'px', 'width': column.width+'px'}"></div>
     </script>
 
-    <script type="text/ng-template" id="template/default.timeFrame.tmpl.html">
+    <script type="text/ng-template" id="template/ganttTimeFrame.tmpl.html">
         <div class="gantt-timeframe"
              ng-class="getClass()"
              ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px', 'background-color': timeFrame.color && timeFrame.color || ''}"></div>
     </script>
 
     <!-- Scrollable template -->
-    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">
+    <script type="text/ng-template" id="template/ganttScrollable.tmpl.html">
         <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater
              ng-style="getScrollableCss()"></div>
     </script>
 
     <!-- Rows template -->
-    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">
+    <script type="text/ng-template" id="template/ganttBodyRows.tmpl.html">
         <div ng-transclude class="gantt-body-rows"></div>
     </script>
 
     <!-- Timespan template -->
-    <script type="text/ng-template" id="template/default.timespan.tmpl.html">
+    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">
         <div class="gantt-timespan"
              ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'px', 'width': timespan.width +'px', 'z-index': (timespan.priority || 0)}"
              ng-class="timespan.classes">
@@ -190,7 +190,7 @@
     </script>
 
     <!-- Task template -->
-    <script type="text/ng-template" id="template/default.task.tmpl.html">
+    <script type="text/ng-template" id="template/ganttTask.tmpl.html">
         <div ng-class="(task.isMilestone() === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.model.classes)"
              ng-style="{'left': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.isMoving === true && 1  || task.model.priority || ''), 'background-color': task.model.color}">
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
@@ -200,14 +200,14 @@
     </script>
 
     <!-- Task content template -->
-    <script type="text/ng-template" id="template/default.taskContent.tmpl.html">
+    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">
         <div class="gantt-task-content-container">
             <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && '&nbsp;' || task.model.name) }}</span></div>
         </div>
     </script>
 
     <!-- Row template -->
-    <script type="text/ng-template" id="template/default.row.tmpl.html">
+    <script type="text/ng-template" id="template/ganttRow.tmpl.html">
         <div ng-transclude class="gantt-row gantt-row-height" ng-style="{'height': row.model.height}"></div>
     </script>
 

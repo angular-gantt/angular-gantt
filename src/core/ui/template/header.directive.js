@@ -1,34 +1,18 @@
 'use strict';
-gantt.directive('ganttHeader', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.header.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
+gantt.directive('ganttHeader', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttHeader');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.header.$element = $element;
+
+        $scope.getHeaderCss = function() {
+            var css = {};
+
+            if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
+                css.width = $scope.gantt.width + 'px';
             }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.header.$element = $element;
 
-            $scope.getHeaderCss = function() {
-                var css = {};
-
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
-                    css.width = $scope.gantt.width + 'px';
-                }
-
-                return css;
-            };
-
-            $scope.gantt.api.directives.raise.new('ganttHeader', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttHeader', $scope, $element);
-            });
-        }]
+            return css;
+        };
     };
+    return builder.build();
 }]);

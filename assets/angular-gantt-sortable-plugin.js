@@ -20,6 +20,7 @@ angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSor
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.sortable) === 'object') {
                 for (var option in scope.options.sortable) {
                     scope[option] = scope.options[option];

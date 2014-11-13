@@ -305,12 +305,12 @@
 - ### template-url
 
     URL of custom Gantt HTML template. If you want to customize the default Gantt HTML template, make a copy of default
-    template file `src/template/default.gantt.tmpl.html` to your own project, and set the URL of copied file to this
+    template file `src/template/gantt.tmpl.html` to your own project, and set the URL of copied file to this
     attribute. 
       
-    If `undefined` or `template/default.gantt.tmpl.html`, default template will be used.   
+    If `undefined` or `template/gantt.tmpl.html`, default template will be used.   
     
-    *note: template-url must be different than `template/default.gantt.tmpl.html`, or it will use default
+    *note: template-url must be different than `template/gantt.tmpl.html`, or it will use default
     template included in `angular-gantt.js`.*
 
 - ### view-scale

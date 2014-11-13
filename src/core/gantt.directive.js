@@ -7,7 +7,7 @@ gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'g
         transclude: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'template/default.gantt.tmpl.html';
+                return 'template/gantt.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

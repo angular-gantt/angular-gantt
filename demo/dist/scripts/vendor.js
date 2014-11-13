@@ -36162,7 +36162,7 @@ gantt.directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'g
         transclude: true,
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'template/default.gantt.tmpl.html';
+                return 'template/gantt.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
@@ -37335,8 +37335,8 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.previousColumns = [];
         this.nextColumns = [];
 
-        this.headers = {};
-        this.visibleHeaders = {};
+        this.headers = [];
+        this.visibleHeaders = [];
 
         this.scrollAnchor = undefined;
 
@@ -37425,7 +37425,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         this.nextColumns = [];
 
         this.headers = [];
-        this.visibleHeaders = {};
+        this.visibleHeaders = [];
 
         this.gantt.api.columns.raise.clear();
     };
@@ -37605,23 +37605,15 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
 
     // Returns the number of active headers
     ColumnsManager.prototype.getActiveHeadersCount = function() {
-        var size = 0, key;
-        for (key in this.headers) {
-            if (this.headers.hasOwnProperty(key)) {
-                size++;
-            }
-        }
-        return size;
+       return this.headers.length;
     };
 
     ColumnsManager.prototype.updateVisibleColumns = function() {
         this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
 
-        this.visibleHeaders = {};
-        angular.forEach(this.headers, function(headers, key) {
-            if (this.headers.hasOwnProperty(key)) {
-                this.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
-            }
+        this.visibleHeaders = [];
+        angular.forEach(this.headers, function(header) {
+            this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
         }, this);
     };
 
@@ -39018,79 +39010,6 @@ gantt.service('ganttUtils', ['$document', function($document) {
 }]);
 
 
-gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
-    // Returns only the columns which are visible on the screen
-
-    return function(input, scrollLeft, scrollWidth) {
-        var cmp = function(c) {
-            return c.left;
-        };
-        var start = bs.getIndicesOnly(input, scrollLeft, cmp)[0];
-        var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, cmp)[1];
-        return input.slice(start, end);
-    };
-}]);
-
-
-gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
-    // Updates the limit filters if the user scrolls the gantt chart
-
-    return {
-        restrict: 'A',
-        controller: ['$scope', '$element', function($scope, $element) {
-            var el = $element[0];
-            var scrollUpdate = function() {
-                $scope.scrollLeft = el.scrollLeft;
-                $scope.scrollWidth = el.offsetWidth;
-            };
-
-            $element.bind('scroll', debounce(function() {
-                scrollUpdate();
-            }, 5));
-
-            $scope.$watch('gantt.width', debounce(function() {
-                scrollUpdate();
-            }, 20));
-        }]
-    };
-}]);
-
-
-gantt.filter('ganttTaskLimit', [function() {
-    // Returns only the tasks which are visible on the screen
-    // Use the task width and position to decide if a task is still visible
-
-    return function(input, gantt) {
-        var res = [];
-        var firstColumn = gantt.columnsManager.getFirstColumn();
-        var lastColumn = gantt.columnsManager.getLastColumn();
-
-        if (firstColumn !== undefined && lastColumn !== undefined) {
-            for (var i = 0, l = input.length; i < l; i++) {
-                var task = input[i];
-                // If the task can be drawn with gantt columns only.
-                if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
-
-                    var scrollLeft = gantt.$scope.scrollLeft;
-                    var scrollWidth = gantt.$scope.scrollWidth;
-
-                    // If task has a visible part on the screen
-                    if (scrollLeft === undefined && scrollWidth === undefined ||
-                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
-
-                        res.push(task);
-                    }
-                }
-            }
-        }
-
-        return res;
-    };
-}]);
-
-
 gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
 
     return {
@@ -39183,23 +39102,78 @@ gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseO
 }]);
 
 
-gantt.directive('ganttRightClick', ['$parse', function($parse) {
+gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
+    // Returns only the columns which are visible on the screen
+
+    return function(input, scrollLeft, scrollWidth) {
+        var cmp = function(c) {
+            return c.left;
+        };
+        var start = bs.getIndicesOnly(input, scrollLeft, cmp)[0];
+        var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, cmp)[1];
+        return input.slice(start, end);
+    };
+}]);
+
+
+gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
+    // Updates the limit filters if the user scrolls the gantt chart
 
     return {
         restrict: 'A',
-        compile: function($element, attr) {
-            var fn = $parse(attr.ganttRightClick);
-
-            return function(scope, element) {
-                element.on('contextmenu', function(event) {
-                    scope.$apply(function() {
-                        fn(scope, {$event: event});
-                    });
-                });
+        controller: ['$scope', '$element', function($scope, $element) {
+            var el = $element[0];
+            var scrollUpdate = function() {
+                $scope.scrollLeft = el.scrollLeft;
+                $scope.scrollWidth = el.offsetWidth;
             };
-        }
+
+            $element.bind('scroll', debounce(function() {
+                scrollUpdate();
+            }, 5));
+
+            $scope.$watch('gantt.width', debounce(function() {
+                scrollUpdate();
+            }, 20));
+        }]
     };
 }]);
+
+
+gantt.filter('ganttTaskLimit', [function() {
+    // Returns only the tasks which are visible on the screen
+    // Use the task width and position to decide if a task is still visible
+
+    return function(input, gantt) {
+        var res = [];
+        var firstColumn = gantt.columnsManager.getFirstColumn();
+        var lastColumn = gantt.columnsManager.getLastColumn();
+
+        if (firstColumn !== undefined && lastColumn !== undefined) {
+            for (var i = 0, l = input.length; i < l; i++) {
+                var task = input[i];
+                // If the task can be drawn with gantt columns only.
+                if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
+
+                    var scrollLeft = gantt.$scope.scrollLeft;
+                    var scrollWidth = gantt.$scope.scrollWidth;
+
+                    // If task has a visible part on the screen
+                    if (scrollLeft === undefined && scrollWidth === undefined ||
+                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                        res.push(task);
+                    }
+                }
+            }
+        }
+
+        return res;
+    };
+}]);
+
 
 gantt.directive('ganttHorizontalScrollReceiver', function() {
     // The element with this attribute will scroll at the same time as the scrollSender element
@@ -39274,97 +39248,82 @@ gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', function($tim
 }]);
 
 
-gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'moment', function(debounce, layout, moment) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.scrollable.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
+gantt.directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, layout, moment) {
+    var builder = new Builder('ganttScrollable');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.scroll.$element = $element;
+
+        var scrollBarWidth = layout.getScrollBarWidth();
+        var lastScrollLeft;
+
+        var lastAutoExpand;
+        var autoExpandCoolDownPeriod = 500;
+        var autoExpandColumns = function(el, date, direction) {
+            if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                return;
             }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.scroll.$element = $element;
 
-            var scrollBarWidth = layout.getScrollBarWidth();
-            var lastScrollLeft;
+            if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
+                return;
+            }
 
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
-            var autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
-                    return;
-                }
+            var from, to;
+            var expandHour = 1, expandDay = 31;
 
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
-                }
+            if (direction === 'left') {
+                from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                to = date;
+            } else {
+                from = date;
+                to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+            }
 
-                var from, to;
-                var expandHour = 1, expandDay = 31;
+            $scope.fromDate = from;
+            $scope.toDate = to;
+            lastAutoExpand = Date.now();
+        };
 
-                if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
-                } else {
-                    from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
-                }
+        $element.bind('scroll', debounce(function() {
+            var el = $element[0];
+            var direction;
+            var date;
 
-                $scope.fromDate = from;
-                $scope.toDate = to;
-                lastAutoExpand = Date.now();
-            };
+            if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
+                direction = 'left';
+                date = $scope.gantt.columnsManager.from;
+            } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                direction = 'right';
+                date = $scope.gantt.columnsManager.to;
+            }
 
-            $element.bind('scroll', debounce(function() {
-                var el = $element[0];
-                var direction;
-                var date;
+            lastScrollLeft = el.scrollLeft;
 
-                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
-                    direction = 'left';
-                    date = $scope.gantt.columnsManager.from;
-                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
-                    direction = 'right';
-                    date = $scope.gantt.columnsManager.to;
-                }
+            if (date !== undefined) {
+                autoExpandColumns(el, date, direction);
+                $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
+            } else {
+                $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
+            }
+        }, 5));
 
-                lastScrollLeft = el.scrollLeft;
+        $scope.getScrollableCss = function() {
+            var css = {};
 
-                if (date !== undefined) {
-                    autoExpandColumns(el, date, direction);
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
-                } else {
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
-                }
-            }, 5));
+            if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
+                css.width = $scope.gantt.width + scrollBarWidth + 'px';
+            }
 
-            $scope.getScrollableCss = function() {
-                var css = {};
+            if ($scope.maxHeight > 0) {
+                css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
+                css['overflow-y'] = 'auto';
+            } else {
+                css['overflow-y'] = 'hidden';
+            }
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
-                    css.width = $scope.gantt.width + scrollBarWidth + 'px';
-                }
-
-                if ($scope.maxHeight > 0) {
-                    css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
-                    css['overflow-y'] = 'auto';
-                } else {
-                    css['overflow-y'] = 'hidden';
-                }
-
-                return css;
-            };
-
-            $scope.gantt.api.directives.raise.new('ganttScrollable', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttScrollable', $scope, $element);
-            });
-        }]
+            return css;
+        };
     };
+    return builder.build();
 }]);
 
 
@@ -39408,499 +39367,189 @@ gantt.directive('ganttElementWidthListener', [function() {
 }]);
 
 
-gantt.directive('ganttBody', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.body.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.body.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttBody', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttBody', $scope, $element);
-            });
-        }]
+gantt.directive('ganttBody', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttBody');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.body.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttBodyBackground', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bodyBackground.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.body.background.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttBodyBackground', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttBodyBackground', $scope, $element);
-            });
-        }]
+gantt.directive('ganttBodyBackground', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttBodyBackground');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.body.background.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttBodyColumns', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bodyColumns.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.body.columns.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttBodyColumns', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttBodyColumns', $scope, $element);
-            });
-        }]
+gantt.directive('ganttBodyColumns', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttBodyColumns');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.body.columns.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttBodyForeground', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bodyForeground.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.body.foreground.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttBodyForeground', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttBodyForeground', $scope, $element);
-            });
-        }]
+gantt.directive('ganttBodyForeground', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttBodyForeground');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.body.foreground.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttBodyRows', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bodyRows.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.body.rows.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttBodyRows', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttBodyRows', $scope, $element);
-            });
-        }]
+gantt.directive('ganttBodyRows', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttBodyRows');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.body.rows.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttColumn', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBodyColumns',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.column.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.column.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttColumn', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttColumn', $scope, $element);
-            });
-        }]
+gantt.directive('ganttColumn', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttColumn');
+    builder.controller = function($scope, $element) {
+        $scope.column.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttColumnHeader', [function() {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.columnHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.api.directives.raise.new('ganttColumnHeader', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttColumnHeader', $scope, $element);
-            });
-        }]
-    };
+gantt.directive('ganttColumnHeader', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttColumnHeader');
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttHeader', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.header.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
+gantt.directive('ganttHeader', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttHeader');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.header.$element = $element;
+
+        $scope.getHeaderCss = function() {
+            var css = {};
+
+            if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
+                css.width = $scope.gantt.width + 'px';
             }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.header.$element = $element;
 
-            $scope.getHeaderCss = function() {
-                var css = {};
-
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
-                    css.width = $scope.gantt.width + 'px';
-                }
-
-                return css;
-            };
-
-            $scope.gantt.api.directives.raise.new('ganttHeader', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttHeader', $scope, $element);
-            });
-        }]
+            return css;
+        };
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttHeaderColumns', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttHeader',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.headerColumns.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.header.columns.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttHeaderColumns', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttHeaderColumns', $scope, $element);
-            });
-        }]
+gantt.directive('ganttHeaderColumns', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttHeaderColumns');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.header.columns.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttLabels', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.labels.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.labels.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttLabels', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttLabels', $scope, $element);
-            });
-        }]
+gantt.directive('ganttLabels', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttLabels');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.labels.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttLabelsBody', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttLabels',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.labelsBody.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.api.directives.raise.new('ganttLabelsBody', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttLabelsBody', $scope, $element);
-            });
-        }]
-    };
+gantt.directive('ganttLabelsBody', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttLabelsBody');
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttLabelsHeader', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttLabels',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.labelsHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.api.directives.raise.new('ganttLabelsHeader', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttLabelsHeader', $scope, $element);
-            });
-        }]
-    };
+
+gantt.directive('ganttLabelsHeader', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttLabelsHeader');
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttRow', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.row.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.row.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttRow', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttRow', $scope, $element);
-            });
-        }]
+gantt.directive('ganttRow', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttRow');
+    builder.controller = function($scope, $element) {
+        $scope.row.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttRowHeader', [function() {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.rowHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.rowHeader.$element = $element;
-
-            $scope.gantt.api.directives.raise.new('ganttRowHeader', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttRowHeader', $scope, $element);
-            });
-        }]
-    };
+gantt.directive('ganttRowBackground', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttRowBackground');
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttRowLabel', [function() {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.rowLabel.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        compile: function () {
-            return {
-                pre: function preLink(scope, iElement, iAttrs, controller) {
-                    scope.gantt.api.directives.raise.preLink('ganttRowLabel', scope, iElement, iAttrs, controller);
-                },
-                post: function postLink(scope, iElement, iAttrs, controller) {
-                    scope.gantt.api.directives.raise.postLink('ganttRowLabel', scope, iElement, iAttrs, controller);
-                }
-            };
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-
-            $scope.gantt.api.directives.raise.new('ganttRowLabel', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttRowLabel', $scope, $element);
-            });
-        }]
+gantt.directive('ganttRowHeader', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttRowHeader');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.rowHeader.$element = $element;
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttTask', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttRow',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.task.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.task.$element = $element;
-
-            $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
-               $scope.task.updatePosAndSize();
-            });
-
-            $scope.gantt.api.directives.raise.new('ganttTask', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTask', $scope, $element);
-            });
-        }]
-    };
+gantt.directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttRowLabel');
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttTaskContent', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttTask',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.taskContent.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.task.$contentElement = $element;
+gantt.directive('ganttTask', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttTask');
+    builder.controller = function($scope, $element) {
+        $scope.task.$element = $element;
 
-            $scope.gantt.api.directives.raise.new('ganttTaskContent', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTaskContent', $scope, $element);
-            });
-        }]
+        $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
+            $scope.task.updatePosAndSize();
+        });
     };
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttTimeFrame', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttColumn',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.timeFrame.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.timeFrame.$element = $element;
-
-            $scope.getClass = function() {
-                var classes = ['gantt-timeframe' + ($scope.timeFrame.working ? '' : '-non') + '-working'];
-
-                if ($scope.timeFrame.classes) {
-                    classes = classes.concat($scope.timeFrame.classes);
-                }
-                return classes;
-            };
-
-            $scope.gantt.api.directives.raise.new('ganttTimeFrame', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTimeFrame', $scope, $element);
-            });
-
-        }]
-    };
+gantt.directive('ganttTaskContent', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttTaskContent');
+    return builder.build();
 }]);
 
 
-gantt.directive('ganttTimespan', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttRow',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.timespan.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.timespan.$element = $element;
+gantt.directive('ganttTimeFrame', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttTimeFrame');
+    builder.controller = function($scope, $element) {
+        $scope.timeFrame.$element = $element;
 
-            $scope.gantt.api.directives.raise.new('ganttTimespan', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttTimespan', $scope, $element);
-            });
-        }]
+        $scope.getClass = function() {
+            var classes = ['gantt-timeframe' + ($scope.timeFrame.working ? '' : '-non') + '-working'];
+
+            if ($scope.timeFrame.classes) {
+                classes = classes.concat($scope.timeFrame.classes);
+            }
+            return classes;
+        };
     };
+    return builder.build();
+}]);
+
+
+gantt.directive('ganttTimespan', ['GanttDirectiveBuilder', function(Builder) {
+    var builder = new Builder('ganttTimespan');
+    builder.controller = function($scope, $element) {
+        $scope.timespan.$element = $element;
+    };
+    return builder.build();
 }]);
 
 
@@ -39924,6 +39573,62 @@ gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
 
     return debounce;
 }]);
+
+gantt.service('GanttDirectiveBuilder', [function() {
+    var DirectiveBuilder = function DirectiveBuilder(directiveName, templateUrl, require, restrict) {
+        var self = this;
+
+        this.directiveName = directiveName;
+        this.templateUrl = templateUrl === undefined ? 'template/' + directiveName + '.tmpl.html' : templateUrl;
+        this.require = require === undefined ? '^gantt' : require;
+        this.restrict = restrict === undefined ? 'E' : restrict;
+        this.transclude = true;
+        this.replace = true;
+
+        this.build = function() {
+            var directiveName = self.directiveName;
+            var templateUrl = self.templateUrl;
+            var controllerFunction = self.controller;
+
+            return {
+                restrict: self.restrict,
+                require: self.require,
+                transclude: self.transclude,
+                replace: self.replace,
+                templateUrl: function(tElement, tAttrs) {
+                    if (tAttrs.templateUrl === undefined) {
+                        return templateUrl;
+                    } else {
+                        return tAttrs.templateUrl;
+                    }
+                },
+                compile: function () {
+                    return {
+                        pre: function preLink(scope, iElement, iAttrs, controller) {
+                            scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller);
+                        },
+                        post: function postLink(scope, iElement, iAttrs, controller) {
+                            scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+                        }
+                    };
+                },
+                controller: ['$scope', '$element', function($scope, $element) {
+                    if (controllerFunction !== undefined) {
+                        controllerFunction($scope, $element);
+                    }
+
+                    $scope.gantt.api.directives.raise.new(directiveName, $scope, $element);
+                    $scope.$on('$destroy', function() {
+                        $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element);
+                    });
+                }]
+            };
+        };
+    };
+
+    return DirectiveBuilder;
+}]);
+
 
 gantt.service('ganttEnableNgAnimate', ['$injector', function($injector) {
     var ngAnimate;
@@ -40059,7 +39764,7 @@ gantt.factory('ganttSmartEvent', [function() {
     return smartEvent;
 }]);
 angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('template/default.gantt.tmpl.html',
+    $templateCache.put('template/gantt.tmpl.html',
         '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
         '    <gantt-labels>\n' +
         '        <gantt-labels-header>\n' +
@@ -40086,12 +39791,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <gantt-body>\n' +
         '            <gantt-body-background>\n' +
         '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
-        '                    <div class="gantt-row-height"\n' +
-        '                         ng-class-odd="\'gantt-background-row\'"\n' +
-        '                         ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                         ng-class="row.model.classes"\n' +
-        '                         ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
-        '                    </div>\n' +
+        '                    <gantt-row-background></gantt-row-background>\n' +
         '                </div>\n' +
         '            </gantt-body-background>\n' +
         '            <gantt-body-foreground>\n' +
@@ -40099,7 +39799,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '            </gantt-body-foreground>\n' +
         '            <gantt-body-columns>\n' +
         '                <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
-        '                    <gantt-column >\n' +
+        '                    <gantt-column>\n' +
         '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
         '                            <gantt-time-frame></gantt-time-frame>\n' +
         '                        </div>\n' +
@@ -40131,20 +39831,20 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    -->\n' +
         '\n' +
         '    <!-- Body template -->\n' +
-        '    <script type="text/ng-template" id="template/default.body.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body"\n' +
         '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
-        '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttHeader.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
         '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"\n' +
         '             ng-style="getHeaderCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
-        '    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttRowLabel.tmpl.html">\n' +
         '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
@@ -40154,7 +39854,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Row header template -->\n' +
-        '    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">\n' +
         '        <div class="gantt-labels-header-row"\n' +
         '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.getActiveHeadersCount() > 0"\n' +
         '             ng-style="{\'margin-top\': ((gantt.columnsManager.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
@@ -40163,12 +39863,12 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Labels header template-->\n' +
-        '    <script type="text/ng-template" id="template/default.labelsHeader.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttLabelsHeader.tmpl.html">\n' +
         '        <div ng-transclude= class="gantt-labels-header">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.labelsBody.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttLabelsBody.tmpl.html">\n' +
         '    <div class="gantt-labels-body"\n' +
         '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
         '         ng-show="gantt.columnsManager.columns.length > 0">\n' +
@@ -40178,7 +39878,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Labels template -->\n' +
-        '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttLabels.tmpl.html">\n' +
         '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
         '             ng-style="($parent.labelsWidth > 0 && {\'width\': $parent.labelsWidth+\'px\'} || {})"\n' +
         '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
@@ -40188,12 +39888,12 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Header columns template -->\n' +
-        '    <script type="text/ng-template" id="template/default.headerColumns.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttHeaderColumns.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header-columns"\n' +
         '              gantt-horizontal-scroll-receiver></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">\n' +
         '        <div class="gantt-column-header"\n' +
         '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}">\n' +
         '            {{ column.label }}\n' +
@@ -40201,45 +39901,55 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Body background template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bodyBackground.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyBackground.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-background"></div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <!-- Row background template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">\n' +
+        '        <div class="gantt-row-height"\n' +
+        '             ng-class-odd="\'gantt-background-row\'"\n' +
+        '             ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '             ng-class="row.model.classes"\n' +
+        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
         '    <!-- Body foreground template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bodyForeground.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyForeground.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-foreground"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body columns template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyColumns.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-columns"></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttColumn.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-column"\n' +
         '             ng-class="(column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\'"\n' +
         '             ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.timeFrame.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttTimeFrame.tmpl.html">\n' +
         '        <div class="gantt-timeframe"\n' +
         '             ng-class="getClass()"\n' +
         '             ng-style="{\'left\': timeFrame.left + \'px\', \'width\': timeFrame.width + \'px\', \'background-color\': timeFrame.color && timeFrame.color || \'\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Scrollable template -->\n' +
-        '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttScrollable.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
         '             ng-style="getScrollableCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Rows template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyRows.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-rows"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Timespan template -->\n' +
-        '    <script type="text/ng-template" id="template/default.timespan.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
         '        <div class="gantt-timespan"\n' +
         '             ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'px\', \'width\': timespan.width +\'px\', \'z-index\': (timespan.priority || 0)}"\n' +
         '             ng-class="timespan.classes">\n' +
@@ -40247,7 +39957,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Task template -->\n' +
-        '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
         '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
@@ -40257,14 +39967,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <!-- Task content template -->\n' +
-        '    <script type="text/ng-template" id="template/default.taskContent.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
         '        <div class="gantt-task-content-container">\n' +
         '            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && \'&nbsp;\' || task.model.name) }}</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
-        '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttRow.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.model.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
@@ -40282,7 +39992,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 'use strict';
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/bounds/default.taskBounds.tmpl.html',
+    $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
         '<div ng-show="bounds && isTaskMouseOver && enabled" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '');
 }]);
@@ -40292,7 +40002,7 @@ angular.module('gantt.movable.templates', []).run(['$templateCache', function($t
 }]);
 
 angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/progress/default.taskProgress.tmpl.html',
+    $templateCache.put('plugins/progress/taskProgress.tmpl.html',
         '<div ng-cloak ng-show=\'enabled\' class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
         '');
 }]);
@@ -40302,7 +40012,7 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 }]);
 
 angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/tooltips/default.tooltip.tmpl.html',
+    $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
         '<div ng-show="showTooltips && visible" class="gantt-task-info" ng-cloak ng-style="css">\n' +
         '    <div class="gantt-task-info-content">\n' +
         '        {{ task.model.name }}</br>\n' +
@@ -40327,8 +40037,7 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            var boundsScopes = [];
-
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.bounds) === 'object') {
                 for (var option in scope.options.bounds) {
                     scope[option] = scope.options[option];
@@ -40339,6 +40048,7 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
                 scope.enabled = true;
             }
 
+            var boundsScopes = [];
             scope.$watch('enabled', function(enabled) {
                 angular.forEach(boundsScopes, function(boundsScope) {
                     boundsScope.enabled = enabled;
@@ -40390,14 +40100,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
-                api.registerEvent('tasks', 'move');
-                api.registerEvent('tasks', 'moveBegin');
-                api.registerEvent('tasks', 'moveEnd');
-                api.registerEvent('tasks', 'resize');
-                api.registerEvent('tasks', 'resizeBegin');
-                api.registerEvent('tasks', 'resizeEnd');
-                api.registerEvent('tasks', 'change');
-
+                // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.movable) === 'object') {
                     for (var option in scope.options.movable) {
                         scope[option] = scope.options[option];
@@ -40405,6 +40108,14 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                 }
 
                 movableOptions.initialize(scope);
+
+                api.registerEvent('tasks', 'move');
+                api.registerEvent('tasks', 'moveBegin');
+                api.registerEvent('tasks', 'moveEnd');
+                api.registerEvent('tasks', 'resize');
+                api.registerEvent('tasks', 'resizeBegin');
+                api.registerEvent('tasks', 'resizeEnd');
+                api.registerEvent('tasks', 'change');
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
@@ -40690,8 +40401,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
-            var progressScopes = [];
-
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.progress) === 'object') {
                 for (var option in scope.options.progress) {
                     scope[option] = scope.options[option];
@@ -40702,6 +40412,7 @@ angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directiv
                 scope.enabled = true;
             }
 
+            var progressScopes = [];
             scope.$watch('enabled', function(enabled) {
                 angular.forEach(progressScopes, function(progressScope) {
                     progressScope.enabled = enabled;
@@ -40752,6 +40463,7 @@ angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSor
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
 
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.sortable) === 'object') {
                 for (var option in scope.options.sortable) {
                     scope[option] = scope.options[option];
@@ -40807,21 +40519,22 @@ angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directiv
         },
         link: function(scope, element, attrs, ganttCtrl) {
             var api = ganttCtrl.gantt.api;
-            var tooltipScopes = [];
 
+            // Load options from global options attribute.
             if (scope.options && typeof(scope.options.tooltips) === 'object') {
                 for (var option in scope.options.tooltips) {
                     scope[option] = scope.options[option];
                 }
             }
 
-            if (scope.dateFormat === undefined) {
-                scope.dateFormat = 'MMM DD, HH:mm';
-            }
             if (scope.enabled === undefined) {
                 scope.enabled = true;
             }
+            if (scope.dateFormat === undefined) {
+                scope.dateFormat = 'MMM DD, HH:mm';
+            }
 
+            var tooltipScopes = [];
             scope.$watch('dateFormat', function(dateFormat) {
                 angular.forEach(tooltipScopes, function(tooltipScope) {
                     tooltipScope.dateFormat = dateFormat;
@@ -40862,7 +40575,7 @@ gantt.directive('ganttTaskBounds', [function() {
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/bounds/default.taskBounds.tmpl.html';
+                return 'plugins/bounds/taskBounds.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
@@ -40952,7 +40665,7 @@ gantt.directive('ganttTaskProgress', [function() {
         requires: '^ganttTask',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/progress/default.taskProgress.tmpl.html';
+                return 'plugins/progress/taskProgress.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
@@ -41011,7 +40724,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/tooltips/default.tooltip.tmpl.html';
+                return 'plugins/tooltips/tooltip.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }

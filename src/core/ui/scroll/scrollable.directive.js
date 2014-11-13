@@ -1,93 +1,78 @@
 'use strict';
-gantt.directive('ganttScrollable', ['ganttDebounce', 'ganttLayout', 'moment', function(debounce, layout, moment) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.scrollable.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
+gantt.directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, layout, moment) {
+    var builder = new Builder('ganttScrollable');
+    builder.controller = function($scope, $element) {
+        $scope.gantt.scroll.$element = $element;
+
+        var scrollBarWidth = layout.getScrollBarWidth();
+        var lastScrollLeft;
+
+        var lastAutoExpand;
+        var autoExpandCoolDownPeriod = 500;
+        var autoExpandColumns = function(el, date, direction) {
+            if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                return;
             }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.gantt.scroll.$element = $element;
 
-            var scrollBarWidth = layout.getScrollBarWidth();
-            var lastScrollLeft;
+            if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
+                return;
+            }
 
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
-            var autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
-                    return;
-                }
+            var from, to;
+            var expandHour = 1, expandDay = 31;
 
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
-                }
+            if (direction === 'left') {
+                from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                to = date;
+            } else {
+                from = date;
+                to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+            }
 
-                var from, to;
-                var expandHour = 1, expandDay = 31;
+            $scope.fromDate = from;
+            $scope.toDate = to;
+            lastAutoExpand = Date.now();
+        };
 
-                if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
-                } else {
-                    from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
-                }
+        $element.bind('scroll', debounce(function() {
+            var el = $element[0];
+            var direction;
+            var date;
 
-                $scope.fromDate = from;
-                $scope.toDate = to;
-                lastAutoExpand = Date.now();
-            };
+            if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
+                direction = 'left';
+                date = $scope.gantt.columnsManager.from;
+            } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                direction = 'right';
+                date = $scope.gantt.columnsManager.to;
+            }
 
-            $element.bind('scroll', debounce(function() {
-                var el = $element[0];
-                var direction;
-                var date;
+            lastScrollLeft = el.scrollLeft;
 
-                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
-                    direction = 'left';
-                    date = $scope.gantt.columnsManager.from;
-                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
-                    direction = 'right';
-                    date = $scope.gantt.columnsManager.to;
-                }
+            if (date !== undefined) {
+                autoExpandColumns(el, date, direction);
+                $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
+            } else {
+                $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
+            }
+        }, 5));
 
-                lastScrollLeft = el.scrollLeft;
+        $scope.getScrollableCss = function() {
+            var css = {};
 
-                if (date !== undefined) {
-                    autoExpandColumns(el, date, direction);
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
-                } else {
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
-                }
-            }, 5));
+            if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
+                css.width = $scope.gantt.width + scrollBarWidth + 'px';
+            }
 
-            $scope.getScrollableCss = function() {
-                var css = {};
+            if ($scope.maxHeight > 0) {
+                css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
+                css['overflow-y'] = 'auto';
+            } else {
+                css['overflow-y'] = 'hidden';
+            }
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
-                    css.width = $scope.gantt.width + scrollBarWidth + 'px';
-                }
-
-                if ($scope.maxHeight > 0) {
-                    css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
-                    css['overflow-y'] = 'auto';
-                } else {
-                    css['overflow-y'] = 'hidden';
-                }
-
-                return css;
-            };
-
-            $scope.gantt.api.directives.raise.new('ganttScrollable', $scope, $element);
-            $scope.$on('$destroy', function() {
-                $scope.gantt.api.directives.raise.destroy('ganttScrollable', $scope, $element);
-            });
-        }]
+            return css;
+        };
     };
+    return builder.build();
 }]);

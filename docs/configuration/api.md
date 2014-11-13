@@ -60,12 +60,20 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
 - **api.directives.on.new(directiveName, directiveScope, element)**
 
-    A directive has been added to the DOM. It can be used to register
+    A directive instance controller will be created. It can be used to register
     [DOM Event Listener](customize.md#dom-event-listener) (`click`, `dblclick`, ...) on any directive.
+
+- **api.directives.on.preLink(directiveName, scope, iElement, iAttrs, controller)**
+
+    A directive instance is in preLink phase.
+
+- **api.directives.on.postLink(directiveName, scope, iElement, iAttrs, controller)**
+
+    A directive instance is in postLink phase.
 
 - **api.directives.on.destroy(directiveName, directiveScope, element)**
 
-    A directive will be removed from the DOM.
+    A directive instance scope has been destroyed.
 
 #### tasks
 

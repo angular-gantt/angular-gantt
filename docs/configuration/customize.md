@@ -2,13 +2,13 @@
 
 Angular Gantt is highly customizable, using either [Custom Template](#custom-template) or [Template Hooks](#template-hooks).
 
-Angular Gantt use a template located in `src/template/default.gantt.tmpl.html`. This template is
+Angular Gantt use a template located in `src/template/gantt.tmpl.html`. This template is
 compiled when `gantt` directive is found in your application. It contains custom `gantt-*` directives that represents
 each object type you can find in the component.
 
 ## Default Template
 
-The default template located in `src/template/default.gantt.tmpl.html` use many `gantt-*` directives that
+The default template located in `src/template/gantt.tmpl.html` use many `gantt-*` directives that
 gives a readable structure to the component. 
 
 Lets review the major directives that compose this template.

@@ -6,7 +6,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
         restrict: 'E',
         templateUrl: function(tElement, tAttrs) {
             if (tAttrs.templateUrl === undefined) {
-                return 'plugins/tooltips/default.tooltip.tmpl.html';
+                return 'plugins/tooltips/tooltip.tmpl.html';
             } else {
                 return tAttrs.templateUrl;
             }
