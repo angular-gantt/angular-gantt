@@ -1,4 +1,7 @@
-# angular-gantt [![npm version](http://img.shields.io/npm/v/angular-gantt.svg)](https://npmjs.org/package/angular-gantt) [![build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg)](https://travis-ci.org/angular-gantt/angular-gantt)
+# angular-gantt 
+[![npm version](http://img.shields.io/npm/v/angular-gantt.svg)](https://npmjs.org/package/angular-gantt) 
+[![build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg)](https://travis-ci.org/angular-gantt/angular-gantt)
+[![Coverage Status](https://img.shields.io/coveralls/angular-gantt/angular-gantt.svg)](https://coveralls.io/r/angular-gantt/angular-gantt)
 
 ## The gantt chart directive for AngularJS
 

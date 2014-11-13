@@ -9,3 +9,5 @@
 /assets/*.map
 /docs/_build/
 /site/
+/coverage-results/
+*.log

@@ -3,6 +3,8 @@
 module.exports = function(grunt) {
     var plugins = ['sortable', 'movable', 'tooltips', 'bounds', 'progress'];
 
+    var coverage = grunt.option('coverage');
+
     var config = {
         pkg: grunt.file.readJSON('package.json'),
         html2js: {
@@ -92,7 +94,7 @@ module.exports = function(grunt) {
                 options: {
                     jshintrc: 'test/spec/.jshintrc'
                 },
-                src:['test/spec/**/*.js']
+                src: ['test/spec/**/*.js']
             }
         },
         watch: {
@@ -101,8 +103,17 @@ module.exports = function(grunt) {
         },
         karma: {
             unit: {
-                configFile: 'test/karma.conf.js',
+                configFile: coverage ? 'test/karma-coverage.conf.js' : 'test/karma.conf.js',
                 singleRun: true
+            }
+        },
+        coveralls: {
+            options: {
+                force: true,
+                debug: true,
+                coverage_dir: 'coverage-results',
+                dryRun: true,
+                recursive: true
             }
         }
     };
@@ -149,6 +160,8 @@ module.exports = function(grunt) {
     grunt.renameTask('concat', 'concatCss');
     grunt.loadNpmTasks('grunt-contrib-concat');
     // End of ugliness
+
+    grunt.loadNpmTasks('grunt-karma-coveralls');
 
     grunt.registerTask('test', ['karma']);
 
