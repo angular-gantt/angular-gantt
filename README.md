@@ -9,7 +9,7 @@ angular-gantt provides a gantt chart component to your [AngularJS](https://angul
 
 <br/> 
 
-![Angular Gantt](docs/images/angular-gantt.png)
+![Angular Gantt](docs/img/angular-gantt.png)
 
 ## Try now
 
