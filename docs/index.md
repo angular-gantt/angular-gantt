@@ -4,6 +4,10 @@
 
 angular-gantt provides a gantt chart component to your [AngularJS](https://angularjs.org/) application.
 
+<br/> 
+
+![angular-gantt](images/angular-gantt.png)
+
 ## Try now
 
 Try angular-gantt now using the [Demo Application](http://angular-gantt.github.io/angular-gantt).

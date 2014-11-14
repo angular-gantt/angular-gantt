@@ -7,9 +7,13 @@
 
 angular-gantt provides a gantt chart component to your [AngularJS](https://angularjs.org/) application.
 
+<br/> 
+
+![Angular Gantt](docs/images/angular-gantt.png)
+
 ## Try now
 
-Try angular-gantt now using the [Demo Application](http://angular-gantt.github.io/angular-gantt).
+Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com).
 
 [Unstable Demo Application](http://rawgit.com/angular-gantt/angular-gantt/master/demo/dist/index.html) is also available.
 It is build against github master branch, and allows to preview bleeding edge features, but may be very unstable.

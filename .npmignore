@@ -13,3 +13,8 @@
 /gh-pages/
 /assets/*.min.js
 /assets/*.map
+/docs/_build/
+/site/
+/coverage-results/
+*.log
+/resources/
