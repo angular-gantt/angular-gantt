@@ -92,7 +92,7 @@ angular.module('angularGanttDemoApp')
 
                     api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
                     api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));
-                    api.rows.on.move($scope, addEventName('rows.on.orderChange', logRowEvent));
+                    api.rows.on.move($scope, addEventName('rows.on.move', logRowEvent));
                     api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
 
                     api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
@@ -111,11 +111,11 @@ angular.module('angularGanttDemoApp')
                         if (directiveName === 'ganttTask') {
                             element.bind('click', function(event) {
                                 event.stopPropagation();
-                                logTaskEvent('task-click', directiveScope.task.model);
+                                logTaskEvent('task-click', directiveScope.task);
                             });
                         } else if (directiveName === 'ganttRow') {
                             element.bind('click', function() {
-                                logRowEvent('row-click', directiveScope.row.model);
+                                logRowEvent('row-click', directiveScope.row);
                             });
                         }
                     });
@@ -289,17 +289,17 @@ angular.module('angularGanttDemoApp')
 
         // Event handler
         var logTaskEvent = function(eventName, task) {
-            $log.log('[Event] ' + eventName + ': ' + task.name);
+            $log.log('[Event] ' + eventName + ': ' + task.model.name);
         };
 
         // Event handler
         var logRowEvent = function(eventName, row) {
-            $log.log('[Event] ' + eventName + ': ' + row.name);
+            $log.log('[Event] ' + eventName + ': ' + row.model.name);
         };
 
         // Event handler
         var logTimespanEvent = function(eventName, timespan) {
-            $log.log('[Event] ' + eventName + ': ' + timespan.name);
+            $log.log('[Event] ' + eventName + ': ' + timespan.model.name);
         };
 
         // Event handler
