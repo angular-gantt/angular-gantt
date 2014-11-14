@@ -36,6 +36,11 @@ gantt.factory('GanttTask', [function() {
             this.truncatedRight = false;
             this.width = this.modelWidth;
         }
+
+        if (this.width < 0) {
+            this.left = this.left + this.width;
+            this.width = -this.width;
+        }
     };
 
     // Expands the start of the task to the specified position (in em)

@@ -1415,12 +1415,12 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
                 this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
             }
             return true;
-        } else if (x > this.width) {
+        } else if (x > this.gantt.width) {
             var lastColumn = this.getLastColumn();
             var endDate = lastColumn.getDateByPosition(lastColumn.width);
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.width, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
             }
             return true;
         }
@@ -1449,7 +1449,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         } else if (endDate && date > endDate) {
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
             }
             return true;
         }
@@ -2457,6 +2457,11 @@ gantt.factory('GanttTask', [function() {
             this.truncatedRight = false;
             this.width = this.modelWidth;
         }
+
+        if (this.width < 0) {
+            this.left = this.left + this.width;
+            this.width = -this.width;
+        }
     };
 
     // Expands the start of the task to the specified position (in em)
@@ -3005,21 +3010,27 @@ gantt.filter('ganttTaskLimit', [function() {
         if (firstColumn !== undefined && lastColumn !== undefined) {
             for (var i = 0, l = input.length; i < l; i++) {
                 var task = input[i];
-                // If the task can be drawn with gantt columns only.
-                if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                    var scrollLeft = gantt.$scope.scrollLeft;
-                    var scrollWidth = gantt.$scope.scrollWidth;
+                if (task.active) {
+                    res.push(task);
+                } else {
+                    // If the task can be drawn with gantt columns only.
+                    if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                    // If task has a visible part on the screen
-                    if (scrollLeft === undefined && scrollWidth === undefined ||
-                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+                        var scrollLeft = gantt.$scope.scrollLeft;
+                        var scrollWidth = gantt.$scope.scrollWidth;
 
-                        res.push(task);
+                        // If task has a visible part on the screen
+                        if (scrollLeft === undefined && scrollWidth === undefined ||
+                            task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                            res.push(task);
+                        }
                     }
                 }
+
             }
         }
 
@@ -3850,7 +3861,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
-        '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
+        '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +

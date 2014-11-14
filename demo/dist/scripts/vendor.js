@@ -37562,12 +37562,12 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
                 this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
             }
             return true;
-        } else if (x > this.width) {
+        } else if (x > this.gantt.width) {
             var lastColumn = this.getLastColumn();
             var endDate = lastColumn.getDateByPosition(lastColumn.width);
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.width, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
             }
             return true;
         }
@@ -37596,7 +37596,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         } else if (endDate && date > endDate) {
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
             }
             return true;
         }
@@ -38604,6 +38604,11 @@ gantt.factory('GanttTask', [function() {
             this.truncatedRight = false;
             this.width = this.modelWidth;
         }
+
+        if (this.width < 0) {
+            this.left = this.left + this.width;
+            this.width = -this.width;
+        }
     };
 
     // Expands the start of the task to the specified position (in em)
@@ -39152,21 +39157,27 @@ gantt.filter('ganttTaskLimit', [function() {
         if (firstColumn !== undefined && lastColumn !== undefined) {
             for (var i = 0, l = input.length; i < l; i++) {
                 var task = input[i];
-                // If the task can be drawn with gantt columns only.
-                if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                    var scrollLeft = gantt.$scope.scrollLeft;
-                    var scrollWidth = gantt.$scope.scrollWidth;
+                if (task.active) {
+                    res.push(task);
+                } else {
+                    // If the task can be drawn with gantt columns only.
+                    if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                    // If task has a visible part on the screen
-                    if (scrollLeft === undefined && scrollWidth === undefined ||
-                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+                        var scrollLeft = gantt.$scope.scrollLeft;
+                        var scrollWidth = gantt.$scope.scrollWidth;
 
-                        res.push(task);
+                        // If task has a visible part on the screen
+                        if (scrollLeft === undefined && scrollWidth === undefined ||
+                            task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                            res.push(task);
+                        }
                     }
                 }
+
             }
         }
 
@@ -39997,7 +40008,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
-        '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
+        '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
@@ -40197,22 +40208,21 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         }, 5));
 
                         var handleMove = function(mode, evt) {
-                            if (taskScope.task.isMoving === false) {
-                                return;
-                            }
-
                             moveTask(mode, evt);
                             scrollScreen(mode, evt);
                         };
 
                         var moveTask = function(mode, evt) {
                             var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
-                            taskScope.task.mouseOffsetX = mousePos.x;
                             var x = mousePos.x;
+                            taskScope.task.mouseOffsetX = x;
+
                             if (mode === 'M') {
                                 var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
                                 if (allowRowSwitching) {
-                                    var targetScope = utils.scopeFromPoint(evt.clientX, evt.clientY);
+                                    var scrollRect = ganttScrollElement[0].getBoundingClientRect();
+
+                                    var targetScope = utils.scopeFromPoint(scrollRect.left, evt.clientY);
                                     var targetRow = targetScope.row;
 
                                     if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
@@ -40261,21 +40271,21 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var scrollScreen = function(mode, evt) {
                             var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                             var leftScreenBorder = ganttScrollElement[0].scrollLeft;
+                            var screenWidth = ganttScrollElement[0].offsetWidth;
+                            var scrollWidth = ganttScrollElement[0].scrollWidth;
+                            var rightScreenBorder = leftScreenBorder + screenWidth;
                             var keepOnScrolling = false;
 
                             if (mousePos.x < moveStartX) {
                                 // Scroll to the left
-                                if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
+                                if (leftScreenBorder > 0 && mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
                                     mousePos.x -= scrollSpeed;
                                     keepOnScrolling = true;
                                     taskScope.row.rowsManager.gantt.api.scroll.left(scrollSpeed);
                                 }
                             } else {
                                 // Scroll to the right
-                                var screenWidth = ganttScrollElement[0].offsetWidth;
-                                var rightScreenBorder = leftScreenBorder + screenWidth;
-
-                                if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
+                                if (rightScreenBorder < scrollWidth && mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
                                     mousePos.x += scrollSpeed;
                                     keepOnScrolling = true;
                                     taskScope.row.rowsManager.gantt.api.scroll.right(scrollSpeed);
@@ -40333,11 +40343,20 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         };
 
                         var enableMoveMode = function(mode, x) {
-                            // Raise task move start event
-                            if (!taskScope.task.isMoving) {
-                                if (mode === 'M') {
+                            // Clone taskModel
+                            if (taskScope.task.originalModel === undefined) {
+                                taskScope.task.originalModel = taskScope.task.model;
+                                taskScope.task.model = angular.copy(taskScope.task.originalModel);
+                            }
+
+                            if (mode === 'M') {
+                                taskElement.addClass('gantt-task-moving');
+                                if (!taskScope.task.isMoving) {
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
-                                } else {
+                                }
+                            } else {
+                                taskElement.addClass('gantt-task-resizing');
+                                if (!taskScope.task.isMoving) {
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
                                 }
                             }
@@ -40346,6 +40365,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             taskHasBeenChanged = false;
                             taskScope.task.moveMode = mode;
                             taskScope.task.isMoving = true;
+                            taskScope.task.active = true;
                             moveStartX = x;
                             mouseOffsetInEm = x - taskScope.task.modelLeft;
 
@@ -40380,7 +40400,17 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         };
 
                         var disableMoveMode = function() {
+                            taskElement.removeClass('gantt-task-moving');
+                            taskElement.removeClass('gantt-task-resizing');
+
+                            if (taskScope.task.originalModel !== undefined) {
+                                angular.extend(taskScope.task.originalModel, taskScope.task.model);
+                                taskScope.task.model = taskScope.task.originalModel;
+                                delete taskScope.task.originalModel;
+                            }
+
                             taskScope.task.isMoving = false;
+                            taskScope.task.active = false;
 
                             // Stop any active auto scroll
                             clearScrollInterval();
@@ -40412,8 +40442,8 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             }
                         };
 
-                        if (taskScope.task.isCreating) {
-                            delete taskScope.task.isCreating;
+                        if (taskScope.task.isResizing) {
+                            delete taskScope.task.isResizing;
                             enableMoveMode('E', taskScope.task.mouseOffsetX);
                         } else if (taskScope.task.isMoving) {
                             // In case the task has been moved to another row a new controller is is created by angular.
@@ -40798,7 +40828,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
                         showTooltip(mousePositionX);
                     }, 500, true);
                 } else {
-                    if (!$scope.task.isMoving) {
+                    if (!$scope.task.active) {
                         hideTooltip();
                     }
                 }

@@ -42,7 +42,7 @@ angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$docume
                         showTooltip(mousePositionX);
                     }, 500, true);
                 } else {
-                    if (!$scope.task.isMoving) {
+                    if (!$scope.task.active) {
                         hideTooltip();
                     }
                 }

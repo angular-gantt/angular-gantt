@@ -164,7 +164,7 @@ angular.module('angularGanttDemoApp')
                                             color: '#AA8833' // Color of the task in HEX format (Optional).
                                         };
                                         var task = directiveScope.row.addTask(infoTask);
-                                        task.isCreating = true;
+                                        task.isResizing = true;
                                         directiveScope.$apply(function() {
                                             task.updatePosAndSize();
                                             directiveScope.row.updateVisibleTasks();
@@ -292,17 +292,17 @@ angular.module('angularGanttDemoApp')
             }
         }, debounceValue));
 
-        $scope.$watchCollection('live.task', debounce(function(task) {
+        $scope.$watchCollection('live.task', function(task) {
             $scope.live.taskJson = angular.toJson(task, true);
-        }, debounceValue));
+        });
 
-        $scope.$watchCollection('live.row', debounce(function(row) {
+        $scope.$watchCollection('live.row', function(row) {
             $scope.live.rowJson = angular.toJson(row, true);
-        }, debounceValue));
+        });
 
-        $scope.$watchCollection('live.row.tasks', debounce(function() {
+        $scope.$watchCollection('live.row.tasks', function() {
             $scope.live.rowJson = angular.toJson($scope.live.row, true);
-        }, debounceValue));
+        });
 
         // Event handler
         var logScrollEvent = function(left, date, direction) {

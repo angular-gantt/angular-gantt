@@ -11,21 +11,27 @@ gantt.filter('ganttTaskLimit', [function() {
         if (firstColumn !== undefined && lastColumn !== undefined) {
             for (var i = 0, l = input.length; i < l; i++) {
                 var task = input[i];
-                // If the task can be drawn with gantt columns only.
-                if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                    var scrollLeft = gantt.$scope.scrollLeft;
-                    var scrollWidth = gantt.$scope.scrollWidth;
+                if (task.active) {
+                    res.push(task);
+                } else {
+                    // If the task can be drawn with gantt columns only.
+                    if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                    // If task has a visible part on the screen
-                    if (scrollLeft === undefined && scrollWidth === undefined ||
-                        task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+                        var scrollLeft = gantt.$scope.scrollLeft;
+                        var scrollWidth = gantt.$scope.scrollWidth;
 
-                        res.push(task);
+                        // If task has a visible part on the screen
+                        if (scrollLeft === undefined && scrollWidth === undefined ||
+                            task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                            res.push(task);
+                        }
                     }
                 }
+
             }
         }
 

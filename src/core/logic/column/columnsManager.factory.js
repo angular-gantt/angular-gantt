@@ -240,12 +240,12 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
                 this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
             }
             return true;
-        } else if (x > this.width) {
+        } else if (x > this.gantt.width) {
             var lastColumn = this.getLastColumn();
             var endDate = lastColumn.getDateByPosition(lastColumn.width);
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.width, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
             }
             return true;
         }
@@ -274,7 +274,7 @@ gantt.factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenera
         } else if (endDate && date > endDate) {
             var lastExtendedColumn = this.getLastColumn(true);
             if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.width, false);
+                this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
             }
             return true;
         }
