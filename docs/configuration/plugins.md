@@ -46,3 +46,7 @@ files, where `xxxxxx` plugin is the name of the plugin.
 - ### [Tooltips](../plugins/tooltips.md)
 
     Display tooltips when moving mouse over a task.
+    
+- ### [History](../plugins/history.md)
+
+    Records an history of each data change for undo/redo features.

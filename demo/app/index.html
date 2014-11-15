@@ -128,6 +128,16 @@
                                                     </div>
 
                                                     <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-database"></i> History</label><br>
+                                                        <div class="btn-group">
+                                                            <button class="btn btn-default" ng-disabled="!canUndo()" ng-click="undo()"><i class="fa fa-reply"></i> Undo</button>
+                                                            <button class="btn btn-default" ng-disabled="!canRedo()" ng-click="redo()"><i class="fa fa-share"></i> Redo</button>
+                                                            <button class="btn btn-default" ng-click="clearHistory()"><i class="fa fa-recycle"></i> Clear</button>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-database"></i> Data actions</label><br>
                                                         <div class="btn-group">
                                                             <button class="btn btn-default" ng-click="reload()">Reload</button>
@@ -186,6 +196,7 @@
                                                 enabled="options.draw && !options.readOnly"
                                                 task-factory="options.drawTaskFactory">
                                             </gantt-draw-task>
+                                            <gantt-history enabled="true"></gantt-history>
                                         </div>
                                     </div>
                                     <div class="panel-body">
@@ -242,13 +253,14 @@
 
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
-    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular/build/angular.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-strap/dist/angular-strap.js"></script>
     <script src="bower_components/angular-strap/dist/angular-strap.tpl.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/angular-moment/angular-moment.js"></script>
     <script src="bower_components/angular-native-dragdrop/draganddrop.js"></script>
+    <script src="bower_components/ng-lodash/build/ng-lodash.js"></script>
     <script src="bower_components/angular-gantt/assets/angular-gantt.js"></script>
     <script src="bower_components/angular-gantt/assets/angular-gantt-plugins.js"></script>
     <!-- endbower -->

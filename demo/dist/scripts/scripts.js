@@ -16,6 +16,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',
+    'gantt.history',
     'mgcrea.ngStrap' // handle bootstrap properly in angularJS applications.
 ]).config(['$compileProvider', function(/*$compileProvider*/) {
     // Wait angular.js#9515 fix to disable debug info.
@@ -302,6 +303,28 @@ angular.module('angularGanttDemoApp')
         $scope.$watchCollection('live.row.tasks', function() {
             $scope.live.rowJson = angular.toJson($scope.live.row, true);
         });
+
+        $scope.undo = function() {
+            $scope.api.history.undo();
+        };
+
+        $scope.redo = function() {
+            $scope.api.history.redo();
+        };
+
+        $scope.canUndo = function() {
+            var canUndo = $scope.api.history.canUndo();
+            return canUndo;
+        };
+
+        $scope.canRedo = function() {
+            var canRedo = $scope.api.history.canRedo();
+            return canRedo;
+        };
+
+        $scope.clearHistory = function() {
+            $scope.api.history.clear();
+        };
 
         // Event handler
         var logScrollEvent = function(left, date, direction) {

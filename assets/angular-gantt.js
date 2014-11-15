@@ -2886,6 +2886,7 @@ Github: https://github.com/angular-gantt/angular-gantt
     }]);
 }());
 
+
 (function(){
     'use strict';
     angular.module('gantt').service('ganttArrays', [function() {
