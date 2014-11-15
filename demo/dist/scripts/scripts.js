@@ -140,12 +140,12 @@ angular.module('angularGanttDemoApp')
                         originalData = angular.copy($scope.data);
                     });
 
-
-
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
                     $scope.load();
 
+
+                    // Add some DOM events
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttTask') {
                             element.bind('click', function() {
@@ -175,6 +175,10 @@ angular.module('angularGanttDemoApp')
                                 });
                             });
                         }
+                    });
+
+                    api.tasks.on.rowChange($scope, function(task) {
+                        $scope.live.row = task.row.model;
                     });
 
                     objectModel = new ObjectModel(api);
@@ -288,13 +292,15 @@ angular.module('angularGanttDemoApp')
 
         $scope.$watchCollection('live.row.tasks', function() {
             $scope.live.rowJson = angular.toJson($scope.live.row, true);
-            if ($scope.live.row.tasks.indexOf($scope.live.task)) {
+            if ($scope.live.row.tasks.indexOf($scope.live.task) < 0) {
                 $scope.live.task = undefined;
             }
         });
 
         $scope.$watch('live.row', function(row) {
-           $scope.live.task = (row.tasks === undefined || row.tasks.length < 0) ? undefined : row.tasks[0];
+            if ($scope.live.row.tasks.indexOf($scope.live.task) < 0) {
+                $scope.live.task = (row.tasks === undefined || row.tasks.length < 0) ? undefined : row.tasks[0];
+            }
         });
 
         // Event handler
