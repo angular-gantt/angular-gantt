@@ -6,7 +6,7 @@ angular-gantt provides a gantt chart component to your [AngularJS](https://angul
 
 <br/> 
 
-![angular-gantt](images/angular-gantt.png)
+![angular-gantt](img/angular-gantt.png)
 
 ## Try now
 
