@@ -12,6 +12,7 @@ angular.module('angularGanttDemoApp', [
     'gantt', // angular-gantt.
     'gantt.sortable',
     'gantt.movable',
+    'gantt.drawtask',
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',

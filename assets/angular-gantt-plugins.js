@@ -12,6 +12,10 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
@@ -93,6 +97,54 @@ angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('g
                 }
                 if (model.lct !== undefined && !moment.isMoment(model.lct)) {
                     model.lct = moment(model.lct);  //Latest Completion Time
+                }
+            });
+        }
+    };
+}]);
+
+
+angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['ganttMouseOffset', 'moment', function(mouseOffset, moment) {
+    return {
+        restrict: 'E',
+        require: '^gantt',
+        scope: {
+            enabled: '=?',
+            taskModelFactory: '=taskFactory'
+        },
+        link: function(scope, element, attrs, ganttCtrl) {
+            var api = ganttCtrl.gantt.api;
+
+            api.directives.on.new(scope, function(directiveName, directiveScope, element) {
+                if (directiveName === 'ganttRow') {
+                    var drawHandler = function(evt) {
+                        var evtTarget = (evt.target ? evt.target : evt.srcElement);
+                        if (scope.enabled && evtTarget.className.indexOf('gantt-row') > -1) {
+                            var startDate = api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
+                            var endDate = moment(startDate);
+
+                            var taskModel = scope.taskModelFactory();
+                            taskModel.from = startDate;
+                            taskModel.to = endDate;
+
+                            scope.$apply(function() {
+                                var task = directiveScope.row.addTask(taskModel);
+                                task.isResizing = true;
+                                task.updatePosAndSize();
+                                directiveScope.row.updateVisibleTasks();
+                            });
+                        }
+                    };
+
+                    element.on('mousedown', drawHandler);
+                    directiveScope.drawTaskHandler = drawHandler;
+                }
+            });
+
+            api.directives.on.destroy(scope, function(directiveName, directiveScope, element) {
+                if (directiveName === 'ganttRow') {
+                    element.off('mousedown', directiveScope.drawTaskHandler);
+                    delete directiveScope.drawTaskHandler;
                 }
             });
         }

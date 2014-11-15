@@ -31,6 +31,10 @@ files, where `xxxxxx` plugin is the name of the plugin.
 
     Move and resize tasks.
 
+- ### [Draw Task](../plugins/drawtask.md)
+
+    Draw new tasks with the mouse.
+
 - ### [Progress](../plugins/progress.md)
 
     Display a visual indicator showing configured progress of tasks.

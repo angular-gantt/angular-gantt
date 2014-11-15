@@ -69,6 +69,13 @@ angular.module('angularGanttDemoApp')
             },
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '5 minutes',
+            drawTaskFactory: function() {
+                return {
+                    id: utils.randomUuid(),  // Unique id of the task.
+                    name: 'Drawn task', // Name shown on top of each task.
+                    color: '#AA8833' // Color of the task in HEX format (Optional).
+                };
+            },
             api: function(api) {
                 // API Object is used to control methods and events from angular-gantt.
                 $scope.api = api;
@@ -117,48 +124,6 @@ angular.module('angularGanttDemoApp')
                             element.bind('click', function() {
                                 logRowEvent('row-click', directiveScope.row);
                             });
-                        }
-                    });
-
-                    // Add draw support using API directives.on.new event.
-                    api.directives.on.new($scope, function(directiveName, directiveScope, element) {
-                        if (directiveName === 'ganttRow') {
-                            // When gantt-row directive is added
-                            var drawHandler = function(evt) {
-                                if (!$scope.options.readOnly && $scope.options.draw) {
-                                    // Example to draw task inside row
-
-                                    if ((evt.target ? evt.target : evt.srcElement).className.indexOf('gantt-row') > -1) {
-                                        var startDate = $scope.api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
-                                        var endDate = moment(startDate);
-                                        //endDate.setDate(endDate.getDate());
-                                        var infoTask = {
-                                            id: utils.randomUuid(),  // Unique id of the task.
-                                            name: 'Drawn task', // Name shown on top of each task.
-                                            from: startDate, // Date can be a String, Timestamp or Date object.
-                                            to: endDate,// Date can be a String, Timestamp or Date object.
-                                            color: '#AA8833' // Color of the task in HEX format (Optional).
-                                        };
-                                        var task = directiveScope.row.addTask(infoTask);
-                                        task.isResizing = true;
-                                        directiveScope.$apply(function() {
-                                            task.updatePosAndSize();
-                                            directiveScope.row.updateVisibleTasks();
-                                        });
-                                    }
-                                }
-                            };
-
-                            element.on('mousedown', drawHandler);
-                            directiveScope.drawHandler = drawHandler;
-                        }
-                    });
-
-                    // Remove draw support when row is removed from DOM.
-                    api.directives.on.destroy($scope, function(directiveName, directiveScope, element) {
-                        if (directiveName === 'ganttRow') {
-                            element.off('mousedown', directiveScope.drawHandler);
-                            delete directiveScope.drawHandler;
                         }
                     });
 

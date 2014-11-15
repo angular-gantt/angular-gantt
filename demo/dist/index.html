@@ -170,6 +170,10 @@
                                             <gantt-progress></gantt-progress>
                                             <gantt-sortable></gantt-sortable>
                                             <gantt-movable enabled="!options.readOnly"></gantt-movable>
+                                            <gantt-draw-task
+                                                enabled="options.draw && !options.readOnly"
+                                                task-factory="options.drawTaskFactory">
+                                            </gantt-draw-task>
                                         </div>
                                     </div>
                                     <div class="panel-body">
