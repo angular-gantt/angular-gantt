@@ -91,7 +91,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                                     var targetRow = targetScope.row;
 
                                     if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
-                                        targetRow.moveTaskToRow(taskScope.task);
+                                        targetRow.moveTaskToRow(taskScope.task, true);
                                     }
                                 }
 
@@ -210,6 +210,7 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                         var enableMoveMode = function(mode, x) {
                             // Clone taskModel
                             if (taskScope.task.originalModel === undefined) {
+                                taskScope.task.originalRow = taskScope.task.row;
                                 taskScope.task.originalModel = taskScope.task.model;
                                 taskScope.task.model = angular.copy(taskScope.task.originalModel);
                             }
@@ -271,7 +272,14 @@ angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMous
                             if (taskScope.task.originalModel !== undefined) {
                                 angular.extend(taskScope.task.originalModel, taskScope.task.model);
                                 taskScope.task.model = taskScope.task.originalModel;
+                                if (taskScope.task.row.model.id !== taskScope.task.originalRow.model.id) {
+                                    var targetRow = taskScope.task.row;
+                                    targetRow.removeTask(taskScope.task.model.id);
+                                    taskScope.task.row = taskScope.task.originalRow;
+                                    targetRow.moveTaskToRow(taskScope.task, false);
+                                }
                                 delete taskScope.task.originalModel;
+                                delete taskScope.task.originalRow;
                             }
 
                             taskScope.task.isMoving = false;

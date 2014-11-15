@@ -1,7 +1,7 @@
 'use strict';
 gantt.factory('Gantt', [
-    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'moment',
-    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, moment) {
+    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment',
+    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment) {
         // Gantt logic. Manages the columns, rows and sorting functionality.
         var Gantt = function($scope, $element) {
             var self = this;
@@ -84,29 +84,11 @@ gantt.factory('Gantt', [
             }
 
             this.$scope.$watchCollection('data', function(newData, oldData) {
-                var i, l, toRemoveData;
-                if (oldData !== undefined) {
-                    toRemoveData = oldData.slice();
-                } else {
-                    toRemoveData = [];
-                }
+                var toRemoveIds = arrays.getRemovedIds(newData, oldData);
 
-                if (newData !== undefined) {
-                    for (i= 0, l=newData.length; i<l; i++) {
-                        var newRow = newData[i];
-
-                        if (newRow.id !== undefined) {
-                            var newRowIndex = toRemoveData.indexOf(newRow);
-                            if (newRowIndex > -1) {
-                                toRemoveData.splice(newRowIndex, 1);
-                            }
-                        }
-                    }
-                }
-
-                for (i= 0, l=toRemoveData.length; i<l; i++) {
-                    var toRemove = toRemoveData[i];
-                    self.rowsManager.removeRow(toRemove.id);
+                for (var i= 0, l=toRemoveIds.length; i<l; i++) {
+                    var toRemoveId = toRemoveIds[i];
+                    self.rowsManager.removeRow(toRemoveId);
                 }
 
                 if (newData !== undefined) {
@@ -149,7 +131,9 @@ gantt.factory('Gantt', [
                 data = data !== undefined ? [data] : [];
             }
 
-            this.$scope.data = data;
+            if (this.$scope.data === undefined) {
+                this.$scope.data = [];
+            }
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
                 this.rowsManager.addRow(rowData);

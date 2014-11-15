@@ -57,7 +57,7 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
 
     RowsManager.prototype.addRow = function(rowModel) {
         // Copy to new row (add) or merge with existing (update)
-        var row, isUpdate = false;
+        var row, i, l, isUpdate = false;
 
         this.gantt.objectModel.cleanRow(rowModel);
 
@@ -66,9 +66,15 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
             if (row.model === rowModel) {
                 return;
             }
+
+            var toRemoveIds = arrays.getRemovedIds(rowModel.tasks, row.model.tasks);
+            for (i= 0, l=toRemoveIds.length; i<l; i++) {
+                var toRemoveId = toRemoveIds[i];
+                row.removeTask(toRemoveId);
+            }
+
             row.model = rowModel;
             isUpdate = true;
-            this.gantt.api.rows.raise.change(row);
         } else {
             row = new Row(this, rowModel);
             this.rowsMap[rowModel.id] = row;
@@ -84,42 +90,30 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
                 this.gantt.$scope.data.push(rowModel);
             }
 
-            this.gantt.api.rows.raise.add(row);
         }
 
         if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
-            for (var i = 0, l = rowModel.tasks.length; i < l; i++) {
+            for (i = 0, l = rowModel.tasks.length; i < l; i++) {
                 var taskModel = rowModel.tasks[i];
                 row.addTask(taskModel);
             }
         }
 
+        if (isUpdate) {
+            this.gantt.api.rows.raise.change(row);
+        } else {
+            this.gantt.api.rows.raise.add(row);
+        }
+
         if (!isUpdate) {
             var watcher = this.gantt.$scope.$watchCollection(function() {return rowModel.tasks;}, function(newTasks, oldTasks) {
                 if (newTasks !== oldTasks) {
-                    var i, l, toRemoveTasks;
-                    if (oldTasks !== undefined) {
-                        toRemoveTasks = oldTasks.slice();
-                    } else {
-                        toRemoveTasks = [];
-                    }
+                    var i, l;
 
-                    if (newTasks !== undefined) {
-                        for (i= 0, l=newTasks.length; i<l; i++) {
-                            var newTask = newTasks[i];
-
-                            if (newTask.id !== undefined) {
-                                var newTaskIndex = toRemoveTasks.indexOf(newTask);
-                                if (newTaskIndex > -1) {
-                                    toRemoveTasks.splice(newTaskIndex, 1);
-                                }
-                            }
-                        }
-                    }
-
-                    for (i= 0, l = toRemoveTasks.length; i<l; i++) {
-                        var toRemove = toRemoveTasks[i];
-                        row.removeTask(toRemove.id);
+                    var toRemoveIds = arrays.getRemovedIds(newTasks, oldTasks);
+                    for (i= 0, l = toRemoveIds.length; i<l; i++) {
+                        var toRemove = toRemoveIds[i];
+                        row.removeTask(toRemove);
                     }
 
                     if (newTasks !== undefined) {
@@ -143,45 +137,18 @@ gantt.factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment
 
             var removedRow;
             var row;
-            for (var i = this.rows.length - 1; i >= 0; i--) {
-                row = this.rows[i];
-                if (row.model.id === rowId) {
-                    removedRow = row;
-                    this.rows.splice(i, 1); // Remove from array
-                    var deregisterFunction = this.rowsTaskWatchers.splice(i, 1); // Remove watcher
-                    deregisterFunction[0]();
-                    break;
-                }
+
+            var indexOf = arrays.indexOfId(this.rows, rowId, ['model', 'id']);
+            if (indexOf > -1) {
+                removedRow = this.rows.splice(indexOf, 1)[0]; // Remove from array
+                var deregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
+                deregisterFunction();
             }
 
-            for (i = this.sortedRows.length - 1; i >= 0; i--) {
-                row = this.sortedRows[i];
-                if (row.model.id === rowId) {
-                    this.sortedRows.splice(i, 1); // Remove from sorted array
-                    break;
-                }
-            }
-
-            for (i = this.filteredRows.length - 1; i >= 0; i--) {
-                row = this.filteredRows[i];
-                if (row.model.id === rowId) {
-                    this.filteredRows.splice(i, 1); // Remove from filtered array
-                    break;
-                }
-            }
-
-            for (i = this.visibleRows.length - 1; i >= 0; i--) {
-                row = this.visibleRows[i];
-                if (row.model.id === rowId) {
-                    this.visibleRows.splice(i, 1); // Remove from visible array
-                    break;
-                }
-            }
-
-            var index = this.gantt.$scope.data.indexOf(removedRow.model);
-            if (index > -1) {
-                this.gantt.$scope.data.splice(index, 1);
-            }
+            arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
+            arrays.removeId(this.filteredRows, rowId, ['model', 'id']);
+            arrays.removeId(this.visibleRows, rowId, ['model', 'id']);
+            arrays.remove(this.gantt.$scope.data, removedRow.model);
 
             this.gantt.api.rows.raise.remove(removedRow);
             return row;
