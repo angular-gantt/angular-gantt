@@ -156,6 +156,8 @@
                                 <div class="panel-collapse" bs-collapse-target>
                                     <div class="panel-body">
                                         <div gantt
+                                               data="data"
+                                               timespans="timespans"
                                                filter-task="{'name': options.filterTask}"
                                                filter-row="{'name': options.filterRow}"
                                                sort-mode="options.sortMode"
@@ -188,13 +190,13 @@
                                     </div>
                                     <div class="panel-body">
                                         <div class="live-table">
-                                            <div class="live-cell">
-                                                <h4>Task object ({{live.task.name}})</h4>
-                                                <textarea class="live-task" ng-model="live.taskJson"></textarea>
-                                            </div>
-                                            <div class="live-cell">
-                                                <h4>Row object ({{live.row.name}})</h4>
+                                            <div class="live-cell" ng-show="data.length > 0">
+                                                <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.row" ng-options="r.name for r in data" bs-select></button> (Row object)</h4>
                                                 <textarea class="live-row" ng-model="live.rowJson"></textarea>
+                                            </div>
+                                            <div class="live-cell" ng-show="live.row.tasks.length > 0">
+                                                <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.task" ng-options="t.name for t in live.row.tasks" bs-select></button> (Task object)</h4>
+                                                <textarea class="live-task" ng-model="live.taskJson"></textarea>
                                             </div>
                                         </div>
                                     </div>

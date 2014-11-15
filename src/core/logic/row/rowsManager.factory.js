@@ -43,6 +43,7 @@
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
+            this.gantt.api.registerEvent('tasks', 'rowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
 
@@ -84,9 +85,6 @@
                 this.filteredRows.push(row);
                 this.visibleRows.push(row);
 
-                if (this.gantt.$scope.data === undefined) {
-                    this.gantt.$scope.data = [];
-                }
                 if (this.gantt.$scope.data.indexOf(rowModel) === -1) {
                     this.gantt.$scope.data.push(rowModel);
                 }
@@ -189,7 +187,10 @@
             this.sortedRows = [];
             this.filteredRows = [];
             this.visibleRows = [];
-            this.gantt.$scope.data = [];
+            var data = this.gantt.$scope.data;
+            while(data > 0) {
+                data.pop();
+            }
             for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
                 var deregisterFunction = this.rowsTaskWatchers[i];
                 deregisterFunction();
@@ -220,14 +221,16 @@
          * Applies current view sort to data model.
          */
         RowsManager.prototype.applySort = function() {
-            var tmpData = [];
+            var data = this.gantt.$scope.data;
+            while(data > 0) {
+                data.pop();
+            }
             var rows = [];
             for (var i = 0, l = this.sortedRows.length; i < l; i++) {
-                tmpData.push(this.sortedRows[i].model);
+                data.push(this.sortedRows[i].model);
                 rows.push(this.sortedRows[i]);
             }
 
-            this.gantt.$scope.data = tmpData;
             this.rows = rows;
         };
 

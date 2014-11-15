@@ -1722,7 +1722,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                     data = data !== undefined ? [data] : [];
                 }
 
-                if (this.$scope.data === undefined) {
+                if (this.$scope.data === undefined || this.$scope.data !== data) {
                     this.$scope.data = [];
                 }
                 for (var i = 0, l = data.length; i < l; i++) {
@@ -1900,7 +1900,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             task.updatePosAndSize();
 
             if (!viewOnly) {
-                this.rowsManager.gantt.api.tasks.raise.move(task, oldRow);
+                this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
             }
         };
 
@@ -2093,6 +2093,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
+            this.gantt.api.registerEvent('tasks', 'rowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
 
@@ -2134,9 +2135,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.filteredRows.push(row);
                 this.visibleRows.push(row);
 
-                if (this.gantt.$scope.data === undefined) {
-                    this.gantt.$scope.data = [];
-                }
                 if (this.gantt.$scope.data.indexOf(rowModel) === -1) {
                     this.gantt.$scope.data.push(rowModel);
                 }
@@ -2239,7 +2237,10 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.sortedRows = [];
             this.filteredRows = [];
             this.visibleRows = [];
-            this.gantt.$scope.data = [];
+            var data = this.gantt.$scope.data;
+            while(data > 0) {
+                data.pop();
+            }
             for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
                 var deregisterFunction = this.rowsTaskWatchers[i];
                 deregisterFunction();
@@ -2270,14 +2271,16 @@ Github: https://github.com/angular-gantt/angular-gantt
          * Applies current view sort to data model.
          */
         RowsManager.prototype.applySort = function() {
-            var tmpData = [];
+            var data = this.gantt.$scope.data;
+            while(data > 0) {
+                data.pop();
+            }
             var rows = [];
             for (var i = 0, l = this.sortedRows.length; i < l; i++) {
-                tmpData.push(this.sortedRows[i].model);
+                data.push(this.sortedRows[i].model);
                 rows.push(this.sortedRows[i]);
             }
 
-            this.gantt.$scope.data = tmpData;
             this.rows = rows;
         };
 
@@ -2710,11 +2713,9 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.timespansMap = {};
             this.timespans = [];
 
-            this.gantt.$scope.$watchCollection('timespans', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    self.clearTimespans();
-                    self.loadTimespans(newValue);
-                }
+            this.gantt.$scope.$watchCollection('timespans', function(newValue) {
+                self.clearTimespans();
+                self.loadTimespans(newValue);
             });
 
             this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);

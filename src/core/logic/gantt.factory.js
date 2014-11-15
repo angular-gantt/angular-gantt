@@ -132,7 +132,7 @@
                     data = data !== undefined ? [data] : [];
                 }
 
-                if (this.$scope.data === undefined) {
+                if (this.$scope.data === undefined || this.$scope.data !== data) {
                     this.$scope.data = [];
                 }
                 for (var i = 0, l = data.length; i < l; i++) {

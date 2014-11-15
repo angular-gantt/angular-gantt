@@ -77,7 +77,7 @@
             task.updatePosAndSize();
 
             if (!viewOnly) {
-                this.rowsManager.gantt.api.tasks.raise.move(task, oldRow);
+                this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
             }
         };
 

@@ -51,4 +51,8 @@ div.live-cell {
 textarea.live-task, textarea.live-row {
     width: 100%;
     height: 300px;
+
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.9em;
+    color: #333;
 }

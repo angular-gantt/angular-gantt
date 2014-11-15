@@ -80,6 +80,10 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 - **api.tasks.on.add(task)**, **api.tasks.on.change(task)**, **api.tasks.on.remove(task)**
 
     A task has been added, changed or removed
+
+- **api.tasks.on.rowChange(task, oldRow)**
+
+    A task has been moved from one row to another
   
 - **api.tasks.on.filter(tasks, filteredTasks)**
 

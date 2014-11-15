@@ -17,7 +17,7 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[{bower.json,package.json,karma.conf.js, README.md}]
+[{bower.json,package.json,karma.conf.js,karma-coverage.conf.js,README.md}]
 indent_size = 2
 
 [*.md]
