@@ -1,6 +1,6 @@
 site_name: 'Angular Gantt'
 
-site_url: http://angular-gantt.github.io/angular-gantt
+site_url: http://www.angular-gantt.com
 site_description: The gantt chart directive for AngularJS.
 
 repo_url: https://github.com/angular-gantt/angular-gantt
@@ -19,6 +19,7 @@ pages:
 - [configuration/write_plugin.md, Configuration, Write a Plugin]
 - [plugins/sortable.md, Plugins, Sortable]
 - [plugins/movable.md, Plugins, Movable]
+- [plugins/drawtask.md, Plugins, Draw Task]
 - [plugins/tooltips.md, Plugins, Tooltips]
 - [plugins/bounds.md, Plugins, Bounds]
 - [plugins/progress.md, Plugins, Progress]

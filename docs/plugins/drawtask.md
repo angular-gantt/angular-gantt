@@ -36,6 +36,6 @@ Draw new tasks with the mouse.
 
 - ### task-factory
 
-    Factory method which creates the task. The factory method is called when the user is starting to draw a task. Supported task properties according to [Data](../configuration/plugins.md). `From` and `To` properties are set by the plugin and there is no need in specifying them.
+    Factory method which creates the task. The factory method is called when the user is starting to draw a task. Supported task properties according to [Data](../configuration/data.md). `From` and `To` properties are set by the plugin and there is no need in specifying them.
     
     default: `undefined`
