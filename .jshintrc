@@ -13,9 +13,7 @@
     "undef": true,
     "unused": true,
     "strict": true,
-    "globalstrict": true,
     "globals": {
-        "angular": false,
-        "gantt": false
+        "angular": false
     }
 }

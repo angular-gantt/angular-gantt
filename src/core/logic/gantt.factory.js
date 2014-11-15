@@ -1,166 +1,168 @@
-'use strict';
-gantt.factory('Gantt', [
-    'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment',
-    function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment) {
-        // Gantt logic. Manages the columns, rows and sorting functionality.
-        var Gantt = function($scope, $element) {
-            var self = this;
+(function() {
+    'use strict';
+    angular.module('gantt').factory('Gantt', [
+        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment',
+        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment) {
+            // Gantt logic. Manages the columns, rows and sorting functionality.
+            var Gantt = function($scope, $element) {
+                var self = this;
 
-            this.$scope = $scope;
-            this.$element = $element;
+                this.$scope = $scope;
+                this.$element = $element;
 
-            this.api = new GanttApi(this);
+                this.api = new GanttApi(this);
 
-            this.api.registerEvent('core', 'ready');
+                this.api.registerEvent('core', 'ready');
 
-            this.api.registerEvent('directives', 'preLink');
-            this.api.registerEvent('directives', 'postLink');
-            this.api.registerEvent('directives', 'new');
-            this.api.registerEvent('directives', 'destroy');
+                this.api.registerEvent('directives', 'preLink');
+                this.api.registerEvent('directives', 'postLink');
+                this.api.registerEvent('directives', 'new');
+                this.api.registerEvent('directives', 'destroy');
 
-            this.api.registerEvent('data', 'load');
-            this.api.registerEvent('data', 'remove');
-            this.api.registerEvent('data', 'clear');
+                this.api.registerEvent('data', 'load');
+                this.api.registerEvent('data', 'remove');
+                this.api.registerEvent('data', 'clear');
 
-            this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
-            this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
+                this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
+                this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
 
-            this.api.registerMethod('data', 'load', this.loadData, this);
-            this.api.registerMethod('data', 'remove', this.removeData, this);
-            this.api.registerMethod('data', 'clear', this.clearData, this);
-            this.api.registerMethod('data', 'get', this.getData, this);
+                this.api.registerMethod('data', 'load', this.loadData, this);
+                this.api.registerMethod('data', 'remove', this.removeData, this);
+                this.api.registerMethod('data', 'clear', this.clearData, this);
+                this.api.registerMethod('data', 'get', this.getData, this);
 
-            this.calendar = new Calendar(this);
-            this.calendar.registerTimeFrames(this.$scope.timeFrames);
-            this.calendar.registerDateFrames(this.$scope.dateFrames);
+                this.calendar = new Calendar(this);
+                this.calendar.registerTimeFrames(this.$scope.timeFrames);
+                this.calendar.registerDateFrames(this.$scope.dateFrames);
 
-            this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
-            this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
-            this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+                this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+                this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
-            $scope.$watchGroup(['timeFrames', 'dateFrames'], function(newValues, oldValues) {
-                if (newValues !== oldValues) {
-                    var timeFrames = newValues[0];
-                    var dateFrames = newValues[1];
+                $scope.$watchGroup(['timeFrames', 'dateFrames'], function(newValues, oldValues) {
+                    if (newValues !== oldValues) {
+                        var timeFrames = newValues[0];
+                        var dateFrames = newValues[1];
 
-                    var oldTimeFrames = oldValues[0];
-                    var oldDateFrames = oldValues[1];
+                        var oldTimeFrames = oldValues[0];
+                        var oldDateFrames = oldValues[1];
 
-                    if (!angular.equals(timeFrames, oldTimeFrames)) {
-                        self.calendar.clearTimeFrames();
-                        self.calendar.registerTimeFrames(timeFrames);
+                        if (!angular.equals(timeFrames, oldTimeFrames)) {
+                            self.calendar.clearTimeFrames();
+                            self.calendar.registerTimeFrames(timeFrames);
+                        }
+
+                        if (!angular.equals(dateFrames, oldDateFrames)) {
+                            self.calendar.clearDateFrames();
+                            self.calendar.registerDateFrames(dateFrames);
+                        }
+
+                        self.columnsManager.generateColumns();
+                    }
+                });
+
+                this.scroll = new Scroll(this);
+                this.body = new Body(this);
+                this.rowHeader = new RowHeader(this);
+                this.header = new Header(this);
+                this.labels = new Labels(this);
+
+                this.objectModel = new ObjectModel(this.api);
+
+                this.rowsManager = new RowsManager(this);
+                this.columnsManager = new ColumnsManager(this);
+                this.timespansManager = new TimespansManager(this);
+                this.currentDateManager = new CurrentDateManager(this);
+
+                this.originalWidth = 0;
+                this.width = 0;
+
+                if (angular.isFunction(this.$scope.api)) {
+                    this.$scope.api(this.api);
+                }
+
+                this.$scope.$watchCollection('data', function(newData, oldData) {
+                    var toRemoveIds = arrays.getRemovedIds(newData, oldData);
+
+                    for (var i = 0, l = toRemoveIds.length; i < l; i++) {
+                        var toRemoveId = toRemoveIds[i];
+                        self.rowsManager.removeRow(toRemoveId);
                     }
 
-                    if (!angular.equals(dateFrames, oldDateFrames)) {
-                        self.calendar.clearDateFrames();
-                        self.calendar.registerDateFrames(dateFrames);
+                    if (newData !== undefined) {
+                        self.loadData(newData);
                     }
+                });
+            };
 
-                    self.columnsManager.generateColumns();
+            // Returns the exact column date at the given position x (in em)
+            Gantt.prototype.getDateByPosition = function(x, magnet) {
+                var column = this.columnsManager.getColumnByPosition(x);
+                if (column !== undefined) {
+                    return column.getDateByPosition(x - column.left, magnet);
+                } else {
+                    return undefined;
                 }
-            });
+            };
 
-            this.scroll = new Scroll(this);
-            this.body = new Body(this);
-            this.rowHeader = new RowHeader(this);
-            this.header = new Header(this);
-            this.labels = new Labels(this);
-
-            this.objectModel = new ObjectModel(this.api);
-
-            this.rowsManager = new RowsManager(this);
-            this.columnsManager = new ColumnsManager(this);
-            this.timespansManager = new TimespansManager(this);
-            this.currentDateManager = new CurrentDateManager(this);
-
-            this.originalWidth = 0;
-            this.width = 0;
-
-            if (angular.isFunction(this.$scope.api)) {
-                this.$scope.api(this.api);
-            }
-
-            this.$scope.$watchCollection('data', function(newData, oldData) {
-                var toRemoveIds = arrays.getRemovedIds(newData, oldData);
-
-                for (var i= 0, l=toRemoveIds.length; i<l; i++) {
-                    var toRemoveId = toRemoveIds[i];
-                    self.rowsManager.removeRow(toRemoveId);
+            // Returns the position inside the Gantt calculated by the given date
+            Gantt.prototype.getPositionByDate = function(date) {
+                if (date === undefined) {
+                    return undefined;
                 }
 
-                if (newData !== undefined) {
-                    self.loadData(newData);
+                if (!moment.isMoment(moment)) {
+                    date = moment(date);
                 }
-            });
-        };
 
-        // Returns the exact column date at the given position x (in em)
-        Gantt.prototype.getDateByPosition = function(x, magnet) {
-            var column = this.columnsManager.getColumnByPosition(x);
-            if (column !== undefined) {
-                return column.getDateByPosition(x - column.left, magnet);
-            } else {
-                return undefined;
-            }
-        };
+                var column = this.columnsManager.getColumnByDate(date);
+                if (column !== undefined) {
+                    return column.getPositionByDate(date);
+                } else {
+                    return undefined;
+                }
+            };
 
-        // Returns the position inside the Gantt calculated by the given date
-        Gantt.prototype.getPositionByDate = function(date) {
-            if (date === undefined) {
-                return undefined;
-            }
+            // Adds or update rows and tasks.
+            Gantt.prototype.loadData = function(data) {
+                if (!angular.isArray(data)) {
+                    data = data !== undefined ? [data] : [];
+                }
 
-            if (!moment.isMoment(moment)) {
-                date = moment(date);
-            }
+                if (this.$scope.data === undefined) {
+                    this.$scope.data = [];
+                }
+                for (var i = 0, l = data.length; i < l; i++) {
+                    var rowData = data[i];
+                    this.rowsManager.addRow(rowData);
+                }
+                this.api.data.raise.load(this.$scope, data);
+            };
 
-            var column = this.columnsManager.getColumnByDate(date);
-            if (column !== undefined) {
-                return column.getPositionByDate(date);
-            } else {
-                return undefined;
-            }
-        };
+            Gantt.prototype.getData = function() {
+                return this.$scope.data;
+            };
 
-        // Adds or update rows and tasks.
-        Gantt.prototype.loadData = function(data) {
-            if (!angular.isArray(data)) {
-                data = data !== undefined ? [data] : [];
-            }
+            // Removes specified rows or tasks.
+            // If a row has no tasks inside the complete row will be deleted.
+            Gantt.prototype.removeData = function(data) {
+                if (!angular.isArray(data)) {
+                    data = data !== undefined ? [data] : [];
+                }
 
-            if (this.$scope.data === undefined) {
-                this.$scope.data = [];
-            }
-            for (var i = 0, l = data.length; i < l; i++) {
-                var rowData = data[i];
-                this.rowsManager.addRow(rowData);
-            }
-            this.api.data.raise.load(this.$scope, data);
-        };
+                this.rowsManager.removeData(data);
+                this.api.data.raise.remove(this.$scope, data);
+            };
 
-        Gantt.prototype.getData = function() {
-            return this.$scope.data;
-        };
+            // Removes all rows and tasks
+            Gantt.prototype.clearData = function() {
+                this.rowsManager.removeAll();
+                this.api.data.raise.clear(this.$scope);
+            };
 
-        // Removes specified rows or tasks.
-        // If a row has no tasks inside the complete row will be deleted.
-        Gantt.prototype.removeData = function(data) {
-            if (!angular.isArray(data)) {
-                data = data !== undefined ? [data] : [];
-            }
-
-            this.rowsManager.removeData(data);
-            this.api.data.raise.remove(this.$scope, data);
-        };
-
-        // Removes all rows and tasks
-        Gantt.prototype.clearData = function() {
-            this.rowsManager.removeAll();
-            this.api.data.raise.clear(this.$scope);
-        };
-
-        return Gantt;
-    }]);
+            return Gantt;
+        }]);
+}());

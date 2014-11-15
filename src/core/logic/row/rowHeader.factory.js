@@ -1,7 +1,10 @@
-'use strict';
-gantt.factory('GanttRowHeader', [function() {
-    var RowHeader = function(gantt) {
-        this.gantt = gantt;
-    };
-    return RowHeader;
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttRowHeader', [function() {
+        var RowHeader = function(gantt) {
+            this.gantt = gantt;
+        };
+        return RowHeader;
+    }]);
+}());
+

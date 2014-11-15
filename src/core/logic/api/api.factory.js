@@ -1,9 +1,8 @@
-'use strict';
 // This file is adapted from Angular UI ngGrid project
 // MIT License
 // https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.12/src/js/core/factories/GridApi.js
 (function() {
-
+    'use strict';
     angular.module('gantt')
         .factory('GanttApi', ['$q', '$rootScope', 'ganttUtils',
             function($q, $rootScope, utils) {

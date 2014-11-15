@@ -1,4 +1,5 @@
 'use strict';
+/*jshint globalstrict: true */
 /*jshint undef:false */
 /*jshint camelcase:false */
 module.exports = function(grunt) {
@@ -24,19 +25,13 @@ module.exports = function(grunt) {
             options: {
                 separator: '\n',
                 sourceMap: true,
-                // Replace all 'use strict' statements in the code with a single one at the top
                 banner: '/*\n' +
                 'Project: angular-gantt for AngularJS\n' +
                 'Author: Marco Schweighauser\n' +
                 'Contributors: Rémi Alvergnat\n' +
                 'License: MIT.\n' +
                 'Github: https://github.com/angular-gantt/angular-gantt\n' +
-                '*/\n' +
-                '\'use strict\';\n',
-                process: function(src) {
-                    return src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1\n')
-                        .replace(/(^|\n)[ \t]*(\/\*\s*global\s+.*?:\s+.*?\*\/);?\s*/g, '$1\n');
-                }
+                '*/\n'
             },
             core: {
                 src: ['src/core/*.js', 'src/core/**/*.js', '.tmp/generated/core/**/*.js'],
