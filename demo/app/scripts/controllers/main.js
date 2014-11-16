@@ -119,43 +119,39 @@ angular.module('angularGanttDemoApp')
                     // `data` attribute could have been used too.
                     $scope.load();
 
-
                     // Add some DOM events
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttTask') {
                             element.bind('click', function() {
                                 logTaskEvent('task-click', directiveScope.task);
                             });
-                            element.bind('mousedown', function(event) {
-                                $scope.$evalAsync(function() {
-                                    event.stopPropagation();
-                                    $scope.live.row = directiveScope.task.row.model;
-                                    if (directiveScope.task.originalModel !== undefined) {
-                                        $scope.live.task = directiveScope.task.originalModel;
-                                    } else {
-                                        $scope.live.task = directiveScope.task.model;
-                                    }
-                                });
+                            element.bind('mousedown touchstart', function(event) {
+                                event.stopPropagation();
+                                $scope.live.row = directiveScope.task.row.model;
+                                if (directiveScope.task.originalModel !== undefined) {
+                                    $scope.live.task = directiveScope.task.originalModel;
+                                } else {
+                                    $scope.live.task = directiveScope.task.model;
+                                }
+                                $scope.$digest();
                             });
                         } else if (directiveName === 'ganttRow') {
                             element.bind('click', function() {
                                 logRowEvent('row-click', directiveScope.row);
                             });
-                            element.bind('mousedown', function(event) {
-                                $scope.$evalAsync(function() {
-                                    event.stopPropagation();
-                                    $scope.live.row = directiveScope.row.model;
-                                });
+                            element.bind('mousedown touchstart', function(event) {
+                                event.stopPropagation();
+                                $scope.live.row = directiveScope.row.model;
+                                $scope.$digest();
                             });
                         } else if (directiveName === 'ganttRowLabel') {
                             element.bind('click', function() {
                                 logRowEvent('row-label-click', directiveScope.row);
                             });
-                            element.bind('mousedown', function(event) {
-                                $scope.$evalAsync(function() {
-                                    event.stopPropagation();
-                                    $scope.live.row = directiveScope.row.model;
-                                });
+                            element.bind('mousedown touchstart', function(event) {
+                                event.stopPropagation();
+                                $scope.live.row = directiveScope.row.model;
+                                $scope.$digest();
                             });
                         }
                     });

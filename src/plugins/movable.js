@@ -1,7 +1,7 @@
 (function(){
     'use strict';
-    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttDebounce', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
-        function(mouseButton, mouseOffset, debounce, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
             return {
                 restrict: 'E',
@@ -32,6 +32,11 @@
                     api.registerEvent('tasks', 'resizeEnd');
                     api.registerEvent('tasks', 'change');
 
+                    var _hasTouch = ('ontouchstart' in $window) || $window.DocumentTouch && $document[0] instanceof $window.DocumentTouch
+                    var _pressEvents = 'touchstart mousedown';
+                    var _moveEvents = 'touchmove mousemove';
+                    var _releaseEvents = 'touchend mouseup';
+
                     api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                         if (directiveName === 'ganttTask') {
                             var resizeAreaWidthBig = 5;
@@ -48,30 +53,37 @@
                             var moveStartX;
                             var scrollInterval;
 
-                            taskElement.bind('mousedown', function(evt) {
+                            taskElement.on(_pressEvents, function(evt) {
+                                evt.preventDefault();
+                                if (_hasTouch) {
+                                    evt = mouseOffset.toMouseEvent(evt);
+                                }
                                 var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
                                 if (enabled) {
-                                    taskScope.$apply(function() {
-                                        var mode = getMoveMode(evt);
-                                        if (mode !== '' && mouseButton.getButton(evt) === 1) {
-                                            var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
-                                            enableMoveMode(mode, offsetX, evt);
-                                        }
-                                    });
+                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var mode = getMoveMode(taskOffsetX);
+                                    if (mode !== '' && mouseButton.getButton(evt) === 1) {
+                                        var bodyOffsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
+                                        enableMoveMode(mode, bodyOffsetX);
+                                    }
+                                    taskScope.$digest();
                                 }
                             });
 
-                            taskElement.bind('mousemove', debounce(function(e) {
-                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
-                                if (enabled) {
-                                    var mode = getMoveMode(e);
-                                    if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
-                                        taskElement.css('cursor', getCursor(mode));
-                                    } else {
-                                        taskElement.css('cursor', '');
+                            if (!_hasTouch) {
+                                taskElement.on('mousemove', function(evt) {
+                                    var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                    if (enabled) {
+                                        var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                        var mode = getMoveMode(taskOffsetX);
+                                        if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                            taskElement.css('cursor', getCursor(mode));
+                                        } else {
+                                            taskElement.css('cursor', '');
+                                        }
                                     }
-                                }
-                            }, 5));
+                                });
+                            }
 
                             var handleMove = function(mode, evt) {
                                 moveTask(mode, evt);
@@ -79,6 +91,7 @@
                             };
 
                             var moveTask = function(mode, evt) {
+
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
@@ -90,9 +103,12 @@
 
                                         var targetScope = utils.scopeFromPoint(scrollRect.left, evt.clientY);
                                         var targetRow = targetScope.row;
+                                        var sourceRow = taskScope.task.row;
 
-                                        if (targetRow !== undefined && taskScope.task.row.model.id !== targetRow.model.id) {
+                                        if (targetRow !== undefined && sourceRow !== targetRow) {
                                             targetRow.moveTaskToRow(taskScope.task, true);
+                                            sourceRow.$element.scope().$digest();
+                                            targetRow.$element.scope().$digest();
                                         }
                                     }
 
@@ -107,6 +123,7 @@
                                             }
                                         }
                                         taskScope.task.moveTo(x);
+                                        taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
                                     }
                                 } else if (mode === 'E') {
@@ -118,6 +135,7 @@
                                         }
                                     }
                                     taskScope.task.setTo(x);
+                                    taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 } else {
                                     if (taskScope.taskOutOfRange !== 'truncate') {
@@ -128,6 +146,7 @@
                                         }
                                     }
                                     taskScope.task.setFrom(x);
+                                    taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 }
 
@@ -172,9 +191,7 @@
                                 }
                             };
 
-                            var getMoveMode = function(e) {
-                                var x = mouseOffset.getOffset(e).x;
-
+                            var getMoveMode = function(x) {
                                 var distance = 0;
 
                                 var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
@@ -237,7 +254,11 @@
                                 mouseOffsetInEm = x - taskScope.task.modelLeft;
 
                                 // Add move event handlers
-                                var taskMoveHandler = debounce(function(evt) {
+                                var taskMoveHandler = function(evt) {
+                                    evt.stopImmediatePropagation();
+                                    if (_hasTouch) {
+                                        evt = mouseOffset.toMouseEvent(evt);
+                                    }
                                     if (taskScope.task.isMoving) {
                                         // As this function is defered, disableMoveMode may have been called before.
                                         // Without this check, task.changed event is not fired for faster moves.
@@ -245,14 +266,17 @@
                                         clearScrollInterval();
                                         handleMove(mode, evt);
                                     }
-                                }, 5);
-                                smartEvent(taskScope, windowElement, 'mousemove', taskMoveHandler).bind();
+                                };
+                                var moveSmartEvent = smartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
+                                moveSmartEvent.bind();
 
-                                smartEvent(taskScope, windowElement, 'mouseup', function(evt) {
-                                    taskScope.$apply(function() {
-                                        windowElement.unbind('mousemove', taskMoveHandler);
-                                        disableMoveMode(evt);
-                                    });
+                                smartEvent(taskScope, windowElement, _releaseEvents, function(evt) {
+                                    if (_hasTouch) {
+                                        evt = mouseOffset.toMouseEvent(evt);
+                                    }
+                                    moveSmartEvent.unbind();
+                                    disableMoveMode(evt);
+                                    taskScope.$digest();
                                 }).bindOnce();
 
                                 // Show mouse move/resize cursor
@@ -281,6 +305,8 @@
                                     }
                                     delete taskScope.task.originalModel;
                                     delete taskScope.task.originalRow;
+
+                                    taskScope.$apply();
                                 }
 
                                 taskScope.task.isMoving = false;

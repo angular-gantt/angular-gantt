@@ -3826,6 +3826,9 @@ Github: https://github.com/angular-gantt/angular-gantt
                 e = e || window.event;
 
                 if (!e.which) {
+                    if (e.button === undefined) {
+                        return 1;
+                    }
                     return e.button < 2 ? 1 : e.button === 4 ? 2 : 3;
                 } else {
                     return e.which;
@@ -3841,15 +3844,23 @@ Github: https://github.com/angular-gantt/angular-gantt
         // Mouse offset support for lesser browsers (read IE 8)
 
         return {
+            toMouseEvent: function(evt) {
+                if (evt.touches !== undefined) {
+                    return evt.touches[0];
+                } else if (evt.originalEvent && evt.originalEvent.touches) {
+                    alert("touch");
+                    return evt.originalEvent.touches[0];
+                }
+                return evt;
+            },
             getOffset: function(evt) {
                 if (evt.offsetX && evt.offsetY) {
                     return { x: evt.offsetX, y: evt.offsetY };
                 }
                 if (evt.layerX && evt.layerY) {
                     return { x: evt.layerX, y: evt.layerY };
-                } else {
-                    return this.getOffsetForElement(evt.target, evt);
                 }
+                return this.getOffsetForElement(evt.target, evt);
             },
             getOffsetForElement: function(el, evt) {
                 var bb = el.getBoundingClientRect();

@@ -96,15 +96,13 @@ Github: https://github.com/angular-gantt/angular-gantt
                 });
 
                 $scope.task.$element.bind('mouseenter', function() {
-                    $scope.$apply(function() {
-                        $scope.isTaskMouseOver = true;
-                    });
+                    $scope.isTaskMouseOver = true;
+                    $scope.$digest();
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
-                    $scope.$apply(function() {
-                        $scope.isTaskMouseOver = false;
-                    });
+                    $scope.isTaskMouseOver = false;
+                    $scope.$digest();
                 });
 
                 $scope.getCss = function() {

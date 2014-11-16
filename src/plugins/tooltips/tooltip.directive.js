@@ -54,17 +54,15 @@
                 });
 
                 $scope.task.$element.bind('mouseenter', function(evt) {
-                    $scope.$apply(function() {
-                        $scope.mouseEnterX = evt.clientX;
-                        $scope.isTaskMouseOver = true;
-                    });
+                    $scope.mouseEnterX = evt.clientX;
+                    $scope.isTaskMouseOver = true;
+                    $scope.$digest();
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
-                    $scope.$apply(function() {
-                        $scope.mouseEnterX = undefined;
-                        $scope.isTaskMouseOver = false;
-                    });
+                    $scope.mouseEnterX = undefined;
+                    $scope.isTaskMouseOver = false;
+                    $scope.$digest();
                 });
 
                 var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {

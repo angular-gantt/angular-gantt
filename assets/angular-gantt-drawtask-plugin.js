@@ -1,3 +1,10 @@
+/*
+Project: angular-gantt for AngularJS
+Author: Marco Schweighauser
+Contributors: Rémi Alvergnat
+License: MIT.
+Github: https://github.com/angular-gantt/angular-gantt
+*/
 (function(){
     'use strict';
     angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['ganttMouseOffset', 'moment', function(mouseOffset, moment) {
@@ -48,3 +55,5 @@
     }]);
 }());
 
+
+//# sourceMappingURL=angular-gantt-drawtask-plugin.js.map
