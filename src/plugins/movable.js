@@ -32,7 +32,7 @@
                     api.registerEvent('tasks', 'resizeEnd');
                     api.registerEvent('tasks', 'change');
 
-                    var _hasTouch = ('ontouchstart' in $window) || $window.DocumentTouch && $document[0] instanceof $window.DocumentTouch
+                    var _hasTouch = ('ontouchstart' in $window) || $window.DocumentTouch && $document[0] instanceof $window.DocumentTouch;
                     var _pressEvents = 'touchstart mousedown';
                     var _moveEvents = 'touchmove mousemove';
                     var _releaseEvents = 'touchend mouseup';

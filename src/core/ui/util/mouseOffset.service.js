@@ -7,9 +7,6 @@
             toMouseEvent: function(evt) {
                 if (evt.touches !== undefined) {
                     return evt.touches[0];
-                } else if (evt.originalEvent && evt.originalEvent.touches) {
-                    alert("touch");
-                    return evt.originalEvent.touches[0];
                 }
                 return evt;
             },
