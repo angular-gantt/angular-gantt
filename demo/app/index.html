@@ -190,13 +190,13 @@
                                     </div>
                                     <div class="panel-body">
                                         <div class="live-table">
-                                            <div class="live-cell" ng-show="data.length > 0">
-                                                <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.row" ng-options="r.name for r in data" bs-select></button> (Row object)</h4>
-                                                <textarea class="live-row" ng-model="live.rowJson"></textarea>
-                                            </div>
                                             <div class="live-cell" ng-show="live.row.tasks.length > 0">
-                                                <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.task" ng-options="t.name for t in live.row.tasks" bs-select></button> (Task object)</h4>
+                                                <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.task" ng-options="t as t.name for t in live.row.tasks" bs-select></button> (Task object)</h4>
                                                 <textarea class="live-task" ng-model="live.taskJson"></textarea>
+                                            </div>
+                                            <div class="live-cell" ng-show="data.length > 0">
+                                                <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.row" ng-options="r as r.name for r in data" bs-select></button> (Row object)</h4>
+                                                <textarea class="live-row" ng-model="live.rowJson"></textarea>
                                             </div>
                                         </div>
                                     </div>

@@ -126,17 +126,24 @@ angular.module('angularGanttDemoApp')
                             element.bind('click', function() {
                                 logTaskEvent('task-click', directiveScope.task);
                             });
-                            element.bind('task-mousedown', function() {
+                            element.bind('mousedown', function(event) {
                                 $scope.$evalAsync(function() {
-                                    $scope.live.task = directiveScope.task.model;
+                                    event.stopPropagation();
+                                    $scope.live.row = directiveScope.task.row.model;
+                                    if (directiveScope.task.originalModel !== undefined) {
+                                        $scope.live.task = directiveScope.task.originalModel;
+                                    } else {
+                                        $scope.live.task = directiveScope.task.model;
+                                    }
                                 });
                             });
                         } else if (directiveName === 'ganttRow') {
                             element.bind('click', function() {
                                 logRowEvent('row-click', directiveScope.row);
                             });
-                            element.bind('mousedown', function() {
+                            element.bind('mousedown', function(event) {
                                 $scope.$evalAsync(function() {
+                                    event.stopPropagation();
                                     $scope.live.row = directiveScope.row.model;
                                 });
                             });
@@ -144,8 +151,9 @@ angular.module('angularGanttDemoApp')
                             element.bind('click', function() {
                                 logRowEvent('row-label-click', directiveScope.row);
                             });
-                            element.bind('mousedown', function() {
+                            element.bind('mousedown', function(event) {
                                 $scope.$evalAsync(function() {
+                                    event.stopPropagation();
                                     $scope.live.row = directiveScope.row.model;
                                 });
                             });
@@ -200,16 +208,17 @@ angular.module('angularGanttDemoApp')
 
         var debounceValue = 1000;
 
-        $scope.$watch('live.taskJson', debounce(function(taskJson) {
+        var listenTaskJson = debounce(function(taskJson) {
             if (taskJson !== undefined) {
                 var task = angular.fromJson(taskJson);
                 objectModel.cleanTask(task);
                 var model = $scope.live.task;
                 angular.extend(model, task);
             }
-        }, debounceValue));
+        }, debounceValue);
+        $scope.$watch('live.taskJson', listenTaskJson);
 
-        $scope.$watch('live.rowJson', debounce(function(rowJson) {
+        var listenRowJson = debounce(function(rowJson) {
             if (rowJson !== undefined) {
                 var row = angular.fromJson(rowJson);
                 objectModel.cleanRow(row);
@@ -254,7 +263,8 @@ angular.module('angularGanttDemoApp')
                     rowModel.tasks.push(newTask);
                 });
             }
-        }, debounceValue));
+        }, debounceValue);
+        $scope.$watch('live.rowJson', listenRowJson);
 
         $scope.$watchCollection('live.task', function(task) {
             $scope.live.taskJson = angular.toJson(task, true);
@@ -263,19 +273,13 @@ angular.module('angularGanttDemoApp')
 
         $scope.$watchCollection('live.row', function(row) {
             $scope.live.rowJson = angular.toJson(row, true);
+            if (row !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
+                $scope.live.task = (row.tasks === undefined || row.tasks.length <= 0) ? undefined : row.tasks[0];
+            }
         });
 
         $scope.$watchCollection('live.row.tasks', function() {
             $scope.live.rowJson = angular.toJson($scope.live.row, true);
-            if ($scope.live.row.tasks.indexOf($scope.live.task) < 0) {
-                $scope.live.task = undefined;
-            }
-        });
-
-        $scope.$watch('live.row', function(row) {
-            if ($scope.live.row.tasks.indexOf($scope.live.task) < 0) {
-                $scope.live.task = (row.tasks === undefined || row.tasks.length < 0) ? undefined : row.tasks[0];
-            }
         });
 
         // Event handler
