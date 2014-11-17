@@ -1,6 +1,6 @@
 # angular-gantt [![npm version](http://img.shields.io/npm/v/angular-gantt.svg)](https://npmjs.org/package/angular-gantt) [![build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg)](https://travis-ci.org/angular-gantt/angular-gantt)
 
-##The gantt chart directive for AngularJS
+##Gantt chart component for AngularJS
 
 ## Demo project
 

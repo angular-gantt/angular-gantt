@@ -1,12 +1,12 @@
 {
   "name": "angular-gantt",
-  "version": "0.7.0",
+  "version": "1.0.0-rc1",
   "homepage": "https://github.com/angular-gantt/angular-gantt",
   "authors": [
     "Marco Schweighauser",
     "Rémi Alvergnat <toilal.dev@gmail.com> (http://www.pragmasphere.com)"
   ],
-  "description": "The gantt chart directive for AngularJS",
+  "description": "Gantt chart component for AngularJS",
   "main": [
     "./assets/angular-gantt.js",
     "./assets/angular-gantt.css",

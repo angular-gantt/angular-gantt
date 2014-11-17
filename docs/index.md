@@ -1,6 +1,6 @@
 # angular-gantt
 
-## The gantt chart directive for AngularJS
+## Gantt chart component for AngularJS
 
 angular-gantt provides a gantt chart component to your [AngularJS](https://angularjs.org/) application.
 
@@ -10,7 +10,7 @@ angular-gantt provides a gantt chart component to your [AngularJS](https://angul
 
 ## Try now
 
-Try angular-gantt now using the [Demo Application](http://angular-gantt.github.io/angular-gantt).
+Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com/demo).
 
 ## Features
 - Two-way data binding between model and view.

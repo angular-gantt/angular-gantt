@@ -1,7 +1,7 @@
 {
   "name": "angular-gantt",
-  "version": "0.7.0",
-  "description": "The gantt chart directive for AngularJS",
+  "version": "1.0.0-rc1",
+  "description": "Gantt chart component for AngularJS",
   "author": "Marco Schweighauser",
   "contributors": [
     "Rémi Alvergnat <toilal.dev@gmail.com> (http://www.pragmasphere.com)"
@@ -21,9 +21,9 @@
     "grunt-karma": "^0.9.0",
     "grunt-karma-coveralls": "^2.5.2",
     "jshint-stylish": "^1.0.0",
-    "karma": "^0.12.24",
+    "karma": "^0.12.25",
     "karma-coverage": "^0.2.6",
-    "karma-jasmine": "^0.2.3",
+    "karma-jasmine": "^0.3.0",
     "karma-phantomjs-launcher": "^0.1.4",
     "grunt-contrib-cssmin": "^0.10.0"
   }
