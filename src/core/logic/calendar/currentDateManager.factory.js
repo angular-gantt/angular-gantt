@@ -18,15 +18,19 @@
         GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
             this.date = currentDate;
             if (this.currentDateColumn !== undefined) {
-                this.currentDateColumn.currentDate = undefined;
+                if (this.currentDateColumn.$element !== undefined) {
+                    this.currentDateColumn.$element.removeClass('gantt-foreground-col-current-date');
+                }
                 delete this.currentDateColumn;
             }
 
             if (this.date !== undefined) {
                 var column = this.gantt.columnsManager.getColumnByDate(this.date);
                 if (column !== undefined) {
-                    column.currentDate = this.date;
                     this.currentDateColumn = column;
+                    if (this.gantt.$scope.currentDate === 'column' && this.currentDateColumn.$element !== undefined) {
+                        this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
+                    }
                 }
             }
 

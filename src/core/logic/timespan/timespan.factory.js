@@ -10,6 +10,14 @@
         Timespan.prototype.updatePosAndSize = function() {
             this.left = this.gantt.getPositionByDate(this.model.from);
             this.width = this.gantt.getPositionByDate(this.model.to) - this.left;
+            this.updateView();
+        };
+
+        Timespan.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
         };
 
         // Expands the start of the timespan to the specified position (in em)

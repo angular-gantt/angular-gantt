@@ -42,6 +42,15 @@
                 this.left = this.left + this.width;
                 this.width = -this.width;
             }
+
+            this.updateView();
+        };
+
+        Task.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
         };
 
         // Expands the start of the task to the specified position (in em)

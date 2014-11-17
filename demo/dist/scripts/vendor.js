@@ -36533,6 +36533,34 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.classes = options.classes;
         };
 
+        TimeFrame.prototype.updateView = function() {
+            if (this.$element) {
+                if (this.left !== undefined) {
+                    this.$element.css('left', this.left + 'px');
+                } else {
+                    this.$element.css('left', '');
+                }
+                if (this.width !== undefined) {
+                    this.$element.css('width', this.width + 'px');
+                } else {
+                    this.$element.css('width', '');
+                }
+
+                if (this.color !== undefined) {
+                    this.$element.css('background-color', this.color);
+                } else {
+                    this.$element.css('background-color', '');
+                }
+
+                var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
+                if (this.classes) {
+                    classes = classes.concat(this.classes);
+                }
+                for (var i= 0, l=classes.length; i<l; i++) {
+                    this.$element.toggleClass(classes[i], true);
+                }
+            }
+        };
 
         TimeFrame.prototype.getDuration = function() {
             return this.end.diff(this.start, 'milliseconds');
@@ -36937,15 +36965,19 @@ Github: https://github.com/angular-gantt/angular-gantt
         GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
             this.date = currentDate;
             if (this.currentDateColumn !== undefined) {
-                this.currentDateColumn.currentDate = undefined;
+                if (this.currentDateColumn.$element !== undefined) {
+                    this.currentDateColumn.$element.removeClass('gantt-foreground-col-current-date');
+                }
                 delete this.currentDateColumn;
             }
 
             if (this.date !== undefined) {
                 var column = this.gantt.columnsManager.getColumnByDate(this.date);
                 if (column !== undefined) {
-                    column.currentDate = this.date;
                     this.currentDateColumn = column;
+                    if (this.gantt.$scope.currentDate === 'column' && this.currentDateColumn.$element !== undefined) {
+                        this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
+                    }
                 }
             }
 
@@ -36978,10 +37010,22 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.columnMagnetUnit = columnMagnetUnit;
             this.originalSize = {left: this.left, width: this.width};
             this.updateTimeFrames();
+            this.updateView();
         };
 
         var getDateKey = function(date) {
             return date.year() + '-' + date.month() + '-' + date.date();
+        };
+
+        Column.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+
+                for (var i= 0, l = this.timeFrames.length; i<l;i++) {
+                    this.timeFrames[i].updateView();
+                }
+            }
         };
 
         Column.prototype.updateTimeFrames = function() {
@@ -37058,6 +37102,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                     timeFrame.left = position;
                     timeFrame.width = timeFramePosition;
                     timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
+                    timeFrame.updateView();
                 });
 
                 if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
@@ -37093,6 +37138,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                                 timeFrame.originalSize = {left: undefined, width: 0};
                                 timeFrame.cropped = true;
                             }
+                            timeFrame.updateView();
                         });
 
                         self.cropped = allCropped;
@@ -37337,7 +37383,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', 'ganttLayout', 'ganttBinarySearch', function(ColumnGenerator, HeaderGenerator, $filter, layout, bs) {
+    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', function(ColumnGenerator, HeaderGenerator, $filter, $timeout, layout, bs) {
         var ColumnsManager = function(gantt) {
             var self = this;
 
@@ -37631,6 +37677,16 @@ Github: https://github.com/angular-gantt/angular-gantt
             angular.forEach(this.headers, function(header) {
                 this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
             }, this);
+
+            angular.forEach(this.visibleColumns, function(c) {
+                c.updateView();
+            });
+
+            angular.forEach(this.visibleHeaders, function(headerRow) {
+                angular.forEach(headerRow, function(header) {
+                    header.updateView();
+                });
+            });
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
@@ -38614,6 +38670,15 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.left = this.left + this.width;
                 this.width = -this.width;
             }
+
+            this.updateView();
+        };
+
+        Task.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
         };
 
         // Expands the start of the task to the specified position (in em)
@@ -38820,6 +38885,14 @@ Github: https://github.com/angular-gantt/angular-gantt
         Timespan.prototype.updatePosAndSize = function() {
             this.left = this.gantt.getPositionByDate(this.model.from);
             this.width = this.gantt.getPositionByDate(this.model.to) - this.left;
+            this.updateView();
+        };
+
+        Timespan.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
         };
 
         // Expands the start of the timespan to the specified position (in em)
@@ -39624,6 +39697,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttColumn');
         builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
+            $scope.column.updateView();
         };
         return builder.build();
     }]);
@@ -39634,6 +39708,10 @@ Github: https://github.com/angular-gantt/angular-gantt
     'use strict';
     angular.module('gantt').directive('ganttColumnHeader', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttColumnHeader');
+        builder.controller = function($scope, $element) {
+            $scope.column.$element = $element;
+            $scope.column.updateView();
+        };
         return builder.build();
     }]);
 }());
@@ -39776,15 +39854,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTimeFrame');
         builder.controller = function($scope, $element) {
             $scope.timeFrame.$element = $element;
-
-            $scope.getClass = function() {
-                var classes = ['gantt-timeframe' + ($scope.timeFrame.working ? '' : '-non') + '-working'];
-
-                if ($scope.timeFrame.classes) {
-                    classes = classes.concat($scope.timeFrame.classes);
-                }
-                return classes;
-            };
+            $scope.timeFrame.updateView();
         };
         return builder.build();
     }]);
@@ -39797,6 +39867,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTimespan');
         builder.controller = function($scope, $element) {
             $scope.timespan.$element = $element;
+            $scope.timespan.updateView();
         };
         return builder.build();
     }]);
@@ -40061,7 +40132,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <gantt-header-columns>\n' +
         '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
         '                <div class="gantt-header-row" ng-class="$last && \'gantt-header-row-last\' || \'\'">\n' +
-        '                    <div ng-repeat="column in header track by $index">\n' +
+        '                    <div ng-repeat="column in header">\n' +
         '                        <gantt-column-header ></gantt-column-header>\n' +
         '                    </div>\n' +
         '                </div>\n' +
@@ -40079,7 +40150,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
         '            </gantt-body-foreground>\n' +
         '            <gantt-body-columns>\n' +
-        '                <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">\n' +
+        '                <div ng-repeat="column in gantt.columnsManager.visibleColumns">\n' +
         '                    <gantt-column>\n' +
         '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
         '                            <gantt-time-frame></gantt-time-frame>\n' +
@@ -40113,8 +40184,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body"\n' +
-        '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
@@ -40175,8 +40245,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">\n' +
-        '        <div class="gantt-column-header"\n' +
-        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}">\n' +
+        '        <div class="gantt-column-header">\n' +
         '            {{ ::column.label }}\n' +
         '        </div>\n' +
         '    </script>\n' +
@@ -40207,15 +40276,11 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttColumn.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-column"\n' +
-        '             ng-class="(column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\'"\n' +
-        '             ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-column gantt-foreground-col"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTimeFrame.tmpl.html">\n' +
-        '        <div class="gantt-timeframe"\n' +
-        '             ng-class="getClass()"\n' +
-        '             ng-style="{\'left\': timeFrame.left + \'px\', \'width\': timeFrame.width + \'px\', \'background-color\': timeFrame.color && timeFrame.color || \'\'}"></div>\n' +
+        '        <div class="gantt-timeframe"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Scrollable template -->\n' +
@@ -40232,7 +40297,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Timespan template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
         '        <div class="gantt-timespan"\n' +
-        '             ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'px\', \'width\': timespan.width +\'px\', \'z-index\': (timespan.priority || 0)}"\n' +
+        '             ng-style="{\'z-index\': (timespan.priority || 0)}"\n' +
         '             ng-class="timespan.classes">\n' +
         '        </div>\n' +
         '    </script>\n' +
@@ -40240,7 +40305,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
-        '             ng-style="{\'left\': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
+        '             ng-style="{\'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +

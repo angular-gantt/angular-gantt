@@ -20,10 +20,22 @@
             this.columnMagnetUnit = columnMagnetUnit;
             this.originalSize = {left: this.left, width: this.width};
             this.updateTimeFrames();
+            this.updateView();
         };
 
         var getDateKey = function(date) {
             return date.year() + '-' + date.month() + '-' + date.date();
+        };
+
+        Column.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+
+                for (var i= 0, l = this.timeFrames.length; i<l;i++) {
+                    this.timeFrames[i].updateView();
+                }
+            }
         };
 
         Column.prototype.updateTimeFrames = function() {
@@ -100,6 +112,7 @@
                     timeFrame.left = position;
                     timeFrame.width = timeFramePosition;
                     timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
+                    timeFrame.updateView();
                 });
 
                 if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
@@ -135,6 +148,7 @@
                                 timeFrame.originalSize = {left: undefined, width: 0};
                                 timeFrame.cropped = true;
                             }
+                            timeFrame.updateView();
                         });
 
                         self.cropped = allCropped;

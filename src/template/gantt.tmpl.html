@@ -13,7 +13,7 @@
         <gantt-header-columns>
             <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
                 <div class="gantt-header-row" ng-class="$last && 'gantt-header-row-last' || ''">
-                    <div ng-repeat="column in header track by $index">
+                    <div ng-repeat="column in header">
                         <gantt-column-header ></gantt-column-header>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                 <div class="gantt-current-date-line" ng-if="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
             </gantt-body-foreground>
             <gantt-body-columns>
-                <div ng-repeat="column in gantt.columnsManager.visibleColumns track by $index">
+                <div ng-repeat="column in gantt.columnsManager.visibleColumns">
                     <gantt-column>
                         <div ng-repeat="timeFrame in column.visibleTimeFrames">
                             <gantt-time-frame></gantt-time-frame>
@@ -65,8 +65,7 @@
 
     <!-- Body template -->
     <script type="text/ng-template" id="template/ganttBody.tmpl.html">
-        <div ng-transclude class="gantt-body"
-             ng-style="{'width': gantt.width +'px'}"></div>
+        <div ng-transclude class="gantt-body"></div>
     </script>
 
     <!-- Header template -->
@@ -127,8 +126,7 @@
     </script>
 
     <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">
-        <div class="gantt-column-header"
-              ng-style="{'left': column.left+'px', 'width': column.width+'px'}">
+        <div class="gantt-column-header">
             {{ ::column.label }}
         </div>
     </script>
@@ -159,15 +157,11 @@
     </script>
 
     <script type="text/ng-template" id="template/ganttColumn.tmpl.html">
-        <div ng-transclude class="gantt-column"
-             ng-class="(column.currentDate && currentDate === 'column') && 'gantt-foreground-col-current-date' || 'gantt-foreground-col'"
-             ng-style="{'left': column.left+'px', 'width': column.width+'px'}"></div>
+        <div ng-transclude class="gantt-column gantt-foreground-col"></div>
     </script>
 
     <script type="text/ng-template" id="template/ganttTimeFrame.tmpl.html">
-        <div class="gantt-timeframe"
-             ng-class="getClass()"
-             ng-style="{'left': timeFrame.left + 'px', 'width': timeFrame.width + 'px', 'background-color': timeFrame.color && timeFrame.color || ''}"></div>
+        <div class="gantt-timeframe"></div>
     </script>
 
     <!-- Scrollable template -->
@@ -184,7 +178,7 @@
     <!-- Timespan template -->
     <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">
         <div class="gantt-timespan"
-             ng-style="{'left': ((timespan.left-0.3) || timespan.left)+'px', 'width': timespan.width +'px', 'z-index': (timespan.priority || 0)}"
+             ng-style="{'z-index': (timespan.priority || 0)}"
              ng-class="timespan.classes">
         </div>
     </script>
@@ -192,7 +186,7 @@
     <!-- Task template -->
     <script type="text/ng-template" id="template/ganttTask.tmpl.html">
         <div ng-class="(task.isMilestone() === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.model.classes)"
-             ng-style="{'left': ((task.isMilestone() === true || task.width === 0) && (task.left-0.3) || task.left)+'px', 'width': task.width +'px', 'z-index': (task.active === true && 1  || task.model.priority || ''), 'background-color': task.model.color}">
+             ng-style="{'z-index': (task.active === true && 1  || task.model.priority || ''), 'background-color': task.model.color}">
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <gantt-task-content></gantt-task-content>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>

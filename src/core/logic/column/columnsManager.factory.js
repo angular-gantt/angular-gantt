@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', 'ganttLayout', 'ganttBinarySearch', function(ColumnGenerator, HeaderGenerator, $filter, layout, bs) {
+    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', function(ColumnGenerator, HeaderGenerator, $filter, $timeout, layout, bs) {
         var ColumnsManager = function(gantt) {
             var self = this;
 
@@ -294,6 +294,16 @@
             angular.forEach(this.headers, function(header) {
                 this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
             }, this);
+
+            angular.forEach(this.visibleColumns, function(c) {
+                c.updateView();
+            });
+
+            angular.forEach(this.visibleHeaders, function(headerRow) {
+                angular.forEach(headerRow, function(header) {
+                    header.updateView();
+                });
+            });
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
