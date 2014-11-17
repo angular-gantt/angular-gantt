@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.0
+ * @license AngularJS v1.3.2
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -37,12 +37,12 @@
 
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
-  return function () {
+  return function() {
     var code = arguments[0],
       prefix = '[' + (module ? module + ':' : '') + code + '] ',
       template = arguments[1],
       templateArgs = arguments,
-      stringify = function (obj) {
+      stringify = function(obj) {
         if (typeof obj === 'function') {
           return obj.toString().replace(/ \{[\s\S]*$/, '');
         } else if (typeof obj === 'undefined') {
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       },
       message, i;
 
-    message = prefix + template.replace(/\{\d+\}/g, function (match) {
+    message = prefix + template.replace(/\{\d+\}/g, function(match) {
       var index = +match.slice(1, -1), arg;
 
       if (index + 2 < templateArgs.length) {
@@ -71,7 +71,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.0/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.2/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -130,12 +130,11 @@ function minErr(module, ErrorConstructor) {
   isBoolean: true,
   isPromiseLike: true,
   trim: true,
+  escapeForRegexp: true,
   isElement: true,
   makeMap: true,
-  size: true,
   includes: true,
   arrayRemove: true,
-  isLeafNode: true,
   copy: true,
   shallowCopy: true,
   equals: true,
@@ -205,7 +204,7 @@ var VALIDITY_STATE_PROPERTY = 'validity';
  * @param {string} string String to be converted to lowercase.
  * @returns {string} Lowercased string.
  */
-var lowercase = function(string){return isString(string) ? string.toLowerCase() : string;};
+var lowercase = function(string) {return isString(string) ? string.toLowerCase() : string;};
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 /**
@@ -218,7 +217,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty;
  * @param {string} string String to be converted to uppercase.
  * @returns {string} Uppercased string.
  */
-var uppercase = function(string){return isString(string) ? string.toUpperCase() : string;};
+var uppercase = function(string) {return isString(string) ? string.toUpperCase() : string;};
 
 
 var manualLowercase = function(s) {
@@ -302,6 +301,11 @@ function isArrayLike(obj) {
  * It is worth noting that `.forEach` does not iterate over inherited properties because it filters
  * using the `hasOwnProperty` method.
  *
+ * Unlike ES262's
+ * [Array.prototype.forEach](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.18),
+ * Providing 'undefined' or 'null' values for `obj` will not throw a TypeError, but rather just
+ * return the value provided.
+ *
    ```js
      var values = {name: 'misko', gender: 'male'};
      var log = [];
@@ -349,18 +353,12 @@ function forEach(obj, iterator, context) {
 }
 
 function sortedKeys(obj) {
-  var keys = [];
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      keys.push(key);
-    }
-  }
-  return keys.sort();
+  return Object.keys(obj).sort();
 }
 
 function forEachSorted(obj, iterator, context) {
   var keys = sortedKeys(obj);
-  for ( var i = 0; i < keys.length; i++) {
+  for (var i = 0; i < keys.length; i++) {
     iterator.call(context, obj[keys[i]], keys[i]);
   }
   return keys;
@@ -415,6 +413,7 @@ function setHashKey(obj, h) {
  * Extends the destination object `dst` by copying own enumerable properties from the `src` object(s)
  * to `dst`. You can specify multiple `src` objects. If you want to preserve original objects, you can do so
  * by passing an empty object as the target: `var object = angular.extend({}, object1, object2)`.
+ * Note: Keep in mind that `angular.extend` does not support recursive merge (deep copy).
  *
  * @param {Object} dst Destination object.
  * @param {...Object} src Source object(s).
@@ -501,7 +500,7 @@ function valueFn(value) {return function() {return value;};}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is undefined.
  */
-function isUndefined(value){return typeof value === 'undefined';}
+function isUndefined(value) {return typeof value === 'undefined';}
 
 
 /**
@@ -516,7 +515,7 @@ function isUndefined(value){return typeof value === 'undefined';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is defined.
  */
-function isDefined(value){return typeof value !== 'undefined';}
+function isDefined(value) {return typeof value !== 'undefined';}
 
 
 /**
@@ -532,7 +531,7 @@ function isDefined(value){return typeof value !== 'undefined';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is an `Object` but not `null`.
  */
-function isObject(value){
+function isObject(value) {
   // http://jsperf.com/isobject4
   return value !== null && typeof value === 'object';
 }
@@ -550,7 +549,7 @@ function isObject(value){
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `String`.
  */
-function isString(value){return typeof value === 'string';}
+function isString(value) {return typeof value === 'string';}
 
 
 /**
@@ -565,7 +564,7 @@ function isString(value){return typeof value === 'string';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
-function isNumber(value){return typeof value === 'number';}
+function isNumber(value) {return typeof value === 'number';}
 
 
 /**
@@ -611,7 +610,7 @@ var isArray = Array.isArray;
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Function`.
  */
-function isFunction(value){return typeof value === 'function';}
+function isFunction(value) {return typeof value === 'function';}
 
 
 /**
@@ -667,6 +666,14 @@ var trim = function(value) {
   return isString(value) ? value.trim() : value;
 };
 
+// Copied from:
+// http://docs.closure-library.googlecode.com/git/local_closure_goog_string_string.js.source.html#line1021
+// Prereq: s is a string.
+var escapeForRegexp = function(s) {
+  return s.replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').
+           replace(/\x08/g, '\\x08');
+};
+
 
 /**
  * @ngdoc function
@@ -692,7 +699,7 @@ function isElement(node) {
  */
 function makeMap(str) {
   var obj = {}, items = str.split(","), i;
-  for ( i = 0; i < items.length; i++ )
+  for (i = 0; i < items.length; i++)
     obj[ items[i] ] = true;
   return obj;
 }
@@ -701,34 +708,6 @@ function makeMap(str) {
 function nodeName_(element) {
   return lowercase(element.nodeName || element[0].nodeName);
 }
-
-
-/**
- * @description
- * Determines the number of elements in an array, the number of properties an object has, or
- * the length of a string.
- *
- * Note: This function is used to augment the Object type in Angular expressions. See
- * {@link angular.Object} for more information about Angular arrays.
- *
- * @param {Object|Array|string} obj Object, array, or string to inspect.
- * @param {boolean} [ownPropsOnly=false] Count only "own" properties in an object
- * @returns {number} The size of `obj` or `0` if `obj` is neither an object nor an array.
- */
-function size(obj, ownPropsOnly) {
-  var count = 0, key;
-
-  if (isArray(obj) || isString(obj)) {
-    return obj.length;
-  } else if (isObject(obj)) {
-    for (key in obj)
-      if (!ownPropsOnly || obj.hasOwnProperty(key))
-        count++;
-  }
-
-  return count;
-}
-
 
 function includes(array, obj) {
   return Array.prototype.indexOf.call(array, obj) != -1;
@@ -739,18 +718,6 @@ function arrayRemove(array, value) {
   if (index >=0)
     array.splice(index, 1);
   return value;
-}
-
-function isLeafNode (node) {
-  if (node) {
-    switch (nodeName_(node)) {
-    case "option":
-    case "pre":
-    case "title":
-      return true;
-    }
-  }
-  return false;
 }
 
 /**
@@ -850,7 +817,7 @@ function copy(source, destination, stackSource, stackDest) {
     var result;
     if (isArray(source)) {
       destination.length = 0;
-      for ( var i = 0; i < source.length; i++) {
+      for (var i = 0; i < source.length; i++) {
         result = copy(source[i], null, stackSource, stackDest);
         if (isObject(source[i])) {
           stackSource.push(source[i]);
@@ -867,8 +834,8 @@ function copy(source, destination, stackSource, stackDest) {
           delete destination[key];
         });
       }
-      for ( var key in source) {
-        if(source.hasOwnProperty(key)) {
+      for (var key in source) {
+        if (source.hasOwnProperty(key)) {
           result = copy(source[key], null, stackSource, stackDest);
           if (isObject(source[key])) {
             stackSource.push(source[key]);
@@ -949,7 +916,7 @@ function equals(o1, o2) {
       if (isArray(o1)) {
         if (!isArray(o2)) return false;
         if ((length = o1.length) == o2.length) {
-          for(key=0; key<length; key++) {
+          for (key=0; key<length; key++) {
             if (!equals(o1[key], o2[key])) return false;
           }
           return true;
@@ -962,12 +929,12 @@ function equals(o1, o2) {
       } else {
         if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) || isArray(o2)) return false;
         keySet = {};
-        for(key in o1) {
+        for (key in o1) {
           if (key.charAt(0) === '$' || isFunction(o1[key])) continue;
           if (!equals(o1[key], o2[key])) return false;
           keySet[key] = true;
         }
-        for(key in o2) {
+        for (key in o2) {
           if (!keySet.hasOwnProperty(key) &&
               key.charAt(0) !== '$' &&
               o2[key] !== undefined &&
@@ -1115,14 +1082,14 @@ function startingTag(element) {
     // turns out IE does not let you set .html() on elements which
     // are not allowed to have children. So we just ignore it.
     element.empty();
-  } catch(e) {}
+  } catch (e) {}
   var elemHtml = jqLite('<div>').append(element).html();
   try {
     return element[0].nodeType === NODE_TYPE_TEXT ? lowercase(elemHtml) :
         elemHtml.
           match(/^(<[^>]+>)/)[1].
           replace(/^<([\w\-]+)/, function(match, nodeName) { return '<' + lowercase(nodeName); });
-  } catch(e) {
+  } catch (e) {
     return lowercase(elemHtml);
   }
 
@@ -1142,7 +1109,7 @@ function startingTag(element) {
 function tryDecodeURIComponent(value) {
   try {
     return decodeURIComponent(value);
-  } catch(e) {
+  } catch (e) {
     // Ignore any invalid uri component
   }
 }
@@ -1155,14 +1122,14 @@ function tryDecodeURIComponent(value) {
 function parseKeyValue(/**string*/keyValue) {
   var obj = {}, key_value, key;
   forEach((keyValue || "").split('&'), function(keyValue) {
-    if ( keyValue ) {
+    if (keyValue) {
       key_value = keyValue.replace(/\+/g,'%20').split('=');
       key = tryDecodeURIComponent(key_value[0]);
-      if ( isDefined(key) ) {
+      if (isDefined(key)) {
         var val = isDefined(key_value[1]) ? tryDecodeURIComponent(key_value[1]) : true;
         if (!hasOwnProperty.call(obj, key)) {
           obj[key] = val;
-        } else if(isArray(obj[key])) {
+        } else if (isArray(obj[key])) {
           obj[key].push(val);
         } else {
           obj[key] = [obj[key],val];
@@ -1999,7 +1966,7 @@ function setupModuleLoader(window) {
           config(configFn);
         }
 
-        return  moduleInstance;
+        return moduleInstance;
 
         /**
          * @param {string} provider
@@ -2122,15 +2089,15 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.0',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.2',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 0,
-  codeName: 'superluminal-nudge'
+  dot: 2,
+  codeName: 'cardiovasculatory-magnification'
 };
 
 
-function publishExternalAPI(angular){
+function publishExternalAPI(angular) {
   extend(angular, {
     'bootstrap': bootstrap,
     'copy': copy,
@@ -2256,7 +2223,7 @@ function publishExternalAPI(angular){
         $timeout: $TimeoutProvider,
         $window: $WindowProvider,
         $$rAF: $$RAFProvider,
-        $$asyncCallback : $$AsyncCallbackProvider
+        $$asyncCallback: $$AsyncCallbackProvider
       });
     }
   ]);
@@ -2306,7 +2273,7 @@ function publishExternalAPI(angular){
  * - [`children()`](http://api.jquery.com/children/) - Does not support selectors
  * - [`clone()`](http://api.jquery.com/clone/)
  * - [`contents()`](http://api.jquery.com/contents/)
- * - [`css()`](http://api.jquery.com/css/) - Only retrieves inline-styles, does not call `getComputedStyles()`
+ * - [`css()`](http://api.jquery.com/css/) - Only retrieves inline-styles, does not call `getComputedStyle()`
  * - [`data()`](http://api.jquery.com/data/)
  * - [`detach()`](http://api.jquery.com/detach/)
  * - [`empty()`](http://api.jquery.com/empty/)
@@ -2384,7 +2351,7 @@ function jqNextId() { return ++jqId; }
 
 var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
 var MOZ_HACK_REGEXP = /^moz([A-Z])/;
-var MOUSE_EVENT_MAP= { mouseleave : "mouseout", mouseenter : "mouseover"};
+var MOUSE_EVENT_MAP= { mouseleave: "mouseout", mouseenter: "mouseover"};
 var jqLiteMinErr = minErr('jqLite');
 
 /**
@@ -2513,7 +2480,7 @@ function jqLiteClone(element) {
   return element.cloneNode(true);
 }
 
-function jqLiteDealoc(element, onlyDescendants){
+function jqLiteDealoc(element, onlyDescendants) {
   if (!onlyDescendants) jqLiteRemoveData(element);
 
   if (element.querySelectorAll) {
@@ -2620,7 +2587,7 @@ function jqLiteData(element, key, value) {
 function jqLiteHasClass(element, selector) {
   if (!element.getAttribute) return false;
   return ((" " + (element.getAttribute('class') || '') + " ").replace(/[\n\t]/g, " ").
-      indexOf( " " + selector + " " ) > -1);
+      indexOf(" " + selector + " ") > -1);
 }
 
 function jqLiteRemoveClass(element, cssClasses) {
@@ -2679,13 +2646,13 @@ function jqLiteAddNodes(root, elements) {
 
 
 function jqLiteController(element, name) {
-  return jqLiteInheritedData(element, '$' + (name || 'ngController' ) + 'Controller');
+  return jqLiteInheritedData(element, '$' + (name || 'ngController') + 'Controller');
 }
 
 function jqLiteInheritedData(element, name, value) {
   // if element is the document object work with the html element instead
   // this makes $(document).scope() possible
-  if(element.nodeType == NODE_TYPE_DOCUMENT) {
+  if (element.nodeType == NODE_TYPE_DOCUMENT) {
     element = element.documentElement;
   }
   var names = isArray(name) ? name : [name];
@@ -2743,7 +2710,7 @@ var JQLitePrototype = JQLite.prototype = {
     }
 
     // check if document is already loaded
-    if (document.readyState === 'complete'){
+    if (document.readyState === 'complete') {
       setTimeout(trigger);
     } else {
       this.on('DOMContentLoaded', trigger); // works for modern browsers and IE9
@@ -2751,12 +2718,11 @@ var JQLitePrototype = JQLite.prototype = {
       // jshint -W064
       JQLite(window).on('load', trigger); // fallback to window.onload for others
       // jshint +W064
-      this.on('DOMContentLoaded', trigger);
     }
   },
   toString: function() {
     var value = [];
-    forEach(this, function(e){ value.push('' + e);});
+    forEach(this, function(e) { value.push('' + e);});
     return '[' + value.join(', ') + ']';
   },
 
@@ -2784,11 +2750,11 @@ forEach('input,select,option,textarea,button,form,details'.split(','), function(
   BOOLEAN_ELEMENTS[value] = true;
 });
 var ALIASED_ATTR = {
-  'ngMinlength' : 'minlength',
-  'ngMaxlength' : 'maxlength',
-  'ngMin' : 'min',
-  'ngMax' : 'max',
-  'ngPattern' : 'pattern'
+  'ngMinlength': 'minlength',
+  'ngMaxlength': 'maxlength',
+  'ngMin': 'min',
+  'ngMax': 'max',
+  'ngPattern': 'pattern'
 };
 
 function getBooleanAttrName(element, name) {
@@ -2847,7 +2813,7 @@ forEach({
     }
   },
 
-  attr: function(element, name, value){
+  attr: function(element, name, value) {
     var lowercasedName = lowercase(name);
     if (BOOLEAN_ATTR[lowercasedName]) {
       if (isDefined(value)) {
@@ -2900,7 +2866,7 @@ forEach({
     if (isUndefined(value)) {
       if (element.multiple && nodeName_(element) === 'select') {
         var result = [];
-        forEach(element.options, function (option) {
+        forEach(element.options, function(option) {
           if (option.selected) {
             result.push(option.value || option.text);
           }
@@ -2921,7 +2887,7 @@ forEach({
   },
 
   empty: jqLiteEmpty
-}, function(fn, name){
+}, function(fn, name) {
   /**
    * Properties: writes return selection, reads return first value
    */
@@ -2973,7 +2939,7 @@ forEach({
 });
 
 function createEventHandler(element, events) {
-  var eventHandler = function (event, type) {
+  var eventHandler = function(event, type) {
     // jQuery specific api
     event.isDefaultPrevented = function() {
       return event.defaultPrevented;
@@ -3029,7 +2995,7 @@ function createEventHandler(element, events) {
 forEach({
   removeData: jqLiteRemoveData,
 
-  on: function jqLiteOn(element, type, fn, unsupported){
+  on: function jqLiteOn(element, type, fn, unsupported) {
     if (isDefined(unsupported)) throw jqLiteMinErr('onargs', 'jqLite#on() does not support the `selector` or `eventData` parameters');
 
     // Do not add event handlers to non-elements because they will not be cleaned up.
@@ -3065,7 +3031,7 @@ forEach({
             var target = this, related = event.relatedTarget;
             // For mousenter/leave call the handler if related is outside the target.
             // NB: No relatedTarget if the mouse left/entered the browser window
-            if ( !related || (related !== target && !target.contains(related)) ){
+            if (!related || (related !== target && !target.contains(related))) {
               handle(event, type);
             }
           });
@@ -3099,7 +3065,7 @@ forEach({
   replaceWith: function(element, replaceNode) {
     var index, parent = element.parentNode;
     jqLiteDealoc(element);
-    forEach(new JQLite(replaceNode), function(node){
+    forEach(new JQLite(replaceNode), function(node) {
       if (index) {
         parent.insertBefore(node, index.nextSibling);
       } else {
@@ -3111,7 +3077,7 @@ forEach({
 
   children: function(element) {
     var children = [];
-    forEach(element.childNodes, function(element){
+    forEach(element.childNodes, function(element) {
       if (element.nodeType === NODE_TYPE_ELEMENT)
         children.push(element);
     });
@@ -3137,7 +3103,7 @@ forEach({
   prepend: function(element, node) {
     if (element.nodeType === NODE_TYPE_ELEMENT) {
       var index = element.firstChild;
-      forEach(new JQLite(node), function(child){
+      forEach(new JQLite(node), function(child) {
         element.insertBefore(child, index);
       });
     }
@@ -3174,7 +3140,7 @@ forEach({
 
   toggleClass: function(element, selector, condition) {
     if (selector) {
-      forEach(selector.split(' '), function(className){
+      forEach(selector.split(' '), function(className) {
         var classCondition = condition;
         if (isUndefined(classCondition)) {
           classCondition = !jqLiteHasClass(element, className);
@@ -3239,14 +3205,14 @@ forEach({
       });
     }
   }
-}, function(fn, name){
+}, function(fn, name) {
   /**
    * chaining functions
    */
   JQLite.prototype[name] = function(arg1, arg2, arg3) {
     var value;
 
-    for(var i = 0, ii = this.length; i < ii; i++) {
+    for (var i = 0, ii = this.length; i < ii; i++) {
       if (isUndefined(value)) {
         value = fn(this[i], arg1, arg2, arg3);
         if (isDefined(value)) {
@@ -4043,7 +4009,7 @@ function createInjector(modulesToLoad, strictDi) {
   ////////////////////////////////////
   // Module Loading
   ////////////////////////////////////
-  function loadModules(modulesToLoad){
+  function loadModules(modulesToLoad) {
     var runBlocks = [], moduleFn;
     forEach(modulesToLoad, function(module) {
       if (loadedModules.get(module)) return;
@@ -4051,7 +4017,7 @@ function createInjector(modulesToLoad, strictDi) {
 
       function runInvokeQueue(queue) {
         var i, ii;
-        for(i = 0, ii = queue.length; i < ii; i++) {
+        for (i = 0, ii = queue.length; i < ii; i++) {
           var invokeArgs = queue[i],
               provider = providerInjector.get(invokeArgs[0]);
 
@@ -4131,7 +4097,7 @@ function createInjector(modulesToLoad, strictDi) {
           length, i,
           key;
 
-      for(i = 0, length = $inject.length; i < length; i++) {
+      for (i = 0, length = $inject.length; i < length; i++) {
         key = $inject[i];
         if (typeof key !== 'string') {
           throw $injectorMinErr('itkn',
@@ -4347,7 +4313,6 @@ function $AnchorScrollProvider() {
    */
   this.$get = ['$window', '$location', '$rootScope', function($window, $location, $rootScope) {
     var document = $window.document;
-    var scrollScheduled = false;
 
     // Helper function to get first anchor from a NodeList
     // (using `Array#some()` instead of `angular#forEach()` since it's more performant
@@ -4521,7 +4486,7 @@ var $AnimateProvider = ['$provide', function($provide) {
    * @return {RegExp} The current CSS className expression value. If null then there is no expression value
    */
   this.classNameFilter = function(expression) {
-    if(arguments.length === 1) {
+    if (arguments.length === 1) {
       this.$$classNameFilter = (expression instanceof RegExp) ? expression : null;
     }
     return this.$$classNameFilter;
@@ -4616,7 +4581,7 @@ var $AnimateProvider = ['$provide', function($provide) {
      * page}.
      */
     return {
-      animate : function(element, from, to) {
+      animate: function(element, from, to) {
         applyStyles(element, { from: from, to: to });
         return asyncPromise();
       },
@@ -4637,7 +4602,7 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @param {object=} options an optional collection of styles that will be applied to the element.
        * @return {Promise} the animation callback promise
        */
-      enter : function(element, parent, after, options) {
+      enter: function(element, parent, after, options) {
         applyStyles(element, options);
         after ? after.after(element)
               : parent.prepend(element);
@@ -4655,7 +4620,7 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @param {object=} options an optional collection of options that will be applied to the element.
        * @return {Promise} the animation callback promise
        */
-      leave : function(element, options) {
+      leave: function(element, options) {
         element.remove();
         return asyncPromise();
       },
@@ -4678,7 +4643,7 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @param {object=} options an optional collection of options that will be applied to the element.
        * @return {Promise} the animation callback promise
        */
-      move : function(element, parent, after, options) {
+      move: function(element, parent, after, options) {
         // Do not remove element before insert. Removing will cause data associated with the
         // element to be dropped. Insert will implicitly do the remove.
         return this.enter(element, parent, after, options);
@@ -4697,16 +4662,16 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @param {object=} options an optional collection of options that will be applied to the element.
        * @return {Promise} the animation callback promise
        */
-      addClass : function(element, className, options) {
+      addClass: function(element, className, options) {
         return this.setClass(element, className, [], options);
       },
 
-      $$addClassImmediately : function(element, className, options) {
+      $$addClassImmediately: function(element, className, options) {
         element = jqLite(element);
         className = !isString(className)
                         ? (isArray(className) ? className.join(' ') : '')
                         : className;
-        forEach(element, function (element) {
+        forEach(element, function(element) {
           jqLiteAddClass(element, className);
         });
         applyStyles(element, options);
@@ -4726,16 +4691,16 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @param {object=} options an optional collection of options that will be applied to the element.
        * @return {Promise} the animation callback promise
        */
-      removeClass : function(element, className, options) {
+      removeClass: function(element, className, options) {
         return this.setClass(element, [], className, options);
       },
 
-      $$removeClassImmediately : function(element, className, options) {
+      $$removeClassImmediately: function(element, className, options) {
         element = jqLite(element);
         className = !isString(className)
                         ? (isArray(className) ? className.join(' ') : '')
                         : className;
-        forEach(element, function (element) {
+        forEach(element, function(element) {
           jqLiteRemoveClass(element, className);
         });
         applyStyles(element, options);
@@ -4756,7 +4721,7 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @param {object=} options an optional collection of options that will be applied to the element.
        * @return {Promise} the animation callback promise
        */
-      setClass : function(element, add, remove, options) {
+      setClass: function(element, add, remove, options) {
         var self = this;
         var STORAGE_KEY = '$$animateClasses';
         var createdCache = false;
@@ -4766,7 +4731,7 @@ var $AnimateProvider = ['$provide', function($provide) {
         if (!cache) {
           cache = {
             classes: {},
-            options : options
+            options: options
           };
           createdCache = true;
         } else if (options && cache.options) {
@@ -4803,20 +4768,20 @@ var $AnimateProvider = ['$provide', function($provide) {
         return cache.promise;
       },
 
-      $$setClassImmediately : function(element, add, remove, options) {
+      $$setClassImmediately: function(element, add, remove, options) {
         add && this.$$addClassImmediately(element, add);
         remove && this.$$removeClassImmediately(element, remove);
         applyStyles(element, options);
         return asyncPromise();
       },
 
-      enabled : noop,
-      cancel : noop
+      enabled: noop,
+      cancel: noop
     };
   }];
 }];
 
-function $$AsyncCallbackProvider(){
+function $$AsyncCallbackProvider() {
   this.$get = ['$$rAF', '$timeout', function($$rAF, $timeout) {
     return $$rAF.supported
       ? function(fn) { return $$rAF(fn); }
@@ -4878,7 +4843,7 @@ function Browser(window, document, $log, $sniffer) {
     } finally {
       outstandingRequestCount--;
       if (outstandingRequestCount === 0) {
-        while(outstandingRequestCallbacks.length) {
+        while (outstandingRequestCallbacks.length) {
           try {
             outstandingRequestCallbacks.pop()();
           } catch (e) {
@@ -4899,7 +4864,7 @@ function Browser(window, document, $log, $sniffer) {
     // force browser to execute all pollFns - this is needed so that cookies and other pollers fire
     // at some deterministic time in respect to the test runner's actions. Leaving things up to the
     // regular poller would result in flaky tests.
-    forEach(pollFns, function(pollFn){ pollFn(); });
+    forEach(pollFns, function(pollFn) { pollFn(); });
 
     if (outstandingRequestCount === 0) {
       callback();
@@ -4941,7 +4906,7 @@ function Browser(window, document, $log, $sniffer) {
    */
   function startPoller(interval, setTimeout) {
     (function check() {
-      forEach(pollFns, function(pollFn){ pollFn(); });
+      forEach(pollFns, function(pollFn) { pollFn(); });
       pollTimeout = setTimeout(check, interval);
     })();
   }
@@ -5276,9 +5241,9 @@ function Browser(window, document, $log, $sniffer) {
 
 }
 
-function $BrowserProvider(){
+function $BrowserProvider() {
   this.$get = ['$window', '$log', '$sniffer', '$document',
-      function( $window,   $log,   $sniffer,   $document){
+      function($window, $log, $sniffer, $document) {
         return new Browser($window, $document, $log, $sniffer);
       }];
 }
@@ -5652,7 +5617,8 @@ function $CacheFactoryProvider() {
  * ```
  *
  * **Note:** the `script` tag containing the template does not need to be included in the `head` of
- * the document, but it must be below the `ng-app` definition.
+ * the document, but it must be a descendent of the {@link ng.$rootElement $rootElement} (IE,
+ * element with ng-app attribute), otherwise the template will be ignored.
  *
  * Adding via the $templateCache service:
  *
@@ -5846,7 +5812,9 @@ function $TemplateCacheProvider() {
  *   value of `parentModel` on the parent scope. Any changes to `parentModel` will be reflected
  *   in `localModel` and any changes in `localModel` will reflect in `parentModel`. If the parent
  *   scope property doesn't exist, it will throw a NON_ASSIGNABLE_MODEL_EXPRESSION exception. You
- *   can avoid this behavior using `=?` or `=?attr` in order to flag the property as optional.
+ *   can avoid this behavior using `=?` or `=?attr` in order to flag the property as optional. If
+ *   you want to shallow watch for changes (i.e. $watchCollection instead of $watch) you can use
+ *   `=*` or `=*attr` (`=*?` or `=*?attr` if the property is optional).
  *
  * * `&` or `&attr` - provides a way to execute an expression in the context of the parent scope.
  *   If no `attr` name is specified then the attribute name is assumed to be the same as the
@@ -6302,10 +6270,17 @@ function $TemplateCacheProvider() {
  *
  *
  * @param {string|DOMElement} element Element or HTML string to compile into a template function.
- * @param {function(angular.Scope, cloneAttachFn=)} transclude function available to directives.
+ * @param {function(angular.Scope, cloneAttachFn=)} transclude function available to directives - DEPRECATED.
+ *
+ * <div class="alert alert-error">
+ * **Note:** Passing a `transclude` function to the $compile function is deprecated, as it
+ *   e.g. will not use the right outer scope. Please pass the transclude function as a
+ *   `parentBoundTranscludeFn` to the link function instead.
+ * </div>
+ *
  * @param {number} maxPriority only apply directives lower than given priority (Only effects the
  *                 root element(s), not their children)
- * @returns {function(scope, cloneAttachFn=)} a link function which is used to bind template
+ * @returns {function(scope, cloneAttachFn=, options=)} a link function which is used to bind template
  * (a DOM element/tree) to a scope. Where:
  *
  *  * `scope` - A {@link ng.$rootScope.Scope Scope} to bind to.
@@ -6316,6 +6291,19 @@ function $TemplateCacheProvider() {
  *
  *      * `clonedElement` - is a clone of the original `element` passed into the compiler.
  *      * `scope` - is the current scope with which the linking function is working with.
+ *
+ *  * `options` - An optional object hash with linking options. If `options` is provided, then the following
+ *  keys may be used to control linking behavior:
+ *
+ *      * `parentBoundTranscludeFn` - the transclude function made available to
+ *        directives; if given, it will be passed through to the link functions of
+ *        directives found in `element` during compilation.
+ *      * `transcludeControllers` - an object hash with keys that map controller names
+ *        to controller instances; if given, it will make the controllers
+ *        available to directives.
+ *      * `futureParentElement` - defines the parent to which the `cloneAttachFn` will add
+ *        the cloned elements; only needed for transcludes that are allowed to contain non html
+ *        elements (e.g. SVG elements). See also the directive.controller property.
  *
  * Calling the linking function returns the element of the template. It is either the original
  * element passed in, or the clone of the element if the `cloneAttachFn` is provided.
@@ -6362,8 +6350,8 @@ $CompileProvider.$inject = ['$provide', '$$sanitizeUriProvider'];
 function $CompileProvider($provide, $$sanitizeUriProvider) {
   var hasDirectives = {},
       Suffix = 'Directive',
-      COMMENT_DIRECTIVE_REGEXP = /^\s*directive\:\s*([\d\w_\-]+)\s+(.*)$/,
-      CLASS_DIRECTIVE_REGEXP = /(([\d\w_\-]+)(?:\:([^;]+))?;?)/,
+      COMMENT_DIRECTIVE_REGEXP = /^\s*directive\:\s*([\w\-]+)\s+(.*)$/,
+      CLASS_DIRECTIVE_REGEXP = /(([\w\-]+)(?:\:([^;]+))?;?)/,
       ALL_OR_NOTHING_ATTRS = makeMap('ngSrc,ngSrcset,src,srcset'),
       REQUIRE_PREFIX_REGEXP = /^(?:(\^\^?)?(\?)?(\^\^?)?)?/;
 
@@ -6373,7 +6361,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
   var EVENT_HANDLER_ATTR_REGEXP = /^(on[a-z]+|formaction)$/;
 
   function parseIsolateBindings(scope, directiveName) {
-    var LOCAL_REGEXP = /^\s*([@=&])(\??)\s*(\w*)\s*$/;
+    var LOCAL_REGEXP = /^\s*([@&]|=(\*?))(\??)\s*(\w*)\s*$/;
 
     var bindings = {};
 
@@ -6388,9 +6376,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       }
 
       bindings[scopeName] = {
-        attrName: match[3] || scopeName,
-        mode: match[1],
-        optional: match[2] === '?'
+        mode: match[1][0],
+        collection: match[2] === '*',
+        optional: match[3] === '?',
+        attrName: match[4] || scopeName
       };
     });
 
@@ -6536,7 +6525,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
    */
   var debugInfoEnabled = true;
   this.debugInfoEnabled = function(enabled) {
-    if(isDefined(enabled)) {
+    if (isDefined(enabled)) {
       debugInfoEnabled = enabled;
       return this;
     }
@@ -6580,8 +6569,8 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
        *
        * @param {string} classVal The className value that will be added to the element
        */
-      $addClass : function(classVal) {
-        if(classVal && classVal.length > 0) {
+      $addClass: function(classVal) {
+        if (classVal && classVal.length > 0) {
           $animate.addClass(this.$$element, classVal);
         }
       },
@@ -6597,8 +6586,8 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
        *
        * @param {string} classVal The className value that will be removed from the element
        */
-      $removeClass : function(classVal) {
-        if(classVal && classVal.length > 0) {
+      $removeClass: function(classVal) {
+        if (classVal && classVal.length > 0) {
           $animate.removeClass(this.$$element, classVal);
         }
       },
@@ -6615,7 +6604,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
        * @param {string} newClasses The current CSS className value
        * @param {string} oldClasses The former CSS className value
        */
-      $updateClass : function(newClasses, oldClasses) {
+      $updateClass: function(newClasses, oldClasses) {
         var toAdd = tokenDifference(newClasses, oldClasses);
         if (toAdd && toAdd.length) {
           $animate.addClass(this.$$element, toAdd);
@@ -6645,13 +6634,12 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
             booleanKey = getBooleanAttrName(node, key),
             aliasedKey = getAliasedAttrName(node, key),
             observer = key,
-            normalizedVal,
             nodeName;
 
         if (booleanKey) {
           this.$$element.prop(key, value);
           attrName = booleanKey;
-        } else if(aliasedKey) {
+        } else if (aliasedKey) {
           this[aliasedKey] = value;
           observer = aliasedKey;
         }
@@ -6692,9 +6680,9 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           for (var i=0; i<nbrUrisWith2parts; i++) {
             var innerIdx = i*2;
             // sanitize the uri
-            result += $$sanitizeUri(trim( rawUris[innerIdx]), true);
+            result += $$sanitizeUri(trim(rawUris[innerIdx]), true);
             // add the descriptor
-            result += ( " " + trim(rawUris[innerIdx+1]));
+            result += (" " + trim(rawUris[innerIdx+1]));
           }
 
           // split the last item into uri and descriptor
@@ -6704,7 +6692,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           result += $$sanitizeUri(trim(lastTuple[0]), true);
 
           // and add the last descriptor if any
-          if( lastTuple.length === 2) {
+          if (lastTuple.length === 2) {
             result += (" " + trim(lastTuple[1]));
           }
           this[key] = value = result;
@@ -6755,7 +6743,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
         listeners.push(fn);
         $rootScope.$evalAsync(function() {
-          if (!listeners.$$inter) {
+          if (!listeners.$$inter && attrs.hasOwnProperty(key)) {
             // no one registered attribute interpolation function, so lets call it manually
             fn(attrs[key]);
           }
@@ -6771,7 +6759,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
     function safeAddClass($element, className) {
       try {
         $element.addClass(className);
-      } catch(e) {
+      } catch (e) {
         // ignore, since it means that we are trying to set class on
         // SVG element, where class name is read-only.
       }
@@ -6825,7 +6813,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       }
       // We can not compile top level text elements since text nodes can be merged and we will
       // not be able to attach scope data to them, so we will wrap them in <span>
-      forEach($compileNodes, function(node, index){
+      forEach($compileNodes, function(node, index) {
         if (node.nodeType == NODE_TYPE_TEXT && node.nodeValue.match(/\S+/) /* non-empty */ ) {
           $compileNodes[index] = jqLite(node).wrap('<span></span>').parent()[0];
         }
@@ -6835,8 +6823,22 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                            maxPriority, ignoreDirective, previousCompileContext);
       compile.$$addScopeClass($compileNodes);
       var namespace = null;
-      return function publicLinkFn(scope, cloneConnectFn, transcludeControllers, parentBoundTranscludeFn, futureParentElement){
+      return function publicLinkFn(scope, cloneConnectFn, options) {
         assertArg(scope, 'scope');
+
+        options = options || {};
+        var parentBoundTranscludeFn = options.parentBoundTranscludeFn,
+          transcludeControllers = options.transcludeControllers,
+          futureParentElement = options.futureParentElement;
+
+        // When `parentBoundTranscludeFn` is passed, it is a
+        // `controllersBoundTransclude` function (it was previously passed
+        // as `transclude` to directive.link) so we must unwrap it to get
+        // its `boundTranscludeFn`
+        if (parentBoundTranscludeFn && parentBoundTranscludeFn.$$boundTransclude) {
+          parentBoundTranscludeFn = parentBoundTranscludeFn.$$boundTransclude;
+        }
+
         if (!namespace) {
           namespace = detectNamespaceForChildElements(futureParentElement);
         }
@@ -6960,7 +6962,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           stableNodeList = nodeList;
         }
 
-        for(i = 0, ii = linkFns.length; i < ii;) {
+        for (i = 0, ii = linkFns.length; i < ii;) {
           node = stableNodeList[linkFns[i++]];
           nodeLinkFn = linkFns[i++];
           childLinkFn = linkFns[i++];
@@ -6973,7 +6975,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
               childScope = scope;
             }
 
-            if ( nodeLinkFn.transcludeOnThisElement ) {
+            if (nodeLinkFn.transcludeOnThisElement) {
               childBoundTranscludeFn = createBoundTranscludeFn(
                   scope, nodeLinkFn.transclude, parentBoundTranscludeFn,
                   nodeLinkFn.elementTranscludeOnThisElement);
@@ -7006,7 +7008,11 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           transcludedScope.$$transcluded = true;
         }
 
-        return transcludeFn(transcludedScope, cloneFn, controllers, previousBoundTranscludeFn, futureParentElement);
+        return transcludeFn(transcludedScope, cloneFn, {
+          parentBoundTranscludeFn: previousBoundTranscludeFn,
+          transcludeControllers: controllers,
+          futureParentElement: futureParentElement
+        });
       };
 
       return boundTranscludeFn;
@@ -7028,7 +7034,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           match,
           className;
 
-      switch(nodeType) {
+      switch (nodeType) {
         case NODE_TYPE_ELEMENT: /* Element */
           // use the node name: <directive>
           addDirective(directives,
@@ -7120,7 +7126,6 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       var nodes = [];
       var depth = 0;
       if (attrStart && node.hasAttribute && node.hasAttribute(attrStart)) {
-        var startNode = node;
         do {
           if (!node) {
             throw $compileMinErr('uterdir',
@@ -7204,7 +7209,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           directiveValue;
 
       // executes all directives on the current element
-      for(var i = 0, ii = directives.length; i < ii; i++) {
+      for (var i = 0, ii = directives.length; i < ii; i++) {
         directive = directives[i];
         var attrStart = directive.$$start;
         var attrEnd = directive.$$end;
@@ -7448,7 +7453,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 "Controller '{0}', required by directive '{1}', can't be found!",
                 require, directiveName);
           }
-          return value;
+          return value || null;
         } else if (isArray(require)) {
           value = [];
           forEach(require, function(require) {
@@ -7475,7 +7480,13 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           isolateScope = scope.$new(true);
         }
 
-        transcludeFn = boundTranscludeFn && controllersBoundTransclude;
+        if (boundTranscludeFn) {
+          // track `boundTranscludeFn` so it can be unwrapped if `transcludeFn`
+          // is later passed as `parentBoundTranscludeFn` to `publicLinkFn`
+          transcludeFn = controllersBoundTransclude;
+          transcludeFn.$$boundTransclude = boundTranscludeFn;
+        }
+
         if (controllerDirectives) {
           // TODO: merge `controllers` and `elementControllers` into single object.
           controllers = {};
@@ -7510,8 +7521,6 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         }
 
         if (newIsolateScopeDirective) {
-          var LOCAL_REGEXP = /^\s*([@=&])(\??)\s*(\w*)\s*$/;
-
           compile.$$addScopeInfo($element, isolateScope, true, !(templateDirective && (templateDirective === newIsolateScopeDirective ||
               templateDirective === newIsolateScopeDirective.$$originalDirective)));
           compile.$$addScopeClass($element, true);
@@ -7537,7 +7546,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                   isolateBindingContext[scopeName] = value;
                 });
                 attrs.$$observers[attrName].$$scope = scope;
-                if( attrs[attrName] ) {
+                if (attrs[attrName]) {
                   // If the attribute has been provided then we trigger an interpolation to ensure
                   // the value is there for use in the link fn
                   isolateBindingContext[scopeName] = $interpolate(attrs[attrName])(scope);
@@ -7552,7 +7561,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 if (parentGet.literal) {
                   compare = equals;
                 } else {
-                  compare = function(a,b) { return a === b || (a !== a && b !== b); };
+                  compare = function(a, b) { return a === b || (a !== a && b !== b); };
                 }
                 parentSet = parentGet.assign || function() {
                   // reset the change, or we will throw this exception on every $digest
@@ -7576,7 +7585,12 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                   return lastValue = parentValue;
                 };
                 parentValueWatch.$stateful = true;
-                var unwatch = scope.$watch($parse(attrs[attrName], parentValueWatch), null, parentGet.literal);
+                var unwatch;
+                if (definition.collection) {
+                  unwatch = scope.$watchCollection(attrs[attrName], parentValueWatch);
+                } else {
+                  unwatch = scope.$watch($parse(attrs[attrName], parentValueWatch), null, parentGet.literal);
+                }
                 isolateScope.$on('$destroy', unwatch);
                 break;
 
@@ -7597,7 +7611,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         }
 
         // PRELINKING
-        for(i = 0, ii = preLinkFns.length; i < ii; i++) {
+        for (i = 0, ii = preLinkFns.length; i < ii; i++) {
           linkFn = preLinkFns[i];
           invokeLinkFn(linkFn,
               linkFn.isolateScope ? isolateScope : scope,
@@ -7618,7 +7632,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         childLinkFn && childLinkFn(scopeToChild, linkNode.childNodes, undefined, boundTranscludeFn);
 
         // POSTLINKING
-        for(i = postLinkFns.length - 1; i >= 0; i--) {
+        for (i = postLinkFns.length - 1; i >= 0; i--) {
           linkFn = postLinkFns[i];
           invokeLinkFn(linkFn,
               linkFn.isolateScope ? isolateScope : scope,
@@ -7678,11 +7692,11 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       if (name === ignoreDirective) return null;
       var match = null;
       if (hasDirectives.hasOwnProperty(name)) {
-        for(var directive, directives = $injector.get(name + Suffix),
+        for (var directive, directives = $injector.get(name + Suffix),
             i = 0, ii = directives.length; i<ii; i++) {
           try {
             directive = directives[i];
-            if ( (maxPriority === undefined || maxPriority > directive.priority) &&
+            if ((maxPriority === undefined || maxPriority > directive.priority) &&
                  directive.restrict.indexOf(location) != -1) {
               if (startAttrName) {
                 directive = inherit(directive, {$$start: startAttrName, $$end: endAttrName});
@@ -7690,7 +7704,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
               tDirectives.push(directive);
               match = directive;
             }
-          } catch(e) { $exceptionHandler(e); }
+          } catch (e) { $exceptionHandler(e); }
         }
       }
       return match;
@@ -7707,7 +7721,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
      */
     function directiveIsMultiElement(name) {
       if (hasDirectives.hasOwnProperty(name)) {
-        for(var directive, directives = $injector.get(name + Suffix),
+        for (var directive, directives = $injector.get(name + Suffix),
             i = 0, ii = directives.length; i<ii; i++) {
           directive = directives[i];
           if (directive.multiElement) {
@@ -7824,7 +7838,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           });
           afterTemplateChildLinkFn = compileNodes($compileNode[0].childNodes, childTranscludeFn);
 
-          while(linkQueue.length) {
+          while (linkQueue.length) {
             var scope = linkQueue.shift(),
                 beforeTemplateLinkNode = linkQueue.shift(),
                 linkRootElement = linkQueue.shift(),
@@ -7923,7 +7937,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
     function wrapTemplate(type, template) {
       type = lowercase(type || 'html');
-      switch(type) {
+      switch (type) {
       case 'svg':
       case 'math':
         var wrapper = document.createElement('div');
@@ -8004,7 +8018,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                     //skip animations when the first digest occurs (when
                     //both the new and the old values are the same) since
                     //the CSS classes are the non-interpolated values
-                    if(name === 'class' && newValue != oldValue) {
+                    if (name === 'class' && newValue != oldValue) {
                       attr.$updateClass(newValue, oldValue);
                     } else {
                       attr.$set(name, newValue);
@@ -8034,7 +8048,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           i, ii;
 
       if ($rootElement) {
-        for(i = 0, ii = $rootElement.length; i < ii; i++) {
+        for (i = 0, ii = $rootElement.length; i < ii; i++) {
           if ($rootElement[i] == firstElementToRemove) {
             $rootElement[i++] = newNode;
             for (var j = i, j2 = j + removeCount - 1,
@@ -8109,14 +8123,14 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
     function invokeLinkFn(linkFn, scope, $element, attrs, controllers, transcludeFn) {
       try {
         linkFn(scope, $element, attrs, controllers, transcludeFn);
-      } catch(e) {
+      } catch (e) {
         $exceptionHandler(e, startingTag($element));
       }
     }
   }];
 }
 
-var PREFIX_REGEXP = /^(x[\:\-_]|data[\:\-_])/i;
+var PREFIX_REGEXP = /^((?:x|data)[\:\-_])/i;
 /**
  * Converts all accepted directives format into proper directive name.
  * All of these will become 'myDirective':
@@ -8182,7 +8196,7 @@ function nodesetLinkingFn(
   /* NodeList */ nodeList,
   /* Element */ rootElement,
   /* function(Function) */ boundTranscludeFn
-){}
+) {}
 
 function directiveLinkingFn(
   /* nodesetLinkingFn */ nodesetLinkingFn,
@@ -8190,7 +8204,7 @@ function directiveLinkingFn(
   /* Node */ node,
   /* Element */ rootElement,
   /* function(Function) */ boundTranscludeFn
-){}
+) {}
 
 function tokenDifference(str1, str2) {
   var values = '',
@@ -8198,10 +8212,10 @@ function tokenDifference(str1, str2) {
       tokens2 = str2.split(/\s+/);
 
   outer:
-  for(var i = 0; i < tokens1.length; i++) {
+  for (var i = 0; i < tokens1.length; i++) {
     var token = tokens1[i];
-    for(var j = 0; j < tokens2.length; j++) {
-      if(token == tokens2[j]) continue outer;
+    for (var j = 0; j < tokens2.length; j++) {
+      if (token == tokens2[j]) continue outer;
     }
     values += (values.length > 0 ? ' ' : '') + token;
   }
@@ -8307,7 +8321,7 @@ function $ControllerProvider() {
         identifier = ident;
       }
 
-      if(isString(expression)) {
+      if (isString(expression)) {
         match = expression.match(CNTRL_REG),
         constructor = match[1],
         identifier = identifier || match[3];
@@ -8393,8 +8407,8 @@ function $ControllerProvider() {
      </file>
    </example>
  */
-function $DocumentProvider(){
-  this.$get = ['$window', function(window){
+function $DocumentProvider() {
+  this.$get = ['$window', function(window) {
     return jqLite(window.document);
   }];
 }
@@ -8415,8 +8429,8 @@ function $DocumentProvider(){
  * ## Example:
  *
  * ```js
- *   angular.module('exceptionOverride', []).factory('$exceptionHandler', function () {
- *     return function (exception, cause) {
+ *   angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
+ *     return function(exception, cause) {
  *       exception.message += ' (caused by "' + cause + '")';
  *       throw exception;
  *     };
@@ -8445,6 +8459,25 @@ function $ExceptionHandlerProvider() {
       $log.error.apply($log, arguments);
     };
   }];
+}
+
+var APPLICATION_JSON = 'application/json';
+var CONTENT_TYPE_APPLICATION_JSON = {'Content-Type': APPLICATION_JSON + ';charset=utf-8'};
+var JSON_START = /^\s*(\[|\{[^\{])/;
+var JSON_END = /[\}\]]\s*$/;
+var JSON_PROTECTION_PREFIX = /^\)\]\}',?\n/;
+
+function defaultHttpResponseTransform(data, headers) {
+  if (isString(data)) {
+    // strip json vulnerability protection prefix
+    data = data.replace(JSON_PROTECTION_PREFIX, '');
+    var contentType = headers('Content-Type');
+    if ((contentType && contentType.indexOf(APPLICATION_JSON) === 0) ||
+        (JSON_START.test(data) && JSON_END.test(data))) {
+      data = fromJson(data);
+    }
+  }
+  return data;
 }
 
 /**
@@ -8533,12 +8566,6 @@ function isSuccess(status) {
  * Use `$httpProvider` to change the default behavior of the {@link ng.$http $http} service.
  * */
 function $HttpProvider() {
-  var JSON_START = /^\s*(\[|\{[^\{])/,
-      JSON_END = /[\}\]]\s*$/,
-      PROTECTION_PREFIX = /^\)\]\}',?\n/,
-      APPLICATION_JSON = 'application/json',
-      CONTENT_TYPE_APPLICATION_JSON = {'Content-Type': APPLICATION_JSON + ';charset=utf-8'};
-
   /**
    * @ngdoc property
    * @name $httpProvider#defaults
@@ -8562,18 +8589,7 @@ function $HttpProvider() {
    **/
   var defaults = this.defaults = {
     // transform incoming response data
-    transformResponse: [function defaultHttpResponseTransform(data, headers) {
-      if (isString(data)) {
-        // strip json vulnerability protection prefix
-        data = data.replace(PROTECTION_PREFIX, '');
-        var contentType = headers('Content-Type');
-        if ((contentType && contentType.indexOf(APPLICATION_JSON) === 0) ||
-            (JSON_START.test(data) && JSON_END.test(data))) {
-          data = fromJson(data);
-        }
-      }
-      return data;
-    }],
+    transformResponse: [defaultHttpResponseTransform],
 
     // transform outgoing request data
     transformRequest: [function(d) {
@@ -8623,9 +8639,18 @@ function $HttpProvider() {
   };
 
   /**
-   * Are ordered by request, i.e. they are applied in the same order as the
+   * @ngdoc property
+   * @name $httpProvider#interceptors
+   * @description
+   *
+   * Array containing service factories for all synchronous or asynchronous {@link ng.$http $http}
+   * pre-processing of request or postprocessing of responses.
+   *
+   * These service factories are ordered by request, i.e. they are applied in the same order as the
    * array, on request, but reverse order, on response.
-   */
+   *
+   * {@link ng.$http#interceptors Interceptors detailed info}
+   **/
   var interceptorFactories = this.interceptors = [];
 
   this.$get = ['$httpBackend', '$browser', '$cacheFactory', '$rootScope', '$q', '$injector',
@@ -9192,7 +9217,7 @@ function $HttpProvider() {
         }
       });
 
-      while(chain.length) {
+      while (chain.length) {
         var thenFn = chain.shift();
         var rejectFn = chain.shift();
 
@@ -9507,7 +9532,7 @@ function $HttpProvider() {
           status: status,
           headers: headersGetter(headers),
           config: config,
-          statusText : statusText
+          statusText: statusText
         });
       }
 
@@ -9528,7 +9553,7 @@ function $HttpProvider() {
 
         forEach(value, function(v) {
           if (isObject(v)) {
-            if (isDate(v)){
+            if (isDate(v)) {
               v = v.toISOString();
             } else {
               v = toJson(v);
@@ -9538,7 +9563,7 @@ function $HttpProvider() {
                      encodeUriQuery(v));
         });
       });
-      if(parts.length > 0) {
+      if (parts.length > 0) {
         url += ((url.indexOf('?') == -1) ? '?' : '&') + parts.join('&');
       }
       return url;
@@ -9625,7 +9650,7 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
             statusText);
       };
 
-      var requestError = function () {
+      var requestError = function() {
         // The response is always empty
         // See https://xhr.spec.whatwg.org/#request-error-steps and https://fetch.spec.whatwg.org/#concept-network-error
         completeRequest(callback, -1, null, null, '');
@@ -9767,7 +9792,7 @@ function $InterpolateProvider() {
    * @param {string=} value new value to set the starting symbol to.
    * @returns {string|self} Returns the symbol when used as getter and self if used as setter.
    */
-  this.startSymbol = function(value){
+  this.startSymbol = function(value) {
     if (value) {
       startSymbol = value;
       return this;
@@ -9785,7 +9810,7 @@ function $InterpolateProvider() {
    * @param {string=} value new value to set the ending symbol to.
    * @returns {string|self} Returns the symbol when used as getter and self if used as setter.
    */
-  this.endSymbol = function(value){
+  this.endSymbol = function(value) {
     if (value) {
       endSymbol = value;
       return this;
@@ -9911,9 +9936,9 @@ function $InterpolateProvider() {
           concat = [],
           expressionPositions = [];
 
-      while(index < textLength) {
-        if ( ((startIndex = text.indexOf(startSymbol, index)) != -1) &&
-             ((endIndex = text.indexOf(endSymbol, startIndex + startSymbolLength)) != -1) ) {
+      while (index < textLength) {
+        if (((startIndex = text.indexOf(startSymbol, index)) != -1) &&
+             ((endIndex = text.indexOf(endSymbol, startIndex + startSymbolLength)) != -1)) {
           if (index !== startIndex) {
             concat.push(unescapeText(text.substring(index, startIndex)));
           }
@@ -9947,20 +9972,20 @@ function $InterpolateProvider() {
 
       if (!mustHaveExpression || expressions.length) {
         var compute = function(values) {
-          for(var i = 0, ii = expressions.length; i < ii; i++) {
+          for (var i = 0, ii = expressions.length; i < ii; i++) {
             if (allOrNothing && isUndefined(values[i])) return;
             concat[expressionPositions[i]] = values[i];
           }
           return concat.join('');
         };
 
-        var getValue = function (value) {
+        var getValue = function(value) {
           return trustedContext ?
             $sce.getTrusted(trustedContext, value) :
             $sce.valueOf(value);
         };
 
-        var stringify = function (value) {
+        var stringify = function(value) {
           if (value == null) { // null || undefined
             return '';
           }
@@ -9988,7 +10013,7 @@ function $InterpolateProvider() {
               }
 
               return compute(values);
-            } catch(err) {
+            } catch (err) {
               var newErr = $interpolateMinErr('interr', "Can't interpolate: {0}\n{1}", text,
                   err.toString());
               $exceptionHandler(newErr);
@@ -9998,7 +10023,7 @@ function $InterpolateProvider() {
           // all of these properties are undocumented for now
           exp: text, //just for compatibility with regular watchers created via $watch
           expressions: expressions,
-          $$watchDelegate: function (scope, listener, objectEquality) {
+          $$watchDelegate: function(scope, listener, objectEquality) {
             var lastValue;
             return scope.$watchGroup(parseFns, function interpolateFnWatcher(values, oldValues) {
               var currValue = compute(values);
@@ -10019,7 +10044,7 @@ function $InterpolateProvider() {
       function parseStringifyInterceptor(value) {
         try {
           return stringify(getValue(value));
-        } catch(err) {
+        } catch (err) {
           var newErr = $interpolateMinErr('interr', "Can't interpolate: {0}\n{1}", text,
             err.toString());
           $exceptionHandler(newErr);
@@ -10258,7 +10283,7 @@ function $IntervalProvider() {
  *
  * * `id` – `{string}` – locale id formatted as `languageId-countryId` (e.g. `en-us`)
  */
-function $LocaleProvider(){
+function $LocaleProvider() {
   this.$get = function() {
     return {
       id: 'en-us',
@@ -10301,7 +10326,7 @@ function $LocaleProvider(){
         SHORTDAY: 'Sun,Mon,Tue,Wed,Thu,Fri,Sat'.split(','),
         AMPMS: ['AM','PM'],
         medium: 'MMM d, y h:mm:ss a',
-        short: 'M/d/yy h:mm a',
+        'short': 'M/d/yy h:mm a',
         fullDate: 'EEEE, MMMM d, y',
         longDate: 'MMMM d, y',
         mediumDate: 'MMM d, y',
@@ -10416,7 +10441,7 @@ function LocationHtml5Url(appBase, basePrefix) {
 
   /**
    * Parse given html5 (regular) url string into properties
-   * @param {string} newAbsoluteUrl HTML5 url
+   * @param {string} url HTML5 url
    * @private
    */
   this.$$parse = function(url) {
@@ -10457,14 +10482,14 @@ function LocationHtml5Url(appBase, basePrefix) {
     var appUrl, prevAppUrl;
     var rewrittenUrl;
 
-    if ( (appUrl = beginsWith(appBase, url)) !== undefined ) {
+    if ((appUrl = beginsWith(appBase, url)) !== undefined) {
       prevAppUrl = appUrl;
-      if ( (appUrl = beginsWith(basePrefix, appUrl)) !== undefined ) {
+      if ((appUrl = beginsWith(basePrefix, appUrl)) !== undefined) {
         rewrittenUrl = appBaseNoFile + (beginsWith('/', appUrl) || appUrl);
       } else {
         rewrittenUrl = appBase + prevAppUrl;
       }
-    } else if ( (appUrl = beginsWith(appBaseNoFile, url)) !== undefined ) {
+    } else if ((appUrl = beginsWith(appBaseNoFile, url)) !== undefined) {
       rewrittenUrl = appBaseNoFile + appUrl;
     } else if (appBaseNoFile == url + '/') {
       rewrittenUrl = appBaseNoFile;
@@ -10526,7 +10551,7 @@ function LocationHashbangUrl(appBase, hashPrefix) {
      * Inside of Angular, we're always using pathnames that
      * do not include drive names for routing.
      */
-    function removeWindowsDriveName (path, url, base) {
+    function removeWindowsDriveName(path, url, base) {
       /*
       Matches paths for file protocol on windows,
       such as /C:/foo/bar, and captures only /foo/bar.
@@ -10563,7 +10588,7 @@ function LocationHashbangUrl(appBase, hashPrefix) {
   };
 
   this.$$parseLinkUrl = function(url, relHref) {
-    if(stripHash(appBase) == stripHash(url)) {
+    if (stripHash(appBase) == stripHash(url)) {
       this.$$parse(url);
       return true;
     }
@@ -10598,11 +10623,11 @@ function LocationHashbangInHtml5Url(appBase, hashPrefix) {
     var rewrittenUrl;
     var appUrl;
 
-    if ( appBase == stripHash(url) ) {
+    if (appBase == stripHash(url)) {
       rewrittenUrl = url;
-    } else if ( (appUrl = beginsWith(appBaseNoFile, url)) ) {
+    } else if ((appUrl = beginsWith(appBaseNoFile, url))) {
       rewrittenUrl = appBase + hashPrefix + appUrl;
-    } else if ( appBaseNoFile === url + '/') {
+    } else if (appBaseNoFile === url + '/') {
       rewrittenUrl = appBaseNoFile;
     }
     if (rewrittenUrl) {
@@ -10849,7 +10874,7 @@ var locationPrototype = {
   }
 };
 
-forEach([LocationHashbangInHtml5Url, LocationHashbangUrl, LocationHtml5Url], function (Location) {
+forEach([LocationHashbangInHtml5Url, LocationHashbangUrl, LocationHtml5Url], function(Location) {
   Location.prototype = Object.create(locationPrototype);
 
   /**
@@ -10941,7 +10966,7 @@ function locationGetterSetter(property, preprocess) {
  * @description
  * Use the `$locationProvider` to configure how the application deep linking paths are stored.
  */
-function $LocationProvider(){
+function $LocationProvider() {
   var hashPrefix = '',
       html5Mode = {
         enabled: false,
@@ -11048,7 +11073,7 @@ function $LocationProvider(){
    */
 
   this.$get = ['$rootScope', '$browser', '$sniffer', '$rootElement',
-      function( $rootScope,   $browser,   $sniffer,   $rootElement) {
+      function($rootScope, $browser, $sniffer, $rootElement) {
     var $location,
         LocationMode,
         baseHref = $browser.baseHref(), // if base[href] is undefined, it defaults to ''
@@ -11249,7 +11274,7 @@ function $LocationProvider(){
  * @description
  * Use the `$logProvider` to configure how the application logs messages
  */
-function $LogProvider(){
+function $LogProvider() {
   var debug = true,
       self = this;
 
@@ -11269,7 +11294,7 @@ function $LogProvider(){
     }
   };
 
-  this.$get = ['$window', function($window){
+  this.$get = ['$window', function($window) {
     return {
       /**
        * @ngdoc method
@@ -11314,7 +11339,7 @@ function $LogProvider(){
        * @description
        * Write a debug message
        */
-      debug: (function () {
+      debug: (function() {
         var fn = consoleLog('debug');
 
         return function() {
@@ -11467,7 +11492,7 @@ CONSTANTS['this'].sharedGetter = true;
 
 //Operators - will be wrapped by binaryFn/unaryFn/assignment/filter
 var OPERATORS = extend(createMap(), {
-    '+':function(self, locals, a,b){
+    '+':function(self, locals, a, b) {
       a=a(self, locals); b=b(self, locals);
       if (isDefined(a)) {
         if (isDefined(b)) {
@@ -11476,24 +11501,24 @@ var OPERATORS = extend(createMap(), {
         return a;
       }
       return isDefined(b)?b:undefined;},
-    '-':function(self, locals, a,b){
+    '-':function(self, locals, a, b) {
           a=a(self, locals); b=b(self, locals);
           return (isDefined(a)?a:0)-(isDefined(b)?b:0);
         },
-    '*':function(self, locals, a,b){return a(self, locals)*b(self, locals);},
-    '/':function(self, locals, a,b){return a(self, locals)/b(self, locals);},
-    '%':function(self, locals, a,b){return a(self, locals)%b(self, locals);},
-    '===':function(self, locals, a, b){return a(self, locals)===b(self, locals);},
-    '!==':function(self, locals, a, b){return a(self, locals)!==b(self, locals);},
-    '==':function(self, locals, a,b){return a(self, locals)==b(self, locals);},
-    '!=':function(self, locals, a,b){return a(self, locals)!=b(self, locals);},
-    '<':function(self, locals, a,b){return a(self, locals)<b(self, locals);},
-    '>':function(self, locals, a,b){return a(self, locals)>b(self, locals);},
-    '<=':function(self, locals, a,b){return a(self, locals)<=b(self, locals);},
-    '>=':function(self, locals, a,b){return a(self, locals)>=b(self, locals);},
-    '&&':function(self, locals, a,b){return a(self, locals)&&b(self, locals);},
-    '||':function(self, locals, a,b){return a(self, locals)||b(self, locals);},
-    '!':function(self, locals, a){return !a(self, locals);},
+    '*':function(self, locals, a, b) {return a(self, locals)*b(self, locals);},
+    '/':function(self, locals, a, b) {return a(self, locals)/b(self, locals);},
+    '%':function(self, locals, a, b) {return a(self, locals)%b(self, locals);},
+    '===':function(self, locals, a, b) {return a(self, locals)===b(self, locals);},
+    '!==':function(self, locals, a, b) {return a(self, locals)!==b(self, locals);},
+    '==':function(self, locals, a, b) {return a(self, locals)==b(self, locals);},
+    '!=':function(self, locals, a, b) {return a(self, locals)!=b(self, locals);},
+    '<':function(self, locals, a, b) {return a(self, locals)<b(self, locals);},
+    '>':function(self, locals, a, b) {return a(self, locals)>b(self, locals);},
+    '<=':function(self, locals, a, b) {return a(self, locals)<=b(self, locals);},
+    '>=':function(self, locals, a, b) {return a(self, locals)>=b(self, locals);},
+    '&&':function(self, locals, a, b) {return a(self, locals)&&b(self, locals);},
+    '||':function(self, locals, a, b) {return a(self, locals)||b(self, locals);},
+    '!':function(self, locals, a) {return !a(self, locals);},
 
     //Tokenized as operators but parsed as assignment/filters
     '=':true,
@@ -11508,14 +11533,14 @@ var ESCAPE = {"n":"\n", "f":"\f", "r":"\r", "t":"\t", "v":"\v", "'":"'", '"':'"'
 /**
  * @constructor
  */
-var Lexer = function (options) {
+var Lexer = function(options) {
   this.options = options;
 };
 
 Lexer.prototype = {
   constructor: Lexer,
 
-  lex: function (text) {
+  lex: function(text) {
     this.text = text;
     this.index = 0;
     this.ch = undefined;
@@ -11752,13 +11777,13 @@ function isConstant(exp) {
 /**
  * @constructor
  */
-var Parser = function (lexer, $filter, options) {
+var Parser = function(lexer, $filter, options) {
   this.lexer = lexer;
   this.$filter = $filter;
   this.options = options;
 };
 
-Parser.ZERO = extend(function () {
+Parser.ZERO = extend(function() {
   return 0;
 }, {
   sharedGetter: true,
@@ -11768,7 +11793,7 @@ Parser.ZERO = extend(function () {
 Parser.prototype = {
   constructor: Parser,
 
-  parse: function (text) {
+  parse: function(text) {
     this.text = text;
     this.tokens = this.lexer.lex(text);
 
@@ -11784,7 +11809,7 @@ Parser.prototype = {
     return value;
   },
 
-  primary: function () {
+  primary: function() {
     var primary;
     if (this.expect('(')) {
       primary = this.filterChain();
@@ -11847,7 +11872,7 @@ Parser.prototype = {
     return false;
   },
 
-  expect: function(e1, e2, e3, e4){
+  expect: function(e1, e2, e3, e4) {
     var token = this.peek(e1, e2, e3, e4);
     if (token) {
       this.tokens.shift();
@@ -11856,7 +11881,7 @@ Parser.prototype = {
     return false;
   },
 
-  consume: function(e1){
+  consume: function(e1) {
     if (!this.expect(e1)) {
       this.throwError('is unexpected, expecting [' + e1 + ']', this.peek());
     }
@@ -11978,7 +12003,7 @@ Parser.prototype = {
       if ((token = this.expect(':'))) {
         var right = this.assignment();
 
-        return extend(function $parseTernary(self, locals){
+        return extend(function $parseTernary(self, locals) {
           return left(self, locals) ? middle(self, locals) : right(self, locals);
         }, {
           constant: left.constant && middle.constant && right.constant
@@ -12138,7 +12163,7 @@ Parser.prototype = {
   },
 
   // This is used with json array declaration
-  arrayDeclaration: function () {
+  arrayDeclaration: function() {
     var elementFns = [];
     if (this.peekToken().text !== ']') {
       do {
@@ -12165,7 +12190,7 @@ Parser.prototype = {
     });
   },
 
-  object: function () {
+  object: function() {
     var keys = [], valueFns = [];
     if (this.peekToken().text !== '}') {
       do {
@@ -12220,50 +12245,71 @@ function setter(obj, path, setValue, fullExp) {
   return setValue;
 }
 
-var getterFnCache = createMap();
+var getterFnCacheDefault = createMap();
+var getterFnCacheExpensive = createMap();
+
+function isPossiblyDangerousMemberName(name) {
+  return name == 'constructor';
+}
 
 /**
  * Implementation of the "Black Hole" variant from:
  * - http://jsperf.com/angularjs-parse-getter/4
  * - http://jsperf.com/path-evaluation-simplified/7
  */
-function cspSafeGetterFn(key0, key1, key2, key3, key4, fullExp) {
+function cspSafeGetterFn(key0, key1, key2, key3, key4, fullExp, expensiveChecks) {
   ensureSafeMemberName(key0, fullExp);
   ensureSafeMemberName(key1, fullExp);
   ensureSafeMemberName(key2, fullExp);
   ensureSafeMemberName(key3, fullExp);
   ensureSafeMemberName(key4, fullExp);
+  var eso = function(o) {
+    return ensureSafeObject(o, fullExp);
+  };
+  var eso0 = (expensiveChecks || isPossiblyDangerousMemberName(key0)) ? eso : identity;
+  var eso1 = (expensiveChecks || isPossiblyDangerousMemberName(key1)) ? eso : identity;
+  var eso2 = (expensiveChecks || isPossiblyDangerousMemberName(key2)) ? eso : identity;
+  var eso3 = (expensiveChecks || isPossiblyDangerousMemberName(key3)) ? eso : identity;
+  var eso4 = (expensiveChecks || isPossiblyDangerousMemberName(key4)) ? eso : identity;
 
   return function cspSafeGetter(scope, locals) {
     var pathVal = (locals && locals.hasOwnProperty(key0)) ? locals : scope;
 
     if (pathVal == null) return pathVal;
-    pathVal = pathVal[key0];
+    pathVal = eso0(pathVal[key0]);
 
     if (!key1) return pathVal;
     if (pathVal == null) return undefined;
-    pathVal = pathVal[key1];
+    pathVal = eso1(pathVal[key1]);
 
     if (!key2) return pathVal;
     if (pathVal == null) return undefined;
-    pathVal = pathVal[key2];
+    pathVal = eso2(pathVal[key2]);
 
     if (!key3) return pathVal;
     if (pathVal == null) return undefined;
-    pathVal = pathVal[key3];
+    pathVal = eso3(pathVal[key3]);
 
     if (!key4) return pathVal;
     if (pathVal == null) return undefined;
-    pathVal = pathVal[key4];
+    pathVal = eso4(pathVal[key4]);
 
     return pathVal;
   };
 }
 
-function getterFn(path, options, fullExp) {
-  var fn = getterFnCache[path];
+function getterFnWithEnsureSafeObject(fn, fullExpression) {
+  return function(s, l) {
+    return fn(s, l, ensureSafeObject, fullExpression);
+  };
+}
 
+function getterFn(path, options, fullExp) {
+  var expensiveChecks = options.expensiveChecks;
+  var getterFnCache = (expensiveChecks ? getterFnCacheExpensive : getterFnCacheDefault);
+  var fn = getterFnCache[path];
   if (fn) return fn;
+
 
   var pathKeys = path.split('.'),
       pathKeysLength = pathKeys.length;
@@ -12271,13 +12317,13 @@ function getterFn(path, options, fullExp) {
   // http://jsperf.com/angularjs-parse-getter/6
   if (options.csp) {
     if (pathKeysLength < 6) {
-      fn = cspSafeGetterFn(pathKeys[0], pathKeys[1], pathKeys[2], pathKeys[3], pathKeys[4], fullExp);
+      fn = cspSafeGetterFn(pathKeys[0], pathKeys[1], pathKeys[2], pathKeys[3], pathKeys[4], fullExp, expensiveChecks);
     } else {
       fn = function cspSafeGetter(scope, locals) {
         var i = 0, val;
         do {
           val = cspSafeGetterFn(pathKeys[i++], pathKeys[i++], pathKeys[i++], pathKeys[i++],
-                                pathKeys[i++], fullExp)(scope, locals);
+                                pathKeys[i++], fullExp, expensiveChecks)(scope, locals);
 
           locals = undefined; // clear after first iteration
           scope = val;
@@ -12287,22 +12333,33 @@ function getterFn(path, options, fullExp) {
     }
   } else {
     var code = '';
+    if (expensiveChecks) {
+      code += 's = eso(s, fe);\nl = eso(l, fe);\n';
+    }
+    var needsEnsureSafeObject = expensiveChecks;
     forEach(pathKeys, function(key, index) {
       ensureSafeMemberName(key, fullExp);
-      code += 'if(s == null) return undefined;\n' +
-              's='+ (index
+      var lookupJs = (index
                       // we simply dereference 's' on any .dot notation
                       ? 's'
                       // but if we are first then we check locals first, and if so read it first
-                      : '((l&&l.hasOwnProperty("' + key + '"))?l:s)') + '.' + key + ';\n';
+                      : '((l&&l.hasOwnProperty("' + key + '"))?l:s)') + '.' + key;
+      if (expensiveChecks || isPossiblyDangerousMemberName(key)) {
+        lookupJs = 'eso(' + lookupJs + ', fe)';
+        needsEnsureSafeObject = true;
+      }
+      code += 'if(s == null) return undefined;\n' +
+              's=' + lookupJs + ';\n';
     });
     code += 'return s;';
 
     /* jshint -W054 */
-    var evaledFnGetter = new Function('s', 'l', code); // s=scope, l=locals
+    var evaledFnGetter = new Function('s', 'l', 'eso', 'fe', code); // s=scope, l=locals, eso=ensureSafeObject
     /* jshint +W054 */
     evaledFnGetter.toString = valueFn(code);
-
+    if (needsEnsureSafeObject) {
+      evaledFnGetter = getterFnWithEnsureSafeObject(evaledFnGetter, fullExp);
+    }
     fn = evaledFnGetter;
   }
 
@@ -12312,6 +12369,12 @@ function getterFn(path, options, fullExp) {
   };
   getterFnCache[path] = fn;
   return fn;
+}
+
+var objectValueOf = Object.prototype.valueOf;
+
+function getValueOf(value) {
+  return isFunction(value.valueOf) ? value.valueOf() : objectValueOf.call(value);
 }
 
 ///////////////////////////////////
@@ -12366,15 +12429,20 @@ function getterFn(path, options, fullExp) {
  *  service.
  */
 function $ParseProvider() {
-  var cache = createMap();
+  var cacheDefault = createMap();
+  var cacheExpensive = createMap();
 
-  var $parseOptions = {
-    csp: false
-  };
 
 
   this.$get = ['$filter', '$sniffer', function($filter, $sniffer) {
-    $parseOptions.csp = $sniffer.csp;
+    var $parseOptions = {
+          csp: $sniffer.csp,
+          expensiveChecks: false
+        },
+        $parseOptionsExpensive = {
+          csp: $sniffer.csp,
+          expensiveChecks: true
+        };
 
     function wrapSharedExpression(exp) {
       var wrapped = exp;
@@ -12391,13 +12459,14 @@ function $ParseProvider() {
       return wrapped;
     }
 
-    return function $parse(exp, interceptorFn) {
+    return function $parse(exp, interceptorFn, expensiveChecks) {
       var parsedExpression, oneTime, cacheKey;
 
       switch (typeof exp) {
         case 'string':
           cacheKey = exp = exp.trim();
 
+          var cache = (expensiveChecks ? cacheExpensive : cacheDefault);
           parsedExpression = cache[cacheKey];
 
           if (!parsedExpression) {
@@ -12406,8 +12475,9 @@ function $ParseProvider() {
               exp = exp.substring(2);
             }
 
-            var lexer = new Lexer($parseOptions);
-            var parser = new Parser(lexer, $filter, $parseOptions);
+            var parseOptions = expensiveChecks ? $parseOptionsExpensive : $parseOptions;
+            var lexer = new Lexer(parseOptions);
+            var parser = new Parser(lexer, $filter, parseOptions);
             parsedExpression = parser.parse(exp);
 
             if (parsedExpression.constant) {
@@ -12460,7 +12530,7 @@ function $ParseProvider() {
         // attempt to convert the value to a primitive type
         // TODO(docs): add a note to docs that by implementing valueOf even objects and arrays can
         //             be cheaply dirty-checked
-        newValue = newValue.valueOf();
+        newValue = getValueOf(newValue);
 
         if (typeof newValue === 'object') {
           // objects/arrays are not supported - deep-watching them would be too expensive
@@ -12487,7 +12557,7 @@ function $ParseProvider() {
           var newInputValue = inputExpressions(scope);
           if (!expressionInputDirtyCheck(newInputValue, oldInputValue)) {
             lastResult = parsedExpression(scope);
-            oldInputValue = newInputValue && newInputValue.valueOf();
+            oldInputValue = newInputValue && getValueOf(newInputValue);
           }
           return lastResult;
         }, listener, objectEquality);
@@ -12504,7 +12574,7 @@ function $ParseProvider() {
         for (var i = 0, ii = inputExpressions.length; i < ii; i++) {
           var newInputValue = inputExpressions[i](scope);
           if (changed || (changed = !expressionInputDirtyCheck(newInputValue, oldInputValueOfValues[i]))) {
-            oldInputValueOfValues[i] = newInputValue && newInputValue.valueOf();
+            oldInputValueOfValues[i] = newInputValue && getValueOf(newInputValue);
           }
         }
 
@@ -12526,7 +12596,7 @@ function $ParseProvider() {
           listener.apply(this, arguments);
         }
         if (isDefined(value)) {
-          scope.$$postDigest(function () {
+          scope.$$postDigest(function() {
             if (isDefined(lastValue)) {
               unwatch();
             }
@@ -12545,15 +12615,15 @@ function $ParseProvider() {
           listener.call(this, value, old, scope);
         }
         if (isAllDefined(value)) {
-          scope.$$postDigest(function () {
-            if(isAllDefined(lastValue)) unwatch();
+          scope.$$postDigest(function() {
+            if (isAllDefined(lastValue)) unwatch();
           });
         }
       }, objectEquality);
 
       function isAllDefined(value) {
         var allDefined = true;
-        forEach(value, function (val) {
+        forEach(value, function(val) {
           if (!isDefined(val)) allDefined = false;
         });
         return allDefined;
@@ -12580,7 +12650,7 @@ function $ParseProvider() {
         var result = interceptorFn(value, scope, locals);
         // we only return the interceptor's result if the
         // initial value is defined (for bind-once)
-        return isDefined(value) ? result : value;
+        return isDefined(value) || interceptorFn.$stateful ? result : value;
       };
 
       // Propagate $$watchDelegates other then inputsWatchDelegate
@@ -12917,7 +12987,7 @@ function qFactory(nextTick, exceptionHandler) {
         } else {
           promise.reject(state.value);
         }
-      } catch(e) {
+      } catch (e) {
         promise.reject(e);
         exceptionHandler(e);
       }
@@ -12967,7 +13037,7 @@ function qFactory(nextTick, exceptionHandler) {
           this.promise.$$state.status = 1;
           scheduleProcessQueue(this.promise.$$state);
         }
-      } catch(e) {
+      } catch (e) {
         fns[1](e);
         exceptionHandler(e);
       }
@@ -12995,7 +13065,7 @@ function qFactory(nextTick, exceptionHandler) {
             callback = callbacks[i][3];
             try {
               result.notify(isFunction(callback) ? callback(progress) : progress);
-            } catch(e) {
+            } catch (e) {
               exceptionHandler(e);
             }
           }
@@ -13060,7 +13130,7 @@ function qFactory(nextTick, exceptionHandler) {
     var callbackOutput = null;
     try {
       if (isFunction(callback)) callbackOutput = callback();
-    } catch(e) {
+    } catch (e) {
       return makePromise(e, false);
     }
     if (isPromiseLike(callbackOutput)) {
@@ -13168,7 +13238,7 @@ function qFactory(nextTick, exceptionHandler) {
   return $Q;
 }
 
-function $$RAFProvider(){ //rAF
+function $$RAFProvider() { //rAF
   this.$get = ['$window', '$timeout', function($window, $timeout) {
     var requestAnimationFrame = $window.requestAnimationFrame ||
                                 $window.webkitRequestAnimationFrame ||
@@ -13267,7 +13337,7 @@ function $$RAFProvider(){ //rAF
  * They also provide an event emission/broadcast and subscription facility. See the
  * {@link guide/scope developer guide on scopes}.
  */
-function $RootScopeProvider(){
+function $RootScopeProvider() {
   var TTL = 10;
   var $rootScopeMinErr = minErr('$rootScope');
   var lastDirtyWatch = null;
@@ -13281,7 +13351,7 @@ function $RootScopeProvider(){
   };
 
   this.$get = ['$injector', '$exceptionHandler', '$parse', '$browser',
-      function( $injector,   $exceptionHandler,   $parse,   $browser) {
+      function($injector, $exceptionHandler, $parse, $browser) {
 
     /**
      * @ngdoc type
@@ -13312,6 +13382,10 @@ function $RootScopeProvider(){
          expect(child.salutation).toEqual('Welcome');
          expect(parent.salutation).toEqual('Hello');
      * ```
+     *
+     * When interacting with `Scope` in tests, additional helper methods are available on the
+     * instances of `Scope` type. See {@link ngMock.$rootScope.Scope ngMock Scope} for additional
+     * details.
      *
      *
      * @param {Object.<string, function()>=} providers Map of service factory which need to be
@@ -13624,7 +13698,7 @@ function $RootScopeProvider(){
         if (!watchExpressions.length) {
           // No expressions means we call the listener ASAP
           var shouldCall = true;
-          self.$evalAsync(function () {
+          self.$evalAsync(function() {
             if (shouldCall) listener(newValues, newValues, self);
           });
           return function deregisterWatchGroup() {
@@ -13641,7 +13715,7 @@ function $RootScopeProvider(){
           });
         }
 
-        forEach(watchExpressions, function (expr, i) {
+        forEach(watchExpressions, function(expr, i) {
           var unwatchFn = self.$watch(expr, function watchGroupSubAction(value, oldValue) {
             newValues[i] = value;
             oldValues[i] = oldValue;
@@ -13751,6 +13825,9 @@ function $RootScopeProvider(){
           newValue = _value;
           var newLength, key, bothNaN, newItem, oldItem;
 
+          // If the new value is undefined, then return undefined as the watch may be a one-time watch
+          if (isUndefined(newValue)) return;
+
           if (!isObject(newValue)) { // if primitive
             if (oldValue !== newValue) {
               oldValue = newValue;
@@ -13813,7 +13890,7 @@ function $RootScopeProvider(){
             if (oldLength > newLength) {
               // we used to have more keys, need to find them and destroy them.
               changeDetected++;
-              for(key in oldValue) {
+              for (key in oldValue) {
                 if (!newValue.hasOwnProperty(key)) {
                   oldLength--;
                   delete oldValue[key];
@@ -13933,7 +14010,7 @@ function $RootScopeProvider(){
           dirty = false;
           current = target;
 
-          while(asyncQueue.length) {
+          while (asyncQueue.length) {
             try {
               asyncTask = asyncQueue.shift();
               asyncTask.scope.$eval(asyncTask.expression);
@@ -13990,7 +14067,7 @@ function $RootScopeProvider(){
             // this piece should be kept in sync with the traversal in $broadcast
             if (!(next = (current.$$childHead ||
                 (current !== target && current.$$nextSibling)))) {
-              while(current !== target && !(next = current.$$nextSibling)) {
+              while (current !== target && !(next = current.$$nextSibling)) {
                 current = current.$parent;
               }
             }
@@ -13998,7 +14075,7 @@ function $RootScopeProvider(){
 
           // `break traverseScopesLoop;` takes us to here
 
-          if((dirty || asyncQueue.length) && !(ttl--)) {
+          if ((dirty || asyncQueue.length) && !(ttl--)) {
             clearPhase();
             throw $rootScopeMinErr('infdig',
                 '{0} $digest() iterations reached. Aborting!\n' +
@@ -14010,7 +14087,7 @@ function $RootScopeProvider(){
 
         clearPhase();
 
-        while(postDigestQueue.length) {
+        while (postDigestQueue.length) {
           try {
             postDigestQueue.shift()();
           } catch (e) {
@@ -14166,7 +14243,7 @@ function $RootScopeProvider(){
         asyncQueue.push({scope: this, expression: expr});
       },
 
-      $$postDigest : function(fn) {
+      $$postDigest: function(fn) {
         postDigestQueue.push(fn);
       },
 
@@ -14303,8 +14380,11 @@ function $RootScopeProvider(){
 
         var self = this;
         return function() {
-          namedListeners[namedListeners.indexOf(listener)] = null;
-          decrementListenerCount(self, 1, name);
+          var indexOfListener = namedListeners.indexOf(listener);
+          if (indexOfListener !== -1) {
+            namedListeners[indexOfListener] = null;
+            decrementListenerCount(self, 1, name);
+          }
         };
       },
 
@@ -14436,7 +14516,7 @@ function $RootScopeProvider(){
 
             try {
               listeners[i].apply(null, listenerArgs);
-            } catch(e) {
+            } catch (e) {
               $exceptionHandler(e);
             }
           }
@@ -14447,7 +14527,7 @@ function $RootScopeProvider(){
           // (though it differs due to having the extra check for $$listenerCount)
           if (!(next = ((current.$$listenerCount[name] && current.$$childHead) ||
               (current !== target && current.$$nextSibling)))) {
-            while(current !== target && !(next = current.$$nextSibling)) {
+            while (current !== target && !(next = current.$$nextSibling)) {
               current = current.$parent;
             }
           }
@@ -14501,7 +14581,7 @@ function $RootScopeProvider(){
       while (applyAsyncQueue.length) {
         try {
           applyAsyncQueue.shift()();
-        } catch(e) {
+        } catch (e) {
           $exceptionHandler(e);
         }
       }
@@ -14601,15 +14681,6 @@ var SCE_CONTEXTS = {
 };
 
 // Helper functions follow.
-
-// Copied from:
-// http://docs.closure-library.googlecode.com/git/closure_goog_string_string.js.source.html#line962
-// Prereq: s is a string.
-function escapeForRegexp(s) {
-  return s.replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').
-           replace(/\x08/g, '\\x08');
-}
-
 
 function adjustMatcher(matcher) {
   if (matcher === 'self') {
@@ -14746,7 +14817,7 @@ function $SceDelegateProvider() {
    * @description
    * Sets/Gets the whitelist of trusted resource URLs.
    */
-  this.resourceUrlWhitelist = function (value) {
+  this.resourceUrlWhitelist = function(value) {
     if (arguments.length) {
       resourceUrlWhitelist = adjustMatchers(value);
     }
@@ -14780,7 +14851,7 @@ function $SceDelegateProvider() {
    * Sets/Gets the blacklist of trusted resource URLs.
    */
 
-  this.resourceUrlBlacklist = function (value) {
+  this.resourceUrlBlacklist = function(value) {
     if (arguments.length) {
       resourceUrlBlacklist = adjustMatchers(value);
     }
@@ -15261,7 +15332,7 @@ function $SceProvider() {
    * @description
    * Enables/disables SCE and returns the current value.
    */
-  this.enabled = function (value) {
+  this.enabled = function(value) {
     if (arguments.length) {
       enabled = !!value;
     }
@@ -15315,11 +15386,11 @@ function $SceProvider() {
    * sce.js and sceSpecs.js would need to be aware of this detail.
    */
 
-  this.$get = ['$document', '$parse', '$sceDelegate', function(
-                $document,   $parse,   $sceDelegate) {
+  this.$get = ['$parse', '$sceDelegate', function(
+                $parse,   $sceDelegate) {
     // Prereq: Ensure that we're not running in IE<11 quirks mode.  In that mode, IE < 11 allow
     // the "expression(javascript expression)" syntax which is insecure.
-    if (enabled && $document[0].documentMode < 8) {
+    if (enabled && msie < 8) {
       throw $sceMinErr('iequirks',
         'Strict Contextual Escaping does not support Internet Explorer version < 11 in quirks ' +
         'mode.  You can fix this by adding the text <!doctype html> to the top of your HTML ' +
@@ -15339,7 +15410,7 @@ function $SceProvider() {
      * @description
      * Returns a boolean indicating if SCE is enabled.
      */
-    sce.isEnabled = function () {
+    sce.isEnabled = function() {
       return enabled;
     };
     sce.trustAs = $sceDelegate.trustAs;
@@ -15375,7 +15446,7 @@ function $SceProvider() {
       if (parsed.literal && parsed.constant) {
         return parsed;
       } else {
-        return $parse(expr, function (value) {
+        return $parse(expr, function(value) {
           return sce.getTrusted(type, value);
         });
       }
@@ -15628,15 +15699,15 @@ function $SceProvider() {
         getTrusted = sce.getTrusted,
         trustAs = sce.trustAs;
 
-    forEach(SCE_CONTEXTS, function (enumValue, name) {
+    forEach(SCE_CONTEXTS, function(enumValue, name) {
       var lName = lowercase(name);
-      sce[camelCase("parse_as_" + lName)] = function (expr) {
+      sce[camelCase("parse_as_" + lName)] = function(expr) {
         return parse(enumValue, expr);
       };
-      sce[camelCase("get_trusted_" + lName)] = function (value) {
+      sce[camelCase("get_trusted_" + lName)] = function(value) {
         return getTrusted(enumValue, value);
       };
-      sce[camelCase("trust_as_" + lName)] = function (value) {
+      sce[camelCase("trust_as_" + lName)] = function(value) {
         return trustAs(enumValue, value);
       };
     });
@@ -15667,22 +15738,22 @@ function $SnifferProvider() {
         boxee = /Boxee/i.test(($window.navigator || {}).userAgent),
         document = $document[0] || {},
         vendorPrefix,
-        vendorRegex = /^(Moz|webkit|O|ms)(?=[A-Z])/,
+        vendorRegex = /^(Moz|webkit|ms)(?=[A-Z])/,
         bodyStyle = document.body && document.body.style,
         transitions = false,
         animations = false,
         match;
 
     if (bodyStyle) {
-      for(var prop in bodyStyle) {
-        if(match = vendorRegex.exec(prop)) {
+      for (var prop in bodyStyle) {
+        if (match = vendorRegex.exec(prop)) {
           vendorPrefix = match[0];
           vendorPrefix = vendorPrefix.substr(0, 1).toUpperCase() + vendorPrefix.substr(1);
           break;
         }
       }
 
-      if(!vendorPrefix) {
+      if (!vendorPrefix) {
         vendorPrefix = ('WebkitOpacity' in bodyStyle) && 'webkit';
       }
 
@@ -15723,8 +15794,8 @@ function $SnifferProvider() {
       },
       csp: csp(),
       vendorPrefix: vendorPrefix,
-      transitions : transitions,
-      animations : animations,
+      transitions: transitions,
+      animations: animations,
       android: android
     };
   }];
@@ -15755,13 +15826,29 @@ function $TemplateRequestProvider() {
       var self = handleRequestFn;
       self.totalPendingRequests++;
 
-      return $http.get(tpl, { cache : $templateCache })
+      var transformResponse = $http.defaults && $http.defaults.transformResponse;
+
+      if (isArray(transformResponse)) {
+        var original = transformResponse;
+        transformResponse = [];
+        for (var i=0; i<original.length; ++i) {
+          var transformer = original[i];
+          if (transformer !== defaultHttpResponseTransform) {
+            transformResponse.push(transformer);
+          }
+        }
+      } else if (transformResponse === defaultHttpResponseTransform) {
+        transformResponse = null;
+      }
+
+      var httpOptions = {
+        cache: $templateCache,
+        transformResponse: transformResponse
+      };
+
+      return $http.get(tpl, httpOptions)
         .then(function(response) {
           var html = response.data;
-          if(!html || html.length === 0) {
-            return handleError();
-          }
-
           self.totalPendingRequests--;
           $templateCache.put(tpl, html);
           return html;
@@ -15815,7 +15902,7 @@ function $$TestabilityProvider() {
         if (dataBinding) {
           forEach(dataBinding, function(bindingName) {
             if (opt_exactMatch) {
-              var matcher = new RegExp('(^|\\s)' + expression + '(\\s|\\||$)');
+              var matcher = new RegExp('(^|\\s)' + escapeForRegexp(expression) + '(\\s|\\||$)');
               if (matcher.test(bindingName)) {
                 matches.push(binding);
               }
@@ -15937,7 +16024,7 @@ function $TimeoutProvider() {
       timeoutId = $browser.defer(function() {
         try {
           deferred.resolve(fn());
-        } catch(e) {
+        } catch (e) {
           deferred.reject(e);
           $exceptionHandler(e);
         }
@@ -16103,7 +16190,7 @@ function urlIsSameOrigin(requestUrl) {
      <file name="index.html">
        <script>
          angular.module('windowExample', [])
-           .controller('ExampleController', ['$scope', '$window', function ($scope, $window) {
+           .controller('ExampleController', ['$scope', '$window', function($scope, $window) {
              $scope.greeting = 'Hello, World!';
              $scope.doGreeting = function(greeting) {
                $window.alert(greeting);
@@ -16124,7 +16211,7 @@ function urlIsSameOrigin(requestUrl) {
      </file>
    </example>
  */
-function $WindowProvider(){
+function $WindowProvider() {
   this.$get = valueFn(window);
 }
 
@@ -16233,7 +16320,7 @@ function $FilterProvider($provide) {
    *    of the registered filter instances.
    */
   function register(name, factory) {
-    if(isObject(name)) {
+    if (isObject(name)) {
       var filters = {};
       forEach(name, function(filter, key) {
         filters[key] = register(key, filter);
@@ -16400,7 +16487,7 @@ function filterFilter() {
 
     predicates.check = function(value, index) {
       for (var j = 0; j < predicates.length; j++) {
-        if(!predicates[j](value, index)) {
+        if (!predicates[j](value, index)) {
           return false;
         }
       }
@@ -16429,7 +16516,7 @@ function filterFilter() {
       }
     }
 
-    var search = function(obj, text){
+    var search = function(obj, text) {
       if (typeof text === 'string' && text.charAt(0) === '!') {
         return !search(obj, text.substr(1));
       }
@@ -16443,7 +16530,7 @@ function filterFilter() {
             case 'object':
               return comparator(obj, text);
             default:
-              for ( var objKey in obj) {
+              for (var objKey in obj) {
                 if (objKey.charAt(0) !== '$' && search(obj[objKey], text)) {
                   return true;
                 }
@@ -16452,7 +16539,7 @@ function filterFilter() {
           }
           return false;
         case 'array':
-          for ( var i = 0; i < obj.length; i++) {
+          for (var i = 0; i < obj.length; i++) {
             if (search(obj[i], text)) {
               return true;
             }
@@ -16487,7 +16574,7 @@ function filterFilter() {
         return array;
     }
     var filtered = [];
-    for ( var j = 0; j < array.length; j++) {
+    for (var j = 0; j < array.length; j++) {
       var value = array[j];
       if (predicates.check(value, j)) {
         filtered.push(value);
@@ -16552,7 +16639,7 @@ function filterFilter() {
 currencyFilter.$inject = ['$locale'];
 function currencyFilter($locale) {
   var formats = $locale.NUMBER_FORMATS;
-  return function(amount, currencySymbol, fractionSize){
+  return function(amount, currencySymbol, fractionSize) {
     if (isUndefined(currencySymbol)) {
       currencySymbol = formats.CURRENCY_SYM;
     }
@@ -16699,7 +16786,7 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     }
 
     // format fraction part.
-    while(fraction.length < fractionSize) {
+    while (fraction.length < fractionSize) {
       fraction += '0';
     }
 
@@ -16724,7 +16811,7 @@ function padNumber(num, digits, trim) {
     num = -num;
   }
   num = '' + num;
-  while(num.length < digits) num = '0' + num;
+  while (num.length < digits) num = '0' + num;
   if (trim)
     num = num.substr(num.length - digits);
   return neg + num;
@@ -16737,7 +16824,7 @@ function dateGetter(name, size, offset, trim) {
     var value = date['get' + name]();
     if (offset > 0 || value > -offset)
       value += offset;
-    if (value === 0 && offset == -12 ) value = 12;
+    if (value === 0 && offset == -12) value = 12;
     return padNumber(value, size, trim);
   };
 }
@@ -16962,7 +17049,7 @@ function dateFilter($locale) {
       return date;
     }
 
-    while(format) {
+    while (format) {
       match = DATE_FORMATS_SPLIT.exec(format);
       if (match) {
         parts = concat(parts, match, 1);
@@ -16977,7 +17064,7 @@ function dateFilter($locale) {
       date = new Date(date.getTime());
       date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
     }
-    forEach(parts, function(value){
+    forEach(parts, function(value) {
       fn = DATE_FORMATS[value];
       text += fn ? fn(date, $locale.DATETIME_FORMATS)
                  : value.replace(/(^'|'$)/g, '').replace(/''/g, "'");
@@ -17130,7 +17217,7 @@ var uppercaseFilter = valueFn(uppercase);
      </file>
    </example>
 */
-function limitToFilter(){
+function limitToFilter() {
   return function(input, limit) {
     if (isNumber(input)) input = input.toString();
     if (!isArray(input) && !isString(input)) return input;
@@ -17291,42 +17378,42 @@ function limitToFilter(){
 </example>
  */
 orderByFilter.$inject = ['$parse'];
-function orderByFilter($parse){
+function orderByFilter($parse) {
   return function(array, sortPredicate, reverseOrder) {
     if (!(isArrayLike(array))) return array;
     sortPredicate = isArray(sortPredicate) ? sortPredicate: [sortPredicate];
     if (sortPredicate.length === 0) { sortPredicate = ['+']; }
-    sortPredicate = sortPredicate.map(function(predicate){
+    sortPredicate = sortPredicate.map(function(predicate) {
       var descending = false, get = predicate || identity;
       if (isString(predicate)) {
         if ((predicate.charAt(0) == '+' || predicate.charAt(0) == '-')) {
           descending = predicate.charAt(0) == '-';
           predicate = predicate.substring(1);
         }
-        if ( predicate === '' ) {
+        if (predicate === '') {
           // Effectively no predicate was passed so we compare identity
-          return reverseComparator(function(a,b) {
+          return reverseComparator(function(a, b) {
             return compare(a, b);
           }, descending);
         }
         get = $parse(predicate);
         if (get.constant) {
           var key = get();
-          return reverseComparator(function(a,b) {
+          return reverseComparator(function(a, b) {
             return compare(a[key], b[key]);
           }, descending);
         }
       }
-      return reverseComparator(function(a,b){
+      return reverseComparator(function(a, b) {
         return compare(get(a),get(b));
       }, descending);
     });
     var arrayCopy = [];
-    for ( var i = 0; i < array.length; i++) { arrayCopy.push(array[i]); }
+    for (var i = 0; i < array.length; i++) { arrayCopy.push(array[i]); }
     return arrayCopy.sort(reverseComparator(comparator, reverseOrder));
 
-    function comparator(o1, o2){
-      for ( var i = 0; i < sortPredicate.length; i++) {
+    function comparator(o1, o2) {
+      for (var i = 0; i < sortPredicate.length; i++) {
         var comp = sortPredicate[i](o1, o2);
         if (comp !== 0) return comp;
       }
@@ -17334,10 +17421,10 @@ function orderByFilter($parse){
     }
     function reverseComparator(comp, descending) {
       return descending
-          ? function(a,b){return comp(b,a);}
+          ? function(a, b) {return comp(b,a);}
           : comp;
     }
-    function compare(v1, v2){
+    function compare(v1, v2) {
       var t1 = typeof v1;
       var t2 = typeof v2;
       if (t1 == t2) {
@@ -17389,7 +17476,7 @@ var htmlAnchorDirective = valueFn({
         // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
         var href = toString.call(element.prop('href')) === '[object SVGAnimatedString]' ?
                    'xlink:href' : 'href';
-        element.on('click', function(event){
+        element.on('click', function(event) {
           // if we have no href url, then don't navigate anywhere.
           if (!element.attr(href)) {
             event.preventDefault();
@@ -17868,6 +17955,11 @@ function nullFormRenameControl(control, name) {
  *  - `pattern`
  *  - `required`
  *  - `url`
+ *  - `date`
+ *  - `datetimelocal`
+ *  - `time`
+ *  - `week`
+ *  - `month`
  *
  * @description
  * `FormController` keeps track of all its controls and nested forms as well as the state of them,
@@ -18056,7 +18148,7 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
    * Setting a form back to a pristine state is often useful when we want to 'reuse' a form after
    * saving or resetting it.
    */
-  form.$setPristine = function () {
+  form.$setPristine = function() {
     $animate.setClass(element, PRISTINE_CLASS, DIRTY_CLASS + ' ' + SUBMITTED_CLASS);
     form.$dirty = false;
     form.$pristine = true;
@@ -18079,7 +18171,7 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
    * Setting a form controls back to their untouched state is often useful when setting the form
    * back to its pristine state.
    */
-  form.$setUntouched = function () {
+  form.$setUntouched = function() {
     forEach(controls, function(control) {
       control.$setUntouched();
     });
@@ -18092,7 +18184,7 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
    * @description
    * Sets the form to its submitted state.
    */
-  form.$setSubmitted = function () {
+  form.$setSubmitted = function() {
     $animate.addClass(element, SUBMITTED_CLASS);
     form.$submitted = true;
     parentForm.$setSubmitted();
@@ -18369,7 +18461,6 @@ var inputType = {
    * @description
    * Standard HTML text input with angular data binding, inherited by most of the `input` elements.
    *
-   * *NOTE* Not every feature offered is available for all input types.
    *
    * @param {string} ngModel Assignable angular expression to data-bind to.
    * @param {string=} name Property name of the form under which the control is published.
@@ -18453,7 +18544,10 @@ var inputType = {
      * the HTML5 date input, a text element will be used. In that case, text must be entered in a valid ISO-8601
      * date format (yyyy-MM-dd), for example: `2009-01-06`. Since many
      * modern browsers do not yet support this input type, it is important to provide cues to users on the
-     * expected input format via a placeholder or label. The model must always be a Date object.
+     * expected input format via a placeholder or label.
+     *
+     * The model must always be a Date object, otherwise Angular will throw an error.
+     * Invalid `Date` objects (dates whose `getTime()` is `NaN`) will be rendered as an empty string.
      *
      * The timezone to be used to read/write the `Date` instance in the model can be defined using
      * {@link ng.directive:ngModelOptions ngModelOptions}. By default, this is the timezone of the browser.
@@ -18536,12 +18630,15 @@ var inputType = {
 
    /**
     * @ngdoc input
-    * @name input[dateTimeLocal]
+    * @name input[datetime-local]
     *
     * @description
     * Input with datetime validation and transformation. In browsers that do not yet support
     * the HTML5 date input, a text element will be used. In that case, the text must be entered in a valid ISO-8601
-    * local datetime format (yyyy-MM-ddTHH:mm:ss), for example: `2010-12-28T14:57:00`. The model must be a Date object.
+    * local datetime format (yyyy-MM-ddTHH:mm:ss), for example: `2010-12-28T14:57:00`.
+    *
+    * The model must always be a Date object, otherwise Angular will throw an error.
+    * Invalid `Date` objects (dates whose `getTime()` is `NaN`) will be rendered as an empty string.
     *
     * The timezone to be used to read/write the `Date` instance in the model can be defined using
     * {@link ng.directive:ngModelOptions ngModelOptions}. By default, this is the timezone of the browser.
@@ -18632,6 +18729,9 @@ var inputType = {
    * local time format (HH:mm:ss), for example: `14:57:00`. Model must be a Date object. This binding will always output a
    * Date object to the model of January 1, 1970, or local date `new Date(1970, 0, 1, HH, mm, ss)`.
    *
+   * The model must always be a Date object, otherwise Angular will throw an error.
+   * Invalid `Date` objects (dates whose `getTime()` is `NaN`) will be rendered as an empty string.
+   *
    * The timezone to be used to read/write the `Date` instance in the model can be defined using
    * {@link ng.directive:ngModelOptions ngModelOptions}. By default, this is the timezone of the browser.
    *
@@ -18718,7 +18818,10 @@ var inputType = {
     * @description
     * Input with week-of-the-year validation and transformation to Date. In browsers that do not yet support
     * the HTML5 week input, a text element will be used. In that case, the text must be entered in a valid ISO-8601
-    * week format (yyyy-W##), for example: `2013-W02`. The model must always be a Date object.
+    * week format (yyyy-W##), for example: `2013-W02`.
+    *
+    * The model must always be a Date object, otherwise Angular will throw an error.
+    * Invalid `Date` objects (dates whose `getTime()` is `NaN`) will be rendered as an empty string.
     *
     * The timezone to be used to read/write the `Date` instance in the model can be defined using
     * {@link ng.directive:ngModelOptions ngModelOptions}. By default, this is the timezone of the browser.
@@ -18804,8 +18907,12 @@ var inputType = {
    * @description
    * Input with month validation and transformation. In browsers that do not yet support
    * the HTML5 month input, a text element will be used. In that case, the text must be entered in a valid ISO-8601
-   * month format (yyyy-MM), for example: `2009-01`. The model must always be a Date object. In the event the model is
-   * not set to the first of the month, the first of that model's month is assumed.
+   * month format (yyyy-MM), for example: `2009-01`.
+   *
+   * The model must always be a Date object, otherwise Angular will throw an error.
+   * Invalid `Date` objects (dates whose `getTime()` is `NaN`) will be rendered as an empty string.
+   * If the model is not set to the first of the month, the next view to model update will set it
+   * to the first of the month.
    *
    * The timezone to be used to read/write the `Date` instance in the model can be defined using
    * {@link ng.directive:ngModelOptions ngModelOptions}. By default, this is the timezone of the browser.
@@ -18894,6 +19001,8 @@ var inputType = {
    * Text input with number validation and transformation. Sets the `number` validation
    * error if not a valid number.
    *
+   * The model must always be a number, otherwise Angular will throw an error.
+   *
    * @param {string} ngModel Assignable angular expression to data-bind to.
    * @param {string=} name Property name of the form under which the control is published.
    * @param {string=} min Sets the `min` validation error key if the value entered is less than `min`.
@@ -18972,6 +19081,12 @@ var inputType = {
    * Text input with URL validation. Sets the `url` validation error key if the content is not a
    * valid URL.
    *
+   * <div class="alert alert-warning">
+   * **Note:** `input[url]` uses a regex to validate urls that is derived from the regex
+   * used in Chromium. If you need stricter validation, you can use `ng-pattern` or modify
+   * the built-in validators (see the {@link guide/forms Forms guide})
+   * </div>
+   *
    * @param {string} ngModel Assignable angular expression to data-bind to.
    * @param {string=} name Property name of the form under which the control is published.
    * @param {string=} required Sets `required` validation error key if the value is not entered.
@@ -19048,6 +19163,12 @@ var inputType = {
    * @description
    * Text input with email validation. Sets the `email` validation error key if not a valid email
    * address.
+   *
+   * <div class="alert alert-warning">
+   * **Note:** `input[email]` uses a regex to validate email addresses that is derived from the regex
+   * used in Chromium. If you need stricter validation (e.g. requiring a top-level domain), you can
+   * use `ng-pattern` or modify the built-in validators (see the {@link guide/forms Forms guide})
+   * </div>
    *
    * @param {string} ngModel Assignable angular expression to data-bind to.
    * @param {string=} name Property name of the form under which the control is published.
@@ -19227,19 +19348,6 @@ var inputType = {
   'file': noop
 };
 
-function testFlags(validity, flags) {
-  var i, flag;
-  if (flags) {
-    for (i=0; i<flags.length; ++i) {
-      flag = flags[i];
-      if (validity[flag]) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 function stringBasedInputType(ctrl) {
   ctrl.$formatters.push(function(value) {
     return ctrl.$isEmpty(value) ? value : value.toString();
@@ -19252,7 +19360,6 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
 }
 
 function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
-  var validity = element.prop(VALIDITY_STATE_PROPERTY);
   var placeholder = element[0].placeholder, noevent = {};
   var type = lowercase(element[0].type);
 
@@ -19689,10 +19796,14 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
  * @restrict E
  *
  * @description
- * HTML input element control with angular data-binding. Input control follows HTML5 input types
- * and polyfills the HTML5 validation behavior for older browsers.
+ * HTML input element control. When used together with {@link ngModel `ngModel`}, it provides data-binding,
+ * input state control, and validation.
+ * Input control follows HTML5 input types and polyfills the HTML5 validation behavior for older browsers.
  *
- * *NOTE* Not every feature offered is available for all input types.
+ * <div class="alert alert-warning">
+ * **Note:** Not every feature offered is available for all input types.
+ * Specifically, data binding and event handling via `ng-model` is unsupported for `input[file]`.
+ * </div>
  *
  * @param {string} ngModel Assignable angular expression to data-bind to.
  * @param {string=} name Property name of the form under which the control is published.
@@ -19828,19 +19939,20 @@ var VALID_CLASS = 'ng-valid',
  * @name ngModel.NgModelController
  *
  * @property {string} $viewValue Actual string value in the view.
- * @property {*} $modelValue The value in the model, that the control is bound to.
+ * @property {*} $modelValue The value in the model that the control is bound to.
  * @property {Array.<Function>} $parsers Array of functions to execute, as a pipeline, whenever
-       the control reads value from the DOM.  Each function is called, in turn, passing the value
-       through to the next. The last return value is used to populate the model.
-       Used to sanitize / convert the value as well as validation. For validation,
-       the parsers should update the validity state using
-       {@link ngModel.NgModelController#$setValidity $setValidity()},
-       and return `undefined` for invalid values.
+       the control reads value from the DOM. The functions are called in array order, each passing the value
+       through to the next. The last return value is forwarded to the $validators collection.
+       Used to sanitize / convert the value.
+       Returning undefined from a parser means a parse error occurred. No $validators will
+       run and the 'ngModel' will not be updated until the parse error is resolved. The parse error is stored
+       in 'ngModel.$error.parse'.
 
  *
  * @property {Array.<Function>} $formatters Array of functions to execute, as a pipeline, whenever
-       the model value changes. Each function is called, in turn, passing the value through to the
-       next. Used to format / convert values for display in the control and validation.
+       the model value changes. The functions are called in reverse array order, each passing the value through to the
+       next. The last return value is used as the actual DOM value.
+       Used to format / convert values for display in the control.
  * ```js
  * function formatter(value) {
  *   if (value) {
@@ -19871,8 +19983,9 @@ var VALID_CLASS = 'ng-valid',
  *      is expected to return a promise when it is run during the model validation process. Once the promise
  *      is delivered then the validation status will be set to true when fulfilled and false when rejected.
  *      When the asynchronous validators are triggered, each of the validators will run in parallel and the model
- *      value will only be updated once all validators have been fulfilled. Also, keep in mind that all
- *      asynchronous validators will only run once all synchronous validators have passed.
+ *      value will only be updated once all validators have been fulfilled. As long as an asynchronous validator
+ *      is unfulfilled, its key will be added to the controllers `$pending` property. Also, all asynchronous validators
+ *      will only run once all synchronous validators have passed.
  *
  * Please note that if $http is used then it is important that the server returns a success HTTP response code
  * in order to fulfill the validation and a status level of `4xx` in order to reject the validation.
@@ -19893,9 +20006,6 @@ var VALID_CLASS = 'ng-valid',
  * };
  * ```
  *
- * @param {string} name The name of the validator.
- * @param {Function} validationFn The validation function that will be run.
- *
  * @property {Array.<Function>} $viewChangeListeners Array of functions to execute whenever the
  *     view value has changed. It is called with no arguments, and its return value is ignored.
  *     This can be used in place of additional $watches against the model value.
@@ -19909,6 +20019,7 @@ var VALID_CLASS = 'ng-valid',
  * @property {boolean} $dirty True if user has already interacted with the control.
  * @property {boolean} $valid True if there is no error.
  * @property {boolean} $invalid True if at least one error on the control.
+ * @property {string} $name The name attribute of the control.
  *
  * @description
  *
@@ -19928,7 +20039,7 @@ var VALID_CLASS = 'ng-valid',
  *
  * We are using the {@link ng.service:$sce $sce} service here and include the {@link ngSanitize $sanitize}
  * module to automatically remove "bad" content like inline event listener (e.g. `<span onclick="...">`).
- * However, as we are using `$sce` the model can still decide to to provide unsafe content if it marks
+ * However, as we are using `$sce` the model can still decide to provide unsafe content if it marks
  * that content using the `$sce` service.
  *
  * <example name="NgModelController" module="customControl" deps="angular-sanitize.js">
@@ -20115,19 +20226,22 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @name ngModel.NgModelController#$setValidity
    *
    * @description
-   * Change the validity state, and notifies the form.
+   * Change the validity state, and notify the form.
    *
-   * This method can be called within $parsers/$formatters. However, if possible, please use the
-   *        `ngModel.$validators` pipeline which is designed to call this method automatically.
+   * This method can be called within $parsers/$formatters or a custom validation implementation.
+   * However, in most cases it should be sufficient to use the `ngModel.$validators` and
+   * `ngModel.$asyncValidators` collections which will call `$setValidity` automatically.
    *
-   * @param {string} validationErrorKey Name of the validator. the `validationErrorKey` will assign
-   *        to `$error[validationErrorKey]` and `$pending[validationErrorKey]`
-   *        so that it is available for data-binding.
+   * @param {string} validationErrorKey Name of the validator. The `validationErrorKey` will be assigned
+   *        to either `$error[validationErrorKey]` or `$pending[validationErrorKey]`
+   *        (for unfulfilled `$asyncValidators`), so that it is available for data-binding.
    *        The `validationErrorKey` should be in camelCase and will get converted into dash-case
    *        for class name. Example: `myError` will result in `ng-valid-my-error` and `ng-invalid-my-error`
    *        class and can be bound to as  `{{someForm.someControl.$error.myError}}` .
    * @param {boolean} isValid Whether the current state is valid (true), invalid (false), pending (undefined),
-   *                          or skipped (null).
+   *                          or skipped (null). Pending is used for unfulfilled `$asyncValidators`.
+   *                          Skipped is used by Angular when validators do not run because of parse errors and
+   *                          when `$asyncValidators` do not run because any of the `$validators` failed.
    */
   addSetValidityMethod({
     ctrl: this,
@@ -20153,7 +20267,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * state (ng-pristine class). A model is considered to be pristine when the model has not been changed
    * from when first compiled within then form.
    */
-  this.$setPristine = function () {
+  this.$setPristine = function() {
     ctrl.$dirty = false;
     ctrl.$pristine = true;
     $animate.removeClass($element, DIRTY_CLASS);
@@ -20222,13 +20336,13 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    *     angular.module('cancel-update-example', [])
    *
    *     .controller('CancelUpdateController', ['$scope', function($scope) {
-   *       $scope.resetWithCancel = function (e) {
+   *       $scope.resetWithCancel = function(e) {
    *         if (e.keyCode == 27) {
    *           $scope.myForm.myInput1.$rollbackViewValue();
    *           $scope.myValue = '';
    *         }
    *       };
-   *       $scope.resetWithoutCancel = function (e) {
+   *       $scope.resetWithoutCancel = function(e) {
    *         if (e.keyCode == 27) {
    *           $scope.myValue = '';
    *         }
@@ -20407,7 +20521,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     var parserValid = isUndefined(modelValue) ? undefined : true;
 
     if (parserValid) {
-      for(var i = 0; i < ctrl.$parsers.length; i++) {
+      for (var i = 0; i < ctrl.$parsers.length; i++) {
         modelValue = ctrl.$parsers[i](modelValue);
         if (isUndefined(modelValue)) {
           parserValid = false;
@@ -20448,7 +20562,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     forEach(ctrl.$viewChangeListeners, function(listener) {
       try {
         listener();
-      } catch(e) {
+      } catch (e) {
         $exceptionHandler(e);
       }
     });
@@ -20551,7 +20665,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
           idx = formatters.length;
 
       var viewValue = modelValue;
-      while(idx--) {
+      while (idx--) {
         viewValue = formatters[idx](viewValue);
       }
       if (ctrl.$viewValue !== viewValue) {
@@ -20572,6 +20686,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
  * @name ngModel
  *
  * @element input
+ * @priority 1
  *
  * @description
  * The `ngModel` directive binds an `input`,`select`, `textarea` (or custom form control) to a
@@ -20593,7 +20708,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
  *
  * For best practices on using `ngModel`, see:
  *
- *  - [https://github.com/angular/angular.js/wiki/Understanding-Scopes]
+ *  - [Understanding Scopes](https://github.com/angular/angular.js/wiki/Understanding-Scopes)
  *
  * For basic examples, how to use `ngModel`, see:
  *
@@ -20605,7 +20720,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
  *    - {@link input[email] email}
  *    - {@link input[url] url}
  *    - {@link input[date] date}
- *    - {@link input[dateTimeLocal] dateTimeLocal}
+ *    - {@link input[datetime-local] datetime-local}
  *    - {@link input[time] time}
  *    - {@link input[month] month}
  *    - {@link input[week] week}
@@ -20616,10 +20731,15 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
  * The following CSS classes are added and removed on the associated input/select/textarea element
  * depending on the validity of the model.
  *
- *  - `ng-valid` is set if the model is valid.
- *  - `ng-invalid` is set if the model is invalid.
- *  - `ng-pristine` is set if the model is pristine.
- *  - `ng-dirty` is set if the model is dirty.
+ *  - `ng-valid`: the model is valid
+ *  - `ng-invalid`: the model is invalid
+ *  - `ng-valid-[key]`: for each valid key added by `$setValidity`
+ *  - `ng-invalid-[key]`: for each invalid key added by `$setValidity`
+ *  - `ng-pristine`: the control hasn't been interacted with yet
+ *  - `ng-dirty`: the control has been interacted with
+ *  - `ng-touched`: the control has been blurred
+ *  - `ng-untouched`: the control hasn't been blurred
+ *  - `ng-pending`: any `$asyncValidators` are unfulfilled
  *
  * Keep in mind that ngAnimate can detect each of these classes when added and removed.
  *
@@ -20713,7 +20833,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
          .controller('ExampleController', ['$scope', function($scope) {
            var _name = 'Brian';
            $scope.user = {
-             name: function (newName) {
+             name: function(newName) {
                if (angular.isDefined(newName)) {
                  _name = newName;
                }
@@ -21080,12 +21200,17 @@ var CONSTANT_VALUE_REGEXP = /^(true|false|\d+)$/;
  * @name ngValue
  *
  * @description
- * Binds the given expression to the value of `input[select]` or `input[radio]`, so
- * that when the element is selected, the `ngModel` of that element is set to the
- * bound value.
+ * Binds the given expression to the value of `<option>` or {@link input[radio] `input[radio]`},
+ * so that when the element is selected, the {@link ngModel `ngModel`} of that element is set to
+ * the bound value.
  *
- * `ngValue` is useful when dynamically generating lists of radio buttons using `ng-repeat`, as
- * shown below.
+ * `ngValue` is useful when dynamically generating lists of radio buttons using
+ * {@link ngRepeat `ngRepeat`}, as shown below.
+ *
+ * Likewise, `ngValue` can be used to generate `<option>` elements for
+ * the {@link select `select`} element. In that case however, only strings are supported
+ * for the `value `attribute, so the resulting `ngModel` will always be a string.
+ * Support for `select` models with non-string values is available via `ngOptions`.
  *
  * @element input
  * @param {string=} ngValue angular expression, whose value will be bound to the `value` attribute
@@ -21215,7 +21340,7 @@ var ngValueDirective = function() {
         .controller('ExampleController', ['$scope', function($scope) {
           $scope.user = { name: 'say', data: '' };
 
-          $scope.cancel = function (e) {
+          $scope.cancel = function(e) {
             if (e.keyCode == 27) {
               $scope.userForm.userName.$rollbackViewValue();
             }
@@ -21289,7 +21414,7 @@ var ngValueDirective = function() {
         .controller('ExampleController', ['$scope', function($scope) {
           var _name = 'Brian';
           $scope.user = {
-            name: function (newName) {
+            name: function(newName) {
               return angular.isDefined(newName) ? (_name = newName) : _name;
             }
           };
@@ -21512,7 +21637,7 @@ var ngBindDirective = ['$compile', function($compile) {
      <file name="index.html">
        <script>
          angular.module('bindExample', [])
-           .controller('ExampleController', ['$scope', function ($scope) {
+           .controller('ExampleController', ['$scope', function($scope) {
              $scope.salutation = 'Hello';
              $scope.name = 'World';
            }]);
@@ -21667,10 +21792,10 @@ function classDirective(name, selector) {
           attr.$removeClass(newClasses);
         }
 
-        function digestClassCounts (classes, count) {
+        function digestClassCounts(classes, count) {
           var classCounts = element.data('$classCounts') || {};
           var classesToUpdate = [];
-          forEach(classes, function (className) {
+          forEach(classes, function(className) {
             if (count > 0 || classCounts[className]) {
               classCounts[className] = (classCounts[className] || 0) + count;
               if (classCounts[className] === +(count > 0)) {
@@ -21682,7 +21807,7 @@ function classDirective(name, selector) {
           return classesToUpdate.join(' ');
         }
 
-        function updateClasses (oldClasses, newClasses) {
+        function updateClasses(oldClasses, newClasses) {
           var toAdd = arrayDifference(newClasses, oldClasses);
           var toRemove = arrayDifference(oldClasses, newClasses);
           toAdd = digestClassCounts(toAdd, 1);
@@ -21714,23 +21839,23 @@ function classDirective(name, selector) {
       var values = [];
 
       outer:
-      for(var i = 0; i < tokens1.length; i++) {
+      for (var i = 0; i < tokens1.length; i++) {
         var token = tokens1[i];
-        for(var j = 0; j < tokens2.length; j++) {
-          if(token == tokens2[j]) continue outer;
+        for (var j = 0; j < tokens2.length; j++) {
+          if (token == tokens2[j]) continue outer;
         }
         values.push(token);
       }
       return values;
     }
 
-    function arrayClasses (classVal) {
+    function arrayClasses(classVal) {
       if (isArray(classVal)) {
         return classVal;
       } else if (isString(classVal)) {
         return classVal.split(' ');
       } else if (isObject(classVal)) {
-        var classes = [], i = 0;
+        var classes = [];
         forEach(classVal, function(v, k) {
           if (v) {
             classes = classes.concat(k.split(' '));
@@ -22489,10 +22614,8 @@ var ngControllerDirective = [function() {
    </example>
  */
 /*
- * A directive that allows creation of custom onclick handlers that are defined as angular
- * expressions and are compiled and executed within the current scope.
- *
- * Events that are handled via these handler are always configured not to propagate further.
+ * A collection of directives that allows creation of custom event handlers that are defined as
+ * angular expressions and are compiled and executed within the current scope.
  */
 var ngEventDirectives = {};
 
@@ -22511,7 +22634,11 @@ forEach(
       return {
         restrict: 'A',
         compile: function($element, attr) {
-          var fn = $parse(attr[directiveName]);
+          // We expose the powerful $event object on the scope that provides access to the Window,
+          // etc. that isn't protected by the fast paths in $parse.  We explicitly request better
+          // checks at the cost of speed since event handler expressions are not executed as
+          // frequently as regular change detection.
+          var fn = $parse(attr[directiveName], /* interceptorFn */ null, /* expensiveChecks */ true);
           return function ngEventHandler(scope, element) {
             element.on(eventName, function(event) {
               var callback = function() {
@@ -23022,13 +23149,13 @@ var ngIfDirective = ['$animate', function($animate) {
     terminal: true,
     restrict: 'A',
     $$tlb: true,
-    link: function ($scope, $element, $attr, ctrl, $transclude) {
+    link: function($scope, $element, $attr, ctrl, $transclude) {
         var block, childScope, previousElements;
         $scope.$watch($attr.ngIf, function ngIfWatchAction(value) {
 
           if (value) {
             if (!childScope) {
-              $transclude(function (clone, newScope) {
+              $transclude(function(clone, newScope) {
                 childScope = newScope;
                 clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ');
                 // Note: We only need the first/last node of the cloned nodes.
@@ -23260,15 +23387,15 @@ var ngIncludeDirective = ['$templateRequest', '$anchorScroll', '$animate', '$sce
             currentElement;
 
         var cleanupLastIncludeContent = function() {
-          if(previousElement) {
+          if (previousElement) {
             previousElement.remove();
             previousElement = null;
           }
-          if(currentScope) {
+          if (currentScope) {
             currentScope.$destroy();
             currentScope = null;
           }
-          if(currentElement) {
+          if (currentElement) {
             $animate.leave(currentElement).then(function() {
               previousElement = null;
             });
@@ -23346,7 +23473,7 @@ var ngIncludeFillContentDirective = ['$compile',
           $compile(jqLiteBuildFragment(ctrl.template, document).childNodes)(scope,
               function namespaceAdaptedClone(clone) {
             $element.append(clone);
-          }, undefined, undefined, $element);
+          }, {futureParentElement: $element});
           return;
         }
 
@@ -23951,10 +24078,10 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
       if (trackByExp) {
         trackByExpGetter = $parse(trackByExp);
       } else {
-        trackByIdArrayFn = function (key, value) {
+        trackByIdArrayFn = function(key, value) {
           return hashKey(value);
         };
-        trackByIdObjFn = function (key) {
+        trackByIdObjFn = function(key) {
           return key;
         };
       }
@@ -24034,7 +24161,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
               nextBlockOrder[index] = block;
             } else if (nextBlockMap[trackById]) {
               // if collision detected. restore lastBlockMap and throw an error
-              forEach(nextBlockOrder, function (block) {
+              forEach(nextBlockOrder, function(block) {
                 if (block && block.scope) lastBlockMap[block.id] = block;
               });
               throw ngRepeatMinErr('dupes',
@@ -24224,7 +24351,7 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
       </div>
     </file>
     <file name="glyphicons.css">
-      @import url(//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css);
+      @import url(../../components/bootstrap-3.1.1/css/bootstrap.css);
     </file>
     <file name="animations.css">
       .animate-show {
@@ -24274,13 +24401,13 @@ var ngShowDirective = ['$animate', function($animate) {
     restrict: 'A',
     multiElement: true,
     link: function(scope, element, attr) {
-      scope.$watch(attr.ngShow, function ngShowWatchAction(value){
+      scope.$watch(attr.ngShow, function ngShowWatchAction(value) {
         // we're adding a temporary, animation-specific class for ng-hide since this way
         // we can control when the element is actually displayed on screen without having
         // to have a global/greedy CSS selector that breaks when other animations are run.
         // Read: https://github.com/angular/angular.js/issues/9103#issuecomment-58335845
         $animate[value ? 'removeClass' : 'addClass'](element, NG_HIDE_CLASS, {
-          tempClasses : NG_HIDE_IN_PROGRESS_CLASS
+          tempClasses: NG_HIDE_IN_PROGRESS_CLASS
         });
       });
     }
@@ -24389,7 +24516,7 @@ var ngShowDirective = ['$animate', function($animate) {
       </div>
     </file>
     <file name="glyphicons.css">
-      @import url(//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css);
+      @import url(../../components/bootstrap-3.1.1/css/bootstrap.css);
     </file>
     <file name="animations.css">
       .animate-hide {
@@ -24435,11 +24562,11 @@ var ngHideDirective = ['$animate', function($animate) {
     restrict: 'A',
     multiElement: true,
     link: function(scope, element, attr) {
-      scope.$watch(attr.ngHide, function ngHideWatchAction(value){
+      scope.$watch(attr.ngHide, function ngHideWatchAction(value) {
         // The comment inside of the ngShowDirective explains why we add and
         // remove a temporary class for the show/hide animation
         $animate[value ? 'addClass' : 'removeClass'](element,NG_HIDE_CLASS, {
-          tempClasses : NG_HIDE_IN_PROGRESS_CLASS
+          tempClasses: NG_HIDE_IN_PROGRESS_CLASS
         });
       });
     }
@@ -24842,34 +24969,37 @@ var ngOptionsMinErr = minErr('ngOptions');
  * elements for the `<select>` element using the array or object obtained by evaluating the
  * `ngOptions` comprehension_expression.
  *
+ * In many cases, `ngRepeat` can be used on `<option>` elements instead of `ngOptions` to achieve a
+ * similar result. However, the `ngOptions` provides some benefits such as reducing memory and
+ * increasing speed by not creating a new scope for each repeated instance, as well as providing
+ * more flexibility in how the `select`'s model is assigned via `select as`. `ngOptions should be
+ * used when the `select` model needs to be bound to a non-string value. This is because an option
+ * element can only be bound to string values at present.
+ *
  * When an item in the `<select>` menu is selected, the array element or object property
  * represented by the selected option will be bound to the model identified by the `ngModel`
  * directive.
- *
- * <div class="alert alert-warning">
- * **Note:** `ngModel` compares by reference, not value. This is important when binding to an
- * array of objects. See an example [in this jsfiddle](http://jsfiddle.net/qWzTb/).
- * </div>
  *
  * Optionally, a single hard-coded `<option>` element, with the value set to an empty string, can
  * be nested into the `<select>` element. This element will then represent the `null` or "not selected"
  * option. See example below for demonstration.
  *
  * <div class="alert alert-warning">
- * **Note:** `ngOptions` provides an iterator facility for the `<option>` element which should be used instead
- * of {@link ng.directive:ngRepeat ngRepeat} when you want the
- * `select` model to be bound to a non-string value. This is because an option element can only
- * be bound to string values at present.
+ * **Note:** `ngModel` compares by reference, not value. This is important when binding to an
+ * array of objects. See an example [in this jsfiddle](http://jsfiddle.net/qWzTb/).
  * </div>
  *
- * <div class="alert alert-info">
- * **Note:** Using `select as` will bind the result of the `select as` expression to the model, but
+ * ## `select as`
+ *
+ * Using `select as` will bind the result of the `select as` expression to the model, but
  * the value of the `<select>` and `<option>` html elements will be either the index (for array data sources)
- * or property name (for object data sources) of the value within the collection.
- * </div>
+ * or property name (for object data sources) of the value within the collection. If a `track by` expression
+ * is used, the result of that expression will be set as the value of the `option` and `select` elements.
  *
- * **Note:** Using `select as` together with `trackexpr` is not recommended.
- * Reasoning:
+ * ### `select as` with `trackexpr`
+ *
+ * Using `select as` together with `trackexpr` is not recommended. Reasoning:
+ *
  * - Example: &lt;select ng-options="item.subItem as item.label for item in values track by item.id" ng-model="selected"&gt;
  *   values: [{id: 1, label: 'aLabel', subItem: {name: 'aSubItem'}}, {id: 2, label: 'bLabel', subItem: {name: 'bSubItem'}}],
  *   $scope.selected = {name: 'aSubItem'};
@@ -25080,7 +25210,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
           unknownOption = optionTemplate.clone();
 
       // find "null" option
-      for(var i = 0, children = element.children(), ii = children.length; i < ii; i++) {
+      for (var i = 0, children = element.children(), ii = children.length; i < ii; i++) {
         if (children[i].value === '') {
           emptyOption = nullOption = children.eq(i);
           break;
@@ -25182,6 +25312,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             valuesFn = $parse(match[7]),
             track = match[8],
             trackFn = track ? $parse(match[8]) : null,
+            trackKeysCache = {},
             // This is an array of array of existing option groups in DOM.
             // We try to reuse these if possible
             // - optionGroupsCache[0] is the options with no option group
@@ -25227,17 +25358,16 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
 
         function selectionChanged() {
           scope.$apply(function() {
-            var optionGroup,
-                collection = valuesFn(scope) || [],
-                key, value, optionElement, index, groupIndex, length, groupLength, trackIndex;
+            var collection = valuesFn(scope) || [];
             var viewValue;
             if (multiple) {
               viewValue = [];
               forEach(selectElement.val(), function(selectedKey) {
+                  selectedKey = trackFn ? trackKeysCache[selectedKey] : selectedKey;
                 viewValue.push(getViewValue(selectedKey, collection[selectedKey]));
               });
             } else {
-              var selectedKey = selectElement.val();
+              var selectedKey = trackFn ? trackKeysCache[selectElement.val()] : selectElement.val();
               viewValue = getViewValue(selectedKey, collection[selectedKey]);
             }
             ctrl.$setViewValue(viewValue);
@@ -25307,7 +25437,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             if (multiple) {
               return isDefined(selectedSet.remove(callExpression(compareValueFn, key, value)));
             } else {
-              return viewValue == callExpression(compareValueFn, key, value);
+              return viewValue === callExpression(compareValueFn, key, value);
             }
           };
         }
@@ -25359,14 +25489,17 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
               anySelected = false,
               lastElement,
               element,
-              label;
+              label,
+              optionId;
+
+          trackKeysCache = {};
 
           // We now build up the list of options we need (we merge later)
           for (index = 0; length = keys.length, index < length; index++) {
             key = index;
             if (keyName) {
               key = keys[index];
-              if ( key.charAt(0) === '$' ) continue;
+              if (key.charAt(0) === '$') continue;
             }
             value = values[key];
 
@@ -25383,9 +25516,14 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
 
             // doing displayFn(scope, locals) || '' overwrites zero values
             label = isDefined(label) ? label : '';
+            optionId = trackFn ? trackFn(scope, locals) : (keyName ? keys[index] : index);
+            if (trackFn) {
+              trackKeysCache[optionId] = key;
+            }
+
             optionGroup.push({
               // either the index into array or key from object
-              id: (keyName ? keys[index] : index),
+              id: optionId,
               label: label,
               selected: selected                   // determine if we should be selected
             });
@@ -25430,7 +25568,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             }
 
             lastElement = null;  // start at the beginning
-            for(index = 0, length = optionGroup.length; index < length; index++) {
+            for (index = 0, length = optionGroup.length; index < length; index++) {
               option = optionGroup[index];
               if ((existingOption = existingOptions[index+1])) {
                 // reuse elements
@@ -25488,12 +25626,12 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             }
             // remove any excessive OPTIONs in a group
             index++; // increment since the existingOptions[0] is parent element not OPTION
-            while(existingOptions.length > index) {
+            while (existingOptions.length > index) {
               option = existingOptions.pop();
               updateLabelMap(labelMap, option.label, false);
               option.element.remove();
             }
-            forEach(labelMap, function (count, label) {
+            forEach(labelMap, function(count, label) {
               if (count > 0) {
                 selectCtrl.addOption(label);
               } else if (count < 0) {
@@ -25502,7 +25640,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             });
           }
           // remove any excessive OPTGROUPs from select
-          while(optionGroupsCache.length > groupIndex) {
+          while (optionGroupsCache.length > groupIndex) {
             optionGroupsCache.pop()[0].element.remove();
           }
         }
@@ -25528,7 +25666,7 @@ var optionDirective = ['$interpolate', function($interpolate) {
         }
       }
 
-      return function (scope, element, attr) {
+      return function(scope, element, attr) {
         var selectCtrlName = '$selectController',
             parent = element.parent(),
             selectCtrl = parent.data(selectCtrlName) ||
@@ -25583,7 +25721,7 @@ var styleDirective = valueFn({
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.0
+ * @license AngularJS v1.3.2
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -25798,8 +25936,8 @@ var styleDirective = valueFn({
  * when a CSS class containing a transition is applied to an element:
  *
  * ```css
+ * /&#42; this works as expected &#42;/
  * .fade {
- *   /&#42; this works as expected &#42;/
  *   transition:1s linear all;
  *   opacity:0;
  * }
@@ -25808,6 +25946,30 @@ var styleDirective = valueFn({
  * Please keep this in mind when coding the CSS markup that will be used within class-based transitions.
  * Also, try not to mix the two class-based animation flavors together since the CSS code may become
  * overly complex.
+ *
+ *
+ * ### Preventing Collisions With Third Party Libraries
+ *
+ * Some third-party frameworks place animation duration defaults across many element or className
+ * selectors in order to make their code small and reuseable. This can lead to issues with ngAnimate, which
+ * is expecting actual animations on these elements and has to wait for their completion.
+ *
+ * You can prevent this unwanted behavior by using a prefix on all your animation classes:
+ *
+ * ```css
+ * /&#42; prefixed with animate- &#42;/
+ * .animate-fade-add.animate-fade-add-active {
+ *   transition:1s linear all;
+ *   opacity:0;
+ * }
+ * ```
+ *
+ * You then configure `$animate` to enforce this prefix:
+ *
+ * ```js
+ * $animateProvider.classNamePrefix(/animate-/);
+ * ```
+ * </div>
  *
  * ### CSS Staggering Animations
  * A Staggering animation is a collection of animations that are issued with a slight delay in between each successive operation resulting in a
@@ -26020,7 +26182,7 @@ angular.module('ngAnimate', ['ng'])
     var rootAnimateState = {running: true};
 
     function extractElementNode(element) {
-      for(var i = 0; i < element.length; i++) {
+      for (var i = 0; i < element.length; i++) {
         var elm = element[i];
         if (elm.nodeType == ELEMENT_NODE) {
           return elm;
@@ -26130,7 +26292,7 @@ angular.module('ngAnimate', ['ng'])
         });
 
         var toAdd = [], toRemove = [];
-        forEach(cache.classes, function(status, className) {
+        forEach((cache && cache.classes) || [], function(status, className) {
           var hasClass = hasClasses[className];
           var matchingAnimation = lookup[className] || {};
 
@@ -26176,7 +26338,7 @@ angular.module('ngAnimate', ['ng'])
             matches.push($injector.get(selectors['']));
           }
 
-          for(var i=0; i < classes.length; i++) {
+          for (var i=0; i < classes.length; i++) {
             var klass = classes[i],
                 selectorFactoryName = selectors[klass];
             if (selectorFactoryName && !flagMap[klass]) {
@@ -26255,10 +26417,10 @@ angular.module('ngAnimate', ['ng'])
               afterFn = null;
             }
             after.push({
-              event : event, fn : afterFn
+              event: event, fn: afterFn
             });
             before.push({
-              event : event, fn : beforeFn
+              event: event, fn: beforeFn
             });
             return true;
           }
@@ -26287,7 +26449,7 @@ angular.module('ngAnimate', ['ng'])
             var progress = function() {
               afterAnimationComplete(index);
             };
-            switch(animation.event) {
+            switch (animation.event) {
               case 'setClass':
                 cancellations.push(animation.fn(element, classNameAdd, classNameRemove, progress, options));
                 break;
@@ -26312,31 +26474,31 @@ angular.module('ngAnimate', ['ng'])
         }
 
         return {
-          node : node,
-          event : animationEvent,
-          className : className,
-          isClassBased : isClassBased,
-          isSetClassOperation : isSetClassOperation,
-          applyStyles : function() {
+          node: node,
+          event: animationEvent,
+          className: className,
+          isClassBased: isClassBased,
+          isSetClassOperation: isSetClassOperation,
+          applyStyles: function() {
             if (options) {
               element.css(angular.extend(options.from || {}, options.to || {}));
             }
           },
-          before : function(allCompleteFn) {
+          before: function(allCompleteFn) {
             beforeComplete = allCompleteFn;
             run(before, beforeCancel, function() {
               beforeComplete = noop;
               allCompleteFn();
             });
           },
-          after : function(allCompleteFn) {
+          after: function(allCompleteFn) {
             afterComplete = allCompleteFn;
             run(after, afterCancel, function() {
               afterComplete = noop;
               allCompleteFn();
             });
           },
-          cancel : function() {
+          cancel: function() {
             if (beforeCancel) {
               forEach(beforeCancel, function(cancelFn) {
                 (cancelFn || noop)(true);
@@ -26461,7 +26623,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of options that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
         */
-        animate : function(element, from, to, className, options) {
+        animate: function(element, from, to, className, options) {
           className = className || 'ng-inline-animate';
           options = parseAnimateOptions(options) || {};
           options.from = to ? from : null;
@@ -26505,7 +26667,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of options that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
         */
-        enter : function(element, parentElement, afterElement, options) {
+        enter: function(element, parentElement, afterElement, options) {
           options = parseAnimateOptions(options);
           element = angular.element(element);
           parentElement = prepareElement(parentElement);
@@ -26549,7 +26711,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
         */
-        leave : function(element, options) {
+        leave: function(element, options) {
           options = parseAnimateOptions(options);
           element = angular.element(element);
 
@@ -26596,7 +26758,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
         */
-        move : function(element, parentElement, afterElement, options) {
+        move: function(element, parentElement, afterElement, options) {
           options = parseAnimateOptions(options);
           element = angular.element(element);
           parentElement = prepareElement(parentElement);
@@ -26640,7 +26802,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
         */
-        addClass : function(element, className, options) {
+        addClass: function(element, className, options) {
           return this.setClass(element, className, [], options);
         },
 
@@ -26674,7 +26836,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
         */
-        removeClass : function(element, className, options) {
+        removeClass: function(element, className, options) {
           return this.setClass(element, [], className, options);
         },
 
@@ -26706,7 +26868,7 @@ angular.module('ngAnimate', ['ng'])
          * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
          * @return {Promise} the animation callback promise
          */
-        setClass : function(element, add, remove, options) {
+        setClass: function(element, add, remove, options) {
           options = parseAnimateOptions(options);
 
           var STORAGE_KEY = '$$animateClasses';
@@ -26750,8 +26912,8 @@ angular.module('ngAnimate', ['ng'])
             return cache.promise;
           } else {
             element.data(STORAGE_KEY, cache = {
-              classes : classes,
-              options : options
+              classes: classes,
+              options: options
             });
           }
 
@@ -26789,7 +26951,7 @@ angular.module('ngAnimate', ['ng'])
          * @description
          * Cancels the provided animation.
         */
-        cancel : function(promise) {
+        cancel: function(promise) {
           promise.$$cancelFn();
         },
 
@@ -26806,8 +26968,8 @@ angular.module('ngAnimate', ['ng'])
          * Globally enables/disables animations.
          *
         */
-        enabled : function(value, element) {
-          switch(arguments.length) {
+        enabled: function(value, element) {
+          switch (arguments.length) {
             case 2:
               if (value) {
                 cleanup(element);
@@ -26882,7 +27044,7 @@ angular.module('ngAnimate', ['ng'])
               skipAnimation = true;
             } else {
               //cancel all animations when a structural animation takes place
-              for(var klass in runningAnimations) {
+              for (var klass in runningAnimations) {
                 animationsToCancel.push(runningAnimations[klass]);
               }
               ngAnimateState = {};
@@ -26958,10 +27120,10 @@ angular.module('ngAnimate', ['ng'])
         runningAnimations[className] = runner;
 
         element.data(NG_ANIMATE_STATE, {
-          last : runner,
-          active : runningAnimations,
-          index : localAnimationCount,
-          totalActive : totalActiveAnimations
+          last: runner,
+          active: runningAnimations,
+          index: localAnimationCount,
+          totalActive: totalActiveAnimations
         });
 
         //first we run the before animations and when all of those are complete
@@ -26989,8 +27151,8 @@ angular.module('ngAnimate', ['ng'])
           if (elementEvents && elementEvents[eventName] && elementEvents[eventName].length > 0) {
             $$asyncCallback(function() {
               element.triggerHandler(eventName, {
-                event : animationEvent,
-                className : className
+                event: animationEvent,
+                className: className
               });
             });
           }
@@ -27136,7 +27298,7 @@ angular.module('ngAnimate', ['ng'])
                                    state.running ||
                                    (state.last && !state.last.isClassBased);
         }
-        while(parentElement = parentElement.parent());
+        while (parentElement = parentElement.parent());
 
         return !hasParent || (!allowChildAnimations && parentRunningAnimation);
       }
@@ -27283,7 +27445,7 @@ angular.module('ngAnimate', ['ng'])
             }
           });
           data = {
-            total : 0,
+            total: 0,
             transitionDelay: transitionDelay,
             transitionDuration: transitionDuration,
             animationDelay: animationDelay,
@@ -27356,12 +27518,12 @@ angular.module('ngAnimate', ['ng'])
 
         var closeAnimationFns = formerData.closeAnimationFns || [];
         element.data(NG_ANIMATE_CSS_DATA_KEY, {
-          stagger : stagger,
-          cacheKey : eventCacheKey,
-          running : formerData.running || 0,
-          itemIndex : itemIndex,
-          blockTransition : blockTransition,
-          closeAnimationFns : closeAnimationFns
+          stagger: stagger,
+          cacheKey: eventCacheKey,
+          running: formerData.running || 0,
+          itemIndex: itemIndex,
+          blockTransition: blockTransition,
+          closeAnimationFns: closeAnimationFns
         });
 
         var node = extractElementNode(element);
@@ -27603,29 +27765,29 @@ angular.module('ngAnimate', ['ng'])
       }
 
       return {
-        animate : function(element, className, from, to, animationCompleted, options) {
+        animate: function(element, className, from, to, animationCompleted, options) {
           options = options || {};
           options.from = from;
           options.to = to;
           return animate('animate', element, className, animationCompleted, options);
         },
 
-        enter : function(element, animationCompleted, options) {
+        enter: function(element, animationCompleted, options) {
           options = options || {};
           return animate('enter', element, 'ng-enter', animationCompleted, options);
         },
 
-        leave : function(element, animationCompleted, options) {
+        leave: function(element, animationCompleted, options) {
           options = options || {};
           return animate('leave', element, 'ng-leave', animationCompleted, options);
         },
 
-        move : function(element, animationCompleted, options) {
+        move: function(element, animationCompleted, options) {
           options = options || {};
           return animate('move', element, 'ng-move', animationCompleted, options);
         },
 
-        beforeSetClass : function(element, add, remove, animationCompleted, options) {
+        beforeSetClass: function(element, add, remove, animationCompleted, options) {
           options = options || {};
           var className = suffixClasses(remove, '-remove') + ' ' +
                           suffixClasses(add, '-add');
@@ -27638,7 +27800,7 @@ angular.module('ngAnimate', ['ng'])
           animationCompleted();
         },
 
-        beforeAddClass : function(element, className, animationCompleted, options) {
+        beforeAddClass: function(element, className, animationCompleted, options) {
           options = options || {};
           var cancellationMethod = animateBefore('addClass', element, suffixClasses(className, '-add'), options.from);
           if (cancellationMethod) {
@@ -27649,7 +27811,7 @@ angular.module('ngAnimate', ['ng'])
           animationCompleted();
         },
 
-        beforeRemoveClass : function(element, className, animationCompleted, options) {
+        beforeRemoveClass: function(element, className, animationCompleted, options) {
           options = options || {};
           var cancellationMethod = animateBefore('removeClass', element, suffixClasses(className, '-remove'), options.from);
           if (cancellationMethod) {
@@ -27660,7 +27822,7 @@ angular.module('ngAnimate', ['ng'])
           animationCompleted();
         },
 
-        setClass : function(element, add, remove, animationCompleted, options) {
+        setClass: function(element, add, remove, animationCompleted, options) {
           options = options || {};
           remove = suffixClasses(remove, '-remove');
           add = suffixClasses(add, '-add');
@@ -27668,12 +27830,12 @@ angular.module('ngAnimate', ['ng'])
           return animateAfter('setClass', element, className, animationCompleted, options.to);
         },
 
-        addClass : function(element, className, animationCompleted, options) {
+        addClass: function(element, className, animationCompleted, options) {
           options = options || {};
           return animateAfter('addClass', element, suffixClasses(className, '-add'), animationCompleted, options.to);
         },
 
-        removeClass : function(element, className, animationCompleted, options) {
+        removeClass: function(element, className, animationCompleted, options) {
           options = options || {};
           return animateAfter('removeClass', element, suffixClasses(className, '-remove'), animationCompleted, options.to);
         }
@@ -27697,7 +27859,7 @@ angular.module('ngAnimate', ['ng'])
 
 /**
  * angular-strap
- * @version v2.1.2 - 2014-10-19
+ * @version v2.1.3 - 2014-11-06
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -27724,119 +27886,6 @@ angular.module('mgcrea.ngStrap', [
   'mgcrea.ngStrap.collapse'
 ]);
 
-// Source: alert.js
-// @BUG: following snippet won't compile correctly
-// @TODO: submit issue to core
-// '<span ng-if="title"><strong ng-bind="title"></strong>&nbsp;</span><span ng-bind-html="content"></span>' +
-
-angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal'])
-
-  .provider('$alert', function() {
-
-    var defaults = this.defaults = {
-      animation: 'am-fade',
-      prefixClass: 'alert',
-      prefixEvent: 'alert',
-      placement: null,
-      template: 'alert/alert.tpl.html',
-      container: false,
-      element: null,
-      backdrop: false,
-      keyboard: true,
-      show: true,
-      // Specific options
-      duration: false,
-      type: false,
-      dismissable: true
-    };
-
-    this.$get = ["$modal", "$timeout", function($modal, $timeout) {
-
-      function AlertFactory(config) {
-
-        var $alert = {};
-
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-
-        $alert = $modal(options);
-
-        // Support scope as string options [/*title, content, */ type, dismissable]
-        $alert.$scope.dismissable = !!options.dismissable;
-        if(options.type) {
-          $alert.$scope.type = options.type;
-        }
-
-        // Support auto-close duration
-        var show = $alert.show;
-        if(options.duration) {
-          $alert.show = function() {
-            show();
-            $timeout(function() {
-              $alert.hide();
-            }, options.duration * 1000);
-          };
-        }
-
-        return $alert;
-
-      }
-
-      return AlertFactory;
-
-    }];
-
-  })
-
-  .directive('bsAlert', ["$window", "$sce", "$alert", function($window, $sce, $alert) {
-
-    var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
-
-    return {
-      restrict: 'EAC',
-      scope: true,
-      link: function postLink(scope, element, attr, transclusion) {
-
-        // Directive options
-        var options = {scope: scope, element: element, show: false};
-        angular.forEach(['template', 'placement', 'keyboard', 'html', 'container', 'animation', 'duration', 'dismissable'], function(key) {
-          if(angular.isDefined(attr[key])) options[key] = attr[key];
-        });
-
-        // Support scope as data-attrs
-        angular.forEach(['title', 'content', 'type'], function(key) {
-          attr[key] && attr.$observe(key, function(newValue, oldValue) {
-            scope[key] = $sce.trustAsHtml(newValue);
-          });
-        });
-
-        // Support scope as an object
-        attr.bsAlert && scope.$watch(attr.bsAlert, function(newValue, oldValue) {
-          if(angular.isObject(newValue)) {
-            angular.extend(scope, newValue);
-          } else {
-            scope.content = newValue;
-          }
-        }, true);
-
-        // Initialize alert
-        var alert = $alert(options);
-
-        // Trigger
-        element.on(attr.trigger || 'click', alert.toggle);
-
-        // Garbage collection
-        scope.$on('$destroy', function() {
-          if (alert) alert.destroy();
-          options = null;
-          alert = null;
-        });
-
-      }
-    };
-
-  }]);
-
 // Source: affix.js
 angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions', 'mgcrea.ngStrap.helpers.debounce'])
 
@@ -27861,6 +27910,7 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions', 'mg
 
         // Initial private vars
         var reset = 'affix affix-top affix-bottom',
+            setWidth = false,
             initialAffixTop = 0,
             initialOffsetTop = 0,
             offsetTop = 0,
@@ -27885,6 +27935,7 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions', 'mg
 
           $affix.$parseOffsets();
           initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
+          setWidth = !element[0].style.width;
 
           // Bind events
           targetEl.on('scroll', $affix.checkPosition);
@@ -27933,6 +27984,9 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions', 'mg
           if(affix === 'top') {
             unpin = null;
             element.css('position', (options.offsetParent) ? '' : 'relative');
+            if(setWidth) {
+              element.css('width', '');
+            }
             element.css('top', '');
           } else if(affix === 'bottom') {
             if (options.offsetUnpin) {
@@ -27943,10 +27997,16 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions', 'mg
               // Hopefully the browser scrolls pixel by pixel.
               unpin = position.top - scrollTop;
             }
+            if(setWidth) {
+              element.css('width', '');
+            }
             element.css('position', (options.offsetParent) ? '' : 'relative');
             element.css('top', (options.offsetParent) ? '' : ((bodyEl[0].offsetHeight - offsetBottom - elementHeight - initialOffsetTop) + 'px'));
           } else { // affix === 'middle'
             unpin = null;
+            if(setWidth) {
+              element.css('width', element[0].offsetWidth + 'px');
+            }
             element.css('position', 'fixed');
             element.css('top', initialAffixTop + 'px');
           }
@@ -28065,6 +28125,119 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions', 'mg
       }]
     };
   });
+
+// Source: alert.js
+// @BUG: following snippet won't compile correctly
+// @TODO: submit issue to core
+// '<span ng-if="title"><strong ng-bind="title"></strong>&nbsp;</span><span ng-bind-html="content"></span>' +
+
+angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal'])
+
+  .provider('$alert', function() {
+
+    var defaults = this.defaults = {
+      animation: 'am-fade',
+      prefixClass: 'alert',
+      prefixEvent: 'alert',
+      placement: null,
+      template: 'alert/alert.tpl.html',
+      container: false,
+      element: null,
+      backdrop: false,
+      keyboard: true,
+      show: true,
+      // Specific options
+      duration: false,
+      type: false,
+      dismissable: true
+    };
+
+    this.$get = ["$modal", "$timeout", function($modal, $timeout) {
+
+      function AlertFactory(config) {
+
+        var $alert = {};
+
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+
+        $alert = $modal(options);
+
+        // Support scope as string options [/*title, content, */ type, dismissable]
+        $alert.$scope.dismissable = !!options.dismissable;
+        if(options.type) {
+          $alert.$scope.type = options.type;
+        }
+
+        // Support auto-close duration
+        var show = $alert.show;
+        if(options.duration) {
+          $alert.show = function() {
+            show();
+            $timeout(function() {
+              $alert.hide();
+            }, options.duration * 1000);
+          };
+        }
+
+        return $alert;
+
+      }
+
+      return AlertFactory;
+
+    }];
+
+  })
+
+  .directive('bsAlert', ["$window", "$sce", "$alert", function($window, $sce, $alert) {
+
+    var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
+
+    return {
+      restrict: 'EAC',
+      scope: true,
+      link: function postLink(scope, element, attr, transclusion) {
+
+        // Directive options
+        var options = {scope: scope, element: element, show: false};
+        angular.forEach(['template', 'placement', 'keyboard', 'html', 'container', 'animation', 'duration', 'dismissable'], function(key) {
+          if(angular.isDefined(attr[key])) options[key] = attr[key];
+        });
+
+        // Support scope as data-attrs
+        angular.forEach(['title', 'content', 'type'], function(key) {
+          attr[key] && attr.$observe(key, function(newValue, oldValue) {
+            scope[key] = $sce.trustAsHtml(newValue);
+          });
+        });
+
+        // Support scope as an object
+        attr.bsAlert && scope.$watch(attr.bsAlert, function(newValue, oldValue) {
+          if(angular.isObject(newValue)) {
+            angular.extend(scope, newValue);
+          } else {
+            scope.content = newValue;
+          }
+        }, true);
+
+        // Initialize alert
+        var alert = $alert(options);
+
+        // Trigger
+        element.on(attr.trigger || 'click', alert.toggle);
+
+        // Garbage collection
+        scope.$on('$destroy', function() {
+          if (alert) alert.destroy();
+          options = null;
+          alert = null;
+        });
+
+      }
+    };
+
+  }]);
 
 // Source: aside.js
 angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal'])
@@ -28511,7 +28684,7 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
       iconRight: 'glyphicon glyphicon-chevron-right'
     };
 
-    this.$get = ["$window", "$document", "$rootScope", "$sce", "$locale", "dateFilter", "datepickerViews", "$tooltip", function($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip) {
+    this.$get = ["$window", "$document", "$rootScope", "$sce", "$locale", "dateFilter", "datepickerViews", "$tooltip", "$timeout", function($window, $document, $rootScope, $sce, $locale, dateFilter, datepickerViews, $tooltip, $timeout) {
 
       var bodyEl = angular.element($window.document.body);
       var isNative = /(ip(a|o)d|iphone|android)/ig.test($window.navigator.userAgent);
@@ -28574,7 +28747,7 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
             controller.$setViewValue(angular.copy(date));
             controller.$render();
             if(options.autoclose && !keep) {
-              $datepicker.hide(true);
+              $timeout(function() { $datepicker.hide(true); });
             }
           } else {
             angular.extend(viewDate, {year: date.getFullYear(), month: date.getMonth(), date: date.getDate()});
@@ -28689,12 +28862,10 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
         var _show = $datepicker.show;
         $datepicker.show = function() {
           _show();
-          setTimeout(function() {
-            $datepicker.$element.on(isTouch ? 'touchstart' : 'mousedown', $datepicker.$onMouseDown);
-            if(options.keyboard) {
-              element.on('keydown', $datepicker.$onKeyDown);
-            }
-          });
+          $datepicker.$element.on(isTouch ? 'touchstart' : 'mousedown', $datepicker.$onMouseDown);
+          if(options.keyboard) {
+            element.on('keydown', $datepicker.$onKeyDown);
+          }
         };
 
         var _hide = $datepicker.hide;
@@ -28718,7 +28889,7 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
 
   })
 
-  .directive('bsDatepicker', ["$window", "$parse", "$q", "$locale", "dateFilter", "$datepicker", "$dateParser", "$timeout", function($window, $parse, $q, $locale, dateFilter, $datepicker, $dateParser, $timeout) {
+  .directive('bsDatepicker', ["$window", "$parse", "$q", "$locale", "dateFilter", "$datepicker", "$dateParser", function($window, $parse, $q, $locale, dateFilter, $datepicker, $dateParser) {
 
     var defaults = $datepicker.defaults;
     var isNative = /(ip(a|o)d|iphone|android)/ig.test($window.navigator.userAgent);
@@ -28954,6 +29125,9 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
               return false;
             },
             onKeyDown: function(evt) {
+              if (!picker.$date) {
+                return;
+              }
               var actualTime = picker.$date.getTime();
               var newDate;
 
@@ -28998,6 +29172,9 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
               return lastDate < options.minDate || date.getTime() > options.maxDate;
             },
             onKeyDown: function(evt) {
+              if (!picker.$date) {
+                return;
+              }
               var actualMonth = picker.$date.getMonth();
               var newDate = new Date(picker.$date);
 
@@ -29042,6 +29219,9 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
               return lastDate < options.minDate || date.getTime() > options.maxDate;
             },
             onKeyDown: function(evt) {
+              if (!picker.$date) {
+                return;
+              }
               var actualYear = picker.$date.getFullYear(),
                   newDate = new Date(picker.$date);
 
@@ -29064,6 +29244,138 @@ angular.module('mgcrea.ngStrap.datepicker', ['mgcrea.ngStrap.helpers.dateParser'
     }];
 
   });
+
+// Source: dropdown.js
+angular.module('mgcrea.ngStrap.dropdown', ['mgcrea.ngStrap.tooltip'])
+
+  .provider('$dropdown', function() {
+
+    var defaults = this.defaults = {
+      animation: 'am-fade',
+      prefixClass: 'dropdown',
+      placement: 'bottom-left',
+      template: 'dropdown/dropdown.tpl.html',
+      trigger: 'click',
+      container: false,
+      keyboard: true,
+      html: false,
+      delay: 0
+    };
+
+    this.$get = ["$window", "$rootScope", "$tooltip", function($window, $rootScope, $tooltip) {
+
+      var bodyEl = angular.element($window.document.body);
+      var matchesSelector = Element.prototype.matchesSelector || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector;
+
+      function DropdownFactory(element, config) {
+
+        var $dropdown = {};
+
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+        var scope = $dropdown.$scope = options.scope && options.scope.$new() || $rootScope.$new();
+
+        $dropdown = $tooltip(element, options);
+        var parentEl = element.parent();
+
+        // Protected methods
+
+        $dropdown.$onKeyDown = function(evt) {
+          if (!/(38|40)/.test(evt.keyCode)) return;
+          evt.preventDefault();
+          evt.stopPropagation();
+
+          // Retrieve focused index
+          var items = angular.element($dropdown.$element[0].querySelectorAll('li:not(.divider) a'));
+          if(!items.length) return;
+          var index;
+          angular.forEach(items, function(el, i) {
+            if(matchesSelector && matchesSelector.call(el, ':focus')) index = i;
+          });
+
+          // Navigate with keyboard
+          if(evt.keyCode === 38 && index > 0) index--;
+          else if(evt.keyCode === 40 && index < items.length - 1) index++;
+          else if(angular.isUndefined(index)) index = 0;
+          items.eq(index)[0].focus();
+
+        };
+
+        // Overrides
+
+        var show = $dropdown.show;
+        $dropdown.show = function() {
+          show();
+          options.keyboard && $dropdown.$element.on('keydown', $dropdown.$onKeyDown);
+          bodyEl.on('click', onBodyClick);
+          parentEl.hasClass('dropdown') && parentEl.addClass('open');
+        };
+
+        var hide = $dropdown.hide;
+        $dropdown.hide = function() {
+          if(!$dropdown.$isShown) return;
+          options.keyboard && $dropdown.$element.off('keydown', $dropdown.$onKeyDown);
+          bodyEl.off('click', onBodyClick);
+          parentEl.hasClass('dropdown') && parentEl.removeClass('open');
+          hide();
+        };
+
+        // Private functions
+
+        function onBodyClick(evt) {
+          if(evt.target === element[0]) return;
+          return evt.target !== element[0] && $dropdown.hide();
+        }
+
+        return $dropdown;
+
+      }
+
+      return DropdownFactory;
+
+    }];
+
+  })
+
+  .directive('bsDropdown', ["$window", "$sce", "$dropdown", function($window, $sce, $dropdown) {
+
+    return {
+      restrict: 'EAC',
+      scope: true,
+      link: function postLink(scope, element, attr, transclusion) {
+
+        // Directive options
+        var options = {scope: scope};
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template'], function(key) {
+          if(angular.isDefined(attr[key])) options[key] = attr[key];
+        });
+
+        // Support scope as an object
+        attr.bsDropdown && scope.$watch(attr.bsDropdown, function(newValue, oldValue) {
+          scope.content = newValue;
+        }, true);
+
+        // Visibility binding support
+        attr.bsShow && scope.$watch(attr.bsShow, function(newValue, oldValue) {
+          if(!dropdown || !angular.isDefined(newValue)) return;
+          if(angular.isString(newValue)) newValue = !!newValue.match(/true|,?(dropdown),?/i);
+          newValue === true ? dropdown.show() : dropdown.hide();
+        });
+
+        // Initialize dropdown
+        var dropdown = $dropdown(element, options);
+
+        // Garbage collection
+        scope.$on('$destroy', function() {
+          if (dropdown) dropdown.destroy();
+          options = null;
+          dropdown = null;
+        });
+
+      }
+    };
+
+  }]);
 
 // Source: date-parser.js
 angular.module('mgcrea.ngStrap.helpers.dateParser', [])
@@ -29433,7 +29745,6 @@ angular.module('mgcrea.ngStrap.helpers.dimensions', [])
 
         // Get *real* offsetParentElement
         offsetParentElement = offsetParent(element);
-        offset = fn.offset(element);
 
         // Get correct offsets
         offset = fn.offset(element);
@@ -29631,140 +29942,6 @@ angular.module('mgcrea.ngStrap.helpers.parseOptions', [])
 //   };
 
 // });
-
-// Source: dropdown.js
-angular.module('mgcrea.ngStrap.dropdown', ['mgcrea.ngStrap.tooltip'])
-
-  .provider('$dropdown', function() {
-
-    var defaults = this.defaults = {
-      animation: 'am-fade',
-      prefixClass: 'dropdown',
-      placement: 'bottom-left',
-      template: 'dropdown/dropdown.tpl.html',
-      trigger: 'click',
-      container: false,
-      keyboard: true,
-      html: false,
-      delay: 0
-    };
-
-    this.$get = ["$window", "$rootScope", "$tooltip", function($window, $rootScope, $tooltip) {
-
-      var bodyEl = angular.element($window.document.body);
-      var matchesSelector = Element.prototype.matchesSelector || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector;
-
-      function DropdownFactory(element, config) {
-
-        var $dropdown = {};
-
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-        var scope = $dropdown.$scope = options.scope && options.scope.$new() || $rootScope.$new();
-
-        $dropdown = $tooltip(element, options);
-        var parentEl = element.parent();
-
-        // Protected methods
-
-        $dropdown.$onKeyDown = function(evt) {
-          if (!/(38|40)/.test(evt.keyCode)) return;
-          evt.preventDefault();
-          evt.stopPropagation();
-
-          // Retrieve focused index
-          var items = angular.element($dropdown.$element[0].querySelectorAll('li:not(.divider) a'));
-          if(!items.length) return;
-          var index;
-          angular.forEach(items, function(el, i) {
-            if(matchesSelector && matchesSelector.call(el, ':focus')) index = i;
-          });
-
-          // Navigate with keyboard
-          if(evt.keyCode === 38 && index > 0) index--;
-          else if(evt.keyCode === 40 && index < items.length - 1) index++;
-          else if(angular.isUndefined(index)) index = 0;
-          items.eq(index)[0].focus();
-
-        };
-
-        // Overrides
-
-        var show = $dropdown.show;
-        $dropdown.show = function() {
-          show();
-          setTimeout(function() {
-            options.keyboard && $dropdown.$element.on('keydown', $dropdown.$onKeyDown);
-            bodyEl.on('click', onBodyClick);
-          });
-          parentEl.hasClass('dropdown') && parentEl.addClass('open');
-        };
-
-        var hide = $dropdown.hide;
-        $dropdown.hide = function() {
-          if(!$dropdown.$isShown) return;
-          options.keyboard && $dropdown.$element.off('keydown', $dropdown.$onKeyDown);
-          bodyEl.off('click', onBodyClick);
-          parentEl.hasClass('dropdown') && parentEl.removeClass('open');
-          hide();
-        };
-
-        // Private functions
-
-        function onBodyClick(evt) {
-          if(evt.target === element[0]) return;
-          return evt.target !== element[0] && $dropdown.hide();
-        }
-
-        return $dropdown;
-
-      }
-
-      return DropdownFactory;
-
-    }];
-
-  })
-
-  .directive('bsDropdown', ["$window", "$sce", "$dropdown", function($window, $sce, $dropdown) {
-
-    return {
-      restrict: 'EAC',
-      scope: true,
-      link: function postLink(scope, element, attr, transclusion) {
-
-        // Directive options
-        var options = {scope: scope};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template'], function(key) {
-          if(angular.isDefined(attr[key])) options[key] = attr[key];
-        });
-
-        // Support scope as an object
-        attr.bsDropdown && scope.$watch(attr.bsDropdown, function(newValue, oldValue) {
-          scope.content = newValue;
-        }, true);
-
-        // Visibility binding support
-        attr.bsShow && scope.$watch(attr.bsShow, function(newValue, oldValue) {
-          if(!dropdown || !angular.isDefined(newValue)) return;
-          if(angular.isString(newValue)) newValue = !!newValue.match(/true|,?(dropdown),?/i);
-          newValue === true ? dropdown.show() : dropdown.hide();
-        });
-
-        // Initialize dropdown
-        var dropdown = $dropdown(element, options);
-
-        // Garbage collection
-        scope.$on('$destroy', function() {
-          if (dropdown) dropdown.destroy();
-          options = null;
-          dropdown = null;
-        });
-
-      }
-    };
-
-  }]);
 
 // Source: modal.js
 angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
@@ -30166,7 +30343,8 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
       html: false,
       title: '',
       content: '',
-      delay: 0
+      delay: 0,
+      autoClose: false
     };
 
     this.$get = ["$tooltip", function($tooltip) {
@@ -30204,7 +30382,7 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
 
         // Directive options
         var options = {scope: scope};
-        angular.forEach(['template', 'contentTemplate', 'placement', 'container', 'target', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'customClass'], function(key) {
+        angular.forEach(['template', 'contentTemplate', 'placement', 'container', 'target', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'customClass', 'autoClose'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -30702,12 +30880,10 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
           if(options.multiple) {
             $select.$element.addClass('select-multiple');
           }
-          setTimeout(function() {
-            $select.$element.on(isTouch ? 'touchstart' : 'mousedown', $select.$onMouseDown);
-            if(options.keyboard) {
-              element.on('keydown', $select.$onKeyDown);
-            }
-          });
+          $select.$element.on(isTouch ? 'touchstart' : 'mousedown', $select.$onMouseDown);
+          if(options.keyboard) {
+            element.on('keydown', $select.$onKeyDown);
+          }
         };
 
         var _hide = $select.hide;
@@ -31054,7 +31230,7 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
           if(!angular.isDate(date)) date = new Date(date);
           if(index === 0) controller.$dateValue.setHours(date.getHours());
           else if(index === 1) controller.$dateValue.setMinutes(date.getMinutes());
-          controller.$setViewValue(controller.$dateValue);
+          controller.$setViewValue(angular.copy(controller.$dateValue));
           controller.$render();
           if(options.autoclose && !keep) {
             $timeout(function() { $timepicker.hide(true); });
@@ -31067,7 +31243,7 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
           }
           var hours = (date || controller.$dateValue).getHours();
           controller.$dateValue.setHours(hours < 12 ? hours + 12 : hours - 12);
-          controller.$setViewValue(controller.$dateValue);
+          controller.$setViewValue(angular.copy(controller.$dateValue));
           controller.$render();
         };
 
@@ -31136,7 +31312,6 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
             newDate.setMinutes(minutes - (parseInt(options.minuteStep, 10) * value));
           }
           $timepicker.select(newDate, index, true);
-          parentScope.$digest();
         };
 
         $timepicker.$moveIndex = function(value, index) {
@@ -31253,12 +31428,10 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
         var _show = $timepicker.show;
         $timepicker.show = function() {
           _show();
-          setTimeout(function() {
-            $timepicker.$element.on(isTouch ? 'touchstart' : 'mousedown', $timepicker.$onMouseDown);
-            if(options.keyboard) {
-              element.on('keydown', $timepicker.$onKeyDown);
-            }
-          });
+          $timepicker.$element.on(isTouch ? 'touchstart' : 'mousedown', $timepicker.$onMouseDown);
+          if(options.keyboard) {
+            element.on('keydown', $timepicker.$onKeyDown);
+          }
         };
 
         var _hide = $timepicker.hide;
@@ -31283,7 +31456,7 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
   })
 
 
-  .directive('bsTimepicker', ["$window", "$parse", "$q", "$locale", "dateFilter", "$timepicker", "$dateParser", "$timeout", function($window, $parse, $q, $locale, dateFilter, $timepicker, $dateParser, $timeout) {
+  .directive('bsTimepicker', ["$window", "$parse", "$q", "$locale", "dateFilter", "$timepicker", "$dateParser", function($window, $parse, $q, $locale, dateFilter, $timepicker, $dateParser) {
 
     var defaults = $timepicker.defaults;
     var isNative = /(ip(a|o)d|iphone|android)/ig.test($window.navigator.userAgent);
@@ -31321,6 +31494,7 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
           angular.isDefined(attr[key]) && attr.$observe(key, function(newValue) {
             timepicker.$options[key] = dateParser.getTimeForAttribute(key, newValue);
             !isNaN(timepicker.$options[key]) && timepicker.$build();
+            validateAgainstMinMaxTime(controller.$dateValue);
           });
         });
 
@@ -31329,6 +31503,21 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
           // console.warn('scope.$watch(%s)', attr.ngModel, newValue, oldValue, controller.$dateValue);
           timepicker.update(controller.$dateValue);
         }, true);
+
+        function validateAgainstMinMaxTime(parsedTime) {
+          if (!angular.isDate(parsedTime)) return;
+          var isMinValid = isNaN(options.minTime) || new Date(parsedTime.getTime()).setFullYear(1970, 0, 1) >= options.minTime;
+          var isMaxValid = isNaN(options.maxTime) || new Date(parsedTime.getTime()).setFullYear(1970, 0, 1) <= options.maxTime;
+          var isValid = isMinValid && isMaxValid;
+          controller.$setValidity('date', isValid);
+          controller.$setValidity('min', isMinValid);
+          controller.$setValidity('max', isMaxValid);
+          // Only update the model when we have a valid date
+          if(!isValid) {
+              return;
+          }
+          controller.$dateValue = parsedTime;
+        }
 
         // viewValue -> $parsers -> modelValue
         controller.$parsers.unshift(function(viewValue) {
@@ -31343,17 +31532,7 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
             controller.$setValidity('date', false);
             return;
           } else {
-              var isMinValid = isNaN(options.minTime) || parsedTime.getTime() >= options.minTime;
-              var isMaxValid = isNaN(options.maxTime) || parsedTime.getTime() <= options.maxTime;
-              var isValid = isMinValid && isMaxValid;
-              controller.$setValidity('date', isValid);
-              controller.$setValidity('min', isMinValid);
-              controller.$setValidity('max', isMaxValid);
-              // Only update the model when we have a valid date
-              if(!isValid) {
-                  return;
-              }
-              controller.$dateValue = parsedTime;
+            validateAgainstMinMaxTime(parsedTime);
           }
           if(options.timeType === 'string') {
             return dateFilter(parsedTime, options.modelTimeFormat || options.timeFormat);
@@ -31382,14 +31561,18 @@ angular.module('mgcrea.ngStrap.timepicker', ['mgcrea.ngStrap.helpers.dateParser'
           // Setup default value?
           // if(isNaN(date.getTime())) date = new Date(new Date().setMinutes(0) + 36e5);
           controller.$dateValue = date;
-          return controller.$dateValue;
+          return getTimeFormattedString();
         });
 
         // viewValue -> element
         controller.$render = function() {
           // console.warn('$render("%s"): viewValue=%o', element.attr('ng-model'), controller.$viewValue);
-          element.val(!controller.$dateValue || isNaN(controller.$dateValue.getTime()) ? '' : dateFilter(controller.$dateValue, options.timeFormat));
+          element.val(getTimeFormattedString());
         };
+
+        function getTimeFormattedString() {
+          return !controller.$dateValue || isNaN(controller.$dateValue.getTime()) ? '' : dateFilter(controller.$dateValue, options.timeFormat);
+        }
 
         // Garbage collection
         scope.$on('$destroy', function() {
@@ -31424,14 +31607,17 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
       show: false,
       title: '',
       type: '',
-      delay: 0
+      delay: 0,
+      autoClose: false,
+      bsEnabled: true
     };
 
-    this.$get = ["$window", "$rootScope", "$compile", "$q", "$templateCache", "$http", "$animate", "dimensions", "$$rAF", function($window, $rootScope, $compile, $q, $templateCache, $http, $animate, dimensions, $$rAF) {
+    this.$get = ["$window", "$rootScope", "$compile", "$q", "$templateCache", "$http", "$animate", "dimensions", "$$rAF", "$timeout", function($window, $rootScope, $compile, $q, $templateCache, $http, $animate, dimensions, $$rAF, $timeout) {
 
       var trim = String.prototype.trim;
       var isTouch = 'createTouch' in $window.document;
       var htmlReplaceRegExp = /ng-bind="/ig;
+      var $body = angular.element($window.document);
 
       function TooltipFactory(element, config) {
 
@@ -31453,6 +31639,11 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
         }
 
         // Provide scope helpers
+        scope.$setEnabled = function(isEnabled) {
+          scope.$$postDigest(function() {
+            $tooltip.setEnabled(isEnabled);
+          });
+        };
         scope.$hide = function() {
           scope.$$postDigest(function() {
             $tooltip.hide();
@@ -31488,7 +31679,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
         }
 
         // Fetch, compile then initialize tooltip
-        var tipLinker, tipElement, tipTemplate, tipContainer;
+        var tipLinker, tipElement, tipTemplate, tipContainer, tipScope;
         $tooltip.$promise.then(function(template) {
           if(angular.isObject(template)) template = template.data;
           if(options.html) template = template.replace(htmlReplaceRegExp, 'ng-bind-html="');
@@ -31563,14 +31754,13 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
             }
           }
 
-          // Remove element
-          if(tipElement) {
-            tipElement.remove();
-            tipElement = null;
+          if(options.autoClose && $tooltip.$isShown && tipElement !== null) {
+            $body.off('click');
+            tipElement.off('click');
           }
 
-          // Cancel pending callbacks
-          clearTimeout(timeout);
+          // Remove element
+          destroyTipElement();
 
           // Destroy scope
           scope.$destroy();
@@ -31592,15 +31782,17 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
         };
 
         $tooltip.show = function() {
+          if (!options.bsEnabled) return;
 
           scope.$emit(options.prefixEvent + '.show.before', $tooltip);
           var parent = options.container ? tipContainer : null;
           var after = options.container ? null : element;
 
           // Hide any existing tipElement
-          if(tipElement) tipElement.remove();
+          if(tipElement) destroyTipElement();
           // Fetch a cloned element linked from template
-          tipElement = $tooltip.$element = tipLinker(scope, function(clonedElement, scope) {});
+          tipScope = $tooltip.$scope.$new();
+          tipElement = $tooltip.$element = tipLinker(tipScope, function(clonedElement, scope) {});
 
           // Set the initial positioning.  Make the tooltip invisible
           // so IE doesn't try to focus on it off screen.
@@ -31624,7 +31816,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
             $tooltip.$applyPlacement();
 
             // Once placed, make the tooltip visible
-            tipElement.css({visibility: 'visible'});
+            if(tipElement) tipElement.css({visibility: 'visible'});
           }); // var a = bodyEl.offsetWidth + 1; ?
 
           // Bind events
@@ -31635,6 +31827,23 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
             } else {
               element.on('keyup', $tooltip.$onFocusKeyUp);
             }
+          }
+
+          if(options.autoClose) {
+            // Stop propagation when clicking inside tooltip
+            tipElement.on('click', function(event) {
+              event.stopPropagation();
+            });
+
+            // Hide when clicking outside tooltip
+            // use $timeout to setup this event, otherwise the 
+            // click on the element to show the popover will bubble 
+            // to the body and cause the popover to immediatly hide
+            $timeout(function() {
+              $body.on('click', function() {
+                $tooltip.hide();
+              });
+            }, 0, false);
           }
 
         };
@@ -31658,10 +31867,14 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         };
 
+        var _blur;
         $tooltip.hide = function(blur) {
 
           if(!$tooltip.$isShown) return;
           scope.$emit(options.prefixEvent + '.hide.before', $tooltip);
+
+          // store blur value for leaveAnimateCallback to use
+          _blur = blur;
 
           // Support v1.3+ $animate
           // https://github.com/angular/angular.js/commit/bf0f5502b1bbfddc5cdd2f138efd9188b8c652a9
@@ -31676,14 +31889,22 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
             tipElement.off('keyup', $tooltip.$onKeyUp);
           }
 
+          if(options.autoClose && tipElement !== null) {
+            $body.off('click');
+            tipElement.off('click');
+          }
+
         };
 
         function leaveAnimateCallback() {
           scope.$emit(options.prefixEvent + '.hide', $tooltip);
           // Allow to blur the input when hidden, like when pressing enter key
-          if(blur && options.trigger === 'focus') {
+          if(_blur && options.trigger === 'focus') {
             return element[0].blur();
           }
+
+          // clean up child scopes
+          destroyTipElement();
         }
 
         $tooltip.toggle = function() {
@@ -31692,6 +31913,10 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         $tooltip.focus = function() {
           tipElement[0].focus();
+        };
+
+        $tooltip.setEnabled = function(isEnabled) {
+          options.bsEnabled = isEnabled;
         };
 
         // Protected methods
@@ -31804,6 +32029,21 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
           return offset;
         }
 
+        function destroyTipElement() {
+          // Cancel pending callbacks
+          clearTimeout(timeout);
+
+          if (tipScope) {
+            tipScope.$destroy();
+            tipScope = null;
+          }
+
+          if (tipElement) {
+            tipElement.remove();
+            tipElement = $tooltip.$element = null;
+          }
+        }
+
         return $tooltip;
 
       }
@@ -31844,6 +32084,12 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
+        // overwrite inherited title value when no value specified
+        // fix for angular 1.3.1 531a8de72c439d8ddd064874bf364c00cedabb11
+        if (!scope.hasOwnProperty('title')){
+          scope.title = '';
+        }
+
         // Observe scope attributes for change
         attr.$observe('title', function(newValue) {
           if (angular.isDefined(newValue) || !scope.hasOwnProperty('title')) {
@@ -31872,6 +32118,14 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
           if(!tooltip || !angular.isDefined(newValue)) return;
           if(angular.isString(newValue)) newValue = !!newValue.match(/true|,?(tooltip),?/i);
           newValue === true ? tooltip.show() : tooltip.hide();
+        });
+
+        // Enabled binding support
+        attr.bsEnabled && scope.$watch(attr.bsEnabled, function(newValue, oldValue) {
+          // console.warn('scope.$watch(%s)', attr.bsEnabled, newValue, oldValue);
+          if(!tooltip || !angular.isDefined(newValue)) return;
+          if(angular.isString(newValue)) newValue = !!newValue.match(/true|1|,?(tooltip),?/i);
+          newValue === false ? tooltip.setEnabled(false) : tooltip.setEnabled(true);
         });
 
         // Initialize popover
@@ -31907,7 +32161,8 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
       delay: 0,
       minLength: 1,
       filter: 'filter',
-      limit: 6
+      limit: 6,
+      comparator: ''
     };
 
     this.$get = ["$window", "$rootScope", "$tooltip", function($window, $rootScope, $tooltip) {
@@ -32023,12 +32278,10 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
         var show = $typeahead.show;
         $typeahead.show = function() {
           show();
-          setTimeout(function() {
-            $typeahead.$element.on('mousedown', $typeahead.$onMouseDown);
-            if(options.keyboard) {
-              element.on('keydown', $typeahead.$onKeyDown);
-            }
-          });
+          $typeahead.$element.on('mousedown', $typeahead.$onMouseDown);
+          if(options.keyboard) {
+            element.on('keydown', $typeahead.$onKeyDown);
+          }
         };
 
         var hide = $typeahead.hide;
@@ -32062,15 +32315,18 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
 
         // Directive options
         var options = {scope: scope};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'filter', 'limit', 'minLength', 'watchOptions', 'selectMode'], function(key) {
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'filter', 'limit', 'minLength', 'watchOptions', 'selectMode', 'comparator'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
         // Build proper ngOptions
         var filter = options.filter || defaults.filter;
         var limit = options.limit || defaults.limit;
+        var comparator = options.comparator || defaults.comparator;
+
         var ngOptions = attr.ngOptions;
         if(filter) ngOptions += ' | ' + filter + ':$viewValue';
+        if (comparator) ngOptions += ':' + comparator;
         if(limit) ngOptions += ' | limitTo:' + limit;
         var parsedOptions = $parseOptions(ngOptions);
 
@@ -32116,7 +32372,8 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
         // modelValue -> $formatters -> viewValue
         controller.$formatters.push(function(modelValue) {
           // console.warn('$formatter("%s"): modelValue=%o (%o)', element.attr('ng-model'), modelValue, typeof modelValue);
-          return parsedOptions.displayValue(modelValue);
+          var displayValue = parsedOptions.displayValue(modelValue);
+          return displayValue === undefined ? '' : displayValue;
         });
 
         // Model rendering in view
@@ -32126,7 +32383,7 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
           var index = typeahead.$getIndex(controller.$modelValue);
           var selected = angular.isDefined(index) ? typeahead.$scope.$matches[index].label : controller.$viewValue;
           selected = angular.isObject(selected) ? selected.label : selected;
-          element.val(selected ? selected.replace(/<(?:.|\n)*?>/gm, '').trim() : '');
+          element.val(selected ? selected.toString().replace(/<(?:.|\n)*?>/gm, '').trim() : '');
         };
 
         // Garbage collection
@@ -32145,20 +32402,13 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
 
 /**
  * angular-strap
- * @version v2.1.2 - 2014-10-19
+ * @version v2.1.3 - 2014-11-06
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 (function(window, document, undefined) {
 'use strict';
-
-// Source: alert.tpl.js
-angular.module('mgcrea.ngStrap.alert').run(['$templateCache', function($templateCache) {
-
-  $templateCache.put('alert/alert.tpl.html', '<div class="alert" ng-class="[type ? \'alert-\' + type : null]"><button type="button" class="close" ng-if="dismissable" ng-click="$hide()">&times;</button> <strong ng-bind="title"></strong>&nbsp;<span ng-bind-html="content"></span></div>');
-
-}]);
 
 // Source: aside.tpl.js
 angular.module('mgcrea.ngStrap.aside').run(['$templateCache', function($templateCache) {
@@ -32167,10 +32417,10 @@ angular.module('mgcrea.ngStrap.aside').run(['$templateCache', function($template
 
 }]);
 
-// Source: dropdown.tpl.js
-angular.module('mgcrea.ngStrap.dropdown').run(['$templateCache', function($templateCache) {
+// Source: alert.tpl.js
+angular.module('mgcrea.ngStrap.alert').run(['$templateCache', function($templateCache) {
 
-  $templateCache.put('dropdown/dropdown.tpl.html', '<ul tabindex="-1" class="dropdown-menu" role="menu"><li role="presentation" ng-class="{divider: item.divider}" ng-repeat="item in content"><a role="menuitem" tabindex="-1" ng-href="{{item.href}}" ng-if="!item.divider && item.href" target="{{item.target || \'\'}}" ng-bind="item.text"></a> <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider && item.click" ng-click="$eval(item.click);$hide()" ng-bind="item.text"></a></li></ul>');
+  $templateCache.put('alert/alert.tpl.html', '<div class="alert" ng-class="[type ? \'alert-\' + type : null]"><button type="button" class="close" ng-if="dismissable" ng-click="$hide()">&times;</button> <strong ng-bind="title"></strong>&nbsp;<span ng-bind-html="content"></span></div>');
 
 }]);
 
@@ -32178,6 +32428,13 @@ angular.module('mgcrea.ngStrap.dropdown').run(['$templateCache', function($templ
 angular.module('mgcrea.ngStrap.datepicker').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('datepicker/datepicker.tpl.html', '<div class="dropdown-menu datepicker" ng-class="\'datepicker-mode-\' + $mode" style="max-width: 320px"><table style="table-layout: fixed; height: 100%; width: 100%"><thead><tr class="text-center"><th><button tabindex="-1" type="button" class="btn btn-default pull-left" ng-click="$selectPane(-1)"><i class="{{$iconLeft}}"></i></button></th><th colspan="{{ rows[0].length - 2 }}"><button tabindex="-1" type="button" class="btn btn-default btn-block text-strong" ng-click="$toggleMode()"><strong style="text-transform: capitalize" ng-bind="title"></strong></button></th><th><button tabindex="-1" type="button" class="btn btn-default pull-right" ng-click="$selectPane(+1)"><i class="{{$iconRight}}"></i></button></th></tr><tr ng-show="showLabels" ng-bind-html="labels"></tr></thead><tbody><tr ng-repeat="(i, row) in rows" height="{{ 100 / rows.length }}%"><td class="text-center" ng-repeat="(j, el) in row"><button tabindex="-1" type="button" class="btn btn-default" style="width: 100%" ng-class="{\'btn-primary\': el.selected, \'btn-info btn-today\': el.isToday && !el.selected}" ng-click="$select(el.date)" ng-disabled="el.disabled"><span ng-class="{\'text-muted\': el.muted}" ng-bind="el.label"></span></button></td></tr></tbody></table></div>');
+
+}]);
+
+// Source: dropdown.tpl.js
+angular.module('mgcrea.ngStrap.dropdown').run(['$templateCache', function($templateCache) {
+
+  $templateCache.put('dropdown/dropdown.tpl.html', '<ul tabindex="-1" class="dropdown-menu" role="menu"><li role="presentation" ng-class="{divider: item.divider}" ng-repeat="item in content"><a role="menuitem" tabindex="-1" ng-href="{{item.href}}" ng-if="!item.divider && item.href" target="{{item.target || \'\'}}" ng-bind="item.text"></a> <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider && item.click" ng-click="$eval(item.click);$hide()" ng-bind="item.text"></a></li></ul>');
 
 }]);
 
@@ -32198,14 +32455,7 @@ angular.module('mgcrea.ngStrap.popover').run(['$templateCache', function($templa
 // Source: select.tpl.js
 angular.module('mgcrea.ngStrap.select').run(['$templateCache', function($templateCache) {
 
-  $templateCache.put('select/select.tpl.html', '<ul tabindex="-1" class="select dropdown-menu" ng-show="$isVisible()" role="select"><li ng-if="$showAllNoneButtons"><div class="btn-group" style="margin-bottom: 5px; margin-left: 5px"><button class="btn btn-default btn-xs" ng-click="$selectAll()">All</button> <button class="btn btn-default btn-xs" ng-click="$selectNone()">None</button></div></li><li role="presentation" ng-repeat="match in $matches" ng-class="{active: $isActive($index)}"><a style="cursor: default" role="menuitem" tabindex="-1" ng-click="$select($index, $event)"><span ng-bind="match.label"></span> <i class="{{$iconCheckmark}} pull-right" ng-if="$isMultiple && $isActive($index)"></i></a></li></ul>');
-
-}]);
-
-// Source: tab.tpl.js
-angular.module('mgcrea.ngStrap.tab').run(['$templateCache', function($templateCache) {
-
-  $templateCache.put('tab/tab.tpl.html', '<ul class="nav" ng-class="$navClass" role="tablist"><li ng-repeat="$pane in $panes" ng-class="$index == $panes.$active ? $activeClass : \'\'"><a role="tab" data-toggle="tab" ng-click="$setActive($index)" data-index="{{ $index }}" ng-bind-html="$pane.title"></a></li></ul><div ng-transclude class="tab-content"></div>');
+  $templateCache.put('select/select.tpl.html', '<ul tabindex="-1" class="select dropdown-menu" ng-show="$isVisible()" role="select"><li ng-if="$showAllNoneButtons"><div class="btn-group" style="margin-bottom: 5px; margin-left: 5px"><button class="btn btn-default btn-xs" ng-click="$selectAll()">All</button> <button class="btn btn-default btn-xs" ng-click="$selectNone()">None</button></div></li><li role="presentation" ng-repeat="match in $matches" ng-class="{active: $isActive($index)}"><a style="cursor: default" role="menuitem" tabindex="-1" ng-click="$select($index, $event)"><span ng-bind="match.label"></span></a> <i style="cursor: default" class="{{$iconCheckmark}} pull-right" ng-if="$isMultiple && $isActive($index)" ng-click="$select($index, $event)"></i></li></ul>');
 
 }]);
 
@@ -32213,6 +32463,13 @@ angular.module('mgcrea.ngStrap.tab').run(['$templateCache', function($templateCa
 angular.module('mgcrea.ngStrap.timepicker').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('timepicker/timepicker.tpl.html', '<div class="dropdown-menu timepicker" style="min-width: 0px;width: auto"><table height="100%"><thead><tr class="text-center"><th><button tabindex="-1" type="button" class="btn btn-default pull-left" ng-click="$arrowAction(-1, 0)"><i class="{{ $iconUp }}"></i></button></th><th>&nbsp;</th><th><button tabindex="-1" type="button" class="btn btn-default pull-left" ng-click="$arrowAction(-1, 1)"><i class="{{ $iconUp }}"></i></button></th></tr></thead><tbody><tr ng-repeat="(i, row) in rows"><td class="text-center"><button tabindex="-1" style="width: 100%" type="button" class="btn btn-default" ng-class="{\'btn-primary\': row[0].selected}" ng-click="$select(row[0].date, 0)" ng-disabled="row[0].disabled"><span ng-class="{\'text-muted\': row[0].muted}" ng-bind="row[0].label"></span></button></td><td><span ng-bind="i == midIndex ? timeSeparator : \' \'"></span></td><td class="text-center"><button tabindex="-1" ng-if="row[1].date" style="width: 100%" type="button" class="btn btn-default" ng-class="{\'btn-primary\': row[1].selected}" ng-click="$select(row[1].date, 1)" ng-disabled="row[1].disabled"><span ng-class="{\'text-muted\': row[1].muted}" ng-bind="row[1].label"></span></button></td><td ng-if="showAM">&nbsp;</td><td ng-if="showAM"><button tabindex="-1" ng-show="i == midIndex - !isAM * 1" style="width: 100%" type="button" ng-class="{\'btn-primary\': !!isAM}" class="btn btn-default" ng-click="$switchMeridian()" ng-disabled="el.disabled">AM</button> <button tabindex="-1" ng-show="i == midIndex + 1 - !isAM * 1" style="width: 100%" type="button" ng-class="{\'btn-primary\': !isAM}" class="btn btn-default" ng-click="$switchMeridian()" ng-disabled="el.disabled">PM</button></td></tr></tbody><tfoot><tr class="text-center"><th><button tabindex="-1" type="button" class="btn btn-default pull-left" ng-click="$arrowAction(1, 0)"><i class="{{ $iconDown }}"></i></button></th><th>&nbsp;</th><th><button tabindex="-1" type="button" class="btn btn-default pull-left" ng-click="$arrowAction(1, 1)"><i class="{{ $iconDown }}"></i></button></th></tr></tfoot></table></div>');
+
+}]);
+
+// Source: tab.tpl.js
+angular.module('mgcrea.ngStrap.tab').run(['$templateCache', function($templateCache) {
+
+  $templateCache.put('tab/tab.tpl.html', '<ul class="nav" ng-class="$navClass" role="tablist"><li ng-repeat="$pane in $panes" ng-class="$index == $panes.$active ? $activeClass : \'\'"><a role="tab" data-toggle="tab" ng-click="$setActive($index)" data-index="{{ $index }}" ng-bind-html="$pane.title"></a></li></ul><div ng-transclude class="tab-content"></div>');
 
 }]);
 
@@ -35507,6 +35764,387 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 })();
 
 
+/**
+ * Created with IntelliJ IDEA.
+ * User: Ganaraj.Pr
+ * Date: 11/10/13
+ * Time: 11:27
+ * To change this template use File | Settings | File Templates.
+ */
+
+(function(angular){
+
+function isDnDsSupported(){
+    return 'draggable' in document.createElement("span");
+}
+
+if(!isDnDsSupported()){
+    return;
+}
+
+if (window.jQuery && (-1 == window.jQuery.event.props.indexOf("dataTransfer"))) {
+    window.jQuery.event.props.push("dataTransfer");
+}
+
+var currentData;
+
+angular.module("ang-drag-drop",[])
+    .directive("uiDraggable", [
+        '$parse',
+        '$rootScope',
+        '$dragImage',
+        function ($parse, $rootScope, $dragImage) {
+            return function (scope, element, attrs) {
+                var dragData = "",
+                    isDragHandleUsed = false,
+                    dragHandleClass,
+                    draggingClass = attrs.draggingClass || "on-dragging",
+                    dragTarget;
+
+                element.attr("draggable", false);
+
+                attrs.$observe("uiDraggable", function (newValue) {
+                    if(newValue){
+                        element.attr("draggable", newValue);
+                    }
+                    else{
+                        element.removeAttr("draggable");
+                    }
+
+                });
+
+                if (attrs.drag) {
+                    scope.$watch(attrs.drag, function (newValue) {
+                        dragData = newValue || "";
+                    });
+                }
+
+                if (angular.isString(attrs.dragHandleClass)) {
+                    isDragHandleUsed = true;
+                    dragHandleClass = attrs.dragHandleClass.trim() || "drag-handle";
+
+                    element.bind("mousedown", function (e) {
+                        dragTarget = e.target;
+                    });
+                }
+
+                function dragendHandler(e) {
+                    setTimeout(function() {
+                      element.unbind('$destroy', dragendHandler);
+                    }, 0);
+                    var sendChannel = attrs.dragChannel || "defaultchannel";
+                    $rootScope.$broadcast("ANGULAR_DRAG_END", sendChannel);
+                    if (e.dataTransfer && e.dataTransfer.dropEffect !== "none") {
+                        if (attrs.onDropSuccess) {
+                            var fn = $parse(attrs.onDropSuccess);
+                            scope.$evalAsync(function () {
+                                fn(scope, {$event: e});
+                            });
+                        } else {
+                            if (attrs.onDropFailure) {
+                                var fn = $parse(attrs.onDropFailure);
+                                scope.$evalAsync(function () {
+                                    fn(scope, {$event: e});
+                                });
+                            }
+                        }
+                    }
+                    element.removeClass(draggingClass);
+                }
+
+                element.bind("dragend", dragendHandler);
+
+                element.bind("dragstart", function (e) {
+                    var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
+
+                    if (isDragAllowed) {
+                        var sendChannel = attrs.dragChannel || "defaultchannel";
+                        var sendData = angular.toJson({ data: dragData, channel: sendChannel });
+                        var dragImage = attrs.dragImage || null;
+
+                        element.addClass(draggingClass);
+                        element.bind('$destroy', dragendHandler);
+
+                        if (dragImage) {
+                            var dragImageFn = $parse(attrs.dragImage);
+                            scope.$evalAsync(function() {
+                                var dragImageParameters = dragImageFn(scope, {$event: e});
+                                if (dragImageParameters) {
+                                    if (angular.isString(dragImageParameters)) {
+                                        dragImageParameters = $dragImage.generate(dragImageParameters);
+                                    }
+                                    if (dragImageParameters.image) {
+                                        var xOffset = dragImageParameters.xOffset || 0,
+                                            yOffset = dragImageParameters.yOffset || 0;
+                                        e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
+                                    }
+                                }
+                            });
+                        }
+
+                        e.dataTransfer.setData("dataToSend", sendData);
+                        currentData = angular.fromJson(sendData);
+                        e.dataTransfer.effectAllowed = "copyMove";
+                        $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
+                    }
+                    else {
+                        e.preventDefault();
+                    }
+                });
+            };
+        }
+    ])
+    .directive("uiOnDrop", [
+        '$parse',
+        '$rootScope',
+        function ($parse, $rootScope) {
+            return function (scope, element, attr) {
+                var dragging = 0; //Ref. http://stackoverflow.com/a/10906204
+                var dropChannel = attr.dropChannel || "defaultchannel" ;
+                var dragChannel = "";
+                var dragEnterClass = attr.dragEnterClass || "on-drag-enter";
+                var dragHoverClass = attr.dragHoverClass || "on-drag-hover";
+                var customDragEnterEvent = $parse(attr.onDragEnter);
+                var customDragLeaveEvent = $parse(attr.onDragLeave);
+
+                function onDragOver(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+
+                    var fn = $parse(attr.uiOnDragOver);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
+
+                    e.dataTransfer.dropEffect = e.shiftKey ? 'copy' : 'move';
+                    return false;
+                }
+
+                function onDragLeave(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    dragging--;
+
+                    if (dragging == 0) {
+                        scope.$evalAsync(function () {
+                            customDragEnterEvent(scope, {$event: e});
+                        });
+                        element.removeClass(dragHoverClass);
+                    }
+
+                    var fn = $parse(attr.uiOnDragLeave);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
+                }
+
+                function onDragEnter(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    dragging++;
+
+                    var fn = $parse(attr.uiOnDragEnter);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
+
+                    $rootScope.$broadcast("ANGULAR_HOVER", dragChannel);
+                    scope.$evalAsync(function () {
+                        customDragLeaveEvent(scope, {$event: e});
+                    });
+                    element.addClass(dragHoverClass);
+                }
+
+                function onDrop(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
+                    }
+                    if (e.stopPropagation) {
+                        e.stopPropagation(); // Necessary. Allows us to drop.
+                    }
+
+                    var sendData = e.dataTransfer.getData("dataToSend");
+                    sendData = angular.fromJson(sendData);
+
+                    var fn = $parse(attr.uiOnDrop);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$data: sendData.data, $event: e, $channel: sendData.channel});
+                    });
+                    element.removeClass(dragEnterClass);
+                    dragging = 0;
+                }
+
+                function isDragChannelAccepted(dragChannel, dropChannel) {
+                    if (dropChannel === "*") {
+                        return true;
+                    }
+
+                    var channelMatchPattern = new RegExp("(\\s|[,])+(" + dragChannel + ")(\\s|[,])+", "i");
+
+                    return channelMatchPattern.test("," + dropChannel + ",");
+                }
+
+                function preventNativeDnD(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    e.dataTransfer.dropEffect = "none";
+                    return false;
+                }
+
+			var deregisterDragStart = $rootScope.$on("ANGULAR_DRAG_START", function (event, channel) {
+                    dragChannel = channel;
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+                        if (attr.dropValidate) {
+                            var validateFn = $parse(attr.dropValidate);
+                            var valid = validateFn(scope, {$data: currentData.data, $channel: currentData.channel});
+                            if (!valid) {
+                                element.bind("dragover", preventNativeDnD);
+                                element.bind("dragenter", preventNativeDnD);
+                                element.bind("dragleave", preventNativeDnD);
+                                element.bind("drop", preventNativeDnD);
+								return;
+                            }
+                        }
+
+                        element.bind("dragover", onDragOver);
+                        element.bind("dragenter", onDragEnter);
+                        element.bind("dragleave", onDragLeave);
+
+                        element.bind("drop", onDrop);
+                        element.addClass(dragEnterClass);
+                    }
+					else {
+					    element.bind("dragover", preventNativeDnD);
+					    element.bind("dragenter", preventNativeDnD);
+					    element.bind("dragleave", preventNativeDnD);
+					    element.bind("drop", preventNativeDnD);
+					}
+
+                });
+
+
+
+                var deregisterDragEnd = $rootScope.$on("ANGULAR_DRAG_END", function (e, channel) {
+                    dragChannel = "";
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+
+                        element.unbind("dragover", onDragOver);
+                        element.unbind("dragenter", onDragEnter);
+                        element.unbind("dragleave", onDragLeave);
+
+                        element.unbind("drop", onDrop);
+                        element.removeClass(dragHoverClass);
+                        element.removeClass(dragEnterClass);
+                    }
+
+					element.unbind("dragover", preventNativeDnD);
+					element.unbind("dragenter", preventNativeDnD);
+					element.unbind("dragleave", preventNativeDnD);
+					element.unbind("drop", preventNativeDnD);
+                });
+
+
+                var deregisterDragHover = $rootScope.$on("ANGULAR_HOVER", function (e, channel) {
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+                      element.removeClass(dragHoverClass);
+                    }
+                });
+
+
+                scope.$on('$destroy', function () {
+                    deregisterDragStart();
+                    deregisterDragEnd();
+                    deregisterDragHover();
+                });
+
+
+                attr.$observe('dropChannel', function (value) {
+                    if (value) {
+                        dropChannel = value;
+                    }
+                });
+
+
+            };
+        }
+    ])
+    .constant("$dragImageConfig", {
+        height: 20,
+        width: 200,
+        padding: 10,
+        font: 'bold 11px Arial',
+        fontColor: '#eee8d5',
+        backgroundColor: '#93a1a1',
+        xOffset: 0,
+        yOffset: 0
+    })
+    .service("$dragImage", [
+        '$dragImageConfig',
+        function (defaultConfig) {
+            var ELLIPSIS = '…';
+
+            function fitString(canvas, text, config) {
+                var width = canvas.measureText(text).width;
+                if (width < config.width) {
+                    return text;
+                }
+                while (width + config.padding > config.width) {
+                    text = text.substring(0, text.length - 1);
+                    width = canvas.measureText(text + ELLIPSIS).width;
+                }
+                return text + ELLIPSIS;
+            };
+
+            this.generate = function (text, options) {
+                var config = angular.extend({}, defaultConfig, options || {});
+                var el = document.createElement('canvas');
+
+                el.height = config.height;
+                el.width = config.width;
+
+                var canvas = el.getContext('2d');
+
+                canvas.fillStyle = config.backgroundColor;
+                canvas.fillRect(0, 0, config.width, config.height);
+                canvas.font = config.font;
+                canvas.fillStyle = config.fontColor;
+
+                var title = fitString(canvas, text, config);
+                canvas.fillText(title, 4, config.padding + 4);
+
+                var image = new Image();
+                image.src = el.toDataURL();
+
+                return {
+                    image: image,
+                    xOffset: config.xOffset,
+                    yOffset: config.yOffset
+                };
+            }
+        }
+    ]);
+
+}(angular));
+
 /*
 Project: angular-gantt for AngularJS
 Author: Marco Schweighauser
@@ -35514,496 +36152,512 @@ Contributors: Rémi Alvergnat
 License: MIT.
 Github: https://github.com/angular-gantt/angular-gantt
 */
-'use strict';
-
-
-var gantt = angular.module('gantt', ['ganttTemplates', 'angularMoment']);
-gantt.constant('GANTT_EVENTS',
-    {
-        'READY': 'event:gantt-ready',
-        'SCROLL': 'event:gantt-scroll',
-
-        'TASK_ADDED': 'event:gantt-task-added',
-        'TASK_CHANGED': 'event:gantt-task-changed',
-        'TASK_REMOVED': 'event:gantt-task-removed',
-        'TASK_MOVED': 'event:gantt-task-moved',
-        'TASK_MOVE_BEGIN': 'event:gantt-task-move-begin',
-        'TASK_MOVE': 'event:gantt-task-move',
-        'TASK_MOVE_END': 'event:gantt-task-move-end',
-        'TASK_RESIZE_BEGIN': 'event:gantt-task-resize-begin',
-        'TASK_RESIZE': 'event:gantt-task-resize',
-        'TASK_RESIZE_END': 'event:gantt-task-resize-end',
-        'TASK_CLICKED': 'event:gantt-task-clicked',
-        'TASK_DBL_CLICKED': 'event:gantt-task-dblclicked',
-        'TASK_CONTEXTMENU': 'event:gantt-task-contextmenu',
-
-        'COLUMN_CLICKED': 'event:gantt-column-clicked',
-        'COLUMN_DBL_CLICKED': 'event:gantt-column-dblclicked',
-        'COLUMN_CONTEXTMENU': 'event:gantt-column-contextmenu',
-
-        'ROW_MOUSEDOWN': 'event:gantt-row-mousedown',
-        'ROW_MOUSEUP': 'event:gantt-row-mouseup',
-        'ROW_CLICKED': 'event:gantt-row-clicked',
-        'ROW_DBL_CLICKED': 'event:gantt-row-dblclicked',
-        'ROW_CONTEXTMENU': 'event:gantt-row-contextmenu',
-        'ROW_CHANGED': 'event:gantt-row-changed',
-        'ROW_ADDED': 'event:gantt-row-added',
-        'ROW_REMOVED': 'event:gantt-row-removed',
-        'ROW_ORDER_CHANGED': 'event:gantt-row-order-changed',
-
-        'ROW_LABEL_MOUSEDOWN': 'event:gantt-row-label-mousedown',
-        'ROW_LABEL_MOUSEUP': 'event:gantt-row-label-mouseup',
-        'ROW_LABEL_CLICKED': 'event:gantt-row-label-clicked',
-        'ROW_LABEL_DBL_CLICKED': 'event:gantt-row-label-dblclicked',
-        'ROW_LABEL_CONTEXTMENU': 'event:gantt-row-label-contextmenu',
-
-        'ROW_HEADER_MOUSEDOWN': 'event:gantt-row-header-mousedown',
-        'ROW_HEADER_MOUSEUP': 'event:gantt-row-header-mouseup',
-        'ROW_HEADER_CLICKED': 'event:gantt-row-header-clicked',
-        'ROW_HEADER_DBL_CLICKED': 'event:gantt-row-header-dblclicked',
-        'ROW_HEADER_CONTEXTMENU': 'event:gantt-row-header-contextmenu',
-
-        'ROW_LABELS_RESIZED': 'event:gantt-row-labels-resized',
-
-        'TIMESPAN_ADDED': 'event:gantt-timespan-added',
-        'TIMESPAN_CHANGED': 'event:gantt-timespan-changed',
-
-        'TASKS_FILTERED': 'event:gantt-tasks-filtered',
-        'ROWS_FILTERED': 'event:gantt-rows-filtered'
-    });
-
-gantt.directive('gantt', ['Gantt', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'GanttEvents', 'ganttEnableNgAnimate', 'GANTT_EVENTS', function(Gantt, Calendar, moment, mouseOffset, debounce, Events, enableNgAnimate, GANTT_EVENTS) {
-    return {
-        restrict: 'EA',
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.gantt.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        scope: {
-            sortMode: '=?', // Possible modes: 'name', 'date', 'custom'
-            filterTask: '=?', // Task filter as a angularJS expression
-            filterTaskComparator: '=?', // Comparator to use for the task filter
-            filterRow: '=?', // Row filter as a angularJS expression
-            filterRowComparator: '=?', // Comparator to use for the row filter
-            viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
-            columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
-            allowTaskMoving: '=?', // Set to true if tasks should be moveable by the user.
-            allowTaskResizing: '=?', // Set to true if tasks should be resizable by the user.
-            allowTaskRowSwitching: '=?', // If false then tasks can be moved inside their current row only. The user can not move it to another row.
-            allowRowSorting: '=?', // Set to true if the user should be able to re-order rows.
-            allowLabelsResizing: '=?', // Set to true if the user should be able to resize the label section.
-            fromDate: '=?', // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
-            toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
-            currentDateValue: '=?', // If specified, the current date will be displayed
-            currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
-            autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
-            taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
-            maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
-            labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
-            showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
-            showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
-            headers: '=?', // An array of units for headers.
-            headersFormats: '=?', // An array of corresponding formats for headers.
-            timeFrames: '=?',
-            dateFrames: '=?',
-            timeFramesWorkingMode: '=?',
-            timeFramesNonWorkingMode: '=?',
-            tooltipDateFormat: '=?',
-            timespans: '=?',
-            columnMagnet: '=?',
-            data: '=?',
-            loadTimespans: '&',
-            loadData: '&',
-            removeData: '&',
-            clearData: '&',
-            centerDate: '&'
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            // Initialize defaults
-            if ($scope.sortMode === undefined) {
-                $scope.sortMode = 'name';
-            }
-            if ($scope.viewScale === undefined) {
-                $scope.viewScale = 'day';
-            }
-            if ($scope.columnMagnet === undefined) {
-                $scope.columnMagnet = '15 minutes';
-            }
-            if ($scope.allowTaskMoving === undefined) {
-                $scope.allowTaskMoving = true;
-            }
-            if ($scope.allowTaskResizing === undefined) {
-                $scope.allowTaskResizing = true;
-            }
-            if ($scope.allowTaskRowSwitching === undefined) {
-                $scope.allowTaskRowSwitching = true;
-            }
-            if ($scope.allowRowSorting === undefined) {
-                $scope.allowRowSorting = true;
-            }
-            if ($scope.allowLabelsResizing === undefined) {
-                $scope.allowLabelsResizing = true;
-            }
-            if ($scope.currentDateValue === undefined) {
-                $scope.currentDateValue = moment();
-            }
-            if ($scope.currentDate === undefined) {
-                $scope.currentDate = 'line';
-            }
-            if ($scope.maxHeight === undefined) {
-                $scope.maxHeight = 0;
-            }
-            if ($scope.autoExpand === undefined) {
-                $scope.autoExpand = 'none';
-            }
-            if ($scope.taskOutOfRange === undefined) {
-                $scope.taskOutOfRange = 'truncate';
-            }
-            if ($scope.labelsWidth === undefined) {
-                $scope.labelsWidth = 0;
-            }
-            if ($scope.showLabelsColumn === undefined) {
-                $scope.showLabelsColumn = true;
-            }
-            if ($scope.showTooltips === undefined) {
-                $scope.showTooltips = true;
-            }
-            if ($scope.timeFramesWorkingMode === undefined) {
-                $scope.timeFramesWorkingMode = 'hidden';
-            }
-            if ($scope.timeFramesNonWorkingMode === undefined) {
-                $scope.timeFramesNonWorkingMode = 'visible';
-            }
-            if ($scope.columnMagnet === undefined) {
-                $scope.columnMagnet = '15 minutes';
-            }
-            if ($scope.tooltipDateFormat === undefined) {
-                $scope.tooltipDateFormat = 'MMM DD, HH:mm';
-            }
-
-            var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
-            var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
-            var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
-
-            $scope.getHeaderFormat = function(unit) {
-                var format;
-                if ($scope.headersFormats !== undefined) {
-                    format = $scope.headersFormats[unit];
-                }
-                if (format === undefined) {
-                    if (['millisecond', 'second', 'minute', 'hour'].indexOf($scope.viewScale) > -1) {
-                        format = defaultDayHeadersFormats[unit];
-                    } else if (['month', 'quarter', 'year'].indexOf($scope.viewScale) > -1) {
-                        format = defaultYearHeadersFormats[unit];
-                    }
-                    if (format === undefined) {
-                        format = defaultHeadersFormats[unit];
-                    }
-                }
-                return format;
-            };
-
-            // Disable animation if ngAnimate is present, as it drops down performance.
-            enableNgAnimate(false, $element);
-
-            $scope.calendar = new Calendar();
-            $scope.calendar.registerTimeFrames($scope.timeFrames);
-            $scope.calendar.registerDateFrames($scope.dateFrames);
-
-            $scope.$watch('timeFrames', function() {
-                $scope.calendar.clearTimeFrames();
-                $scope.calendar.registerTimeFrames($scope.timeFrames);
-            });
-
-            $scope.$watch('dateFrames', function() {
-                $scope.calendar.clearDateFrames();
-                $scope.calendar.registerDateFrames($scope.dateFrames);
-            });
-
-            // Gantt logic
-            $scope.template = {};
-            $scope.gantt = new Gantt($scope, $element);
-
-            $scope.$watch('sortMode', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.sortRows();
-                }
-            });
-
-            $scope.$watch('timespans', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllTimespans();
-                    $scope.setTimespans(newValue);
-                }
-            });
-
-            $scope.$watch('data', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue)) {
-                    $scope.removeAllData();
-                    $scope.setData(newValue);
-                }
-            });
-
-            // Swaps two rows and changes the sort order to custom to display the swapped rows
-            $scope.swapRows = function(a, b) {
-                $scope.gantt.swapRows(a, b);
-
-                // Raise change events
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': a});
-                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': a});
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': b});
-                $scope.$emit(GANTT_EVENTS.ROW_ORDER_CHANGED, {'row': b});
-
-                // Switch to custom sort mode and trigger sort
-                if ($scope.sortMode !== 'custom') {
-                    $scope.sortMode = 'custom'; // Sort will be triggered by the watcher
+(function(){
+    'use strict';
+    angular.module('gantt', ['gantt.templates', 'angularMoment'])
+        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
+        return {
+            restrict: 'EA',
+            transclude: true,
+            templateUrl: function(tElement, tAttrs) {
+                if (tAttrs.templateUrl === undefined) {
+                    return 'template/gantt.tmpl.html';
                 } else {
-                    $scope.sortRows();
+                    return tAttrs.templateUrl;
                 }
-            };
-
-            // Sort rows by the current sort mode
-            $scope.sortRows = function() {
-                $scope.gantt.sortRows($scope.sortMode);
-            };
-
-            // Scroll to the specified x
-            $scope.scrollTo = function(x) {
-                $scope.template.scrollable.$element[0].scrollLeft = x;
-                $scope.template.scrollable.$element.triggerHandler('scroll');
-            };
-
-            // Scroll to the left side by specified x
-            $scope.scrollToLeft = function(x) {
-                $scope.template.scrollable.$element[0].scrollLeft -= x;
-                $scope.template.scrollable.$element.triggerHandler('scroll');
-            };
-
-            // Scroll to the right side by specified x
-            $scope.scrollToRight = function(x) {
-                $scope.template.scrollable.$element[0].scrollLeft += x;
-                $scope.template.scrollable.$element.triggerHandler('scroll');
-            };
-
-            // Tries to center the specified date
-            $scope.scrollToDate = function(date) {
-                var position = $scope.gantt.getPositionByDate(date);
-
-                if (position !== undefined) {
-                    $scope.template.scrollable.$element[0].scrollLeft = position - $scope.template.scrollable.$element[0].offsetWidth / 2;
-                }
-            };
-
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
-            $scope.autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
-                    return;
+            },
+            scope: {
+                sortMode: '=?', // Possible modes: 'name', 'date', 'custom'
+                filterTask: '=?', // Task filter as a angularJS expression
+                filterTaskComparator: '=?', // Comparator to use for the task filter
+                filterRow: '=?', // Row filter as a angularJS expression
+                filterRowComparator: '=?', // Comparator to use for the row filter
+                viewScale: '=?', // Possible scales: 'hour', 'day', 'week', 'month'
+                columnWidth: '=?', // Defines the size of a column, 1 being 1em per unit (hour or day, .. depending on scale),
+                allowLabelsResizing: '=?', // Set to true if the user should be able to resize the label section.
+                fromDate: '=?', // If not specified will use the earliest task date (note: as of now this can only expand not shrink)
+                toDate: '=?', // If not specified will use the latest task date (note: as of now this can only expand not shrink)
+                currentDateValue: '=?', // If specified, the current date will be displayed
+                currentDate: '=?', // The display of currentDate ('none', 'line' or 'column').
+                autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
+                taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
+                maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
+                labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
+                showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
+                showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
+                headers: '=?', // An array of units for headers.
+                headersFormats: '=?', // An array of corresponding formats for headers.
+                timeFrames: '=?',
+                dateFrames: '=?',
+                timeFramesWorkingMode: '=?',
+                timeFramesNonWorkingMode: '=?',
+                timespans: '=?',
+                columnMagnet: '=?',
+                data: '=?',
+                api: '=?',
+                options: '=?'
+            },
+            controller: ['$scope', '$element', function($scope, $element) {
+                for (var option in $scope.options) {
+                    $scope[option] = $scope.options[option];
                 }
 
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
+                Options.initialize($scope);
+
+                // Disable animation if ngAnimate is present, as it drops down performance.
+                enableNgAnimate(false, $element);
+
+                $scope.gantt = new Gantt($scope, $element);
+                this.gantt = $scope.gantt;
+            }],
+            link: function(scope, element) {
+                // Gantt is initialized. Signal that the Gantt is ready.
+                scope.gantt.api.core.raise.ready(scope.gantt.api);
+
+                scope.gantt.api.directives.raise.new('gantt', scope, element);
+                scope.$on('$destroy', function() {
+                    scope.gantt.api.directives.raise.destroy('gantt', scope, element);
+                });
+            }
+        };
+    }]);
+}());
+
+
+// This file is adapted from Angular UI ngGrid project
+// MIT License
+// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.12/src/js/core/factories/GridApi.js
+(function() {
+    'use strict';
+    angular.module('gantt')
+        .factory('GanttApi', ['$q', '$rootScope', 'ganttUtils',
+            function($q, $rootScope, utils) {
+                /**
+                 * @ngdoc function
+                 * @name gantt.class:GanttApi
+                 * @description GanttApi provides the ability to register public methods events inside the gantt and allow
+                 * for other components to use the api via featureName.methodName and featureName.on.eventName(function(args){}
+                 * @param {object} gantt gantt that owns api
+                 */
+                var GanttApi = function GanttApi(gantt) {
+                    this.gantt = gantt;
+                    this.listeners = [];
+                    this.apiId = utils.newId();
+                };
+
+                /**
+                 * @ngdoc function
+                 * @name gantt.class:suppressEvents
+                 * @methodOf gantt.class:GanttApi
+                 * @description Used to execute a function while disabling the specified event listeners.
+                 * Disables the listenerFunctions, executes the callbackFn, and then enables
+                 * the listenerFunctions again
+                 * @param {object} listenerFuncs listenerFunc or array of listenerFuncs to suppress. These must be the same
+                 * functions that were used in the .on.eventName method
+                 * @param {object} callBackFn function to execute
+                 * @example
+                 * <pre>
+                 *    var navigate = function (newRowCol, oldRowCol){
+                 *       //do something on navigate
+                 *    }
+                 *
+                 *    ganttApi.cellNav.on.navigate(scope,navigate);
+                 *
+                 *
+                 *    //call the scrollTo event and suppress our navigate listener
+                 *    //scrollTo will still raise the event for other listeners
+                 *    ganttApi.suppressEvents(navigate, function(){
+                 *       ganttApi.cellNav.scrollTo(aRow, aCol);
+                 *    });
+                 *
+                 * </pre>
+                 */
+                GanttApi.prototype.suppressEvents = function(listenerFuncs, callBackFn) {
+                    var self = this;
+                    var listeners = angular.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+
+                    //find all registered listeners
+                    var foundListeners = [];
+                    listeners.forEach(function(l) {
+                        foundListeners = self.listeners.filter(function(lstnr) {
+                            return l === lstnr.handler;
+                        });
+                    });
+
+                    //deregister all the listeners
+                    foundListeners.forEach(function(l) {
+                        l.dereg();
+                    });
+
+                    callBackFn();
+
+                    //reregister all the listeners
+                    foundListeners.forEach(function(l) {
+                        l.dereg = registerEventWithAngular(l.scope, l.eventId, l.handler, self.gantt);
+                    });
+
+                };
+
+                /**
+                 * @ngdoc function
+                 * @name registerEvent
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers a new event for the given feature
+                 * @param {string} featureName name of the feature that raises the event
+                 * @param {string} eventName  name of the event
+                 */
+                GanttApi.prototype.registerEvent = function(featureName, eventName) {
+                    var self = this;
+                    if (!self[featureName]) {
+                        self[featureName] = {};
+                    }
+
+                    var feature = self[featureName];
+                    if (!feature.on) {
+                        feature.on = {};
+                        feature.raise = {};
+                    }
+
+                    var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
+
+                    feature.raise[eventName] = function() {
+                        $rootScope.$broadcast.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+                    };
+
+                    feature.on[eventName] = function(scope, handler) {
+                        var dereg = registerEventWithAngular(scope, eventId, handler, self.gantt);
+
+                        //track our listener so we can turn off and on
+                        var listener = {handler: handler, dereg: dereg, eventId: eventId, scope: scope};
+                        self.listeners.push(listener);
+
+                        //destroy tracking when scope is destroyed
+                        //wanted to remove the listener from the array but angular does
+                        //strange things in scope.$destroy so I could not access the listener array
+                        scope.$on('$destroy', function() {
+                            listener.dereg = null;
+                            listener.handler = null;
+                            listener.eventId = null;
+                            listener.scope = null;
+                        });
+                    };
+                };
+
+                function registerEventWithAngular(scope, eventId, handler, gantt) {
+                    return scope.$on(eventId, function() {
+                        var args = Array.prototype.slice.call(arguments);
+                        args.splice(0, 1); //remove evt argument
+                        handler.apply(gantt.api, args);
+                    });
                 }
 
-                var from, to;
-                var expandHour = 1, expandDay = 31;
+                /**
+                 * @ngdoc function
+                 * @name registerEventsFromObject
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers features and events from a simple objectMap.
+                 * eventObjectMap must be in this format (multiple features allowed)
+                 * <pre>
+                 * {featureName:
+                 *        {
+                 *          eventNameOne:function(args){},
+                 *          eventNameTwo:function(args){}
+                 *        }
+                 *  }
+                 * </pre>
+                 * @param {object} eventObjectMap map of feature/event names
+                 */
+                GanttApi.prototype.registerEventsFromObject = function(eventObjectMap) {
+                    var self = this;
+                    var features = [];
+                    angular.forEach(eventObjectMap, function(featProp, featPropName) {
+                        var feature = {name: featPropName, events: []};
+                        angular.forEach(featProp, function(prop, propName) {
+                            feature.events.push(propName);
+                        });
+                        features.push(feature);
+                    });
 
-                if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
-                } else {
-                    from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
-                }
+                    features.forEach(function(feature) {
+                        feature.events.forEach(function(event) {
+                            self.registerEvent(feature.name, event);
+                        });
+                    });
 
-                $scope.fromDate = from;
-                $scope.toDate = to;
-                lastAutoExpand = Date.now();
-            };
+                };
 
-            // Add or update rows and tasks
-            $scope.setData = function(data) {
-                $scope.gantt.addData(data);
-                $scope.sortRows();
-            };
+                /**
+                 * @ngdoc function
+                 * @name registerMethod
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers a new event for the given feature
+                 * @param {string} featureName name of the feature
+                 * @param {string} methodName  name of the method
+                 * @param {object} callBackFn function to execute
+                 * @param {object} thisArg binds callBackFn 'this' to thisArg.  Defaults to ganttApi.gantt
+                 */
+                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, thisArg) {
+                    if (!this[featureName]) {
+                        this[featureName] = {};
+                    }
 
-            // Remove specified rows and tasks.
-            $scope.removeData({ fn: function(data) {
-                $scope.gantt.removeData(data);
-                $scope.sortRows();
-            }});
+                    var feature = this[featureName];
 
-            // Clear all existing rows and tasks
-            $scope.removeAllData = function() {
-                // Clears rows, task and columns
-                $scope.gantt.removeAllRows();
-                // Restore default columns
-                $scope.gantt.updateColumns();
-            };
+                    feature[methodName] = utils.createBoundedWrapper(thisArg || this.gantt, callBackFn);
+                };
 
-            // Clear all existing timespans
-            $scope.removeAllTimespans = function() {
-                // Clears rows, task and columns
-                $scope.gantt.removeAllTimespans();
-                // Restore default columns
-                $scope.gantt.updateColumns();
-            };
+                /**
+                 * @ngdoc function
+                 * @name registerMethodsFromObject
+                 * @methodOf gantt.class:GanttApi
+                 * @description Registers features and methods from a simple objectMap.
+                 * eventObjectMap must be in this format (multiple features allowed)
+                 * <br>
+                 * {featureName:
+                 *        {
+                 *          methodNameOne:function(args){},
+                 *          methodNameTwo:function(args){}
+                 *        }
+                 * @param {object} eventObjectMap map of feature/event names
+                 * @param {object} thisArg binds this to thisArg for all functions.  Defaults to GanttApi.gantt
+                 */
+                GanttApi.prototype.registerMethodsFromObject = function(methodMap, thisArg) {
+                    var self = this;
+                    var features = [];
+                    angular.forEach(methodMap, function(featProp, featPropName) {
+                        var feature = {name: featPropName, methods: []};
+                        angular.forEach(featProp, function(prop, propName) {
+                            feature.methods.push({name: propName, fn: prop});
+                        });
+                        features.push(feature);
+                    });
 
-            // Add or update timespans
-            $scope.setTimespans = function(timespans) {
-                $scope.gantt.addTimespans(timespans);
-            };
+                    features.forEach(function(feature) {
+                        feature.methods.forEach(function(method) {
+                            self.registerMethod(feature.name, method.name, method.fn, thisArg);
+                        });
+                    });
 
-            // Load data handler.
-            // The Gantt chart will keep the current view position if this function is called during scrolling.
-            $scope.loadData({ fn: $scope.setData});
-            $scope.loadTimespans({ fn: $scope.setTimespans});
+                };
 
-            // Clear data handler.
-            $scope.clearData({ fn: $scope.removeAllData});
+                return GanttApi;
 
-            // Scroll to specified date handler.
-            $scope.centerDate({ fn: $scope.scrollToDate});
+            }]);
 
-            // Gantt is initialized. Signal that the Gantt is ready.
-            $scope.$emit(GANTT_EVENTS.READY);
+})();
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('ganttOptions', ['moment', function(moment) {
+        return {initialize: function(options) {
+            options.api = options.api || angular.noop();
+
+            options.data = options.data || [];
+
+            options.timespans = options.timespans || [];
+
+            options.sortMode = options.sortMode || undefined;
+
+            options.filterTask = options.filterTask || undefined;
+            options.filterTaskComparator = options.filterTaskComparator || undefined;
+
+            options.filterRow = options.filterRow || undefined;
+            options.filterRowComparator = options.filterRowComparator || undefined;
+
+            options.viewScale = options.viewScale || 'day';
+            options.columnMagnet = options.columnMagnet || '15 minutes';
+            options.columnWidth = options.columnWidth || undefined;
+
+            options.fromDate = options.fromDate || undefined;
+            options.toDate = options.toDate || undefined;
+
+            options.allowLabelsResizing = options.allowLabelsResizing !== undefined ? !!options.allowLabelsResizing : true;
+
+            options.currentDate = options.currentDate || 'line';
+            options.currentDateValue = options.currentDateValue || moment();
+
+            options.autoExpand = options.autoExpand || 'none';
+            options.taskOutOfRange = options.taskOutOfRange || 'truncate';
+
+            options.maxHeight = options.maxHeight || 0;
+
+            options.labelsWidth = options.labelsWidth || undefined;
+
+            options.showLabelsColumn = options.showLabelsColumn !== undefined ? !!options.showLabelsColumn : true;
+            options.showTooltips = options.showTooltips !== undefined ? !!options.showTooltips : true;
+
+            options.headers = options.headers || undefined;
+            options.headersFormats = options.headersFormats || undefined;
+
+            options.timeFrames = options.timeFrames || [];
+            options.dateFrames = options.dateFrames || [];
+
+            options.timeFramesWorkingMode = options.timeFramesWorkingMode || 'hidden';
+            options.timeFramesNonWorkingMode = options.timeFramesNonWorkingMode || 'visible';
+
+            return options;
         }
-        ]};
-}]);
+        };
+    }]);
+}());
 
-
-/**
- * Calendar factory is used to define working periods, non working periods, and other specific period of time,
- * and retrieve effective timeFrames for each day of the gantt.
- */
-gantt.factory('GanttCalendar', ['$filter', function($filter) {
+(function(){
+    'use strict';
     /**
-     * TimeFrame represents time frame in any day. parameters are given using options object.
-     *
-     * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
-     * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
-     * @param {boolean} working is this timeFrame flagged as working.
-     * @param {boolean} default is this timeFrame will be used as default.
-     * @param {string} cssClass css class attached to this timeFrame.
-     *
-     * @constructor
+     * Calendar factory is used to define working periods, non working periods, and other specific period of time,
+     * and retrieve effective timeFrames for each day of the gantt.
      */
-    var TimeFrame = function(options) {
-        var self = this;
+    angular.module('gantt').factory('GanttCalendar', ['$filter', 'moment', function($filter, moment) {
+        /**
+         * TimeFrame represents time frame in any day. parameters are given using options object.
+         *
+         * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
+         * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
+         * @param {boolean} working is this timeFrame flagged as working.
+         * @param {boolean} default is this timeFrame will be used as default.
+         * @param {color} css color attached to this timeFrame.
+         * @param {string} classes css classes attached to this timeFrame.
+         *
+         * @constructor
+         */
+        var TimeFrame = function(options) {
+            if (options === undefined) {
+                options = {};
+            }
 
-        if (options === undefined) {
-            options = {};
-        }
-
-        self.start = options.start;
-        self.end = options.end;
-        self.working = options.working;
-        self.default = options.default;
-        self.cssClass = options.cssClass;
-
-        self.getDuration = function() {
-            return self.end.diff(self.start, 'milliseconds');
+            this.start = options.start;
+            this.end = options.end;
+            this.working = options.working;
+            this.default = options.default;
+            this.color = options.color;
+            this.classes = options.classes;
         };
 
-        self.clone = function() {
-            return new TimeFrame(self);
-        };
-    };
-    /**
-     * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
-     *
-     * @param {function} func a function with date parameter, that will be evaluated for each distinct day of the gantt.
-     *                        this function must return an array of timeFrame names to apply.
-     * @constructor
-     */
-    var TimeFrameMapping = function(func) {
-        var self = this;
-        self.func = func;
+        TimeFrame.prototype.updateView = function() {
+            if (this.$element) {
+                if (this.left !== undefined) {
+                    this.$element.css('left', this.left + 'px');
+                } else {
+                    this.$element.css('left', '');
+                }
+                if (this.width !== undefined) {
+                    this.$element.css('width', this.width + 'px');
+                } else {
+                    this.$element.css('width', '');
+                }
 
-        self.getTimeFrames = function(date) {
-            var ret = self.func(date);
+                if (this.color !== undefined) {
+                    this.$element.css('background-color', this.color);
+                } else {
+                    this.$element.css('background-color', '');
+                }
+
+                var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
+                if (this.classes) {
+                    classes = classes.concat(this.classes);
+                }
+                for (var i= 0, l=classes.length; i<l; i++) {
+                    this.$element.toggleClass(classes[i], true);
+                }
+            }
+        };
+
+        TimeFrame.prototype.getDuration = function() {
+            return this.end.diff(this.start, 'milliseconds');
+        };
+
+        TimeFrame.prototype.clone = function() {
+            return new TimeFrame(this);
+        };
+
+        /**
+         * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
+         *
+         * @param {function} func a function with date parameter, that will be evaluated for each distinct day of the gantt.
+         *                        this function must return an array of timeFrame names to apply.
+         * @constructor
+         */
+        var TimeFrameMapping = function(func) {
+            this.func = func;
+        };
+
+        TimeFrameMapping.prototype.getTimeFrames = function(date) {
+            var ret = this.func(date);
             if (!(ret instanceof Array)) {
                 ret = [ret];
             }
             return ret;
         };
 
-        self.clone = function() {
-            return new TimeFrameMapping(self.func);
+        TimeFrameMapping.prototype.clone = function() {
+            return new TimeFrameMapping(this.func);
         };
-    };
-    /**
-     * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
-     * a date (date) or a date range (start, end). parameters are given using options object.
-     *
-     * @param {function} evaluator a function with date parameter, that will be evaluated for each distinct day of the gantt.
-     *                   this function must return a boolean representing matching of this dateFrame or not.
-     * @param {moment} date date of dateFrame.
-     * @param {moment} start start of date frame.
-     * @param {moment} end end of date frame.
-     * @param {array} targets array of TimeFrameMappings/TimeFrames names to use for this date frame.
-     * @param {boolean} default is this dateFrame will be used as default.
-     * @constructor
-     */
-    var DateFrame = function(options) {
-        var self = this;
 
-        self.evaluator = options.evaluator;
-        if (options.date) {
-            self.start = moment(options.date).startOf('day');
-            self.end = moment(options.date).endOf('day');
-        } else {
-            self.start = options.start;
-            self.end = options.end;
-        }
-        if (options.targets instanceof Array) {
-            self.targets = options.targets;
-        } else {
-            self.targets = [options.targets];
-        }
-        self.default = options.default;
+        /**
+         * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
+         * a date (date) or a date range (start, end). parameters are given using options object.
+         *
+         * @param {function} evaluator a function with date parameter, that will be evaluated for each distinct day of the gantt.
+         *                   this function must return a boolean representing matching of this dateFrame or not.
+         * @param {moment} date date of dateFrame.
+         * @param {moment} start start of date frame.
+         * @param {moment} end end of date frame.
+         * @param {array} targets array of TimeFrameMappings/TimeFrames names to use for this date frame.
+         * @param {boolean} default is this dateFrame will be used as default.
+         * @constructor
+         */
+        var DateFrame = function(options) {
+            this.evaluator = options.evaluator;
+            if (options.date) {
+                this.start = moment(options.date).startOf('day');
+                this.end = moment(options.date).endOf('day');
+            } else {
+                this.start = options.start;
+                this.end = options.end;
+            }
+            if (options.targets instanceof Array) {
+                this.targets = options.targets;
+            } else {
+                this.targets = [options.targets];
+            }
+            this.default = options.default;
+        };
 
-        self.dateMatch = function(date) {
-            if (self.evaluator) {
-                return self.evaluator(date);
-            } else if (self.start && self.end) {
-                return date >= self.start && date <= self.end;
+        DateFrame.prototype.dateMatch = function(date) {
+            if (this.evaluator) {
+                return this.evaluator(date);
+            } else if (this.start && this.end) {
+                return date >= this.start && date <= this.end;
             } else {
                 return false;
             }
         };
 
-
-        self.clone = function() {
-            return new DateFrame(self);
+        DateFrame.prototype.clone = function() {
+            return new DateFrame(this);
         };
-    };
 
 
-    /**
-     * Register TimeFrame, TimeFrameMapping and DateMapping objects into Calendar object,
-     * and use Calendar#getTimeFrames(date) function to retrieve effective timeFrames for a specific day.
-     *
-     * @constructor
-     */
-    var Calendar = function() {
-        var self = this;
 
-        self.timeFrames = {};
-        self.timeFrameMappings = {};
-        self.dateFrames = {};
+        /**
+         * Register TimeFrame, TimeFrameMapping and DateMapping objects into Calendar object,
+         * and use Calendar#getTimeFrames(date) function to retrieve effective timeFrames for a specific day.
+         *
+         * @constructor
+         */
+        var Calendar = function() {
+            this.timeFrames = {};
+            this.timeFrameMappings = {};
+            this.dateFrames = {};
+        };
 
         /**
          * Remove all objects.
          */
-        self.clear = function() {
-            self.timeFrames = {};
-            self.timeFrameMappings = {};
-            self.dateFrames = {};
+        Calendar.prototype.clear = function() {
+            this.timeFrames = {};
+            this.timeFrameMappings = {};
+            this.dateFrames = {};
         };
 
         /**
@@ -36011,10 +36665,10 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @param {object} timeFrames with names of timeFrames for keys and TimeFrame objects for values.
          */
-        self.registerTimeFrames = function(timeFrames) {
+        Calendar.prototype.registerTimeFrames = function(timeFrames) {
             angular.forEach(timeFrames, function(timeFrame, name) {
-                self.timeFrames[name] = new TimeFrame(timeFrame);
-            });
+                this.timeFrames[name] = new TimeFrame(timeFrame);
+            }, this);
         };
 
         /**
@@ -36022,17 +36676,17 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @param {array} timeFrames names of timeFrames to remove.
          */
-        self.removeTimeFrames = function(timeFrames) {
+        Calendar.prototype.removeTimeFrames = function(timeFrames) {
             angular.forEach(timeFrames, function(name) {
-                delete self.timeFrames[name];
-            });
+                delete this.timeFrames[name];
+            }, this);
         };
 
         /**
          * Remove all TimeFrame objects.
          */
-        self.clearTimeFrames = function() {
-            self.timeFrames = {};
+        Calendar.prototype.clearTimeFrames = function() {
+            this.timeFrames = {};
         };
 
         /**
@@ -36040,10 +36694,10 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @param {object} mappings object with names of timeFrames mappings for keys and TimeFrameMapping objects for values.
          */
-        self.registerTimeFrameMappings = function(mappings) {
+        Calendar.prototype.registerTimeFrameMappings = function(mappings) {
             angular.forEach(mappings, function(timeFrameMapping, name) {
-                self.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
-            });
+                this.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
+            }, this);
         };
 
         /**
@@ -36051,17 +36705,17 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @param {array} mappings names of timeFrame mappings to remove.
          */
-        self.removeTimeFrameMappings = function(mappings) {
+        Calendar.prototype.removeTimeFrameMappings = function(mappings) {
             angular.forEach(mappings, function(name) {
-                delete self.timeFrameMappings[name];
-            });
+                delete this.timeFrameMappings[name];
+            }, this);
         };
 
         /**
          * Removes all TimeFrameMapping objects.
          */
-        self.clearTimeFrameMappings = function() {
-            self.timeFrameMappings = {};
+        Calendar.prototype.clearTimeFrameMappings = function() {
+            this.timeFrameMappings = {};
         };
 
         /**
@@ -36069,10 +36723,10 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @param {object} dateFrames object with names of dateFrames for keys and DateFrame objects for values.
          */
-        self.registerDateFrames = function(dateFrames) {
+        Calendar.prototype.registerDateFrames = function(dateFrames) {
             angular.forEach(dateFrames, function(dateFrame, name) {
-                self.dateFrames[name] = new DateFrame(dateFrame);
-            });
+                this.dateFrames[name] = new DateFrame(dateFrame);
+            }, this);
         };
 
         /**
@@ -36080,28 +36734,28 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @param {array} mappings names of date frames to remove.
          */
-        self.removeDateFrames = function(dateFrames) {
+        Calendar.prototype.removeDateFrames = function(dateFrames) {
             angular.forEach(dateFrames, function(name) {
-                delete self.dateFrames[name];
-            });
+                delete this.dateFrames[name];
+            }, this);
         };
 
         /**
          * Removes all DateFrame objects.
          */
-        self.clearDateFrames = function() {
-            self.dateFrames = {};
+        Calendar.prototype.clearDateFrames = function() {
+            this.dateFrames = {};
         };
 
-        var getDateFrames = function(date) {
+        var filterDateFrames = function(inputDateFrames, date) {
             var dateFrames = [];
-            angular.forEach(self.dateFrames, function(dateFrame) {
+            angular.forEach(inputDateFrames, function(dateFrame) {
                 if (dateFrame.dateMatch(date)) {
                     dateFrames.push(dateFrame);
                 }
             });
             if (dateFrames.length === 0) {
-                angular.forEach(self.dateFrames, function(dateFrame) {
+                angular.forEach(inputDateFrames, function(dateFrame) {
                     if (dateFrame.default) {
                         dateFrames.push(dateFrame);
                     }
@@ -36117,27 +36771,27 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          *
          * @return {array} an array of TimeFrame objects.
          */
-        self.getTimeFrames = function(date) {
+        Calendar.prototype.getTimeFrames = function(date) {
             var timeFrames = [];
-            var dateFrames = getDateFrames(date);
+            var dateFrames = filterDateFrames(this.dateFrames, date);
 
             angular.forEach(dateFrames, function(dateFrame) {
                 if (dateFrame !== undefined) {
                     angular.forEach(dateFrame.targets, function(timeFrameMappingName) {
-                        var timeFrameMapping = self.timeFrameMappings[timeFrameMappingName];
+                        var timeFrameMapping = this.timeFrameMappings[timeFrameMappingName];
                         if (timeFrameMapping !== undefined) {
                             // If a timeFrame mapping is found
                             timeFrames.push(timeFrameMapping.getTimeFrames());
                         } else {
                             // If no timeFrame mapping is found, try using direct timeFrame
-                            var timeFrame = self.timeFrames[timeFrameMappingName];
+                            var timeFrame = this.timeFrames[timeFrameMappingName];
                             if (timeFrame !== undefined) {
                                 timeFrames.push(timeFrame);
                             }
                         }
-                    });
+                    }, this);
                 }
-            });
+            }, this);
 
             var dateYear = date.year();
             var dateMonth = date.month();
@@ -36145,7 +36799,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
 
             var validatedTimeFrames = [];
             if (timeFrames.length === 0) {
-                angular.forEach(self.timeFrames, function(timeFrame) {
+                angular.forEach(this.timeFrames, function(timeFrame) {
                     if (timeFrame.default) {
                         timeFrames.push(timeFrame);
                     }
@@ -36190,8 +36844,10 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
          * @param {moment} startDate
          * @param {moment} endDate
          */
-        self.solve = function(timeFrames, startDate, endDate) {
+        Calendar.prototype.solve = function(timeFrames, startDate, endDate) {
             var defaultWorking = timeFrames.length === 0;
+            var color;
+            var classes;
             var minDate;
             var maxDate;
 
@@ -36201,6 +36857,15 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 }
                 if (maxDate === undefined || maxDate < timeFrame.end) {
                     maxDate = timeFrame.end;
+                }
+                if (color === undefined && timeFrame.color) {
+                    color = timeFrame.color;
+                }
+                if (timeFrame.classes !== undefined) {
+                    if (classes === undefined) {
+                        classes = [];
+                    }
+                    classes = classes.concat(timeFrame.classes);
                 }
             });
 
@@ -36212,7 +36877,7 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
                 endDate = maxDate;
             }
 
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking})];
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
 
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return -timeFrame.getDuration();
@@ -36275,171 +36940,234 @@ gantt.factory('GanttCalendar', ['$filter', function($filter) {
             return solvedTimeFrames;
 
         };
-    };
-    return Calendar;
-}]);
 
+        return Calendar;
+    }]);
+}());
 
-gantt.factory('GanttColumn', [ 'moment', function(moment) {
-    // Used to display the Gantt grid and header.
-    // The columns are generated by the column generator.
-    var Column = function(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit) {
-        var self = this;
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttCurrentDateManager', [function() {
+        var GanttCurrentDateManager = function(gantt) {
+            var self = this;
 
-        self.date = date;
-        self.endDate = endDate;
-        self.left = left;
-        self.width = width;
-        self.calendar = calendar;
-        self.duration = self.endDate.diff(self.date, 'milliseconds');
-        self.timeFramesWorkingMode = timeFramesWorkingMode;
-        self.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
-        self.timeFrames = [];
-        self.visibleTimeFrames = [];
-        self.daysTimeFrames = {};
-        self.cropped = false;
-        self.columnMagnetValue = columnMagnetValue;
-        self.columnMagnetUnit = columnMagnetUnit;
-        self.originalSize = {left: self.left, width: self.width};
+            this.gantt = gantt;
+
+            this.date = undefined;
+            this.position = undefined;
+            this.currentDateColumn = undefined;
+
+            this.gantt.$scope.$watchGroup(['currentDate', 'currentDateValue'], function() {
+                self.setCurrentDate(self.gantt.$scope.currentDateValue);
+            });
+        };
+
+        GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
+            this.date = currentDate;
+            if (this.currentDateColumn !== undefined) {
+                if (this.currentDateColumn.$element !== undefined) {
+                    this.currentDateColumn.$element.removeClass('gantt-foreground-col-current-date');
+                }
+                delete this.currentDateColumn;
+            }
+
+            if (this.date !== undefined) {
+                var column = this.gantt.columnsManager.getColumnByDate(this.date);
+                if (column !== undefined) {
+                    this.currentDateColumn = column;
+                    if (this.gantt.$scope.currentDate === 'column' && this.currentDateColumn.$element !== undefined) {
+                        this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
+                    }
+                }
+            }
+
+            this.position = this.gantt.getPositionByDate(this.date);
+        };
+        return GanttCurrentDateManager;
+    }]);
+    /* code */
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttColumn', [ 'moment', function(moment) {
+        // Used to display the Gantt grid and header.
+        // The columns are generated by the column generator.
+        var Column = function(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit) {
+            this.date = date;
+            this.endDate = endDate;
+            this.left = left;
+            this.width = width;
+            this.calendar = calendar;
+            this.duration = this.endDate.diff(this.date, 'milliseconds');
+            this.timeFramesWorkingMode = timeFramesWorkingMode;
+            this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
+            this.timeFrames = [];
+            this.visibleTimeFrames = [];
+            this.daysTimeFrames = {};
+            this.cropped = false;
+            this.columnMagnetValue = columnMagnetValue;
+            this.columnMagnetUnit = columnMagnetUnit;
+            this.originalSize = {left: this.left, width: this.width};
+            this.updateTimeFrames();
+            this.updateView();
+        };
 
         var getDateKey = function(date) {
             return date.year() + '-' + date.month() + '-' + date.date();
         };
 
-        if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
-            var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
-                return function(timeFrame) {
-                    var start = timeFrame.start;
-                    if (start === undefined) {
-                        start = startDate;
-                    }
+        Column.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
 
-                    var end = timeFrame.end;
-                    if (end === undefined) {
-                        end = endDate;
-                    }
-
-                    if (start < self.date) {
-                        start = self.date;
-                    }
-
-                    if (end > self.endDate) {
-                        end = self.endDate;
-                    }
-
-                    timeFrame = timeFrame.clone();
-
-                    timeFrame.start = moment(start);
-                    timeFrame.end = moment(end);
-
-                    timeFrames.push(timeFrame);
-                };
-            };
-
-            var cDate = self.date;
-            var cDateStartOfDay = moment(cDate).startOf('day');
-            var cDateNextDay = cDateStartOfDay.add(1, 'day');
-            while (cDate < self.endDate) {
-                var timeFrames = self.calendar.getTimeFrames(cDate);
-                var nextCDate = moment.min(cDateNextDay, self.endDate);
-                timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
-                var cTimeFrames = [];
-                angular.forEach(timeFrames, buildPushTimeFrames(cTimeFrames, cDate, nextCDate));
-                self.timeFrames = self.timeFrames.concat(cTimeFrames);
-
-                var cDateKey = getDateKey(cDate);
-                self.daysTimeFrames[cDateKey] = cTimeFrames;
-
-                cDate = nextCDate;
-                cDateStartOfDay = moment(cDate).startOf('day');
-                cDateNextDay = cDateStartOfDay.add(1, 'day');
+                for (var i= 0, l = this.timeFrames.length; i<l;i++) {
+                    this.timeFrames[i].updateView();
+                }
             }
+        };
 
-            angular.forEach(self.timeFrames, function(timeFrame) {
-                var positionDuration = timeFrame.start.diff(self.date, 'milliseconds');
-                var position = positionDuration / self.duration * self.width;
+        Column.prototype.updateTimeFrames = function() {
+            var self = this;
 
-                var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
-                var timeFramePosition = timeFrameDuration / self.duration * self.width;
+            if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
+                var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
+                    return function(timeFrame) {
+                        var start = timeFrame.start;
+                        if (start === undefined) {
+                            start = startDate;
+                        }
 
-                var hidden = false;
-                if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
-                    hidden = true;
-                } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
-                    hidden = true;
+                        var end = timeFrame.end;
+                        if (end === undefined) {
+                            end = endDate;
+                        }
+
+                        if (start < self.date) {
+                            start = self.date;
+                        }
+
+                        if (end > self.endDate) {
+                            end = self.endDate;
+                        }
+
+                        timeFrame = timeFrame.clone();
+
+                        timeFrame.start = moment(start);
+                        timeFrame.end = moment(end);
+
+                        timeFrames.push(timeFrame);
+                    };
+                };
+
+                var cDate = self.date;
+                var cDateStartOfDay = moment(cDate).startOf('day');
+                var cDateNextDay = cDateStartOfDay.add(1, 'day');
+                while (cDate < self.endDate) {
+                    var timeFrames = self.calendar.getTimeFrames(cDate);
+                    var nextCDate = moment.min(cDateNextDay, self.endDate);
+                    timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
+                    var cTimeFrames = [];
+                    angular.forEach(timeFrames, buildPushTimeFrames(cTimeFrames, cDate, nextCDate));
+                    self.timeFrames = self.timeFrames.concat(cTimeFrames);
+
+                    var cDateKey = getDateKey(cDate);
+                    self.daysTimeFrames[cDateKey] = cTimeFrames;
+
+                    cDate = nextCDate;
+                    cDateStartOfDay = moment(cDate).startOf('day');
+                    cDateNextDay = cDateStartOfDay.add(1, 'day');
                 }
 
-                if (!hidden) {
-                    self.visibleTimeFrames.push(timeFrame);
-                }
-
-                timeFrame.hidden = hidden;
-                timeFrame.left = position;
-                timeFrame.width = timeFramePosition;
-                timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
-            });
-
-            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
-                var timeFramesWidth = 0;
                 angular.forEach(self.timeFrames, function(timeFrame) {
-                    if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
-                        timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
-                        timeFramesWidth += timeFrame.width;
+                    var positionDuration = timeFrame.start.diff(self.date, 'milliseconds');
+                    var position = positionDuration / self.duration * self.width;
+
+                    var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
+                    var timeFramePosition = timeFrameDuration / self.duration * self.width;
+
+                    var hidden = false;
+                    if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
+                        hidden = true;
+                    } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
+                        hidden = true;
                     }
+
+                    if (!hidden) {
+                        self.visibleTimeFrames.push(timeFrame);
+                    }
+
+                    timeFrame.hidden = hidden;
+                    timeFrame.left = position;
+                    timeFrame.width = timeFramePosition;
+                    timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
+                    timeFrame.updateView();
                 });
 
-                if (timeFramesWidth !== self.width) {
-                    var croppedRatio = self.width / timeFramesWidth;
-                    var croppedWidth = 0;
-                    var originalCroppedWidth = 0;
-
-                    var allCropped = true;
-
+                if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
+                    var timeFramesWidth = 0;
                     angular.forEach(self.timeFrames, function(timeFrame) {
                         if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
                             timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
-                            timeFrame.left = (timeFrame.left - croppedWidth) * croppedRatio;
-                            timeFrame.width = timeFrame.width * croppedRatio;
-                            timeFrame.originalSize.left = (timeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
-                            timeFrame.originalSize.width = timeFrame.originalSize.width * croppedRatio;
-                            timeFrame.cropped = false;
-                            allCropped = false;
-                        } else {
-                            croppedWidth += timeFrame.width;
-                            originalCroppedWidth += timeFrame.originalSize.width;
-                            timeFrame.left = undefined;
-                            timeFrame.width = 0;
-                            timeFrame.originalSize = {left: undefined, width: 0};
-                            timeFrame.cropped = true;
+                            timeFramesWidth += timeFrame.width;
                         }
                     });
 
-                    self.cropped = allCropped;
-                } else {
-                    self.cropped = false;
+                    if (timeFramesWidth !== self.width) {
+                        var croppedRatio = self.width / timeFramesWidth;
+                        var croppedWidth = 0;
+                        var originalCroppedWidth = 0;
+
+                        var allCropped = true;
+
+                        angular.forEach(self.timeFrames, function(timeFrame) {
+                            if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
+                                timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                                timeFrame.left = (timeFrame.left - croppedWidth) * croppedRatio;
+                                timeFrame.width = timeFrame.width * croppedRatio;
+                                timeFrame.originalSize.left = (timeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
+                                timeFrame.originalSize.width = timeFrame.originalSize.width * croppedRatio;
+                                timeFrame.cropped = false;
+                                allCropped = false;
+                            } else {
+                                croppedWidth += timeFrame.width;
+                                originalCroppedWidth += timeFrame.originalSize.width;
+                                timeFrame.left = undefined;
+                                timeFrame.width = 0;
+                                timeFrame.originalSize = {left: undefined, width: 0};
+                                timeFrame.cropped = true;
+                            }
+                            timeFrame.updateView();
+                        });
+
+                        self.cropped = allCropped;
+                    } else {
+                        self.cropped = false;
+                    }
                 }
             }
-        }
-
-        self.clone = function() {
-            return new Column(moment(self.date), moment(self.endDate), self.left, self.width, self.calendar);
         };
 
-        self.containsDate = function(date) {
-            return date > self.date && date <= self.endDate;
+        Column.prototype.clone = function() {
+            return new Column(moment(this.date), moment(this.endDate), this.left, this.width, this.calendar);
         };
 
-        self.equals = function(other) {
-            return self.date === other.date;
+        Column.prototype.containsDate = function(date) {
+            return date > this.date && date <= this.endDate;
         };
 
-        self.getMagnetDate = function(date) {
-            if (self.columnMagnetValue > 0 && self.columnMagnetUnit !== undefined) {
+        Column.prototype.equals = function(other) {
+            return this.date === other.date;
+        };
+
+        Column.prototype.getMagnetDate = function(date) {
+            if (this.columnMagnetValue > 0 && this.columnMagnetUnit !== undefined) {
                 date = moment(date);
-                var value = date.get(self.columnMagnetUnit);
-                var magnetValue = Math.round(value/self.columnMagnetValue) * self.columnMagnetValue;
-                date.startOf(self.columnMagnetUnit);
-                date.set(self.columnMagnetUnit, magnetValue);
+                var value = date.get(this.columnMagnetUnit);
+                var magnetValue = Math.round(value/this.columnMagnetValue) * this.columnMagnetValue;
+                date.startOf(this.columnMagnetUnit);
+                date.set(this.columnMagnetUnit, magnetValue);
                 return date;
             }
             return date;
@@ -36457,48 +37185,48 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
             }
         };
 
-        self.getDateByPosition = function(position, magnet) {
+        Column.prototype.getDateByPosition = function(position, magnet) {
             var positionDuration;
             var date;
 
             if (position < 0) {
                 position = 0;
             }
-            if (position > self.width) {
-                position = self.width;
+            if (position > this.width) {
+                position = this.width;
             }
 
-            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
-                date = getDateByPositionUsingTimeFrames(self.timeFrames, position);
+            if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+                date = getDateByPositionUsingTimeFrames(this.timeFrames, position);
             }
 
             if (date === undefined) {
-                positionDuration = self.duration / self.width * position;
-                date = moment(self.date).add(positionDuration, 'milliseconds');
+                positionDuration = this.duration / this.width * position;
+                date = moment(this.date).add(positionDuration, 'milliseconds');
             }
 
             if (magnet) {
-                return self.getMagnetDate(date);
+                return this.getMagnetDate(date);
             }
 
             return date;
         };
 
-        var getDayTimeFrame = function(date) {
-            var dtf = self.daysTimeFrames[getDateKey(date)];
+        Column.prototype.getDayTimeFrame = function(date) {
+            var dtf = this.daysTimeFrames[getDateKey(date)];
             if (dtf === undefined) {
                 return [];
             }
             return dtf;
         };
 
-        self.getPositionByDate = function(date) {
+        Column.prototype.getPositionByDate = function(date) {
             var positionDuration;
             var position;
 
-            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
+            if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
                 var croppedDate = date;
-                var timeFrames = getDayTimeFrame(croppedDate);
+                var timeFrames = this.getDayTimeFrame(croppedDate);
                 for (var i=0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
                     if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
@@ -36511,573 +37239,341 @@ gantt.factory('GanttColumn', [ 'moment', function(moment) {
                         } else {
                             positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
                             position = positionDuration / timeFrame.getDuration() * timeFrame.width;
-                            return self.left + timeFrame.left + position;
+                            return this.left + timeFrame.left + position;
                         }
                     }
                 }
             }
 
-            positionDuration = date.diff(self.date, 'milliseconds');
-            position = positionDuration / self.duration * self.width;
+            positionDuration = date.diff(this.date, 'milliseconds');
+            position = positionDuration / this.duration * this.width;
 
             if (position < 0) {
                 position = 0;
             }
 
-            if (position > self.width) {
-                position = self.width;
+            if (position > this.width) {
+                position = this.width;
             }
 
-            return self.left + position;
+            return this.left + position;
         };
-    };
-    return Column;
-}]);
+
+        return Column;
+    }]);
+}());
 
 
-gantt.factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
-    var ColumnGenerator = function($scope) {
-        var self = this;
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
+        var ColumnGenerator = function(columnsManager) {
+            var self = this;
 
-        var columnWidth = $scope.columnWidth;
-        if (columnWidth === undefined) {
-            columnWidth = 20;
-        }
-        var unit = $scope.viewScale;
-        var calendar = $scope.calendar;
-        var timeFramesWorkingMode = $scope.timeFramesWorkingMode;
-        var timeFramesNonWorkingMode = $scope.timeFramesNonWorkingMode;
-
-        var columnMagnetValue;
-        var columnMagnetUnit;
-
-        if ($scope.columnMagnet) {
-            var splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
-            if (splittedColumnMagnet.length > 1) {
-                columnMagnetValue = parseInt(splittedColumnMagnet[0]);
-                columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+            var columnWidth = columnsManager.gantt.$scope.columnWidth;
+            if (columnWidth === undefined) {
+                columnWidth = 20;
             }
-        }
+            var unit = columnsManager.gantt.$scope.viewScale;
+            var calendar = columnsManager.gantt.calendar;
+            var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
+            var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
 
-        // Generates one column for each time unit between the given from and to date.
-        self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
-            if (!to && !maximumWidth) {
-                throw 'to or maximumWidth must be defined';
+            var columnMagnetValue;
+            var columnMagnetUnit;
+
+            if (columnsManager.gantt.$scope.columnMagnet) {
+                var splittedColumnMagnet = columnsManager.gantt.$scope.columnMagnet.trim().split(' ');
+                if (splittedColumnMagnet.length > 1) {
+                    columnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                    columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+                }
             }
 
-            var excludeTo = false;
-            from = moment(from).startOf(unit);
-            if (to) {
-                excludeTo = isToDateToExclude(to);
-                to = moment(to).startOf(unit);
-            }
-
-            var date = moment(from).startOf(unit);
-            var generatedCols = [];
-            var left = 0;
-
-            while (true) {
-                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
-                    break;
+            // Generates one column for each time unit between the given from and to date.
+            self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
+                if (!to && !maximumWidth) {
+                    throw 'to or maximumWidth must be defined';
                 }
 
-                var startDate = moment(date);
-                var endDate = moment(startDate).add(1, unit);
+                var excludeTo = false;
+                from = moment(from).startOf(unit);
+                if (to) {
+                    excludeTo = isToDateToExclude(to);
+                    to = moment(to).startOf(unit);
+                }
 
-                var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit);
-                if (!column.cropped) {
-                    generatedCols.push(column);
-                    if (reverse) {
-                        left -= columnWidth;
-                    } else {
-                        left += columnWidth;
+                var date = moment(from).startOf(unit);
+                var generatedCols = [];
+                var left = 0;
+
+                while (true) {
+                    if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                        break;
                     }
 
-                    if (to) {
+                    var startDate = moment(date);
+                    var endDate = moment(startDate).add(1, unit);
+
+                    var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit);
+                    if (!column.cropped) {
+                        generatedCols.push(column);
                         if (reverse) {
-                            if (excludeTo && date < to || !excludeTo && date <= to) {
-                                break;
-                            }
+                            left -= columnWidth;
                         } else {
-                            if (excludeTo && date > to || !excludeTo && date >= to) {
-                                break;
+                            left += columnWidth;
+                        }
+
+                        if (to) {
+                            if (reverse) {
+                                if (excludeTo && date < to || !excludeTo && date <= to) {
+                                    break;
+                                }
+                            } else {
+                                if (excludeTo && date > to || !excludeTo && date >= to) {
+                                    break;
+                                }
                             }
                         }
                     }
+                    date.add(reverse ? -1 : 1, unit);
                 }
-                date.add(reverse ? -1 : 1, unit);
-            }
 
-            if (reverse) {
-                if (isToDateToExclude(from)) {
-                    generatedCols.shift();
+                if (reverse) {
+                    if (isToDateToExclude(from)) {
+                        generatedCols.shift();
+                    }
+                    generatedCols.reverse();
                 }
-                generatedCols.reverse();
-            }
 
-            return generatedCols;
+                return generatedCols;
+            };
+
+            // Columns are generated including or excluding the to date.
+            // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+
+            var isToDateToExclude = function(to) {
+                return moment(to).add(1, unit).startOf(unit) === to;
+            };
         };
+        return ColumnGenerator;
+    }]);
+}());
 
-        // Columns are generated including or excluding the to date.
-        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttColumnHeader', [ 'moment', 'GanttColumn', function(moment, Column) {
+        // Used to display the Gantt grid and header.
+        // The columns are generated by the column generator.
 
-        var isToDateToExclude = function(to) {
-            return moment(to).add(1, unit).startOf(unit) === to;
+        var ColumnHeader = function(date, unit, left, width, label) {
+            var startDate = moment(date);
+            var endDate = moment(startDate).add(1, unit);
+
+            var column = new Column(startDate, endDate, left, width);
+            column.unit = unit;
+            column.label = label;
+
+            return column;
         };
-    };
-    return ColumnGenerator;
-}]);
+        return ColumnHeader;
+    }]);
+}());
 
 
-gantt.factory('GanttColumnHeader', [ 'moment', 'GanttColumn', function(moment, Column) {
-    // Used to display the Gantt grid and header.
-    // The columns are generated by the column generator.
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', function(ColumnGenerator, HeaderGenerator, $filter, $timeout, layout, bs) {
+        var ColumnsManager = function(gantt) {
+            var self = this;
 
-    var ColumnHeader = function(date, unit, left, width, label) {
-        var startDate = moment(date);
-        var endDate = moment(startDate).add(1, unit);
+            this.gantt = gantt;
 
-        var column = new Column(startDate, endDate, left, width);
-        column.unit = unit;
-        column.label = label;
+            this.from = undefined;
+            this.to = undefined;
 
-        return column;
-    };
-    return ColumnHeader;
-}]);
+            this.columns = [];
+            this.visibleColumns = [];
+            this.previousColumns = [];
+            this.nextColumns = [];
 
+            this.headers = [];
+            this.visibleHeaders = [];
 
-gantt.service('GanttEvents', ['ganttMouseOffset', function(mouseOffset) {
-    return {
-        buildTaskEventData: function(evt, element, task, gantt) {
-            var data = {evt:evt, element:element, task:task};
-            if (gantt !== undefined && evt !== undefined) {
-                var x = mouseOffset.getOffset(evt).x;
-                data.column = gantt.getColumnByPosition(x + task.left);
-                data.date = gantt.getDateByPosition(x + task.left);
-            }
-            return data;
-        },
+            this.scrollAnchor = undefined;
 
-        buildRowEventData: function(evt, element, row, gantt) {
-            var data = {evt:evt, element:element, row:row};
-            if (gantt !== undefined && evt !== undefined) {
-                var x = mouseOffset.getOffset(evt).x;
-                data.column = gantt.getColumnByPosition(x);
-                data.date = gantt.getDateByPosition(x);
-            }
-            return data;
-        },
-
-        buildColumnEventData: function(evt, element, column) {
-            var data = {evt:evt, element:element, column:column};
-            return data;
-        }
-    };
-
-
-}]);
-
-
-gantt.factory('Gantt', [
-    '$filter', 'GanttRow', 'GanttTimespan', 'GanttColumnGenerator', 'GanttHeaderGenerator', 'moment', 'ganttBinarySearch', 'ganttLayout', 'GANTT_EVENTS',
-    function($filter, Row, Timespan, ColumnGenerator, HeaderGenerator, moment, bs, layout, GANTT_EVENTS) {
-
-    // Gantt logic. Manages the columns, rows and sorting functionality.
-    var Gantt = function($scope, $element) {
-        var self = this;
-        self.$scope = $scope;
-        self.$element = $element;
-
-        self.rowsMap = {};
-        self.rows = [];
-        self.filteredRows = [];
-        self.visibleRows = [];
-
-        self.timespansMap = {};
-        self.timespans = [];
-
-        self.columns = [];
-        self.visibleColumns = [];
-
-        self.headers = {};
-        self.visibleHeaders = {};
-
-        self.previousColumns = [];
-        self.nextColumns = [];
-
-        self.width = 0;
-
-        self.from = undefined;
-        self.to = undefined;
-
-        self.scrollAnchor = undefined;
-
-        // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
-        // All those changes need a recalculation of the header columns
-        $scope.$watch('viewScale+width+labelsWidth+columnWidth+timeFramesWorkingMode+timeFramesNonWorkingMode+columnMagnet', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.buildGenerators();
-                self.clearColumns();
-                self.updateColumns();
-            }
-        });
-
-        $scope.$watch('fromDate+toDate+autoExpand+taskOutOfRange', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.updateColumns();
-            }
-        });
-
-        $scope.$watch('currentDate+currentDateValue', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                self.setCurrentDate($scope.currentDateValue);
-            }
-        });
-
-        $scope.$watch('ganttElementWidth+labelsWidth+showLabelsColumn+maxHeight', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                updateColumnsMeta();
-            }
-        });
-
-        var updateVisibleColumns = function() {
-            self.visibleColumns = $filter('ganttColumnLimit')(self.columns, $scope.scrollLeft, $scope.scrollWidth);
-
-            angular.forEach(self.headers, function(headers, key) {
-                if (self.headers.hasOwnProperty(key)) {
-                    self.visibleHeaders[key] = $filter('ganttColumnLimit')(headers, $scope.scrollLeft, $scope.scrollWidth);
+            // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
+            // All those changes need a recalculation of the header columns
+            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.generateColumns();
                 }
             });
-        };
 
-        var updateVisibleRows = function() {
-            var oldFilteredRows = self.filteredRows;
-            if ($scope.filterRow) {
-                self.filteredRows = $filter('filter')(self.rows, $scope.filterRow, $scope.filterRowComparator);
-            } else {
-                self.filteredRows = self.rows;
-            }
-
-            var filterEventData;
-            if (!angular.equals(oldFilteredRows, self.filteredRows)) {
-                filterEventData = {rows: self.rows, filteredRows: self.filteredRows};
-            }
-
-            // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
-            self.visibleRows = self.filteredRows;
-            if (filterEventData !== undefined) {
-                $scope.$emit(GANTT_EVENTS.ROWS_FILTERED, filterEventData);
-            }
-        };
-
-        var updateVisibleTasks = function() {
-            var oldFilteredTasks = [];
-            var filteredTasks = [];
-            var tasks = [];
-
-            angular.forEach(self.filteredRows, function(row) {
-                oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
-                row.updateVisibleTasks();
-                filteredTasks = filteredTasks.concat(row.filteredTasks);
-                tasks = tasks.concat(row.tasks);
+            this.gantt.$scope.$watchCollection('headers', function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.generateColumns();
+                }
             });
 
-            var filterEventData;
-            if (!angular.equals(oldFilteredTasks, filteredTasks)) {
-                filterEventData = {tasks: tasks, filteredTasks: filteredTasks};
-            }
+            this.gantt.$scope.$watchCollection('headersFormats', function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.generateColumns();
+                }
+            });
 
-            if (filterEventData !== undefined) {
-                $scope.$emit(GANTT_EVENTS.TASKS_FILTERED, filterEventData);
-            }
+            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.updateColumnsMeta();
+                }
+            });
+
+            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.updateVisibleColumns();
+                }
+            });
+
+            this.gantt.api.data.on.load(this.gantt.$scope, function() {
+                if (self.from === undefined || self.to === undefined ||
+                    self.from > self.gantt.rowsManager.getDefaultFrom() ||
+                    self.to < self.gantt.rowsManager.getDefaultTo()) {
+                    self.generateColumns();
+                }
+
+                self.gantt.rowsManager.sortRows();
+            });
+
+            this.gantt.api.data.on.remove(this.gantt.$scope, function() {
+                self.gantt.rowsManager.sortRows();
+            });
+
+            this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
+            this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
+            this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
+
+            this.gantt.api.registerEvent('columns', 'generate');
         };
 
-        var updateVisibleObjects = function() {
-            updateVisibleRows();
-            updateVisibleTasks();
-        };
-
-        updateVisibleColumns();
-        updateVisibleObjects();
-
-        $scope.$watch('scrollLeft+scrollWidth', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                updateVisibleColumns();
-                updateVisibleTasks();
-            }
-        });
-
-        $scope.$watch('filterTask+filterTaskComparator', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                updateVisibleTasks();
-            }
-        });
-
-        $scope.$watch('filterRow+filterRowComparator', function(newValue, oldValue) {
-            if (!angular.equals(newValue, oldValue)) {
-                updateVisibleRows();
-            }
-        });
-
-        var setScrollAnchor = function() {
-            if ($scope.template.scrollable && $scope.template.scrollable.$element && self.columns.length > 0) {
-                var el = $scope.template.scrollable.$element[0];
+        ColumnsManager.prototype.setScrollAnchor = function() {
+            if (this.gantt.scroll.$element && this.columns.length > 0) {
+                var el = this.gantt.scroll.$element[0];
                 var center = el.scrollLeft + el.offsetWidth / 2;
 
-                self.scrollAnchor = self.getDateByPosition(center);
+                this.scrollAnchor = this.gantt.getDateByPosition(center);
             }
         };
 
-        var getExpandedFrom = function(from) {
-            from = from ? moment(from) : from;
+        ColumnsManager.prototype.scrollToScrollAnchor = function() {
+            var self = this;
 
-            var minRowFrom = from;
-            angular.forEach(self.rows, function(row) {
-                if (minRowFrom === undefined || minRowFrom > row.from) {
-                    minRowFrom = row.from;
-                }
-            });
-            if (minRowFrom && (!from || minRowFrom < from)) {
-                return minRowFrom;
+            if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+                // Ugly but prevents screen flickering (unlike $timeout)
+                this.gantt.$scope.$$postDigest(function() {
+                    self.gantt.api.scroll.toDate(self.scrollAnchor);
+                });
             }
-            return from;
         };
 
-        var getExpandedTo = function(to) {
-            to = to ? moment(to) : to;
+        ColumnsManager.prototype.clearColumns = function() {
+            this.setScrollAnchor();
 
-            var maxRowTo = to;
-            angular.forEach(self.rows, function(row) {
-                if (maxRowTo === undefined || maxRowTo < row.to) {
-                    maxRowTo = row.to;
-                }
-            });
-            if (maxRowTo && (!$scope.toDate || maxRowTo > $scope.toDate)) {
-                return maxRowTo;
-            }
-            return to;
+            this.from = undefined;
+            this.to = undefined;
+
+            this.columns = [];
+            this.visibleColumns = [];
+            this.previousColumns = [];
+            this.nextColumns = [];
+
+            this.headers = [];
+            this.visibleHeaders = [];
+
+            this.gantt.api.columns.raise.clear();
         };
 
-        // Generates the Gantt columns according to the specified from - to date range. Uses the currently assigned column generator.
-        var generateColumns = function(from, to) {
+        ColumnsManager.prototype.generateColumns = function(from, to) {
             if (!from) {
-                from = getDefaultFrom();
+                from = this.gantt.$scope.fromDate;
+            }
+
+            if (!to) {
+                to = this.gantt.$scope.toDate;
+            }
+
+            if (!from) {
+                from = this.gantt.rowsManager.getDefaultFrom();
                 if (!from) {
                     return false;
                 }
             }
 
             if (!to) {
-                to = getDefaultTo();
+                to = this.gantt.rowsManager.getDefaultTo();
                 if (!to) {
                     return false;
                 }
             }
 
-            if (self.from === from && self.to === to) {
-                return false;
+            if (this.gantt.$scope.taskOutOfRange === 'expand') {
+                from = this.gantt.rowsManager.getExpandedFrom(from);
+                to = this.gantt.rowsManager.getExpandedTo(to);
             }
 
-            setScrollAnchor();
+            this.setScrollAnchor();
 
-            self.from = from;
-            self.to = to;
+            this.from = from;
+            this.to = to;
 
-            self.columns = self.columnGenerator.generate(from, to);
-            self.headers = self.headerGenerator.generate(self.columns);
-            self.previousColumns = [];
-            self.nextColumns = [];
+            var columnGenerator = new ColumnGenerator(this);
+            var headerGenerator = new HeaderGenerator(this);
 
-            updateColumnsMeta();
+            this.columns = columnGenerator.generate(from, to);
+            this.headers = headerGenerator.generate(this.columns);
+            this.previousColumns = [];
+            this.nextColumns = [];
 
-            return true;
+            this.updateColumnsMeta();
+            this.scrollToScrollAnchor();
+            this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
-        var setColumnsWidth = function(width, originalWidth, columns) {
-            if (width && originalWidth && columns) {
+        ColumnsManager.prototype.updateColumnsMeta = function() {
+            var lastColumn = this.getLastColumn();
+            this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-                var widthFactor = Math.abs(width / originalWidth);
+            if (this.gantt.$scope.columnWidth === undefined) {
+                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
 
-                angular.forEach(columns, function(column) {
-                    column.left = widthFactor * column.originalSize.left;
-                    column.width = widthFactor * column.originalSize.width;
-
-                    angular.forEach(column.timeFrames, function(timeFrame) {
-                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
-                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
-                    });
-                });
-            }
-        };
-
-        var updateColumnsMeta = function() {
-            var lastColumn = self.getLastColumn();
-            self.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
-
-            if ($scope.columnWidth === undefined) {
-                var newWidth = $scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0);
-
-                if ($scope.maxHeight > 0) {
+                if (this.gantt.$scope.maxHeight > 0) {
                     newWidth = newWidth - layout.getScrollBarWidth();
                 }
 
-                setColumnsWidth(newWidth, self.originalWidth, self.previousColumns);
-                setColumnsWidth(newWidth, self.originalWidth, self.columns);
-                setColumnsWidth(newWidth, self.originalWidth, self.nextColumns);
+                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.previousColumns);
+                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.columns);
+                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.nextColumns);
 
-                angular.forEach(self.headers, function(header) {
-                    setColumnsWidth(newWidth, self.originalWidth, header);
-                });
+                angular.forEach(this.headers, function(header) {
+                    layout.setColumnsWidth(newWidth, this.gantt.originalWidth, header);
+                }, this);
             }
 
-            self.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+            this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
-            if (self._currentDate !== undefined) {
-                self.setCurrentDate(self._currentDate);
-            }
-            $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
+            this.gantt.rowsManager.updateTasksPosAndSize();
+            this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            self.updateTasksPosAndSize();
-            self.updateTimespansPosAndSize();
+            this.updateVisibleColumns();
+            this.gantt.rowsManager.updateVisibleObjects();
 
-            updateVisibleColumns();
-            updateVisibleObjects();
-        };
-
-        var expandExtendedColumnsForPosition = function(x) {
-            if (x < 0) {
-                var firstColumn = self.getFirstColumn();
-                var from = firstColumn.date;
-                var firstExtendedColumn = self.getFirstColumn(true);
-                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    self.previousColumns = self.columnGenerator.generate(from, undefined, -x, 0, true);
-                }
-                return true;
-            } else if (x > self.width) {
-                var lastColumn = self.getLastColumn();
-                var endDate = lastColumn.getDateByPosition(lastColumn.width);
-                var lastExtendedColumn = self.getLastColumn(true);
-                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, undefined, x - self.width, self.width, false);
-                }
-                return true;
-            }
-            return false;
-        };
-
-        var expandExtendedColumnsForDate = function(date) {
-            var firstColumn = self.getFirstColumn();
-            var from;
-            if (firstColumn) {
-                from = firstColumn.date;
-            }
-
-            var lastColumn = self.getLastColumn();
-            var endDate;
-            if (lastColumn) {
-                endDate = lastColumn.getDateByPosition(lastColumn.width);
-            }
-
-            if (from && date < from) {
-                var firstExtendedColumn = self.getFirstColumn(true);
-                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
-                    self.previousColumns = self.columnGenerator.generate(from, date, undefined, 0, true);
-                }
-                return true;
-            } else if (endDate && date > endDate) {
-                var lastExtendedColumn = self.getLastColumn(true);
-                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
-                    self.nextColumns = self.columnGenerator.generate(endDate, date, undefined, self.width, false);
-                }
-                return true;
-            }
-            return false;
-        };
-
-        // Sets the Gantt view scale. Call reGenerateColumns to make changes visible after changing the view scale.
-        // The headers are shown depending on the defined view scale.
-        self.buildGenerators = function() {
-            self.columnGenerator = new ColumnGenerator($scope);
-            self.headerGenerator = new HeaderGenerator($scope);
-        };
-
-        var getDefaultFrom = function() {
-            var defaultFrom;
-            angular.forEach(self.timespans, function(timespan) {
-                if (defaultFrom === undefined || timespan.from < defaultFrom) {
-                    defaultFrom = timespan.from;
-                }
-            });
-
-            angular.forEach(self.rows, function(row) {
-                if (defaultFrom === undefined || row.from < defaultFrom) {
-                    defaultFrom = row.from;
-                }
-            });
-            return defaultFrom;
-        };
-
-        var getDefaultTo = function() {
-            var defaultTo;
-            angular.forEach(self.timespans, function(timespan) {
-                if (defaultTo === undefined || timespan.to > defaultTo) {
-                    defaultTo = timespan.to;
-                }
-            });
-
-            angular.forEach(self.rows, function(row) {
-                if (defaultTo === undefined || row.to > defaultTo) {
-                    defaultTo = row.to;
-                }
-            });
-            return defaultTo;
-        };
-
-        self.updateColumns = function() {
-            var from = $scope.fromDate;
-            var to = $scope.toDate;
-            if ($scope.taskOutOfRange === 'expand') {
-                from = getExpandedFrom(from);
-                to = getExpandedTo(to);
-            }
-            generateColumns(from, to);
-        };
-
-        // Removes all existing columns and re-generates them. E.g. after e.g. the view scale changed.
-        // Rows can be re-generated only if there is a data-range specified. If the re-generation failed the function returns false.
-        self.clearColumns = function() {
-            setScrollAnchor();
-
-            self.from = undefined;
-            self.to = undefined;
-            self.columns = [];
-            self.visibleColumns = [];
-            self.previousColumns = [];
-            self.nextColumns = [];
-            self.visibleHeaders = {};
-            self.visibleRows = [];
-        };
-
-        // Update the position/size of all tasks in the Gantt
-        self.updateTasksPosAndSize = function() {
-            for (var i = 0, l = self.rows.length; i < l; i++) {
-                self.rows[i].updateTasksPosAndSize();
-            }
-        };
-
-        // Update the position/size of all timespans in the Gantt
-        self.updateTimespansPosAndSize = function() {
-            for (var i = 0, l = self.timespans.length; i < l; i++) {
-                self.timespans[i].updatePosAndSize();
-            }
+            this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
         };
 
         // Returns the last Gantt column or undefined
-        self.getLastColumn = function(extended) {
-            var columns = self.columns;
+        ColumnsManager.prototype.getLastColumn = function(extended) {
+            var columns = this.columns;
             if (extended) {
-                columns = self.nextColumns;
+                columns = this.nextColumns;
             }
             if (columns && columns.length > 0) {
                 return columns[columns.length - 1];
@@ -37087,10 +37583,10 @@ gantt.factory('Gantt', [
         };
 
         // Returns the first Gantt column or undefined
-        self.getFirstColumn = function(extended) {
-            var columns = self.columns;
+        ColumnsManager.prototype.getFirstColumn = function(extended) {
+            var columns = this.columns;
             if (extended) {
-                columns = self.previousColumns;
+                columns = this.previousColumns;
             }
 
             if (columns && columns.length > 0) {
@@ -37101,9 +37597,9 @@ gantt.factory('Gantt', [
         };
 
         // Returns the column at the given or next possible date
-        self.getColumnByDate = function(date) {
-            expandExtendedColumnsForDate(date);
-            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
+        ColumnsManager.prototype.getColumnByDate = function(date) {
+            this.expandExtendedColumnsForDate(date);
+            var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
             });
@@ -37111,132 +37607,809 @@ gantt.factory('Gantt', [
         };
 
         // Returns the column at the given position x (in em)
-        self.getColumnByPosition = function(x) {
-            expandExtendedColumnsForPosition(x);
-            var extendedColumns = self.previousColumns.concat(self.columns, self.nextColumns);
+        ColumnsManager.prototype.getColumnByPosition = function(x) {
+            this.expandExtendedColumnsForPosition(x);
+            var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             return bs.get(extendedColumns, x, function(c) {
                 return c.left;
             })[0];
         };
 
-        // Returns the exact column date at the given position x (in em)
-        self.getDateByPosition = function(x, magnet) {
-            var column = self.getColumnByPosition(x);
-            if (column !== undefined) {
-                return column.getDateByPosition(x - column.left, magnet);
-            } else {
-                return undefined;
-            }
-        };
-
-        // Returns the position inside the Gantt calculated by the given date
-        self.getPositionByDate = function(date) {
-            if (date === undefined) {
-                return undefined;
-            }
-
-            if (!moment.isMoment(moment)) {
-                date = moment(date);
-            }
-
-            var column = self.getColumnByDate(date);
-            if (column !== undefined) {
-                return column.getPositionByDate(date);
-            } else {
-                return undefined;
-            }
-        };
-
-        // Returns the min and max date of all loaded tasks or undefined if there are no tasks loaded
-        self.getTasksDateRange = function() {
-            if (self.rows.length === 0) {
-                return undefined;
-            } else {
-                var minDate, maxDate;
-
-                for (var i = 0, l = self.rows.length; i < l; i++) {
-                    var row = self.rows[i];
-
-                    if (minDate === undefined || row.from < minDate) {
-                        minDate = row.from;
-                    }
-
-                    if (maxDate === undefined || row.to > maxDate) {
-                        maxDate = row.to;
-                    }
+        ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
+            if (x < 0) {
+                var firstColumn = this.getFirstColumn();
+                var from = firstColumn.date;
+                var firstExtendedColumn = this.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
                 }
-
-                return {
-                    from: minDate,
-                    to: maxDate
-                };
+                return true;
+            } else if (x > this.gantt.width) {
+                var lastColumn = this.getLastColumn();
+                var endDate = lastColumn.getDateByPosition(lastColumn.width);
+                var lastExtendedColumn = this.getLastColumn(true);
+                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                    this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
+                }
+                return true;
             }
+            return false;
+        };
+
+        ColumnsManager.prototype.expandExtendedColumnsForDate = function(date) {
+            var firstColumn = this.getFirstColumn();
+            var from;
+            if (firstColumn) {
+                from = firstColumn.date;
+            }
+
+            var lastColumn = this.getLastColumn();
+            var endDate;
+            if (lastColumn) {
+                endDate = lastColumn.getDateByPosition(lastColumn.width);
+            }
+
+            if (from && date < from) {
+                var firstExtendedColumn = this.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                    this.previousColumns = new ColumnGenerator(this).generate(from, date, undefined, 0, true);
+                }
+                return true;
+            } else if (endDate && date > endDate) {
+                var lastExtendedColumn = this.getLastColumn(true);
+                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                    this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
+                }
+                return true;
+            }
+            return false;
         };
 
         // Returns the number of active headers
-        self.getActiveHeadersCount = function() {
-            var size = 0, key;
-            for (key in self.headers) {
-                if (self.headers.hasOwnProperty(key)) {
-                    size++;
+        ColumnsManager.prototype.getActiveHeadersCount = function() {
+            return this.headers.length;
+        };
+
+        ColumnsManager.prototype.updateVisibleColumns = function() {
+            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
+
+            this.visibleHeaders = [];
+            angular.forEach(this.headers, function(header) {
+                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
+            }, this);
+
+            angular.forEach(this.visibleColumns, function(c) {
+                c.updateView();
+            });
+
+            angular.forEach(this.visibleHeaders, function(headerRow) {
+                angular.forEach(headerRow, function(header) {
+                    header.updateView();
+                });
+            });
+        };
+
+        var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
+        var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
+        var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
+
+        ColumnsManager.prototype.getHeaderFormat = function(unit) {
+            var format;
+            if (this.gantt.$scope.headersFormats !== undefined) {
+                format = this.gantt.$scope.headersFormats[unit];
+            }
+            if (format === undefined) {
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                    format = defaultDayHeadersFormats[unit];
+                } else if (['month', 'quarter', 'year'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                    format = defaultYearHeadersFormats[unit];
+                }
+                if (format === undefined) {
+                    format = defaultHeadersFormats[unit];
                 }
             }
-            return size;
+            return format;
         };
 
-        // Adds or update rows and tasks.
-        self.addData = function(data) {
-            for (var i = 0, l = data.length; i < l; i++) {
-                var rowData = data[i];
-                addRow(rowData);
+        return ColumnsManager;
+    }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
+        var generateHeader = function(columnsManager, columns, unit) {
+            var generatedHeaders = [];
+            var header;
+            var prevColDateVal;
+
+            for (var i = 0, l = columns.length; i < l; i++) {
+                var col = columns[i];
+                var colDateVal = col.date.get(unit);
+                if (i === 0 || prevColDateVal !== colDateVal) {
+                    prevColDateVal = colDateVal;
+                    var label = col.date.format(columnsManager.getHeaderFormat(unit));
+
+                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
+                    header.left = col.left;
+                    header.width = col.width;
+                    generatedHeaders.push(header);
+                } else {
+                    header.originalSize.width += col.originalSize.width;
+                    header.width += col.width;
+                }
+            }
+            return generatedHeaders;
+
+        };
+
+        return function(columnsManager) {
+            this.generate = function(columns) {
+                var units = [];
+                if (columnsManager.gantt.$scope.headers === undefined) {
+                    units = [];
+                    if (['year', 'quarter', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('year');
+                    }
+                    if (['quarter'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('quarter');
+                    }
+                    if (['day', 'week', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('month');
+                    }
+                    if (['day', 'week'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('week');
+                    }
+                    if (['hour', 'day'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('day');
+                    }
+                    if (['hour', 'minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('hour');
+                    }
+                    if (['minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('minute');
+                    }
+                    if (['second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                        units.push('second');
+                    }
+                    if (units.length === 0) {
+                        units.push(columnsManager.gantt.$scope.viewScale);
+                    }
+                } else {
+                    units = columnsManager.gantt.$scope.headers;
+                }
+
+                var headers = [];
+                angular.forEach(units, function(unit) {
+                    headers.push(generateHeader(columnsManager, columns, unit));
+                });
+
+                return headers;
+            };
+        };
+    }]);
+}());
+
+
+(function() {
+    'use strict';
+    angular.module('gantt').factory('Gantt', [
+        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment',
+        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment) {
+            // Gantt logic. Manages the columns, rows and sorting functionality.
+            var Gantt = function($scope, $element) {
+                var self = this;
+
+                this.$scope = $scope;
+                this.$element = $element;
+
+                this.api = new GanttApi(this);
+
+                this.api.registerEvent('core', 'ready');
+
+                this.api.registerEvent('directives', 'preLink');
+                this.api.registerEvent('directives', 'postLink');
+                this.api.registerEvent('directives', 'new');
+                this.api.registerEvent('directives', 'destroy');
+
+                this.api.registerEvent('data', 'load');
+                this.api.registerEvent('data', 'remove');
+                this.api.registerEvent('data', 'clear');
+
+                this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
+                this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
+
+                this.api.registerMethod('data', 'load', this.loadData, this);
+                this.api.registerMethod('data', 'remove', this.removeData, this);
+                this.api.registerMethod('data', 'clear', this.clearData, this);
+                this.api.registerMethod('data', 'get', this.getData, this);
+
+                this.calendar = new Calendar(this);
+                this.calendar.registerTimeFrames(this.$scope.timeFrames);
+                this.calendar.registerDateFrames(this.$scope.dateFrames);
+
+                this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+                this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+                this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+
+                $scope.$watchGroup(['timeFrames', 'dateFrames'], function(newValues, oldValues) {
+                    if (newValues !== oldValues) {
+                        var timeFrames = newValues[0];
+                        var dateFrames = newValues[1];
+
+                        var oldTimeFrames = oldValues[0];
+                        var oldDateFrames = oldValues[1];
+
+                        if (!angular.equals(timeFrames, oldTimeFrames)) {
+                            self.calendar.clearTimeFrames();
+                            self.calendar.registerTimeFrames(timeFrames);
+                        }
+
+                        if (!angular.equals(dateFrames, oldDateFrames)) {
+                            self.calendar.clearDateFrames();
+                            self.calendar.registerDateFrames(dateFrames);
+                        }
+
+                        self.columnsManager.generateColumns();
+                    }
+                });
+
+                this.scroll = new Scroll(this);
+                this.body = new Body(this);
+                this.rowHeader = new RowHeader(this);
+                this.header = new Header(this);
+                this.labels = new Labels(this);
+
+                this.objectModel = new ObjectModel(this.api);
+
+                this.rowsManager = new RowsManager(this);
+                this.columnsManager = new ColumnsManager(this);
+                this.timespansManager = new TimespansManager(this);
+                this.currentDateManager = new CurrentDateManager(this);
+
+                this.originalWidth = 0;
+                this.width = 0;
+
+                if (angular.isFunction(this.$scope.api)) {
+                    this.$scope.api(this.api);
+                }
+
+                this.$scope.$watchCollection('data', function(newData, oldData) {
+                    var toRemoveIds = arrays.getRemovedIds(newData, oldData);
+
+                    for (var i = 0, l = toRemoveIds.length; i < l; i++) {
+                        var toRemoveId = toRemoveIds[i];
+                        self.rowsManager.removeRow(toRemoveId);
+                    }
+
+                    if (newData !== undefined) {
+                        self.loadData(newData);
+                    }
+                });
+            };
+
+            // Returns the exact column date at the given position x (in em)
+            Gantt.prototype.getDateByPosition = function(x, magnet) {
+                var column = this.columnsManager.getColumnByPosition(x);
+                if (column !== undefined) {
+                    return column.getDateByPosition(x - column.left, magnet);
+                } else {
+                    return undefined;
+                }
+            };
+
+            // Returns the position inside the Gantt calculated by the given date
+            Gantt.prototype.getPositionByDate = function(date) {
+                if (date === undefined) {
+                    return undefined;
+                }
+
+                if (!moment.isMoment(moment)) {
+                    date = moment(date);
+                }
+
+                var column = this.columnsManager.getColumnByDate(date);
+                if (column !== undefined) {
+                    return column.getPositionByDate(date);
+                } else {
+                    return undefined;
+                }
+            };
+
+            // Adds or update rows and tasks.
+            Gantt.prototype.loadData = function(data) {
+                if (!angular.isArray(data)) {
+                    data = data !== undefined ? [data] : [];
+                }
+
+                if (this.$scope.data === undefined || this.$scope.data !== data) {
+                    this.$scope.data = [];
+                }
+                for (var i = 0, l = data.length; i < l; i++) {
+                    var rowData = data[i];
+                    this.rowsManager.addRow(rowData);
+                }
+                this.api.data.raise.load(this.$scope, data);
+            };
+
+            Gantt.prototype.getData = function() {
+                return this.$scope.data;
+            };
+
+            // Removes specified rows or tasks.
+            // If a row has no tasks inside the complete row will be deleted.
+            Gantt.prototype.removeData = function(data) {
+                if (!angular.isArray(data)) {
+                    data = data !== undefined ? [data] : [];
+                }
+
+                this.rowsManager.removeData(data);
+                this.api.data.raise.remove(this.$scope, data);
+            };
+
+            // Removes all rows and tasks
+            Gantt.prototype.clearData = function() {
+                this.rowsManager.removeAll();
+                this.api.data.raise.clear(this.$scope);
+            };
+
+            return Gantt;
+        }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttObjectModel', ['ganttUtils', 'moment', function(utils, moment) {
+        var ObjectModel = function(api) {
+            this.api = api;
+
+            this.api.registerEvent('tasks', 'clean');
+            this.api.registerEvent('rows', 'clean');
+            this.api.registerEvent('timespans', 'clean');
+        };
+
+        ObjectModel.prototype.cleanTask = function(model) {
+            if (model.id === undefined) {
+                model.id = utils.randomUuid();
             }
 
-            self.updateColumns();
-            self.updateTasksPosAndSize();
-            updateVisibleObjects();
+            if (model.from !== undefined && !moment.isMoment(model.from)) {
+                model.from = moment(model.from);
+            }
+
+            if (model.to !== undefined && !moment.isMoment(model.to)) {
+                model.to = moment(model.to);
+            }
+
+            this.api.tasks.raise.clean(model);
         };
 
-        // Adds a row or merges the row and its tasks if there is already one with the same id
-        var addRow = function(rowData) {
-            // Copy to new row (add) or merge with existing (update)
-            var row, isUpdate = false;
+        ObjectModel.prototype.cleanRow = function(model) {
+            if (model.id === undefined) {
+                model.id = utils.randomUuid();
+            }
 
-            if (rowData.id in self.rowsMap) {
-                row = self.rowsMap[rowData.id];
-                row.copy(rowData);
+            if (model.from !== undefined && !moment.isMoment(model.from)) {
+                model.from = moment(model.from);
+            }
+
+            if (model.to !== undefined && !moment.isMoment(model.to)) {
+                model.to = moment(model.to);
+            }
+
+            this.api.rows.raise.clean(model);
+        };
+
+        ObjectModel.prototype.cleanTimespan = function(model) {
+            if (model.id === undefined) {
+                model.id = utils.randomUuid();
+            }
+
+            if (model.from !== undefined && !moment.isMoment(model.from)) {
+                model.from = moment(model.from);
+            }
+
+            if (model.to !== undefined && !moment.isMoment(model.to)) {
+                model.to = moment(model.to);
+            }
+
+            this.api.timespans.raise.clean(model);
+        };
+
+        return ObjectModel;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttRow', ['GanttTask', 'moment', '$filter', function(Task, moment, $filter) {
+        var Row = function(rowsManager, model) {
+            this.rowsManager = rowsManager;
+            this.model = model;
+
+            this.from = undefined;
+            this.to = undefined;
+
+            this.tasksMap = {};
+            this.tasks = [];
+            this.filteredTasks = [];
+            this.visibleTasks = [];
+        };
+
+        Row.prototype.addTaskImpl = function(task, viewOnly) {
+            this.tasksMap[task.model.id] = task;
+            this.tasks.push(task);
+            this.filteredTasks.push(task);
+            this.visibleTasks.push(task);
+
+            if (!viewOnly) {
+                if (this.model.tasks === undefined) {
+                    this.model.tasks = [];
+                }
+                if (this.model.tasks.indexOf(task.model) === -1) {
+                    this.model.tasks.push(task.model);
+                }
+            }
+
+        };
+
+        // Adds a task to a specific row. Merges the task if there is already one with the same id
+        Row.prototype.addTask = function(taskModel, viewOnly) {
+            // Copy to new task (add) or merge with existing (update)
+            var task, isUpdate = false;
+
+            this.rowsManager.gantt.objectModel.cleanTask(taskModel);
+            if (taskModel.id in this.tasksMap) {
+                task = this.tasksMap[taskModel.id];
+                if (task.model === taskModel) {
+                    return task;
+                }
+                task.model = taskModel;
                 isUpdate = true;
-                $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
             } else {
-                var order = rowData.order;
-
-                // Check if the row has a order predefined. If not assign one
-                if (order === undefined) {
-                    order = self.highestRowOrder;
-                }
-
-                if (order >= self.highestRowOrder) {
-                    self.highestRowOrder = order + 1;
-                }
-
-                row = new Row(rowData.id, self, rowData.name, order, rowData.data);
-                self.rowsMap[rowData.id] = row;
-                self.rows.push(row);
-                self.filteredRows.push(row);
-                self.visibleRows.push(row);
-                $scope.$emit(GANTT_EVENTS.ROW_ADDED, {'row': row});
+                task = new Task(this, taskModel);
+                this.addTaskImpl(task, viewOnly);
             }
 
-            if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-                for (var i = 0, l = rowData.tasks.length; i < l; i++) {
-                    row.addTask(rowData.tasks[i]);
+            this.sortTasks();
+            this.setFromToByTask(task);
+
+            if (!viewOnly) {
+                if (isUpdate) {
+                    this.rowsManager.gantt.api.tasks.raise.change(task);
+                } else {
+                    this.rowsManager.gantt.api.tasks.raise.add(task);
                 }
             }
+
+            return task;
+        };
+
+        // Removes the task from the existing row and adds it to he current one
+        Row.prototype.moveTaskToRow = function(task, viewOnly) {
+            var oldRow = task.row;
+            oldRow.removeTask(task.model.id, viewOnly);
+
+            task.row = this;
+            this.addTaskImpl(task, viewOnly);
+
+            this.sortTasks();
+            this.setFromToByTask(task);
+
+            task.updatePosAndSize();
+
+            if (!viewOnly) {
+                this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
+            }
+        };
+
+        Row.prototype.updateVisibleTasks = function() {
+            if (this.rowsManager.gantt.$scope.filterTask) {
+                var filterTask = this.rowsManager.gantt.$scope.filterTask;
+                if (typeof(filterTask) === 'object') {
+                    filterTask = {model: filterTask};
+                }
+
+                var filterTaskComparator = this.rowsManager.gantt.$scope.filterTaskComparator;
+                if (typeof(filterTaskComparator) === 'function') {
+                    filterTaskComparator = function(actual, expected) {
+                        return this.rowsManager.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                    };
+                }
+
+                this.filteredTasks = $filter('filter')(this.tasks, filterTask, filterTaskComparator);
+            } else {
+                this.filteredTasks = this.tasks.slice(0);
+            }
+            this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+        };
+
+        Row.prototype.updateTasksPosAndSize = function() {
+            for (var j = 0, k = this.tasks.length; j < k; j++) {
+                this.tasks[j].updatePosAndSize();
+            }
+        };
+
+        // Remove the specified task from the row
+        Row.prototype.removeTask = function(taskId, viewOnly) {
+            if (taskId in this.tasksMap) {
+                var removedTask = this.tasksMap[taskId];
+                var task;
+                var i;
+
+                for (i = this.tasks.length - 1; i >= 0; i--) {
+                    task = this.tasks[i];
+                    if (task.model.id === taskId) {
+                        this.tasks.splice(i, 1); // Remove from array
+
+                        // Update earliest or latest date info as this may change
+                        if (this.from - task.model.from === 0 || this.to - task.model.to === 0) {
+                            this.setFromTo();
+                        }
+
+                        break;
+                    }
+                }
+
+                for (i = this.filteredTasks.length - 1; i >= 0; i--) {
+                    task = this.filteredTasks[i];
+                    if (task.model.id === taskId) {
+                        this.filteredTasks.splice(i, 1); // Remove from filtered array
+                        break;
+                    }
+                }
+
+                for (i = this.visibleTasks.length - 1; i >= 0; i--) {
+                    task = this.visibleTasks[i];
+                    if (task.model.id === taskId) {
+                        this.visibleTasks.splice(i, 1); // Remove from visible array
+                        break;
+                    }
+                }
+
+                if (!viewOnly) {
+                    delete this.tasksMap[taskId]; // Remove from map
+
+                    if (this.model.tasks !== undefined) {
+                        var taskIndex = this.model.tasks.indexOf(removedTask.model);
+                        if (taskIndex > -1) {
+                            this.model.tasks.splice(taskIndex, 1);
+                        }
+                    }
+
+                    this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                }
+
+                return removedTask;
+            }
+        };
+
+        Row.prototype.removeAllTasks = function() {
+            this.from = undefined;
+            this.to = undefined;
+
+            this.tasksMap = {};
+            this.tasks = [];
+            this.filteredTasks = [];
+            this.visibleTasks = [];
+        };
+
+        // Calculate the earliest from and latest to date of all tasks in a row
+        Row.prototype.setFromTo = function() {
+            this.from = undefined;
+            this.to = undefined;
+            for (var j = 0, k = this.tasks.length; j < k; j++) {
+                this.setFromToByTask(this.tasks[j]);
+            }
+        };
+
+        Row.prototype.setFromToByTask = function(task) {
+            if (this.from === undefined) {
+                this.from = moment(task.model.from);
+            } else if (task.model.from < this.from) {
+                this.from = moment(task.model.from);
+            }
+
+            if (this.to === undefined) {
+                this.to = moment(task.model.to);
+            } else if (task.model.to > this.to) {
+                this.to = moment(task.model.to);
+            }
+        };
+
+        Row.prototype.sortTasks = function() {
+            this.tasks.sort(function(t1, t2) {
+                return t1.left - t2.left;
+            });
+        };
+
+        Row.prototype.clone = function() {
+            var clone = new Row(this.rowsManager, angular.copy(this));
+            for (var i = 0, l = this.tasks.length; i < l; i++) {
+                clone.addTask(this.tasks[i].model);
+            }
+            return clone;
+        };
+
+        return Row;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttRowHeader', [function() {
+        var RowHeader = function(gantt) {
+            this.gantt = gantt;
+        };
+        return RowHeader;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment', function(Row, arrays, $filter, moment) {
+        var RowsManager = function(gantt) {
+            var self = this;
+
+            this.gantt = gantt;
+
+            this.rowsMap = {};
+            this.rows = [];
+            this.sortedRows = [];
+            this.filteredRows = [];
+            this.visibleRows = [];
+            this.rowsTaskWatchers = [];
+
+            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.updateVisibleTasks();
+                }
+            });
+
+            this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.updateVisibleTasks();
+                }
+            });
+
+            this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.updateVisibleRows();
+                }
+            });
+
+            this.gantt.$scope.$watch('sortMode', function(oldValues, newValues) {
+                if (oldValues !== newValues) {
+                    self.sortRows();
+                }
+            });
+
+            this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
+            this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
+            this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
+
+            this.gantt.api.registerEvent('tasks', 'add');
+            this.gantt.api.registerEvent('tasks', 'change');
+            this.gantt.api.registerEvent('tasks', 'rowChange');
+            this.gantt.api.registerEvent('tasks', 'remove');
+            this.gantt.api.registerEvent('tasks', 'filter');
+
+            this.gantt.api.registerEvent('rows', 'add');
+            this.gantt.api.registerEvent('rows', 'change');
+            this.gantt.api.registerEvent('rows', 'remove');
+            this.gantt.api.registerEvent('rows', 'move');
+
+            this.gantt.api.registerEvent('rows', 'filter');
+
+            this.updateVisibleObjects();
+        };
+
+        RowsManager.prototype.addRow = function(rowModel) {
+            // Copy to new row (add) or merge with existing (update)
+            var row, i, l, isUpdate = false;
+
+            this.gantt.objectModel.cleanRow(rowModel);
+
+            if (rowModel.id in this.rowsMap) {
+                row = this.rowsMap[rowModel.id];
+                if (row.model === rowModel) {
+                    return;
+                }
+
+                var toRemoveIds = arrays.getRemovedIds(rowModel.tasks, row.model.tasks);
+                for (i= 0, l=toRemoveIds.length; i<l; i++) {
+                    var toRemoveId = toRemoveIds[i];
+                    row.removeTask(toRemoveId);
+                }
+
+                row.model = rowModel;
+                isUpdate = true;
+            } else {
+                row = new Row(this, rowModel);
+                this.rowsMap[rowModel.id] = row;
+                this.rows.push(row);
+                this.sortedRows.push(row);
+                this.filteredRows.push(row);
+                this.visibleRows.push(row);
+
+                if (this.gantt.$scope.data.indexOf(rowModel) === -1) {
+                    this.gantt.$scope.data.push(rowModel);
+                }
+
+            }
+
+            if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
+                for (i = 0, l = rowModel.tasks.length; i < l; i++) {
+                    var taskModel = rowModel.tasks[i];
+                    row.addTask(taskModel);
+                }
+            }
+
+            if (isUpdate) {
+                this.gantt.api.rows.raise.change(row);
+            } else {
+                this.gantt.api.rows.raise.add(row);
+            }
+
+            if (!isUpdate) {
+                var watcher = this.gantt.$scope.$watchCollection(function() {return rowModel.tasks;}, function(newTasks, oldTasks) {
+                    if (newTasks !== oldTasks) {
+                        var i, l;
+
+                        var toRemoveIds = arrays.getRemovedIds(newTasks, oldTasks);
+                        for (i= 0, l = toRemoveIds.length; i<l; i++) {
+                            var toRemove = toRemoveIds[i];
+                            row.removeTask(toRemove);
+                        }
+
+                        if (newTasks !== undefined) {
+                            for (i= 0, l = newTasks.length; i<l; i++) {
+                                var toAdd = newTasks[i];
+                                row.addTask(toAdd);
+                            }
+                        }
+                    }
+                });
+
+                this.rowsTaskWatchers.push(watcher);
+            }
+
             return isUpdate;
         };
 
-        // Removes specified rows or tasks.
-        // If a row has no tasks inside the complete row will be deleted.
-        self.removeData = function(data) {
+        RowsManager.prototype.removeRow = function(rowId) {
+            if (rowId in this.rowsMap) {
+                delete this.rowsMap[rowId]; // Remove from map
+
+                var removedRow;
+                var row;
+
+                var indexOf = arrays.indexOfId(this.rows, rowId, ['model', 'id']);
+                if (indexOf > -1) {
+                    removedRow = this.rows.splice(indexOf, 1)[0]; // Remove from array
+                    var deregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
+                    deregisterFunction();
+                }
+
+                arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
+                arrays.removeId(this.filteredRows, rowId, ['model', 'id']);
+                arrays.removeId(this.visibleRows, rowId, ['model', 'id']);
+                arrays.remove(this.gantt.$scope.data, removedRow.model);
+
+                this.gantt.api.rows.raise.remove(removedRow);
+                return row;
+            }
+
+            return undefined;
+        };
+
+        RowsManager.prototype.removeData = function(data) {
             for (var i = 0, l = data.length; i < l; i++) {
                 var rowData = data[i];
                 var row;
@@ -37244,1132 +38417,1100 @@ gantt.factory('Gantt', [
                 if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
                     // Only delete the specified tasks but not the row and the other tasks
 
-                    if (rowData.id in self.rowsMap) {
-                        row = self.rowsMap[rowData.id];
+                    if (rowData.id in this.rowsMap) {
+                        row = this.rowsMap[rowData.id];
 
                         for (var j = 0, k = rowData.tasks.length; j < k; j++) {
                             row.removeTask(rowData.tasks[j].id);
                         }
 
-                        $scope.$emit(GANTT_EVENTS.ROW_CHANGED, {'row': row});
+                        this.gantt.api.rows.raise.change(row);
                     }
                 } else {
                     // Delete the complete row
-                    row = removeRow(rowData.id);
+                    row = this.removeRow(rowData.id);
                 }
             }
-
-            self.updateColumns();
-            updateVisibleObjects();
+            this.updateVisibleObjects();
         };
 
-        // Removes the complete row including all tasks
-        var removeRow = function(rowId) {
-            if (rowId in self.rowsMap) {
-                delete self.rowsMap[rowId]; // Remove from map
+        RowsManager.prototype.removeAll = function() {
+            this.rowsMap = {};
+            this.rows = [];
+            this.sortedRows = [];
+            this.filteredRows = [];
+            this.visibleRows = [];
+            var data = this.gantt.$scope.data;
+            while(data > 0) {
+                data.pop();
+            }
+            for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
+                var deregisterFunction = this.rowsTaskWatchers[i];
+                deregisterFunction();
+            }
+            this.rowsTaskWatchers = [];
+        };
 
-                var removedRow;
-                var row;
-                for (var i = self.rows.length -1; i >=0 ; i--) {
-                    row = self.rows[i];
-                    if (row.id === rowId) {
-                        removedRow = row;
-                        self.rows.splice(i, 1); // Remove from array
+        RowsManager.prototype.sortRows = function() {
+            var expression = this.gantt.$scope.sortMode;
+
+            if (expression !== undefined) {
+                var reverse = false;
+                if (expression.charAt(0) === '-') {
+                    reverse = true;
+                    expression = expression.substr(1);
+                }
+
+                var angularOrderBy = $filter('orderBy');
+                this.sortedRows = angularOrderBy(this.rows, expression, reverse);
+            } else {
+                this.sortedRows = this.rows.slice();
+            }
+
+            this.updateVisibleRows();
+        };
+
+        /**
+         * Applies current view sort to data model.
+         */
+        RowsManager.prototype.applySort = function() {
+            var data = this.gantt.$scope.data;
+            while(data > 0) {
+                data.pop();
+            }
+            var rows = [];
+            for (var i = 0, l = this.sortedRows.length; i < l; i++) {
+                data.push(this.sortedRows[i].model);
+                rows.push(this.sortedRows[i]);
+            }
+
+            this.rows = rows;
+        };
+
+        RowsManager.prototype.moveRow = function(row, targetRow) {
+            if (this.gantt.$scope.sortMode !== undefined) {
+                // Apply current sort to model
+                this.applySort();
+
+                this.gantt.$scope.sortMode = undefined;
+            }
+
+            var targetRowIndex = this.rows.indexOf(targetRow);
+            var rowIndex = this.rows.indexOf(row);
+
+            if (targetRowIndex > -1 && rowIndex > -1 && targetRowIndex !== rowIndex) {
+                arrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
+                arrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
+                arrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
+
+                this.gantt.api.rows.raise.change(row);
+                this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
+
+                this.updateVisibleObjects();
+                this.sortRows();
+            }
+        };
+
+        RowsManager.prototype.updateVisibleObjects = function() {
+            this.updateVisibleRows();
+            this.updateVisibleTasks();
+        };
+
+        RowsManager.prototype.updateVisibleRows = function() {
+            var oldFilteredRows = this.filteredRows;
+            if (this.gantt.$scope.filterRow) {
+                var filterRow = this.gantt.$scope.filterRow;
+                if (typeof(filterRow) === 'object') {
+                    filterRow = {model: filterRow};
+                }
+
+                var filterRowComparator = this.gantt.$scope.filterRowComparator;
+                if (typeof(filterRowComparator) === 'function') {
+                    filterRowComparator = function(actual, expected) {
+                        return this.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                    };
+                }
+
+                this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
+            } else {
+                this.filteredRows = this.sortedRows.slice(0);
+            }
+
+
+            var raiseEvent = !angular.equals(oldFilteredRows, this.filteredRows);
+
+            // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
+            this.visibleRows = this.filteredRows;
+            if (raiseEvent) {
+                this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
+            }
+        };
+
+        RowsManager.prototype.updateVisibleTasks = function() {
+            var oldFilteredTasks = [];
+            var filteredTasks = [];
+            var tasks = [];
+
+            angular.forEach(this.filteredRows, function(row) {
+                oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
+                row.updateVisibleTasks();
+                filteredTasks = filteredTasks.concat(row.filteredTasks);
+                tasks = tasks.concat(row.tasks);
+            });
+
+            var filterEvent = !angular.equals(oldFilteredTasks, filteredTasks);
+
+            if (filterEvent) {
+                this.gantt.api.tasks.raise.filter(tasks, filteredTasks);
+            }
+        };
+
+        // Update the position/size of all tasks in the Gantt
+        RowsManager.prototype.updateTasksPosAndSize = function() {
+            for (var i = 0, l = this.rows.length; i < l; i++) {
+                this.rows[i].updateTasksPosAndSize();
+            }
+        };
+
+        RowsManager.prototype.getExpandedFrom = function(from) {
+            from = from ? moment(from) : from;
+
+            var minRowFrom = from;
+            angular.forEach(this.rows, function(row) {
+                if (minRowFrom === undefined || minRowFrom > row.from) {
+                    minRowFrom = row.from;
+                }
+            });
+            if (minRowFrom && (!from || minRowFrom < from)) {
+                return minRowFrom;
+            }
+            return from;
+        };
+
+        RowsManager.prototype.getExpandedTo = function(to) {
+            to = to ? moment(to) : to;
+
+            var maxRowTo = to;
+            angular.forEach(this.rows, function(row) {
+                if (maxRowTo === undefined || maxRowTo < row.to) {
+                    maxRowTo = row.to;
+                }
+            });
+            if (maxRowTo && (!this.gantt.$scope.toDate || maxRowTo > this.gantt.$scope.toDate)) {
+                return maxRowTo;
+            }
+            return to;
+        };
+
+        RowsManager.prototype.getDefaultFrom = function() {
+            var defaultFrom;
+            angular.forEach(this.rows, function(row) {
+                if (defaultFrom === undefined || row.from < defaultFrom) {
+                    defaultFrom = row.from;
+                }
+            });
+            return defaultFrom;
+        };
+
+        RowsManager.prototype.getDefaultTo = function() {
+            var defaultTo;
+            angular.forEach(this.rows, function(row) {
+                if (defaultTo === undefined || row.to > defaultTo) {
+                    defaultTo = row.to;
+                }
+            });
+            return defaultTo;
+        };
+
+        return RowsManager;
+    }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttTask', [function() {
+        var Task = function(row, model) {
+            this.rowsManager = row.rowsManager;
+            this.row = row;
+            this.model = model;
+            this.truncatedLeft = false;
+            this.truncatedRight = false;
+        };
+
+        Task.prototype.isMilestone = function() {
+            return !this.model.to || this.model.from - this.model.to === 0;
+        };
+
+        // Updates the pos and size of the task according to the from - to date
+        Task.prototype.updatePosAndSize = function() {
+            this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+            this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+
+            this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
+            if (this.modelLeft < 0) {
+                this.truncatedLeft = true;
+                if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                    this.truncatedRight = true;
+                    this.width = this.rowsManager.gantt.width;
+                } else {
+                    this.truncatedRight = false;
+                    this.width = this.modelWidth + this.modelLeft;
+                }
+            } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                this.truncatedRight = true;
+                this.truncatedLeft = false;
+                this.width = this.rowsManager.gantt.width - this.modelLeft;
+            } else {
+                this.truncatedLeft = false;
+                this.truncatedRight = false;
+                this.width = this.modelWidth;
+            }
+
+            if (this.width < 0) {
+                this.left = this.left + this.width;
+                this.width = -this.width;
+            }
+
+            this.updateView();
+        };
+
+        Task.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
+        };
+
+        // Expands the start of the task to the specified position (in em)
+        Task.prototype.setFrom = function(x) {
+            this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
+            this.row.setFromToByTask(this);
+            this.updatePosAndSize();
+        };
+
+        // Expands the end of the task to the specified position (in em)
+        Task.prototype.setTo = function(x) {
+            this.model.to = this.rowsManager.gantt.getDateByPosition(x, true);
+            this.row.setFromToByTask(this);
+            this.updatePosAndSize();
+        };
+
+        // Moves the task to the specified position (in em)
+        Task.prototype.moveTo = function(x) {
+            this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
+            var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+            this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
+            this.row.setFromToByTask(this);
+            this.updatePosAndSize();
+        };
+
+        Task.prototype.clone = function() {
+            return new Task(this.row, angular.copy(this.model));
+        };
+
+        return Task;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttBody', ['GanttBodyColumns', 'GanttBodyRows', 'GanttBodyBackground', 'GanttBodyForeground', function(BodyColumns, BodyRows, BodyBackground, BodyForeground) {
+        var Body= function(gantt) {
+            this.gantt = gantt;
+
+            this.background = new BodyBackground(this);
+            this.foreground = new BodyForeground(this);
+            this.columns = new BodyColumns(this);
+            this.rows = new BodyRows(this);
+        };
+        return Body;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttBodyBackground', [function() {
+        var GanttBodyBackground = function(body) {
+            this.body = body;
+        };
+        return GanttBodyBackground;
+    }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttBodyColumns', [function() {
+        var BodyColumns = function(body) {
+            this.body = body;
+        };
+        return BodyColumns;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttBodyForeground', [function() {
+        var GanttBodyForeground = function(body) {
+            this.body = body;
+        };
+        return GanttBodyForeground;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttBodyRows', [function() {
+        var BodyRows = function(body) {
+            this.body = body;
+        };
+        return BodyRows;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttHeader', ['GanttHeaderColumns', function(HeaderColumns) {
+        var Header = function(gantt) {
+            this.gantt = gantt;
+            this.columns = new HeaderColumns(this);
+
+            this.getHeight = function() {
+                return this.$element[0].offsetHeight;
+            };
+        };
+        return Header;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttHeaderColumns', [function() {
+        var HeaderColumns = function($element) {
+            this.$element = $element;
+        };
+        return HeaderColumns;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttLabels', [function() {
+        var Labels= function(gantt) {
+            this.gantt = gantt;
+            this.gantt.api.registerEvent('labels', 'resize');
+        };
+        return Labels;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttScroll', [function() {
+        var Scroll = function(gantt) {
+            this.gantt = gantt;
+
+            this.gantt.api.registerEvent('scroll', 'scroll');
+
+            this.gantt.api.registerMethod('scroll', 'to', Scroll.prototype.scrollTo, this);
+            this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
+            this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
+            this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
+        };
+
+        /**
+         * Scroll to a position
+         *
+         * @param {number} position Position to scroll to.
+         */
+        Scroll.prototype.scrollTo = function(position) {
+            this.$element[0].scrollLeft = position;
+            this.$element.triggerHandler('scroll');
+        };
+
+        /**
+         * Scroll to the left side
+         *
+         * @param {number} offset Offset to scroll.
+         */
+        Scroll.prototype.scrollToLeft = function(offset) {
+            this.$element[0].scrollLeft -= offset;
+            this.$element.triggerHandler('scroll');
+        };
+
+        /**
+         * Scroll to the right side
+         *
+         * @param {number} offset Offset to scroll.
+         */
+        Scroll.prototype.scrollToRight = function(offset) {
+            this.$element[0].scrollLeft += offset;
+            this.$element.triggerHandler('scroll');
+        };
+
+        /**
+         * Scroll to a date
+         *
+         * @param {moment} date moment to scroll to.
+         */
+        Scroll.prototype.scrollToDate = function(date) {
+            var position = this.gantt.getPositionByDate(date);
+
+            if (position !== undefined) {
+                this.$element[0].scrollLeft = position - this.$element[0].offsetWidth / 2;
+            }
+        };
+
+        return Scroll;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttTimespan', [function() {
+        var Timespan = function(gantt, model) {
+            this.gantt = gantt;
+            this.model = model;
+        };
+
+        // Updates the pos and size of the timespan according to the from - to date
+        Timespan.prototype.updatePosAndSize = function() {
+            this.left = this.gantt.getPositionByDate(this.model.from);
+            this.width = this.gantt.getPositionByDate(this.model.to) - this.left;
+            this.updateView();
+        };
+
+        Timespan.prototype.updateView = function() {
+            if (this.$element) {
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
+        };
+
+        // Expands the start of the timespan to the specified position (in em)
+        Timespan.prototype.setFrom = function(x) {
+            this.from = this.gantt.getDateByPosition(x);
+            this.updatePosAndSize();
+        };
+
+        // Expands the end of the timespan to the specified position (in em)
+        Timespan.prototype.setTo = function(x) {
+            this.to = this.gantt.getDateByPosition(x);
+            this.updatePosAndSize();
+        };
+
+        // Moves the timespan to the specified position (in em)
+        Timespan.prototype.moveTo = function(x) {
+            this.from = this.gantt.getDateByPosition(x);
+            this.to = this.gantt.getDateByPosition(x + this.width);
+            this.updatePosAndSize();
+        };
+
+        Timespan.prototype.clone = function() {
+            return new Timespan(this.gantt, angular.copy(this.model));
+        };
+
+        return Timespan;
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('GanttTimespansManager', ['GanttTimespan', function(Timespan) {
+        var GanttTimespansManager = function(gantt) {
+            var self = this;
+
+            this.gantt = gantt;
+
+            this.timespansMap = {};
+            this.timespans = [];
+
+            this.gantt.$scope.$watchCollection('timespans', function(newValue) {
+                self.clearTimespans();
+                self.loadTimespans(newValue);
+            });
+
+            this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+            this.gantt.api.registerMethod('timespans', 'remove', this.removeTimespans, this);
+            this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
+
+            this.gantt.api.registerEvent('timespans', 'add');
+            this.gantt.api.registerEvent('timespans', 'remove');
+            this.gantt.api.registerEvent('timespans', 'change');
+        };
+
+        // Adds or updates timespans
+        GanttTimespansManager.prototype.loadTimespans = function(timespans) {
+            if (!angular.isArray(timespans)) {
+                timespans = timespans !== undefined ? [timespans] : [];
+            }
+
+            this.gantt.$scope.timespans = timespans;
+            for (var i = 0, l = timespans.length; i < l; i++) {
+                var timespanModel = timespans[i];
+                this.gantt.objectModel.cleanTimespan(timespanModel);
+                this.loadTimespan(timespanModel);
+            }
+        };
+
+        // Adds a timespan or merges the timespan if there is already one with the same id
+        GanttTimespansManager.prototype.loadTimespan = function(timespanModel) {
+            // Copy to new timespan (add) or merge with existing (update)
+            var timespan, isUpdate = false;
+
+            if (timespanModel.id in this.timespansMap) {
+                timespan = this.timespansMap[timespanModel.id];
+                timespan.model = timespanModel;
+                isUpdate = true;
+                this.gantt.api.timespans.raise.change(timespan);
+            } else {
+                timespan = new Timespan(this.gantt, timespanModel);
+                this.timespansMap[timespanModel.id] = timespan;
+                this.timespans.push(timespan);
+                this.gantt.api.timespans.raise.add(timespan);
+            }
+
+            timespan.updatePosAndSize();
+            return isUpdate;
+        };
+
+        GanttTimespansManager.prototype.removeTimespans = function(timespans) {
+            if (!angular.isArray(timespans)) {
+                timespans = [timespans];
+            }
+
+            for (var i = 0, l = timespans.length; i < l; i++) {
+                var timespanData = timespans[i];
+                // Delete the timespan
+                this.removeTimespan(timespanData.id);
+            }
+            this.updateVisibleObjects();
+        };
+
+        GanttTimespansManager.prototype.removeTimespan = function(timespanId) {
+            if (timespanId in this.timespansMap) {
+                delete this.timespansMap[timespanId]; // Remove from map
+
+                var removedTimespan;
+                var timespan;
+                for (var i = this.timespans.length - 1; i >= 0; i--) {
+                    timespan = this.timespans[i];
+                    if (timespan.model.id === timespanId) {
+                        removedTimespan = timespan;
+                        this.timespans.splice(i, 1); // Remove from array
                     }
                 }
 
-                for (i = self.filteredRows.length -1; i >=0 ; i--) {
-                    row = self.filteredRows[i];
-                    if (row.id === rowId) {
-                        self.filteredRows.splice(i, 1); // Remove from filtered array
-                    }
-                }
-
-                for (i = self.visibleRows.length -1; i >=0 ; i--) {
-                    row = self.visibleRows[i];
-                    if (row.id === rowId) {
-                        self.visibleRows.splice(i, 1); // Remove from visible array
-                    }
-                }
-
-                $scope.$emit(GANTT_EVENTS.ROW_REMOVED, {'row': removedRow});
-                return row;
+                this.gantt.api.timespans.raise.remove(removedTimespan);
+                return removedTimespan;
             }
 
             return undefined;
         };
 
-        // Removes all rows and tasks
-        self.removeAllRows = function() {
-            self.rowsMap = {};
-            self.rows = [];
-            self.filteredRows = [];
-            self.visibleRows = [];
-            self.highestRowOrder = 0;
-            self.clearColumns();
-            self.scrollAnchor = undefined;
-        };
-
         // Removes all timespans
-        self.removeAllTimespans = function() {
-            self.timespansMap = {};
-            self.timespans = [];
+        GanttTimespansManager.prototype.clearTimespans = function() {
+            this.timespansMap = {};
+            this.timespans = [];
         };
 
-        // Swaps two rows and changes the sort order to custom to display the swapped rows
-        self.swapRows = function(a, b) {
-            // Swap the two rows
-            var order = a.order;
-            a.order = b.order;
-            b.order = order;
-        };
-
-        // Sort rows by the specified sort mode (name, order, custom)
-        // and by Ascending or Descending
-        self.sortRows = function(expression) {
-            var reverse = false;
-            expression = expression;
-            if (expression.charAt(0) === '-') {
-                reverse = true;
-                expression = expression.substr(1);
-            }
-
-            var angularOrderBy = $filter('orderBy');
-            if (expression === 'custom') {
-                self.rows = angularOrderBy(self.rows, 'order', reverse);
-            } else {
-                self.rows = angularOrderBy(self.rows, expression, reverse);
-            }
-
-            updateVisibleRows();
-        };
-
-        // Adds or updates timespans
-        self.addTimespans = function(timespans) {
-            for (var i = 0, l = timespans.length; i < l; i++) {
-                var timespanData = timespans[i];
-                addTimespan(timespanData);
-                var timespan = self.timespansMap[timespanData.id];
-                timespan.updatePosAndSize();
+        GanttTimespansManager.prototype.updateTimespansPosAndSize = function() {
+            for (var i = 0, l = this.timespans.length; i < l; i++) {
+                this.timespans[i].updatePosAndSize();
             }
         };
 
-        // Adds a timespan or merges the timespan if there is already one with the same id
-        var addTimespan = function(timespanData) {
-            // Copy to new timespan (add) or merge with existing (update)
-            var timespan, isUpdate = false;
+        return GanttTimespansManager;
+    }]);
+}());
 
-            if (timespanData.id in self.timespansMap) {
-                timespan = self.timespansMap[timespanData.id];
-                timespan.copy(timespanData);
-                isUpdate = true;
-            } else {
-                timespan = new Timespan(timespanData.id, self, timespanData.name, timespanData.color,
-                    timespanData.classes, timespanData.priority, timespanData.from, timespanData.to, timespanData.data);
-                self.timespansMap[timespanData.id] = timespan;
-                self.timespans.push(timespan);
-                $scope.$emit(GANTT_EVENTS.TIMESPAN_ADDED, {timespan: timespan});
-            }
-
-            return isUpdate;
-        };
-
-        self.setCurrentDate = function(currentDate) {
-            self._currentDate = currentDate;
-            if (self._currentDateColumn !== undefined) {
-                delete self._currentDateColumn;
-            }
-
-            if (self._currentDate !== undefined) {
-                var column = self.getColumnByDate(self._currentDate);
-                if (column !== undefined) {
-                    column.currentDate = self._currentDate;
-                    self._currentDateColumn = column;
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttArrays', [function() {
+        return {
+            moveToIndex: function(array, oldIndex, newIndex) {
+                if (newIndex >= array.length) {
+                    var k = newIndex - array.length;
+                    while ((k--) + 1) {
+                        array.push(undefined);
+                    }
                 }
-            }
-
-            $scope.currentDatePosition = self.getPositionByDate($scope.currentDateValue);
-        };
-        self.buildGenerators();
-        self.clearColumns();
-        self.updateColumns();
-        self.setCurrentDate($scope.currentDateValue);
-    };
-
-    return Gantt;
-}]);
-
-
-gantt.factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
-    var generateHeader = function(headerFormatFunction, columns, unit) {
-        var generatedHeaders = [];
-        var header;
-        for (var i = 0, l = columns.length; i < l; i++) {
-            var col = columns[i];
-            if (i === 0 || columns[i - 1].date.get(unit) !== col.date.get(unit)) {
-                var label = col.date.format(headerFormatFunction(unit));
-                header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
-                header.left = col.left;
-                header.width = col.width;
-                generatedHeaders.push(header);
-            } else {
-                header.originalSize.width += col.originalSize.width;
-                header.width += col.width;
-            }
-        }
-        return generatedHeaders;
-    };
-
-    return function($scope) {
-        this.generate = function(columns) {
-            var units = [];
-            if ($scope.headers === undefined) {
-                units = [];
-                if (['year', 'quarter', 'month'].indexOf($scope.viewScale) > -1) {
-                    units.push('year');
+                array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+                return array;
+            },
+            getRemovedIds: function(newArray, oldArray, idProperty) {
+                if (idProperty === undefined) {
+                    idProperty = 'id';
                 }
-                if (['quarter'].indexOf($scope.viewScale) > -1) {
-                    units.push('quarter');
+
+                var i, l;
+                var removedIds = [];
+
+                if (oldArray !== undefined) {
+                    for (i = 0, l = oldArray.length; i < l; i++) {
+                        removedIds.push(oldArray[i][idProperty]);
+                    }
                 }
-                if (['day', 'week', 'month'].indexOf($scope.viewScale) > -1) {
-                    units.push('month');
-                }
-                if (['day', 'week'].indexOf($scope.viewScale) > -1) {
-                    units.push('week');
-                }
-                if (['hour', 'day'].indexOf($scope.viewScale) > -1) {
-                    units.push('day');
-                }
-                if (['hour', 'minute', 'second'].indexOf($scope.viewScale) > -1) {
-                    units.push('hour');
-                }
-                if (['minute', 'second'].indexOf($scope.viewScale) > -1) {
-                    units.push('minute');
-                }
-                if (['second'].indexOf($scope.viewScale) > -1) {
-                    units.push('second');
-                }
-                if (units.length === 0) {
-                    units.push($scope.viewScale);
-                }
-            } else {
-                units = $scope.headers;
-            }
 
-            var headers = [];
-            angular.forEach(units, function(unit) {
-                headers.push(generateHeader($scope.getHeaderFormat, columns, unit));
-            });
+                if (newArray !== undefined) {
+                    for (i = 0, l = newArray.length; i < l; i++) {
+                        var newObject = newArray[i];
 
-            return headers;
-        };
-    };
-}]);
-
-
-gantt.factory('GanttRow', ['GanttTask', 'moment', '$filter', 'GANTT_EVENTS', function(Task, moment, $filter, GANTT_EVENTS) {
-    var Row = function(id, gantt, name, order, data) {
-        var self = this;
-
-        self.id = id;
-        self.gantt = gantt;
-        self.name = name;
-        self.order = order;
-        self.from = undefined;
-        self.to = undefined;
-        self.tasksMap = {};
-        self.tasks = [];
-        self.filteredTasks = [];
-        self.visibleTasks = [];
-        self.data = data;
-
-        // Adds a task to a specific row. Merges the task if there is already one with the same id
-        self.addTask = function(taskData) {
-            // Copy to new task (add) or merge with existing (update)
-            var task;
-
-            if (taskData.id in self.tasksMap) {
-                task = self.tasksMap[taskData.id];
-                task.copy(taskData);
-            } else {
-                task = new Task(taskData.id, self, taskData.name, taskData.color, taskData.classes, taskData.priority, taskData.from, taskData.to, taskData.data, taskData.est, taskData.lct, taskData.progress);
-                self.tasksMap[taskData.id] = task;
-                self.tasks.push(task);
-                self.filteredTasks.push(task);
-                self.visibleTasks.push(task);
-            }
-
-            self.sortTasks();
-            self.setFromToByTask(task);
-            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_ADDED, {'task': task});
-            return task;
-        };
-
-        // Removes the task from the existing row and adds it to he current one
-        self.moveTaskToRow = function(task) {
-            var oldRow = task.row;
-            oldRow.removeTask(task.id, true);
-            oldRow.updateVisibleTasks();
-
-            self.tasksMap[task.id] = task;
-            self.tasks.push(task);
-            self.filteredTasks.push(task);
-            self.visibleTasks.push(task);
-            task.row = self;
-
-            self.sortTasks();
-            self.setFromToByTask(task);
-
-            task.updatePosAndSize();
-            self.updateVisibleTasks();
-
-            self.gantt.$scope.$emit(GANTT_EVENTS.TASK_MOVED, {'oldRow': oldRow, 'task': task});
-
-        };
-
-        self.updateVisibleTasks = function() {
-            if (gantt.$scope.filterTask) {
-                self.filteredTasks = $filter('filter')(self.tasks, gantt.$scope.filterTask, gantt.$scope.filterTaskComparator);
-            } else {
-                self.filteredTasks = self.tasks;
-            }
-            self.visibleTasks = $filter('ganttTaskLimit')(self.filteredTasks, self.gantt);
-        };
-
-        self.updateTasksPosAndSize = function() {
-            for (var j = 0, k = self.tasks.length; j < k; j++) {
-                self.tasks[j].updatePosAndSize();
-            }
-        };
-
-        // Remove the specified task from the row
-        self.removeTask = function(taskId, disableEmit) {
-            if (taskId in self.tasksMap) {
-                delete self.tasksMap[taskId]; // Remove from map
-
-                var task;
-                var removedTask;
-                for (var i = self.tasks.length - 1; i >= 0; i--) {
-                    task = self.tasks[i];
-                    if (task.id === taskId) {
-                        removedTask = task;
-                        self.tasks.splice(i, 1); // Remove from array
-
-                        // Update earliest or latest date info as this may change
-                        if (self.from - task.from === 0 || self.to - task.to === 0) {
-                            self.setFromTo();
+                        if (newObject[idProperty] !== undefined) {
+                            var newObjectIndex = removedIds.indexOf(newObject[idProperty]);
+                            if (newObjectIndex > -1) {
+                                removedIds.splice(newObjectIndex, 1);
+                            }
                         }
                     }
                 }
 
-                for (i = self.filteredTasks.length - 1; i >= 0; i--) {
-                    task = self.filteredTasks[i];
-                    if (task.id === taskId) {
-                        self.filteredTasks.splice(i, 1); // Remove from filtered array
+                return removedIds;
+            },
+            indexOfId: function(array, value, idProperties) {
+                var i;
+                if (idProperties === undefined) {
+                    idProperties = 'id';
+                } else if (idProperties instanceof Array) {
+                    for (i = array.length - 1; i >= 0; i--) {
+                        var arrayValue = array[i];
+                        for (var k = 0, l = idProperties.length; k < l; k++) {
+                            arrayValue = arrayValue[idProperties[k]];
+                        }
+                        if (arrayValue === value) {
+                            return i;
+                        }
+                    }
+                    return -1;
+                }
+                for (i = array.length - 1; i >= 0; i--) {
+                    if (array[i][idProperties] === value) {
+                        return i;
                     }
                 }
-
-                for (i = self.visibleTasks.length - 1; i >= 0; i--) {
-                    task = self.visibleTasks[i];
-                    if (task.id === taskId) {
-                        self.visibleTasks.splice(i, 1); // Remove from visible array
-                    }
+                return -1;
+            },
+            removeId: function(array, value, idProperties) {
+                var indexOf = this.indexOfId(array, value, idProperties);
+                if (indexOf > -1) {
+                    return array.splice(indexOf, 1)[0];
                 }
-
-                if (!disableEmit) {
-                    self.gantt.$scope.$emit(GANTT_EVENTS.TASK_REMOVED, {'task': removedTask});
+            },
+            remove: function(array, value) {
+                var index = array.indexOf(value);
+                if (index > -1) {
+                    array.splice(index, 1);
+                    return true;
                 }
-
-                return removedTask;
+                return false;
             }
         };
-
-        // Calculate the earliest from and latest to date of all tasks in a row
-        self.setFromTo = function() {
-            self.from = undefined;
-            self.to = undefined;
-            for (var j = 0, k = self.tasks.length; j < k; j++) {
-                self.setFromToByTask(self.tasks[j]);
-            }
-        };
-
-        self.setFromToByTask = function(task) {
-            if (self.from === undefined) {
-                self.from = moment(task.from);
-            } else if (task.from < self.from) {
-                self.from = moment(task.from);
-            }
-
-            if (self.to === undefined) {
-                self.to = moment(task.to);
-            } else if (task.to > self.to) {
-                self.to = moment(task.to);
-            }
-        };
-
-        self.sortTasks = function() {
-            self.tasks.sort(function(t1, t2) {
-                return t1.left - t2.left;
-            });
-        };
-
-        self.copy = function(row) {
-            self.name = row.name;
-            self.data = row.data;
-
-            if (row.order !== undefined) {
-                self.order = row.order;
-            }
-        };
-
-        self.clone = function() {
-            var clone = new Row(self.id, self.gantt, self.name, self.order, self.data);
-            for (var i = 0, l = self.tasks.length; i < l; i++) {
-                clone.addTask(self.tasks[i].clone());
-            }
-            return clone;
-        };
-    };
-
-    return Row;
-}]);
-
-
-gantt.factory('GanttScrollable', [function() {
-    var Scrollable = function($element) {
-        this.$element = $element;
-    };
-    return Scrollable;
-}]);
-
-
-gantt.factory('GanttTask', ['moment', 'GanttTaskProgress', function(moment, TaskProgress) {
-    var Task = function(id, row, name, color, classes, priority, from, to, data, est, lct, progress) {
-        var self = this;
-
-        self.id = id;
-        self.gantt = row.gantt;
-        self.row = row;
-        self.name = name;
-        self.color = color;
-        self.classes = classes;
-        self.priority = priority;
-        self.from = moment(from);
-        self.to = moment(to);
-        self.truncatedLeft = false;
-        self.truncatedRight = false;
-        self.data = data;
-        if (progress !== undefined) {
-            if (typeof progress === 'object') {
-                self.progress = new TaskProgress(self, progress.percent, progress.color, progress.classes);
-            } else {
-                self.progress = new TaskProgress(self, progress);
-            }
-        }
-
-        if (est !== undefined && lct !== undefined) {
-            self.est = moment(est);  //Earliest Start Time
-            self.lct = moment(lct);  //Latest Completion Time
-        }
-
-        self._fromLabel = undefined;
-        self.getFromLabel = function() {
-            if (self._fromLabel === undefined) {
-                self._fromLabel = self.from.format(self.gantt.$scope.tooltipDateFormat);
-            }
-            return self._fromLabel;
-        };
-
-        self._toLabel = undefined;
-        self.getToLabel = function() {
-            if (self._toLabel === undefined) {
-                self._toLabel = self.to.format(self.gantt.$scope.tooltipDateFormat);
-            }
-            return self._toLabel;
-        };
-
-        self.checkIfMilestone = function() {
-            self.isMilestone = self.from - self.to === 0;
-        };
-
-        self.checkIfMilestone();
-
-        self.hasBounds = function() {
-            return self.bounds !== undefined;
-        };
-
-        // Updates the pos and size of the task according to the from - to date
-        self.updatePosAndSize = function() {
-            self.modelLeft = self.gantt.getPositionByDate(self.from);
-            self.modelWidth = self.gantt.getPositionByDate(self.to) - self.modelLeft;
-
-            self.outOfRange = self.modelLeft + self.modelWidth < 0 || self.modelLeft > self.gantt.width;
-
-            self.left = Math.min(Math.max(self.modelLeft, 0), self.gantt.width);
-            if (self.modelLeft < 0) {
-                self.truncatedLeft = true;
-                if (self.modelWidth + self.modelLeft > self.gantt.width) {
-                    self.truncatedRight = true;
-                    self.width = self.gantt.width;
-                } else {
-                    self.truncatedRight = false;
-                    self.width = self.modelWidth + self.modelLeft;
-                }
-            } else if (self.modelWidth + self.modelLeft > self.gantt.width) {
-                self.truncatedRight = true;
-                self.truncatedLeft = false;
-                self.width = self.gantt.width - self.modelLeft;
-            } else {
-                self.truncatedLeft = false;
-                self.truncatedRight = false;
-                self.width = self.modelWidth;
-            }
-
-            if (self.est !== undefined && self.lct !== undefined) {
-                self.bounds = {};
-                self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
-            }
-        };
-
-        // Expands the start of the task to the specified position (in em)
-        self.setFrom = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true);
-            self._fromLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-            self.checkIfMilestone();
-        };
-
-        // Expands the end of the task to the specified position (in em)
-        self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x, true);
-            self._toLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-            self.checkIfMilestone();
-        };
-
-        // Moves the task to the specified position (in em)
-        self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x, true);
-            self._fromLabel = undefined;
-            var newTaskLeft = self.gantt.getPositionByDate(self.from);
-            self.to = self.gantt.getDateByPosition(newTaskLeft + self.modelWidth, true);
-            self._toLabel = undefined;
-            self.row.setFromToByTask(self);
-            self.updatePosAndSize();
-        };
-
-        self.copy = function(task) {
-            self.name = task.name;
-            self.color = task.color;
-            self.classes = task.classes;
-            self.priority = task.priority;
-            self.from = moment(task.from);
-            self.to = moment(task.to);
-            self.est = task.est !== undefined ? moment(task.est) : undefined;
-            self.lct = task.lct !== undefined ? moment(task.lct) : undefined;
-            self.data = task.data;
-            self.isMilestone = task.isMilestone;
-        };
-
-        self.clone = function() {
-            return new Task(self.id, self.row, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct, self.progress);
-        };
-    };
-
-    return Task;
-}]);
-
-
-gantt.factory('GanttTaskProgress', [function() {
-    var TaskProgress = function(task, percent, color, classes) {
-        var self = this;
-
-        self.task = task;
-        self.percent = percent;
-        self.color = color;
-        self.classes = classes;
-
-        self.clone = function() {
-            return new TaskProgress(self.task, self.percent, self.color, self.classes);
-        };
-    };
-    return TaskProgress;
-}]);
-
-
-gantt.factory('GanttBody', [function() {
-    var Body= function($element) {
-        this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-    };
-    return Body;
-}]);
-
-
-gantt.factory('GanttBodyColumns', [function() {
-    var BodyColumns = function($element) {
-        this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-    };
-    return BodyColumns;
-}]);
-
-
-gantt.factory('GanttBodyRows', [function() {
-    var BodyRows = function($element) {
-        this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-    };
-    return BodyRows;
-}]);
-
-
-gantt.factory('GanttHeader', [function() {
-    var Header= function($element) {
-        this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-
-        this.getHeight = function() {
-            return this.$element[0].offsetHeight;
-        };
-    };
-    return Header;
-}]);
-
-
-gantt.factory('GanttHeaderColumns', [function() {
-    var HeaderColumns = function($element) {
-        this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-    };
-    return HeaderColumns;
-}]);
-
-
-gantt.factory('GanttLabels', [function() {
-    var Labels= function($element) {
-        this.$element = $element;
-
-        this.getWidth = function() {
-            return this.$element.width();
-        };
-    };
-    return Labels;
-}]);
-
-
-gantt.factory('GanttTimespan', ['moment', function(moment) {
-    var Timespan = function(id, gantt, name, color, classes, priority, from, to, data, est, lct) {
-        var self = this;
-
-        self.id = id;
-        self.gantt = gantt;
-        self.name = name;
-        self.color = color;
-        self.classes = classes;
-        self.priority = priority;
-        self.from = moment(from);
-        self.to = moment(to);
-        self.data = data;
-
-        if (est !== undefined && lct !== undefined) {
-            self.est = moment(est);  //Earliest Start Time
-            self.lct = moment(lct);  //Latest Completion Time
-        }
-
-        self.hasBounds = function() {
-            return self.bounds !== undefined;
-        };
-
-        // Updates the pos and size of the timespan according to the from - to date
-        self.updatePosAndSize = function() {
-            self.left = self.gantt.getPositionByDate(self.from);
-            self.width = self.gantt.getPositionByDate(self.to) - self.left;
-
-            if (self.est !== undefined && self.lct !== undefined) {
-                self.bounds = {};
-                self.bounds.left = self.gantt.getPositionByDate(self.est);
-                self.bounds.width = self.gantt.getPositionByDate(self.lct) - self.bounds.left;
-            }
-        };
-
-        // Expands the start of the timespan to the specified position (in em)
-        self.setFrom = function(x) {
-            self.from = self.gantt.getDateByPosition(x);
-            self.updatePosAndSize();
-        };
-
-        // Expands the end of the timespan to the specified position (in em)
-        self.setTo = function(x) {
-            self.to = self.gantt.getDateByPosition(x);
-            self.updatePosAndSize();
-        };
-
-        // Moves the timespan to the specified position (in em)
-        self.moveTo = function(x) {
-            self.from = self.gantt.getDateByPosition(x);
-            self.to = self.gantt.getDateByPosition(x + self.width);
-            self.updatePosAndSize();
-        };
-
-        self.copy = function(timespan) {
-            self.name = timespan.name;
-            self.color = timespan.color;
-            self.classes = timespan.classes;
-            self.priority = timespan.priority;
-            self.from = moment(timespan.from);
-            self.to = moment(timespan.to);
-            self.est = timespan.est !== undefined ? moment(timespan.est) : undefined;
-            self.lct = timespan.lct !== undefined ? moment(timespan.lct) : undefined;
-            self.data = timespan.data;
-        };
-
-        self.clone = function() {
-            return new Timespan(self.id, self.gantt, self.name, self.color, self.classes, self.priority, self.from, self.to, self.data, self.est, self.lct);
-        };
-    };
-
-    return Timespan;
-}]);
-
-
-gantt.service('ganttBinarySearch', [ function() {
-    // Returns the object on the left and right in an array using the given cmp function.
-    // The compare function defined which property of the value to compare (e.g.: c => c.left)
-
-    return {
-        getIndicesOnly: function(input, value, comparer) {
-            var lo = -1, hi = input.length;
-            while (hi - lo > 1) {
-                var mid = Math.floor((lo + hi) / 2);
-                if (comparer(input[mid]) <= value) {
-                    lo = mid;
-                } else {
-                    hi = mid;
-                }
-            }
-            if (input[lo] !== undefined && comparer(input[lo]) === value) {
-                hi = lo;
-            }
-            return [lo, hi];
-        },
-        get: function(input, value, comparer) {
-            var res = this.getIndicesOnly(input, value, comparer);
-            return [input[res[0]], input[res[1]]];
-        }
-    };
-}]);
-
-gantt.filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
-    // Returns only the columns which are visible on the screen
-
-    return function(input, scrollLeft, scrollWidth) {
-        var cmp = function(c) {
-            return c.left;
-        };
-        var start = bs.getIndicesOnly(input, scrollLeft, cmp)[0];
-        var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, cmp)[1];
-        return input.slice(start, end);
-    };
-}]);
-
-
-gantt.directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
-    // Updates the limit filters if the user scrolls the gantt chart
-
-    return {
-        restrict: 'A',
-        controller: ['$scope', '$element', function($scope, $element) {
-            var el = $element[0];
-            var scrollUpdate = function() {
-                $scope.scrollLeft = el.scrollLeft;
-                $scope.scrollWidth = el.offsetWidth;
-            };
-
-            $element.bind('scroll', debounce(function() {
-                scrollUpdate();
-            }, 5));
-
-            $scope.$watch('gantt.width', debounce(function() {
-                scrollUpdate();
-            }, 20));
-        }]
-    };
-}]);
-
-
-gantt.filter('ganttTaskLimit', [function() {
-    // Returns only the tasks which are visible on the screen
-    // Use the task width and position to decide if a task is still visible
-
-    return function(input, gantt) {
-        var res = [];
-        for (var i = 0, l = input.length; i < l; i++) {
-            var task = input[i];
-
-            if (task.isMoving) {
-                // If the task is moving, be sure to keep it existing.
-                res.push(task);
-            } else {
-                // If the task can be drawn with gantt columns only.
-                if (task.to > gantt.getFirstColumn().date && task.from < gantt.getLastColumn().endDate) {
-
-                    var scrollLeft = gantt.$scope.scrollLeft;
-                    var scrollWidth = gantt.$scope.scrollWidth;
-
-                    // If task has a visible part on the screen
-                    if (task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                        task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                        task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
-
-                        res.push(task);
-                    }
-                }
-            }
-
-        }
-
-        return res;
-    };
-}]);
-
-
-gantt.directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', 'GANTT_EVENTS', function($document, debounce, mouseOffset, GANTT_EVENTS) {
-
-    return {
-        restrict: 'A',
-        scope: { enabled: '=ganttLabelsResize',
-            width: '=ganttLabelsResizeWidth',
-            minWidth: '=ganttLabelsResizeMinWidth'},
-        controller: ['$scope', '$element', function($scope, $element) {
-            var resizeAreaWidth = 5;
-            var cursor = 'ew-resize';
-            var originalPos;
-
-            $element.bind('mousedown', function(e) {
-                if ($scope.enabled && isInResizeArea(e)) {
-                    enableResizeMode(e);
-                    e.preventDefault();
-                }
-            });
-
-            $element.bind('mousemove', function(e) {
-                if ($scope.enabled) {
-                    if (isInResizeArea(e)) {
-                        $element.css('cursor', cursor);
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttBinarySearch', [ function() {
+        // Returns the object on the left and right in an array using the given cmp function.
+        // The compare function defined which property of the value to compare (e.g.: c => c.left)
+
+        return {
+            getIndicesOnly: function(input, value, comparer) {
+                var lo = -1, hi = input.length;
+                while (hi - lo > 1) {
+                    var mid = Math.floor((lo + hi) / 2);
+                    if (comparer(input[mid]) <= value) {
+                        lo = mid;
                     } else {
-                        $element.css('cursor', '');
+                        hi = mid;
                     }
                 }
-            });
-
-            var resize = function(x) {
-                if ($scope.width === 0) {
-                    $scope.width = $element[0].offsetWidth;
+                if (input[lo] !== undefined && comparer(input[lo]) === value) {
+                    hi = lo;
                 }
+                return [lo, hi];
+            },
+            get: function(input, value, comparer) {
+                var res = this.getIndicesOnly(input, value, comparer);
+                return [input[res[0]], input[res[1]]];
+            }
+        };
+    }]);
+}());
 
-                $scope.width += x - originalPos;
-                if ($scope.width < $scope.minWidth) {
-                    $scope.width = $scope.minWidth;
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttUtils', ['$document', function($document) {
+        return {
+            createBoundedWrapper: function(object, method) {
+                return function() {
+                    return method.apply(object, arguments);
+                };
+            },
+            firstProperty: function(objects, propertyName, defaultValue) {
+                for (var i= 0, l=objects.length; i<l; i++) {
+                    var object = objects[i];
+                    if (object !== undefined && propertyName in object) {
+                        if (object[propertyName] !== undefined) {
+                            return object[propertyName];
+                        }
+                    }
                 }
+                return defaultValue;
+            },
+            elementFromPoint: function(x, y) {
+                var element = $document[0].elementFromPoint(x, y);
+                return angular.element(element);
+            },
+            scopeFromPoint: function(x, y) {
+                var element = this.elementFromPoint(x, y);
+                if (element !== undefined) {
+                    return element.scope();
+                }
+            },
+            random4: function() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            },
+            randomUuid: function() {
+                return this.random4() + this.random4() + '-' + this.random4() + '-' + this.random4() + '-' +
+                    this.random4() + '-' + this.random4() + this.random4() + this.random4();
+            },
+            newId: (function() {
+                var seedId = new Date().getTime();
+                return function() {
+                    return seedId += 1;
+                };
+            })()
+        };
+    }]);
+}());
 
-                originalPos = x;
-            };
 
-            var isInResizeArea = function(e) {
-                var x = mouseOffset.getOffset(e).x;
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
 
-                return x > $element[0].offsetWidth - resizeAreaWidth;
-            };
+        return {
+            restrict: 'A',
+            require: '^gantt',
+            scope: { enabled: '=ganttLabelsResize',
+                width: '=ganttLabelsResizeWidth',
+                minWidth: '=ganttLabelsResizeMinWidth'},
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
 
-            var enableResizeMode = function(e) {
-                originalPos = e.screenX;
+                var resizeAreaWidth = 5;
+                var cursor = 'ew-resize';
+                var originalPos;
 
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '-moz-none',
-                    '-webkit-user-select': 'none',
-                    '-ms-user-select': 'none',
-                    'user-select': 'none',
-                    'cursor': cursor
+                element.bind('mousedown', function(e) {
+                    if (scope.enabled && isInResizeArea(e)) {
+                        enableResizeMode(e);
+                        e.preventDefault();
+                    }
                 });
 
-                var moveHandler = debounce(function(e) {
-                    resize(e.screenX);
-                }, 5);
-
-                angular.element($document[0].body).bind('mousemove', moveHandler);
-
-                angular.element($document[0].body).one('mouseup', function() {
-                    angular.element($document[0].body).unbind('mousemove', moveHandler);
-                    disableResizeMode();
-                });
-            };
-
-            var disableResizeMode = function() {
-                $element.css('cursor', '');
-
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '',
-                    '-webkit-user-select': '',
-                    '-ms-user-select': '',
-                    'user-select': '',
-                    'cursor': ''
+                element.bind('mousemove', function(e) {
+                    if (scope.enabled) {
+                        if (isInResizeArea(e)) {
+                            element.css('cursor', cursor);
+                        } else {
+                            element.css('cursor', '');
+                        }
+                    }
                 });
 
-                $scope.$emit(GANTT_EVENTS.ROW_LABELS_RESIZED, { width: $scope.width });
-            };
-        }]
-    };
-}]);
+                var resize = function(x) {
+                    if (scope.width === 0) {
+                        scope.width = element[0].offsetWidth;
+                    }
 
+                    scope.width += x - originalPos;
+                    if (scope.width < scope.minWidth) {
+                        scope.width = scope.minWidth;
+                    }
 
-gantt.directive('ganttRightClick', ['$parse', function($parse) {
+                    originalPos = x;
+                };
 
-    return {
-        restrict: 'A',
-        compile: function($element, attr) {
-            var fn = $parse(attr.ganttRightClick);
+                var isInResizeArea = function(e) {
+                    var x = mouseOffset.getOffset(e).x;
 
-            return function(scope, element) {
-                element.on('contextmenu', function(event) {
-                    scope.$apply(function() {
-                        fn(scope, {$event: event});
+                    return x > element[0].offsetWidth - resizeAreaWidth;
+                };
+
+                var enableResizeMode = function(e) {
+                    originalPos = e.screenX;
+
+                    angular.element($document[0].body).css({
+                        '-moz-user-select': '-moz-none',
+                        '-webkit-user-select': 'none',
+                        '-ms-user-select': 'none',
+                        'user-select': 'none',
+                        'cursor': cursor
                     });
+
+                    var moveHandler = function(e) {
+                        scope.$evalAsync(function() {
+                            resize(e.screenX);
+                        });
+                    };
+
+                    angular.element($document[0].body).bind('mousemove', moveHandler);
+
+                    angular.element($document[0].body).one('mouseup', function() {
+                        angular.element($document[0].body).unbind('mousemove', moveHandler);
+                        disableResizeMode();
+                    });
+                };
+
+                var disableResizeMode = function() {
+                    element.css('cursor', '');
+
+                    angular.element($document[0].body).css({
+                        '-moz-user-select': '',
+                        '-webkit-user-select': '',
+                        '-ms-user-select': '',
+                        'user-select': '',
+                        'cursor': ''
+                    });
+
+                    api.labels.raise.resize(scope.width);
+                };
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
+        // Returns only the columns which are visible on the screen
+
+        return function(input, scrollLeft, scrollWidth) {
+            var cmp = function(c) {
+                return c.left;
+            };
+            var start = bs.getIndicesOnly(input, scrollLeft, cmp)[0];
+            var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, cmp)[1];
+            return input.slice(start, end);
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
+        // Updates the limit filters if the user scrolls the gantt chart
+
+        return {
+            restrict: 'A',
+            controller: ['$scope', '$element', function($scope, $element) {
+                var el = $element[0];
+                var scrollUpdate = function() {
+                    $scope.scrollLeft = el.scrollLeft;
+                    $scope.scrollWidth = el.offsetWidth;
+                };
+
+                $element.bind('scroll', debounce(function() {
+                    scrollUpdate();
+                }, 5));
+
+                $scope.$watch('gantt.width', debounce(function() {
+                    scrollUpdate();
+                }, 20));
+            }]
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').filter('ganttTaskLimit', [function() {
+        // Returns only the tasks which are visible on the screen
+        // Use the task width and position to decide if a task is still visible
+
+        return function(input, gantt) {
+            var res = [];
+            var firstColumn = gantt.columnsManager.getFirstColumn();
+            var lastColumn = gantt.columnsManager.getLastColumn();
+
+            if (firstColumn !== undefined && lastColumn !== undefined) {
+                for (var i = 0, l = input.length; i < l; i++) {
+                    var task = input[i];
+
+                    if (task.active) {
+                        res.push(task);
+                    } else {
+                        // If the task can be drawn with gantt columns only.
+                        if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
+
+                            var scrollLeft = gantt.$scope.scrollLeft;
+                            var scrollWidth = gantt.$scope.scrollWidth;
+
+                            // If task has a visible part on the screen
+                            if (scrollLeft === undefined && scrollWidth === undefined ||
+                                task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
+                                task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
+                                task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
+
+                                res.push(task);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return res;
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttHorizontalScrollReceiver', function() {
+        // The element with this attribute will scroll at the same time as the scrollSender element
+
+        return {
+            restrict: 'A',
+            require: '^ganttScrollManager',
+            controller: ['$scope', '$element', function($scope, $element) {
+                $scope.scrollManager.registerHorizontalReceiver($element);
+            }]
+        };
+    });
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttScrollManager', function() {
+        // The element with this attribute will scroll at the same time as the scrollSender element
+
+        return {
+            restrict: 'A',
+            controller: ['$scope', function($scope) {
+                $scope.scrollManager = {
+                    horizontal: [],
+                    vertical: [],
+
+                    registerVerticalReceiver: function (element) {
+                        element.css('position', 'relative');
+                        $scope.scrollManager.vertical.push(element[0]);
+                    },
+
+                    registerHorizontalReceiver: function (element) {
+                        element.css('position', 'relative');
+                        $scope.scrollManager.horizontal.push(element[0]);
+                    }
+                };
+            }]
+        };
+    });
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttScrollSender', [function() {
+        // Updates the element which are registered for the horizontal or vertical scroll event
+
+        return {
+            restrict: 'A',
+            require: '^ganttScrollManager',
+            controller: ['$scope', '$element', function($scope, $element) {
+                var el = $element[0];
+                var labelsWidth;
+                var bodyRowsWidth;
+                var bodyRowsHeight;
+
+                var updateListeners = function() {
+                    var i, l;
+
+                    for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
+                        var vElement = $scope.scrollManager.vertical[i];
+                        if (vElement.style.top !== -el.scrollTop) {
+                            vElement.style.top = -el.scrollTop + 'px';
+                        }
+                    }
+
+                    for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
+                        var hElement = $scope.scrollManager.horizontal[i];
+                        if (hElement.style.left !== -el.scrollLeft) {
+                            hElement.style.left = -el.scrollLeft + 'px';
+                            hElement.style.width = bodyRowsWidth + el.scrollLeft + 'px';
+                        }
+                    }
+                };
+
+                $element.bind('scroll', updateListeners);
+
+                $scope.$watchGroup(['labelsWidth', 'bodyRowsWidth', 'bodyRowsHeight'], function(newValues) {
+                    labelsWidth = newValues[0];
+                    bodyRowsWidth = newValues[1];
+                    bodyRowsHeight = newValues[2];
+
+                    updateListeners();
                 });
-            };
-        }
-    };
-}]);
 
-gantt.directive('ganttRow', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.row.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.row.$element = $element;
-
-            $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_MOUSEUP, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
+            }]
+        };
+    }]);
+}());
 
 
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttRowHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.rowHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_MOUSEDOWN, {evt: evt});
-            });
-
-            $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_MOUSEUP, {evt: evt});
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_CLICKED, {evt: evt});
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_DBL_CLICKED, {evt: evt});
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_HEADER_CONTEXTMENU, {evt: evt});
-            });
-
-
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttRowLabel', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.rowLabel.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('mousedown', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_MOUSEDOWN, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('mouseup', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_MOUSEUP, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_DBL_CLICKED, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.ROW_LABEL_CONTEXTMENU, Events.buildRowEventData(evt, $element, $scope.row, $scope.gantt));
-            });
-
-
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttHorizontalScrollReceiver', function() {
-    // The element with this attribute will scroll at the same time as the scrollSender element
-
-    return {
-        restrict: 'A',
-        require: '^ganttScrollManager',
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollManager.horizontal.push($element[0]);
-        }]
-    };
-});
-
-gantt.directive('ganttScrollManager', function() {
-    // The element with this attribute will scroll at the same time as the scrollSender element
-
-    return {
-        restrict: 'A',
-        require: '^gantt',
-        controller: ['$scope', function($scope) {
-            $scope.scrollManager = {
-                horizontal: [],
-                vertical: []
-            };
-        }]
-    };
-});
-
-
-gantt.directive('ganttScrollSender', ['$timeout', 'ganttDebounce', 'GANTT_EVENTS', function($timeout, debounce, GANTT_EVENTS) {
-    // Updates the element which are registered for the horizontal or vertical scroll event
-
-    return {
-        restrict: 'A',
-        require: '^ganttScrollManager',
-        controller: ['$scope', '$element', function($scope, $element) {
-            var el = $element[0];
-            var updateListeners = function() {
-                var i, l;
-
-                for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
-                    var vElement = $scope.scrollManager.vertical[i];
-                    if (vElement.style.top !== -el.scrollTop) {
-                        vElement.style.top = -el.scrollTop + 'px';
-                        vElement.style.height = el.scrollHeight + 'px';
-                    }
-                }
-
-                for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
-                    var hElement = $scope.scrollManager.horizontal[i];
-                    if (hElement.style.left !== -el.scrollLeft) {
-                        hElement.style.left = -el.scrollLeft + 'px';
-                        hElement.style.width = el.scrollWidth + 'px';
-                    }
-                }
-            };
-
-            $element.bind('scroll', updateListeners);
-
-            $scope.$on(GANTT_EVENTS.ROW_ADDED, debounce(function() {
-                updateListeners();
-            }, 5));
-
-            $scope.$watch('gantt.width', function(newValue) {
-                if (newValue === 0) {
-                    $timeout(function() {
-                        updateListeners();
-                    }, 0, true);
-                }
-            });
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLayout', 'GANTT_EVENTS', function(Scrollable, debounce, layout, GANTT_EVENTS) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.scrollable.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.template.scrollable = new Scrollable($element);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, layout, moment) {
+        var builder = new Builder('ganttScrollable');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.scroll.$element = $element;
 
             var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
+
+            var lastAutoExpand;
+            var autoExpandCoolDownPeriod = 500;
+            var autoExpandColumns = function(el, date, direction) {
+                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                    return;
+                }
+
+                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
+                    return;
+                }
+
+                var from, to;
+                var expandHour = 1, expandDay = 31;
+
+                if (direction === 'left') {
+                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    to = date;
+                } else {
+                    from = date;
+                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                }
+
+                $scope.fromDate = from;
+                $scope.toDate = to;
+                lastAutoExpand = Date.now();
+            };
 
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
@@ -38378,32 +39519,21 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
 
                 if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
                     direction = 'left';
-                    date = $scope.gantt.from;
+                    date = $scope.gantt.columnsManager.from;
                 } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
-                    date = $scope.gantt.to;
+                    date = $scope.gantt.columnsManager.to;
                 }
 
                 lastScrollLeft = el.scrollLeft;
 
                 if (date !== undefined) {
-                    $scope.autoExpandColumns(el, date, direction);
-                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft, date: date, direction: direction});
+                    autoExpandColumns(el, date, direction);
+                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
                 } else {
-                    $scope.$emit(GANTT_EVENTS.SCROLL, {left: el.scrollLeft});
+                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
                 }
             }, 5));
-
-            $scope.$watch('gantt.columns.length', function(newValue, oldValue) {
-                if (!angular.equals(newValue, oldValue) && newValue > 0 && $scope.gantt.scrollAnchor !== undefined) {
-                    // Ugly but prevents screen flickering (unlike $timeout)
-                    $scope.$$postDigest(function() {
-                        $scope.scrollToDate($scope.gantt.scrollAnchor);
-                    });
-                }
-            });
-
-
 
             $scope.getScrollableCss = function() {
                 var css = {};
@@ -38413,7 +39543,7 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
                 }
 
                 if ($scope.maxHeight > 0) {
-                    css['max-height'] = $scope.maxHeight - $scope.template.header.getHeight() + 'px';
+                    css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
                 } else {
                     css['overflow-y'] = 'hidden';
@@ -38421,765 +39551,178 @@ gantt.directive('ganttScrollable', ['GanttScrollable', 'ganttDebounce', 'ganttLa
 
                 return css;
             };
+        };
+        return builder.build();
+    }]);
+}());
 
 
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttVerticalScrollReceiver', function() {
+        // The element with this attribute will scroll at the same time as the scrollSender element
+
+        return {
+            restrict: 'A',
+            require: '^ganttScrollManager',
+            controller: ['$scope', '$element', function($scope, $element) {
+                $scope.scrollManager.registerVerticalReceiver($element);
+            }]
+        };
+    });
+}());
 
 
-gantt.directive('ganttVerticalScrollReceiver', function() {
-    // The element with this attribute will scroll at the same time as the scrollSender element
-
-    return {
-        restrict: 'A',
-        require: '^ganttScrollManager',
-        controller: ['$scope', '$element', function($scope, $element) {
-            $scope.scrollManager.vertical.push($element[0]);
-        }]
-    };
-});
-
-gantt.directive('ganttElementWidthListener', [function() {
-    // Updates the limit filters if the user scrolls the gantt chart
-
-    return {
-        restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
-            var scopeVariable = $attrs.ganttElementWidthListener;
-            if (scopeVariable === '') {
-                scopeVariable = 'ganttElementWidth';
-            }
-
-            var effectiveScope = $scope;
-
-            while(scopeVariable.indexOf('$parent.') === 0) {
-                scopeVariable = scopeVariable.substring('$parent.'.length);
-                effectiveScope = $scope.$parent;
-            }
-
-            effectiveScope.$watch(function() {
-                effectiveScope[scopeVariable] = $element[0].offsetWidth;
-            });
-        }]
-    };
-}]);
-
-
-gantt.service('ganttSortManager', [ function() {
-    // Contains the row which the user wants to sort (the one he started to drag)
-
-    return { startRow: undefined };
-}]);
-
-gantt.directive('ganttSortable', ['$document', 'ganttSortManager', function($document, sortManager) {
-    // Provides the row sort functionality to any Gantt row
-    // Uses the sortableState to share the current row
-
-    return {
-        restrict: 'E',
-        template: '<div ng-transclude></div>',
-        replace: true,
-        transclude: true,
-        scope: { row: '=ngModel', swap: '&', active: '=?' },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('mousedown', function() {
-                if ($scope.active !== true) {
-                    return;
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttElementHeightListener', [function() {
+        return {
+            restrict: 'A',
+            controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+                var scopeVariable = $attrs.ganttElementHeightListener;
+                if (scopeVariable === '') {
+                    scopeVariable = 'ganttElementHeight';
                 }
 
-                enableDragMode();
+                var effectiveScope = $scope;
 
-                var disableHandler = function() {
-                    $scope.$apply(function() {
-                        angular.element($document[0].body).unbind('mouseup', disableHandler);
-                        disableDragMode();
-                    });
-                };
-                angular.element($document[0].body).bind('mouseup', disableHandler);
-            });
-
-            $element.bind('mousemove', function(e) {
-                if (isInDragMode()) {
-                    var elementBelowMouse = angular.element($document[0].elementFromPoint(e.clientX, e.clientY));
-                    var targetRow = elementBelowMouse.controller('ngModel').$modelValue;
-
-                    if (targetRow.id !== sortManager.startRow.id) {
-                        $scope.$apply(function () {
-                            $scope.swap({a: targetRow, b: sortManager.startRow});
-                        });
-                    }
-                }
-            });
-
-            var isInDragMode = function() {
-                return sortManager.startRow !== undefined && !angular.equals($scope.row, sortManager.startRow);
-            };
-
-            var enableDragMode = function() {
-                sortManager.startRow = $scope.row;
-                $element.css('cursor', 'move');
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '-moz-none',
-                    '-webkit-user-select': 'none',
-                    '-ms-user-select': 'none',
-                    'user-select': 'none',
-                    'cursor': 'no-drop'
-                });
-            };
-
-            var disableDragMode = function() {
-                sortManager.startRow = undefined;
-                $element.css('cursor', 'pointer');
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '',
-                    '-webkit-user-select': '',
-                    '-ms-user-select': '',
-                    'user-select': '',
-                    'cursor': 'auto'
-                });
-            };
-        }]
-    };
-}]);
-
-gantt.directive('ganttBounds', [function() {
-    // Displays a box representing the earliest allowable start time and latest completion time for a job
-
-    return {
-        restrict: 'E',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bounds.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        scope: { task: '=ngModel' },
-        controller: ['$scope', function($scope) {
-            var css = {};
-
-            if (!$scope.task.hasBounds()) {
-                $scope.visible = false;
-            }
-
-            $scope.getCss = function() {
-                if ($scope.task.hasBounds()) {
-                    css.width = $scope.task.bounds.width + 'px';
-
-                    if ($scope.task.isMilestone === true || $scope.task.width === 0) {
-                        css.left = ($scope.task.bounds.left - ($scope.task.left - 0.3)) + 'px';
-                    } else {
-                        css.left = ($scope.task.bounds.left - $scope.task.left) + 'px';
-                    }
+                while(scopeVariable.indexOf('$parent.') === 0) {
+                    scopeVariable = scopeVariable.substring('$parent.'.length);
+                    effectiveScope = effectiveScope.$parent;
                 }
 
-                return css;
-            };
-
-            $scope.getClass = function() {
-                if ($scope.task.est === undefined || $scope.task.lct === undefined) {
-                    return 'gantt-task-bounds-in';
-                } else if ($scope.task.est > $scope.task.from) {
-                    return 'gantt-task-bounds-out';
-                }
-                else if ($scope.task.lct < $scope.task.to) {
-                    return 'gantt-task-bounds-out';
-                }
-                else {
-                    return 'gantt-task-bounds-in';
-                }
-            };
-
-            $scope.$watch('task.isMouseOver', function() {
-                if ($scope.task.hasBounds() && !$scope.task.isMoving) {
-                    $scope.visible = !($scope.task.isMouseOver === undefined || $scope.task.isMouseOver === false);
-                }
-            });
-
-            $scope.$watch('task.isMoving', function(newValue) {
-                if ($scope.task.hasBounds()) {
-                    $scope.visible = newValue === true;
-                }
-            });
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttTaskProgress', [function() {
-    return {
-        restrict: 'E',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.taskProgress.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        scope: { progress: '=' },
-        controller: ['$scope', function($scope) {
-            $scope.getCss = function() {
-                var css = {};
-
-                if ($scope.progress.color) {
-                    css['background-color'] = $scope.progress.color;
-                } else {
-                    css['background-color'] = '#6BC443';
-                }
-
-                css.width = $scope.progress.percent + '%';
-
-                return css;
-            };
-        }]
-    };
-}]);
-
-
-gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ganttSmartEvent', 'ganttDebounce', 'ganttMouseOffset', 'ganttMouseButton', 'GanttEvents', 'GANTT_EVENTS', function($window, $document, $timeout, $filter, smartEvent, debounce, mouseOffset, mouseButton, Events, GANTT_EVENTS) {
-
-    return {
-        restrict: 'E',
-        require: '^ganttRow',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.task.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            var resizeAreaWidthBig = 5;
-            var resizeAreaWidthSmall = 3;
-            var scrollSpeed = 15;
-            var scrollTriggerDistance = 5;
-
-            var windowElement = angular.element($window);
-            var ganttRowElement = $scope.row.$element;
-            var ganttBodyElement = $scope.template.body.$element;
-            var ganttScrollElement = $scope.template.scrollable.$element;
-
-            var taskHasBeenChanged = false;
-            var mouseOffsetInEm;
-            var moveStartX;
-            var scrollInterval;
-
-            $element.bind('mousedown', function(evt) {
-                $scope.$apply(function() {
-                    var mode = getMoveMode(evt);
-                    if (mode !== '' && mouseButton.getButton(evt) === 1) {
-                        var offsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
-                        enableMoveMode(mode, offsetX, evt);
+                effectiveScope.$watch(function() {
+                    if ($element[0].offsetHeight > 0) {
+                        effectiveScope[scopeVariable] = $element[0].offsetHeight;
                     }
                 });
-            });
+            }]
+        };
+    }]);
+}());
 
-            $element.bind('click', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttElementWidthListener', [function() {
+        return {
+            restrict: 'A',
+            controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+                var scopeVariable = $attrs.ganttElementWidthListener;
+                if (scopeVariable === '') {
+                    scopeVariable = 'ganttElementWidth';
+                }
+
+                var effectiveScope = $scope;
+
+                while(scopeVariable.indexOf('$parent.') === 0) {
+                    scopeVariable = scopeVariable.substring('$parent.'.length);
+                    effectiveScope = effectiveScope.$parent;
+                }
+
+                effectiveScope.$watch(function() {
+                    if ($element[0].offsetWidth > 0) {
+                        effectiveScope[scopeVariable] = $element[0].offsetWidth;
                     }
-
-                    evt.stopPropagation();
                 });
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise dbl click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_DBL_CLICKED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
-                });
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$apply(function() {
-                    // Only raise click event if there was no task update event
-                    if (!taskHasBeenChanged) {
-                        $scope.$emit(GANTT_EVENTS.TASK_CONTEXTMENU, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-
-                    evt.stopPropagation();
-                });
-            });
-
-            $element.bind('mousemove', debounce(function(e) {
-                var mode = getMoveMode(e);
-                if (mode !== '' && ($scope.task.isMoving || mode !== 'M')) {
-                    $element.css('cursor', getCursor(mode));
-                } else {
-                    $element.css('cursor', '');
-                }
-
-                $scope.task.mouseX = e.clientX;
-            }, 5));
-
-            $element.bind('mouseenter', function(e) {
-                $scope.$apply(function() {
-                    $scope.task.mouseX = e.clientX;
-                    $scope.task.isMouseOver = true;
-                });
-            });
-
-            $element.bind('mouseleave', function() {
-                $scope.$apply(function() {
-                    $scope.task.isMouseOver = false;
-                });
-            });
-
-            var handleMove = function(mode, evt) {
-                if ($scope.task.isMoving === false) {
-                    return;
-                }
-
-                moveTask(mode, evt);
-                scrollScreen(mode, evt);
-            };
-
-            var moveTask = function(mode, evt) {
-                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
-                $scope.task.mouseOffsetX = mousePos.x;
-                var x = mousePos.x;
-                if (mode === 'M') {
-                    if ($scope.allowTaskRowSwitching) {
-                        var targetRow = getRowByY(mousePos.y);
-                        if (targetRow !== undefined && $scope.task.row.id !== targetRow.id) {
-                            targetRow.moveTaskToRow($scope.task);
-                        }
-                    }
-
-                    if ($scope.allowTaskMoving) {
-                        x = x - mouseOffsetInEm;
-                        if ($scope.taskOutOfRange !== 'truncate') {
-                            if (x < 0) {
-                                x = 0;
-                            } else if (x + $scope.task.width >= $scope.gantt.width) {
-                                x = $scope.gantt.width - $scope.task.width;
-                            }
-                        }
-                        $scope.task.moveTo(x);
-                        $scope.$emit(GANTT_EVENTS.TASK_MOVE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-                } else if (mode === 'E') {
-                    if ($scope.taskOutOfRange !== 'truncate') {
-                        if (x < $scope.task.left) {
-                            x = $scope.task.left;
-                        } else if (x > $scope.gantt.width) {
-                            x = $scope.gantt.width;
-                        }
-                    }
-                    $scope.task.setTo(x);
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                } else {
-                    if ($scope.taskOutOfRange !== 'truncate') {
-                        if (x > $scope.task.left + $scope.task.width) {
-                            x = $scope.task.left + $scope.task.width;
-                        } else if (x < 0) {
-                            x = 0;
-                        }
-                    }
-                    $scope.task.setFrom(x);
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                }
-
-                taskHasBeenChanged = true;
-            };
-
-            var scrollScreen = function(mode, evt) {
-                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
-                var leftScreenBorder = ganttScrollElement[0].scrollLeft;
-                var keepOnScrolling = false;
-
-                if (mousePos.x < moveStartX) {
-                    // Scroll to the left
-                    if (mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
-                        mousePos.x -= scrollSpeed;
-                        keepOnScrolling = true;
-                        $scope.scrollToLeft(scrollSpeed);
-                    }
-                } else {
-                    // Scroll to the right
-                    var screenWidth = ganttScrollElement[0].offsetWidth;
-                    var rightScreenBorder = leftScreenBorder + screenWidth;
-
-                    if (mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
-                        mousePos.x += scrollSpeed;
-                        keepOnScrolling = true;
-                        $scope.scrollToRight(scrollSpeed);
-                    }
-                }
-
-                if (keepOnScrolling) {
-                    scrollInterval = $timeout(function() {
-                        handleMove(mode, evt);
-                    }, 100, true);
-                }
-            };
-
-            var clearScrollInterval = function() {
-                if (scrollInterval !== undefined) {
-                    $timeout.cancel(scrollInterval);
-                    scrollInterval = undefined;
-                }
-            };
-
-            var getRowByY = function(y) {
-                if (y >= ganttRowElement[0].offsetTop && y <= ganttRowElement[0].offsetTop + ganttRowElement[0].offsetHeight) {
-                    return $scope.task.row;
-                } else {
-                    var visibleRows = [];
-                    angular.forEach($scope.task.row.gantt.rows, function(row) {
-                        if (!row.hidden) {
-                            visibleRows.push(row);
-                        }
-                    });
-                    var rowHeight = ganttBodyElement[0].offsetHeight / visibleRows.length;
-                    var pos = Math.floor(y / rowHeight);
-                    return visibleRows[pos];
-                }
-            };
-
-            var getMoveMode = function(e) {
-                var x = mouseOffset.getOffset(e).x;
-
-                var distance = 0;
-
-                // Define resize&move area. Make sure the move area does not get too small.
-                if ($scope.allowTaskResizing) {
-                    distance = $element[0].offsetWidth < 10 ? resizeAreaWidthSmall : resizeAreaWidthBig;
-                }
-
-                if ($scope.allowTaskResizing && x > $element[0].offsetWidth - distance) {
-                    return 'E';
-                } else if ($scope.allowTaskResizing && x < distance) {
-                    return 'W';
-                } else if (($scope.allowTaskMoving || $scope.allowTaskRowSwitching) && x >= distance && x <= $element[0].offsetWidth - distance) {
-                    return 'M';
-                } else {
-                    return '';
-                }
-            };
-
-            var getCursor = function(mode) {
-                switch (mode) {
-                    case 'E':
-                        return 'e-resize';
-                    case 'W':
-                        return 'w-resize';
-                    case 'M':
-                        return 'move';
-                }
-            };
-
-            var enableMoveMode = function(mode, x, evt) {
-                // Raise task move start event
-                if (!$scope.task.isMoving) {
-                    if (mode === 'M') {
-                        $scope.$emit(GANTT_EVENTS.TASK_MOVE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    } else {
-                        $scope.$emit(GANTT_EVENTS.TASK_RESIZE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                    }
-                }
-
-                // Init task move
-                taskHasBeenChanged = false;
-                $scope.task.moveMode = mode;
-                $scope.task.isMoving = true;
-                moveStartX = x;
-                mouseOffsetInEm = x - $scope.task.modelLeft;
-
-                // Add move event handlers
-                var taskMoveHandler = debounce(function(evt) {
-                    if ($scope.task.isMoving) {
-                        // As this function is defered, disableMoveMode may have been called before.
-                        // Without this check, TASK_CHANGED event is not fired for faster moves.
-                        // See github issue #190
-                        clearScrollInterval();
-                        handleMove(mode, evt);
-                    }
-                }, 5);
-                smartEvent($scope, windowElement, 'mousemove', taskMoveHandler).bind();
-
-                smartEvent($scope, windowElement, 'mouseup', function(evt) {
-                    $scope.$apply(function() {
-                        windowElement.unbind('mousemove', taskMoveHandler);
-                        disableMoveMode(evt);
-                    });
-                }).bindOnce();
-
-                // Show mouse move/resize cursor
-                $element.css('cursor', getCursor(mode));
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '-moz-none',
-                    '-webkit-user-select': 'none',
-                    '-ms-user-select': 'none',
-                    'user-select': 'none',
-                    'cursor': getCursor(mode)
-                });
-            };
-
-            var disableMoveMode = function(evt) {
-                $scope.task.isMoving = false;
-
-                // Stop any active auto scroll
-                clearScrollInterval();
-
-                // Set mouse cursor back to default
-                $element.css('cursor', '');
-                angular.element($document[0].body).css({
-                    '-moz-user-select': '',
-                    '-webkit-user-select': '',
-                    '-ms-user-select': '',
-                    'user-select': '',
-                    'cursor': ''
-                });
-
-                // Raise move end event
-                if ($scope.task.moveMode === 'M') {
-                    $scope.$emit(GANTT_EVENTS.TASK_MOVE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                } else {
-                    $scope.$emit(GANTT_EVENTS.TASK_RESIZE_END, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                }
-
-                $scope.task.moveMode = undefined;
-
-                // Raise task changed event
-                if (taskHasBeenChanged === true) {
-                    taskHasBeenChanged = false;
-                    $scope.task.row.sortTasks(); // Sort tasks so they have the right z-order
-                    $scope.$emit(GANTT_EVENTS.TASK_CHANGED, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
-                }
-            };
-
-            if ($scope.task.isCreating) {
-                delete $scope.task.isCreating;
-                enableMoveMode('E', $scope.task.mouseOffsetX);
-            } else if ($scope.task.isMoving) {
-                // In case the task has been moved to another row a new controller is is created by angular.
-                // Enable the move mode again if this was the case.
-                enableMoveMode('M', $scope.task.mouseOffsetX);
-            }
-        }]
-    };
-}]);
+            }]
+        };
+    }]);
+}());
 
 
-gantt.directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
-    // This tooltip displays more information about a task
-
-    return {
-        restrict: 'E',
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.tooltip.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        replace: true,
-        controller: ['$scope', '$element', function($scope, $element) {
-            var bodyElement = angular.element($document[0].body);
-            var parentElement = $element.parent();
-            $scope.visible = false;
-            $scope.css = {};
-
-            $scope.$watch('task.isMouseOver', function(newValue) {
-                if (newValue === true) {
-                    showTooltip($scope.task.mouseX);
-                } else if (newValue === false && $scope.task.isMoving === false) {
-                    hideTooltip();
-                }
-            });
-
-            var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                if ($scope.visible === true) {
-                    updateTooltip(e.clientX);
-                } else {
-                    showTooltip(e.clientX);
-                }
-            }, 5, false));
-
-            $scope.$watch('task.isMoving', function(newValue) {
-                if (newValue === true) {
-                    mouseMoveHandler.bind();
-                } else if (newValue === false) {
-                    mouseMoveHandler.unbind();
-                    hideTooltip();
-                }
-            });
-
-            var getViewPortWidth = function() {
-                var d = $document[0];
-                return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
-            };
-
-            var showTooltip = function(x) {
-                $scope.visible = true;
-
-                $timeout(function() {
-                    updateTooltip(x);
-
-                    $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
-                    $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
-                    $scope.css.opacity = 1;
-                }, 0, true);
-            };
-
-            var updateTooltip = function(x) {
-                $element.removeClass('gantt-task-infoArrow');
-                $element.removeClass('gantt-task-infoArrowR');
-
-                // Check if info is overlapping with view port
-                if (x + $element[0].offsetWidth > getViewPortWidth()) {
-                    $scope.css.left = (x + 20 - $element[0].offsetWidth) + 'px';
-                    $element.addClass('gantt-task-infoArrowR'); // Right aligned info
-                } else {
-                    $scope.css.left = (x - 20) + 'px';
-                    $element.addClass('gantt-task-infoArrow');
-                }
-            };
-
-            var hideTooltip = function() {
-                $scope.css.opacity = 0;
-                $scope.visible = false;
-            };
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttBody', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttBody');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.body.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttBody', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.body.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'GanttBody', function($scope, $element, Body) {
-            $scope.template.body = new Body($element);
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttBodyBackground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttBodyBackground');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.body.background.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttBodyColumns', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bodyColumns.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'GanttBodyColumns', function($scope, $element, BodyColumns) {
-            $scope.template.body.columns = new BodyColumns($element);
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttBodyColumns', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttBodyColumns');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.body.columns.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttBodyRows', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBody',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.bodyRows.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'GanttBodyRows', function($scope, $element, BodyRows) {
-            $scope.template.body.rows = new BodyRows($element);
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttBodyForeground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttBodyForeground');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.body.foreground.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttColumn', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttBodyColumns',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.column.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttBodyRows', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttBodyRows');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.body.rows.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttColumn', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttColumn');
+        builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
-        }]
-    };
-}]);
+            $scope.column.updateView();
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttColumnHeader', ['GanttEvents', 'GANTT_EVENTS', function(Events, GANTT_EVENTS) {
-    return {
-        restrict: 'E',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.columnHeader.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
-            $element.bind('click', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('dblclick', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_DBL_CLICKED, Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-
-            $element.bind('contextmenu', function(evt) {
-                $scope.$emit(GANTT_EVENTS.COLUMN_CONTEXTMENU, Events.buildColumnEventData(evt, $element, $scope.column));
-            });
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttColumnHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttColumnHeader');
+        builder.controller = function($scope, $element) {
+            $scope.column.$element = $element;
+            $scope.column.updateView();
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttHeader', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.header.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'GanttHeader', function($scope, $element, Header) {
-            $scope.template.header = new Header($element);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttHeader');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.header.$element = $element;
 
             $scope.getHeaderCss = function() {
                 var css = {};
@@ -39190,271 +39733,448 @@ gantt.directive('ganttHeader', [function() {
 
                 return css;
             };
-        }]
-    };
-}]);
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttHeaderColumns', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttHeader',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.headerColumns.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'GanttHeaderColumns', function($scope, $element, HeaderColumns) {
-            $scope.template.header.columns = new HeaderColumns($element);
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttHeaderColumns', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttHeaderColumns');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.header.columns.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttLabels', [function() {
-    return {
-        restrict: 'E',
-        require: '^gantt',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.labels.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', 'GanttLabels', function($scope, $element, Labels) {
-            $scope.template.labels = new Labels($element);
-        }]
-    };
-}]);
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttLabels', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttLabels');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.labels.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.directive('ganttTimeFrame', [function() {
-    return {
-        restrict: 'E',
-        require: '^ganttColumn',
-        transclude: true,
-        replace: true,
-        templateUrl: function(tElement, tAttrs) {
-            if (tAttrs.templateUrl === undefined) {
-                return 'template/default.timeFrame.tmpl.html';
-            } else {
-                return tAttrs.templateUrl;
-            }
-        },
-        controller: ['$scope', '$element', function($scope, $element) {
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttLabelsBody');
+        return builder.build();
+    }]);
+}());
+
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttLabelsHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttLabelsHeader');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRow', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRow');
+        builder.controller = function($scope, $element) {
+            $scope.row.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowBackground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowBackground');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowHeader');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.rowHeader.$element = $element;
+        };
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowLabel');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTask', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTask');
+        builder.controller = function($scope, $element) {
+            $scope.task.$element = $element;
+
+            $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
+                $scope.task.updatePosAndSize();
+            });
+        };
+        return builder.build();
+    }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTaskContent', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTaskContent');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTimeFrame', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTimeFrame');
+        builder.controller = function($scope, $element) {
             $scope.timeFrame.$element = $element;
-        }]
-    };
-}]);
+            $scope.timeFrame.updateView();
+        };
+        return builder.build();
+    }]);
+}());
 
 
-gantt.factory('ganttDebounce', ['$timeout', function($timeout) {
-    function debounce(fn, timeout, invokeApply) {
-        var nthCall = 0;
-        return function() {
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTimespan', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTimespan');
+        builder.controller = function($scope, $element) {
+            $scope.timespan.$element = $element;
+            $scope.timespan.updateView();
+        };
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('ganttDebounce', ['$timeout', function($timeout) {
+        function debounce(fn, timeout, invokeApply) {
+            var nthCall = 0;
+            return function() {
+                var self = this;
+                var argz = arguments;
+                nthCall++;
+                var later = (function(version) {
+                    return function() {
+                        if (version === nthCall) {
+                            return fn.apply(self, argz);
+                        }
+                    };
+                })(nthCall);
+                return $timeout(later, timeout, invokeApply === undefined ? true: invokeApply);
+            };
+        }
+
+        return debounce;
+    }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').service('GanttDirectiveBuilder', [function() {
+        var DirectiveBuilder = function DirectiveBuilder(directiveName, templateUrl, require, restrict) {
             var self = this;
-            var argz = arguments;
-            nthCall++;
-            var later = (function(version) {
-                return function() {
-                    if (version === nthCall) {
-                        return fn.apply(self, argz);
-                    }
+
+            this.directiveName = directiveName;
+            this.templateUrl = templateUrl === undefined ? 'template/' + directiveName + '.tmpl.html' : templateUrl;
+            this.require = require === undefined ? '^gantt' : require;
+            this.restrict = restrict === undefined ? 'E' : restrict;
+            this.transclude = true;
+            this.replace = true;
+
+            this.build = function() {
+                var directiveName = self.directiveName;
+                var templateUrl = self.templateUrl;
+                var controllerFunction = self.controller;
+
+                return {
+                    restrict: self.restrict,
+                    require: self.require,
+                    transclude: self.transclude,
+                    replace: self.replace,
+                    templateUrl: function(tElement, tAttrs) {
+                        if (tAttrs.templateUrl === undefined) {
+                            return templateUrl;
+                        } else {
+                            return tAttrs.templateUrl;
+                        }
+                    },
+                    compile: function () {
+                        return {
+                            pre: function preLink(scope, iElement, iAttrs, controller) {
+                                scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller);
+                            },
+                            post: function postLink(scope, iElement, iAttrs, controller) {
+                                scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+                            }
+                        };
+                    },
+                    controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+                        var controller = this;
+
+                        if (controllerFunction !== undefined) {
+                            controllerFunction($scope, $element, $attrs, controller);
+                        }
+
+                        $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
+                        $scope.$on('$destroy', function() {
+                            $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
+                        });
+                    }]
                 };
-            })(nthCall);
-            return $timeout(later, timeout, invokeApply === undefined ? true: invokeApply);
+            };
         };
-    }
 
-    return debounce;
-}]);
+        return DirectiveBuilder;
+    }]);
+}());
 
-gantt.service('ganttEnableNgAnimate', ['$injector', function($injector) {
-    var ngAnimate;
-    try {
-        ngAnimate = $injector.get('$animate');
-    } catch (e) {
-    }
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttEnableNgAnimate', ['$injector', function($injector) {
+        var ngAnimate;
+        try {
+            ngAnimate = $injector.get('$animate');
+        } catch (e) {
+        }
 
-    if (ngAnimate !== undefined) {
-        return function(enabled, element) {
-            ngAnimate.enabled(false, element);
+        if (ngAnimate !== undefined) {
+            return function(enabled, element) {
+                ngAnimate.enabled(false, element);
+            };
+        } else {
+            return function() {};
+        }
+
+
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttLayout', ['$document', function($document) {
+        return {
+            /**
+             * Compute the width of scrollbar.
+             *
+             * @returns {number} width of the scrollbar, in px.
+             */
+            getScrollBarWidth: function() {
+                var inner = $document[0].createElement('p');
+                inner.style.width = '100%';
+                inner.style.height = '200px';
+
+                var outer = $document[0].createElement('div');
+                outer.style.position = 'absolute';
+                outer.style.top = '0px';
+                outer.style.left = '0px';
+                outer.style.visibility = 'hidden';
+                outer.style.width = '200px';
+                outer.style.height = '150px';
+                outer.style.overflow = 'hidden';
+                outer.appendChild (inner);
+
+                $document[0].body.appendChild (outer);
+                var w1 = inner.offsetWidth;
+                outer.style.overflow = 'scroll';
+                var w2 = inner.offsetWidth;
+                if (w1 === w2) {
+                    w2 = outer.clientWidth;
+                }
+                $document[0].body.removeChild (outer);
+
+                return (w1 - w2);
+            },
+
+            setColumnsWidth: function(width, originalWidth, columns) {
+                if (width && originalWidth && columns) {
+
+                    var widthFactor = Math.abs(width / originalWidth);
+
+                    angular.forEach(columns, function(column) {
+                        column.left = widthFactor * column.originalSize.left;
+                        column.width = widthFactor * column.originalSize.width;
+
+                        angular.forEach(column.timeFrames, function(timeFrame) {
+                            timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                            timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                        });
+                    });
+                }
+            }
         };
-    } else {
-        return function() {};
-    }
+    }]);
+}());
 
 
-}]);
-
-
-gantt.service('ganttLayout', ['$document', function($document) {
-    return {
-        /**
-         * Compute the width of scrollbar.
-         *
-         * @returns {number} width of the scrollbar, in px.
-         */
-        getScrollBarWidth: function() {
-            var inner = $document[0].createElement('p');
-            inner.style.width = '100%';
-            inner.style.height = '200px';
-
-            var outer = $document[0].createElement('div');
-            outer.style.position = 'absolute';
-            outer.style.top = '0px';
-            outer.style.left = '0px';
-            outer.style.visibility = 'hidden';
-            outer.style.width = '200px';
-            outer.style.height = '150px';
-            outer.style.overflow = 'hidden';
-            outer.appendChild (inner);
-
-            $document[0].body.appendChild (outer);
-            var w1 = inner.offsetWidth;
-            outer.style.overflow = 'scroll';
-            var w2 = inner.offsetWidth;
-            if (w1 === w2) {
-                w2 = outer.clientWidth;
-            }
-            $document[0].body.removeChild (outer);
-
-            return (w1 - w2);
-        }
-    };
-}]);
-
-
-gantt.service('ganttMouseButton', [ function() {
-    // Mouse button cross browser normalization
-
-    return {
-        getButton: function(e) {
-            e = e || window.event;
-
-            if (!e.which) {
-                return e.button < 2 ? 1 : e.button === 4 ? 2 : 3;
-            } else {
-                return e.which;
-            }
-        }
-    };
-}]);
-
-gantt.service('ganttMouseOffset', [ function() {
-    // Mouse offset support for lesser browsers (read IE 8)
-
-    return {
-        getOffset: function(evt) {
-            if (evt.offsetX && evt.offsetY) {
-                return { x: evt.offsetX, y: evt.offsetY };
-            }
-            if (evt.layerX && evt.layerY) {
-                return { x: evt.layerX, y: evt.layerY };
-            } else {
-                return this.getOffsetForElement(evt.target, evt);
-            }
-        },
-        getOffsetForElement: function(el, evt) {
-            var bb = el.getBoundingClientRect();
-            return { x: evt.clientX - bb.left, y: evt.clientY - bb.top };
-        }
-    };
-}]);
-
-gantt.factory('ganttSmartEvent', [function() {
-    // Auto released the binding when the scope is destroyed. Use if an event is registered on another element than the scope.
-
-    function smartEvent($scope, $element, event, fn) {
-        $scope.$on('$destroy', function() {
-            $element.unbind(event, fn);
-        });
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttMouseButton', [ function() {
+        // Mouse button cross browser normalization
 
         return {
-            bindOnce: function() {
-                $element.one(event, fn);
-            },
-            bind: function() {
-                $element.bind(event, fn);
-            },
-            unbind: function() {
-                $element.unbind(event, fn);
+            getButton: function(e) {
+                e = e || window.event;
+
+                if (!e.which) {
+                    if (e.button === undefined) {
+                        return 1;
+                    }
+                    return e.button < 2 ? 1 : e.button === 4 ? 2 : 3;
+                } else {
+                    return e.which;
+                }
             }
         };
-    }
+    }]);
+}());
 
-    return smartEvent;
-}]);
-angular.module('ganttTemplates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('template/default.gantt.tmpl.html',
-        '<div class="gantt unselectable" gantt-scroll-manager gantt-element-width-listener>\n' +
+(function(){
+    'use strict';
+    angular.module('gantt').service('ganttMouseOffset', [ function() {
+        // Mouse offset support for lesser browsers (read IE 8)
+
+        return {
+            getTouch: function(evt) {
+                if (evt.touches !== undefined) {
+                    return evt.touches[0];
+                }
+                return evt;
+            },
+            getOffset: function(evt) {
+                if (evt.offsetX && evt.offsetY) {
+                    return { x: evt.offsetX, y: evt.offsetY };
+                }
+                if (evt.layerX && evt.layerY) {
+                    return { x: evt.layerX, y: evt.layerY };
+                }
+                return this.getOffsetForElement(evt.target, evt);
+            },
+            getOffsetForElement: function(el, evt) {
+                var bb = el.getBoundingClientRect();
+                return { x: evt.clientX - bb.left, y: evt.clientY - bb.top };
+            }
+        };
+    }]);
+}());
+
+(function(){
+    'use strict';
+    angular.module('gantt').factory('ganttSmartEvent', [function() {
+        // Auto released the binding when the scope is destroyed. Use if an event is registered on another element than the scope.
+
+        function smartEvent($scope, $element, event, fn) {
+            $scope.$on('$destroy', function() {
+                $element.unbind(event, fn);
+            });
+
+            return {
+                bindOnce: function() {
+                    $element.one(event, fn);
+                },
+                bind: function() {
+                    $element.bind(event, fn);
+                },
+                unbind: function() {
+                    $element.unbind(event, fn);
+                }
+            };
+        }
+
+        return smartEvent;
+    }]);
+}());
+
+angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('template/gantt.tmpl.html',
+        '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
         '    <gantt-labels>\n' +
-        '        <div class="gantt-labels-header">\n' +
+        '        <gantt-labels-header>\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
-        '        </div>\n' +
-        '        <div class="gantt-labels-body"\n' +
-        '             ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight-template.header.getHeight())+\'px\'} || {})"\n' +
-        '             ng-show="gantt.columns.length > 0">\n' +
-        '            <div gantt-vertical-scroll-receiver style="position: relative">\n' +
-        '                <gantt-row-label ng-repeat="row in gantt.visibleRows track by $index">\n' +
-        '                    <gantt-sortable swap="swapRows(a,b)" active="allowRowSorting" ng-model="row">\n' +
-        '                        <span>{{ row.name }}</span>\n' +
-        '                    </gantt-sortable>\n' +
-        '                </gantt-row-label>\n' +
+        '        </gantt-labels-header>\n' +
+        '        <gantt-labels-body>\n' +
+        '            <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                <gantt-row-label></gantt-row-label>\n' +
         '            </div>\n' +
-        '        </div>\n' +
+        '        </gantt-labels-body>\n' +
         '    </gantt-labels>\n' +
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
-        '            <div ng-repeat="header in gantt.visibleHeaders">\n' +
-        '                <div class="gantt-header-row gantt-header-row-bottom">\n' +
-        '                    <gantt-column-header ng-repeat="column in header track by $index">\n' +
-        '                        {{ column.label }}\n' +
-        '                    </gantt-column-header>\n' +
+        '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
+        '                <div class="gantt-header-row" ng-class="$last && \'gantt-header-row-last\' || \'\'">\n' +
+        '                    <div ng-repeat="column in header">\n' +
+        '                        <gantt-column-header ></gantt-column-header>\n' +
+        '                    </div>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '        </gantt-header-columns>\n' +
         '    </gantt-header>\n' +
         '    <gantt-scrollable>\n' +
         '        <gantt-body>\n' +
-        '            <div class="gantt-body-background">\n' +
-        '                <div class="gantt-row-height"\n' +
-        '                     ng-class-odd="\'gantt-background-row\'"\n' +
-        '                     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                     ng-repeat="row in gantt.visibleRows track by $index">\n' +
+        '            <gantt-body-background>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                    <gantt-row-background></gantt-row-background>\n' +
         '                </div>\n' +
-        '            </div>\n' +
-        '            <div class="gantt-body-foreground">\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && currentDatePosition >= 0 && currentDatePosition <= gantt.width" ng-style="{\'left\': currentDatePosition + \'px\' }"></div>\n' +
-        '            </div>\n' +
-        '            <gantt-body-columns class="gantt-body-columns">\n' +
-        '                <gantt-column ng-repeat="column in gantt.visibleColumns track by $index">\n' +
-        '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
-        '                </gantt-column>\n' +
+        '            </gantt-body-background>\n' +
+        '            <gantt-body-foreground>\n' +
+        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
+        '            </gantt-body-foreground>\n' +
+        '            <gantt-body-columns>\n' +
+        '                <div ng-repeat="column in gantt.columnsManager.visibleColumns">\n' +
+        '                    <gantt-column>\n' +
+        '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
+        '                            <gantt-time-frame></gantt-time-frame>\n' +
+        '                        </div>\n' +
+        '                    </gantt-column>\n' +
+        '                </div>\n' +
         '            </gantt-body-columns>\n' +
-        '            <gantt-body-rows>\n' +
-        '                <div class="gantt-timespan"\n' +
-        '                     ng-style="{\'left\': ((timespan.left-0.3) || timespan.left)+\'px\', \'width\': timespan.width +\'px\', \'z-index\': (timespan.priority || 0)}"\n' +
-        '                     ng-class="timespan.classes"\n' +
-        '                     ng-repeat="timespan in gantt.timespans">\n' +
-        '                    <gantt-tooltip ng-model="timespan" date-format="\'MMM d\'">\n' +
-        '                        <div class="gantt-task-content"><span>{{ timespan.name }}</span></div>\n' +
-        '                    </gantt-tooltip>\n' +
+        '            <gantt-body-rows gantt-element-height-listener="$parent.$parent.bodyRowsHeight" gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
+        '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
+        '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
-        '                <gantt-row ng-repeat="row in gantt.visibleRows track by row.id">\n' +
-        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.id"></gantt-task>\n' +
-        '                </gantt-row>\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                    <gantt-row>\n' +
+        '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
+        '                            <gantt-task ></gantt-task>\n' +
+        '                        </div>\n' +
+        '                    </gantt-row>\n' +
+        '                </div>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
         '    </gantt-scrollable>\n' +
         '\n' +
+        '    <!-- Plugins -->\n' +
+        '    <ng-transclude></ng-transclude>\n' +
         '\n' +
         '    <!--\n' +
         '    ******* Inline templates *******\n' +
@@ -39463,39 +40183,56 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    -->\n' +
         '\n' +
         '    <!-- Body template -->\n' +
-        '    <script type="text/ng-template" id="template/default.body.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body"\n' +
         '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
-        '    <script type="text/ng-template" id="template/default.header.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttHeader.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
-        '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
+        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
         '             ng-style="getHeaderCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
-        '    <script type="text/ng-template" id="template/default.rowLabel.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-labels-row gantt-row-height"\n' +
+        '    <script type="text/ng-template" id="template/ganttRowLabel.tmpl.html">\n' +
+        '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
-        '             ng-class-even="\'gantt-background-row-alt\'">\n' +
+        '             ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '             ng-class="row.model.classes" ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row header template -->\n' +
-        '    <script type="text/ng-template" id="template/default.rowHeader.tmpl.html">\n' +
-        '        <div class="gantt-labels-header-row"\n' +
-        '             ng-show="gantt.columns.length > 0 && gantt.getActiveHeadersCount() > 0"\n' +
-        '             ng-style="{\'margin-top\': ((gantt.getActiveHeadersCount()-1)*2)+\'em\'}">\n' +
+        '    <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">\n' +
+        '        <div class="gantt-labels-header-row gantt-labels-header-row-last"\n' +
+        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
+        '             ng-style="{\'margin-top\': ((gantt.columnsManager.headers.length-1)*2)+\'em\'}">\n' +
         '            <span>Name</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <!-- Labels header template-->\n' +
+        '    <script type="text/ng-template" id="template/ganttLabelsHeader.tmpl.html">\n' +
+        '        <div ng-transclude= class="gantt-labels-header">\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/ganttLabelsBody.tmpl.html">\n' +
+        '    <div class="gantt-labels-body"\n' +
+        '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
+        '         ng-show="gantt.columnsManager.columns.length > 0">\n' +
+        '        <div ng-transclude gantt-vertical-scroll-receiver>\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '    </script>\n' +
+        '\n' +
         '    <!-- Labels template -->\n' +
-        '    <script type="text/ng-template" id="template/default.labels.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttLabels.tmpl.html">\n' +
         '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
-        '             ng-style="(labelsWidth > 0 && {\'width\': labelsWidth+\'px\'} || {})"\n' +
+        '             ng-style="($parent.labelsWidth > 0 && {\'width\': $parent.labelsWidth+\'px\'} || {})"\n' +
         '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
         '             gantt-labels-resize-width="$parent.labelsWidth"\n' +
         '             gantt-labels-resize-min-width="50"\n' +
@@ -39503,85 +40240,89 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
         '    </script>\n' +
         '\n' +
         '    <!-- Header columns template -->\n' +
-        '    <script type="text/ng-template" id="template/default.headerColumns.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttHeaderColumns.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header-columns"\n' +
         '              gantt-horizontal-scroll-receiver></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.columnHeader.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-column-header"\n' +
-        '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
+        '    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">\n' +
+        '        <div class="gantt-column-header">\n' +
+        '            {{ ::column.label }}\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Body background template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyBackground.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-background"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Row background template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">\n' +
+        '        <div class="gantt-row-height"\n' +
+        '             ng-class-odd="\'gantt-background-row\'"\n' +
+        '             ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '             ng-class="row.model.classes"\n' +
+        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <!-- Body foreground template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyForeground.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-body-foreground"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body columns template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bodyColumns.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyColumns.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-columns"></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.column.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-column"\n' +
-        '             ng-class="(column.currentDate && currentDate === \'column\') && \'gantt-foreground-col-current-date\' || \'gantt-foreground-col\'"\n' +
-        '             ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}"></div>\n' +
+        '    <script type="text/ng-template" id="template/ganttColumn.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-column gantt-foreground-col"></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <script type="text/ng-template" id="template/default.timeFrame.tmpl.html">\n' +
-        '        <div class="gantt-timeframe"\n' +
-        '             ng-class="timeFrame.working && \'gantt-timeframe-working\' || \'gantt-timeframe-non-working\'"\n' +
-        '             ng-style="{\'left\': timeFrame.left + \'px\', \'width\': timeFrame.width + \'px\'}"></div>\n' +
+        '    <script type="text/ng-template" id="template/ganttTimeFrame.tmpl.html">\n' +
+        '        <div class="gantt-timeframe"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Scrollable template -->\n' +
-        '    <script type="text/ng-template" id="template/default.scrollable.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttScrollable.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
         '             ng-style="getScrollableCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Rows template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bodyRows.tmpl.html">\n' +
+        '    <script type="text/ng-template" id="template/ganttBodyRows.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-rows"></div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <!-- Timespan template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
+        '        <div class="gantt-timespan"\n' +
+        '             ng-style="{\'z-index\': (timespan.priority || 0)}"\n' +
+        '             ng-class="timespan.classes">\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
         '    <!-- Task template -->\n' +
-        '    <script type="text/ng-template" id="template/default.task.tmpl.html">\n' +
-        '        <div ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"\n' +
-        '             ng-style="{\'left\': ((task.isMilestone === true || task.width === 0) && (task.left-0.3) || task.left)+\'px\', \'width\': task.width +\'px\', \'z-index\': (task.isMoving === true && 1  || task.priority || \'\'), \'background-color\': task.color}">\n' +
-        '            <gantt-bounds ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>\n' +
-        '            <gantt-tooltip ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>\n' +
+        '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
+        '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
+        '             ng-style="{\'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
-        '            <div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.name) }}</span></div>\n' +
+        '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
-        '            <gantt-task-progress ng-if="task.progress !== undefined" progress="task.progress"></gantt-task-progress>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <!-- Tooltip template -->\n' +
-        '    <script type="text/ng-template" id="template/default.tooltip.tmpl.html">\n' +
-        '        <div class="gantt-task-info" ng-style="css">\n' +
-        '            <div class="gantt-task-info-content">\n' +
-        '                {{ task.name }}</br>\n' +
-        '                <small>\n' +
-        '                    {{\n' +
-        '                    task.isMilestone === true && (task.getFromLabel()) || (task.getFromLabel() + \' - \' + task.getToLabel());\n' +
-        '                    }}\n' +
-        '                </small>\n' +
-        '            </div>\n' +
+        '    <!-- Task content template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
+        '        <div class="gantt-task-content-container">\n' +
+        '            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && \'&nbsp;\' || task.model.name) }}</span></div>\n' +
         '        </div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Task bounds template -->\n' +
-        '    <script type="text/ng-template" id="template/default.bounds.tmpl.html">\n' +
-        '        <div ng-show=\'visible\' class=\'gantt-task-bounds\'\n' +
-        '             ng-style=\'getCss()\' ng-class=\'getClass()\'></div>\n' +
-        '    </script>\n' +
-        '\n' +
-        '    <!-- Task progress template -->\n' +
-        '    <script type="text/ng-template" id="template/default.taskProgress.tmpl.html">\n' +
-        '        <div class=\'gantt-task-progress\' ng-style="getCss()" ng-class="progress.classes"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
-        '    <script type="text/ng-template" id="template/default.row.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height"></div>\n' +
+        '    <script type="text/ng-template" id="template/ganttRow.tmpl.html">\n' +
+        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.model.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '</div>\n' +
@@ -39589,3 +40330,993 @@ angular.module('ganttTemplates', []).run(['$templateCache', function($templateCa
 }]);
 
 //# sourceMappingURL=angular-gantt.js.map
+/*
+Project: angular-gantt for AngularJS
+Author: Marco Schweighauser
+Contributors: Rémi Alvergnat
+License: MIT.
+Github: https://github.com/angular-gantt/angular-gantt
+*/
+angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
+        '<div ng-show="bounds && isTaskMouseOver && enabled" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
+        '');
+}]);
+
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/progress/taskProgress.tmpl.html',
+        '<div ng-cloak ng-show=\'enabled\' class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
+        '');
+}]);
+
+angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
+        '<div ng-show="showTooltips && visible" class="gantt-task-info" ng-cloak ng-style="css">\n' +
+        '    <div class="gantt-task-info-content">\n' +
+        '        {{ task.model.name }}</br>\n' +
+        '        <small>\n' +
+        '            {{\n' +
+        '            task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel());\n' +
+        '            }}\n' +
+        '        </small>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+}]);
+
+(function(){
+    'use strict';
+    angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', function(moment, $compile) {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.bounds) === 'object') {
+                    for (var option in scope.options.bounds) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                var boundsScopes = [];
+                scope.$watch('enabled', function(enabled) {
+                    angular.forEach(boundsScopes, function(boundsScope) {
+                        boundsScope.enabled = enabled;
+                    });
+                });
+
+                api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                    if (directiveName === 'ganttTask') {
+                        var boundsScope = taskScope.$new();
+                        boundsScopes.push(boundsScopes);
+                        boundsScope.enabled = scope.enabled;
+
+                        taskElement.append($compile('<gantt-task-bounds></gantt-bounds>')(boundsScope));
+
+                        boundsScope.$on('$destroy', function() {
+                            var scopeIndex = boundsScopes.indexOf(boundsScope);
+                            if (scopeIndex > -1) {
+                                boundsScopes.splice(scopeIndex, 1);
+                            }
+                        });
+                    }
+                });
+
+                api.tasks.on.clean(scope, function(model) {
+                    if (model.est !== undefined && !moment.isMoment(model.est)) {
+                        model.est = moment(model.est);  //Earliest Start Time
+                    }
+                    if (model.lct !== undefined && !moment.isMoment(model.lct)) {
+                        model.lct = moment(model.lct);  //Latest Completion Time
+                    }
+                });
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['ganttMouseOffset', 'moment', function(mouseOffset, moment) {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?',
+                taskModelFactory: '=taskFactory'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                api.directives.on.new(scope, function(directiveName, directiveScope, element) {
+                    if (directiveName === 'ganttRow') {
+                        var drawHandler = function(evt) {
+                            var evtTarget = (evt.target ? evt.target : evt.srcElement);
+                            if (scope.enabled && evtTarget.className.indexOf('gantt-row') > -1) {
+                                var startDate = api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
+                                var endDate = moment(startDate);
+
+                                var taskModel = scope.taskModelFactory();
+                                taskModel.from = startDate;
+                                taskModel.to = endDate;
+
+                                var task = directiveScope.row.addTask(taskModel);
+                                task.isResizing = true;
+                                task.updatePosAndSize();
+                                directiveScope.row.updateVisibleTasks();
+
+                                directiveScope.row.$element.scope().$digest();
+                            }
+                        };
+
+                        element.on('mousedown', drawHandler);
+                        directiveScope.drawTaskHandler = drawHandler;
+                    }
+                });
+
+                api.directives.on.destroy(scope, function(directiveName, directiveScope, element) {
+                    if (directiveName === 'ganttRow') {
+                        element.off('mousedown', directiveScope.drawTaskHandler);
+                        delete directiveScope.drawTaskHandler;
+                    }
+                });
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+            // Provides moving and resizing of tasks
+            return {
+                restrict: 'E',
+                require: '^gantt',
+                scope: {
+                    enabled: '=',
+                    allowMoving: '=?',
+                    allowResizing: '=?',
+                    allowRowSwitching: '=?'
+                },
+                link: function(scope, element, attrs, ganttCtrl) {
+                    var api = ganttCtrl.gantt.api;
+
+                    // Load options from global options attribute.
+                    if (scope.options && typeof(scope.options.movable) === 'object') {
+                        for (var option in scope.options.movable) {
+                            scope[option] = scope.options[option];
+                        }
+                    }
+
+                    movableOptions.initialize(scope);
+
+                    api.registerEvent('tasks', 'move');
+                    api.registerEvent('tasks', 'moveBegin');
+                    api.registerEvent('tasks', 'moveEnd');
+                    api.registerEvent('tasks', 'resize');
+                    api.registerEvent('tasks', 'resizeBegin');
+                    api.registerEvent('tasks', 'resizeEnd');
+                    api.registerEvent('tasks', 'change');
+
+                    var _hasTouch = ('ontouchstart' in $window) || $window.DocumentTouch && $document[0] instanceof $window.DocumentTouch;
+                    var _pressEvents = 'touchstart mousedown';
+                    var _moveEvents = 'touchmove mousemove';
+                    var _releaseEvents = 'touchend mouseup';
+
+                    api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                        if (directiveName === 'ganttTask') {
+                            var resizeAreaWidthBig = 5;
+                            var resizeAreaWidthSmall = 3;
+                            var scrollSpeed = 15;
+                            var scrollTriggerDistance = 5;
+
+                            var windowElement = angular.element($window);
+                            var ganttBodyElement = taskScope.row.rowsManager.gantt.body.$element;
+                            var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
+
+                            var taskHasBeenChanged = false;
+                            var mouseOffsetInEm;
+                            var moveStartX;
+                            var scrollInterval;
+
+                            taskElement.on(_pressEvents, function(evt) {
+                                evt.preventDefault();
+                                if (_hasTouch) {
+                                    evt = mouseOffset.getTouch(evt);
+                                }
+                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                if (enabled) {
+                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var mode = getMoveMode(taskOffsetX);
+                                    if (mode !== '' && mouseButton.getButton(evt) === 1) {
+                                        var bodyOffsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
+                                        enableMoveMode(mode, bodyOffsetX);
+                                    }
+                                    taskScope.$digest();
+                                }
+                            });
+
+                            taskElement.on('mousemove', function(evt) {
+                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                if (enabled) {
+                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var mode = getMoveMode(taskOffsetX);
+                                    if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                        taskElement.css('cursor', getCursor(mode));
+                                    } else {
+                                        taskElement.css('cursor', '');
+                                    }
+                                }
+                            });
+
+                            var handleMove = function(mode, evt) {
+                                moveTask(mode, evt);
+                                scrollScreen(mode, evt);
+                            };
+
+                            var moveTask = function(mode, evt) {
+
+                                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
+                                var x = mousePos.x;
+                                taskScope.task.mouseOffsetX = x;
+
+                                if (mode === 'M') {
+                                    var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                    if (allowRowSwitching) {
+                                        var scrollRect = ganttScrollElement[0].getBoundingClientRect();
+
+                                        var targetScope = utils.scopeFromPoint(scrollRect.left, evt.clientY);
+                                        var targetRow = targetScope.row;
+                                        var sourceRow = taskScope.task.row;
+
+                                        if (targetRow !== undefined && sourceRow !== targetRow) {
+                                            targetRow.moveTaskToRow(taskScope.task, true);
+                                            sourceRow.$element.scope().$digest();
+                                            targetRow.$element.scope().$digest();
+                                        }
+                                    }
+
+                                    var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+                                    if (allowMoving) {
+                                        x = x - mouseOffsetInEm;
+                                        if (taskScope.taskOutOfRange !== 'truncate') {
+                                            if (x < 0) {
+                                                x = 0;
+                                            } else if (x + taskScope.task.width >= taskScope.gantt.width) {
+                                                x = taskScope.gantt.width - taskScope.task.width;
+                                            }
+                                        }
+                                        taskScope.task.moveTo(x);
+                                        taskScope.$digest();
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                    }
+                                } else if (mode === 'E') {
+                                    if (taskScope.taskOutOfRange !== 'truncate') {
+                                        if (x < taskScope.task.left) {
+                                            x = taskScope.task.left;
+                                        } else if (x > taskScope.gantt.width) {
+                                            x = taskScope.gantt.width;
+                                        }
+                                    }
+                                    taskScope.task.setTo(x);
+                                    taskScope.$digest();
+                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                } else {
+                                    if (taskScope.taskOutOfRange !== 'truncate') {
+                                        if (x > taskScope.task.left + taskScope.task.width) {
+                                            x = taskScope.task.left + taskScope.task.width;
+                                        } else if (x < 0) {
+                                            x = 0;
+                                        }
+                                    }
+                                    taskScope.task.setFrom(x);
+                                    taskScope.$digest();
+                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                }
+
+                                taskHasBeenChanged = true;
+                            };
+
+                            var scrollScreen = function(mode, evt) {
+                                var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
+                                var leftScreenBorder = ganttScrollElement[0].scrollLeft;
+                                var screenWidth = ganttScrollElement[0].offsetWidth;
+                                var scrollWidth = ganttScrollElement[0].scrollWidth;
+                                var rightScreenBorder = leftScreenBorder + screenWidth;
+                                var keepOnScrolling = false;
+
+                                if (mousePos.x < moveStartX) {
+                                    // Scroll to the left
+                                    if (leftScreenBorder > 0 && mousePos.x <= leftScreenBorder + scrollTriggerDistance) {
+                                        mousePos.x -= scrollSpeed;
+                                        keepOnScrolling = true;
+                                        taskScope.row.rowsManager.gantt.api.scroll.left(scrollSpeed);
+                                    }
+                                } else {
+                                    // Scroll to the right
+                                    if (rightScreenBorder < scrollWidth && mousePos.x >= rightScreenBorder - scrollTriggerDistance) {
+                                        mousePos.x += scrollSpeed;
+                                        keepOnScrolling = true;
+                                        taskScope.row.rowsManager.gantt.api.scroll.right(scrollSpeed);
+                                    }
+                                }
+
+                                if (keepOnScrolling) {
+                                    scrollInterval = $timeout(function() {
+                                        handleMove(mode, evt);
+                                    }, 100, true);
+                                }
+                            };
+
+                            var clearScrollInterval = function() {
+                                if (scrollInterval !== undefined) {
+                                    $timeout.cancel(scrollInterval);
+                                    scrollInterval = undefined;
+                                }
+                            };
+
+                            var getMoveMode = function(x) {
+                                var distance = 0;
+
+                                var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
+                                var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+
+                                // Define resize&move area. Make sure the move area does not get too small.
+                                if (allowResizing) {
+                                    distance = taskElement[0].offsetWidth < 10 ? resizeAreaWidthSmall : resizeAreaWidthBig;
+                                }
+
+                                if (allowResizing && x > taskElement[0].offsetWidth - distance) {
+                                    return 'E';
+                                } else if (allowResizing && x < distance) {
+                                    return 'W';
+                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
+                                    return 'M';
+                                } else {
+                                    return '';
+                                }
+                            };
+
+                            var getCursor = function(mode) {
+                                switch (mode) {
+                                    case 'E':
+                                        return 'e-resize';
+                                    case 'W':
+                                        return 'w-resize';
+                                    case 'M':
+                                        return 'move';
+                                }
+                            };
+
+                            var enableMoveMode = function(mode, x) {
+                                // Clone taskModel
+                                if (taskScope.task.originalModel === undefined) {
+                                    taskScope.task.originalRow = taskScope.task.row;
+                                    taskScope.task.originalModel = taskScope.task.model;
+                                    taskScope.task.model = angular.copy(taskScope.task.originalModel);
+                                }
+
+                                if (mode === 'M') {
+                                    taskElement.addClass('gantt-task-moving');
+                                    if (!taskScope.task.isMoving) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
+                                    }
+                                } else {
+                                    taskElement.addClass('gantt-task-resizing');
+                                    if (!taskScope.task.isMoving) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
+                                    }
+                                }
+
+                                // Init task move
+                                taskHasBeenChanged = false;
+                                taskScope.task.moveMode = mode;
+                                taskScope.task.isMoving = true;
+                                taskScope.task.active = true;
+                                moveStartX = x;
+                                mouseOffsetInEm = x - taskScope.task.modelLeft;
+
+                                // Add move event handlers
+                                var taskMoveHandler = function(evt) {
+                                    evt.stopImmediatePropagation();
+                                    if (_hasTouch) {
+                                        evt = mouseOffset.getTouch(evt);
+                                    }
+                                    if (taskScope.task.isMoving) {
+                                        // As this function is defered, disableMoveMode may have been called before.
+                                        // Without this check, task.changed event is not fired for faster moves.
+                                        // See github issue #190
+                                        clearScrollInterval();
+                                        handleMove(mode, evt);
+                                    }
+                                };
+                                var moveSmartEvent = smartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
+                                moveSmartEvent.bind();
+
+                                smartEvent(taskScope, windowElement, _releaseEvents, function(evt) {
+                                    if (_hasTouch) {
+                                        evt = mouseOffset.getTouch(evt);
+                                    }
+                                    moveSmartEvent.unbind();
+                                    disableMoveMode(evt);
+                                    taskScope.$digest();
+                                }).bindOnce();
+
+                                // Show mouse move/resize cursor
+                                taskElement.css('cursor', getCursor(mode));
+                                angular.element($document[0].body).css({
+                                    '-moz-user-select': '-moz-none',
+                                    '-webkit-user-select': 'none',
+                                    '-ms-user-select': 'none',
+                                    'user-select': 'none',
+                                    'cursor': getCursor(mode)
+                                });
+                            };
+
+                            var disableMoveMode = function() {
+                                taskElement.removeClass('gantt-task-moving');
+                                taskElement.removeClass('gantt-task-resizing');
+
+                                if (taskScope.task.originalModel !== undefined) {
+                                    angular.extend(taskScope.task.originalModel, taskScope.task.model);
+                                    taskScope.task.model = taskScope.task.originalModel;
+                                    if (taskScope.task.row.model.id !== taskScope.task.originalRow.model.id) {
+                                        var targetRow = taskScope.task.row;
+                                        targetRow.removeTask(taskScope.task.model.id);
+                                        taskScope.task.row = taskScope.task.originalRow;
+                                        targetRow.moveTaskToRow(taskScope.task, false);
+                                    }
+                                    delete taskScope.task.originalModel;
+                                    delete taskScope.task.originalRow;
+
+                                    taskScope.$apply();
+                                }
+
+                                taskScope.task.isMoving = false;
+                                taskScope.task.active = false;
+
+                                // Stop any active auto scroll
+                                clearScrollInterval();
+
+                                // Set mouse cursor back to default
+                                taskElement.css('cursor', '');
+                                angular.element($document[0].body).css({
+                                    '-moz-user-select': '',
+                                    '-webkit-user-select': '',
+                                    '-ms-user-select': '',
+                                    'user-select': '',
+                                    'cursor': ''
+                                });
+
+                                // Raise move end event
+                                if (taskScope.task.moveMode === 'M') {
+                                    taskScope.row.rowsManager.gantt.api.tasks.raise.moveEnd(taskScope.task);
+                                } else {
+                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(taskScope.task);
+                                }
+
+                                taskScope.task.moveMode = undefined;
+
+                                // Raise task changed event
+                                if (taskHasBeenChanged === true) {
+                                    taskHasBeenChanged = false;
+                                    taskScope.task.row.sortTasks(); // Sort tasks so they have the right z-order
+                                    taskScope.row.rowsManager.gantt.api.tasks.raise.change(taskScope.task);
+                                }
+                            };
+
+                            if (taskScope.task.isResizing) {
+                                delete taskScope.task.isResizing;
+                                enableMoveMode('E', taskScope.task.mouseOffsetX);
+                            } else if (taskScope.task.isMoving) {
+                                // In case the task has been moved to another row a new controller is is created by angular.
+                                // Enable the move mode again if this was the case.
+                                enableMoveMode('M', taskScope.task.mouseOffsetX);
+                            }
+
+                        }
+                    });
+
+                }
+            };
+        }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', function(moment, $compile) {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.progress) === 'object') {
+                    for (var option in scope.options.progress) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                var progressScopes = [];
+                scope.$watch('enabled', function(enabled) {
+                    angular.forEach(progressScopes, function(progressScope) {
+                        progressScope.enabled = enabled;
+                    });
+                });
+
+                api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                    if (directiveName === 'ganttTask') {
+                        var progressScope = taskScope.$new();
+                        progressScopes.push(progressScope);
+                        progressScope.enabled = scope.enabled;
+
+                        taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(progressScope));
+
+                        progressScope.$on('$destroy', function() {
+                            var scopeIndex = progressScopes.indexOf(progressScope);
+                            if (scopeIndex > -1) {
+                                progressScopes.splice(scopeIndex, 1);
+                            }
+                        });
+                    }
+                });
+
+                api.tasks.on.clean(scope, function(model) {
+                    if (model.est !== undefined && !moment.isMoment(model.est)) {
+                        model.est = moment(model.est); //Earliest Start Time
+                    }
+
+                    if (model.lct !== undefined && !moment.isMoment(model.lct)) {
+                        model.lct = moment(model.lct); //Latest Completion Time
+                    }
+                });
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSortable', ['ganttUtils', '$compile', function(utils, $compile) {
+        // Provides the row sort functionality to any Gantt row
+        // Uses the sortableState to share the current row
+
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.sortable) === 'object') {
+                    for (var option in scope.options.sortable) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
+                    if (directiveName === 'ganttRowLabel') {
+                        rowScope.checkDraggable = function() {
+                            return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                        };
+
+                        rowScope.onDropSuccess = function() {
+                            rowScope.$evalAsync();
+                        };
+
+                        rowScope.onDrop = function(evt, data) {
+                            var row = rowScope.row.rowsManager.rowsMap[data.id];
+                            if (row !== rowScope) {
+                                rowScope.row.rowsManager.moveRow(row, rowScope.row);
+                                rowScope.$evalAsync();
+                            }
+                        };
+
+                        rowElement.attr('ui-draggable', '{{checkDraggable()}}');
+                        rowElement.attr('drag-channel', '\'sortable\'');
+                        rowElement.attr('ui-on-drop', 'onDrop($event, $data)');
+                        rowElement.attr('on-drop-success', 'onDropSuccess()');
+
+                        rowElement.attr('drop-channel', '\'sortable\'');
+                        rowElement.attr('drag', 'row.model');
+
+                        $compile(rowElement)(rowScope);
+                    }
+                });
+
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?',
+                dateFormat: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.tooltips) === 'object') {
+                    for (var option in scope.options.tooltips) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+                if (scope.dateFormat === undefined) {
+                    scope.dateFormat = 'MMM DD, HH:mm';
+                }
+
+                var tooltipScopes = [];
+                scope.$watch('dateFormat', function(dateFormat) {
+                    angular.forEach(tooltipScopes, function(tooltipScope) {
+                        tooltipScope.dateFormat = dateFormat;
+                    });
+                });
+
+                scope.$watch('enabled', function(enabled) {
+                    angular.forEach(tooltipScopes, function(tooltipScope) {
+                        tooltipScope.enabled = enabled;
+                    });
+                });
+
+                api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                    if (directiveName === 'ganttTask') {
+                        var tooltipScope = taskScope.$new();
+                        tooltipScopes.push(tooltipScope);
+                        tooltipScope.dateFormat = scope.dateFormat;
+                        tooltipScope.enabled = scope.enabled;
+                        taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(tooltipScope));
+
+                        tooltipScope.$on('$destroy', function() {
+                            var scopeIndex = tooltipScopes.indexOf(tooltipScope);
+                            if (scopeIndex > -1) {
+                                tooltipScopes.splice(scopeIndex, 1);
+                            }
+                        });
+                    }
+                });
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.bounds').directive('ganttTaskBounds', [function() {
+        // Displays a box representing the earliest allowable start time and latest completion time for a job
+
+        return {
+            restrict: 'E',
+            templateUrl: function(tElement, tAttrs) {
+                if (tAttrs.templateUrl === undefined) {
+                    return 'plugins/bounds/taskBounds.tmpl.html';
+                } else {
+                    return tAttrs.templateUrl;
+                }
+            },
+            replace: true,
+            scope: true,
+            controller: ['$scope', '$element', function($scope, $element) {
+                var css = {};
+
+                $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
+                    if ($scope.task.model.est !== undefined && $scope.task.model.lct !== undefined) {
+                        $scope.bounds = {};
+                        $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
+                        $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct) - $scope.bounds.left;
+                    } else {
+                        $scope.bounds = undefined;
+                    }
+                });
+
+                $scope.task.$element.bind('mouseenter', function() {
+                    $scope.isTaskMouseOver = true;
+                    $scope.$digest();
+                });
+
+                $scope.task.$element.bind('mouseleave', function() {
+                    $scope.isTaskMouseOver = false;
+                    $scope.$digest();
+                });
+
+                $scope.getCss = function() {
+                    if ($scope.bounds !== undefined) {
+                        css.width = $scope.bounds.width + 'px';
+
+                        if ($scope.task.isMilestone() === true || $scope.task.width === 0) {
+                            css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
+                        } else {
+                            css.left = ($scope.bounds.left - $scope.task.left) + 'px';
+                        }
+                    }
+
+                    return css;
+                };
+
+                $scope.getClass = function() {
+                    if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
+                        return 'gantt-task-bounds-in';
+                    } else if ($scope.task.model.est > $scope.task.model.from) {
+                        return 'gantt-task-bounds-out';
+                    }
+                    else if ($scope.task.model.lct < $scope.task.model.to) {
+                        return 'gantt-task-bounds-out';
+                    }
+                    else {
+                        return 'gantt-task-bounds-in';
+                    }
+                };
+
+                $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
+                $scope.$on('$destroy', function() {
+                    $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttBounds', $scope, $element);
+                });
+            }]
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
+        return {
+            initialize: function(options) {
+
+                options.enabled = options.enabled !== undefined ? !!options.enabled : true;
+                options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
+                options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
+                options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
+
+                return options;
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.progress').directive('ganttTaskProgress', [function() {
+        return {
+            restrict: 'E',
+            requires: '^ganttTask',
+            templateUrl: function(tElement, tAttrs) {
+                if (tAttrs.templateUrl === undefined) {
+                    return 'plugins/progress/taskProgress.tmpl.html';
+                } else {
+                    return tAttrs.templateUrl;
+                }
+            },
+            replace: true,
+            scope: true,
+            controller: ['$scope', '$element', function($scope, $element) {
+                $scope.getClasses = function() {
+                    var classes = [];
+
+                    if ($scope.task.model.progress !== undefined && (typeof($scope.task.model.progress) !== 'object')) {
+                        classes = $scope.task.model.classes;
+                    }
+
+                    return classes;
+                };
+
+                $scope.getCss = function() {
+                    var css = {};
+
+                    var progress;
+                    if ($scope.task.model.progress !== undefined) {
+                        if (typeof($scope.task.model.progress) === 'object') {
+                            progress = $scope.task.model.progress;
+                        } else {
+                            progress = {percent: $scope.task.model.progress};
+                        }
+                    }
+
+                    if (progress) {
+                        if (progress.color) {
+                            css['background-color'] = progress.color;
+                        } else {
+                            css['background-color'] = '#6BC443';
+                        }
+
+                        css.width = progress.percent + '%';
+                    }
+
+                    return css;
+                };
+
+                $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element);
+                $scope.$on('$destroy', function() {
+                    $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
+                });
+            }]
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+        // This tooltip displays more information about a task
+
+        return {
+            restrict: 'E',
+            templateUrl: function(tElement, tAttrs) {
+                if (tAttrs.templateUrl === undefined) {
+                    return 'plugins/tooltips/tooltip.tmpl.html';
+                } else {
+                    return tAttrs.templateUrl;
+                }
+            },
+            scope: true,
+            replace: true,
+            controller: ['$scope', '$element', 'ganttUtils', function($scope, $element, utils) {
+                var bodyElement = angular.element($document[0].body);
+                var parentElement = $element.parent();
+                var showTooltipPromise;
+                var mousePositionX;
+
+                $scope.css = {};
+                $scope.visible = false;
+
+                $scope.getFromLabel = function() {
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    return $scope.task.model.from.format(dateFormat);
+                };
+
+                $scope.getToLabel = function() {
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    return $scope.task.model.to.format(dateFormat);
+                };
+
+                $scope.$watch('isTaskMouseOver', function(newValue) {
+                    if (showTooltipPromise) {
+                        $timeout.cancel(showTooltipPromise);
+                    }
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                    if (enabled && newValue === true) {
+                        showTooltipPromise = $timeout(function() {
+                            showTooltip(mousePositionX);
+                        }, 500, true);
+                    } else {
+                        if (!$scope.task.active) {
+                            hideTooltip();
+                        }
+                    }
+                });
+
+                $scope.task.$element.bind('mousemove', function(evt) {
+                    mousePositionX = evt.clientX;
+                });
+
+                $scope.task.$element.bind('mouseenter', function(evt) {
+                    $scope.mouseEnterX = evt.clientX;
+                    $scope.isTaskMouseOver = true;
+                    $scope.$digest();
+                });
+
+                $scope.task.$element.bind('mouseleave', function() {
+                    $scope.mouseEnterX = undefined;
+                    $scope.isTaskMouseOver = false;
+                    $scope.$digest();
+                });
+
+                var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
+                    updateTooltip(e.clientX);
+                }, 5, false));
+
+                $scope.$watch('task.isMoving', function(newValue) {
+                    if (newValue === true) {
+                        mouseMoveHandler.bind();
+                    } else if (newValue === false) {
+                        mouseMoveHandler.unbind();
+                        hideTooltip();
+                    }
+                });
+
+                var getViewPortWidth = function() {
+                    var d = $document[0];
+                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
+                };
+
+                var showTooltip = function(x) {
+                    $scope.visible = true;
+
+                    $timeout(function() {
+                        updateTooltip(x);
+
+                        $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
+                        $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
+                        $scope.css.opacity = 1;
+                    }, 0, true);
+                };
+
+                var updateTooltip = function(x) {
+                    // Check if info is overlapping with view port
+                    if (x + $element[0].offsetWidth > getViewPortWidth()) {
+                        $scope.css.left = (x + 20 - $element[0].offsetWidth) + 'px';
+                        $element.addClass('gantt-task-infoArrowR'); // Right aligned info
+                        $element.removeClass('gantt-task-infoArrow');
+                    } else {
+                        $scope.css.left = (x - 20) + 'px';
+                        $element.addClass('gantt-task-infoArrow');
+                        $element.removeClass('gantt-task-infoArrowR');
+                    }
+                };
+
+                var hideTooltip = function() {
+                    $scope.css.opacity = 0;
+                    $scope.visible = false;
+                };
+
+                $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
+                $scope.$on('$destroy', function() {
+                    $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
+                });
+            }]
+        };
+    }]);
+}());
+
+
+//# sourceMappingURL=angular-gantt-plugins.js.map

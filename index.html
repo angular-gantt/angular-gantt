@@ -1,220 +1,224 @@
-<!doctype html>
-<html class="no-js">
-  <head>
-    <meta charset="utf-8">
-    <title>angular-gantt - The gantt chart directive for AngularJS</title>
-    <meta name="description" content="angular-gantt - The gantt chart directive for AngularJS">
-    <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <link rel="stylesheet" href="styles/vendor.css">
-    <link rel="stylesheet" href="styles/main.css">
-  </head>
-  <body ng-app="angularGanttDemoApp">
-    <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Gantt chart component for AngularJS">
 
-    <!-- Add your site or application content here -->
-    <a href="https://github.com/angular-gantt/angular-gantt" target="_blank"><img style="position: absolute; z-index:10000; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+        <link rel="canonical" href="http://www.angular-gantt.com/">
+        <link rel="shortcut icon" href="./img/favicon.ico">
 
-    <div ng-controller="MainCtrl">
-        <div class="navbar navbar-default" role="navigation" bs-navbar>
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">angular-gantt - The gantt chart directive for AngularJS</a>
-            </div>
+        <title>angular-gantt - Gantt chart component for AngularJS</title>
+
+        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="./css/prettify-1.0.css" rel="stylesheet">
+        <link href="./css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href=".">angular-gantt</a>
         </div>
 
-        <div class="container-content" ng-show="false">
-            <div class="container-fluid">
-                <div class="row top-buffer">
-                    <div class="col-md-12">
-                        <i class="fa fa-cog fa-spin"></i> Loading angular-gantt demo ...
-                    </div>
-                </div>
-            </div>
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+
+
+                <li >
+                    <a href="get-started/">Get Started</a>
+                </li>
+
+
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+
+                        <li >
+                            <a href="configuration/data/">Data</a>
+                        </li>
+
+                        <li >
+                            <a href="configuration/timespans/">Timespans</a>
+                        </li>
+
+                        <li >
+                            <a href="configuration/attributes/">Attributes</a>
+                        </li>
+
+                        <li >
+                            <a href="configuration/plugins/">Plugins</a>
+                        </li>
+
+                        <li >
+                            <a href="configuration/customize/">Customize</a>
+                        </li>
+
+                        <li >
+                            <a href="configuration/api/">API</a>
+                        </li>
+
+                        <li >
+                            <a href="configuration/write_plugin/">Write a Plugin</a>
+                        </li>
+
+                    </ul>
+                </li>
+
+
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+
+                        <li >
+                            <a href="plugins/sortable/">Sortable</a>
+                        </li>
+
+                        <li >
+                            <a href="plugins/movable/">Movable</a>
+                        </li>
+
+                        <li >
+                            <a href="plugins/drawtask/">Draw Task</a>
+                        </li>
+
+                        <li >
+                            <a href="plugins/tooltips/">Tooltips</a>
+                        </li>
+
+                        <li >
+                            <a href="plugins/bounds/">Bounds</a>
+                        </li>
+
+                        <li >
+                            <a href="plugins/progress/">Progress</a>
+                        </li>
+
+                    </ul>
+                </li>
+
+
+
+                <li >
+                    <a href="sources/">Sources</a>
+                </li>
+
+
+
+                <li >
+                    <a href="contribute/">Contribute</a>
+                </li>
+
+
+
+                <li >
+                    <a href="faq/">FAQ</a>
+                </li>
+
+
+
+                <li >
+                    <a href="about/">About</a>
+                </li>
+
+
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+
+                <li class="disabled">
+                    <a rel="next" >
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="get-started/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://github.com/angular-gantt/angular-gantt">
+
+                            <i class="fa fa-github"></i>
+
+                        GitHub
+                    </a>
+                </li>
+
+            </ul>
         </div>
-
-        <div class="container-content" ng-cloak="true">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="panel-group" bs-collapse>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a href="" bs-collapse-toggle>Options</a>
-                                    </h4>
-                                </div>
-                                <div class="panel-collapse" bs-collapse-target>
-                                    <div class="panel-body">
-                                        <div class="container-fluid">
-                                            <div class="row">
-                                                <div class="form-inline">
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-search"></i> Scale</label><br>
-                                                        <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'year']" bs-select></button>
-                                                    </div>
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
-                                                        <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.mode" ng-options="m for m in ['name', 'from', 'to', 'custom']" bs-select></button>
-                                                    </div>
-                                                    <div class="form-group input-append text-center">
-                                                        <label class="control-label"><i class="fa fa-filter"></i> Filter Tasks</label><br>
-                                                        <input type="text" class="form-control" style="width: 8em; text-align: left" ng-model="options.filterTask">
-                                                    </div>
-                                                    <div class="form-group input-append text-center">
-                                                        <label class="control-label"><i class="fa fa-filter"></i> Filter Rows</label><br>
-                                                        <input type="text" class="form-control" style="width: 8em; text-align: left" ng-model="options.filterRow">
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-clock-o"></i> Today</label><br>
-                                                        <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.currentDate" ng-options="d for d in ['none', 'line', 'column']" bs-select></button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-expand"></i> Expand</label><br>
-                                                        <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.autoExpand" ng-options="e for e in ['none', 'both', 'left', 'right']" bs-select></button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-scissors"></i> Out of range</label><br>
-                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.taskOutOfRange" ng-options="e for e in ['expand', 'truncate']" bs-select></button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-pencil-square-o"></i> Edit</label><br>
-                                                        <button type="button" class="btn btn-default" ng-model="options.draw" bs-checkbox>Draw</button>
-                                                        <button type="button" class="btn btn-default" ng-model="options.readOnly" bs-checkbox>Read Only</button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-magnet"></i> Magnet</label><br>
-                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.columnMagnet" ng-options="m for m in ['1 second', '1 minute', '5 minutes', '15 minutes', '1 hour', '1 day']" bs-select></button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
-                                                        <div class="btn-group" bs-checkbox-group>
-                                                            <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
-                                                            <button type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
-                                                            <button type="button" class="btn btn-default" ng-model="options.showLabelsColumn" bs-checkbox>Labels</button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-calendar"></i> <i class="fa fa-arrows-h"></i> <i class="fa fa-calendar"></i> Date range</label><br>
-                                                        <div class="form-group">
-                                                            <input type="text" class="form-control" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <input type="text" class="form-control" ng-model="options.toDate" min-date="{{options.fromDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="To" bs-datepicker>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-sign-out"></i> Non-working</label><br>
-                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.timeFramesNonWorkingMode" ng-options="e for e in ['visible', 'hidden', 'cropped']" bs-select></button>
-                                                    </div>
-
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-database"></i> Data actions</label><br>
-                                                        <div class="btn-group">
-                                                            <button class="btn btn-default" ng-click="addSamples()">Reload</button>
-                                                            <button class="btn btn-default" ng-click="removeSomeSamples()">Remove</button>
-                                                            <button class="btn btn-default" ng-click="removeSamples()">Clear</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row top-buffer">
-                    <div class="col-md-12">
-                        <div class="panel-group" bs-collapse>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a href="" bs-collapse-toggle>Gantt</a>
-                                    </h4>
-                                </div>
-                                <div class="panel-collapse" bs-collapse-target>
-                                    <div class="panel-body">
-                                        <gantt first-day-of-week="1"
-                                               filter-task="{'name': options.filterTask}"
-                                               filter-row="{'name': options.filterRow}"
-                                               load-data="loadData = fn"
-                                               load-timespans="loadTimespans = fn"
-                                               center-date="scrollToDate = fn"
-                                               remove-data="removeData = fn"
-                                               clear-data="clearData = fn"
-                                               allow-task-moving="!options.readOnly"
-                                               allow-task-resizing="!options.readOnly"
-                                               allow-task-row-switching="!options.readOnly"
-                                               sort-mode="options.mode"
-                                               view-scale="options.scale"
-                                               column-width="options.width && {minute: 40, hour: 40, day: 40, week: 150, month: 300, quarter: 500, year: 800}[options.scale] || undefined"
-                                               auto-expand="options.autoExpand"
-                                               task-out-of-range="options.taskOutOfRange"
-                                               from-date = "options.fromDate"
-                                               to-date = "options.toDate"
-                                               show-labels-column="options.showLabelsColumn"
-                                               current-date="options.currentDate"
-                                               current-date-value="options.currentDateValue"
-                                               max-height="options.maxHeight && 300 || 0"
-                                               on-scroll="scrollEvent(event)"
-                                               headers-formats="options.headersFormats"
-                                               headers="options.headers"
-                                               time-frames="options.timeFrames"
-                                               date-frames="options.dateFrames"
-                                               time-frames-non-working-mode="options.timeFramesNonWorkingMode"
-                                               column-magnet="options.columnMagnet">
-                                        </gantt>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="container-content" ng-cloak="true">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <small>angular-gantt (v0.7.0) - The gantt chart directive for AngularJS | MIT License | Copyright © 2014 Marco Schweighauser and Rémi Alvergnat</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+
+        <li class="main active"><a href="#angular-gantt">angular-gantt</a></li>
+
+            <li><a href="#gantt-chart-component-for-angularjs">Gantt chart component for AngularJS</a></li>
+
+            <li><a href="#try-now">Try now</a></li>
+
+            <li><a href="#features">Features</a></li>
 
 
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID
-     <script>
-       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
 
-       ga('create', 'UA-XXXXX-X');
-       ga('send', 'pageview');
-    </script>
-    -->
+<h1 id="angular-gantt">angular-gantt</h1>
+<h2 id="gantt-chart-component-for-angularjs">Gantt chart component for AngularJS</h2>
+<p>angular-gantt provides a gantt chart component to your <a href="https://angularjs.org/">AngularJS</a> application.</p>
+<p><br/> </p>
+<p><img alt="angular-gantt" src="./img/angular-gantt.png" /></p>
+<h2 id="try-now">Try now</h2>
+<p>Try angular-gantt now using the <a href="http://www.angular-gantt.com/demo">Demo Application</a>.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Two-way data binding between model and view.</li>
+<li>Advanced calendar support to define holidays and working hours.</li>
+<li>Each task and row has its own properties and behavior.</li>
+<li>Rows and tasks can be sorted and filtered.</li>
+<li>Plugin architecture to add custom features and hooks.</li>
+<li>API to listen events and call methods from your controller.</li>
+</ul>
+</div>
+        </div>
 
-    <!--[if lt IE 9]>
-    <script src="scripts/oldieshim.js"></script>
-    <![endif]-->
 
-    <script src="scripts/vendor.js"></script>
 
-        <script src="scripts/scripts.js"></script>
-</body>
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="./js/bootstrap-3.0.3.min.js"></script>
+        <script src="./js/prettify-1.0.min.js"></script>
+        <script src="./js/base.js"></script>
+        <script src="./skeletons/plugin.js"></script>
+    </body>
 </html>
