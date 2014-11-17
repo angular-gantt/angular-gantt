@@ -16,7 +16,7 @@ Display a visual indicator showing configured progress of tasks.
 
     <link rel="stylesheet" href="angular-gantt-progress.css">
 
-To define bounds on a task, you need to add `progress` object property inside Task object.
+To show the progress indicator, you need to a add `progress` object property inside the Task object.
 
     {
       name: "...",
