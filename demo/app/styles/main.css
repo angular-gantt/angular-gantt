@@ -6,6 +6,10 @@
     margin-top: 8px;
 }
 
+.navbar-right-spacing {
+    margin-right: 160px;
+}
+
 .btn:focus {
     color: #333;
     background-color: #fff;
