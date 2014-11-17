@@ -2303,6 +2303,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.gantt.api.rows.raise.change(row);
                 this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
 
+                this.updateVisibleObjects();
                 this.sortRows();
             }
         };
@@ -3041,9 +3042,11 @@ Github: https://github.com/angular-gantt/angular-gantt
                         'cursor': cursor
                     });
 
-                    var moveHandler = debounce(function(e) {
-                        resize(e.screenX);
-                    }, 5);
+                    var moveHandler = function(e) {
+                        scope.$evalAsync(function() {
+                            resize(e.screenX);
+                        });
+                    };
 
                     angular.element($document[0].body).bind('mousemove', moveHandler);
 
@@ -3847,9 +3850,6 @@ Github: https://github.com/angular-gantt/angular-gantt
             toMouseEvent: function(evt) {
                 if (evt.touches !== undefined) {
                     return evt.touches[0];
-                } else if (evt.originalEvent && evt.originalEvent.touches) {
-                    alert("touch");
-                    return evt.originalEvent.touches[0];
                 }
                 return evt;
             },
@@ -3905,7 +3905,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '            <gantt-row-header></gantt-row-header>\n' +
         '        </gantt-labels-header>\n' +
         '        <gantt-labels-body>\n' +
-        '            <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '            <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                <gantt-row-label></gantt-row-label>\n' +
         '            </div>\n' +
         '        </gantt-labels-body>\n' +
@@ -3924,7 +3924,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-scrollable>\n' +
         '        <gantt-body>\n' +
         '            <gantt-body-background>\n' +
-        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                    <gantt-row-background></gantt-row-background>\n' +
         '                </div>\n' +
         '            </gantt-body-background>\n' +
@@ -3944,7 +3944,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
         '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
-        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">\n' +
+        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                    <gantt-row>\n' +
         '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
         '                            <gantt-task ></gantt-task>\n' +
@@ -4030,7 +4030,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">\n' +
         '        <div class="gantt-column-header"\n' +
         '              ng-style="{\'left\': column.left+\'px\', \'width\': column.width+\'px\'}">\n' +
-        '            {{ column.label }}\n' +
+        '            {{ ::column.label }}\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +

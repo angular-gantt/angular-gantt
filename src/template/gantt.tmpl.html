@@ -4,7 +4,7 @@
             <gantt-row-header></gantt-row-header>
         </gantt-labels-header>
         <gantt-labels-body>
-            <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
+            <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
                 <gantt-row-label></gantt-row-label>
             </div>
         </gantt-labels-body>
@@ -23,7 +23,7 @@
     <gantt-scrollable>
         <gantt-body>
             <gantt-body-background>
-                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
+                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
                     <gantt-row-background></gantt-row-background>
                 </div>
             </gantt-body-background>
@@ -43,7 +43,7 @@
                 <div ng-repeat="timespan in gantt.timespansManager.timespans">
                     <gantt-timespan></gantt-timespan>
                 </div>
-                <div ng-repeat="row in gantt.rowsManager.visibleRows track by $index">
+                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
                     <gantt-row>
                         <div ng-repeat="task in row.visibleTasks track by task.model.id">
                             <gantt-task ></gantt-task>
@@ -129,7 +129,7 @@
     <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">
         <div class="gantt-column-header"
               ng-style="{'left': column.left+'px', 'width': column.width+'px'}">
-            {{ column.label }}
+            {{ ::column.label }}
         </div>
     </script>
 

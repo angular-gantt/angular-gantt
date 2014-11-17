@@ -62,9 +62,11 @@
                         'cursor': cursor
                     });
 
-                    var moveHandler = debounce(function(e) {
-                        resize(e.screenX);
-                    }, 5);
+                    var moveHandler = function(e) {
+                        scope.$evalAsync(function() {
+                            resize(e.screenX);
+                        });
+                    };
 
                     angular.element($document[0].body).bind('mousemove', moveHandler);
 

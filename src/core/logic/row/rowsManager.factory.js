@@ -253,6 +253,7 @@
                 this.gantt.api.rows.raise.change(row);
                 this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
 
+                this.updateVisibleObjects();
                 this.sortRows();
             }
         };
