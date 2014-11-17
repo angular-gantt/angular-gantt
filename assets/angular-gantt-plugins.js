@@ -218,7 +218,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                             taskElement.on(_pressEvents, function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
-                                    evt = mouseOffset.toMouseEvent(evt);
+                                    evt = mouseOffset.getTouch(evt);
                                 }
                                 var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
                                 if (enabled) {
@@ -232,20 +232,18 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                 }
                             });
 
-                            if (!_hasTouch) {
-                                taskElement.on('mousemove', function(evt) {
-                                    var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
-                                    if (enabled) {
-                                        var taskOffsetX = mouseOffset.getOffset(evt).x;
-                                        var mode = getMoveMode(taskOffsetX);
-                                        if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
-                                            taskElement.css('cursor', getCursor(mode));
-                                        } else {
-                                            taskElement.css('cursor', '');
-                                        }
+                            taskElement.on('mousemove', function(evt) {
+                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                if (enabled) {
+                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var mode = getMoveMode(taskOffsetX);
+                                    if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                        taskElement.css('cursor', getCursor(mode));
+                                    } else {
+                                        taskElement.css('cursor', '');
                                     }
-                                });
-                            }
+                                }
+                            });
 
                             var handleMove = function(mode, evt) {
                                 moveTask(mode, evt);
@@ -419,7 +417,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                 var taskMoveHandler = function(evt) {
                                     evt.stopImmediatePropagation();
                                     if (_hasTouch) {
-                                        evt = mouseOffset.toMouseEvent(evt);
+                                        evt = mouseOffset.getTouch(evt);
                                     }
                                     if (taskScope.task.isMoving) {
                                         // As this function is defered, disableMoveMode may have been called before.
@@ -434,7 +432,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
                                 smartEvent(taskScope, windowElement, _releaseEvents, function(evt) {
                                     if (_hasTouch) {
-                                        evt = mouseOffset.toMouseEvent(evt);
+                                        evt = mouseOffset.getTouch(evt);
                                     }
                                     moveSmartEvent.unbind();
                                     disableMoveMode(evt);

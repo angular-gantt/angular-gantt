@@ -4,7 +4,7 @@
         // Mouse offset support for lesser browsers (read IE 8)
 
         return {
-            toMouseEvent: function(evt) {
+            getTouch: function(evt) {
                 if (evt.touches !== undefined) {
                     return evt.touches[0];
                 }
