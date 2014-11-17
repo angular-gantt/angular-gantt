@@ -40184,7 +40184,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body"></div>\n' +
+        '        <div ng-transclude class="gantt-body"\n' +
+        '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +

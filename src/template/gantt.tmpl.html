@@ -65,7 +65,8 @@
 
     <!-- Body template -->
     <script type="text/ng-template" id="template/ganttBody.tmpl.html">
-        <div ng-transclude class="gantt-body"></div>
+        <div ng-transclude class="gantt-body"
+             ng-style="{'width': gantt.width +'px'}"></div>
     </script>
 
     <!-- Header template -->
