@@ -133,10 +133,10 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
   
 #### labels
 
-- **api.labels.on.resize(width)**
+- **api.labels.on.resizeBegin(width)**, **api.labels.on.resize(width)**, **api.labels.on.resizeEnd(width)**
 
-    Row labels have been resized.
-
+    Row label area is starting to resize, resizing or has stopped resizing.
+        
 #### scroll
 
 - **api.scroll.on.scroll(left, date, direction)**

@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
+    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
 
         return {
             restrict: 'A',
@@ -63,9 +63,11 @@
                     });
 
                     var moveHandler = function(e) {
-                        scope.$evalAsync(function() {
+                        scope.$evalAsync(function(){
                             resize(e.screenX);
+                            api.labels.raise.resize(scope.width);
                         });
+
                     };
 
                     angular.element($document[0].body).bind('mousemove', moveHandler);
@@ -74,6 +76,8 @@
                         angular.element($document[0].body).unbind('mousemove', moveHandler);
                         disableResizeMode();
                     });
+
+                    api.labels.raise.resizeBegin(scope.width);
                 };
 
                 var disableResizeMode = function() {
@@ -87,7 +91,7 @@
                         'cursor': ''
                     });
 
-                    api.labels.raise.resize(scope.width);
+                    api.labels.raise.resizeEnd(scope.width);
                 };
             }
         };

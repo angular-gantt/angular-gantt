@@ -2658,6 +2658,8 @@ Github: https://github.com/angular-gantt/angular-gantt
         var Labels= function(gantt) {
             this.gantt = gantt;
             this.gantt.api.registerEvent('labels', 'resize');
+            this.gantt.api.registerEvent('labels', 'resizeBegin');
+            this.gantt.api.registerEvent('labels', 'resizeEnd');
         };
         return Labels;
     }]);
@@ -3053,7 +3055,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
+    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
 
         return {
             restrict: 'A',
@@ -3116,9 +3118,11 @@ Github: https://github.com/angular-gantt/angular-gantt
                     });
 
                     var moveHandler = function(e) {
-                        scope.$evalAsync(function() {
+                        scope.$evalAsync(function(){
                             resize(e.screenX);
+                            api.labels.raise.resize(scope.width);
                         });
+
                     };
 
                     angular.element($document[0].body).bind('mousemove', moveHandler);
@@ -3127,6 +3131,8 @@ Github: https://github.com/angular-gantt/angular-gantt
                         angular.element($document[0].body).unbind('mousemove', moveHandler);
                         disableResizeMode();
                     });
+
+                    api.labels.raise.resizeBegin(scope.width);
                 };
 
                 var disableResizeMode = function() {
@@ -3140,7 +3146,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                         'cursor': ''
                     });
 
-                    api.labels.raise.resize(scope.width);
+                    api.labels.raise.resizeEnd(scope.width);
                 };
             }
         };
