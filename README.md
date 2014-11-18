@@ -5,7 +5,7 @@
 
 ## Gantt chart component for AngularJS
 
-angular-gantt provides a gantt chart component to your [AngularJS](https://angularjs.org/) application.
+[angular-gantt](http://www.angular-gantt.com) provides a gantt chart component to your [AngularJS](https://angularjs.org/) application.
 
 <br/> 
 
@@ -16,7 +16,7 @@ angular-gantt provides a gantt chart component to your [AngularJS](https://angul
 Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com/demo).
 
 [Unstable Demo Application](http://rawgit.com/angular-gantt/angular-gantt/master/demo/dist/index.html) is also available.
-It is build against github master branch, and allows to preview bleeding edge features, but may be very unstable.
+It is build against [github master]() branch, and allows to preview bleeding edge features, but may be very unstable.
 
 ## Features
 - Two-way data binding between model and view.
@@ -29,7 +29,26 @@ It is build against github master branch, and allows to preview bleeding edge fe
 ## Docs
 
 Docs are built using [MkDocs](http://www.mkdocs.org/) and available at
-[ReadTheDocs](http://angular-gantt.readthedocs.org/en/latest/).
+[angular-gantt website](http://www.angular-gantt.com) (stable) and [ReadTheDocs](http://angular-gantt.readthedocs.org/en/latest/)
+(master).
+
+## Download
+
+angular-gantt is available through [bower](http://bower.io/) and [npm](https://www.npmjs.org/package/angular-gantt).
+
+    bower install angular-gantt
+    npm install angular-gantt
+    
+or
+
+    bower install angular-gantt#master
+    npm install https://github.com/angular-gantt/angular-gantt/tarball/master
+
+
+[Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
+[download](https://github.com/angular-gantt/angular-gantt/releases/latest) on Github and is the recommended and stable version.
+
+[Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
 ## Dependencies
 - [AngularJS](https://angularjs.org) >= 1.3
