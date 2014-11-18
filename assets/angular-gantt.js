@@ -1945,7 +1945,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         // Removes the task from the existing row and adds it to he current one
         Row.prototype.moveTaskToRow = function(task, viewOnly) {
             var oldRow = task.row;
-            oldRow.removeTask(task.model.id, viewOnly);
+            oldRow.removeTask(task.model.id, viewOnly, true);
 
             task.row = this;
             this.addTaskImpl(task, viewOnly);
@@ -1988,7 +1988,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         };
 
         // Remove the specified task from the row
-        Row.prototype.removeTask = function(taskId, viewOnly) {
+        Row.prototype.removeTask = function(taskId, viewOnly, silent) {
             if (taskId in this.tasksMap) {
                 var removedTask = this.tasksMap[taskId];
                 var task;
@@ -2034,7 +2034,9 @@ Github: https://github.com/angular-gantt/angular-gantt
                         }
                     }
 
-                    this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                    if (!silent) {
+                        this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                    }
                 }
 
                 return removedTask;

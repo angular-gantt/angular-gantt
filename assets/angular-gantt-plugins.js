@@ -15,6 +15,10 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 
 }]);
 
+angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
@@ -458,7 +462,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                     taskScope.task.model = taskScope.task.originalModel;
                                     if (taskScope.task.row.model.id !== taskScope.task.originalRow.model.id) {
                                         var targetRow = taskScope.task.row;
-                                        targetRow.removeTask(taskScope.task.model.id);
+                                        targetRow.removeTask(taskScope.task.model.id, false, true);
                                         taskScope.task.row = taskScope.task.originalRow;
                                         targetRow.moveTaskToRow(taskScope.task, false);
                                     }

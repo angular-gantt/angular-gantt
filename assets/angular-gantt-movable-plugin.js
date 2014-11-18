@@ -307,7 +307,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                                     taskScope.task.model = taskScope.task.originalModel;
                                     if (taskScope.task.row.model.id !== taskScope.task.originalRow.model.id) {
                                         var targetRow = taskScope.task.row;
-                                        targetRow.removeTask(taskScope.task.model.id);
+                                        targetRow.removeTask(taskScope.task.model.id, false, true);
                                         taskScope.task.row = taskScope.task.originalRow;
                                         targetRow.moveTaskToRow(taskScope.task, false);
                                     }
