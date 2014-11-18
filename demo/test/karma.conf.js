@@ -20,7 +20,7 @@ module.exports = function(config) {
     files: [
       // bower:js
       'bower_components/es5-shim/es5-shim.js',
-      'bower_components/angular/angular.js',
+      'bower_components/angular/build/angular.js',
       'bower_components/json3/lib/json3.js',
       'bower_components/angular-animate/angular-animate.js',
       'bower_components/angular-strap/dist/angular-strap.js',
@@ -28,9 +28,10 @@ module.exports = function(config) {
       'bower_components/moment/moment.js',
       'bower_components/angular-moment/angular-moment.js',
       'bower_components/angular-native-dragdrop/draganddrop.js',
+      'bower_components/ng-lodash/build/ng-lodash.js',
       'bower_components/angular-gantt/assets/angular-gantt.js',
       'bower_components/angular-gantt/assets/angular-gantt-plugins.js',
-      'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/angular-mocks/build/angular-mocks.js',
       // endbower
       'app/scripts/**/*.js',
       'test/mock/**/*.js',

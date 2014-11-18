@@ -279,6 +279,28 @@ angular.module('angularGanttDemoApp')
             $scope.live.rowJson = angular.toJson($scope.live.row, true);
         });
 
+        $scope.undo = function() {
+            $scope.api.history.undo();
+        };
+
+        $scope.redo = function() {
+            $scope.api.history.redo();
+        };
+
+        $scope.canUndo = function() {
+            var canUndo = $scope.api.history.canUndo();
+            return canUndo;
+        };
+
+        $scope.canRedo = function() {
+            var canRedo = $scope.api.history.canRedo();
+            return canRedo;
+        };
+
+        $scope.clearHistory = function() {
+            $scope.api.history.clear();
+        };
+
         // Event handler
         var logScrollEvent = function(left, date, direction) {
             if (date !== undefined) {
