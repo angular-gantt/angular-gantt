@@ -226,6 +226,10 @@ api.featureName.methodName();
 <p><strong>api.core.on.ready(api)</strong></p>
 <p>Gantt is initialized and ready to load data.</p>
 </li>
+<li>
+<p><strong>api.core.on.rendered(api)</strong></p>
+<p>Gantt is fully rendered in browser.</p>
+</li>
 </ul>
 <h4 id="data">data</h4>
 <ul>
@@ -326,8 +330,8 @@ api.featureName.methodName();
 <h4 id="labels">labels</h4>
 <ul>
 <li>
-<p><strong>api.labels.on.resize(width)</strong></p>
-<p>Row labels have been resized.</p>
+<p><strong>api.labels.on.resizeBegin(width)</strong>, <strong>api.labels.on.resize(width)</strong>, <strong>api.labels.on.resizeEnd(width)</strong></p>
+<p>Row label area is starting to resize, resizing or has stopped resizing.</p>
 </li>
 </ul>
 <h4 id="scroll">scroll</h4>

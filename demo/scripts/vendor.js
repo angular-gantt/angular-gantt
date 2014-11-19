@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.2
+ * @license AngularJS v1.3.3
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -42,40 +42,23 @@ function minErr(module, ErrorConstructor) {
       prefix = '[' + (module ? module + ':' : '') + code + '] ',
       template = arguments[1],
       templateArgs = arguments,
-      stringify = function(obj) {
-        if (typeof obj === 'function') {
-          return obj.toString().replace(/ \{[\s\S]*$/, '');
-        } else if (typeof obj === 'undefined') {
-          return 'undefined';
-        } else if (typeof obj !== 'string') {
-          return JSON.stringify(obj);
-        }
-        return obj;
-      },
+
       message, i;
 
     message = prefix + template.replace(/\{\d+\}/g, function(match) {
       var index = +match.slice(1, -1), arg;
 
       if (index + 2 < templateArgs.length) {
-        arg = templateArgs[index + 2];
-        if (typeof arg === 'function') {
-          return arg.toString().replace(/ ?\{[\s\S]*$/, '');
-        } else if (typeof arg === 'undefined') {
-          return 'undefined';
-        } else if (typeof arg !== 'string') {
-          return toJson(arg);
-        }
-        return arg;
+        return toDebugString(templateArgs[index + 2]);
       }
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.2/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.3/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
-      message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
-        encodeURIComponent(stringify(arguments[i]));
+      message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
+        encodeURIComponent(toDebugString(arguments[i]));
     }
     return new ErrorConstructor(message);
   };
@@ -715,7 +698,7 @@ function includes(array, obj) {
 
 function arrayRemove(array, value) {
   var index = array.indexOf(value);
-  if (index >=0)
+  if (index >= 0)
     array.splice(index, 1);
   return value;
 }
@@ -916,7 +899,7 @@ function equals(o1, o2) {
       if (isArray(o1)) {
         if (!isArray(o2)) return false;
         if ((length = o1.length) == o2.length) {
-          for (key=0; key<length; key++) {
+          for (key = 0; key < length; key++) {
             if (!equals(o1[key], o2[key])) return false;
           }
           return true;
@@ -1002,7 +985,7 @@ function bind(self, fn) {
     return curryArgs.length
       ? function() {
           return arguments.length
-            ? fn.apply(self, curryArgs.concat(slice.call(arguments, 0)))
+            ? fn.apply(self, concat(curryArgs, arguments, 0))
             : fn.apply(self, curryArgs);
         }
       : function() {
@@ -1202,7 +1185,7 @@ var ngAttrPrefixes = ['ng-', 'data-ng-', 'ng:', 'x-ng-'];
 function getNgAttribute(element, ngAttr) {
   var attr, i, ii = ngAttrPrefixes.length;
   element = jqLite(element);
-  for (i=0; i<ii; ++i) {
+  for (i = 0; i < ii; ++i) {
     attr = ngAttrPrefixes[i] + ngAttr;
     if (isString(attr = element.attr(attr))) {
       return attr;
@@ -1987,6 +1970,34 @@ function setupModuleLoader(window) {
 
 }
 
+/* global: toDebugString: true */
+
+function serializeObject(obj) {
+  var seen = [];
+
+  return JSON.stringify(obj, function(key, val) {
+    val = toJsonReplacer(key, val);
+    if (isObject(val)) {
+
+      if (seen.indexOf(val) >= 0) return '<<already seen>>';
+
+      seen.push(val);
+    }
+    return val;
+  });
+}
+
+function toDebugString(obj) {
+  if (typeof obj === 'function') {
+    return obj.toString().replace(/ \{[\s\S]*$/, '');
+  } else if (typeof obj === 'undefined') {
+    return 'undefined';
+  } else if (typeof obj !== 'string') {
+    return serializeObject(obj);
+  }
+  return obj;
+}
+
 /* global angularModule: true,
   version: true,
 
@@ -2089,11 +2100,11 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.2',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.3',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 2,
-  codeName: 'cardiovasculatory-magnification'
+  dot: 3,
+  codeName: 'undersea-arithmetic'
 };
 
 
@@ -2826,7 +2837,7 @@ forEach({
         }
       } else {
         return (element[name] ||
-                 (element.attributes.getNamedItem(name)|| noop).specified)
+                 (element.attributes.getNamedItem(name) || noop).specified)
                ? lowercasedName
                : undefined;
       }
@@ -4162,7 +4173,7 @@ function $AnchorScrollProvider() {
    * @name $anchorScrollProvider#disableAutoScrolling
    *
    * @description
-   * By default, {@link ng.$anchorScroll $anchorScroll()} will automatically will detect changes to
+   * By default, {@link ng.$anchorScroll $anchorScroll()} will automatically detect changes to
    * {@link ng.$location#hash $location.hash()} and scroll to the element matching the new hash.<br />
    * Use this method to disable automatic scrolling.
    *
@@ -4811,8 +4822,7 @@ function $$AsyncCallbackProvider() {
 /**
  * @param {object} window The global window object.
  * @param {object} document jQuery wrapped document.
- * @param {function()} XHR XMLHttpRequest constructor.
- * @param {object} $log console.log or an object with the same interface.
+ * @param {object} $log window.console or an object with the same interface.
  * @param {object} $sniffer $sniffer service
  */
 function Browser(window, document, $log, $sniffer) {
@@ -5162,8 +5172,8 @@ function Browser(window, document, $log, $sniffer) {
           // - 20 cookies per unique domain
           // - 4096 bytes per cookie
           if (cookieLength > 4096) {
-            $log.warn("Cookie '"+ name +
-              "' possibly not set or overflowed because it was too large ("+
+            $log.warn("Cookie '" + name +
+              "' possibly not set or overflowed because it was too large (" +
               cookieLength + " > 4096 bytes)!");
           }
         }
@@ -5828,7 +5838,7 @@ function $TemplateCacheProvider() {
  *
  *
  * #### `bindToController`
- * When an isolate scope is used for a component (see above), and `controllerAs` is used, `bindToController` will
+ * When an isolate scope is used for a component (see above), and `controllerAs` is used, `bindToController: true` will
  * allow a component to have its properties bound to the controller, rather than to scope. When the controller
  * is instantiated, the initial values of the isolate scope bindings are already available.
  *
@@ -6677,16 +6687,16 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
           // for each tuples
           var nbrUrisWith2parts = Math.floor(rawUris.length / 2);
-          for (var i=0; i<nbrUrisWith2parts; i++) {
-            var innerIdx = i*2;
+          for (var i = 0; i < nbrUrisWith2parts; i++) {
+            var innerIdx = i * 2;
             // sanitize the uri
             result += $$sanitizeUri(trim(rawUris[innerIdx]), true);
             // add the descriptor
-            result += (" " + trim(rawUris[innerIdx+1]));
+            result += (" " + trim(rawUris[innerIdx + 1]));
           }
 
           // split the last item into uri and descriptor
-          var lastTuple = trim(rawUris[i*2]).split(/\s/);
+          var lastTuple = trim(rawUris[i * 2]).split(/\s/);
 
           // sanitize the last uri
           result += $$sanitizeUri(trim(lastTuple[0]), true);
@@ -6880,7 +6890,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       if (!node) {
         return 'html';
       } else {
-        return nodeName_(node) !== 'foreignobject' && node.toString().match(/SVG/) ? 'svg': 'html';
+        return nodeName_(node) !== 'foreignobject' && node.toString().match(/SVG/) ? 'svg' : 'html';
       }
     }
 
@@ -7693,7 +7703,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       var match = null;
       if (hasDirectives.hasOwnProperty(name)) {
         for (var directive, directives = $injector.get(name + Suffix),
-            i = 0, ii = directives.length; i<ii; i++) {
+            i = 0, ii = directives.length; i < ii; i++) {
           try {
             directive = directives[i];
             if ((maxPriority === undefined || maxPriority > directive.priority) &&
@@ -7722,7 +7732,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
     function directiveIsMultiElement(name) {
       if (hasDirectives.hasOwnProperty(name)) {
         for (var directive, directives = $injector.get(name + Suffix),
-            i = 0, ii = directives.length; i<ii; i++) {
+            i = 0, ii = directives.length; i < ii; i++) {
           directive = directives[i];
           if (directive.multiElement) {
             return true;
@@ -7941,7 +7951,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       case 'svg':
       case 'math':
         var wrapper = document.createElement('div');
-        wrapper.innerHTML = '<'+type+'>'+template+'</'+type+'>';
+        wrapper.innerHTML = '<' + type + '>' + template + '</' + type + '>';
         return wrapper.childNodes[0].childNodes;
       default:
         return template;
@@ -8298,6 +8308,10 @@ function $ControllerProvider() {
      *    * if $controllerProvider#allowGlobals, check `window[constructor]` on the global
      *      `window` object (not recommended)
      *
+     *    The string can use the `controller as property` syntax, where the controller instance is published
+     *    as the specified property on the `scope`; the `scope` must be injected into `locals` param for this
+     *    to work correctly.
+     *
      * @param {Object} locals Injection locals for Controller.
      * @return {Object} Instance of given controller.
      *
@@ -8472,7 +8486,7 @@ function defaultHttpResponseTransform(data, headers) {
     // strip json vulnerability protection prefix
     data = data.replace(JSON_PROTECTION_PREFIX, '');
     var contentType = headers('Content-Type');
-    if ((contentType && contentType.indexOf(APPLICATION_JSON) === 0) ||
+    if ((contentType && contentType.indexOf(APPLICATION_JSON) === 0 && data.trim()) ||
         (JSON_START.test(data) && JSON_END.test(data))) {
       data = fromJson(data);
     }
@@ -10043,7 +10057,8 @@ function $InterpolateProvider() {
 
       function parseStringifyInterceptor(value) {
         try {
-          return stringify(getValue(value));
+          value = getValue(value);
+          return allOrNothing && !isDefined(value) ? value : stringify(value);
         } catch (err) {
           var newErr = $interpolateMinErr('interr', "Can't interpolate: {0}\n{1}", text,
             err.toString());
@@ -10367,8 +10382,8 @@ function encodePath(path) {
   return segments.join('/');
 }
 
-function parseAbsoluteUrl(absoluteUrl, locationObj, appBase) {
-  var parsedUrl = urlResolve(absoluteUrl, appBase);
+function parseAbsoluteUrl(absoluteUrl, locationObj) {
+  var parsedUrl = urlResolve(absoluteUrl);
 
   locationObj.$$protocol = parsedUrl.protocol;
   locationObj.$$host = parsedUrl.hostname;
@@ -10376,12 +10391,12 @@ function parseAbsoluteUrl(absoluteUrl, locationObj, appBase) {
 }
 
 
-function parseAppUrl(relativeUrl, locationObj, appBase) {
+function parseAppUrl(relativeUrl, locationObj) {
   var prefixed = (relativeUrl.charAt(0) !== '/');
   if (prefixed) {
     relativeUrl = '/' + relativeUrl;
   }
-  var match = urlResolve(relativeUrl, appBase);
+  var match = urlResolve(relativeUrl);
   locationObj.$$path = decodeURIComponent(prefixed && match.pathname.charAt(0) === '/' ?
       match.pathname.substring(1) : match.pathname);
   locationObj.$$search = parseKeyValue(match.search);
@@ -10436,7 +10451,7 @@ function LocationHtml5Url(appBase, basePrefix) {
   this.$$html5 = true;
   basePrefix = basePrefix || '';
   var appBaseNoFile = stripFile(appBase);
-  parseAbsoluteUrl(appBase, this, appBase);
+  parseAbsoluteUrl(appBase, this);
 
 
   /**
@@ -10451,7 +10466,7 @@ function LocationHtml5Url(appBase, basePrefix) {
           appBaseNoFile);
     }
 
-    parseAppUrl(pathUrl, this, appBase);
+    parseAppUrl(pathUrl, this);
 
     if (!this.$$path) {
       this.$$path = '/';
@@ -10514,7 +10529,7 @@ function LocationHtml5Url(appBase, basePrefix) {
 function LocationHashbangUrl(appBase, hashPrefix) {
   var appBaseNoFile = stripFile(appBase);
 
-  parseAbsoluteUrl(appBase, this, appBase);
+  parseAbsoluteUrl(appBase, this);
 
 
   /**
@@ -10534,7 +10549,7 @@ function LocationHashbangUrl(appBase, hashPrefix) {
       throw $locationMinErr('ihshprfx', 'Invalid url "{0}", missing hash prefix "{1}".', url,
           hashPrefix);
     }
-    parseAppUrl(withoutHashUrl, this, appBase);
+    parseAppUrl(withoutHashUrl, this);
 
     this.$$path = removeWindowsDriveName(this.$$path, withoutHashUrl, appBase);
 
@@ -11174,11 +11189,19 @@ function $LocationProvider() {
       $rootScope.$evalAsync(function() {
         var oldUrl = $location.absUrl();
         var oldState = $location.$$state;
+        var defaultPrevented;
 
         $location.$$parse(newUrl);
         $location.$$state = newState;
-        if ($rootScope.$broadcast('$locationChangeStart', newUrl, oldUrl,
-            newState, oldState).defaultPrevented) {
+
+        defaultPrevented = $rootScope.$broadcast('$locationChangeStart', newUrl, oldUrl,
+            newState, oldState).defaultPrevented;
+
+        // if the location was changed by a `$locationChangeStart` handler then stop
+        // processing this location change
+        if ($location.absUrl() !== newUrl) return;
+
+        if (defaultPrevented) {
           $location.$$parse(oldUrl);
           $location.$$state = oldState;
           setBrowserUrlWithFallback(oldUrl, false, oldState);
@@ -11202,13 +11225,20 @@ function $LocationProvider() {
         initializing = false;
 
         $rootScope.$evalAsync(function() {
-          if ($rootScope.$broadcast('$locationChangeStart', $location.absUrl(), oldUrl,
-              $location.$$state, oldState).defaultPrevented) {
+          var newUrl = $location.absUrl();
+          var defaultPrevented = $rootScope.$broadcast('$locationChangeStart', newUrl, oldUrl,
+              $location.$$state, oldState).defaultPrevented;
+
+          // if the location was changed by a `$locationChangeStart` handler then stop
+          // processing this location change
+          if ($location.absUrl() !== newUrl) return;
+
+          if (defaultPrevented) {
             $location.$$parse(oldUrl);
             $location.$$state = oldState;
           } else {
             if (urlOrStateChanged) {
-              setBrowserUrlWithFallback($location.absUrl(), currentReplace,
+              setBrowserUrlWithFallback(newUrl, currentReplace,
                                         oldState === $location.$$state ? null : $location.$$state);
             }
             afterLocationChange(oldUrl, oldState);
@@ -11398,7 +11428,7 @@ var $parseMinErr = minErr('$parse');
 // Sandboxing Angular Expressions
 // ------------------------------
 // Angular expressions are generally considered safe because these expressions only have direct
-// access to $scope and locals. However, one can obtain the ability to execute arbitrary JS code by
+// access to `$scope` and locals. However, one can obtain the ability to execute arbitrary JS code by
 // obtaining a reference to native JS functions such as the Function constructor.
 //
 // As an example, consider the following Angular expression:
@@ -11407,7 +11437,7 @@ var $parseMinErr = minErr('$parse');
 //
 // This sandboxing technique is not perfect and doesn't aim to be. The goal is to prevent exploits
 // against the expression language, but not to prevent exploits that were enabled by exposing
-// sensitive JavaScript or browser apis on Scope. Exposing such objects on a Scope is never a good
+// sensitive JavaScript or browser APIs on Scope. Exposing such objects on a Scope is never a good
 // practice and therefore we are not even trying to protect against interaction with an object
 // explicitly exposed in this way.
 //
@@ -11415,6 +11445,8 @@ var $parseMinErr = minErr('$parse');
 // window or some DOM object that has a reference to window is published onto a Scope.
 // Similarly we prevent invocations of function known to be dangerous, as well as assignments to
 // native objects.
+//
+// See https://docs.angularjs.org/guide/security
 
 
 function ensureSafeMemberName(name, fullExpression) {
@@ -11423,7 +11455,7 @@ function ensureSafeMemberName(name, fullExpression) {
       || name === "__proto__") {
     throw $parseMinErr('isecfld',
         'Attempting to access a disallowed field in Angular expressions! '
-        +'Expression: {0}', fullExpression);
+        + 'Expression: {0}', fullExpression);
   }
   return name;
 }
@@ -11500,24 +11532,24 @@ var OPERATORS = extend(createMap(), {
         }
         return a;
       }
-      return isDefined(b)?b:undefined;},
+      return isDefined(b) ? b : undefined;},
     '-':function(self, locals, a, b) {
           a=a(self, locals); b=b(self, locals);
-          return (isDefined(a)?a:0)-(isDefined(b)?b:0);
+          return (isDefined(a) ? a : 0) - (isDefined(b) ? b : 0);
         },
-    '*':function(self, locals, a, b) {return a(self, locals)*b(self, locals);},
-    '/':function(self, locals, a, b) {return a(self, locals)/b(self, locals);},
-    '%':function(self, locals, a, b) {return a(self, locals)%b(self, locals);},
-    '===':function(self, locals, a, b) {return a(self, locals)===b(self, locals);},
-    '!==':function(self, locals, a, b) {return a(self, locals)!==b(self, locals);},
-    '==':function(self, locals, a, b) {return a(self, locals)==b(self, locals);},
-    '!=':function(self, locals, a, b) {return a(self, locals)!=b(self, locals);},
-    '<':function(self, locals, a, b) {return a(self, locals)<b(self, locals);},
-    '>':function(self, locals, a, b) {return a(self, locals)>b(self, locals);},
-    '<=':function(self, locals, a, b) {return a(self, locals)<=b(self, locals);},
-    '>=':function(self, locals, a, b) {return a(self, locals)>=b(self, locals);},
-    '&&':function(self, locals, a, b) {return a(self, locals)&&b(self, locals);},
-    '||':function(self, locals, a, b) {return a(self, locals)||b(self, locals);},
+    '*':function(self, locals, a, b) {return a(self, locals) * b(self, locals);},
+    '/':function(self, locals, a, b) {return a(self, locals) / b(self, locals);},
+    '%':function(self, locals, a, b) {return a(self, locals) % b(self, locals);},
+    '===':function(self, locals, a, b) {return a(self, locals) === b(self, locals);},
+    '!==':function(self, locals, a, b) {return a(self, locals) !== b(self, locals);},
+    '==':function(self, locals, a, b) {return a(self, locals) == b(self, locals);},
+    '!=':function(self, locals, a, b) {return a(self, locals) != b(self, locals);},
+    '<':function(self, locals, a, b) {return a(self, locals) < b(self, locals);},
+    '>':function(self, locals, a, b) {return a(self, locals) > b(self, locals);},
+    '<=':function(self, locals, a, b) {return a(self, locals) <= b(self, locals);},
+    '>=':function(self, locals, a, b) {return a(self, locals) >= b(self, locals);},
+    '&&':function(self, locals, a, b) {return a(self, locals) && b(self, locals);},
+    '||':function(self, locals, a, b) {return a(self, locals) || b(self, locals);},
     '!':function(self, locals, a) {return !a(self, locals);},
 
     //Tokenized as operators but parsed as assignment/filters
@@ -11543,44 +11575,31 @@ Lexer.prototype = {
   lex: function(text) {
     this.text = text;
     this.index = 0;
-    this.ch = undefined;
     this.tokens = [];
 
     while (this.index < this.text.length) {
-      this.ch = this.text.charAt(this.index);
-      if (this.is('"\'')) {
-        this.readString(this.ch);
-      } else if (this.isNumber(this.ch) || this.is('.') && this.isNumber(this.peek())) {
+      var ch = this.text.charAt(this.index);
+      if (ch === '"' || ch === "'") {
+        this.readString(ch);
+      } else if (this.isNumber(ch) || ch === '.' && this.isNumber(this.peek())) {
         this.readNumber();
-      } else if (this.isIdent(this.ch)) {
+      } else if (this.isIdent(ch)) {
         this.readIdent();
-      } else if (this.is('(){}[].,;:?')) {
-        this.tokens.push({
-          index: this.index,
-          text: this.ch
-        });
+      } else if (this.is(ch, '(){}[].,;:?')) {
+        this.tokens.push({index: this.index, text: ch});
         this.index++;
-      } else if (this.isWhitespace(this.ch)) {
+      } else if (this.isWhitespace(ch)) {
         this.index++;
       } else {
-        var ch2 = this.ch + this.peek();
+        var ch2 = ch + this.peek();
         var ch3 = ch2 + this.peek(2);
-        var fn = OPERATORS[this.ch];
-        var fn2 = OPERATORS[ch2];
-        var fn3 = OPERATORS[ch3];
-        if (fn3) {
-          this.tokens.push({index: this.index, text: ch3, fn: fn3});
-          this.index += 3;
-        } else if (fn2) {
-          this.tokens.push({index: this.index, text: ch2, fn: fn2});
-          this.index += 2;
-        } else if (fn) {
-          this.tokens.push({
-            index: this.index,
-            text: this.ch,
-            fn: fn
-          });
-          this.index += 1;
+        var op1 = OPERATORS[ch];
+        var op2 = OPERATORS[ch2];
+        var op3 = OPERATORS[ch3];
+        if (op1 || op2 || op3) {
+          var token = op3 ? ch3 : (op2 ? ch2 : ch);
+          this.tokens.push({index: this.index, text: token, operator: true});
+          this.index += token.length;
         } else {
           this.throwError('Unexpected next character ', this.index, this.index + 1);
         }
@@ -11589,8 +11608,8 @@ Lexer.prototype = {
     return this.tokens;
   },
 
-  is: function(chars) {
-    return chars.indexOf(this.ch) !== -1;
+  is: function(ch, chars) {
+    return chars.indexOf(ch) !== -1;
   },
 
   peek: function(i) {
@@ -11599,7 +11618,7 @@ Lexer.prototype = {
   },
 
   isNumber: function(ch) {
-    return ('0' <= ch && ch <= '9');
+    return ('0' <= ch && ch <= '9') && typeof ch === "string";
   },
 
   isWhitespace: function(ch) {
@@ -11652,79 +11671,28 @@ Lexer.prototype = {
       }
       this.index++;
     }
-    number = 1 * number;
     this.tokens.push({
       index: start,
       text: number,
       constant: true,
-      fn: function() { return number; }
+      value: Number(number)
     });
   },
 
   readIdent: function() {
-    var expression = this.text;
-
-    var ident = '';
     var start = this.index;
-
-    var lastDot, peekIndex, methodName, ch;
-
     while (this.index < this.text.length) {
-      ch = this.text.charAt(this.index);
-      if (ch === '.' || this.isIdent(ch) || this.isNumber(ch)) {
-        if (ch === '.') lastDot = this.index;
-        ident += ch;
-      } else {
+      var ch = this.text.charAt(this.index);
+      if (!(this.isIdent(ch) || this.isNumber(ch))) {
         break;
       }
       this.index++;
     }
-
-    //check if the identifier ends with . and if so move back one char
-    if (lastDot && ident[ident.length - 1] === '.') {
-      this.index--;
-      ident = ident.slice(0, -1);
-      lastDot = ident.lastIndexOf('.');
-      if (lastDot === -1) {
-        lastDot = undefined;
-      }
-    }
-
-    //check if this is not a method invocation and if it is back out to last dot
-    if (lastDot) {
-      peekIndex = this.index;
-      while (peekIndex < this.text.length) {
-        ch = this.text.charAt(peekIndex);
-        if (ch === '(') {
-          methodName = ident.substr(lastDot - start + 1);
-          ident = ident.substr(0, lastDot - start);
-          this.index = peekIndex;
-          break;
-        }
-        if (this.isWhitespace(ch)) {
-          peekIndex++;
-        } else {
-          break;
-        }
-      }
-    }
-
     this.tokens.push({
       index: start,
-      text: ident,
-      fn: CONSTANTS[ident] || getterFn(ident, this.options, expression)
+      text: this.text.slice(start, this.index),
+      identifier: true
     });
-
-    if (methodName) {
-      this.tokens.push({
-        index: lastDot,
-        text: '.'
-      });
-      this.tokens.push({
-        index: lastDot + 1,
-        text: methodName
-      });
-    }
   },
 
   readString: function(quote) {
@@ -11755,9 +11723,8 @@ Lexer.prototype = {
         this.tokens.push({
           index: start,
           text: rawString,
-          string: string,
           constant: true,
-          fn: function() { return string; }
+          value: string
         });
         return;
       } else {
@@ -11818,16 +11785,12 @@ Parser.prototype = {
       primary = this.arrayDeclaration();
     } else if (this.expect('{')) {
       primary = this.object();
+    } else if (this.peek().identifier) {
+      primary = this.identifier();
+    } else if (this.peek().constant) {
+      primary = this.constant();
     } else {
-      var token = this.expect();
-      primary = token.fn;
-      if (!primary) {
-        this.throwError('not a primary expression', token);
-      }
-      if (token.constant) {
-        primary.constant = true;
-        primary.literal = true;
-      }
+      this.throwError('not a primary expression', this.peek());
     }
 
     var next, context;
@@ -11861,8 +11824,11 @@ Parser.prototype = {
   },
 
   peek: function(e1, e2, e3, e4) {
-    if (this.tokens.length > 0) {
-      var token = this.tokens[0];
+    return this.peekAhead(0, e1, e2, e3, e4);
+  },
+  peekAhead: function(i, e1, e2, e3, e4) {
+    if (this.tokens.length > i) {
+      var token = this.tokens[i];
       var t = token.text;
       if (t === e1 || t === e2 || t === e3 || t === e4 ||
           (!e1 && !e2 && !e3 && !e4)) {
@@ -11882,12 +11848,19 @@ Parser.prototype = {
   },
 
   consume: function(e1) {
-    if (!this.expect(e1)) {
+    if (this.tokens.length === 0) {
+      throw $parseMinErr('ueoe', 'Unexpected end of expression: {0}', this.text);
+    }
+
+    var token = this.expect(e1);
+    if (!token) {
       this.throwError('is unexpected, expecting [' + e1 + ']', this.peek());
     }
+    return token;
   },
 
-  unaryFn: function(fn, right) {
+  unaryFn: function(op, right) {
+    var fn = OPERATORS[op];
     return extend(function $parseUnaryFn(self, locals) {
       return fn(self, locals, right);
     }, {
@@ -11896,12 +11869,35 @@ Parser.prototype = {
     });
   },
 
-  binaryFn: function(left, fn, right, isBranching) {
+  binaryFn: function(left, op, right, isBranching) {
+    var fn = OPERATORS[op];
     return extend(function $parseBinaryFn(self, locals) {
       return fn(self, locals, left, right);
     }, {
       constant: left.constant && right.constant,
       inputs: !isBranching && [left, right]
+    });
+  },
+
+  identifier: function() {
+    var id = this.consume().text;
+
+    //Continue reading each `.identifier` unless it is a method invocation
+    while (this.peek('.') && this.peekAhead(1).identifier && !this.peekAhead(2, '(')) {
+      id += this.consume().text + this.consume().text;
+    }
+
+    return CONSTANTS[id] || getterFn(id, this.options, this.text);
+  },
+
+  constant: function() {
+    var value = this.consume().value;
+
+    return extend(function $parseConstant() {
+      return value;
+    }, {
+      constant: true,
+      literal: true
     });
   },
 
@@ -11936,8 +11932,7 @@ Parser.prototype = {
   },
 
   filter: function(inputFn) {
-    var token = this.expect();
-    var fn = this.$filter(token.text);
+    var fn = this.$filter(this.consume().text);
     var argsFn;
     var args;
 
@@ -12000,7 +11995,7 @@ Parser.prototype = {
     var token;
     if ((token = this.expect('?'))) {
       middle = this.assignment();
-      if ((token = this.expect(':'))) {
+      if (this.consume(':')) {
         var right = this.assignment();
 
         return extend(function $parseTernary(self, locals) {
@@ -12008,9 +12003,6 @@ Parser.prototype = {
         }, {
           constant: left.constant && middle.constant && right.constant
         });
-
-      } else {
-        this.throwError('expected :', token);
       }
     }
 
@@ -12021,7 +12013,7 @@ Parser.prototype = {
     var left = this.logicalAND();
     var token;
     while ((token = this.expect('||'))) {
-      left = this.binaryFn(left, token.fn, this.logicalAND(), true);
+      left = this.binaryFn(left, token.text, this.logicalAND(), true);
     }
     return left;
   },
@@ -12030,7 +12022,7 @@ Parser.prototype = {
     var left = this.equality();
     var token;
     if ((token = this.expect('&&'))) {
-      left = this.binaryFn(left, token.fn, this.logicalAND(), true);
+      left = this.binaryFn(left, token.text, this.logicalAND(), true);
     }
     return left;
   },
@@ -12039,7 +12031,7 @@ Parser.prototype = {
     var left = this.relational();
     var token;
     if ((token = this.expect('==','!=','===','!=='))) {
-      left = this.binaryFn(left, token.fn, this.equality());
+      left = this.binaryFn(left, token.text, this.equality());
     }
     return left;
   },
@@ -12048,7 +12040,7 @@ Parser.prototype = {
     var left = this.additive();
     var token;
     if ((token = this.expect('<', '>', '<=', '>='))) {
-      left = this.binaryFn(left, token.fn, this.relational());
+      left = this.binaryFn(left, token.text, this.relational());
     }
     return left;
   },
@@ -12057,7 +12049,7 @@ Parser.prototype = {
     var left = this.multiplicative();
     var token;
     while ((token = this.expect('+','-'))) {
-      left = this.binaryFn(left, token.fn, this.multiplicative());
+      left = this.binaryFn(left, token.text, this.multiplicative());
     }
     return left;
   },
@@ -12066,7 +12058,7 @@ Parser.prototype = {
     var left = this.unary();
     var token;
     while ((token = this.expect('*','/','%'))) {
-      left = this.binaryFn(left, token.fn, this.unary());
+      left = this.binaryFn(left, token.text, this.unary());
     }
     return left;
   },
@@ -12076,9 +12068,9 @@ Parser.prototype = {
     if (this.expect('+')) {
       return this.primary();
     } else if ((token = this.expect('-'))) {
-      return this.binaryFn(Parser.ZERO, token.fn, this.unary());
+      return this.binaryFn(Parser.ZERO, token.text, this.unary());
     } else if ((token = this.expect('!'))) {
-      return this.unaryFn(token.fn, this.unary());
+      return this.unaryFn(token.text, this.unary());
     } else {
       return this.primary();
     }
@@ -12086,7 +12078,7 @@ Parser.prototype = {
 
   fieldAccess: function(object) {
     var expression = this.text;
-    var field = this.expect().text;
+    var field = this.consume().text;
     var getter = getterFn(field, this.options, expression);
 
     return extend(function $parseFieldAccess(scope, locals, self) {
@@ -12171,8 +12163,7 @@ Parser.prototype = {
           // Support trailing commas per ES5.1.
           break;
         }
-        var elementFn = this.expression();
-        elementFns.push(elementFn);
+        elementFns.push(this.expression());
       } while (this.expect(','));
     }
     this.consume(']');
@@ -12198,11 +12189,16 @@ Parser.prototype = {
           // Support trailing commas per ES5.1.
           break;
         }
-        var token = this.expect();
-        keys.push(token.string || token.text);
+        var token = this.consume();
+        if (token.constant) {
+          keys.push(token.value);
+        } else if (token.identifier) {
+          keys.push(token.text);
+        } else {
+          this.throwError("invalid key", token);
+        }
         this.consume(':');
-        var value = this.expression();
-        valueFns.push(value);
+        valueFns.push(this.expression());
       } while (this.expect(','));
     }
     this.consume('}');
@@ -12644,13 +12640,21 @@ function $ParseProvider() {
 
     function addInterceptor(parsedExpression, interceptorFn) {
       if (!interceptorFn) return parsedExpression;
+      var watchDelegate = parsedExpression.$$watchDelegate;
 
-      var fn = function interceptedExpression(scope, locals) {
+      var regularWatch =
+          watchDelegate !== oneTimeLiteralWatchDelegate &&
+          watchDelegate !== oneTimeWatchDelegate;
+
+      var fn = regularWatch ? function regularInterceptedExpression(scope, locals) {
+        var value = parsedExpression(scope, locals);
+        return interceptorFn(value, scope, locals);
+      } : function oneTimeInterceptedExpression(scope, locals) {
         var value = parsedExpression(scope, locals);
         var result = interceptorFn(value, scope, locals);
         // we only return the interceptor's result if the
         // initial value is defined (for bind-once)
-        return isDefined(value) || interceptorFn.$stateful ? result : value;
+        return isDefined(value) ? result : value;
       };
 
       // Propagate $$watchDelegates other then inputsWatchDelegate
@@ -12675,7 +12679,11 @@ function $ParseProvider() {
  * @requires $rootScope
  *
  * @description
- * A promise/deferred implementation inspired by [Kris Kowal's Q](https://github.com/kriskowal/q).
+ * A service that helps you run functions asynchronously, and use their return values (or exceptions)
+ * when they are done processing.
+ *
+ * This is an implementation of promises/deferred objects inspired by
+ * [Kris Kowal's Q](https://github.com/kriskowal/q).
  *
  * $q can be used in two fashions --- one which is more similar to Kris Kowal's Q or jQuery's Deferred
  * implementations, and the other which resembles ES6 promises to some degree.
@@ -12811,15 +12819,11 @@ function $ParseProvider() {
  *
  * - `catch(errorCallback)` – shorthand for `promise.then(null, errorCallback)`
  *
- * - `finally(callback)` – allows you to observe either the fulfillment or rejection of a promise,
+ * - `finally(callback, notifyCallback)` – allows you to observe either the fulfillment or rejection of a promise,
  *   but to do so without modifying the final value. This is useful to release resources or do some
  *   clean-up that needs to be done whether the promise was rejected or resolved. See the [full
  *   specification](https://github.com/kriskowal/q/wiki/API-Reference#promisefinallycallback) for
  *   more information.
- *
- *   Because `finally` is a reserved word in JavaScript and reserved keywords are not supported as
- *   property names by ES3, you'll need to invoke the method like `promise['finally'](callback)` to
- *   make your code IE8 and Android 2.x compatible.
  *
  * # Chaining promises
  *
@@ -14043,11 +14047,11 @@ function $RootScopeProvider() {
                       if (ttl < 5) {
                         logIdx = 4 - ttl;
                         if (!watchLog[logIdx]) watchLog[logIdx] = [];
-                        logMsg = (isFunction(watch.exp))
-                            ? 'fn: ' + (watch.exp.name || watch.exp.toString())
-                            : watch.exp;
-                        logMsg += '; newVal: ' + toJson(value) + '; oldVal: ' + toJson(last);
-                        watchLog[logIdx].push(logMsg);
+                        watchLog[logIdx].push({
+                          msg: isFunction(watch.exp) ? 'fn: ' + (watch.exp.name || watch.exp.toString()) : watch.exp,
+                          newVal: value,
+                          oldVal: last
+                        });
                       }
                     } else if (watch === lastDirtyWatch) {
                       // If the most recently dirty watcher is now clean, short circuit since the remaining watchers
@@ -14080,7 +14084,7 @@ function $RootScopeProvider() {
             throw $rootScopeMinErr('infdig',
                 '{0} $digest() iterations reached. Aborting!\n' +
                 'Watchers fired in the last 5 iterations: {1}',
-                TTL, toJson(watchLog));
+                TTL, watchLog);
           }
 
         } while (dirty || asyncQueue.length);
@@ -14431,7 +14435,7 @@ function $RootScopeProvider() {
         do {
           namedListeners = scope.$$listeners[name] || empty;
           event.currentScope = scope;
-          for (i=0, length=namedListeners.length; i<length; i++) {
+          for (i = 0, length = namedListeners.length; i < length; i++) {
 
             // if listeners were deregistered, defragment the array
             if (!namedListeners[i]) {
@@ -14505,7 +14509,7 @@ function $RootScopeProvider() {
         while ((current = next)) {
           event.currentScope = current;
           listeners = current.$$listeners[name] || [];
-          for (i=0, length = listeners.length; i<length; i++) {
+          for (i = 0, length = listeners.length; i < length; i++) {
             // if listeners were deregistered, defragment the array
             if (!listeners[i]) {
               listeners.splice(i, 1);
@@ -14661,7 +14665,7 @@ function $$SanitizeUriProvider() {
       var normalizedVal;
       normalizedVal = urlResolve(uri).href;
       if (normalizedVal !== '' && !normalizedVal.match(regex)) {
-        return 'unsafe:'+normalizedVal;
+        return 'unsafe:' + normalizedVal;
       }
       return uri;
     };
@@ -15760,7 +15764,7 @@ function $SnifferProvider() {
       transitions = !!(('transition' in bodyStyle) || (vendorPrefix + 'Transition' in bodyStyle));
       animations  = !!(('animation' in bodyStyle) || (vendorPrefix + 'Animation' in bodyStyle));
 
-      if (android && (!transitions||!animations)) {
+      if (android && (!transitions ||  !animations)) {
         transitions = isString(document.body.style.webkitTransition);
         animations = isString(document.body.style.webkitAnimation);
       }
@@ -15831,7 +15835,7 @@ function $TemplateRequestProvider() {
       if (isArray(transformResponse)) {
         var original = transformResponse;
         transformResponse = [];
-        for (var i=0; i<original.length; ++i) {
+        for (var i = 0; i < original.length; ++i) {
           var transformer = original[i];
           if (transformer !== defaultHttpResponseTransform) {
             transformResponse.push(transformer);
@@ -16075,7 +16079,7 @@ function $TimeoutProvider() {
 // exactly the behavior needed here.  There is little value is mocking these out for this
 // service.
 var urlParsingNode = document.createElement("a");
-var originUrl = urlResolve(window.location.href, true);
+var originUrl = urlResolve(window.location.href);
 
 
 /**
@@ -16130,7 +16134,7 @@ var originUrl = urlResolve(window.location.href, true);
  *   | pathname      | The pathname, beginning with "/"
  *
  */
-function urlResolve(url, base) {
+function urlResolve(url) {
   var href = url;
 
   if (msie) {
@@ -16510,8 +16514,8 @@ function filterFilter() {
             }
             return false;
           }
-          text = (''+text).toLowerCase();
-          return (''+obj).toLowerCase().indexOf(text) > -1;
+          text = ('' + text).toLowerCase();
+          return ('' + obj).toLowerCase().indexOf(text) > -1;
         };
       }
     }
@@ -16771,7 +16775,7 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     if (whole.length >= (lgroup + group)) {
       pos = whole.length - lgroup;
       for (i = 0; i < pos; i++) {
-        if ((pos - i)%group === 0 && i !== 0) {
+        if ((pos - i) % group === 0 && i !== 0) {
           formatedText += groupSep;
         }
         formatedText += whole.charAt(i);
@@ -16779,7 +16783,7 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     }
 
     for (i = pos; i < whole.length; i++) {
-      if ((whole.length - i)%lgroup === 0 && i !== 0) {
+      if ((whole.length - i) % lgroup === 0 && i !== 0) {
         formatedText += groupSep;
       }
       formatedText += whole.charAt(i);
@@ -17019,10 +17023,10 @@ function dateFilter($locale) {
         tzMin = int(match[9] + match[11]);
       }
       dateSetter.call(date, int(match[1]), int(match[2]) - 1, int(match[3]));
-      var h = int(match[4]||0) - tzHour;
-      var m = int(match[5]||0) - tzMin;
-      var s = int(match[6]||0);
-      var ms = Math.round(parseFloat('0.' + (match[7]||0)) * 1000);
+      var h = int(match[4] || 0) - tzHour;
+      var m = int(match[5] || 0) - tzMin;
+      var s = int(match[6] || 0);
+      var ms = Math.round(parseFloat('0.' + (match[7] || 0)) * 1000);
       timeSetter.call(date, h, m, s, ms);
       return date;
     }
@@ -17254,7 +17258,7 @@ function limitToFilter() {
       n = input.length;
     }
 
-    for (; i<n; i++) {
+    for (; i < n; i++) {
       out.push(input[i]);
     }
 
@@ -17381,7 +17385,7 @@ orderByFilter.$inject = ['$parse'];
 function orderByFilter($parse) {
   return function(array, sortPredicate, reverseOrder) {
     if (!(isArrayLike(array))) return array;
-    sortPredicate = isArray(sortPredicate) ? sortPredicate: [sortPredicate];
+    sortPredicate = isArray(sortPredicate) ? sortPredicate : [sortPredicate];
     if (sortPredicate.length === 0) { sortPredicate = ['+']; }
     sortPredicate = sortPredicate.map(function(predicate) {
       var descending = false, get = predicate || identity;
@@ -17408,9 +17412,7 @@ function orderByFilter($parse) {
         return compare(get(a),get(b));
       }, descending);
     });
-    var arrayCopy = [];
-    for (var i = 0; i < array.length; i++) { arrayCopy.push(array[i]); }
-    return arrayCopy.sort(reverseComparator(comparator, reverseOrder));
+    return slice.call(array).sort(reverseComparator(comparator, reverseOrder));
 
     function comparator(o1, o2) {
       for (var i = 0; i < sortPredicate.length; i++) {
@@ -18472,9 +18474,14 @@ var inputType = {
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
    *    maxlength.
-   * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
-   *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
-   *    patterns defined as scope expressions.
+   * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
+   *    that contains the regular expression body that will be converted to a regular expression
+   *    as in the ngPattern directive.
+   * @param {string=} ngPattern Sets `pattern` validation error key if the ngModel value does not match
+   *    a RegExp found by evaluating the Angular expression given in the attribute value.
+   *    If the expression evaluates to a RegExp object then this is used directly.
+   *    If the expression is a string then it will be converted to a RegExp after wrapping it in `^` and `$`
+   *    characters. For instance, `"abc"` will be converted to `new RegExp('^abc$')`.
    * @param {string=} ngChange Angular expression to be executed when input changes due to user
    *    interaction with the input element.
    * @param {boolean=} [ngTrim=true] If set to false Angular will not automatically trim the input.
@@ -19015,9 +19022,14 @@ var inputType = {
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
    *    maxlength.
-   * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
-   *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
-   *    patterns defined as scope expressions.
+   * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
+   *    that contains the regular expression body that will be converted to a regular expression
+   *    as in the ngPattern directive.
+   * @param {string=} ngPattern Sets `pattern` validation error key if the ngModel value does not match
+   *    a RegExp found by evaluating the Angular expression given in the attribute value.
+   *    If the expression evaluates to a RegExp object then this is used directly.
+   *    If the expression is a string then it will be converted to a RegExp after wrapping it in `^` and `$`
+   *    characters. For instance, `"abc"` will be converted to `new RegExp('^abc$')`.
    * @param {string=} ngChange Angular expression to be executed when input changes due to user
    *    interaction with the input element.
    *
@@ -19097,9 +19109,14 @@ var inputType = {
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
    *    maxlength.
-   * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
-   *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
-   *    patterns defined as scope expressions.
+   * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
+   *    that contains the regular expression body that will be converted to a regular expression
+   *    as in the ngPattern directive.
+   * @param {string=} ngPattern Sets `pattern` validation error key if the ngModel value does not match
+   *    a RegExp found by evaluating the Angular expression given in the attribute value.
+   *    If the expression evaluates to a RegExp object then this is used directly.
+   *    If the expression is a string then it will be converted to a RegExp after wrapping it in `^` and `$`
+   *    characters. For instance, `"abc"` will be converted to `new RegExp('^abc$')`.
    * @param {string=} ngChange Angular expression to be executed when input changes due to user
    *    interaction with the input element.
    *
@@ -19180,9 +19197,14 @@ var inputType = {
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
    *    maxlength.
-   * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
-   *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
-   *    patterns defined as scope expressions.
+   * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
+   *    that contains the regular expression body that will be converted to a regular expression
+   *    as in the ngPattern directive.
+   * @param {string=} ngPattern Sets `pattern` validation error key if the ngModel value does not match
+   *    a RegExp found by evaluating the Angular expression given in the attribute value.
+   *    If the expression evaluates to a RegExp object then this is used directly.
+   *    If the expression is a string then it will be converted to a RegExp after wrapping it in `^` and `$`
+   *    characters. For instance, `"abc"` will be converted to `new RegExp('^abc$')`.
    * @param {string=} ngChange Angular expression to be executed when input changes due to user
    *    interaction with the input element.
    *
@@ -19493,8 +19515,8 @@ function createDateParser(regexp, mapping) {
       // When a date is JSON'ified to wraps itself inside of an extra
       // set of double quotes. This makes the date parsing code unable
       // to match the date string and parse it as a date.
-      if (iso.charAt(0) == '"' && iso.charAt(iso.length-1) == '"') {
-        iso = iso.substring(1, iso.length-1);
+      if (iso.charAt(0) == '"' && iso.charAt(iso.length - 1) == '"') {
+        iso = iso.substring(1, iso.length - 1);
       }
       if (ISO_DATE_REGEXP.test(iso)) {
         return new Date(iso);
@@ -19941,12 +19963,17 @@ var VALID_CLASS = 'ng-valid',
  * @property {string} $viewValue Actual string value in the view.
  * @property {*} $modelValue The value in the model that the control is bound to.
  * @property {Array.<Function>} $parsers Array of functions to execute, as a pipeline, whenever
-       the control reads value from the DOM. The functions are called in array order, each passing the value
-       through to the next. The last return value is forwarded to the $validators collection.
-       Used to sanitize / convert the value.
-       Returning undefined from a parser means a parse error occurred. No $validators will
-       run and the 'ngModel' will not be updated until the parse error is resolved. The parse error is stored
-       in 'ngModel.$error.parse'.
+       the control reads value from the DOM. The functions are called in array order, each passing
+       its return value through to the next. The last return value is forwarded to the
+       {@link ngModel.NgModelController#$validators `$validators`} collection.
+
+Parsers are used to sanitize / convert the {@link ngModel.NgModelController#$viewValue
+`$viewValue`}.
+
+Returning `undefined` from a parser means a parse error occurred. In that case,
+no {@link ngModel.NgModelController#$validators `$validators`} will run and the `ngModel`
+will be set to `undefined` unless {@link ngModelOptions `ngModelOptions.allowInvalid`}
+is set to `true`. The parse error is stored in `ngModel.$error.parse`.
 
  *
  * @property {Array.<Function>} $formatters Array of functions to execute, as a pipeline, whenever
@@ -20071,7 +20098,7 @@ var VALID_CLASS = 'ng-valid',
 
               // Listen for change events to enable binding
               element.on('blur keyup change', function() {
-                scope.$apply(read);
+                scope.$evalAsync(read);
               });
               read(); // initialize
 
@@ -21007,7 +21034,7 @@ var patternDirective = function() {
       var regexp, patternExp = attr.ngPattern || attr.pattern;
       attr.$observe('pattern', function(regex) {
         if (isString(regex) && regex.length > 0) {
-          regex = new RegExp(regex);
+          regex = new RegExp('^' + regex + '$');
         }
 
         if (regex && !regex.test) {
@@ -21298,7 +21325,7 @@ var ngValueDirective = function() {
  * `ngModelOptions` has an effect on the element it's declared on and its descendants.
  *
  * @param {Object} ngModelOptions options to apply to the current model. Valid keys are:
- *   - `updateOn`: string specifying which event should be the input bound to. You can set several
+ *   - `updateOn`: string specifying which event should the input be bound to. You can set several
  *     events using an space delimited list. There is a special event called `default` that
  *     matches the default events belonging of the control.
  *   - `debounce`: integer value which contains the debounce model update value in milliseconds. A
@@ -24166,7 +24193,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
               });
               throw ngRepeatMinErr('dupes',
                   "Duplicates in a repeater are not allowed. Use 'track by' expression to specify unique keys. Repeater: {0}, Duplicate key: {1}, Duplicate value: {2}",
-                  expression, trackById, toJson(value));
+                  expression, trackById, value);
             } else {
               // new never before seen block
               nextBlockOrder[index] = {id: trackById, scope: undefined, clone: undefined};
@@ -24972,7 +24999,7 @@ var ngOptionsMinErr = minErr('ngOptions');
  * In many cases, `ngRepeat` can be used on `<option>` elements instead of `ngOptions` to achieve a
  * similar result. However, the `ngOptions` provides some benefits such as reducing memory and
  * increasing speed by not creating a new scope for each repeated instance, as well as providing
- * more flexibility in how the `select`'s model is assigned via `select as`. `ngOptions should be
+ * more flexibility in how the `select`'s model is assigned via `select as`. `ngOptions` should be
  * used when the `select` model needs to be bound to a non-string value. This is because an option
  * element can only be bound to string values at present.
  *
@@ -25570,13 +25597,14 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             lastElement = null;  // start at the beginning
             for (index = 0, length = optionGroup.length; index < length; index++) {
               option = optionGroup[index];
-              if ((existingOption = existingOptions[index+1])) {
+              if ((existingOption = existingOptions[index + 1])) {
                 // reuse elements
                 lastElement = existingOption.element;
                 if (existingOption.label !== option.label) {
                   updateLabelMap(labelMap, existingOption.label, false);
                   updateLabelMap(labelMap, option.label, true);
                   lastElement.text(existingOption.label = option.label);
+                  lastElement.prop('label', existingOption.label);
                 }
                 if (existingOption.id !== option.id) {
                   lastElement.val(existingOption.id = option.id);
@@ -25606,6 +25634,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
                       .val(option.id)
                       .prop('selected', option.selected)
                       .attr('selected', option.selected)
+                      .prop('label', option.label)
                       .text(option.label);
                 }
 
@@ -25721,7 +25750,7 @@ var styleDirective = valueFn({
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.2
+ * @license AngularJS v1.3.3
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -27611,7 +27640,7 @@ angular.module('ngAnimate', ['ng'])
           //the jqLite object, so we're safe to use a single variable to house
           //the styles since there is always only one element being animated
           var oldStyle = node.getAttribute('style') || '';
-          if (oldStyle.charAt(oldStyle.length-1) !== ';') {
+          if (oldStyle.charAt(oldStyle.length - 1) !== ';') {
             oldStyle += ';';
           }
           node.setAttribute('style', oldStyle + ' ' + style);
@@ -36155,16 +36184,21 @@ Github: https://github.com/angular-gantt/angular-gantt
 (function(){
     'use strict';
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
-        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
+        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout, $templateCache) {
         return {
             restrict: 'EA',
             transclude: true,
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'template/gantt.tmpl.html';
+                    templateUrl = 'template/gantt.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             scope: {
                 sortMode: '=?', // Possible modes: 'name', 'date', 'custom'
@@ -36217,6 +36251,12 @@ Github: https://github.com/angular-gantt/angular-gantt
                 scope.gantt.api.directives.raise.new('gantt', scope, element);
                 scope.$on('$destroy', function() {
                     scope.gantt.api.directives.raise.destroy('gantt', scope, element);
+                });
+
+                $timeout(function() {
+                    scope.gantt.rendered = true;
+                    scope.gantt.columnsManager.generateColumns();
+                    scope.gantt.api.core.raise.rendered(scope.gantt.api);
                 });
             }
         };
@@ -37405,39 +37445,33 @@ Github: https://github.com/angular-gantt/angular-gantt
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
             this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
             this.gantt.$scope.$watchCollection('headers', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
             this.gantt.$scope.$watchCollection('headersFormats', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+            this.gantt.$scope.$watchGroup(['bodyRowsWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.updateColumnsMeta();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
-                    self.updateVisibleColumns();
-                }
-            });
-
             this.gantt.api.data.on.load(this.gantt.$scope, function() {
-                if (self.from === undefined || self.to === undefined ||
+                if ((self.from === undefined || self.to === undefined ||
                     self.from > self.gantt.rowsManager.getDefaultFrom() ||
-                    self.to < self.gantt.rowsManager.getDefaultTo()) {
+                    self.to < self.gantt.rowsManager.getDefaultTo()) && self.gantt.rendered) {
                     self.generateColumns();
                 }
 
@@ -37535,6 +37569,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
             this.updateColumnsMeta();
             this.scrollToScrollAnchor();
+
             this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
@@ -37671,11 +37706,11 @@ Github: https://github.com/angular-gantt/angular-gantt
         };
 
         ColumnsManager.prototype.updateVisibleColumns = function() {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
+            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
             angular.forEach(this.headers, function(header) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
+                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
             }, this);
 
             angular.forEach(this.visibleColumns, function(c) {
@@ -37806,6 +37841,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.api = new GanttApi(this);
 
                 this.api.registerEvent('core', 'ready');
+                this.api.registerEvent('core', 'rendered');
 
                 this.api.registerEvent('directives', 'preLink');
                 this.api.registerEvent('directives', 'postLink');
@@ -38092,7 +38128,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         // Removes the task from the existing row and adds it to he current one
         Row.prototype.moveTaskToRow = function(task, viewOnly) {
             var oldRow = task.row;
-            oldRow.removeTask(task.model.id, viewOnly);
+            oldRow.removeTask(task.model.id, viewOnly, true);
 
             task.row = this;
             this.addTaskImpl(task, viewOnly);
@@ -38135,7 +38171,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         };
 
         // Remove the specified task from the row
-        Row.prototype.removeTask = function(taskId, viewOnly) {
+        Row.prototype.removeTask = function(taskId, viewOnly, silent) {
             if (taskId in this.tasksMap) {
                 var removedTask = this.tasksMap[taskId];
                 var task;
@@ -38181,7 +38217,9 @@ Github: https://github.com/angular-gantt/angular-gantt
                         }
                     }
 
-                    this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                    if (!silent) {
+                        this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                    }
                 }
 
                 return removedTask;
@@ -38805,6 +38843,8 @@ Github: https://github.com/angular-gantt/angular-gantt
         var Labels= function(gantt) {
             this.gantt = gantt;
             this.gantt.api.registerEvent('labels', 'resize');
+            this.gantt.api.registerEvent('labels', 'resizeBegin');
+            this.gantt.api.registerEvent('labels', 'resizeEnd');
         };
         return Labels;
     }]);
@@ -38823,6 +38863,14 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
             this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
             this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
+        };
+
+        Scroll.prototype.getScrollLeft = function() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollLeft;
+        };
+
+        Scroll.prototype.getScrollWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
         };
 
         /**
@@ -39148,7 +39196,7 @@ Github: https://github.com/angular-gantt/angular-gantt
     }]);
 }());
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt').service('ganttUtils', ['$document', function($document) {
         return {
@@ -39158,7 +39206,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 };
             },
             firstProperty: function(objects, propertyName, defaultValue) {
-                for (var i= 0, l=objects.length; i<l; i++) {
+                for (var i = 0, l = objects.length; i < l; i++) {
                     var object = objects[i];
                     if (object !== undefined && propertyName in object) {
                         if (object[propertyName] !== undefined) {
@@ -39169,14 +39217,67 @@ Github: https://github.com/angular-gantt/angular-gantt
                 return defaultValue;
             },
             elementFromPoint: function(x, y) {
-                var element = $document[0].elementFromPoint(x, y);
-                return angular.element(element);
+                return $document[0].elementFromPoint(x, y);
             },
-            scopeFromPoint: function(x, y) {
-                var element = this.elementFromPoint(x, y);
-                if (element !== undefined) {
-                    return element.scope();
+            elementsFromPoint: function(x, y, depth) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null &&
+                    (depth === undefined || cDepth < depth)) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('pointer-events'),
+                        priority: current.style.getPropertyPriority('pointer-events')
+                    });
+
+                    // add "pointer-events: none", to get to the underlying element
+                    current.style.setProperty('pointer-events', 'none', 'important');
+
+                    cDepth++;
                 }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
+                }
+
+                return elements;
+            },
+            findElementFromPoint: function(x, y, checkFunction) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, found, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('pointer-events'),
+                        priority: current.style.getPropertyPriority('pointer-events')
+                    });
+
+                    // add "pointer-events: none", to get to the underlying element
+                    current.style.setProperty('pointer-events', 'none', 'important');
+
+                    cDepth++;
+
+                    if (checkFunction(current)) {
+                        found = current;
+                        break;
+                    }
+                }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
+                }
+
+                return found;
             },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
@@ -39200,7 +39301,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttDebounce', 'ganttMouseOffset', function($document, debounce, mouseOffset) {
+    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
 
         return {
             restrict: 'A',
@@ -39263,9 +39364,11 @@ Github: https://github.com/angular-gantt/angular-gantt
                     });
 
                     var moveHandler = function(e) {
-                        scope.$evalAsync(function() {
+                        scope.$evalAsync(function(){
                             resize(e.screenX);
+                            api.labels.raise.resize(scope.width);
                         });
+
                     };
 
                     angular.element($document[0].body).bind('mousemove', moveHandler);
@@ -39274,6 +39377,8 @@ Github: https://github.com/angular-gantt/angular-gantt
                         angular.element($document[0].body).unbind('mousemove', moveHandler);
                         disableResizeMode();
                     });
+
+                    api.labels.raise.resizeBegin(scope.width);
                 };
 
                 var disableResizeMode = function() {
@@ -39287,7 +39392,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                         'cursor': ''
                     });
 
-                    api.labels.raise.resize(scope.width);
+                    api.labels.raise.resizeEnd(scope.width);
                 };
             }
         };
@@ -39299,41 +39404,23 @@ Github: https://github.com/angular-gantt/angular-gantt
     'use strict';
     angular.module('gantt').filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
         // Returns only the columns which are visible on the screen
-
-        return function(input, scrollLeft, scrollWidth) {
-            var cmp = function(c) {
-                return c.left;
-            };
-            var start = bs.getIndicesOnly(input, scrollLeft, cmp)[0];
-            var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, cmp)[1];
-            return input.slice(start, end);
+        var leftComparator = function(c) {
+            return c.left;
         };
-    }]);
-}());
+
+        return function(input, gantt) {
+            var scrollLeft = gantt.scroll.getScrollLeft();
+            var scrollWidth = gantt.scroll.getScrollWidth();
+
+            if (scrollWidth > 0) {
+                var start = bs.getIndicesOnly(input, scrollLeft, leftComparator)[0];
+                var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, leftComparator)[1];
+                return input.slice(start, end);
+            } else {
+                return input.slice();
+            }
 
 
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
-        // Updates the limit filters if the user scrolls the gantt chart
-
-        return {
-            restrict: 'A',
-            controller: ['$scope', '$element', function($scope, $element) {
-                var el = $element[0];
-                var scrollUpdate = function() {
-                    $scope.scrollLeft = el.scrollLeft;
-                    $scope.scrollWidth = el.offsetWidth;
-                };
-
-                $element.bind('scroll', debounce(function() {
-                    scrollUpdate();
-                }, 5));
-
-                $scope.$watch('gantt.width', debounce(function() {
-                    scrollUpdate();
-                }, 20));
-            }]
         };
     }]);
 }());
@@ -39346,11 +39433,15 @@ Github: https://github.com/angular-gantt/angular-gantt
         // Use the task width and position to decide if a task is still visible
 
         return function(input, gantt) {
-            var res = [];
             var firstColumn = gantt.columnsManager.getFirstColumn();
             var lastColumn = gantt.columnsManager.getLastColumn();
 
             if (firstColumn !== undefined && lastColumn !== undefined) {
+                var res = [];
+
+                var scrollLeft = gantt.scroll.getScrollLeft();
+                var scrollWidth = gantt.scroll.getScrollWidth();
+
                 for (var i = 0, l = input.length; i < l; i++) {
                     var task = input[i];
 
@@ -39360,11 +39451,8 @@ Github: https://github.com/angular-gantt/angular-gantt
                         // If the task can be drawn with gantt columns only.
                         if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                            var scrollLeft = gantt.$scope.scrollLeft;
-                            var scrollWidth = gantt.$scope.scrollWidth;
-
                             // If task has a visible part on the screen
-                            if (scrollLeft === undefined && scrollWidth === undefined ||
+                            if (!scrollWidth ||
                                 task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
                                 task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
                                 task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
@@ -39373,11 +39461,12 @@ Github: https://github.com/angular-gantt/angular-gantt
                             }
                         }
                     }
-
                 }
-            }
 
-            return res;
+                return res;
+            } else {
+                return input.splice();
+            }
         };
     }]);
 }());
@@ -39436,39 +39525,35 @@ Github: https://github.com/angular-gantt/angular-gantt
             require: '^ganttScrollManager',
             controller: ['$scope', '$element', function($scope, $element) {
                 var el = $element[0];
-                var labelsWidth;
-                var bodyRowsWidth;
-                var bodyRowsHeight;
 
                 var updateListeners = function() {
                     var i, l;
 
                     for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
                         var vElement = $scope.scrollManager.vertical[i];
-                        if (vElement.style.top !== -el.scrollTop) {
-                            vElement.style.top = -el.scrollTop + 'px';
+                        if (vElement.parentNode.scrollTop !== el.scrollTop) {
+                            vElement.parentNode.scrollTop = el.scrollTop;
                         }
                     }
 
                     for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
                         var hElement = $scope.scrollManager.horizontal[i];
-                        if (hElement.style.left !== -el.scrollLeft) {
-                            hElement.style.left = -el.scrollLeft + 'px';
-                            hElement.style.width = bodyRowsWidth + el.scrollLeft + 'px';
+                        if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
+                            hElement.parentNode.scrollLeft  = el.scrollLeft;
                         }
                     }
                 };
 
                 $element.bind('scroll', updateListeners);
 
-                $scope.$watchGroup(['labelsWidth', 'bodyRowsWidth', 'bodyRowsHeight'], function(newValues) {
-                    labelsWidth = newValues[0];
-                    bodyRowsWidth = newValues[1];
-                    bodyRowsHeight = newValues[2];
-
-                    updateListeners();
+                $scope.$watch('bodyRowsWidth', function(newValue, oldValue) {
+                    if (oldValue !== newValue) {
+                        for (var i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
+                            var hElement = $scope.scrollManager.horizontal[i];
+                            hElement.style.width = newValue + 'px';
+                        }
+                    }
                 });
-
             }]
         };
     }]);
@@ -39526,6 +39611,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 }
 
                 lastScrollLeft = el.scrollLeft;
+                $scope.gantt.columnsManager.updateVisibleColumns();
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
@@ -39637,6 +39723,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBody');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.$element = $element;
+            $scope.gantt.body.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39649,6 +39736,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyBackground');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.background.$element = $element;
+            $scope.gantt.body.background.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39661,6 +39749,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyColumns');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.columns.$element = $element;
+            $scope.gantt.body.background.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39673,6 +39762,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyForeground');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.foreground.$element = $element;
+            $scope.gantt.body.foreground.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39685,6 +39775,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyRows');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.rows.$element = $element;
+            $scope.gantt.body.rows.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39697,6 +39788,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttColumn');
         builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
+            $scope.column.$scope = $scope;
             $scope.column.updateView();
         };
         return builder.build();
@@ -39710,6 +39802,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttColumnHeader');
         builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
+            $scope.column.$scope = $scope;
             $scope.column.updateView();
         };
         return builder.build();
@@ -39723,6 +39816,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttHeader');
         builder.controller = function($scope, $element) {
             $scope.gantt.header.$element = $element;
+            $scope.gantt.header.$scope = $scope;
 
             $scope.getHeaderCss = function() {
                 var css = {};
@@ -39745,6 +39839,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttHeaderColumns');
         builder.controller = function($scope, $element) {
             $scope.gantt.header.columns.$element = $element;
+            $scope.gantt.header.columns.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39757,6 +39852,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttLabels');
         builder.controller = function($scope, $element) {
             $scope.gantt.labels.$element = $element;
+            $scope.gantt.labels.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39788,6 +39884,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttRow');
         builder.controller = function($scope, $element) {
             $scope.row.$element = $element;
+            $scope.row.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39809,6 +39906,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttRowHeader');
         builder.controller = function($scope, $element) {
             $scope.gantt.rowHeader.$element = $element;
+            $scope.gantt.rowHeader.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39830,6 +39928,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTask');
         builder.controller = function($scope, $element) {
             $scope.task.$element = $element;
+            $scope.task.$scope = $scope;
 
             $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
                 $scope.task.updatePosAndSize();
@@ -39854,6 +39953,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTimeFrame');
         builder.controller = function($scope, $element) {
             $scope.timeFrame.$element = $element;
+            $scope.timeFrame.$scope = $scope;
             $scope.timeFrame.updateView();
         };
         return builder.build();
@@ -39867,6 +39967,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTimespan');
         builder.controller = function($scope, $element) {
             $scope.timespan.$element = $element;
+            $scope.timespan.$scope = $scope;
             $scope.timespan.updateView();
         };
         return builder.build();
@@ -40222,8 +40323,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <script type="text/ng-template" id="template/ganttLabelsBody.tmpl.html">\n' +
         '    <div class="gantt-labels-body"\n' +
-        '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
-        '         ng-show="gantt.columnsManager.columns.length > 0">\n' +
+        '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})">\n' +
         '        <div ng-transclude gantt-vertical-scroll-receiver>\n' +
         '        </div>\n' +
         '    </div>\n' +
@@ -40286,8 +40386,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Scrollable template -->\n' +
         '    <script type="text/ng-template" id="template/ganttScrollable.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
-        '             ng-style="getScrollableCss()"></div>\n' +
+        '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender ng-style="getScrollableCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Rows template -->\n' +
@@ -40382,12 +40481,14 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', function(moment, $compile) {
+    angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', '$document', function(moment, $compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                templateUrl: '=?',
+                template: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -40399,31 +40500,18 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     }
                 }
 
-                if (scope.enabled === undefined) {
-                    scope.enabled = true;
-                }
-
-                var boundsScopes = [];
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(boundsScopes, function(boundsScope) {
-                        boundsScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var boundsScope = taskScope.$new();
-                        boundsScopes.push(boundsScopes);
-                        boundsScope.enabled = scope.enabled;
-
-                        taskElement.append($compile('<gantt-task-bounds></gantt-bounds>')(boundsScope));
-
-                        boundsScope.$on('$destroy', function() {
-                            var scopeIndex = boundsScopes.indexOf(boundsScope);
-                            if (scopeIndex > -1) {
-                                boundsScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        boundsScope.pluginScope = scope;
+                        var boundsElement = $document[0].createElement('gantt-task-bounds');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(boundsElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(boundsElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(boundsElement)(boundsScope));
                     }
                 });
 
@@ -40471,7 +40559,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                 task.updatePosAndSize();
                                 directiveScope.row.updateVisibleTasks();
 
-                                directiveScope.row.$element.scope().$digest();
+                                directiveScope.row.$scope.$digest();
                             }
                         };
 
@@ -40531,20 +40619,20 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     var _moveEvents = 'touchmove mousemove';
                     var _releaseEvents = 'touchend mouseup';
 
+                    var resizeAreaWidthBig = 5;
+                    var resizeAreaWidthSmall = 3;
+                    var scrollSpeed = 15;
+                    var scrollTriggerDistance = 5;
+                    var mouseStartOffsetX;
+                    var moveStartX;
+
                     api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                         if (directiveName === 'ganttTask') {
-                            var resizeAreaWidthBig = 5;
-                            var resizeAreaWidthSmall = 3;
-                            var scrollSpeed = 15;
-                            var scrollTriggerDistance = 5;
-
                             var windowElement = angular.element($window);
                             var ganttBodyElement = taskScope.row.rowsManager.gantt.body.$element;
                             var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
 
                             var taskHasBeenChanged = false;
-                            var mouseOffsetInEm;
-                            var moveStartX;
                             var scrollInterval;
 
                             taskElement.on(_pressEvents, function(evt) {
@@ -40583,7 +40671,6 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                             };
 
                             var moveTask = function(mode, evt) {
-
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
@@ -40593,20 +40680,30 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
 
-                                        var targetScope = utils.scopeFromPoint(scrollRect.left, evt.clientY);
-                                        var targetRow = targetScope.row;
+                                        var targetRowElement = utils.findElementFromPoint(scrollRect.left, evt.clientY, function(element) {
+                                            return angular.element(element).hasClass('gantt-row');
+                                        });
+                                        var rows = ganttCtrl.gantt.rowsManager.rows;
+                                        var targetRow;
+                                        for (var i= 0, l=rows.length; i<l; i++) {
+                                            if (targetRowElement === rows[i].$element[0]) {
+                                                targetRow = rows[i];
+                                                break;
+                                            }
+                                        }
+
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
                                             targetRow.moveTaskToRow(taskScope.task, true);
-                                            sourceRow.$element.scope().$digest();
-                                            targetRow.$element.scope().$digest();
+                                            sourceRow.$scope.$digest();
+                                            targetRow.$scope.$digest();
                                         }
                                     }
 
                                     var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
                                     if (allowMoving) {
-                                        x = x - mouseOffsetInEm;
+                                        x = x - mouseStartOffsetX;
                                         if (taskScope.taskOutOfRange !== 'truncate') {
                                             if (x < 0) {
                                                 x = 0;
@@ -40737,13 +40834,17 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                     }
                                 }
 
+                                // Init mouse start variables (if tasks was not move from another row)
+                                if (!taskScope.task.isMoving) {
+                                    moveStartX = x;
+                                    mouseStartOffsetX = x - taskScope.task.modelLeft;
+                                }
+
                                 // Init task move
                                 taskHasBeenChanged = false;
                                 taskScope.task.moveMode = mode;
                                 taskScope.task.isMoving = true;
                                 taskScope.task.active = true;
-                                moveStartX = x;
-                                mouseOffsetInEm = x - taskScope.task.modelLeft;
 
                                 // Add move event handlers
                                 var taskMoveHandler = function(evt) {
@@ -40791,7 +40892,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                     taskScope.task.model = taskScope.task.originalModel;
                                     if (taskScope.task.row.model.id !== taskScope.task.originalRow.model.id) {
                                         var targetRow = taskScope.task.row;
-                                        targetRow.removeTask(taskScope.task.model.id);
+                                        targetRow.removeTask(taskScope.task.model.id, false, true);
                                         taskScope.task.row = taskScope.task.originalRow;
                                         targetRow.moveTaskToRow(taskScope.task, false);
                                     }
@@ -40842,10 +40943,8 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                 // Enable the move mode again if this was the case.
                                 enableMoveMode('M', taskScope.task.mouseOffsetX);
                             }
-
                         }
                     });
-
                 }
             };
         }]);
@@ -40854,12 +40953,14 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', function(moment, $compile) {
+    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', '$document', function(moment, $compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                templateUrl : '=?',
+                template: '='
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -40875,27 +40976,19 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     scope.enabled = true;
                 }
 
-                var progressScopes = [];
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(progressScopes, function(progressScope) {
-                        progressScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var progressScope = taskScope.$new();
-                        progressScopes.push(progressScope);
-                        progressScope.enabled = scope.enabled;
-
-                        taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(progressScope));
-
-                        progressScope.$on('$destroy', function() {
-                            var scopeIndex = progressScopes.indexOf(progressScope);
-                            if (scopeIndex > -1) {
-                                progressScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        progressScope.pluginScope = scope;
+                        var progressElement = $document[0].createElement('gantt-task-progress');
+                        angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(progressElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(progressElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(progressElement)(progressScope));
                     }
                 });
 
@@ -40978,13 +41071,15 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
+    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$document', function($compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?'
+                dateFormat: '=?',
+                templateUrl: '=?',
+                template: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -41003,33 +41098,18 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     scope.dateFormat = 'MMM DD, HH:mm';
                 }
 
-                var tooltipScopes = [];
-                scope.$watch('dateFormat', function(dateFormat) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.dateFormat = dateFormat;
-                    });
-                });
-
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var tooltipScope = taskScope.$new();
-                        tooltipScopes.push(tooltipScope);
-                        tooltipScope.dateFormat = scope.dateFormat;
-                        tooltipScope.enabled = scope.enabled;
-                        taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(tooltipScope));
-
-                        tooltipScope.$on('$destroy', function() {
-                            var scopeIndex = tooltipScopes.indexOf(tooltipScope);
-                            if (scopeIndex > -1) {
-                                tooltipScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        tooltipScope.pluginScope = scope;
+                        var tooltipElement = $document[0].createElement('gantt-tooltip');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(tooltipElement)(tooltipScope));
                     }
                 });
             }
@@ -41040,17 +41120,22 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds').directive('ganttTaskBounds', [function() {
+    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', function($templateCache) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/bounds/taskBounds.tmpl.html';
+                    templateUrl = 'plugins/bounds/taskBounds.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,
@@ -41135,16 +41220,21 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.progress').directive('ganttTaskProgress', [function() {
+    angular.module('gantt.progress').directive('ganttTaskProgress', ['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             requires: '^ganttTask',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/progress/taskProgress.tmpl.html';
+                    templateUrl = 'plugins/progress/taskProgress.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,
@@ -41196,17 +41286,22 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/tooltips/tooltip.tmpl.html';
+                    templateUrl = 'plugins/tooltips/tooltip.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             scope: true,
             replace: true,
@@ -41220,12 +41315,12 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                 $scope.visible = false;
 
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 
@@ -41233,7 +41328,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && newValue === true) {
                         showTooltipPromise = $timeout(function() {
                             showTooltip(mousePositionX);

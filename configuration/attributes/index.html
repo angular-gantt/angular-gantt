@@ -231,6 +231,8 @@
         
             <li><a href="#task-out-of-range">task-out-of-range</a></li>
         
+            <li><a href="#template">template</a></li>
+        
             <li><a href="#template-url">template-url</a></li>
         
             <li><a href="#view-scale">view-scale</a></li>
@@ -522,6 +524,12 @@ attributes. camelCased version of attributes must be used as key (<code>autoExpa
 <li><code>truncate</code>: tasks will be truncated, or even totally hidden if they are not in rendering range at all.</li>
 </ul>
 <p>default: <code>expand</code></p>
+</li>
+<li>
+<h3 id="template">template</h3>
+<p>Custom Gantt HTML template. If you want to customize the default Gantt HTML template, copy the content of
+template file <code>src/template/gantt.tmpl.html</code> to a variable and set this parameter. </p>
+<p>Compared to <code>template-url</code>, this will avoid an additional request to load the template from an URL.</p>
 </li>
 <li>
 <h3 id="template-url">template-url</h3>

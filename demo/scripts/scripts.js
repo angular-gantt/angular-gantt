@@ -16,11 +16,9 @@ angular.module('angularGanttDemoApp', [
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',
-    'mgcrea.ngStrap' // handle bootstrap properly in angularJS applications.
-]).config(['$compileProvider', function(/*$compileProvider*/) {
-    // Wait angular.js#9515 fix to disable debug info.
-    // https://github.com/angular/angular.js/issues/9515
-    //$compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
+    'mgcrea.ngStrap'
+]).config(['$compileProvider', function($compileProvider) {
+    $compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
 }]);
 
 'use strict';
@@ -126,7 +124,9 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.move($scope, addEventName('rows.on.move', logRowEvent));
                     api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
 
-                    api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
+                    api.labels.on.resizeBegin($scope, addEventName('labels.on.resizeBegin', logLabelsEvent));
+                    //api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
+                    api.labels.on.resizeEnd($scope, addEventName('labels.on.resizeEnd', logLabelsEvent));
 
                     api.timespans.on.add($scope, addEventName('timespans.on.add', logTimespanEvent));
                     api.columns.on.generate($scope, logColumnsGenerateEvent);
@@ -173,8 +173,7 @@ angular.module('angularGanttDemoApp')
                             element.bind('click', function() {
                                 logRowEvent('row-label-click', directiveScope.row);
                             });
-                            element.bind('mousedown touchstart', function(event) {
-                                event.stopPropagation();
+                            element.bind('mousedown touchstart', function() {
                                 $scope.live.row = directiveScope.row.model;
                                 $scope.$digest();
                             });
