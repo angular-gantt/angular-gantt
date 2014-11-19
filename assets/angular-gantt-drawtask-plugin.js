@@ -35,7 +35,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                                 task.updatePosAndSize();
                                 directiveScope.row.updateVisibleTasks();
 
-                                directiveScope.row.$element.scope().$digest();
+                                directiveScope.row.$scope.$digest();
                             }
                         };
 

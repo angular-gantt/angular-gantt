@@ -39196,7 +39196,7 @@ Github: https://github.com/angular-gantt/angular-gantt
     }]);
 }());
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt').service('ganttUtils', ['$document', function($document) {
         return {
@@ -39206,7 +39206,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 };
             },
             firstProperty: function(objects, propertyName, defaultValue) {
-                for (var i= 0, l=objects.length; i<l; i++) {
+                for (var i = 0, l = objects.length; i < l; i++) {
                     var object = objects[i];
                     if (object !== undefined && propertyName in object) {
                         if (object[propertyName] !== undefined) {
@@ -39217,14 +39217,67 @@ Github: https://github.com/angular-gantt/angular-gantt
                 return defaultValue;
             },
             elementFromPoint: function(x, y) {
-                var element = $document[0].elementFromPoint(x, y);
-                return angular.element(element);
+                return $document[0].elementFromPoint(x, y);
             },
-            scopeFromPoint: function(x, y) {
-                var element = this.elementFromPoint(x, y);
-                if (element !== undefined) {
-                    return element.scope();
+            elementsFromPoint: function(x, y, depth) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null &&
+                    (depth === undefined || cDepth < depth)) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('pointer-events'),
+                        priority: current.style.getPropertyPriority('pointer-events')
+                    });
+
+                    // add "pointer-events: none", to get to the underlying element
+                    current.style.setProperty('pointer-events', 'none', 'important');
+
+                    cDepth++;
                 }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
+                }
+
+                return elements;
+            },
+            findElementFromPoint: function(x, y, checkFunction) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, found, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('pointer-events'),
+                        priority: current.style.getPropertyPriority('pointer-events')
+                    });
+
+                    // add "pointer-events: none", to get to the underlying element
+                    current.style.setProperty('pointer-events', 'none', 'important');
+
+                    cDepth++;
+
+                    if (checkFunction(current)) {
+                        found = current;
+                        break;
+                    }
+                }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
+                }
+
+                return found;
             },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
@@ -39670,6 +39723,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBody');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.$element = $element;
+            $scope.gantt.body.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39682,6 +39736,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyBackground');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.background.$element = $element;
+            $scope.gantt.body.background.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39694,6 +39749,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyColumns');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.columns.$element = $element;
+            $scope.gantt.body.background.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39706,6 +39762,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyForeground');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.foreground.$element = $element;
+            $scope.gantt.body.foreground.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39718,6 +39775,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttBodyRows');
         builder.controller = function($scope, $element) {
             $scope.gantt.body.rows.$element = $element;
+            $scope.gantt.body.rows.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39730,6 +39788,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttColumn');
         builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
+            $scope.column.$scope = $scope;
             $scope.column.updateView();
         };
         return builder.build();
@@ -39743,6 +39802,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttColumnHeader');
         builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
+            $scope.column.$scope = $scope;
             $scope.column.updateView();
         };
         return builder.build();
@@ -39756,6 +39816,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttHeader');
         builder.controller = function($scope, $element) {
             $scope.gantt.header.$element = $element;
+            $scope.gantt.header.$scope = $scope;
 
             $scope.getHeaderCss = function() {
                 var css = {};
@@ -39778,6 +39839,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttHeaderColumns');
         builder.controller = function($scope, $element) {
             $scope.gantt.header.columns.$element = $element;
+            $scope.gantt.header.columns.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39790,6 +39852,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttLabels');
         builder.controller = function($scope, $element) {
             $scope.gantt.labels.$element = $element;
+            $scope.gantt.labels.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39821,6 +39884,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttRow');
         builder.controller = function($scope, $element) {
             $scope.row.$element = $element;
+            $scope.row.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39842,6 +39906,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttRowHeader');
         builder.controller = function($scope, $element) {
             $scope.gantt.rowHeader.$element = $element;
+            $scope.gantt.rowHeader.$scope = $scope;
         };
         return builder.build();
     }]);
@@ -39863,6 +39928,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTask');
         builder.controller = function($scope, $element) {
             $scope.task.$element = $element;
+            $scope.task.$scope = $scope;
 
             $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
                 $scope.task.updatePosAndSize();
@@ -39887,6 +39953,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTimeFrame');
         builder.controller = function($scope, $element) {
             $scope.timeFrame.$element = $element;
+            $scope.timeFrame.$scope = $scope;
             $scope.timeFrame.updateView();
         };
         return builder.build();
@@ -39900,6 +39967,7 @@ Github: https://github.com/angular-gantt/angular-gantt
         var builder = new Builder('ganttTimespan');
         builder.controller = function($scope, $element) {
             $scope.timespan.$element = $element;
+            $scope.timespan.$scope = $scope;
             $scope.timespan.updateView();
         };
         return builder.build();
@@ -40491,7 +40559,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                 task.updatePosAndSize();
                                 directiveScope.row.updateVisibleTasks();
 
-                                directiveScope.row.$element.scope().$digest();
+                                directiveScope.row.$scope.$digest();
                             }
                         };
 
@@ -40612,14 +40680,24 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
 
-                                        var targetScope = utils.scopeFromPoint(scrollRect.left, evt.clientY);
-                                        var targetRow = targetScope.row;
+                                        var targetRowElement = utils.findElementFromPoint(scrollRect.left, evt.clientY, function(element) {
+                                            return angular.element(element).hasClass('gantt-row');
+                                        });
+                                        var rows = ganttCtrl.gantt.rowsManager.rows;
+                                        var targetRow;
+                                        for (var i= 0, l=rows.length; i<l; i++) {
+                                            if (targetRowElement === rows[i].$element[0]) {
+                                                targetRow = rows[i];
+                                                break;
+                                            }
+                                        }
+
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
                                             targetRow.moveTaskToRow(taskScope.task, true);
-                                            sourceRow.$element.scope().$digest();
-                                            targetRow.$element.scope().$digest();
+                                            sourceRow.$scope.$digest();
+                                            targetRow.$scope.$digest();
                                         }
                                     }
 

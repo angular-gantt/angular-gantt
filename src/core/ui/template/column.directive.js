@@ -4,6 +4,7 @@
         var builder = new Builder('ganttColumn');
         builder.controller = function($scope, $element) {
             $scope.column.$element = $element;
+            $scope.column.$scope = $scope;
             $scope.column.updateView();
         };
         return builder.build();

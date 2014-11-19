@@ -4,6 +4,7 @@
         var builder = new Builder('ganttHeaderColumns');
         builder.controller = function($scope, $element) {
             $scope.gantt.header.columns.$element = $element;
+            $scope.gantt.header.columns.$scope = $scope;
         };
         return builder.build();
     }]);

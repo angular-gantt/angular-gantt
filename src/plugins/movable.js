@@ -98,14 +98,24 @@
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
 
-                                        var targetScope = utils.scopeFromPoint(scrollRect.left, evt.clientY);
-                                        var targetRow = targetScope.row;
+                                        var targetRowElement = utils.findElementFromPoint(scrollRect.left, evt.clientY, function(element) {
+                                            return angular.element(element).hasClass('gantt-row');
+                                        });
+                                        var rows = ganttCtrl.gantt.rowsManager.rows;
+                                        var targetRow;
+                                        for (var i= 0, l=rows.length; i<l; i++) {
+                                            if (targetRowElement === rows[i].$element[0]) {
+                                                targetRow = rows[i];
+                                                break;
+                                            }
+                                        }
+
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
                                             targetRow.moveTaskToRow(taskScope.task, true);
-                                            sourceRow.$element.scope().$digest();
-                                            targetRow.$element.scope().$digest();
+                                            sourceRow.$scope.$digest();
+                                            targetRow.$scope.$digest();
                                         }
                                     }
 
