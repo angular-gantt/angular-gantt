@@ -15,6 +15,10 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 
 }]);
 
+angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);

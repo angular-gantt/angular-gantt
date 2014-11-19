@@ -8,7 +8,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 (function(){
     'use strict';
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
-        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
+        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout) {
         return {
             restrict: 'EA',
             transclude: true,
@@ -70,6 +70,12 @@ Github: https://github.com/angular-gantt/angular-gantt
                 scope.gantt.api.directives.raise.new('gantt', scope, element);
                 scope.$on('$destroy', function() {
                     scope.gantt.api.directives.raise.destroy('gantt', scope, element);
+                });
+
+                $timeout(function() {
+                    scope.gantt.rendered = true;
+                    scope.gantt.columnsManager.generateColumns();
+                    scope.gantt.api.core.raise.rendered(scope.gantt.api);
                 });
             }
         };
@@ -1258,39 +1264,33 @@ Github: https://github.com/angular-gantt/angular-gantt
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
             this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
             this.gantt.$scope.$watchCollection('headers', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
             this.gantt.$scope.$watchCollection('headersFormats', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+            this.gantt.$scope.$watchGroup(['bodyRowsWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.updateColumnsMeta();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
-                    self.updateVisibleColumns();
-                }
-            });
-
             this.gantt.api.data.on.load(this.gantt.$scope, function() {
-                if (self.from === undefined || self.to === undefined ||
+                if ((self.from === undefined || self.to === undefined ||
                     self.from > self.gantt.rowsManager.getDefaultFrom() ||
-                    self.to < self.gantt.rowsManager.getDefaultTo()) {
+                    self.to < self.gantt.rowsManager.getDefaultTo()) && self.gantt.rendered) {
                     self.generateColumns();
                 }
 
@@ -1388,6 +1388,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
             this.updateColumnsMeta();
             this.scrollToScrollAnchor();
+
             this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
@@ -1524,11 +1525,11 @@ Github: https://github.com/angular-gantt/angular-gantt
         };
 
         ColumnsManager.prototype.updateVisibleColumns = function() {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
+            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
             angular.forEach(this.headers, function(header) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
+                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
             }, this);
 
             angular.forEach(this.visibleColumns, function(c) {
@@ -1659,6 +1660,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.api = new GanttApi(this);
 
                 this.api.registerEvent('core', 'ready');
+                this.api.registerEvent('core', 'rendered');
 
                 this.api.registerEvent('directives', 'preLink');
                 this.api.registerEvent('directives', 'postLink');
@@ -2682,6 +2684,14 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
         };
 
+        Scroll.prototype.getScrollLeft = function() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollLeft;
+        };
+
+        Scroll.prototype.getScrollWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
+        };
+
         /**
          * Scroll to a position
          *
@@ -3160,45 +3170,23 @@ Github: https://github.com/angular-gantt/angular-gantt
     'use strict';
     angular.module('gantt').filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
         // Returns only the columns which are visible on the screen
-
-        return function(input, scrollLeft, scrollWidth) {
-            var cmp = function(c) {
-                return c.left;
-            };
-            var start = bs.getIndicesOnly(input, scrollLeft, cmp)[0];
-            var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, cmp)[1];
-            return input.slice(start, end);
+        var leftComparator = function(c) {
+            return c.left;
         };
-    }]);
-}());
+
+        return function(input, gantt) {
+            var scrollLeft = gantt.scroll.getScrollLeft();
+            var scrollWidth = gantt.scroll.getScrollWidth();
+
+            if (scrollWidth > 0) {
+                var start = bs.getIndicesOnly(input, scrollLeft, leftComparator)[0];
+                var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, leftComparator)[1];
+                return input.slice(start, end);
+            } else {
+                return input.slice();
+            }
 
 
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttLimitUpdater', [function() {
-        // Updates the limit filters if the user scrolls the gantt chart
-
-        return {
-            restrict: 'A',
-            controller: ['$scope', '$element', function($scope, $element) {
-                var el = $element[0];
-                var scrollUpdate = function() {
-                    $scope.scrollLeft = el.scrollLeft;
-                    $scope.scrollWidth = el.offsetWidth;
-                };
-
-                $element.bind('scroll', function() {
-                    $scope.$apply(function() {
-                        scrollUpdate();
-                    });
-                });
-
-                $scope.$watch('gantt.width', function(newValue, oldValue) {
-                    if (oldValue !== newValue) {
-                        scrollUpdate();
-                    }
-                });
-            }]
         };
     }]);
 }());
@@ -3211,11 +3199,15 @@ Github: https://github.com/angular-gantt/angular-gantt
         // Use the task width and position to decide if a task is still visible
 
         return function(input, gantt) {
-            var res = [];
             var firstColumn = gantt.columnsManager.getFirstColumn();
             var lastColumn = gantt.columnsManager.getLastColumn();
 
             if (firstColumn !== undefined && lastColumn !== undefined) {
+                var res = [];
+
+                var scrollLeft = gantt.scroll.getScrollLeft();
+                var scrollWidth = gantt.scroll.getScrollWidth();
+
                 for (var i = 0, l = input.length; i < l; i++) {
                     var task = input[i];
 
@@ -3225,11 +3217,8 @@ Github: https://github.com/angular-gantt/angular-gantt
                         // If the task can be drawn with gantt columns only.
                         if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
 
-                            var scrollLeft = gantt.$scope.scrollLeft;
-                            var scrollWidth = gantt.$scope.scrollWidth;
-
                             // If task has a visible part on the screen
-                            if (scrollLeft === undefined && scrollWidth === undefined ||
+                            if (!scrollWidth ||
                                 task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
                                 task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
                                 task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
@@ -3238,11 +3227,12 @@ Github: https://github.com/angular-gantt/angular-gantt
                             }
                         }
                     }
-
                 }
-            }
 
-            return res;
+                return res;
+            } else {
+                return input.splice();
+            }
         };
     }]);
 }());
@@ -3387,6 +3377,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 }
 
                 lastScrollLeft = el.scrollLeft;
+                $scope.gantt.columnsManager.updateVisibleColumns();
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
@@ -4083,8 +4074,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <script type="text/ng-template" id="template/ganttLabelsBody.tmpl.html">\n' +
         '    <div class="gantt-labels-body"\n' +
-        '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})"\n' +
-        '         ng-show="gantt.columnsManager.columns.length > 0">\n' +
+        '         ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})">\n' +
         '        <div ng-transclude gantt-vertical-scroll-receiver>\n' +
         '        </div>\n' +
         '    </div>\n' +
@@ -4147,8 +4137,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Scrollable template -->\n' +
         '    <script type="text/ng-template" id="template/ganttScrollable.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender gantt-limit-updater\n' +
-        '             ng-style="getScrollableCss()"></div>\n' +
+        '        <div ng-transclude class="gantt-scrollable" gantt-scroll-sender ng-style="getScrollableCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Rows template -->\n' +

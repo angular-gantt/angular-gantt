@@ -124,7 +124,7 @@ describe('Unit: Gantt', function() {
 
         var rowLabelsElements = ganttElement.find('div.gantt-labels-body div.gantt-labels-row');
         var rowElements = ganttElement.find('div.gantt-body-rows div.gantt-row');
-        var taskElements = ganttElement.find('div.gantt-body-rows div.gantt-task, div.gantt-body-rows div.gantt-task-milestone');
+        var taskElements = ganttElement.find('div.gantt-task, div.gantt-task-milestone');
 
         expect(rowLabelsElements.length).toBe(data.length);
         expect(rowElements.length).toBe(data.length);

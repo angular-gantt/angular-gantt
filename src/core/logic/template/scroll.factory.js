@@ -12,6 +12,14 @@
             this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
         };
 
+        Scroll.prototype.getScrollLeft = function() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollLeft;
+        };
+
+        Scroll.prototype.getScrollWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
+        };
+
         /**
          * Scroll to a position
          *

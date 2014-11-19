@@ -39,6 +39,10 @@ On each feature, `on` object is used to register listeners, and `raise` object t
 - **api.core.on.ready(api)**
 
     Gantt is initialized and ready to load data.
+    
+- **api.core.on.rendered(api)**
+
+    Gantt is fully rendered in browser.
   
 #### data
 

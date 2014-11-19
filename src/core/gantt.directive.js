@@ -1,7 +1,7 @@
 (function(){
     'use strict';
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
-        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate) {
+        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout) {
         return {
             restrict: 'EA',
             transclude: true,
@@ -63,6 +63,12 @@
                 scope.gantt.api.directives.raise.new('gantt', scope, element);
                 scope.$on('$destroy', function() {
                     scope.gantt.api.directives.raise.destroy('gantt', scope, element);
+                });
+
+                $timeout(function() {
+                    scope.gantt.rendered = true;
+                    scope.gantt.columnsManager.generateColumns();
+                    scope.gantt.api.core.raise.rendered(scope.gantt.api);
                 });
             }
         };

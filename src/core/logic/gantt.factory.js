@@ -13,6 +13,7 @@
                 this.api = new GanttApi(this);
 
                 this.api.registerEvent('core', 'ready');
+                this.api.registerEvent('core', 'rendered');
 
                 this.api.registerEvent('directives', 'preLink');
                 this.api.registerEvent('directives', 'postLink');

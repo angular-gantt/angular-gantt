@@ -22,39 +22,33 @@
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
             this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
             this.gantt.$scope.$watchCollection('headers', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
             this.gantt.$scope.$watchCollection('headersFormats', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+            this.gantt.$scope.$watchGroup(['bodyRowsWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
+                if (oldValues !== newValues && self.gantt.rendered) {
                     self.updateColumnsMeta();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
-                    self.updateVisibleColumns();
-                }
-            });
-
             this.gantt.api.data.on.load(this.gantt.$scope, function() {
-                if (self.from === undefined || self.to === undefined ||
+                if ((self.from === undefined || self.to === undefined ||
                     self.from > self.gantt.rowsManager.getDefaultFrom() ||
-                    self.to < self.gantt.rowsManager.getDefaultTo()) {
+                    self.to < self.gantt.rowsManager.getDefaultTo()) && self.gantt.rendered) {
                     self.generateColumns();
                 }
 
@@ -152,6 +146,7 @@
 
             this.updateColumnsMeta();
             this.scrollToScrollAnchor();
+
             this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
@@ -288,11 +283,11 @@
         };
 
         ColumnsManager.prototype.updateVisibleColumns = function() {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth);
+            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
             angular.forEach(this.headers, function(header) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt.$scope.scrollLeft, this.gantt.$scope.scrollWidth));
+                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
             }, this);
 
             angular.forEach(this.visibleColumns, function(c) {
