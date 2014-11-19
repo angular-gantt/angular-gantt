@@ -32,6 +32,19 @@ Display tooltips when moving mouse over a task.
     
     default: `MMM DD, HH:mm`
 
+- ### template
+
+    Template to use for tooltip element.
+
+- ### template-url
+
+    URL of template to use for tooltip element.
+
+    If `undefined` or `plugins/tooltips/tooltip.tmpl.html`, default template will be used.   
+    
+    *note: template-url must be different than `plugins/tooltips/tooltip.tmpl.html`, or it will use default
+    template included in `angular-gantt-plugins.js` or `angular-gantt-tooltips.js`.*
+
 Attributes can be defined for a specific `Row` or `Task` object using an object named `tooltips`
 
     {

@@ -1,16 +1,21 @@
 (function(){
     'use strict';
-    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/tooltips/tooltip.tmpl.html';
+                    templateUrl = 'plugins/tooltips/tooltip.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             scope: true,
             replace: true,
@@ -24,12 +29,12 @@
                 $scope.visible = false;
 
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 
@@ -37,7 +42,7 @@
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && newValue === true) {
                         showTooltipPromise = $timeout(function() {
                             showTooltip(mousePositionX);

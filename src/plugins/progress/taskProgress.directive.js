@@ -1,15 +1,20 @@
 (function(){
     'use strict';
-    angular.module('gantt.progress').directive('ganttTaskProgress', [function() {
+    angular.module('gantt.progress').directive('ganttTaskProgress', ['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             requires: '^ganttTask',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/progress/taskProgress.tmpl.html';
+                    templateUrl = 'plugins/progress/taskProgress.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,

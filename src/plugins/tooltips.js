@@ -1,12 +1,14 @@
 (function(){
     'use strict';
-    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
+    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$document', function($compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?'
+                dateFormat: '=?',
+                templateUrl: '=?',
+                template: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -25,33 +27,18 @@
                     scope.dateFormat = 'MMM DD, HH:mm';
                 }
 
-                var tooltipScopes = [];
-                scope.$watch('dateFormat', function(dateFormat) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.dateFormat = dateFormat;
-                    });
-                });
-
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var tooltipScope = taskScope.$new();
-                        tooltipScopes.push(tooltipScope);
-                        tooltipScope.dateFormat = scope.dateFormat;
-                        tooltipScope.enabled = scope.enabled;
-                        taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(tooltipScope));
-
-                        tooltipScope.$on('$destroy', function() {
-                            var scopeIndex = tooltipScopes.indexOf(tooltipScope);
-                            if (scopeIndex > -1) {
-                                tooltipScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        tooltipScope.pluginScope = scope;
+                        var tooltipElement = $document[0].createElement('gantt-tooltip');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(tooltipElement)(tooltipScope));
                     }
                 });
             }

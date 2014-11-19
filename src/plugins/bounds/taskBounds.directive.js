@@ -1,16 +1,21 @@
 (function(){
     'use strict';
-    angular.module('gantt.bounds').directive('ganttTaskBounds', [function() {
+    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', function($templateCache) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/bounds/taskBounds.tmpl.html';
+                    templateUrl = 'plugins/bounds/taskBounds.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,

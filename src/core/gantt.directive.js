@@ -1,16 +1,21 @@
 (function(){
     'use strict';
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
-        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout) {
+        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout, $templateCache) {
         return {
             restrict: 'EA',
             transclude: true,
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'template/gantt.tmpl.html';
+                    templateUrl = 'template/gantt.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             scope: {
                 sortMode: '=?', // Possible modes: 'name', 'date', 'custom'

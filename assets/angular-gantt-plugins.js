@@ -50,12 +50,14 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', function(moment, $compile) {
+    angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', '$document', function(moment, $compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                templateUrl: '=?',
+                template: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -67,31 +69,18 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     }
                 }
 
-                if (scope.enabled === undefined) {
-                    scope.enabled = true;
-                }
-
-                var boundsScopes = [];
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(boundsScopes, function(boundsScope) {
-                        boundsScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var boundsScope = taskScope.$new();
-                        boundsScopes.push(boundsScopes);
-                        boundsScope.enabled = scope.enabled;
-
-                        taskElement.append($compile('<gantt-task-bounds></gantt-bounds>')(boundsScope));
-
-                        boundsScope.$on('$destroy', function() {
-                            var scopeIndex = boundsScopes.indexOf(boundsScope);
-                            if (scopeIndex > -1) {
-                                boundsScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        boundsScope.pluginScope = scope;
+                        var boundsElement = $document[0].createElement('gantt-task-bounds');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(boundsElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(boundsElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(boundsElement)(boundsScope));
                     }
                 });
 
@@ -523,12 +512,14 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', function(moment, $compile) {
+    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', '$document', function(moment, $compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                templateUrl : '=?',
+                template: '='
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -544,27 +535,19 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     scope.enabled = true;
                 }
 
-                var progressScopes = [];
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(progressScopes, function(progressScope) {
-                        progressScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var progressScope = taskScope.$new();
-                        progressScopes.push(progressScope);
-                        progressScope.enabled = scope.enabled;
-
-                        taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(progressScope));
-
-                        progressScope.$on('$destroy', function() {
-                            var scopeIndex = progressScopes.indexOf(progressScope);
-                            if (scopeIndex > -1) {
-                                progressScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        progressScope.pluginScope = scope;
+                        var progressElement = $document[0].createElement('gantt-task-progress');
+                        angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(progressElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(progressElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(progressElement)(progressScope));
                     }
                 });
 
@@ -647,13 +630,15 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
+    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$document', function($compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?'
+                dateFormat: '=?',
+                templateUrl: '=?',
+                template: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -672,33 +657,18 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     scope.dateFormat = 'MMM DD, HH:mm';
                 }
 
-                var tooltipScopes = [];
-                scope.$watch('dateFormat', function(dateFormat) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.dateFormat = dateFormat;
-                    });
-                });
-
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var tooltipScope = taskScope.$new();
-                        tooltipScopes.push(tooltipScope);
-                        tooltipScope.dateFormat = scope.dateFormat;
-                        tooltipScope.enabled = scope.enabled;
-                        taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(tooltipScope));
-
-                        tooltipScope.$on('$destroy', function() {
-                            var scopeIndex = tooltipScopes.indexOf(tooltipScope);
-                            if (scopeIndex > -1) {
-                                tooltipScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        tooltipScope.pluginScope = scope;
+                        var tooltipElement = $document[0].createElement('gantt-tooltip');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(tooltipElement)(tooltipScope));
                     }
                 });
             }
@@ -709,17 +679,22 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds').directive('ganttTaskBounds', [function() {
+    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', function($templateCache) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/bounds/taskBounds.tmpl.html';
+                    templateUrl = 'plugins/bounds/taskBounds.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,
@@ -804,16 +779,21 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.progress').directive('ganttTaskProgress', [function() {
+    angular.module('gantt.progress').directive('ganttTaskProgress', ['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             requires: '^ganttTask',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/progress/taskProgress.tmpl.html';
+                    templateUrl = 'plugins/progress/taskProgress.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,
@@ -865,17 +845,22 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/tooltips/tooltip.tmpl.html';
+                    templateUrl = 'plugins/tooltips/tooltip.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             scope: true,
             replace: true,
@@ -889,12 +874,12 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                 $scope.visible = false;
 
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 
@@ -902,7 +887,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && newValue === true) {
                         showTooltipPromise = $timeout(function() {
                             showTooltip(mousePositionX);

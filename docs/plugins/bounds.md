@@ -34,3 +34,16 @@ To define bounds on a task, you need to add `est` and `lct` property on task obj
     Enable display of bounds box.
   
     default: `true`
+
+- ### template
+ 
+     Template to use for bounds element.
+
+- ### template-url
+
+    URL of template to use for bounds element.
+
+    If `undefined` or `plugins/bounds/taskBounds.tmpl.html`, default template will be used.
+    
+    *note: template-url must be different than `plugins/bounds/taskBounds.tmpl.html`, or it will use default
+    template included in `angular-gantt-plugins.js` or `angular-gantt-bounds.js`.*

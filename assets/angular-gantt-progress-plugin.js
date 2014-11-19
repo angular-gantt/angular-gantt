@@ -7,12 +7,14 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 (function(){
     'use strict';
-    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', function(moment, $compile) {
+    angular.module('gantt.progress', ['gantt', 'gantt.progress.templates']).directive('ganttProgress', ['moment', '$compile', '$document', function(moment, $compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                templateUrl : '=?',
+                template: '='
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -28,27 +30,19 @@ Github: https://github.com/angular-gantt/angular-gantt
                     scope.enabled = true;
                 }
 
-                var progressScopes = [];
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(progressScopes, function(progressScope) {
-                        progressScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var progressScope = taskScope.$new();
-                        progressScopes.push(progressScope);
-                        progressScope.enabled = scope.enabled;
-
-                        taskElement.append($compile('<gantt-task-progress ng-if="task.model.progress !== undefined"></gantt-task-progress>')(progressScope));
-
-                        progressScope.$on('$destroy', function() {
-                            var scopeIndex = progressScopes.indexOf(progressScope);
-                            if (scopeIndex > -1) {
-                                progressScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        progressScope.pluginScope = scope;
+                        var progressElement = $document[0].createElement('gantt-task-progress');
+                        angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(progressElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(progressElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(progressElement)(progressScope));
                     }
                 });
 
@@ -69,16 +63,21 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt.progress').directive('ganttTaskProgress', [function() {
+    angular.module('gantt.progress').directive('ganttTaskProgress', ['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             requires: '^ganttTask',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/progress/taskProgress.tmpl.html';
+                    templateUrl = 'plugins/progress/taskProgress.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             replace: true,
             scope: true,

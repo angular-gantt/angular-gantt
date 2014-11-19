@@ -7,13 +7,15 @@ Github: https://github.com/angular-gantt/angular-gantt
 */
 (function(){
     'use strict';
-    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', function($compile) {
+    angular.module('gantt.tooltips', ['gantt', 'gantt.tooltips.templates']).directive('ganttTooltips', ['$compile', '$document', function($compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?'
+                dateFormat: '=?',
+                templateUrl: '=?',
+                template: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -32,33 +34,18 @@ Github: https://github.com/angular-gantt/angular-gantt
                     scope.dateFormat = 'MMM DD, HH:mm';
                 }
 
-                var tooltipScopes = [];
-                scope.$watch('dateFormat', function(dateFormat) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.dateFormat = dateFormat;
-                    });
-                });
-
-                scope.$watch('enabled', function(enabled) {
-                    angular.forEach(tooltipScopes, function(tooltipScope) {
-                        tooltipScope.enabled = enabled;
-                    });
-                });
-
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var tooltipScope = taskScope.$new();
-                        tooltipScopes.push(tooltipScope);
-                        tooltipScope.dateFormat = scope.dateFormat;
-                        tooltipScope.enabled = scope.enabled;
-                        taskElement.append($compile('<gantt-tooltip ng-model="task"></gantt-tooltip>')(tooltipScope));
-
-                        tooltipScope.$on('$destroy', function() {
-                            var scopeIndex = tooltipScopes.indexOf(tooltipScope);
-                            if (scopeIndex > -1) {
-                                tooltipScopes.splice(scopeIndex, 1);
-                            }
-                        });
+                        tooltipScope.pluginScope = scope;
+                        var tooltipElement = $document[0].createElement('gantt-tooltip');
+                        if (scope.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        }
+                        if (scope.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        }
+                        taskElement.append($compile(tooltipElement)(tooltipScope));
                     }
                 });
             }
@@ -69,17 +56,22 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$document', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $document, debounce, smartEvent) {
+    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
 
         return {
             restrict: 'E',
             templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
                 if (tAttrs.templateUrl === undefined) {
-                    return 'plugins/tooltips/tooltip.tmpl.html';
+                    templateUrl = 'plugins/tooltips/tooltip.tmpl.html';
                 } else {
-                    return tAttrs.templateUrl;
+                    templateUrl = tAttrs.templateUrl;
                 }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
             },
             scope: true,
             replace: true,
@@ -93,12 +85,12 @@ Github: https://github.com/angular-gantt/angular-gantt
                 $scope.visible = false;
 
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.dateFormat);
+                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 
@@ -106,7 +98,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.enabled);
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && newValue === true) {
                         showTooltipPromise = $timeout(function() {
                             showTooltip(mousePositionX);

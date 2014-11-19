@@ -302,6 +302,13 @@
     
     default: `expand`
 
+- ### template
+
+    Custom Gantt HTML template. If you want to customize the default Gantt HTML template, copy the content of
+    template file `src/template/gantt.tmpl.html` to a variable and set this parameter. 
+    
+    Compared to `template-url`, this will avoid an additional request to load the template from an URL.
+
 - ### template-url
 
     URL of custom Gantt HTML template. If you want to customize the default Gantt HTML template, make a copy of default
