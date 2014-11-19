@@ -3175,7 +3175,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLimitUpdater', ['$timeout', 'ganttDebounce', function($timeout, debounce) {
+    angular.module('gantt').directive('ganttLimitUpdater', ['ganttDebounce', function(debounce) {
         // Updates the limit filters if the user scrolls the gantt chart
 
         return {
@@ -3189,11 +3189,13 @@ Github: https://github.com/angular-gantt/angular-gantt
 
                 $element.bind('scroll', debounce(function() {
                     scrollUpdate();
-                }, 5));
+                }, 1));
 
-                $scope.$watch('gantt.width', debounce(function() {
-                    scrollUpdate();
-                }, 20));
+                $scope.$watch('gantt.width', function(newValue, oldValue) {
+                    if (oldValue !== newValue) {
+                        scrollUpdate();
+                    }
+                });
             }]
         };
     }]);
@@ -3297,39 +3299,35 @@ Github: https://github.com/angular-gantt/angular-gantt
             require: '^ganttScrollManager',
             controller: ['$scope', '$element', function($scope, $element) {
                 var el = $element[0];
-                var labelsWidth;
-                var bodyRowsWidth;
-                var bodyRowsHeight;
 
                 var updateListeners = function() {
                     var i, l;
 
                     for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
                         var vElement = $scope.scrollManager.vertical[i];
-                        if (vElement.style.top !== -el.scrollTop) {
-                            vElement.style.top = -el.scrollTop + 'px';
+                        if (vElement.parentNode.scrollTop !== el.scrollTop) {
+                            vElement.parentNode.scrollTop = el.scrollTop;
                         }
                     }
 
                     for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
                         var hElement = $scope.scrollManager.horizontal[i];
-                        if (hElement.style.left !== -el.scrollLeft) {
-                            hElement.style.left = -el.scrollLeft + 'px';
-                            hElement.style.width = bodyRowsWidth + el.scrollLeft + 'px';
+                        if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
+                            hElement.parentNode.scrollLeft  = el.scrollLeft;
                         }
                     }
                 };
 
                 $element.bind('scroll', updateListeners);
 
-                $scope.$watchGroup(['labelsWidth', 'bodyRowsWidth', 'bodyRowsHeight'], function(newValues) {
-                    labelsWidth = newValues[0];
-                    bodyRowsWidth = newValues[1];
-                    bodyRowsHeight = newValues[2];
-
-                    updateListeners();
+                $scope.$watch('bodyRowsWidth', function(newValue, oldValue) {
+                    if (oldValue !== newValue) {
+                        for (var i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
+                            var hElement = $scope.scrollManager.horizontal[i];
+                            hElement.style.width = newValue + 'px';
+                        }
+                    }
                 });
-
             }]
         };
     }]);
