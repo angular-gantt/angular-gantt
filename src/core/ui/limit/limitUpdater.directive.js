@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLimitUpdater', ['ganttDebounce', function(debounce) {
+    angular.module('gantt').directive('ganttLimitUpdater', [function() {
         // Updates the limit filters if the user scrolls the gantt chart
 
         return {
@@ -12,9 +12,11 @@
                     $scope.scrollWidth = el.offsetWidth;
                 };
 
-                $element.bind('scroll', debounce(function() {
-                    scrollUpdate();
-                }, 1));
+                $element.bind('scroll', function() {
+                    $scope.$apply(function() {
+                        scrollUpdate();
+                    });
+                });
 
                 $scope.$watch('gantt.width', function(newValue, oldValue) {
                     if (oldValue !== newValue) {
