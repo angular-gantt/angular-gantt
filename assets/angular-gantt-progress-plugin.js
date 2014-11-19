@@ -1,9 +1,9 @@
 /*
-Project: angular-gantt for AngularJS
-Author: Marco Schweighauser
-Contributors: Rémi Alvergnat
-License: MIT.
-Github: https://github.com/angular-gantt/angular-gantt
+Project: angular-gantt v1.0.0-rc2 - Gantt chart component for AngularJS
+Authors: Marco Schweighauser, Rémi Alvergnat
+License: MIT
+Homepage: http://www.angular-gantt.com
+Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
     'use strict';

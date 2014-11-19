@@ -26,11 +26,11 @@ module.exports = function(grunt) {
                 separator: '\n',
                 sourceMap: true,
                 banner: '/*\n' +
-                'Project: angular-gantt for AngularJS\n' +
-                'Author: Marco Schweighauser\n' +
-                'Contributors: Rémi Alvergnat\n' +
-                'License: MIT.\n' +
-                'Github: https://github.com/angular-gantt/angular-gantt\n' +
+                'Project: <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n' +
+                'Authors: <%= pkg.author %>, <%= pkg.contributors %>\n' +
+                'License: <%= pkg.license %>\n' +
+                'Homepage: <%= pkg.homepage %>\n' +
+                'Github: <%= pkg.repository.url %>\n' +
                 '*/\n'
             },
             core: {
