@@ -20,7 +20,6 @@
             this.columnMagnetUnit = columnMagnetUnit;
             this.originalSize = {left: this.left, width: this.width};
             this.updateTimeFrames();
-            this.updateView();
         };
 
         var getDateKey = function(date) {
@@ -112,7 +111,6 @@
                     timeFrame.left = position;
                     timeFrame.width = timeFramePosition;
                     timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
-                    timeFrame.updateView();
                 });
 
                 if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
@@ -148,7 +146,6 @@
                                 timeFrame.originalSize = {left: undefined, width: 0};
                                 timeFrame.cropped = true;
                             }
-                            timeFrame.updateView();
                         });
 
                         self.cropped = allCropped;

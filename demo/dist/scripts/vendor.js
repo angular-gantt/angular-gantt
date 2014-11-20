@@ -32520,7 +32520,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 })(window, document);
 
 //! moment.js
-//! version : 2.8.3
+//! version : 2.8.4
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -32531,7 +32531,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
     ************************************/
 
     var moment,
-        VERSION = '2.8.3',
+        VERSION = '2.8.4',
         // the global-scope this is NOT the global object in Node.js
         globalScope = typeof global !== 'undefined' ? global : this,
         oldGlobalMoment,
@@ -32554,7 +32554,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         momentProperties = [],
 
         // check for nodeJS
-        hasModule = (typeof module !== 'undefined' && module.exports),
+        hasModule = (typeof module !== 'undefined' && module && module.exports),
 
         // ASP.NET json date format regex
         aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
@@ -32565,8 +32565,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
 
         // format tokens
-        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|X|zz?|ZZ?|.)/g,
-        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LT|LL?L?L?|l{1,4})/g,
+        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|x|X|zz?|ZZ?|.)/g,
+        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
 
         // parsing token regexes
         parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
@@ -32577,8 +32577,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i, // any word (or two) characters or numbers including two/three word month in arabic.
         parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/gi, // +00:00 -00:00 +0000 -0000 or Z
         parseTokenT = /T/i, // T (ISO separator)
+        parseTokenOffsetMs = /[\+\-]?\d+/, // 1234567890123
         parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
-        parseTokenOrdinal = /\d{1,2}/,
 
         //strict parsing regexes
         parseTokenOneDigit = /\d/, // 0 - 9
@@ -32792,6 +32792,9 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             },
             zz : function () {
                 return this.zoneName();
+            },
+            x    : function () {
+                return this.valueOf();
             },
             X    : function () {
                 return this.unix();
@@ -33219,7 +33222,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             overflow =
                 m._a[MONTH] < 0 || m._a[MONTH] > 11 ? MONTH :
                 m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH]) ? DATE :
-                m._a[HOUR] < 0 || m._a[HOUR] > 23 ? HOUR :
+                m._a[HOUR] < 0 || m._a[HOUR] > 24 ||
+                    (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 ||
+                                           m._a[SECOND] !== 0 ||
+                                           m._a[MILLISECOND] !== 0)) ? HOUR :
                 m._a[MINUTE] < 0 || m._a[MINUTE] > 59 ? MINUTE :
                 m._a[SECOND] < 0 || m._a[SECOND] > 59 ? SECOND :
                 m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999 ? MILLISECOND :
@@ -33246,7 +33252,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             if (m._strict) {
                 m._isValid = m._isValid &&
                     m._pf.charsLeftOver === 0 &&
-                    m._pf.unusedTokens.length === 0;
+                    m._pf.unusedTokens.length === 0 &&
+                    m._pf.bigHour === undefined;
             }
         }
         return m._isValid;
@@ -33298,8 +33305,18 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
     // Return a moment from input, that is local/utc/zone equivalent to model.
     function makeAs(input, model) {
-        return model._isUTC ? moment(input).zone(model._offset || 0) :
-            moment(input).local();
+        var res, diff;
+        if (model._isUTC) {
+            res = model.clone();
+            diff = (moment.isMoment(input) || isDate(input) ?
+                    +input : +moment(input)) - (+res);
+            // Use low-level api, because this fn is low-level api.
+            res._d.setTime(+res._d + diff);
+            moment.updateOffset(res, false);
+            return res;
+        } else {
+            return moment(input).local();
+        }
     }
 
     /************************************
@@ -33319,6 +33336,9 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
                     this['_' + i] = prop;
                 }
             }
+            // Lenient ordinal parsing accepts just a number in addition to
+            // number + (possibly) stuff coming from _ordinalParseLenient.
+            this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + /\d{1,2}/.source);
         },
 
         _months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
@@ -33331,22 +33351,32 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             return this._monthsShort[m.month()];
         },
 
-        monthsParse : function (monthName) {
+        monthsParse : function (monthName, format, strict) {
             var i, mom, regex;
 
             if (!this._monthsParse) {
                 this._monthsParse = [];
+                this._longMonthsParse = [];
+                this._shortMonthsParse = [];
             }
 
             for (i = 0; i < 12; i++) {
                 // make the regex if we don't have it already
-                if (!this._monthsParse[i]) {
-                    mom = moment.utc([2000, i]);
+                mom = moment.utc([2000, i]);
+                if (strict && !this._longMonthsParse[i]) {
+                    this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+                    this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+                }
+                if (!strict && !this._monthsParse[i]) {
                     regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
                     this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
                 }
                 // test the regex
-                if (this._monthsParse[i].test(monthName)) {
+                if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (!strict && this._monthsParse[i].test(monthName)) {
                     return i;
                 }
             }
@@ -33389,6 +33419,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         },
 
         _longDateFormat : {
+            LTS : 'h:mm:ss A',
             LT : 'h:mm A',
             L : 'MM/DD/YYYY',
             LL : 'MMMM D, YYYY',
@@ -33429,9 +33460,9 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             lastWeek : '[Last] dddd [at] LT',
             sameElse : 'L'
         },
-        calendar : function (key, mom) {
+        calendar : function (key, mom, now) {
             var output = this._calendar[key];
-            return typeof output === 'function' ? output.apply(mom) : output;
+            return typeof output === 'function' ? output.apply(mom, [now]) : output;
         },
 
         _relativeTime : {
@@ -33466,6 +33497,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             return this._ordinal.replace('%d', number);
         },
         _ordinal : '%d',
+        _ordinalParse : /\d{1,2}/,
 
         preparse : function (string) {
             return string;
@@ -33607,6 +33639,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'a':
         case 'A':
             return config._locale._meridiemParse;
+        case 'x':
+            return parseTokenOffsetMs;
         case 'X':
             return parseTokenTimestampMs;
         case 'Z':
@@ -33641,7 +33675,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'E':
             return parseTokenOneOrTwoDigits;
         case 'Do':
-            return parseTokenOrdinal;
+            return strict ? config._locale._ordinalParse : config._locale._ordinalParseLenient;
         default :
             a = new RegExp(regexpEscape(unescapeFormat(token.replace('\\', '')), 'i'));
             return a;
@@ -33678,7 +33712,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             break;
         case 'MMM' : // fall through to MMMM
         case 'MMMM' :
-            a = config._locale.monthsParse(input);
+            a = config._locale.monthsParse(input, token, config._strict);
             // if we didn't find a month name, mark the date as invalid.
             if (a != null) {
                 datePartArray[MONTH] = a;
@@ -33695,7 +33729,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             break;
         case 'Do' :
             if (input != null) {
-                datePartArray[DATE] = toInt(parseInt(input, 10));
+                datePartArray[DATE] = toInt(parseInt(
+                            input.match(/\d{1,2}/)[0], 10));
             }
             break;
         // DAY OF YEAR
@@ -33720,11 +33755,13 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'A' :
             config._isPm = config._locale.isPM(input);
             break;
-        // 24 HOUR
-        case 'H' : // fall through to hh
-        case 'HH' : // fall through to hh
+        // HOUR
         case 'h' : // fall through to hh
         case 'hh' :
+            config._pf.bigHour = true;
+            /* falls through */
+        case 'H' : // fall through to HH
+        case 'HH' :
             datePartArray[HOUR] = toInt(input);
             break;
         // MINUTE
@@ -33743,6 +33780,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'SSS' :
         case 'SSSS' :
             datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
+            break;
+        // UNIX OFFSET (MILLISECONDS)
+        case 'x':
+            config._d = new Date(toInt(input));
             break;
         // UNIX TIMESTAMP WITH MS
         case 'X':
@@ -33880,11 +33921,24 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
         }
 
+        // Check for 24:00:00.000
+        if (config._a[HOUR] === 24 &&
+                config._a[MINUTE] === 0 &&
+                config._a[SECOND] === 0 &&
+                config._a[MILLISECOND] === 0) {
+            config._nextDay = true;
+            config._a[HOUR] = 0;
+        }
+
         config._d = (config._useUTC ? makeUTCDate : makeDate).apply(null, input);
         // Apply timezone offset from input. The actual zone can be changed
         // with parseZone.
         if (config._tzm != null) {
             config._d.setUTCMinutes(config._d.getUTCMinutes() + config._tzm);
+        }
+
+        if (config._nextDay) {
+            config._a[HOUR] = 24;
         }
     }
 
@@ -33899,7 +33953,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         config._a = [
             normalizedInput.year,
             normalizedInput.month,
-            normalizedInput.day,
+            normalizedInput.day || normalizedInput.date,
             normalizedInput.hour,
             normalizedInput.minute,
             normalizedInput.second,
@@ -33972,6 +34026,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             config._pf.unusedInput.push(string);
         }
 
+        // clear _12h flag if hour is <= 12
+        if (config._pf.bigHour === true && config._a[HOUR] <= 12) {
+            config._pf.bigHour = undefined;
+        }
         // handle am pm
         if (config._isPm && config._a[HOUR] < 12) {
             config._a[HOUR] += 12;
@@ -33980,7 +34038,6 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         if (config._isPm === false && config._a[HOUR] === 12) {
             config._a[HOUR] = 0;
         }
-
         dateFromConfig(config);
         checkOverflow(config);
     }
@@ -34240,7 +34297,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
     function makeMoment(config) {
         var input = config._i,
-            format = config._f;
+            format = config._f,
+            res;
 
         config._locale = config._locale || moment.localeData(config._l);
 
@@ -34264,7 +34322,14 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             makeDateFromInput(config);
         }
 
-        return new Moment(config);
+        res = new Moment(config);
+        if (res._nextDay) {
+            // Adding is smart enough around DST
+            res.add(1, 'd');
+            res._nextDay = undefined;
+        }
+
+        return res;
     }
 
     moment = function (input, format, locale, strict) {
@@ -34296,7 +34361,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         'release. Please refer to ' +
         'https://github.com/moment/moment/issues/1407 for more info.',
         function (config) {
-            config._d = new Date(config._i);
+            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
         }
     );
 
@@ -34608,7 +34673,12 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         toISOString : function () {
             var m = moment(this).utc();
             if (0 < m.year() && m.year() <= 9999) {
-                return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                if ('function' === typeof Date.prototype.toISOString) {
+                    // native implementation is ~50x faster, use it when we can
+                    return this.toDate().toISOString();
+                } else {
+                    return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                }
             } else {
                 return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
             }
@@ -34727,7 +34797,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
                     diff < 1 ? 'sameDay' :
                     diff < 2 ? 'nextDay' :
                     diff < 7 ? 'nextWeek' : 'sameElse';
-            return this.format(this.localeData().calendar(format, this));
+            return this.format(this.localeData().calendar(format, this, moment(now)));
         },
 
         isLeapYear : function () {
@@ -34796,36 +34866,45 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
         endOf: function (units) {
             units = normalizeUnits(units);
+            if (units === undefined || units === 'millisecond') {
+                return this;
+            }
             return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
         },
 
         isAfter: function (input, units) {
+            var inputMs;
             units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
             if (units === 'millisecond') {
                 input = moment.isMoment(input) ? input : moment(input);
                 return +this > +input;
             } else {
-                return +this.clone().startOf(units) > +moment(input).startOf(units);
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return inputMs < +this.clone().startOf(units);
             }
         },
 
         isBefore: function (input, units) {
+            var inputMs;
             units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
             if (units === 'millisecond') {
                 input = moment.isMoment(input) ? input : moment(input);
                 return +this < +input;
             } else {
-                return +this.clone().startOf(units) < +moment(input).startOf(units);
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return +this.clone().endOf(units) < inputMs;
             }
         },
 
         isSame: function (input, units) {
+            var inputMs;
             units = normalizeUnits(units || 'millisecond');
             if (units === 'millisecond') {
                 input = moment.isMoment(input) ? input : moment(input);
                 return +this === +input;
             } else {
-                return +this.clone().startOf(units) === +makeAs(input, this).startOf(units);
+                inputMs = +moment(input);
+                return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
             }
         },
 
@@ -35002,7 +35081,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         },
 
         lang : deprecate(
-            'moment().lang() is deprecated. Use moment().localeData() instead.',
+            'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
             function (key) {
                 if (key === undefined) {
                     return this.localeData();
@@ -35223,7 +35302,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
                 return units === 'month' ? months : months / 12;
             } else {
                 // handle milliseconds separately because of floating point math errors (issue #1867)
-                days = this._days + yearsToDays(this._months / 12);
+                days = this._days + Math.round(yearsToDays(this._months / 12));
                 switch (units) {
                     case 'week': return days / 7 + this._milliseconds / 6048e5;
                     case 'day': return days + this._milliseconds / 864e5;
@@ -35325,6 +35404,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
     // Set default locale, other locale will inherit from English.
     moment.locale('en', {
+        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
         ordinal : function (number) {
             var b = number % 10,
                 output = (toInt(number % 100 / 10) === 1) ? 'th' :
@@ -36175,11 +36255,11 @@ angular.module("ang-drag-drop",[])
 }(angular));
 
 /*
-Project: angular-gantt for AngularJS
-Author: Marco Schweighauser
-Contributors: Rémi Alvergnat
-License: MIT.
-Github: https://github.com/angular-gantt/angular-gantt
+Project: angular-gantt v1.0.0-rc2 - Gantt chart component for AngularJS
+Authors: Marco Schweighauser, Rémi Alvergnat
+License: MIT
+Homepage: http://www.angular-gantt.com
+Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
     'use strict';
@@ -37050,7 +37130,6 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.columnMagnetUnit = columnMagnetUnit;
             this.originalSize = {left: this.left, width: this.width};
             this.updateTimeFrames();
-            this.updateView();
         };
 
         var getDateKey = function(date) {
@@ -37142,7 +37221,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                     timeFrame.left = position;
                     timeFrame.width = timeFramePosition;
                     timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
-                    timeFrame.updateView();
                 });
 
                 if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
@@ -37178,7 +37256,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                                 timeFrame.originalSize = {left: undefined, width: 0};
                                 timeFrame.cropped = true;
                             }
-                            timeFrame.updateView();
                         });
 
                         self.cropped = allCropped;
@@ -37577,7 +37654,8 @@ Github: https://github.com/angular-gantt/angular-gantt
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            if (this.gantt.$scope.columnWidth === undefined) {
+            var autoFitWidth = this.gantt.$scope.columnWidth === undefined;
+            if (autoFitWidth) {
                 var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
@@ -37598,7 +37676,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            this.updateVisibleColumns();
+            this.updateVisibleColumns(autoFitWidth);
             this.gantt.rowsManager.updateVisibleObjects();
 
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
@@ -37705,7 +37783,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             return this.headers.length;
         };
 
-        ColumnsManager.prototype.updateVisibleColumns = function() {
+        ColumnsManager.prototype.updateVisibleColumns = function(includeViews) {
             this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
@@ -37713,15 +37791,17 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
             }, this);
 
-            angular.forEach(this.visibleColumns, function(c) {
-                c.updateView();
-            });
-
-            angular.forEach(this.visibleHeaders, function(headerRow) {
-                angular.forEach(headerRow, function(header) {
-                    header.updateView();
+            if (includeViews) {
+                angular.forEach(this.visibleColumns, function(c) {
+                    c.updateView();
                 });
-            });
+
+                angular.forEach(this.visibleHeaders, function(headerRow) {
+                    angular.forEach(headerRow, function(header) {
+                        header.updateView();
+                    });
+                });
+            }
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
@@ -40430,11 +40510,11 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt for AngularJS
-Author: Marco Schweighauser
-Contributors: Rémi Alvergnat
-License: MIT.
-Github: https://github.com/angular-gantt/angular-gantt
+Project: angular-gantt v1.0.0-rc2 - Gantt chart component for AngularJS
+Authors: Marco Schweighauser, Rémi Alvergnat
+License: MIT
+Homepage: http://www.angular-gantt.com
+Github: https://github.com/angular-gantt/angular-gantt.git
 */
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
@@ -40443,10 +40523,6 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
 }]);
 
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
 

@@ -154,7 +154,8 @@
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            if (this.gantt.$scope.columnWidth === undefined) {
+            var autoFitWidth = this.gantt.$scope.columnWidth === undefined;
+            if (autoFitWidth) {
                 var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
@@ -175,7 +176,7 @@
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            this.updateVisibleColumns();
+            this.updateVisibleColumns(autoFitWidth);
             this.gantt.rowsManager.updateVisibleObjects();
 
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
@@ -282,7 +283,7 @@
             return this.headers.length;
         };
 
-        ColumnsManager.prototype.updateVisibleColumns = function() {
+        ColumnsManager.prototype.updateVisibleColumns = function(includeViews) {
             this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
@@ -290,15 +291,17 @@
                 this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
             }, this);
 
-            angular.forEach(this.visibleColumns, function(c) {
-                c.updateView();
-            });
-
-            angular.forEach(this.visibleHeaders, function(headerRow) {
-                angular.forEach(headerRow, function(header) {
-                    header.updateView();
+            if (includeViews) {
+                angular.forEach(this.visibleColumns, function(c) {
+                    c.updateView();
                 });
-            });
+
+                angular.forEach(this.visibleHeaders, function(headerRow) {
+                    angular.forEach(headerRow, function(header) {
+                        header.updateView();
+                    });
+                });
+            }
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
