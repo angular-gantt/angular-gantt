@@ -35884,10 +35884,11 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 (function(angular){
 
 function isDnDsSupported(){
-    return 'draggable' in document.createElement("span");
+    return 'ondrag' in document.createElement("a");
 }
 
 if(!isDnDsSupported()){
+    angular.module("ang-drag-drop", []);
     return;
 }
 
@@ -36296,7 +36297,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
                 taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
                 maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
-                labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
                 showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
                 showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
                 headers: '=?', // An array of units for headers.
@@ -36600,8 +36600,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             options.taskOutOfRange = options.taskOutOfRange || 'truncate';
 
             options.maxHeight = options.maxHeight || 0;
-
-            options.labelsWidth = options.labelsWidth || undefined;
 
             options.showLabelsColumn = options.showLabelsColumn !== undefined ? !!options.showLabelsColumn : true;
             options.showTooltips = options.showTooltips !== undefined ? !!options.showTooltips : true;
@@ -37656,7 +37654,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             var autoFitWidth = this.gantt.$scope.columnWidth === undefined;
             if (autoFitWidth) {
-                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
+                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
                     newWidth = newWidth - layout.getScrollBarWidth();
@@ -38926,6 +38924,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerEvent('labels', 'resizeBegin');
             this.gantt.api.registerEvent('labels', 'resizeEnd');
         };
+        Labels.prototype.getWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        };
         return Labels;
     }]);
 }());
@@ -39381,107 +39382,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
-
-        return {
-            restrict: 'A',
-            require: '^gantt',
-            scope: { enabled: '=ganttLabelsResize',
-                width: '=ganttLabelsResizeWidth',
-                minWidth: '=ganttLabelsResizeMinWidth'},
-            link: function(scope, element, attrs, ganttCtrl) {
-                var api = ganttCtrl.gantt.api;
-
-                var resizeAreaWidth = 5;
-                var cursor = 'ew-resize';
-                var originalPos;
-
-                element.bind('mousedown', function(e) {
-                    if (scope.enabled && isInResizeArea(e)) {
-                        enableResizeMode(e);
-                        e.preventDefault();
-                    }
-                });
-
-                element.bind('mousemove', function(e) {
-                    if (scope.enabled) {
-                        if (isInResizeArea(e)) {
-                            element.css('cursor', cursor);
-                        } else {
-                            element.css('cursor', '');
-                        }
-                    }
-                });
-
-                var resize = function(x) {
-                    if (scope.width === 0) {
-                        scope.width = element[0].offsetWidth;
-                    }
-
-                    scope.width += x - originalPos;
-                    if (scope.width < scope.minWidth) {
-                        scope.width = scope.minWidth;
-                    }
-
-                    originalPos = x;
-                };
-
-                var isInResizeArea = function(e) {
-                    var x = mouseOffset.getOffset(e).x;
-
-                    return x > element[0].offsetWidth - resizeAreaWidth;
-                };
-
-                var enableResizeMode = function(e) {
-                    originalPos = e.screenX;
-
-                    angular.element($document[0].body).css({
-                        '-moz-user-select': '-moz-none',
-                        '-webkit-user-select': 'none',
-                        '-ms-user-select': 'none',
-                        'user-select': 'none',
-                        'cursor': cursor
-                    });
-
-                    var moveHandler = function(e) {
-                        scope.$evalAsync(function(){
-                            resize(e.screenX);
-                            api.labels.raise.resize(scope.width);
-                        });
-
-                    };
-
-                    angular.element($document[0].body).bind('mousemove', moveHandler);
-
-                    angular.element($document[0].body).one('mouseup', function() {
-                        angular.element($document[0].body).unbind('mousemove', moveHandler);
-                        disableResizeMode();
-                    });
-
-                    api.labels.raise.resizeBegin(scope.width);
-                };
-
-                var disableResizeMode = function() {
-                    element.css('cursor', '');
-
-                    angular.element($document[0].body).css({
-                        '-moz-user-select': '',
-                        '-webkit-user-select': '',
-                        '-ms-user-select': '',
-                        'user-select': '',
-                        'cursor': ''
-                    });
-
-                    api.labels.raise.resizeEnd(scope.width);
-                };
-            }
-        };
-    }]);
-}());
-
-
-(function(){
-    'use strict';
     angular.module('gantt').filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
         // Returns only the columns which are visible on the screen
         var leftComparator = function(c) {
@@ -39551,6 +39451,59 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
+
+(function() {
+    'use strict';
+
+    angular.module('gantt').directive('ganttResizer', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
+        return {
+            scope: {
+                ganttResizer: '='
+            },
+            link: function($scope, $element, $attrs) {
+                $scope.$watch('ganttResizer', function(value) {
+                   $element.toggleClass('gantt-resizer-enabled', value);
+
+                    if (value) {
+                        $element.on('mousedown', mousedown);
+                    } else {
+                        $element.off('mousedown', mousedown);
+                    }
+                });
+
+                function mousedown(event) {
+                    event.preventDefault();
+
+                    $document.on('mousemove', mousemove);
+                    $document.on('mouseup', mouseup);
+                }
+
+                function mousemove(event) {
+                    if ($attrs.resizerClasses) {
+                        // Handle vertical resizer
+                        var width;
+
+                        angular.forEach($document[0].getElementsByClassName($attrs.resizerClasses), function(element) {
+                            var offset = mouseOffset.getOffsetForElement(element, event);
+                            width = offset.x;
+                            element.style.width = width + 'px';
+                        });
+
+                        if ($attrs.resizerWidth && width !== undefined) {
+                            $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                            $scope.$apply();
+                        }
+                    }
+                }
+
+                function mouseup() {
+                    $document.unbind('mousemove', mousemove);
+                    $document.unbind('mouseup', mouseup);
+                }
+            }
+        };
+    }]);
+}());
 
 (function(){
     'use strict';
@@ -39704,7 +39657,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
+                if ($scope.gantt.width > 0 && $scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
                     css.width = $scope.gantt.width + scrollBarWidth + 'px';
                 }
 
@@ -39901,7 +39854,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getHeaderCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
+                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width) {
                     css.width = $scope.gantt.width + 'px';
                 }
 
@@ -40308,11 +40261,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <gantt-row-label></gantt-row-label>\n' +
         '            </div>\n' +
         '        </gantt-labels-body>\n' +
+        '        <div gantt-resizer="$parent.allowLabelsResizing" class="gantt-resizer" resizer-width="$parent.$parent.labelsWidth" resizer-classes="gantt-labels">\n' +
+        '            <div ng-show="$parent.allowLabelsResizing" class="gantt-resizer-display"></div>\n' +
+        '        </div>\n' +
         '    </gantt-labels>\n' +
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
         '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
-        '                <div class="gantt-header-row" ng-class="$last && \'gantt-header-row-last\' || \'\'">\n' +
+        '                <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
         '                    <div ng-repeat="column in header">\n' +
         '                        <gantt-column-header ></gantt-column-header>\n' +
         '                    </div>\n' +
@@ -40328,7 +40284,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                </div>\n' +
         '            </gantt-body-background>\n' +
         '            <gantt-body-foreground>\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
+        '                <div class="gantt-current-date-line" ng-show="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
         '            </gantt-body-foreground>\n' +
         '            <gantt-body-columns>\n' +
         '                <div ng-repeat="column in gantt.columnsManager.visibleColumns">\n' +
@@ -40365,8 +40321,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body"\n' +
-        '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
@@ -40411,12 +40366,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Labels template -->\n' +
         '    <script type="text/ng-template" id="template/ganttLabels.tmpl.html">\n' +
-        '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
-        '             ng-style="($parent.labelsWidth > 0 && {\'width\': $parent.labelsWidth+\'px\'} || {})"\n' +
-        '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
-        '             gantt-labels-resize-width="$parent.labelsWidth"\n' +
-        '             gantt-labels-resize-min-width="50"\n' +
-        '             gantt-element-width-listener="$parent.labelsWidth"></div>\n' +
+        '        <div ng-transclude ng-show="showLabelsColumn" class="gantt-labels"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header columns template -->\n' +
@@ -40523,6 +40473,10 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
 }]);
 
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
 

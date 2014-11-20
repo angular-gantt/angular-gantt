@@ -33,7 +33,6 @@
                 autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
                 taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
                 maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
-                labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
                 showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
                 showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
                 headers: '=?', // An array of units for headers.

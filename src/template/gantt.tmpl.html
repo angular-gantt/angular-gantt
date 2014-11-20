@@ -8,11 +8,14 @@
                 <gantt-row-label></gantt-row-label>
             </div>
         </gantt-labels-body>
+        <div gantt-resizer="$parent.allowLabelsResizing" class="gantt-resizer" resizer-width="$parent.$parent.labelsWidth" resizer-classes="gantt-labels">
+            <div ng-show="$parent.allowLabelsResizing" class="gantt-resizer-display"></div>
+        </div>
     </gantt-labels>
     <gantt-header>
         <gantt-header-columns>
             <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
-                <div class="gantt-header-row" ng-class="$last && 'gantt-header-row-last' || ''">
+                <div class="gantt-header-row" ng-class="{'gantt-header-row-last': $last, 'gantt-header-row-first': $first}">
                     <div ng-repeat="column in header">
                         <gantt-column-header ></gantt-column-header>
                     </div>
@@ -28,7 +31,7 @@
                 </div>
             </gantt-body-background>
             <gantt-body-foreground>
-                <div class="gantt-current-date-line" ng-if="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
+                <div class="gantt-current-date-line" ng-show="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
             </gantt-body-foreground>
             <gantt-body-columns>
                 <div ng-repeat="column in gantt.columnsManager.visibleColumns">
@@ -65,8 +68,7 @@
 
     <!-- Body template -->
     <script type="text/ng-template" id="template/ganttBody.tmpl.html">
-        <div ng-transclude class="gantt-body"
-             ng-style="{'width': gantt.width +'px'}"></div>
+        <div ng-transclude class="gantt-body" ng-style="{'width': gantt.width +'px'}"></div>
     </script>
 
     <!-- Header template -->
@@ -111,12 +113,7 @@
 
     <!-- Labels template -->
     <script type="text/ng-template" id="template/ganttLabels.tmpl.html">
-        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"
-             ng-style="($parent.labelsWidth > 0 && {'width': $parent.labelsWidth+'px'} || {})"
-             gantt-labels-resize="$parent.allowLabelsResizing"
-             gantt-labels-resize-width="$parent.labelsWidth"
-             gantt-labels-resize-min-width="50"
-             gantt-element-width-listener="$parent.labelsWidth"></div>
+        <div ng-transclude ng-show="showLabelsColumn" class="gantt-labels"></div>
     </script>
 
     <!-- Header columns template -->

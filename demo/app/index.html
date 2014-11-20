@@ -113,7 +113,14 @@
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
                                                             <button ng-disabled="options.scale === 'hour' || options.scale === 'minute'" type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
-                                                            <button type="button" class="btn btn-default" ng-model="options.showLabelsColumn" bs-checkbox>Labels</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-text-width"></i> Labels</label><br>
+                                                        <div class="btn-group" bs-checkbox-group>
+                                                            <button type="button" class="btn btn-default" ng-model="options.showLabelsColumn" bs-checkbox>Show</button>
+                                                            <button type="button" class="btn btn-default" ng-model="options.allowLabelsResizing" bs-checkbox>Resizable</button>
                                                         </div>
                                                     </div>
 
@@ -172,6 +179,7 @@
                                                task-out-of-range="options.taskOutOfRange"
                                                from-date = "options.fromDate"
                                                to-date = "options.toDate"
+                                               allow-labels-resizing = "options.allowLabelsResizing"
                                                show-labels-column="options.showLabelsColumn"
                                                current-date="options.currentDate"
                                                current-date-value="options.currentDateValue"

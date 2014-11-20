@@ -156,7 +156,7 @@
 
             var autoFitWidth = this.gantt.$scope.columnWidth === undefined;
             if (autoFitWidth) {
-                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
+                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
                     newWidth = newWidth - layout.getScrollBarWidth();

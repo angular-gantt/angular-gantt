@@ -152,16 +152,9 @@
           minute:'HH:mm'
         };
 
-
-- ### labels-width
-  
-    Width of label section on the left side of the Gantt. This property support two way binding. Therefore if the user
-    resizes the label section any assigned scope variable will be updated too.
-
 - ### show-labels-column
 
-    Whether the column with labels is to be shown or not. This attribute support two way binding, hence the visibility
-    of the column may be toggled.
+    Whether the column with labels is to be shown or not.
     
     default: `true`
   

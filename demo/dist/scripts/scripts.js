@@ -45,6 +45,7 @@ angular.module('angularGanttDemoApp')
             taskOutOfRange: 'truncate',
             fromDate: undefined,
             toDate: undefined,
+            allowLabelsResizing: true,
             showLabelsColumn: true,
             currentDate: 'line',
             currentDateValue: new Date(2013, 9, 23, 11, 20, 0),

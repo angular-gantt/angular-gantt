@@ -33,8 +33,6 @@
 
             options.maxHeight = options.maxHeight || 0;
 
-            options.labelsWidth = options.labelsWidth || undefined;
-
             options.showLabelsColumn = options.showLabelsColumn !== undefined ? !!options.showLabelsColumn : true;
             options.showTooltips = options.showTooltips !== undefined ? !!options.showTooltips : true;
 

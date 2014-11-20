@@ -11,6 +11,29 @@
     cursor: default;
 }
 
+.gantt-resizer {
+    position: absolute;
+    z-index: 10;
+    right: -6px;
+    top: 0px;
+    width: 12px;
+    height: 100%;
+}
+
+.gantt-resizer-enabled {
+    cursor: ew-resize;
+}
+
+.gantt-resizer-display {
+    margin-left: auto;
+    margin-right: auto;
+    width: 4px;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(90deg, transparent 50%, rgba(255,255,255,.5) 50%);
+    background-size: 2px 2px;
+    height: 100%;
+}
+
 .gantt-header-columns {
     position: relative;
     height: 100%;
