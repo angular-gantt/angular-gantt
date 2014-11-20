@@ -39462,7 +39462,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             },
             link: function($scope, $element, $attrs) {
                 $scope.$watch('ganttResizer', function(value) {
-                   $element.toggleClass('gantt-resizer-enabled', value);
+                    if (value === undefined) {
+                        value = true;
+                    }
+                    $element.toggleClass('gantt-resizer-enabled', value);
 
                     if (value) {
                         $element.on('mousedown', mousedown);

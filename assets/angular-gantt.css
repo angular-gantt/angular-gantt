@@ -41,6 +41,7 @@
 
 .gantt-labels {
     float: left;
+    position: relative;
     border-right: 1px solid #dddddd;
 }
 
