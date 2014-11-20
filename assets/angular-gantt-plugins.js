@@ -158,7 +158,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                 restrict: 'E',
                 require: '^gantt',
                 scope: {
-                    enabled: '=',
+                    enabled: '=?',
                     allowMoving: '=?',
                     allowResizing: '=?',
                     allowRowSwitching: '=?'
