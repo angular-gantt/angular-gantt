@@ -213,6 +213,16 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
     Refresh columns and current date. It will also apply filters, and may be required if you use 
     [filter-task](attributes.md#filter-task-filter-task-comparator) or [filter-row](attributes.md##filter-row-filter-row-comparator) with a function.
 
+#### labels
+
+- **api.labels.setWidth(width)**
+
+    Set labels area width.
+
+- **api.labels.getWidth()**
+
+    Get labels area width.
+
 #### rows
 
 - **api.rows.sort()**

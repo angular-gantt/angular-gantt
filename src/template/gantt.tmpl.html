@@ -8,7 +8,7 @@
                 <gantt-row-label></gantt-row-label>
             </div>
         </gantt-labels-body>
-        <div gantt-resizer="$parent.allowLabelsResizing" class="gantt-resizer" resizer-width="$parent.$parent.labelsWidth" resizer-classes="gantt-labels">
+        <div gantt-resizer="gantt.labels.$element" gantt-resizer-event-topic="'labels'" gantt-resizer-enabled="$parent.allowLabelsResizing" resizer-width="$parent.$parent.labelsWidth" class="gantt-resizer">
             <div ng-show="$parent.allowLabelsResizing" class="gantt-resizer-display"></div>
         </div>
     </gantt-labels>
