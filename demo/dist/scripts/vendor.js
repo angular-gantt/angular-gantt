@@ -35884,10 +35884,11 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 (function(angular){
 
 function isDnDsSupported(){
-    return 'draggable' in document.createElement("span");
+    return 'ondrag' in document.createElement("a");
 }
 
 if(!isDnDsSupported()){
+    angular.module("ang-drag-drop", []);
     return;
 }
 
@@ -36324,15 +36325,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.gantt = $scope.gantt;
             }],
             link: function(scope, element) {
-                // Gantt is initialized. Signal that the Gantt is ready.
-                scope.gantt.api.core.raise.ready(scope.gantt.api);
-
                 scope.gantt.api.directives.raise.new('gantt', scope, element);
                 scope.$on('$destroy', function() {
                     scope.gantt.api.directives.raise.destroy('gantt', scope, element);
                 });
 
                 $timeout(function() {
+                    // Gantt is initialized. Signal that the Gantt is ready.
+                    scope.gantt.api.core.raise.ready(scope.gantt.api);
+
                     scope.gantt.rendered = true;
                     scope.gantt.columnsManager.generateColumns();
                     scope.gantt.api.core.raise.rendered(scope.gantt.api);
@@ -38926,9 +38927,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt').factory('GanttLabels', [function() {
         var Labels= function(gantt) {
             this.gantt = gantt;
-            this.gantt.api.registerEvent('labels', 'resize');
-            this.gantt.api.registerEvent('labels', 'resizeBegin');
-            this.gantt.api.registerEvent('labels', 'resizeEnd');
         };
         Labels.prototype.getWidth = function() {
             return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
@@ -39467,11 +39465,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 targetElement: '=ganttResizer',
-                enabled: '=ganttResizerEnabled',
-                eventTopic: '=ganttResizerEventTopic'
+                enabled: '=?ganttResizerEnabled'
             },
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+                var eventTopic = $attrs.ganttResizerEventTopic;
 
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
@@ -39494,7 +39492,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 function mousedown(event) {
                     event.preventDefault();
 
-                    raiseEvent('resizeBegin', getWidth());
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeBegin(getWidth());
+                    }
                     $document.on('mousemove', mousemove);
                     $document.on('mouseup', mouseup);
                 }
@@ -39505,23 +39505,30 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     if (width !== undefined) {
                         setWidth(width);
-                        $scope.$apply(function () {
-                            raiseEvent('resize', width);
-                        });
                     }
                 }
 
                 function mouseup() {
-                    raiseEvent('resizeEnd', getWidth());
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeEnd(getWidth());
+                    }
                     $document.unbind('mousemove', mousemove);
                     $document.unbind('mouseup', mouseup);
                 }
 
                 function setWidth(width) {
-                    $scope.targetElement[0].style.width = width + 'px';
+                    var oldWidth = getWidth();
+                    if (oldWidth !== width) {
+                        $scope.targetElement[0].style.width = width + 'px';
 
-                    if ($attrs.resizerWidth) {
-                        $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                        if ($attrs.resizerWidth) {
+                            $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                            ganttCtrl.gantt.$scope.$digest(); // May not be there as resizer is generic ?
+                        }
+
+                        if (eventTopic !== undefined) {
+                            api[eventTopic].raise.resize(width);
+                        }
                     }
                 }
 
@@ -39529,15 +39536,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return $scope.targetElement[0].offsetWidth;
                 }
 
-                function raiseEvent(type, width) {
-                    if ($scope.eventTopic !== undefined) {
-                        api[$scope.eventTopic].raise[type](width);
-                    }
-                }
+                if (eventTopic) {
+                    api.registerEvent(eventTopic, 'resize');
+                    api.registerEvent(eventTopic, 'resizeBegin');
+                    api.registerEvent(eventTopic, 'resizeEnd');
 
-                if ($scope.eventTopic !== undefined) {
-                    api.registerMethod($scope.eventTopic, 'setWidth', setWidth, this);
-                    api.registerMethod($scope.eventTopic, 'getWidth', getWidth, this);
+                    api.registerMethod(eventTopic, 'setWidth', setWidth, this);
+                    api.registerMethod(eventTopic, 'getWidth', getWidth, this);
                 }
             }
         };
@@ -40284,7 +40289,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <gantt-row-label></gantt-row-label>\n' +
         '            </div>\n' +
         '        </gantt-labels-body>\n' +
-        '        <div gantt-resizer="gantt.labels.$element" gantt-resizer-event-topic="\'labels\'" gantt-resizer-enabled="$parent.allowLabelsResizing" resizer-width="$parent.$parent.labelsWidth" class="gantt-resizer">\n' +
+        '        <div gantt-resizer="gantt.labels.$element" gantt-resizer-event-topic="labels" gantt-resizer-enabled="$parent.allowLabelsResizing" resizer-width="$parent.$parent.labelsWidth" class="gantt-resizer">\n' +
         '            <div ng-show="$parent.allowLabelsResizing" class="gantt-resizer-display"></div>\n' +
         '        </div>\n' +
         '    </gantt-labels>\n' +

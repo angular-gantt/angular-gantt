@@ -7,11 +7,11 @@
             require: '^gantt',
             scope: {
                 targetElement: '=ganttResizer',
-                enabled: '=ganttResizerEnabled',
-                eventTopic: '=ganttResizerEventTopic'
+                enabled: '=?ganttResizerEnabled'
             },
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+                var eventTopic = $attrs.ganttResizerEventTopic;
 
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
@@ -34,7 +34,9 @@
                 function mousedown(event) {
                     event.preventDefault();
 
-                    raiseEvent('resizeBegin', getWidth());
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeBegin(getWidth());
+                    }
                     $document.on('mousemove', mousemove);
                     $document.on('mouseup', mouseup);
                 }
@@ -45,23 +47,30 @@
 
                     if (width !== undefined) {
                         setWidth(width);
-                        $scope.$apply(function () {
-                            raiseEvent('resize', width);
-                        });
                     }
                 }
 
                 function mouseup() {
-                    raiseEvent('resizeEnd', getWidth());
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeEnd(getWidth());
+                    }
                     $document.unbind('mousemove', mousemove);
                     $document.unbind('mouseup', mouseup);
                 }
 
                 function setWidth(width) {
-                    $scope.targetElement[0].style.width = width + 'px';
+                    var oldWidth = getWidth();
+                    if (oldWidth !== width) {
+                        $scope.targetElement[0].style.width = width + 'px';
 
-                    if ($attrs.resizerWidth) {
-                        $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                        if ($attrs.resizerWidth) {
+                            $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                            ganttCtrl.gantt.$scope.$digest(); // May not be there as resizer is generic ?
+                        }
+
+                        if (eventTopic !== undefined) {
+                            api[eventTopic].raise.resize(width);
+                        }
                     }
                 }
 
@@ -69,15 +78,13 @@
                     return $scope.targetElement[0].offsetWidth;
                 }
 
-                function raiseEvent(type, width) {
-                    if ($scope.eventTopic !== undefined) {
-                        api[$scope.eventTopic].raise[type](width);
-                    }
-                }
+                if (eventTopic) {
+                    api.registerEvent(eventTopic, 'resize');
+                    api.registerEvent(eventTopic, 'resizeBegin');
+                    api.registerEvent(eventTopic, 'resizeEnd');
 
-                if ($scope.eventTopic !== undefined) {
-                    api.registerMethod($scope.eventTopic, 'setWidth', setWidth, this);
-                    api.registerMethod($scope.eventTopic, 'getWidth', getWidth, this);
+                    api.registerMethod(eventTopic, 'setWidth', setWidth, this);
+                    api.registerMethod(eventTopic, 'getWidth', getWidth, this);
                 }
             }
         };

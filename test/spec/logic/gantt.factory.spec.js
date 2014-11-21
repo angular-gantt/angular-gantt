@@ -8,6 +8,7 @@ describe('Unit: Gantt', function() {
     var $controller;
     var $rootScope;
     var $compile;
+    var $timeout;
 
     var mockData = [
         // Order is optional. If not specified it will be assigned automatically
@@ -75,12 +76,13 @@ describe('Unit: Gantt', function() {
         ]}
     ];
 
-    beforeEach(inject(['$controller', '$rootScope', '$compile', 'Gantt', 'moment', function(_$controller_, _$rootScope_, _$compile_, _Gantt_, _moment_) {
+    beforeEach(inject(['$controller', '$rootScope', '$compile', '$timeout', 'Gantt', 'moment', function(_$controller_, _$rootScope_, _$compile_, _$timeout_, _Gantt_, _moment_) {
         Gantt = _Gantt_;
         moment = _moment_;
         $controller = _$controller_;
         $rootScope = _$rootScope_;
         $compile = _$compile_;
+        $timeout = _$timeout_;
     }]));
 
     it('register API and call api.on.ready event',
@@ -99,6 +101,7 @@ describe('Unit: Gantt', function() {
 
             $compile('<div gantt api="api"></div>')($scope);
             $scope.$digest();
+            $timeout.flush();
 
             expect(ganttApi).toBeDefined();
             expect(ready).toBeTruthy();
@@ -108,6 +111,7 @@ describe('Unit: Gantt', function() {
 
             $compile('<gantt api="api"></gantt>')($scope);
             $scope.$digest();
+            $timeout.flush();
 
             expect(ganttApi).toBeDefined();
             expect(ready).toBeTruthy();
@@ -154,6 +158,7 @@ describe('Unit: Gantt', function() {
             var $scope = $rootScope.$new();
             var ganttElement = $compile('<div gantt data="data"></div>')($scope);
             $scope.$digest();
+            $timeout.flush();
             checkData([], ganttElement);
         });
 
@@ -164,6 +169,7 @@ describe('Unit: Gantt', function() {
             $scope.data = angular.copy(mockData);
             var ganttElement = $compile('<div gantt data="data"></div>')($scope);
             $scope.$digest();
+            $timeout.flush();
 
             checkData($scope.data, ganttElement);
 
@@ -220,6 +226,7 @@ describe('Unit: Gantt', function() {
 
             var ganttElement = $compile('<div gantt api="api" data="data"></div>')($scope);
             $scope.$digest();
+            $timeout.flush();
 
             expect($scope.data).toEqual(data);
             checkData(data, ganttElement);

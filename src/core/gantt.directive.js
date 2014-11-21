@@ -61,15 +61,15 @@
                 this.gantt = $scope.gantt;
             }],
             link: function(scope, element) {
-                // Gantt is initialized. Signal that the Gantt is ready.
-                scope.gantt.api.core.raise.ready(scope.gantt.api);
-
                 scope.gantt.api.directives.raise.new('gantt', scope, element);
                 scope.$on('$destroy', function() {
                     scope.gantt.api.directives.raise.destroy('gantt', scope, element);
                 });
 
                 $timeout(function() {
+                    // Gantt is initialized. Signal that the Gantt is ready.
+                    scope.gantt.api.core.raise.ready(scope.gantt.api);
+
                     scope.gantt.rendered = true;
                     scope.gantt.columnsManager.generateColumns();
                     scope.gantt.api.core.raise.rendered(scope.gantt.api);
