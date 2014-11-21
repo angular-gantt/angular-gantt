@@ -154,9 +154,9 @@
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var autoFitWidth = this.gantt.$scope.columnWidth === undefined;
-            if (autoFitWidth) {
-                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
+            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            if (autoFitWidthEnabled) {
+                var newWidth = this.gantt.getElementWidth() - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
                     newWidth = newWidth - layout.getScrollBarWidth();
@@ -176,7 +176,7 @@
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            this.updateVisibleColumns(autoFitWidth);
+            this.updateVisibleColumns(autoFitWidthEnabled);
             this.gantt.rowsManager.updateVisibleObjects();
 
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);

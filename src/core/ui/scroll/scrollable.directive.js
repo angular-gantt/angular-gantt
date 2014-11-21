@@ -62,7 +62,7 @@
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.gantt.width > 0 && $scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
+                if ($scope.gantt.width > 0 && $scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
                     css.width = $scope.gantt.width + scrollBarWidth + 'px';
                 }
 

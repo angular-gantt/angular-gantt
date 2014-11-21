@@ -5,20 +5,27 @@
 
         return {
             restrict: 'A',
+            scope: {},
             controller: ['$scope', function($scope) {
-                $scope.scrollManager = {
-                    horizontal: [],
-                    vertical: [],
+                $scope.horizontal = [];
+                $scope.vertical = [];
 
-                    registerVerticalReceiver: function (element) {
-                        element.css('position', 'relative');
-                        $scope.scrollManager.vertical.push(element[0]);
-                    },
+                this.registerVerticalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.vertical.push(element[0]);
+                };
 
-                    registerHorizontalReceiver: function (element) {
-                        element.css('position', 'relative');
-                        $scope.scrollManager.horizontal.push(element[0]);
-                    }
+                this.registerHorizontalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.horizontal.push(element[0]);
+                };
+
+                this.getHorizontalRecievers = function() {
+                    return $scope.horizontal;
+                };
+
+                this.getVerticalRecievers = function() {
+                    return $scope.vertical;
                 };
             }]
         };

@@ -9,7 +9,7 @@
             $scope.getHeaderCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width) {
+                if ($scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width) {
                     css.width = $scope.gantt.width + 'px';
                 }
 

@@ -1,4 +1,4 @@
-<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>
+<div class="gantt unselectable" ng-cloak gantt-scroll-manager>
     <gantt-labels>
         <gantt-labels-header>
             <gantt-row-header></gantt-row-header>
@@ -42,7 +42,7 @@
                     </gantt-column>
                 </div>
             </gantt-body-columns>
-            <gantt-body-rows gantt-element-height-listener="$parent.$parent.bodyRowsHeight" gantt-element-width-listener="$parent.$parent.bodyRowsWidth">
+            <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth">
                 <div ng-repeat="timespan in gantt.timespansManager.timespans">
                     <gantt-timespan></gantt-timespan>
                 </div>

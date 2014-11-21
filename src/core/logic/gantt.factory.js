@@ -164,6 +164,10 @@
                 this.api.data.raise.clear(this.$scope);
             };
 
+            Gantt.prototype.getElementWidth = function() {
+                return this.$element[0].offsetWidth;
+            };
+
             return Gantt;
         }]);
 }());

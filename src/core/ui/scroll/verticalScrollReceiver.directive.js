@@ -6,9 +6,9 @@
         return {
             restrict: 'A',
             require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                $scope.scrollManager.registerVerticalReceiver($element);
-            }]
+            link: function(scope, element, attrs, ganttScrollManagerCtrl) {
+                ganttScrollManagerCtrl.registerVerticalReceiver(element);
+            }
         };
     });
 }());

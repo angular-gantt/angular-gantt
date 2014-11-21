@@ -37651,9 +37651,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var autoFitWidth = this.gantt.$scope.columnWidth === undefined;
-            if (autoFitWidth) {
-                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
+            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            if (autoFitWidthEnabled) {
+                var newWidth = this.gantt.getElementWidth() - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
                     newWidth = newWidth - layout.getScrollBarWidth();
@@ -37673,7 +37673,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            this.updateVisibleColumns(autoFitWidth);
+            this.updateVisibleColumns(autoFitWidthEnabled);
             this.gantt.rowsManager.updateVisibleObjects();
 
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
@@ -38067,6 +38067,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             Gantt.prototype.clearData = function() {
                 this.rowsManager.removeAll();
                 this.api.data.raise.clear(this.$scope);
+            };
+
+            Gantt.prototype.getElementWidth = function() {
+                return this.$element[0].offsetWidth;
             };
 
             return Gantt;
@@ -38839,6 +38843,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.columns = new BodyColumns(this);
             this.rows = new BodyRows(this);
         };
+        Body.prototype.getWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        };
         return Body;
     }]);
 }());
@@ -39545,9 +39552,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         return {
             restrict: 'A',
             require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                $scope.scrollManager.registerHorizontalReceiver($element);
-            }]
+            link: function(scope, element, attrs, ganttScrollManagerCtrl) {
+                ganttScrollManagerCtrl.registerHorizontalReceiver(element);
+            }
         };
     });
 }());
@@ -39559,20 +39566,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         return {
             restrict: 'A',
+            scope: {},
             controller: ['$scope', function($scope) {
-                $scope.scrollManager = {
-                    horizontal: [],
-                    vertical: [],
+                $scope.horizontal = [];
+                $scope.vertical = [];
 
-                    registerVerticalReceiver: function (element) {
-                        element.css('position', 'relative');
-                        $scope.scrollManager.vertical.push(element[0]);
-                    },
+                this.registerVerticalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.vertical.push(element[0]);
+                };
 
-                    registerHorizontalReceiver: function (element) {
-                        element.css('position', 'relative');
-                        $scope.scrollManager.horizontal.push(element[0]);
-                    }
+                this.registerHorizontalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.horizontal.push(element[0]);
+                };
+
+                this.getHorizontalRecievers = function() {
+                    return $scope.horizontal;
+                };
+
+                this.getVerticalRecievers = function() {
+                    return $scope.vertical;
                 };
             }]
         };
@@ -39587,39 +39601,45 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         return {
             restrict: 'A',
-            require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                var el = $element[0];
+            require: ['^gantt', '^ganttScrollManager'],
+            link: function(scope, element, attrs, controllers) {
+                var el = element[0];
 
                 var updateListeners = function() {
                     var i, l;
 
-                    for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
-                        var vElement = $scope.scrollManager.vertical[i];
+                    var vertical = controllers[1].getVerticalRecievers();
+                    for (i = 0, l = vertical.length; i < l; i++) {
+                        var vElement = vertical[i];
                         if (vElement.parentNode.scrollTop !== el.scrollTop) {
                             vElement.parentNode.scrollTop = el.scrollTop;
                         }
                     }
 
-                    for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
-                        var hElement = $scope.scrollManager.horizontal[i];
+                    var horizontal = controllers[1].getHorizontalRecievers();
+                    for (i = 0, l = horizontal.length; i < l; i++) {
+                        var hElement =horizontal[i];
                         if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
                             hElement.parentNode.scrollLeft  = el.scrollLeft;
                         }
                     }
                 };
 
-                $element.bind('scroll', updateListeners);
+                element.bind('scroll', updateListeners);
 
-                $scope.$watch('bodyRowsWidth', function(newValue, oldValue) {
-                    if (oldValue !== newValue) {
-                        for (var i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
-                            var hElement = $scope.scrollManager.horizontal[i];
-                            hElement.style.width = newValue + 'px';
+                scope.oldBodyWidth = undefined;
+                scope.$watch(function() {
+                    var newWidth = controllers[0].gantt.body.getWidth();
+                    if (scope.oldBodyWidth !== newWidth) {
+                        scope.oldBodyWidth = newWidth;
+                        var horizontal = controllers[1].getHorizontalRecievers();
+                        for (var i = 0, l = horizontal.length; i < l; i++) {
+                            var hElement = horizontal[i];
+                            hElement.style.width = newWidth + 'px';
                         }
                     }
                 });
-            }]
+            }
         };
     }]);
 }());
@@ -39689,7 +39709,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.gantt.width > 0 && $scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
+                if ($scope.gantt.width > 0 && $scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
                     css.width = $scope.gantt.width + scrollBarWidth + 'px';
                 }
 
@@ -39716,40 +39736,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         return {
             restrict: 'A',
             require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                $scope.scrollManager.registerVerticalReceiver($element);
-            }]
+            link: function(scope, element, attrs, ganttScrollManagerCtrl) {
+                ganttScrollManagerCtrl.registerVerticalReceiver(element);
+            }
         };
     });
-}());
-
-
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttElementHeightListener', [function() {
-        return {
-            restrict: 'A',
-            controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
-                var scopeVariable = $attrs.ganttElementHeightListener;
-                if (scopeVariable === '') {
-                    scopeVariable = 'ganttElementHeight';
-                }
-
-                var effectiveScope = $scope;
-
-                while(scopeVariable.indexOf('$parent.') === 0) {
-                    scopeVariable = scopeVariable.substring('$parent.'.length);
-                    effectiveScope = effectiveScope.$parent;
-                }
-
-                effectiveScope.$watch(function() {
-                    if ($element[0].offsetHeight > 0) {
-                        effectiveScope[scopeVariable] = $element[0].offsetHeight;
-                    }
-                });
-            }]
-        };
-    }]);
 }());
 
 
@@ -39886,7 +39877,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getHeaderCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width) {
+                if ($scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width) {
                     css.width = $scope.gantt.width + 'px';
                 }
 
@@ -40283,7 +40274,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/gantt.tmpl.html',
-        '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
+        '<div class="gantt unselectable" ng-cloak gantt-scroll-manager>\n' +
         '    <gantt-labels>\n' +
         '        <gantt-labels-header>\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
@@ -40327,7 +40318,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    </gantt-column>\n' +
         '                </div>\n' +
         '            </gantt-body-columns>\n' +
-        '            <gantt-body-rows gantt-element-height-listener="$parent.$parent.bodyRowsHeight" gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
+        '            <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
         '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
         '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +

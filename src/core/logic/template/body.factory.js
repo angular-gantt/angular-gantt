@@ -9,6 +9,9 @@
             this.columns = new BodyColumns(this);
             this.rows = new BodyRows(this);
         };
+        Body.prototype.getWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        };
         return Body;
     }]);
 }());
