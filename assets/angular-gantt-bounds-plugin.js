@@ -26,10 +26,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }
 
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var boundsScope = taskScope.$new();
                         boundsScope.pluginScope = scope;
+
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
                         if (scope.templateUrl !== undefined) {
                             angular.element(boundsElement).attr('data-template-url', scope.templateUrl);

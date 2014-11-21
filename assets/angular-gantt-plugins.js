@@ -7,15 +7,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 */
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
-        '<div ng-show="bounds && isTaskMouseOver && enabled" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
+        '<div ng-show="bounds && isTaskMouseOver && pluginScope.enabled" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '');
 }]);
 
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
 
@@ -25,7 +21,7 @@ angular.module('gantt.movable.templates', []).run(['$templateCache', function($t
 
 angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/progress/taskProgress.tmpl.html',
-        '<div ng-cloak ng-show=\'enabled\' class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
+        '<div ng-cloak ng-show=\'pluginScope.enabled\' class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
         '');
 }]);
 
@@ -69,10 +65,15 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     }
                 }
 
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var boundsScope = taskScope.$new();
                         boundsScope.pluginScope = scope;
+
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
                         if (scope.templateUrl !== undefined) {
                             angular.element(boundsElement).attr('data-template-url', scope.templateUrl);
@@ -110,6 +111,10 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
@@ -549,6 +554,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     if (directiveName === 'ganttTask') {
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
+
                         var progressElement = $document[0].createElement('gantt-task-progress');
                         angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
                         if (scope.templateUrl !== undefined) {

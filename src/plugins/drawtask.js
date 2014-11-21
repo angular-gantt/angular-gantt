@@ -11,6 +11,10 @@
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
                         var drawHandler = function(evt) {

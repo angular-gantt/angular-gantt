@@ -34,6 +34,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (directiveName === 'ganttTask') {
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
+
                         var progressElement = $document[0].createElement('gantt-task-progress');
                         angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
                         if (scope.templateUrl !== undefined) {
