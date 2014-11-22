@@ -38671,7 +38671,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var filteredTasks = [];
             var tasks = [];
 
-            angular.forEach(this.filteredRows, function(row) {
+            angular.forEach(this.rows, function(row) {
                 oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
                 filteredTasks = filteredTasks.concat(row.filteredTasks);
