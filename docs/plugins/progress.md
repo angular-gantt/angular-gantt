@@ -44,12 +44,16 @@ To show the progress indicator, you need to a add `progress` object property ins
 - ### template
 
     Template to use for progress element.
+    
+    This attribute is not observed and not evaluated as an expression.
 
 - ### template-url
 
     URL of template to use for progress element.
 
     If `undefined` or `plugins/progress/taskProgress.tmpl.html`, default template will be used.
+    
+    This attribute is not observed and not evaluated as an expression.
     
     *note: template-url must be different than `plugins/progress/taskProgress.tmpl.html`, or it will use default
     template included in `angular-gantt-plugins.js` or `angular-gantt-progress.js`.*

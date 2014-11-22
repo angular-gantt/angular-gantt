@@ -37,13 +37,17 @@ To define bounds on a task, you need to add `est` and `lct` property on task obj
 
 - ### template
  
-     Template to use for bounds element.
+    Template to use for bounds element.
+     
+    This attribute is not observed and not evaluated as an expression.
 
 - ### template-url
 
     URL of template to use for bounds element.
 
     If `undefined` or `plugins/bounds/taskBounds.tmpl.html`, default template will be used.
+
+    This attribute is not observed and not evaluated as an expression.
     
     *note: template-url must be different than `plugins/bounds/taskBounds.tmpl.html`, or it will use default
     template included in `angular-gantt-plugins.js` or `angular-gantt-bounds.js`.*

@@ -40540,9 +40540,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?',
-                templateUrl: '=?',
-                template: '=?'
+                enabled: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -40564,11 +40562,11 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                         boundsScope.pluginScope = scope;
 
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(boundsElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(boundsElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(boundsElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(boundsElement).attr('data-template', attrs.template);
                         }
                         taskElement.append($compile(boundsElement)(boundsScope));
                     }
@@ -41021,9 +41019,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?',
-                templateUrl : '=?',
-                template: '='
+                enabled: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -41046,11 +41042,11 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
                         var progressElement = $document[0].createElement('gantt-task-progress');
                         angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(progressElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(progressElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(progressElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(progressElement).attr('data-template', attrs.template);
                         }
                         taskElement.append($compile(progressElement)(progressScope));
                     }
@@ -41141,9 +41137,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?',
-                templateUrl: '=?',
-                template: '=?'
+                dateFormat: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -41167,11 +41161,11 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                         var tooltipScope = taskScope.$new();
                         tooltipScope.pluginScope = scope;
                         var tooltipElement = $document[0].createElement('gantt-tooltip');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', attrs.template);
                         }
                         taskElement.append($compile(tooltipElement)(tooltipScope));
                     }

@@ -35,12 +35,16 @@ Display tooltips when moving mouse over a task.
 - ### template
 
     Template to use for tooltip element.
+    
+    This attribute is not observed and not evaluated as an expression.
 
 - ### template-url
 
     URL of template to use for tooltip element.
 
-    If `undefined` or `plugins/tooltips/tooltip.tmpl.html`, default template will be used.   
+    If `undefined` or `plugins/tooltips/tooltip.tmpl.html`, default template will be used.
+    
+    This attribute is not observed and not evaluated as an expression.
     
     *note: template-url must be different than `plugins/tooltips/tooltip.tmpl.html`, or it will use default
     template included in `angular-gantt-plugins.js` or `angular-gantt-tooltips.js`.*

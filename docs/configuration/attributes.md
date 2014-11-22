@@ -301,6 +301,8 @@
     template file `src/template/gantt.tmpl.html` to a variable and set this parameter. 
     
     Compared to `template-url`, this will avoid an additional request to load the template from an URL.
+    
+    This attribute is not observed and not evaluated as an expression.
 
 - ### template-url
 
@@ -310,9 +312,11 @@
       
     If `undefined` or `template/gantt.tmpl.html`, default template will be used.   
     
+    This attribute is not observed and not evaluated as an expression.
+    
     *note: template-url must be different than `template/gantt.tmpl.html`, or it will use default
     template included in `angular-gantt.js`.*
-
+    
 - ### view-scale
 
     Column scale using any of [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) supported unit.

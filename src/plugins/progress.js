@@ -5,9 +5,7 @@
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?',
-                templateUrl : '=?',
-                template: '='
+                enabled: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -30,11 +28,11 @@
 
                         var progressElement = $document[0].createElement('gantt-task-progress');
                         angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(progressElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(progressElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(progressElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(progressElement).attr('data-template', attrs.template);
                         }
                         taskElement.append($compile(progressElement)(progressScope));
                     }

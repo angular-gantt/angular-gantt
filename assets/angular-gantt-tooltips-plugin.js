@@ -13,9 +13,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?',
-                templateUrl: '=?',
-                template: '=?'
+                dateFormat: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -39,11 +37,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var tooltipScope = taskScope.$new();
                         tooltipScope.pluginScope = scope;
                         var tooltipElement = $document[0].createElement('gantt-tooltip');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', attrs.template);
                         }
                         taskElement.append($compile(tooltipElement)(tooltipScope));
                     }

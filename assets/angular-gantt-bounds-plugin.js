@@ -12,9 +12,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?',
-                templateUrl: '=?',
-                template: '=?'
+                enabled: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -36,11 +34,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         boundsScope.pluginScope = scope;
 
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(boundsElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(boundsElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(boundsElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(boundsElement).attr('data-template', attrs.template);
                         }
                         taskElement.append($compile(boundsElement)(boundsScope));
                     }
