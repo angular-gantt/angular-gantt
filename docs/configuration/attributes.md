@@ -151,6 +151,14 @@
           hour: 'H', 
           minute:'HH:mm'
         };
+        
+    It is also possible to specify a function to format the header label.
+    
+        $scope.headersFormats = { 
+          week: function(column) {
+            return column.date.format('Do [-]') + column.endDate.format('Do') + column.date.format(' [(W]w[)]');
+          }
+        };
 
 - ### show-labels-column
 

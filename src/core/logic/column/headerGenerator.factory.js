@@ -11,9 +11,9 @@
                 var colDateVal = col.date.get(unit);
                 if (i === 0 || prevColDateVal !== colDateVal) {
                     prevColDateVal = colDateVal;
-                    var label = col.date.format(columnsManager.getHeaderFormat(unit));
+                    var labelFormat = columnsManager.getHeaderFormat(unit);
 
-                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
+                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, labelFormat);
                     header.left = col.left;
                     header.width = col.width;
                     generatedHeaders.push(header);
