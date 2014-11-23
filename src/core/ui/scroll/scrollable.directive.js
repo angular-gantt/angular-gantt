@@ -50,6 +50,7 @@
 
                 lastScrollLeft = el.scrollLeft;
                 $scope.gantt.columnsManager.updateVisibleColumns();
+                $scope.gantt.rowsManager.updateVisibleTasks();
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);

@@ -12,7 +12,7 @@
                 var res = [];
 
                 var scrollLeft = gantt.scroll.getScrollLeft();
-                var scrollWidth = gantt.scroll.getScrollWidth();
+                var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
 
                 for (var i = 0, l = input.length; i < l; i++) {
                     var task = input[i];
@@ -20,17 +20,13 @@
                     if (task.active) {
                         res.push(task);
                     } else {
-                        // If the task can be drawn with gantt columns only.
-                        if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
+                        // If task has a visible part on the screen
+                        if (!scrollContainerWidth ||
+                            task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
+                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollContainerWidth ||
+                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollContainerWidth) {
 
-                            // If task has a visible part on the screen
-                            if (!scrollWidth ||
-                                task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                                task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                                task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
-
-                                res.push(task);
-                            }
+                            res.push(task);
                         }
                     }
                 }

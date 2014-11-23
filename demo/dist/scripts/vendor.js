@@ -35884,11 +35884,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 (function(angular){
 
 function isDnDsSupported(){
-    return 'ondrag' in document.createElement("a");
+    return 'draggable' in document.createElement("span");
 }
 
 if(!isDnDsSupported()){
-    angular.module("ang-drag-drop", []);
     return;
 }
 
@@ -38386,12 +38385,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
-            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
-                    self.updateVisibleTasks();
-                }
-            });
-
             this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
                 if (oldValues !== newValues) {
                     self.updateVisibleTasks();
@@ -38958,6 +38951,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
         };
 
+        Scroll.prototype.getScrollContainerWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        };
+
         /**
          * Scroll to a position
          *
@@ -39394,11 +39391,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         return function(input, gantt) {
             var scrollLeft = gantt.scroll.getScrollLeft();
-            var scrollWidth = gantt.scroll.getScrollWidth();
+            var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
 
-            if (scrollWidth > 0) {
+            if (scrollContainerWidth > 0) {
                 var start = bs.getIndicesOnly(input, scrollLeft, leftComparator)[0];
-                var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, leftComparator)[1];
+                var end = bs.getIndicesOnly(input, scrollLeft + scrollContainerWidth, leftComparator)[1];
                 return input.slice(start, end);
             } else {
                 return input.slice();
@@ -39424,7 +39421,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var res = [];
 
                 var scrollLeft = gantt.scroll.getScrollLeft();
-                var scrollWidth = gantt.scroll.getScrollWidth();
+                var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
 
                 for (var i = 0, l = input.length; i < l; i++) {
                     var task = input[i];
@@ -39432,17 +39429,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (task.active) {
                         res.push(task);
                     } else {
-                        // If the task can be drawn with gantt columns only.
-                        if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
+                        // If task has a visible part on the screen
+                        if (!scrollContainerWidth ||
+                            task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
+                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollContainerWidth ||
+                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollContainerWidth) {
 
-                            // If task has a visible part on the screen
-                            if (!scrollWidth ||
-                                task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                                task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                                task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
-
-                                res.push(task);
-                            }
+                            res.push(task);
                         }
                     }
                 }
@@ -39702,6 +39695,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 lastScrollLeft = el.scrollLeft;
                 $scope.gantt.columnsManager.updateVisibleColumns();
+                $scope.gantt.rowsManager.updateVisibleTasks();
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);

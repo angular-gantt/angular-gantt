@@ -13,12 +13,6 @@
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
-            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
-                    self.updateVisibleTasks();
-                }
-            });
-
             this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
                 if (oldValues !== newValues) {
                     self.updateVisibleTasks();

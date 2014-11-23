@@ -8,11 +8,11 @@
 
         return function(input, gantt) {
             var scrollLeft = gantt.scroll.getScrollLeft();
-            var scrollWidth = gantt.scroll.getScrollWidth();
+            var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
 
-            if (scrollWidth > 0) {
+            if (scrollContainerWidth > 0) {
                 var start = bs.getIndicesOnly(input, scrollLeft, leftComparator)[0];
-                var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, leftComparator)[1];
+                var end = bs.getIndicesOnly(input, scrollLeft + scrollContainerWidth, leftComparator)[1];
                 return input.slice(start, end);
             } else {
                 return input.slice();

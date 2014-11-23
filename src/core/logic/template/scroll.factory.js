@@ -20,6 +20,10 @@
             return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
         };
 
+        Scroll.prototype.getScrollContainerWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        };
+
         /**
          * Scroll to a position
          *
