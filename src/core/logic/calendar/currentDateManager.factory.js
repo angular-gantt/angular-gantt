@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttCurrentDateManager', [function() {
+    angular.module('gantt').factory('GanttCurrentDateManager', ['moment', function(moment) {
         var GanttCurrentDateManager = function(gantt) {
             var self = this;
 
@@ -10,7 +10,11 @@
             this.position = undefined;
             this.currentDateColumn = undefined;
 
-            this.gantt.$scope.$watchGroup(['currentDate', 'currentDateValue'], function() {
+            this.gantt.$scope.simplifyMoment = function(d) {
+                return moment.isMoment(d) ? d.unix() : d;
+            };
+
+            this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function() {
                 self.setCurrentDate(self.gantt.$scope.currentDateValue);
             });
         };

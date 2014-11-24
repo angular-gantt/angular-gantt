@@ -701,7 +701,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', function($templateCache) {
+    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', 'moment', function($templateCache, moment) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
         return {
@@ -723,7 +723,11 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             controller: ['$scope', '$element', function($scope, $element) {
                 $element.toggleClass('ng-hide', true);
 
-                $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
+                $scope.simplifyMoment = function(d) {
+                    return moment.isMoment(d) ? d.unix() : d;
+                };
+
+                $scope.$watchGroup(['simplifyMoment(task.model.est)', 'simplifyMoment(task.model.lct)', 'task.left', 'task.width'], function() {
                     var left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
                     var right = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct);
 

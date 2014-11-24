@@ -37065,7 +37065,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttCurrentDateManager', [function() {
+    angular.module('gantt').factory('GanttCurrentDateManager', ['moment', function(moment) {
         var GanttCurrentDateManager = function(gantt) {
             var self = this;
 
@@ -37075,7 +37075,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.position = undefined;
             this.currentDateColumn = undefined;
 
-            this.gantt.$scope.$watchGroup(['currentDate', 'currentDateValue'], function() {
+            this.gantt.$scope.simplifyMoment = function(d) {
+                return moment.isMoment(d) ? d.unix() : d;
+            };
+
+            this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function() {
                 self.setCurrentDate(self.gantt.$scope.currentDateValue);
             });
         };
@@ -39993,13 +39997,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttTask', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttTask', ['GanttDirectiveBuilder', 'moment', function(Builder, moment) {
         var builder = new Builder('ganttTask');
         builder.controller = function($scope, $element) {
             $scope.task.$element = $element;
             $scope.task.$scope = $scope;
 
-            $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
+            $scope.simplifyMoment = function(d) {
+                return moment.isMoment(d) ? d.unix() : d;
+            };
+
+            $scope.$watchGroup(['simplifyMoment(task.model.from)', 'simplifyMoment(task.model.to)'], function() {
                 $scope.task.updatePosAndSize();
             });
         };
@@ -41192,7 +41200,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', function($templateCache) {
+    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', 'moment', function($templateCache, moment) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
         return {
@@ -41214,7 +41222,11 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             controller: ['$scope', '$element', function($scope, $element) {
                 $element.toggleClass('ng-hide', true);
 
-                $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
+                $scope.simplifyMoment = function(d) {
+                    return moment.isMoment(d) ? d.unix() : d;
+                };
+
+                $scope.$watchGroup(['simplifyMoment(task.model.est)', 'simplifyMoment(task.model.lct)', 'task.left', 'task.width'], function() {
                     var left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
                     var right = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct);
 
