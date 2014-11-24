@@ -2881,6 +2881,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (timespan.model.id === timespanId) {
                         removedTimespan = timespan;
                         this.timespans.splice(i, 1); // Remove from array
+                        break;
                     }
                 }
 
@@ -4062,7 +4063,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                </div>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
-        '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
+        '                <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">\n' +
         '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
         '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +

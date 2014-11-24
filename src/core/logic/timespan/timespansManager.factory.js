@@ -82,6 +82,7 @@
                     if (timespan.model.id === timespanId) {
                         removedTimespan = timespan;
                         this.timespans.splice(i, 1); // Remove from array
+                        break;
                     }
                 }
 

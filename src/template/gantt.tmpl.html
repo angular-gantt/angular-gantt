@@ -43,7 +43,7 @@
                 </div>
             </gantt-body-columns>
             <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth">
-                <div ng-repeat="timespan in gantt.timespansManager.timespans">
+                <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">
                     <gantt-timespan></gantt-timespan>
                 </div>
                 <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
