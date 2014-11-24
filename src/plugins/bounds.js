@@ -26,6 +26,8 @@
                         var boundsScope = taskScope.$new();
                         boundsScope.pluginScope = scope;
 
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.est && task.model.lct && pluginScope.enabled');
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
                         if (attrs.templateUrl !== undefined) {
                             angular.element(boundsElement).attr('data-template-url', attrs.templateUrl);
@@ -33,7 +35,8 @@
                         if (attrs.template !== undefined) {
                             angular.element(boundsElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(boundsElement)(boundsScope));
+                        angular.element(ifElement).append(boundsElement);
+                        taskElement.append($compile(ifElement)(boundsScope));
                     }
                 });
 

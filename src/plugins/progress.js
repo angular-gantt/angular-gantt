@@ -26,15 +26,18 @@
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
 
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.progress !== undefined && pluginScope.enabled');
+
                         var progressElement = $document[0].createElement('gantt-task-progress');
-                        angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
                         if (attrs.templateUrl !== undefined) {
                             angular.element(progressElement).attr('data-template-url', attrs.templateUrl);
                         }
                         if (attrs.template !== undefined) {
                             angular.element(progressElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(progressElement)(progressScope));
+                        angular.element(ifElement).append(progressElement);
+                        taskElement.append($compile(ifElement)(progressScope));
                     }
                 });
 

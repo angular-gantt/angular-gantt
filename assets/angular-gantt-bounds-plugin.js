@@ -33,6 +33,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var boundsScope = taskScope.$new();
                         boundsScope.pluginScope = scope;
 
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.est && task.model.lct && pluginScope.enabled');
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
                         if (attrs.templateUrl !== undefined) {
                             angular.element(boundsElement).attr('data-template-url', attrs.templateUrl);
@@ -40,7 +42,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (attrs.template !== undefined) {
                             angular.element(boundsElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(boundsElement)(boundsScope));
+                        angular.element(ifElement).append(boundsElement);
+                        taskElement.append($compile(ifElement)(boundsScope));
                     }
                 });
 
@@ -80,55 +83,36 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             replace: true,
             scope: true,
             controller: ['$scope', '$element', function($scope, $element) {
-                var css = {};
+                $element.toggleClass('ng-hide', true);
 
                 $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
-                    if ($scope.task.model.est !== undefined && $scope.task.model.lct !== undefined) {
-                        $scope.bounds = {};
-                        $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
-                        $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct) - $scope.bounds.left;
+                    var left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
+                    var right = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct);
+
+                    $element.css('left', left - $scope.task.left + 'px');
+                    $element.css('width', right - left + 'px');
+
+                    $element.toggleClass('gantt-task-bounds-in', false);
+                    $element.toggleClass('gantt-task-bounds-out', false);
+                    if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
+                        $element.toggleClass('gantt-task-bounds-in', true);
+                    } else if ($scope.task.model.est > $scope.task.model.from) {
+                        $element.toggleClass('gantt-task-bounds-out', true);
+                    }
+                    else if ($scope.task.model.lct < $scope.task.model.to) {
+                        $element.toggleClass('gantt-task-bounds-out', true);
                     } else {
-                        $scope.bounds = undefined;
+                        $element.toggleClass('gantt-task-bounds-in', true);
                     }
                 });
 
                 $scope.task.$element.bind('mouseenter', function() {
-                    $scope.isTaskMouseOver = true;
-                    $scope.$digest();
+                    $element.toggleClass('ng-hide', false);
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
-                    $scope.isTaskMouseOver = false;
-                    $scope.$digest();
+                    $element.toggleClass('ng-hide', true);
                 });
-
-                $scope.getCss = function() {
-                    if ($scope.bounds !== undefined) {
-                        css.width = $scope.bounds.width + 'px';
-
-                        if ($scope.task.isMilestone() === true || $scope.task.width === 0) {
-                            css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
-                        } else {
-                            css.left = ($scope.bounds.left - $scope.task.left) + 'px';
-                        }
-                    }
-
-                    return css;
-                };
-
-                $scope.getClass = function() {
-                    if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
-                        return 'gantt-task-bounds-in';
-                    } else if ($scope.task.model.est > $scope.task.model.from) {
-                        return 'gantt-task-bounds-out';
-                    }
-                    else if ($scope.task.model.lct < $scope.task.model.to) {
-                        return 'gantt-task-bounds-out';
-                    }
-                    else {
-                        return 'gantt-task-bounds-in';
-                    }
-                };
 
                 $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
                 $scope.$on('$destroy', function() {

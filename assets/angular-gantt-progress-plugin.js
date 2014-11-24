@@ -33,15 +33,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
 
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.progress !== undefined && pluginScope.enabled');
+
                         var progressElement = $document[0].createElement('gantt-task-progress');
-                        angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
                         if (attrs.templateUrl !== undefined) {
                             angular.element(progressElement).attr('data-template-url', attrs.templateUrl);
                         }
                         if (attrs.template !== undefined) {
                             angular.element(progressElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(progressElement)(progressScope));
+                        angular.element(ifElement).append(progressElement);
+                        taskElement.append($compile(ifElement)(progressScope));
                     }
                 });
 
@@ -84,8 +87,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $scope.getClasses = function() {
                     var classes = [];
 
-                    if ($scope.task.model.progress !== undefined && (typeof($scope.task.model.progress) !== 'object')) {
-                        classes = $scope.task.model.classes;
+                    if (typeof($scope.task.model.progress) === 'object') {
+                        classes = $scope.task.model.progress.classes;
                     }
 
                     return classes;

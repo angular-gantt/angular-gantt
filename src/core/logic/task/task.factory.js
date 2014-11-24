@@ -1,4 +1,4 @@
-(function(){
+(function() {
     'use strict';
     angular.module('gantt').factory('GanttTask', [function() {
         var Task = function(row, model) {
@@ -50,6 +50,18 @@
             if (this.$element) {
                 this.$element.css('left', this.left + 'px');
                 this.$element.css('width', this.width + 'px');
+
+                this.$element.css('background-color', this.model.color);
+                this.$element.css('z-index', this.model.priority);
+
+                this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
+                this.$element.toggleClass('gantt-task', !this.isMilestone());
+
+                for (var i = 0; i < this.model.classes; i++) {
+                    this.$element.toggleClass(this.model.classes[i], true);
+                }
+
+                this.$element.toggleClass('gantt-task', !this.isMilestone());
             }
         };
 

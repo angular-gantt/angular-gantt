@@ -112,13 +112,15 @@ angular.module('angularGanttDemoApp')
                     api.tasks.on.rowChange($scope, addEventName('tasks.on.rowChange', logTaskEvent));
                     api.tasks.on.remove($scope, addEventName('tasks.on.remove', logTaskEvent));
 
-                    api.tasks.on.moveBegin($scope, addEventName('tasks.on.moveBegin', logTaskEvent));
-                    //api.tasks.on.move($scope, addEventName('tasks.on.move', logTaskEvent));
-                    api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', logTaskEvent));
+                    if (api.tasks.on.moveBegin) {
+                        api.tasks.on.moveBegin($scope, addEventName('tasks.on.moveBegin', logTaskEvent));
+                        //api.tasks.on.move($scope, addEventName('tasks.on.move', logTaskEvent));
+                        api.tasks.on.moveEnd($scope, addEventName('tasks.on.moveEnd', logTaskEvent));
 
-                    api.tasks.on.resizeBegin($scope, addEventName('tasks.on.resizeBegin', logTaskEvent));
-                    //api.tasks.on.resize($scope, addEventName('tasks.on.resize', logTaskEvent));
-                    api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
+                        api.tasks.on.resizeBegin($scope, addEventName('tasks.on.resizeBegin', logTaskEvent));
+                        //api.tasks.on.resize($scope, addEventName('tasks.on.resize', logTaskEvent));
+                        api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
+                    }
 
                     api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
                     api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));

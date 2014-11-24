@@ -25,10 +25,16 @@
                     scope.dateFormat = 'MMM DD, HH:mm';
                 }
 
+                scope.api = api;
+
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var tooltipScope = taskScope.$new();
+
                         tooltipScope.pluginScope = scope;
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+
                         var tooltipElement = $document[0].createElement('gantt-tooltip');
                         if (attrs.templateUrl !== undefined) {
                             angular.element(tooltipElement).attr('data-template-url', attrs.templateUrl);
@@ -36,7 +42,9 @@
                         if (attrs.template !== undefined) {
                             angular.element(tooltipElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(tooltipElement)(tooltipScope));
+
+                        angular.element(ifElement).append(tooltipElement);
+                        taskElement.append($compile(ifElement)(tooltipScope));
                     }
                 });
             }

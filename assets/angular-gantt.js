@@ -2483,7 +2483,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt').factory('GanttTask', [function() {
         var Task = function(row, model) {
@@ -2535,6 +2535,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (this.$element) {
                 this.$element.css('left', this.left + 'px');
                 this.$element.css('width', this.width + 'px');
+
+                this.$element.css('background-color', this.model.color);
+                this.$element.css('z-index', this.model.priority);
+
+                this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
+                this.$element.toggleClass('gantt-task', !this.isMilestone());
+
+                for (var i = 0; i < this.model.classes; i++) {
+                    this.$element.toggleClass(this.model.classes[i], true);
+                }
+
+                this.$element.toggleClass('gantt-task', !this.isMilestone());
             }
         };
 
@@ -4069,7 +4081,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                    <gantt-row>\n' +
         '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
-        '                            <gantt-task ></gantt-task>\n' +
+        '                            <gantt-task></gantt-task>\n' +
         '                        </div>\n' +
         '                    </gantt-row>\n' +
         '                </div>\n' +
@@ -4094,8 +4106,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Header template -->\n' +
         '    <script type="text/ng-template" id="template/ganttHeader.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
-        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
-        '             ng-style="getHeaderCss()"></div>\n' +
+        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
@@ -4103,8 +4114,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="row.model.classes" ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
-        '                <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
+        '             ng-class="::row.model.classes" ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                <span class="gantt-labels-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -4143,9 +4154,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">\n' +
-        '        <div class="gantt-column-header">\n' +
-        '            {{ ::column.label }}\n' +
-        '        </div>\n' +
+        '        <div class="gantt-column-header">{{::column.label}}</div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body background template -->\n' +
@@ -4158,8 +4167,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="row.model.classes"\n' +
-        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '             ng-class="::row.model.classes"\n' +
+        '             ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -4193,16 +4202,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Timespan template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
-        '        <div class="gantt-timespan"\n' +
-        '             ng-style="{\'z-index\': (timespan.priority || 0)}"\n' +
-        '             ng-class="timespan.classes">\n' +
+        '        <div class="gantt-timespan" ng-class="::timespan.classes">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
-        '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
-        '             ng-style="{\'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
+        '        <div>\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
@@ -4212,13 +4218,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
         '        <div class="gantt-task-content-container">\n' +
-        '            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && \'&nbsp;\' || task.model.name) }}</span></div>\n' +
+        '            <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRow.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.model.height}"></div>\n' +
+        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{\'height\': row.model.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '</div>\n' +

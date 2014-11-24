@@ -22,8 +22,8 @@
                 $scope.getClasses = function() {
                     var classes = [];
 
-                    if ($scope.task.model.progress !== undefined && (typeof($scope.task.model.progress) !== 'object')) {
-                        classes = $scope.task.model.classes;
+                    if (typeof($scope.task.model.progress) === 'object') {
+                        classes = $scope.task.model.progress.classes;
                     }
 
                     return classes;

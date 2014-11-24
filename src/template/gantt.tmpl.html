@@ -49,7 +49,7 @@
                 <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
                     <gantt-row>
                         <div ng-repeat="task in row.visibleTasks track by task.model.id">
-                            <gantt-task ></gantt-task>
+                            <gantt-task></gantt-task>
                         </div>
                     </gantt-row>
                 </div>
@@ -74,8 +74,7 @@
     <!-- Header template -->
     <script type="text/ng-template" id="template/ganttHeader.tmpl.html">
         <div ng-transclude class="gantt-header"
-             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"
-             ng-style="getHeaderCss()"></div>
+             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"></div>
     </script>
 
     <!-- Row label template -->
@@ -83,8 +82,8 @@
         <div class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'"
-             ng-class="row.model.classes" ng-style="{'background-color': row.model.color, 'height': row.model.height}">
-                <span class="gantt-labels-text">{{ row.model.name }}</span>
+             ng-class="::row.model.classes" ng-style="::{'background-color': row.model.color, 'height': row.model.height}">
+                <span class="gantt-labels-text">{{row.model.name}}</span>
         </div>
     </script>
 
@@ -123,9 +122,7 @@
     </script>
 
     <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">
-        <div class="gantt-column-header">
-            {{ ::column.label }}
-        </div>
+        <div class="gantt-column-header">{{::column.label}}</div>
     </script>
 
     <!-- Body background template -->
@@ -138,8 +135,8 @@
         <div class="gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'"
-             ng-class="row.model.classes"
-             ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+             ng-class="::row.model.classes"
+             ng-style="::{'background-color': row.model.color, 'height': row.model.height}">
         </div>
     </script>
 
@@ -173,16 +170,13 @@
 
     <!-- Timespan template -->
     <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">
-        <div class="gantt-timespan"
-             ng-style="{'z-index': (timespan.priority || 0)}"
-             ng-class="timespan.classes">
+        <div class="gantt-timespan" ng-class="::timespan.classes">
         </div>
     </script>
 
     <!-- Task template -->
     <script type="text/ng-template" id="template/ganttTask.tmpl.html">
-        <div ng-class="(task.isMilestone() === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.model.classes)"
-             ng-style="{'z-index': (task.active === true && 1  || task.model.priority || ''), 'background-color': task.model.color}">
+        <div>
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <gantt-task-content></gantt-task-content>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
@@ -192,13 +186,13 @@
     <!-- Task content template -->
     <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">
         <div class="gantt-task-content-container">
-            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && '&nbsp;' || task.model.name) }}</span></div>
+            <div class="gantt-task-content"><span>{{task.model.name}}</span></div>
         </div>
     </script>
 
     <!-- Row template -->
     <script type="text/ng-template" id="template/ganttRow.tmpl.html">
-        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{'height': row.model.height}"></div>
+        <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{'height': row.model.height}"></div>
     </script>
 
 </div>
