@@ -4,7 +4,6 @@
 /demo
 /test
 /.travis.yml
-/.npmignore
 /*.html
 /*.iml
 /*.tgz

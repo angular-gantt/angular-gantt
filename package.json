@@ -18,12 +18,7 @@
     "chart",
     "angularjs"
   ],
-  "files": [
-    "./assets/angular-gantt.js",
-    "./assets/angular-gantt.css",
-    "./assets/angular-gantt-plugins.js",
-    "./assets/angular-gantt-plugins.css"
-  ],
+  "main": "/assets/angular-gantt.js",
   "directories.doc": "docs",
   "devDependencies": {
     "grunt": "^0.4.5",
