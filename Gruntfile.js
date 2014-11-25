@@ -54,7 +54,13 @@ module.exports = function(grunt) {
         },
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\nuse strict;\n',
+                banner: '/*\n' +
+                'Project: <%= pkg.name %> v<%= pkg.version %> - <%= pkg.description %>\n' +
+                'Authors: <%= pkg.author %>, <%= pkg.contributors %>\n' +
+                'License: <%= pkg.license %>\n' +
+                'Homepage: <%= pkg.homepage %>\n' +
+                'Github: <%= pkg.repository.url %>\n' +
+                '*/\n',
                 sourceMap: true
             },
             core: {
@@ -132,7 +138,7 @@ module.exports = function(grunt) {
             dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.min.css'
         };
         var uglifyFiles = {};
-        uglifyFiles['assets/<%= pkg.name %>-' + plugin + '.min.js'] = ['<%= concat.' + plugin + '.dest %>'];
+        uglifyFiles['assets/<%= pkg.name %>-' + plugin + '-plugin.min.js'] = ['<%= concat.' + plugin + '.dest %>'];
         config.uglify[plugin] = {files: uglifyFiles};
     }
 
