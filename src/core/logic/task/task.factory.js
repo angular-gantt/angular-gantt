@@ -66,24 +66,33 @@
         };
 
         // Expands the start of the task to the specified position (in em)
-        Task.prototype.setFrom = function(x) {
-            this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        Task.prototype.setFrom = function(x, magnetEnabled) {
+            this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
             this.row.setFromToByTask(this);
             this.updatePosAndSize();
         };
 
         // Expands the end of the task to the specified position (in em)
-        Task.prototype.setTo = function(x) {
-            this.model.to = this.rowsManager.gantt.getDateByPosition(x, true);
+        Task.prototype.setTo = function(x, magnetEnabled) {
+            this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
             this.row.setFromToByTask(this);
             this.updatePosAndSize();
         };
 
         // Moves the task to the specified position (in em)
-        Task.prototype.moveTo = function(x) {
-            this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
-            var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-            this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
+        Task.prototype.moveTo = function(x, magnetEnabled) {
+            if (x > this.left) {
+                // Driven by right/to side.
+                this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
+                var newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
+                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskRight - this.modelWidth, false);
+            } else {
+                // Drive by left/from side.
+                this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+                var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, false);
+            }
+
             this.row.setFromToByTask(this);
             this.updatePosAndSize();
         };

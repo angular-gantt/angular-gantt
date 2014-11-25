@@ -129,7 +129,7 @@
                                                 x = taskScope.gantt.width - taskScope.task.width;
                                             }
                                         }
-                                        taskScope.task.moveTo(x);
+                                        taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
                                     }
@@ -141,7 +141,7 @@
                                             x = taskScope.gantt.width;
                                         }
                                     }
-                                    taskScope.task.setTo(x);
+                                    taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 } else {
@@ -152,7 +152,7 @@
                                             x = 0;
                                         }
                                     }
-                                    taskScope.task.setFrom(x);
+                                    taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 }
