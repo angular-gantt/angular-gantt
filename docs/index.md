@@ -12,6 +12,8 @@ angular-gantt provides a gantt chart component to your [AngularJS](https://angul
 
 Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com/demo).
 
+You can even try the API using [Plunker](http://plnkr.co/hchknn) sandbox (latest release).
+
 ## Features
 - Two-way data binding between model and view.
 - Advanced calendar support to define holidays and working hours.
