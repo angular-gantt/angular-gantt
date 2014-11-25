@@ -197,6 +197,8 @@
         
             <li><a href="#column-magnet">column-magnet</a></li>
         
+            <li><a href="#shift-column-magnet">shift-column-magnet</a></li>
+        
             <li><a href="#data">data</a></li>
         
             <li><a href="#filter-task-filter-task-comparator">filter-task, filter-task-comparator</a></li>
@@ -210,8 +212,6 @@
             <li><a href="#headers">headers</a></li>
         
             <li><a href="#headers-formats">headers-formats</a></li>
-        
-            <li><a href="#labels-width">labels-width</a></li>
         
             <li><a href="#show-labels-column">show-labels-column</a></li>
         
@@ -305,7 +305,8 @@ have wider columns for days than for other column scales.</p>
 </li>
 <li>
 <h3 id="column-magnet">column-magnet</h3>
-<p>Precision of the column. All date and time computation will be rounded using this precision.</p>
+<p>Precision of the column. All date and time computation will be rounded using this precision. It will also snap
+to start and end of timeFrames and columns.</p>
 <p>Format is <code>&lt;integer&gt; &lt;momentjs-unit&gt;</code>. See <a href="http://momentjs.com/docs/#/manipulating/add/">momentJS#add()</a> for 
 a list of supported unit.</p>
 <p>Examples:</p>
@@ -316,6 +317,11 @@ a list of supported unit.</p>
 <li><code>3 hours</code></li>
 </ul>
 <p>default: <code>15 minutes</code></p>
+</li>
+<li>
+<h3 id="shift-column-magnet">shift-column-magnet</h3>
+<p>Precision of the column when holding down SHIFT key.</p>
+<p>If undefined, it will use 0.25 viewScale.</p>
 </li>
 <li>
 <h3 id="data">data</h3>
@@ -384,16 +390,17 @@ tasks, or empty time after the last task, or truncate next tasks.</p>
   minute:'HH:mm'
 };
 </code></pre>
-</li>
-<li>
-<h3 id="labels-width">labels-width</h3>
-<p>Width of label section on the left side of the Gantt. This property support two way binding. Therefore if the user
-resizes the label section any assigned scope variable will be updated too.</p>
+<p>It is also possible to specify a function to format the header label.</p>
+<pre><code>$scope.headersFormats = { 
+  week: function(column) {
+    return column.date.format('Do [-]') + column.endDate.format('Do') + column.date.format(' [(W]w[)]');
+  }
+};
+</code></pre>
 </li>
 <li>
 <h3 id="show-labels-column">show-labels-column</h3>
-<p>Whether the column with labels is to be shown or not. This attribute support two way binding, hence the visibility
-of the column may be toggled.</p>
+<p>Whether the column with labels is to be shown or not.</p>
 <p>default: <code>true</code></p>
 </li>
 <li>
@@ -530,6 +537,7 @@ attributes. camelCased version of attributes must be used as key (<code>autoExpa
 <p>Custom Gantt HTML template. If you want to customize the default Gantt HTML template, copy the content of
 template file <code>src/template/gantt.tmpl.html</code> to a variable and set this parameter. </p>
 <p>Compared to <code>template-url</code>, this will avoid an additional request to load the template from an URL.</p>
+<p>This attribute is not observed and not evaluated as an expression.</p>
 </li>
 <li>
 <h3 id="template-url">template-url</h3>
@@ -537,6 +545,7 @@ template file <code>src/template/gantt.tmpl.html</code> to a variable and set th
 template file <code>src/template/gantt.tmpl.html</code> to your own project, and set the URL of copied file to this
 attribute. </p>
 <p>If <code>undefined</code> or <code>template/gantt.tmpl.html</code>, default template will be used.   </p>
+<p>This attribute is not observed and not evaluated as an expression.</p>
 <p><em>note: template-url must be different than <code>template/gantt.tmpl.html</code>, or it will use default
 template included in <code>angular-gantt.js</code>.</em></p>
 </li>

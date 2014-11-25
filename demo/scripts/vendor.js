@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.3
+ * @license AngularJS v1.3.4
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.3/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.4/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -426,7 +426,7 @@ function int(str) {
 
 
 function inherit(parent, extra) {
-  return extend(new (extend(function() {}, {prototype:parent}))(), extra);
+  return extend(Object.create(parent), extra);
 }
 
 /**
@@ -689,7 +689,7 @@ function makeMap(str) {
 
 
 function nodeName_(element) {
-  return lowercase(element.nodeName || element[0].nodeName);
+  return lowercase(element.nodeName || (element[0] && element[0].nodeName));
 }
 
 function includes(array, obj) {
@@ -1395,8 +1395,8 @@ function angularInit(element, bootstrap) {
  * @param {Object=} config an object for defining configuration options for the application. The
  *     following keys are supported:
  *
- *     - `strictDi`: disable automatic function annotation for the application. This is meant to
- *       assist in finding bugs which break minified code.
+ * * `strictDi` - disable automatic function annotation for the application. This is meant to
+ *   assist in finding bugs which break minified code. Defaults to `false`.
  *
  * @returns {auto.$injector} Returns the newly created injector for this app.
  */
@@ -2100,11 +2100,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.3',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.4',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 3,
-  codeName: 'undersea-arithmetic'
+  dot: 4,
+  codeName: 'highfalutin-petroglyph'
 };
 
 
@@ -2327,10 +2327,12 @@ function publishExternalAPI(angular) {
  *   `'ngModel'`).
  * - `injector()` - retrieves the injector of the current element or its parent.
  * - `scope()` - retrieves the {@link ng.$rootScope.Scope scope} of the current
- *   element or its parent.
+ *   element or its parent. Requires {@link guide/production#disabling-debug-data Debug Data} to
+ *   be enabled.
  * - `isolateScope()` - retrieves an isolate {@link ng.$rootScope.Scope scope} if one is attached directly to the
  *   current element. This getter should be used only on elements that contain a directive which starts a new isolate
  *   scope. Calling `scope()` on this element always returns the original non-isolate scope.
+ *   Requires {@link guide/production#disabling-debug-data Debug Data} to be enabled.
  * - `inheritedData()` - same as `data()`, but walks up the DOM until a value is found or the top
  *   parent element is reached.
  *
@@ -3325,9 +3327,10 @@ HashMap.prototype = {
  * Creates an injector object that can be used for retrieving services as well as for
  * dependency injection (see {@link guide/di dependency injection}).
  *
-
  * @param {Array.<string|Function>} modules A list of module functions or their aliases. See
- *        {@link angular.module}. The `ng` module must be explicitly added.
+ *     {@link angular.module}. The `ng` module must be explicitly added.
+ * @param {boolean=} [strictDi=false] Whether the injector should be in strict mode, which
+ *     disallows argument name annotation inference.
  * @returns {injector} Injector object. See {@link auto.$injector $injector}.
  *
  * @example
@@ -3473,8 +3476,10 @@ function annotate(fn, strictDi, name) {
  * ## Inference
  *
  * In JavaScript calling `toString()` on a function returns the function definition. The definition
- * can then be parsed and the function arguments can be extracted. *NOTE:* This does not work with
- * minification, and obfuscation tools since these tools change the argument names.
+ * can then be parsed and the function arguments can be extracted. This method of discovering
+ * annotations is disallowed when the injector is in strict mode.
+ * *NOTE:* This does not work with minification, and obfuscation tools since these tools change the
+ * argument names.
  *
  * ## `$inject` Annotation
  * By adding an `$inject` property onto a function the injection parameters can be specified.
@@ -3559,6 +3564,8 @@ function annotate(fn, strictDi, name) {
  *   expect(injector.annotate(MyController)).toEqual(['$scope', '$route']);
  * ```
  *
+ * You can disallow this method by using strict injection mode.
+ *
  * This method does not work with code minification / obfuscation. For this reason the following
  * annotation strategies are supported.
  *
@@ -3610,6 +3617,8 @@ function annotate(fn, strictDi, name) {
  *
  * @param {Function|Array.<string|Function>} fn Function for which dependent service names need to
  * be retrieved as described above.
+ *
+ * @param {boolean=} [strictDi=false] Disallow argument name annotation inference.
  *
  * @returns {Array.<string>} The names of the services which the function requires.
  */
@@ -4130,14 +4139,11 @@ function createInjector(modulesToLoad, strictDi) {
     }
 
     function instantiate(Type, locals, serviceName) {
-      var Constructor = function() {},
-          instance, returnedValue;
-
       // Check if Type is annotated and use just the given function at n-1 as parameter
       // e.g. someModule.factory('greeter', ['$window', function(renamed$window) {}]);
-      Constructor.prototype = (isArray(Type) ? Type[Type.length - 1] : Type).prototype;
-      instance = new Constructor();
-      returnedValue = invoke(Type, instance, locals, serviceName);
+      // Object creation: http://jsperf.com/create-constructor/2
+      var instance = Object.create((isArray(Type) ? Type[Type.length - 1] : Type).prototype);
+      var returnedValue = invoke(Type, instance, locals, serviceName);
 
       return isObject(returnedValue) || isFunction(returnedValue) ? returnedValue : instance;
     }
@@ -4973,7 +4979,7 @@ function Browser(window, document, $log, $sniffer) {
       // IE<10 from getting into redirect loop when in LocationHashbangInHtml5Url mode.
       // See https://github.com/angular/angular.js/commit/ffb2701
       if (lastBrowserUrl === url && (!$sniffer.history || sameState)) {
-        return;
+        return self;
       }
       var sameBase = lastBrowserUrl && stripHash(lastBrowserUrl) === stripHash(url);
       lastBrowserUrl = url;
@@ -7885,10 +7891,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         var childBoundTranscludeFn = boundTranscludeFn;
         if (scope.$$destroyed) return;
         if (linkQueue) {
-          linkQueue.push(scope);
-          linkQueue.push(node);
-          linkQueue.push(rootElement);
-          linkQueue.push(childBoundTranscludeFn);
+          linkQueue.push(scope,
+                         node,
+                         rootElement,
+                         childBoundTranscludeFn);
         } else {
           if (afterTemplateNodeLinkFn.transcludeOnThisElement) {
             childBoundTranscludeFn = createBoundTranscludeFn(scope, afterTemplateNodeLinkFn.transclude, boundTranscludeFn);
@@ -8357,10 +8363,10 @@ function $ControllerProvider() {
         //
         // This feature is not intended for use by applications, and is thus not documented
         // publicly.
-        var Constructor = function() {};
-        Constructor.prototype = (isArray(expression) ?
+        // Object creation: http://jsperf.com/create-constructor/2
+        var controllerPrototype = (isArray(expression) ?
           expression[expression.length - 1] : expression).prototype;
-        instance = new Constructor();
+        instance = Object.create(controllerPrototype);
 
         if (identifier) {
           addIdentifier(locals, identifier, instance, constructor || expression.name);
@@ -8501,7 +8507,7 @@ function defaultHttpResponseTransform(data, headers) {
  * @returns {Object} Parsed headers as key value object
  */
 function parseHeaders(headers) {
-  var parsed = {}, key, val, i;
+  var parsed = createMap(), key, val, i;
 
   if (!headers) return parsed;
 
@@ -8538,7 +8544,11 @@ function headersGetter(headers) {
     if (!headersObj) headersObj =  parseHeaders(headers);
 
     if (name) {
-      return headersObj[lowercase(name)] || null;
+      var value = headersObj[lowercase(name)];
+      if (value === void 0) {
+        value = null;
+      }
+      return value;
     }
 
     return headersObj;
@@ -8587,6 +8597,11 @@ function $HttpProvider() {
    *
    * Object containing default values for all {@link ng.$http $http} requests.
    *
+   * - **`defaults.cache`** - {Object} - an object built with {@link ng.$cacheFactory `$cacheFactory`}
+   * that will provide the cache for all requests who set their `cache` property to `true`.
+   * If you set the `default.cache = false` then only requests that specify their own custom
+   * cache object will be cached. See {@link $http#caching $http Caching} for more information.
+   *
    * - **`defaults.xsrfCookieName`** - {string} - Name of cookie containing the XSRF token.
    * Defaults value is `'XSRF-TOKEN'`.
    *
@@ -8600,6 +8615,7 @@ function $HttpProvider() {
    *     - **`defaults.headers.post`**
    *     - **`defaults.headers.put`**
    *     - **`defaults.headers.patch`**
+   *
    **/
   var defaults = this.defaults = {
     // transform incoming response data
@@ -8814,6 +8830,21 @@ function $HttpProvider() {
      * In addition, you can supply a `headers` property in the config object passed when
      * calling `$http(config)`, which overrides the defaults without changing them globally.
      *
+     * To explicitly remove a header automatically added via $httpProvider.defaults.headers on a per request basis,
+     * Use the `headers` property, setting the desired header to `undefined`. For example:
+     *
+     * ```js
+     * var req = {
+     *  method: 'POST',
+     *  url: 'http://example.com',
+     *  headers: {
+     *    'Content-Type': undefined
+     *  },
+     *  data: { test: 'test' },
+     * }
+     *
+     * $http(req).success(function(){...}).error(function(){...});
+     * ```
      *
      * ## Transforming Requests and Responses
      *
@@ -9192,6 +9223,10 @@ function $HttpProvider() {
         transformResponse: defaults.transformResponse
       };
       var headers = mergeHeaders(requestConfig);
+
+      if (!angular.isObject(requestConfig)) {
+        throw minErr('$http')('badreq', 'Http request configuration must be an object.  Received: {0}', requestConfig);
+      }
 
       extend(config, requestConfig);
       config.headers = headers;
@@ -10687,6 +10722,13 @@ var locationPrototype = {
    * Return full url representation with all segments encoded according to rules specified in
    * [RFC 3986](http://www.ietf.org/rfc/rfc3986.txt).
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var absUrl = $location.absUrl();
+   * // => "http://example.com/#/some/path?foo=bar&baz=xoxo"
+   * ```
+   *
    * @return {string} full url
    */
   absUrl: locationGetter('$$absUrl'),
@@ -10702,6 +10744,13 @@ var locationPrototype = {
    *
    * Change path, search and hash, when called with parameter and return `$location`.
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var url = $location.url();
+   * // => "/some/path?foo=bar&baz=xoxo"
+   * ```
+   *
    * @param {string=} url New url without base prefix (e.g. `/path?a=b#hash`)
    * @return {string} url
    */
@@ -10710,8 +10759,8 @@ var locationPrototype = {
       return this.$$url;
 
     var match = PATH_MATCH.exec(url);
-    if (match[1]) this.path(decodeURIComponent(match[1]));
-    if (match[2] || match[1]) this.search(match[3] || '');
+    if (match[1] || url === '') this.path(decodeURIComponent(match[1]));
+    if (match[2] || match[1] || url === '') this.search(match[3] || '');
     this.hash(match[5] || '');
 
     return this;
@@ -10726,6 +10775,13 @@ var locationPrototype = {
    *
    * Return protocol of current url.
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var protocol = $location.protocol();
+   * // => "http"
+   * ```
+   *
    * @return {string} protocol of current url
    */
   protocol: locationGetter('$$protocol'),
@@ -10739,6 +10795,13 @@ var locationPrototype = {
    *
    * Return host of current url.
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var host = $location.host();
+   * // => "example.com"
+   * ```
+   *
    * @return {string} host of current url.
    */
   host: locationGetter('$$host'),
@@ -10751,6 +10814,13 @@ var locationPrototype = {
    * This method is getter only.
    *
    * Return port of current url.
+   *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var port = $location.port();
+   * // => 80
+   * ```
    *
    * @return {Number} port
    */
@@ -10769,6 +10839,13 @@ var locationPrototype = {
    *
    * Note: Path should always begin with forward slash (/), this method will add the forward slash
    * if it is missing.
+   *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var path = $location.path();
+   * // => "/some/path"
+   * ```
    *
    * @param {(string|number)=} path New path
    * @return {string} path
@@ -10795,10 +10872,9 @@ var locationPrototype = {
    * var searchObject = $location.search();
    * // => {foo: 'bar', baz: 'xoxo'}
    *
-   *
    * // set foo to 'yipee'
    * $location.search('foo', 'yipee');
-   * // => $location
+   * // $location.search() => {foo: 'yipee', baz: 'xoxo'}
    * ```
    *
    * @param {string|Object.<string>|Object.<Array.<string>>} search New search params - string or
@@ -10867,6 +10943,13 @@ var locationPrototype = {
    * Return hash fragment when called without any parameter.
    *
    * Change hash fragment when called with parameter and return `$location`.
+   *
+   *
+   * ```js
+   * // given url http://example.com/some/path?foo=bar&baz=xoxo#hashValue
+   * var hash = $location.hash();
+   * // => "hashValue"
+   * ```
    *
    * @param {(string|number)=} hash New hash fragment
    * @return {string} hash
@@ -16599,7 +16682,7 @@ function filterFilter() {
  *
  * @param {number} amount Input to filter.
  * @param {string=} symbol Currency symbol or identifier to be displayed.
- * @param {number=} fractionSize Number of decimal places to round the amount to.
+ * @param {number=} fractionSize Number of decimal places to round the amount to, defaults to default max fraction size for current locale
  * @returns {string} Formatted number.
  *
  *
@@ -16649,8 +16732,7 @@ function currencyFilter($locale) {
     }
 
     if (isUndefined(fractionSize)) {
-      // TODO: read the default value from the locale file
-      fractionSize = 2;
+      fractionSize = formats.PATTERNS[1].maxFrac;
     }
 
     // if null or undefined pass it through
@@ -16802,9 +16884,9 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     }
   }
 
-  parts.push(isNegative ? pattern.negPre : pattern.posPre);
-  parts.push(formatedText);
-  parts.push(isNegative ? pattern.negSuf : pattern.posSuf);
+  parts.push(isNegative ? pattern.negPre : pattern.posPre,
+             formatedText,
+             isNegative ? pattern.negSuf : pattern.posSuf);
   return parts.join('');
 }
 
@@ -18384,9 +18466,7 @@ var formDirectiveFactory = function(isNgForm) {
                   controller.$setSubmitted();
                 });
 
-                event.preventDefault
-                  ? event.preventDefault()
-                  : event.returnValue = false; // IE
+                event.preventDefault();
               };
 
               addEventListenerFn(formElement[0], 'submit', handleFormSubmission);
@@ -18473,7 +18553,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -19021,7 +19102,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -19108,7 +19190,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -19196,7 +19279,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -19467,7 +19551,7 @@ function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   element.on('change', listener);
 
   ctrl.$render = function() {
-    element.val(ctrl.$isEmpty(ctrl.$modelValue) ? '' : ctrl.$viewValue);
+    element.val(ctrl.$isEmpty(ctrl.$viewValue) ? '' : ctrl.$viewValue);
   };
 }
 
@@ -19577,10 +19661,10 @@ function createDateInputType(type, regexp, parseDate, format) {
     });
 
     ctrl.$formatters.push(function(value) {
-      if (!ctrl.$isEmpty(value)) {
-        if (!isDate(value)) {
-          throw $ngModelMinErr('datefmt', 'Expected `{0}` to be a date', value);
-        }
+      if (value && !isDate(value)) {
+        throw $ngModelMinErr('datefmt', 'Expected `{0}` to be a date', value);
+      }
+      if (isValidDate(value)) {
         previousDate = value;
         if (previousDate && timezone === 'UTC') {
           var timezoneOffset = 60000 * previousDate.getTimezoneOffset();
@@ -19589,14 +19673,14 @@ function createDateInputType(type, regexp, parseDate, format) {
         return $filter('date')(value, format, timezone);
       } else {
         previousDate = null;
+        return '';
       }
-      return '';
     });
 
     if (isDefined(attr.min) || attr.ngMin) {
       var minVal;
       ctrl.$validators.min = function(value) {
-        return ctrl.$isEmpty(value) || isUndefined(minVal) || parseDate(value) >= minVal;
+        return !isValidDate(value) || isUndefined(minVal) || parseDate(value) >= minVal;
       };
       attr.$observe('min', function(val) {
         minVal = parseObservedDateValue(val);
@@ -19607,18 +19691,18 @@ function createDateInputType(type, regexp, parseDate, format) {
     if (isDefined(attr.max) || attr.ngMax) {
       var maxVal;
       ctrl.$validators.max = function(value) {
-        return ctrl.$isEmpty(value) || isUndefined(maxVal) || parseDate(value) <= maxVal;
+        return !isValidDate(value) || isUndefined(maxVal) || parseDate(value) <= maxVal;
       };
       attr.$observe('max', function(val) {
         maxVal = parseObservedDateValue(val);
         ctrl.$validate();
       });
     }
-    // Override the standard $isEmpty to detect invalid dates as well
-    ctrl.$isEmpty = function(value) {
+
+    function isValidDate(value) {
       // Invalid Date: getTime() returns NaN
-      return !value || (value.getTime && value.getTime() !== value.getTime());
-    };
+      return value && !(value.getTime && value.getTime() !== value.getTime());
+    }
 
     function parseObservedDateValue(val) {
       return isDefined(val) ? (isDate(val) ? val : parseDate(val)) : undefined;
@@ -19702,7 +19786,8 @@ function urlInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   stringBasedInputType(ctrl);
 
   ctrl.$$parserName = 'url';
-  ctrl.$validators.url = function(value) {
+  ctrl.$validators.url = function(modelValue, viewValue) {
+    var value = modelValue || viewValue;
     return ctrl.$isEmpty(value) || URL_REGEXP.test(value);
   };
 }
@@ -19714,7 +19799,8 @@ function emailInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   stringBasedInputType(ctrl);
 
   ctrl.$$parserName = 'email';
-  ctrl.$validators.email = function(value) {
+  ctrl.$validators.email = function(modelValue, viewValue) {
+    var value = modelValue || viewValue;
     return ctrl.$isEmpty(value) || EMAIL_REGEXP.test(value);
   };
 }
@@ -19768,9 +19854,11 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
     element[0].checked = ctrl.$viewValue;
   };
 
-  // Override the standard `$isEmpty` because an empty checkbox is never equal to the trueValue
+  // Override the standard `$isEmpty` because the $viewValue of an empty checkbox is always set to `false`
+  // This is because of the parser below, which compares the `$modelValue` with `trueValue` to convert
+  // it to a boolean.
   ctrl.$isEmpty = function(value) {
-    return value !== trueValue;
+    return value === false;
   };
 
   ctrl.$formatters.push(function(value) {
@@ -19802,7 +19890,8 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
  * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
  *    minlength.
  * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
- *    maxlength.
+ *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of any
+ *    length.
  * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
  *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
  *    patterns defined as scope expressions.
@@ -19834,7 +19923,8 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
  * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
  *    minlength.
  * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
- *    maxlength.
+ *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of any
+ *    length.
  * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
  *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
  *    patterns defined as scope expressions.
@@ -20050,13 +20140,18 @@ is set to `true`. The parse error is stored in `ngModel.$error.parse`.
  *
  * @description
  *
- * `NgModelController` provides API for the `ng-model` directive. The controller contains
- * services for data-binding, validation, CSS updates, and value formatting and parsing. It
- * purposefully does not contain any logic which deals with DOM rendering or listening to
- * DOM events. Such DOM related logic should be provided by other directives which make use of
- * `NgModelController` for data-binding.
+ * `NgModelController` provides API for the {@link ngModel `ngModel`} directive.
+ * The controller contains services for data-binding, validation, CSS updates, and value formatting
+ * and parsing. It purposefully does not contain any logic which deals with DOM rendering or
+ * listening to DOM events.
+ * Such DOM related logic should be provided by other directives which make use of
+ * `NgModelController` for data-binding to control elements.
+ * Angular provides this DOM logic for most {@link input `input`} elements.
+ * At the end of this page you can find a {@link ngModel.NgModelController#custom-control-example
+ * custom control example} that uses `ngModelController` to bind to `contenteditable` elements.
  *
- * ## Custom Control Example
+ * @example
+ * ### Custom Control Example
  * This example shows how to use `NgModelController` with a custom control to achieve
  * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
  * collaborate together to achieve the desired result.
@@ -20153,6 +20248,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     function($scope, $exceptionHandler, $attr, $element, $parse, $animate, $timeout, $rootScope, $q, $interpolate) {
   this.$viewValue = Number.NaN;
   this.$modelValue = Number.NaN;
+  this.$$rawModelValue = undefined; // stores the parsed modelValue / model set from scope regardless of validity.
   this.$validators = {};
   this.$asyncValidators = {};
   this.$parsers = [];
@@ -20171,32 +20267,33 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
 
   var parsedNgModel = $parse($attr.ngModel),
+      parsedNgModelAssign = parsedNgModel.assign,
+      ngModelGet = parsedNgModel,
+      ngModelSet = parsedNgModelAssign,
       pendingDebounce = null,
       ctrl = this;
 
-  var ngModelGet = function ngModelGet() {
-    var modelValue = parsedNgModel($scope);
-    if (ctrl.$options && ctrl.$options.getterSetter && isFunction(modelValue)) {
-      modelValue = modelValue();
-    }
-    return modelValue;
-  };
-
-  var ngModelSet = function ngModelSet(newValue) {
-    var getterSetter;
-    if (ctrl.$options && ctrl.$options.getterSetter &&
-        isFunction(getterSetter = parsedNgModel($scope))) {
-
-      getterSetter(ctrl.$modelValue);
-    } else {
-      parsedNgModel.assign($scope, ctrl.$modelValue);
-    }
-  };
-
   this.$$setOptions = function(options) {
     ctrl.$options = options;
+    if (options && options.getterSetter) {
+      var invokeModelGetter = $parse($attr.ngModel + '()'),
+          invokeModelSetter = $parse($attr.ngModel + '($$$p)');
 
-    if (!parsedNgModel.assign && (!options || !options.getterSetter)) {
+      ngModelGet = function($scope) {
+        var modelValue = parsedNgModel($scope);
+        if (isFunction(modelValue)) {
+          modelValue = invokeModelGetter($scope);
+        }
+        return modelValue;
+      };
+      ngModelSet = function($scope, newValue) {
+        if (isFunction(parsedNgModel($scope))) {
+          invokeModelSetter($scope, {$$$p: ctrl.$modelValue});
+        } else {
+          parsedNgModelAssign($scope, ctrl.$modelValue);
+        }
+      };
+    } else if (!parsedNgModel.assign) {
       throw $ngModelMinErr('nonassign', "Expression '{0}' is non-assignable. Element: {1}",
           $attr.ngModel, startingTag($element));
     }
@@ -20229,17 +20326,18 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @name ngModel.NgModelController#$isEmpty
    *
    * @description
-   * This is called when we need to determine if the value of the input is empty.
+   * This is called when we need to determine if the value of an input is empty.
    *
    * For instance, the required directive does this to work out if the input has data or not.
+   *
    * The default `$isEmpty` function checks whether the value is `undefined`, `''`, `null` or `NaN`.
    *
    * You can override this for input directives whose concept of being empty is different to the
    * default. The `checkboxInputType` directive does this because in its case a value of `false`
    * implies empty.
    *
-   * @param {*} value Model value to check.
-   * @returns {boolean} True if `value` is empty.
+   * @param {*} value The value of the input to check for emptiness.
+   * @returns {boolean} True if `value` is "empty".
    */
   this.$isEmpty = function(value) {
     return isUndefined(value) || value === '' || value === null || value !== value;
@@ -20290,9 +20388,9 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @description
    * Sets the control to its pristine state.
    *
-   * This method can be called to remove the 'ng-dirty' class and set the control to its pristine
-   * state (ng-pristine class). A model is considered to be pristine when the model has not been changed
-   * from when first compiled within then form.
+   * This method can be called to remove the `ng-dirty` class and set the control to its pristine
+   * state (`ng-pristine` class). A model is considered to be pristine when the control
+   * has not been changed from when first compiled.
    */
   this.$setPristine = function() {
     ctrl.$dirty = false;
@@ -20303,13 +20401,32 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
   /**
    * @ngdoc method
+   * @name ngModel.NgModelController#$setDirty
+   *
+   * @description
+   * Sets the control to its dirty state.
+   *
+   * This method can be called to remove the `ng-pristine` class and set the control to its dirty
+   * state (`ng-dirty` class). A model is considered to be dirty when the control has been changed
+   * from when first compiled.
+   */
+  this.$setDirty = function() {
+    ctrl.$dirty = true;
+    ctrl.$pristine = false;
+    $animate.removeClass($element, PRISTINE_CLASS);
+    $animate.addClass($element, DIRTY_CLASS);
+    parentForm.$setDirty();
+  };
+
+  /**
+   * @ngdoc method
    * @name ngModel.NgModelController#$setUntouched
    *
    * @description
    * Sets the control to its untouched state.
    *
-   * This method can be called to remove the 'ng-touched' class and set the control to its
-   * untouched state (ng-untouched class). Upon compilation, a model is set as untouched
+   * This method can be called to remove the `ng-touched` class and set the control to its
+   * untouched state (`ng-untouched` class). Upon compilation, a model is set as untouched
    * by default, however this function can be used to restore that state if the model has
    * already been touched by the user.
    */
@@ -20326,10 +20443,9 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @description
    * Sets the control to its touched state.
    *
-   * This method can be called to remove the 'ng-untouched' class and set the control to its
-   * touched state (ng-touched class). A model is considered to be touched when the user has
-   * first interacted (focussed) on the model input element and then shifted focus away (blurred)
-   * from the input element.
+   * This method can be called to remove the `ng-untouched` class and set the control to its
+   * touched state (`ng-touched` class). A model is considered to be touched when the user has
+   * first focused the control element and then shifted focus away from the control (blur event).
    */
   this.$setTouched = function() {
     ctrl.$touched = true;
@@ -20407,14 +20523,51 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @name ngModel.NgModelController#$validate
    *
    * @description
-   * Runs each of the registered validators (first synchronous validators and then asynchronous validators).
+   * Runs each of the registered validators (first synchronous validators and then
+   * asynchronous validators).
+   * If the validity changes to invalid, the model will be set to `undefined`,
+   * unless {@link ngModelOptions `ngModelOptions.allowInvalid`} is `true`.
+   * If the validity changes to valid, it will set the model to the last available valid
+   * modelValue, i.e. either the last parsed value or the last value set from the scope.
    */
   this.$validate = function() {
     // ignore $validate before model is initialized
     if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
       return;
     }
-    this.$$parseAndValidate();
+
+    var viewValue = ctrl.$$lastCommittedViewValue;
+    // Note: we use the $$rawModelValue as $modelValue might have been
+    // set to undefined during a view -> model update that found validation
+    // errors. We can't parse the view here, since that could change
+    // the model although neither viewValue nor the model on the scope changed
+    var modelValue = ctrl.$$rawModelValue;
+
+    // Check if the there's a parse error, so we don't unset it accidentially
+    var parserName = ctrl.$$parserName || 'parse';
+    var parserValid = ctrl.$error[parserName] ? false : undefined;
+
+    var prevValid = ctrl.$valid;
+    var prevModelValue = ctrl.$modelValue;
+
+    var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
+
+    ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
+      // If there was no change in validity, don't update the model
+      // This prevents changing an invalid modelValue to undefined
+      if (!allowInvalid && prevValid !== allValid) {
+        // Note: Don't check ctrl.$valid here, as we could have
+        // external validators (e.g. calculated on the server),
+        // that just call $setValidity and need the model value
+        // to calculate their validity.
+        ctrl.$modelValue = allValid ? modelValue : undefined;
+
+        if (ctrl.$modelValue !== prevModelValue) {
+          ctrl.$$writeModelToScope();
+        }
+      }
+    });
+
   };
 
   this.$$runValidators = function(parseValid, modelValue, viewValue, doneCallback) {
@@ -20533,11 +20686,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
     // change to dirty
     if (ctrl.$pristine) {
-      ctrl.$dirty = true;
-      ctrl.$pristine = false;
-      $animate.removeClass($element, PRISTINE_CLASS);
-      $animate.addClass($element, DIRTY_CLASS);
-      parentForm.$setDirty();
+      this.$setDirty();
     }
     this.$$parseAndValidate();
   };
@@ -20558,10 +20707,11 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     }
     if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
       // ctrl.$modelValue has not been touched yet...
-      ctrl.$modelValue = ngModelGet();
+      ctrl.$modelValue = ngModelGet($scope);
     }
     var prevModelValue = ctrl.$modelValue;
     var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
+    ctrl.$$rawModelValue = modelValue;
     if (allowInvalid) {
       ctrl.$modelValue = modelValue;
       writeToModelIfNeeded();
@@ -20585,7 +20735,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
   };
 
   this.$$writeModelToScope = function() {
-    ngModelSet(ctrl.$modelValue);
+    ngModelSet($scope, ctrl.$modelValue);
     forEach(ctrl.$viewChangeListeners, function(listener) {
       try {
         listener();
@@ -20681,12 +20831,12 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
   //       ng-change executes in apply phase
   // 4. view should be changed back to 'a'
   $scope.$watch(function ngModelWatch() {
-    var modelValue = ngModelGet();
+    var modelValue = ngModelGet($scope);
 
     // if scope model value and ngModel value are out of sync
     // TODO(perf): why not move this to the action fn?
     if (modelValue !== ctrl.$modelValue) {
-      ctrl.$modelValue = modelValue;
+      ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
 
       var formatters = ctrl.$formatters,
           idx = formatters.length;
@@ -20871,7 +21021,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
      </file>
  * </example>
  */
-var ngModelDirective = function() {
+var ngModelDirective = ['$rootScope', function($rootScope) {
   return {
     restrict: 'A',
     require: ['ngModel', '^?form', '^?ngModelOptions'],
@@ -20915,15 +21065,17 @@ var ngModelDirective = function() {
           element.on('blur', function(ev) {
             if (modelCtrl.$touched) return;
 
-            scope.$apply(function() {
-              modelCtrl.$setTouched();
-            });
+            if ($rootScope.$$phase) {
+              scope.$evalAsync(modelCtrl.$setTouched);
+            } else {
+              scope.$apply(modelCtrl.$setTouched);
+            }
           });
         }
       };
     }
   };
-};
+}];
 
 
 /**
@@ -21012,8 +21164,8 @@ var requiredDirective = function() {
       if (!ctrl) return;
       attr.required = true; // force truthy in case we are on non input element
 
-      ctrl.$validators.required = function(value) {
-        return !attr.required || !ctrl.$isEmpty(value);
+      ctrl.$validators.required = function(modelValue, viewValue) {
+        return !attr.required || !ctrl.$isEmpty(viewValue);
       };
 
       attr.$observe('required', function() {
@@ -21062,13 +21214,14 @@ var maxlengthDirective = function() {
     link: function(scope, elm, attr, ctrl) {
       if (!ctrl) return;
 
-      var maxlength = 0;
+      var maxlength = -1;
       attr.$observe('maxlength', function(value) {
-        maxlength = int(value) || 0;
+        var intVal = int(value);
+        maxlength = isNaN(intVal) ? -1 : intVal;
         ctrl.$validate();
       });
       ctrl.$validators.maxlength = function(modelValue, viewValue) {
-        return ctrl.$isEmpty(modelValue) || viewValue.length <= maxlength;
+        return (maxlength < 0) || ctrl.$isEmpty(modelValue) || (viewValue.length <= maxlength);
       };
     }
   };
@@ -21087,7 +21240,7 @@ var minlengthDirective = function() {
         ctrl.$validate();
       });
       ctrl.$validators.minlength = function(modelValue, viewValue) {
-        return ctrl.$isEmpty(modelValue) || viewValue.length >= minlength;
+        return ctrl.$isEmpty(viewValue) || viewValue.length >= minlength;
       };
     }
   };
@@ -21715,12 +21868,11 @@ var ngBindTemplateDirective = ['$interpolate', '$compile', function($interpolate
  * @name ngBindHtml
  *
  * @description
- * Creates a binding that will innerHTML the result of evaluating the `expression` into the current
- * element in a secure way.  By default, the innerHTML-ed content will be sanitized using the {@link
- * ngSanitize.$sanitize $sanitize} service.  To utilize this functionality, ensure that `$sanitize`
- * is available, for example, by including {@link ngSanitize} in your module's dependencies (not in
- * core Angular). In order to use {@link ngSanitize} in your module's dependencies, you need to
- * include "angular-sanitize.js" in your application.
+ * Evaluates the expression and inserts the resulting HTML into the element in a secure way. By default,
+ * the resulting HTML content will be sanitized using the {@link ngSanitize.$sanitize $sanitize} service.
+ * To utilize this functionality, ensure that `$sanitize` is available, for example, by including {@link
+ * ngSanitize} in your module's dependencies (not in core Angular). In order to use {@link ngSanitize}
+ * in your module's dependencies, you need to include "angular-sanitize.js" in your application.
  *
  * You may also bypass sanitization for values you know are safe. To do so, bind to
  * an explicitly trusted value via {@link ng.$sce#trustAsHtml $sce.trustAsHtml}.  See the example
@@ -23784,7 +23936,9 @@ var ngNonBindableDirective = ngDirective({ terminal: true, priority: 1000 });
     </example>
  */
 var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interpolate) {
-  var BRACE = /{}/g;
+  var BRACE = /{}/g,
+      IS_WHEN = /^when(Minus)?(.+)$/;
+
   return {
     restrict: 'EA',
     link: function(scope, element, attr) {
@@ -23795,34 +23949,44 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
           whensExpFns = {},
           startSymbol = $interpolate.startSymbol(),
           endSymbol = $interpolate.endSymbol(),
-          isWhen = /^when(Minus)?(.+)$/;
+          braceReplacement = startSymbol + numberExp + '-' + offset + endSymbol,
+          watchRemover = angular.noop,
+          lastCount;
 
       forEach(attr, function(expression, attributeName) {
-        if (isWhen.test(attributeName)) {
-          whens[lowercase(attributeName.replace('when', '').replace('Minus', '-'))] =
-            element.attr(attr.$attr[attributeName]);
+        var tmpMatch = IS_WHEN.exec(attributeName);
+        if (tmpMatch) {
+          var whenKey = (tmpMatch[1] ? '-' : '') + lowercase(tmpMatch[2]);
+          whens[whenKey] = element.attr(attr.$attr[attributeName]);
         }
       });
       forEach(whens, function(expression, key) {
-        whensExpFns[key] =
-          $interpolate(expression.replace(BRACE, startSymbol + numberExp + '-' +
-            offset + endSymbol));
+        whensExpFns[key] = $interpolate(expression.replace(BRACE, braceReplacement));
+
       });
 
-      scope.$watch(function ngPluralizeWatch() {
-        var value = parseFloat(scope.$eval(numberExp));
+      scope.$watch(numberExp, function ngPluralizeWatchAction(newVal) {
+        var count = parseFloat(newVal);
+        var countIsNaN = isNaN(count);
 
-        if (!isNaN(value)) {
-          //if explicit number rule such as 1, 2, 3... is defined, just use it. Otherwise,
-          //check it against pluralization rules in $locale service
-          if (!(value in whens)) value = $locale.pluralCat(value - offset);
-           return whensExpFns[value](scope);
-        } else {
-          return '';
+        if (!countIsNaN && !(count in whens)) {
+          // If an explicit number rule such as 1, 2, 3... is defined, just use it.
+          // Otherwise, check it against pluralization rules in $locale service.
+          count = $locale.pluralCat(count - offset);
         }
-      }, function ngPluralizeWatchAction(newVal) {
-        element.text(newVal);
+
+        // If both `count` and `lastCount` are NaN, we don't need to re-register a watch.
+        // In JS `NaN !== NaN`, so we have to exlicitly check.
+        if ((count !== lastCount) && !(countIsNaN && isNaN(lastCount))) {
+          watchRemover();
+          watchRemover = scope.$watch(whensExpFns[count], updateElementText);
+          lastCount = count;
+        }
       });
+
+      function updateElementText(newText) {
+        element.text(newText || '');
+      }
     }
   };
 }];
@@ -24304,17 +24468,17 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  *
  * ### Overriding `.ng-hide`
  *
- * By default, the `.ng-hide` class will style the element with `display:none!important`. If you wish to change
+ * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
  * class in CSS:
  *
  * ```css
  * .ng-hide {
  *   /&#42; this is just another form of hiding an element &#42;/
- *   display:block!important;
- *   position:absolute;
- *   top:-9999px;
- *   left:-9999px;
+ *   display: block!important;
+ *   position: absolute;
+ *   top: -9999px;
+ *   left: -9999px;
  * }
  * ```
  *
@@ -24334,13 +24498,13 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  * .my-element.ng-hide-add, .my-element.ng-hide-remove {
  *   /&#42; this is required as of 1.3x to properly
  *      apply all styling in a show/hide animation &#42;/
- *   transition:0s linear all;
+ *   transition: 0s linear all;
  * }
  *
  * .my-element.ng-hide-add-active,
  * .my-element.ng-hide-remove-active {
  *   /&#42; the transition is defined in the active class &#42;/
- *   transition:1s linear all;
+ *   transition: 1s linear all;
  * }
  *
  * .my-element.ng-hide-add { ... }
@@ -24382,29 +24546,29 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
     </file>
     <file name="animations.css">
       .animate-show {
-        line-height:20px;
-        opacity:1;
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        line-height: 20px;
+        opacity: 1;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
 
       .animate-show.ng-hide-add.ng-hide-add-active,
       .animate-show.ng-hide-remove.ng-hide-remove-active {
-        -webkit-transition:all linear 0.5s;
-        transition:all linear 0.5s;
+        -webkit-transition: all linear 0.5s;
+        transition: all linear 0.5s;
       }
 
       .animate-show.ng-hide {
-        line-height:0;
-        opacity:0;
-        padding:0 10px;
+        line-height: 0;
+        opacity: 0;
+        padding: 0 10px;
       }
 
       .check-element {
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
     </file>
     <file name="protractor.js" type="protractor">
@@ -24478,17 +24642,17 @@ var ngShowDirective = ['$animate', function($animate) {
  *
  * ### Overriding `.ng-hide`
  *
- * By default, the `.ng-hide` class will style the element with `display:none!important`. If you wish to change
+ * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
  * class in CSS:
  *
  * ```css
  * .ng-hide {
  *   /&#42; this is just another form of hiding an element &#42;/
- *   display:block!important;
- *   position:absolute;
- *   top:-9999px;
- *   left:-9999px;
+ *   display: block!important;
+ *   position: absolute;
+ *   top: -9999px;
+ *   left: -9999px;
  * }
  * ```
  *
@@ -24505,7 +24669,7 @@ var ngShowDirective = ['$animate', function($animate) {
  * //a working example can be found at the bottom of this page
  * //
  * .my-element.ng-hide-add, .my-element.ng-hide-remove {
- *   transition:0.5s linear all;
+ *   transition: 0.5s linear all;
  * }
  *
  * .my-element.ng-hide-add { ... }
@@ -24547,25 +24711,25 @@ var ngShowDirective = ['$animate', function($animate) {
     </file>
     <file name="animations.css">
       .animate-hide {
-        -webkit-transition:all linear 0.5s;
-        transition:all linear 0.5s;
-        line-height:20px;
-        opacity:1;
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        -webkit-transition: all linear 0.5s;
+        transition: all linear 0.5s;
+        line-height: 20px;
+        opacity: 1;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
 
       .animate-hide.ng-hide {
-        line-height:0;
-        opacity:0;
-        padding:0 10px;
+        line-height: 0;
+        opacity: 0;
+        padding: 0 10px;
       }
 
       .check-element {
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
     </file>
     <file name="protractor.js" type="protractor">
@@ -25750,7 +25914,7 @@ var styleDirective = valueFn({
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.3
+ * @license AngularJS v1.3.4
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -25996,7 +26160,7 @@ var styleDirective = valueFn({
  * You then configure `$animate` to enforce this prefix:
  *
  * ```js
- * $animateProvider.classNamePrefix(/animate-/);
+ * $animateProvider.classNameFilter(/animate-/);
  * ```
  * </div>
  *
@@ -26727,9 +26891,9 @@ angular.module('ngAnimate', ['ng'])
          * | 3. $animate waits for the next digest to start the animation                                                      | class="my-animation ng-animate"                          |
          * | 4. the .ng-leave class is added to the element                                                                    | class="my-animation ng-animate ng-leave"                 |
          * | 5. $animate scans the element styles to get the CSS transition/animation duration and delay                       | class="my-animation ng-animate ng-leave"                 |
-         * | 6. $animate blocks all CSS transitions on the element to ensure the .ng-leave class styling is applied right away | class="my-animation ng-animate ng-leave”                 |
+         * | 6. $animate blocks all CSS transitions on the element to ensure the .ng-leave class styling is applied right away | class="my-animation ng-animate ng-leave"                 |
          * | 7. $animate waits for a single animation frame (this performs a reflow)                                           | class="my-animation ng-animate ng-leave"                 |
-         * | 8. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate ng-leave”                 |
+         * | 8. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate ng-leave"                 |
          * | 9. the .ng-leave-active class is added (this triggers the CSS transition/animation)                               | class="my-animation ng-animate ng-leave ng-leave-active" |
          * | 10. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate ng-leave ng-leave-active" |
          * | 11. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                     |
@@ -26773,9 +26937,9 @@ angular.module('ngAnimate', ['ng'])
          * | 4. $animate runs the JavaScript-defined animations detected on the element                                       | class="my-animation ng-animate"                        |
          * | 5. the .ng-move class is added to the element                                                                    | class="my-animation ng-animate ng-move"                |
          * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation ng-animate ng-move"                |
-         * | 7. $animate blocks all CSS transitions on the element to ensure the .ng-move class styling is applied right away | class="my-animation ng-animate ng-move”                |
+         * | 7. $animate blocks all CSS transitions on the element to ensure the .ng-move class styling is applied right away | class="my-animation ng-animate ng-move"                |
          * | 8. $animate waits for a single animation frame (this performs a reflow)                                          | class="my-animation ng-animate ng-move"                |
-         * | 9. $animate removes the CSS transition block placed on the element                                               | class="my-animation ng-animate ng-move”                |
+         * | 9. $animate removes the CSS transition block placed on the element                                               | class="my-animation ng-animate ng-move"                |
          * | 10. the .ng-move-active class is added (this triggers the CSS transition/animation)                              | class="my-animation ng-animate ng-move ng-move-active" |
          * | 11. $animate waits for the animation to complete (via events and timeout)                                        | class="my-animation ng-animate ng-move ng-move-active" |
          * | 12. The animation ends and all generated CSS classes are removed from the element                                | class="my-animation"                                   |
@@ -26820,8 +26984,8 @@ angular.module('ngAnimate', ['ng'])
          * | 3. the .super-add class is added to the element                                                    | class="my-animation ng-animate super-add"                        |
          * | 4. $animate waits for a single animation frame (this performs a reflow)                            | class="my-animation ng-animate super-add"                        |
          * | 5. the .super and .super-add-active classes are added (this triggers the CSS transition/animation) | class="my-animation ng-animate super super-add super-add-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay        | class="my-animation ng-animate super-add"                        |
-         * | 7. $animate waits for the animation to complete (via events and timeout)                           | class="my-animation super super-add super-add-active"            |
+         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay        | class="my-animation ng-animate super super-add super-add-active" |
+         * | 7. $animate waits for the animation to complete (via events and timeout)                           | class="my-animation ng-animate super super-add super-add-active" |
          * | 8. The animation ends and all generated CSS classes are removed from the element                   | class="my-animation super"                                       |
          * | 9. The super class is kept on the element                                                          | class="my-animation super"                                       |
          * | 10. The returned promise is resolved.                                                              | class="my-animation super"                                       |
@@ -26854,7 +27018,7 @@ angular.module('ngAnimate', ['ng'])
          * | 3. the .super-remove class is added to the element                                                               | class="my-animation super ng-animate super-remove"               |
          * | 4. $animate waits for a single animation frame (this performs a reflow)                                          | class="my-animation super ng-animate super-remove"               |
          * | 5. the .super-remove-active classes are added and .super is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate super-remove super-remove-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation super ng-animate super-remove"               |
+         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation ng-animate super-remove super-remove-active" |
          * | 7. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate super-remove super-remove-active" |
          * | 8. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                             |
          * | 9. The returned promise is resolved.                                                                             | class="my-animation"                                             |
@@ -26879,11 +27043,11 @@ angular.module('ngAnimate', ['ng'])
          *
          * | Animation Step                                                                                                                       | What the element class attribute looks like                                          |
          * |--------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-         * | 1. $animate.removeClass(element, ‘on’, ‘off’) is called                                                                              | class="my-animation super off”                                                       |
-         * | 2. $animate runs the JavaScript-defined animations detected on the element                                                           | class="my-animation super ng-animate off”                                            |
-         * | 3. the .on-add and .off-remove classes are added to the element                                                                      | class="my-animation ng-animate on-add off-remove off”                                |
-         * | 4. $animate waits for a single animation frame (this performs a reflow)                                                              | class="my-animation ng-animate on-add off-remove off”                                |
-         * | 5. the .on, .on-add-active and .off-remove-active classes are added and .off is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active” |
+         * | 1. $animate.setClass(element, 'on', 'off') is called                                                                                 | class="my-animation off"                                                             |
+         * | 2. $animate runs the JavaScript-defined animations detected on the element                                                           | class="my-animation ng-animate off"                                                  |
+         * | 3. the .on-add and .off-remove classes are added to the element                                                                      | class="my-animation ng-animate on-add off-remove off"                                |
+         * | 4. $animate waits for a single animation frame (this performs a reflow)                                                              | class="my-animation ng-animate on-add off-remove off"                                |
+         * | 5. the .on, .on-add-active and .off-remove-active classes are added and .off is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
          * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                                          | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
          * | 7. $animate waits for the animation to complete (via events and timeout)                                                             | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
          * | 8. The animation ends and all generated CSS classes are removed from the element                                                     | class="my-animation on"                                                              |
@@ -32520,7 +32684,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 })(window, document);
 
 //! moment.js
-//! version : 2.8.3
+//! version : 2.8.4
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -32531,7 +32695,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
     ************************************/
 
     var moment,
-        VERSION = '2.8.3',
+        VERSION = '2.8.4',
         // the global-scope this is NOT the global object in Node.js
         globalScope = typeof global !== 'undefined' ? global : this,
         oldGlobalMoment,
@@ -32554,7 +32718,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         momentProperties = [],
 
         // check for nodeJS
-        hasModule = (typeof module !== 'undefined' && module.exports),
+        hasModule = (typeof module !== 'undefined' && module && module.exports),
 
         // ASP.NET json date format regex
         aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
@@ -32565,8 +32729,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
 
         // format tokens
-        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|X|zz?|ZZ?|.)/g,
-        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LT|LL?L?L?|l{1,4})/g,
+        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|x|X|zz?|ZZ?|.)/g,
+        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
 
         // parsing token regexes
         parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
@@ -32577,8 +32741,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i, // any word (or two) characters or numbers including two/three word month in arabic.
         parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/gi, // +00:00 -00:00 +0000 -0000 or Z
         parseTokenT = /T/i, // T (ISO separator)
+        parseTokenOffsetMs = /[\+\-]?\d+/, // 1234567890123
         parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
-        parseTokenOrdinal = /\d{1,2}/,
 
         //strict parsing regexes
         parseTokenOneDigit = /\d/, // 0 - 9
@@ -32792,6 +32956,9 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             },
             zz : function () {
                 return this.zoneName();
+            },
+            x    : function () {
+                return this.valueOf();
             },
             X    : function () {
                 return this.unix();
@@ -33219,7 +33386,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             overflow =
                 m._a[MONTH] < 0 || m._a[MONTH] > 11 ? MONTH :
                 m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH]) ? DATE :
-                m._a[HOUR] < 0 || m._a[HOUR] > 23 ? HOUR :
+                m._a[HOUR] < 0 || m._a[HOUR] > 24 ||
+                    (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 ||
+                                           m._a[SECOND] !== 0 ||
+                                           m._a[MILLISECOND] !== 0)) ? HOUR :
                 m._a[MINUTE] < 0 || m._a[MINUTE] > 59 ? MINUTE :
                 m._a[SECOND] < 0 || m._a[SECOND] > 59 ? SECOND :
                 m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999 ? MILLISECOND :
@@ -33246,7 +33416,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             if (m._strict) {
                 m._isValid = m._isValid &&
                     m._pf.charsLeftOver === 0 &&
-                    m._pf.unusedTokens.length === 0;
+                    m._pf.unusedTokens.length === 0 &&
+                    m._pf.bigHour === undefined;
             }
         }
         return m._isValid;
@@ -33298,8 +33469,18 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
     // Return a moment from input, that is local/utc/zone equivalent to model.
     function makeAs(input, model) {
-        return model._isUTC ? moment(input).zone(model._offset || 0) :
-            moment(input).local();
+        var res, diff;
+        if (model._isUTC) {
+            res = model.clone();
+            diff = (moment.isMoment(input) || isDate(input) ?
+                    +input : +moment(input)) - (+res);
+            // Use low-level api, because this fn is low-level api.
+            res._d.setTime(+res._d + diff);
+            moment.updateOffset(res, false);
+            return res;
+        } else {
+            return moment(input).local();
+        }
     }
 
     /************************************
@@ -33319,6 +33500,9 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
                     this['_' + i] = prop;
                 }
             }
+            // Lenient ordinal parsing accepts just a number in addition to
+            // number + (possibly) stuff coming from _ordinalParseLenient.
+            this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + /\d{1,2}/.source);
         },
 
         _months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
@@ -33331,22 +33515,32 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             return this._monthsShort[m.month()];
         },
 
-        monthsParse : function (monthName) {
+        monthsParse : function (monthName, format, strict) {
             var i, mom, regex;
 
             if (!this._monthsParse) {
                 this._monthsParse = [];
+                this._longMonthsParse = [];
+                this._shortMonthsParse = [];
             }
 
             for (i = 0; i < 12; i++) {
                 // make the regex if we don't have it already
-                if (!this._monthsParse[i]) {
-                    mom = moment.utc([2000, i]);
+                mom = moment.utc([2000, i]);
+                if (strict && !this._longMonthsParse[i]) {
+                    this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+                    this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+                }
+                if (!strict && !this._monthsParse[i]) {
                     regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
                     this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
                 }
                 // test the regex
-                if (this._monthsParse[i].test(monthName)) {
+                if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (!strict && this._monthsParse[i].test(monthName)) {
                     return i;
                 }
             }
@@ -33389,6 +33583,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         },
 
         _longDateFormat : {
+            LTS : 'h:mm:ss A',
             LT : 'h:mm A',
             L : 'MM/DD/YYYY',
             LL : 'MMMM D, YYYY',
@@ -33429,9 +33624,9 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             lastWeek : '[Last] dddd [at] LT',
             sameElse : 'L'
         },
-        calendar : function (key, mom) {
+        calendar : function (key, mom, now) {
             var output = this._calendar[key];
-            return typeof output === 'function' ? output.apply(mom) : output;
+            return typeof output === 'function' ? output.apply(mom, [now]) : output;
         },
 
         _relativeTime : {
@@ -33466,6 +33661,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             return this._ordinal.replace('%d', number);
         },
         _ordinal : '%d',
+        _ordinalParse : /\d{1,2}/,
 
         preparse : function (string) {
             return string;
@@ -33607,6 +33803,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'a':
         case 'A':
             return config._locale._meridiemParse;
+        case 'x':
+            return parseTokenOffsetMs;
         case 'X':
             return parseTokenTimestampMs;
         case 'Z':
@@ -33641,7 +33839,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'E':
             return parseTokenOneOrTwoDigits;
         case 'Do':
-            return parseTokenOrdinal;
+            return strict ? config._locale._ordinalParse : config._locale._ordinalParseLenient;
         default :
             a = new RegExp(regexpEscape(unescapeFormat(token.replace('\\', '')), 'i'));
             return a;
@@ -33678,7 +33876,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             break;
         case 'MMM' : // fall through to MMMM
         case 'MMMM' :
-            a = config._locale.monthsParse(input);
+            a = config._locale.monthsParse(input, token, config._strict);
             // if we didn't find a month name, mark the date as invalid.
             if (a != null) {
                 datePartArray[MONTH] = a;
@@ -33695,7 +33893,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             break;
         case 'Do' :
             if (input != null) {
-                datePartArray[DATE] = toInt(parseInt(input, 10));
+                datePartArray[DATE] = toInt(parseInt(
+                            input.match(/\d{1,2}/)[0], 10));
             }
             break;
         // DAY OF YEAR
@@ -33720,11 +33919,13 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'A' :
             config._isPm = config._locale.isPM(input);
             break;
-        // 24 HOUR
-        case 'H' : // fall through to hh
-        case 'HH' : // fall through to hh
+        // HOUR
         case 'h' : // fall through to hh
         case 'hh' :
+            config._pf.bigHour = true;
+            /* falls through */
+        case 'H' : // fall through to HH
+        case 'HH' :
             datePartArray[HOUR] = toInt(input);
             break;
         // MINUTE
@@ -33743,6 +33944,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         case 'SSS' :
         case 'SSSS' :
             datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
+            break;
+        // UNIX OFFSET (MILLISECONDS)
+        case 'x':
+            config._d = new Date(toInt(input));
             break;
         // UNIX TIMESTAMP WITH MS
         case 'X':
@@ -33880,11 +34085,24 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
         }
 
+        // Check for 24:00:00.000
+        if (config._a[HOUR] === 24 &&
+                config._a[MINUTE] === 0 &&
+                config._a[SECOND] === 0 &&
+                config._a[MILLISECOND] === 0) {
+            config._nextDay = true;
+            config._a[HOUR] = 0;
+        }
+
         config._d = (config._useUTC ? makeUTCDate : makeDate).apply(null, input);
         // Apply timezone offset from input. The actual zone can be changed
         // with parseZone.
         if (config._tzm != null) {
             config._d.setUTCMinutes(config._d.getUTCMinutes() + config._tzm);
+        }
+
+        if (config._nextDay) {
+            config._a[HOUR] = 24;
         }
     }
 
@@ -33899,7 +34117,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         config._a = [
             normalizedInput.year,
             normalizedInput.month,
-            normalizedInput.day,
+            normalizedInput.day || normalizedInput.date,
             normalizedInput.hour,
             normalizedInput.minute,
             normalizedInput.second,
@@ -33972,6 +34190,10 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             config._pf.unusedInput.push(string);
         }
 
+        // clear _12h flag if hour is <= 12
+        if (config._pf.bigHour === true && config._a[HOUR] <= 12) {
+            config._pf.bigHour = undefined;
+        }
         // handle am pm
         if (config._isPm && config._a[HOUR] < 12) {
             config._a[HOUR] += 12;
@@ -33980,7 +34202,6 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         if (config._isPm === false && config._a[HOUR] === 12) {
             config._a[HOUR] = 0;
         }
-
         dateFromConfig(config);
         checkOverflow(config);
     }
@@ -34240,7 +34461,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
     function makeMoment(config) {
         var input = config._i,
-            format = config._f;
+            format = config._f,
+            res;
 
         config._locale = config._locale || moment.localeData(config._l);
 
@@ -34264,7 +34486,14 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
             makeDateFromInput(config);
         }
 
-        return new Moment(config);
+        res = new Moment(config);
+        if (res._nextDay) {
+            // Adding is smart enough around DST
+            res.add(1, 'd');
+            res._nextDay = undefined;
+        }
+
+        return res;
     }
 
     moment = function (input, format, locale, strict) {
@@ -34296,7 +34525,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         'release. Please refer to ' +
         'https://github.com/moment/moment/issues/1407 for more info.',
         function (config) {
-            config._d = new Date(config._i);
+            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
         }
     );
 
@@ -34608,7 +34837,12 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         toISOString : function () {
             var m = moment(this).utc();
             if (0 < m.year() && m.year() <= 9999) {
-                return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                if ('function' === typeof Date.prototype.toISOString) {
+                    // native implementation is ~50x faster, use it when we can
+                    return this.toDate().toISOString();
+                } else {
+                    return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                }
             } else {
                 return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
             }
@@ -34727,7 +34961,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
                     diff < 1 ? 'sameDay' :
                     diff < 2 ? 'nextDay' :
                     diff < 7 ? 'nextWeek' : 'sameElse';
-            return this.format(this.localeData().calendar(format, this));
+            return this.format(this.localeData().calendar(format, this, moment(now)));
         },
 
         isLeapYear : function () {
@@ -34796,36 +35030,45 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
         endOf: function (units) {
             units = normalizeUnits(units);
+            if (units === undefined || units === 'millisecond') {
+                return this;
+            }
             return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
         },
 
         isAfter: function (input, units) {
+            var inputMs;
             units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
             if (units === 'millisecond') {
                 input = moment.isMoment(input) ? input : moment(input);
                 return +this > +input;
             } else {
-                return +this.clone().startOf(units) > +moment(input).startOf(units);
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return inputMs < +this.clone().startOf(units);
             }
         },
 
         isBefore: function (input, units) {
+            var inputMs;
             units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
             if (units === 'millisecond') {
                 input = moment.isMoment(input) ? input : moment(input);
                 return +this < +input;
             } else {
-                return +this.clone().startOf(units) < +moment(input).startOf(units);
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return +this.clone().endOf(units) < inputMs;
             }
         },
 
         isSame: function (input, units) {
+            var inputMs;
             units = normalizeUnits(units || 'millisecond');
             if (units === 'millisecond') {
                 input = moment.isMoment(input) ? input : moment(input);
                 return +this === +input;
             } else {
-                return +this.clone().startOf(units) === +makeAs(input, this).startOf(units);
+                inputMs = +moment(input);
+                return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
             }
         },
 
@@ -35002,7 +35245,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         },
 
         lang : deprecate(
-            'moment().lang() is deprecated. Use moment().localeData() instead.',
+            'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
             function (key) {
                 if (key === undefined) {
                     return this.localeData();
@@ -35223,7 +35466,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
                 return units === 'month' ? months : months / 12;
             } else {
                 // handle milliseconds separately because of floating point math errors (issue #1867)
-                days = this._days + yearsToDays(this._months / 12);
+                days = this._days + Math.round(yearsToDays(this._months / 12));
                 switch (units) {
                     case 'week': return days / 7 + this._milliseconds / 6048e5;
                     case 'day': return days + this._milliseconds / 864e5;
@@ -35325,6 +35568,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
     // Set default locale, other locale will inherit from English.
     moment.locale('en', {
+        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
         ordinal : function (number) {
             var b = number % 10,
                 output = (toInt(number % 100 / 10) === 1) ? 'th' :
@@ -35804,10 +36048,11 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 (function(angular){
 
 function isDnDsSupported(){
-    return 'draggable' in document.createElement("span");
+    return 'ondrag' in document.createElement("a");
 }
 
 if(!isDnDsSupported()){
+    angular.module("ang-drag-drop", []);
     return;
 }
 
@@ -36175,11 +36420,11 @@ angular.module("ang-drag-drop",[])
 }(angular));
 
 /*
-Project: angular-gantt for AngularJS
-Author: Marco Schweighauser
-Contributors: Rémi Alvergnat
-License: MIT.
-Github: https://github.com/angular-gantt/angular-gantt
+Project: angular-gantt v1.0.0-rc4 - Gantt chart component for AngularJS
+Authors: Marco Schweighauser, Rémi Alvergnat
+License: MIT
+Homepage: http://www.angular-gantt.com
+Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
     'use strict';
@@ -36216,7 +36461,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                 autoExpand: '=?', // Set this both, left or right if the date range shall expand if the user scroll to the left or right end. Otherwise set to false or none.
                 taskOutOfRange: '=?', // Set this to expand or truncate to define the behavior of tasks going out of visible range.
                 maxHeight: '=?', // Define the maximum height of the Gantt in PX. > 0 to activate max height behaviour.
-                labelsWidth: '=?', // Define the width of the labels section. Changes when the user is resizing the labels width
                 showLabelsColumn: '=?', // Whether to show column with labels or not. Default (true)
                 showTooltips: '=?', // True when tooltips shall be enabled. Default (true)
                 headers: '=?', // An array of units for headers.
@@ -36227,6 +36471,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 timeFramesNonWorkingMode: '=?',
                 timespans: '=?',
                 columnMagnet: '=?',
+                shiftColumnMagnet: '=?',
                 data: '=?',
                 api: '=?',
                 options: '=?'
@@ -36245,15 +36490,15 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.gantt = $scope.gantt;
             }],
             link: function(scope, element) {
-                // Gantt is initialized. Signal that the Gantt is ready.
-                scope.gantt.api.core.raise.ready(scope.gantt.api);
-
                 scope.gantt.api.directives.raise.new('gantt', scope, element);
                 scope.$on('$destroy', function() {
                     scope.gantt.api.directives.raise.destroy('gantt', scope, element);
                 });
 
                 $timeout(function() {
+                    // Gantt is initialized. Signal that the Gantt is ready.
+                    scope.gantt.api.core.raise.ready(scope.gantt.api);
+
                     scope.gantt.rendered = true;
                     scope.gantt.columnsManager.generateColumns();
                     scope.gantt.api.core.raise.rendered(scope.gantt.api);
@@ -36520,8 +36765,6 @@ Github: https://github.com/angular-gantt/angular-gantt
             options.taskOutOfRange = options.taskOutOfRange || 'truncate';
 
             options.maxHeight = options.maxHeight || 0;
-
-            options.labelsWidth = options.labelsWidth || undefined;
 
             options.showLabelsColumn = options.showLabelsColumn !== undefined ? !!options.showLabelsColumn : true;
             options.showTooltips = options.showTooltips !== undefined ? !!options.showTooltips : true;
@@ -36919,6 +37162,10 @@ Github: https://github.com/angular-gantt/angular-gantt
 
             var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
 
+            timeFrames = $filter('filter')(timeFrames, function(timeFrame) {
+                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+            });
+
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return -timeFrame.getDuration();
             });
@@ -36937,7 +37184,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                             //       timeFrame:          |tttttt|
                             //          result:|sssssssss|tttttt|sssssssssssssssss|
 
-                            timeFrame = timeFrame.clone();
                             var newSolvedTimeFrame = solvedTimeFrame.clone();
 
                             solvedTimeFrame.end = moment(timeFrame.start);
@@ -36945,6 +37191,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
+                            dispatched = false;
                         } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
                             // timeFrame is dispatched on two solvedTimeFrame.
                             // First part
@@ -36952,10 +37199,8 @@ Github: https://github.com/angular-gantt/angular-gantt
                             //       timeFrame:                                |tttttt|
                             //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
 
-                            timeFrame = timeFrame.clone();
-
                             solvedTimeFrame.end = moment(timeFrame.start);
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
+                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone());
 
                             dispatched = true;
                         } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
@@ -36987,7 +37232,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttCurrentDateManager', [function() {
+    angular.module('gantt').factory('GanttCurrentDateManager', ['moment', function(moment) {
         var GanttCurrentDateManager = function(gantt) {
             var self = this;
 
@@ -36997,7 +37242,11 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.position = undefined;
             this.currentDateColumn = undefined;
 
-            this.gantt.$scope.$watchGroup(['currentDate', 'currentDateValue'], function() {
+            this.gantt.$scope.simplifyMoment = function(d) {
+                return moment.isMoment(d) ? d.unix() : d;
+            };
+
+            this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function() {
                 self.setCurrentDate(self.gantt.$scope.currentDateValue);
             });
         };
@@ -37033,7 +37282,7 @@ Github: https://github.com/angular-gantt/angular-gantt
     angular.module('gantt').factory('GanttColumn', [ 'moment', function(moment) {
         // Used to display the Gantt grid and header.
         // The columns are generated by the column generator.
-        var Column = function(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit) {
+        var Column = function(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode) {
             this.date = date;
             this.endDate = endDate;
             this.left = left;
@@ -37046,11 +37295,8 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.visibleTimeFrames = [];
             this.daysTimeFrames = {};
             this.cropped = false;
-            this.columnMagnetValue = columnMagnetValue;
-            this.columnMagnetUnit = columnMagnetUnit;
             this.originalSize = {left: this.left, width: this.width};
             this.updateTimeFrames();
-            this.updateView();
         };
 
         var getDateKey = function(date) {
@@ -37142,7 +37388,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                     timeFrame.left = position;
                     timeFrame.width = timeFramePosition;
                     timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
-                    timeFrame.updateView();
                 });
 
                 if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
@@ -37178,7 +37423,6 @@ Github: https://github.com/angular-gantt/angular-gantt
                                 timeFrame.originalSize = {left: undefined, width: 0};
                                 timeFrame.cropped = true;
                             }
-                            timeFrame.updateView();
                         });
 
                         self.cropped = allCropped;
@@ -37201,22 +37445,65 @@ Github: https://github.com/angular-gantt/angular-gantt
             return this.date === other.date;
         };
 
-        Column.prototype.getMagnetDate = function(date) {
-            if (this.columnMagnetValue > 0 && this.columnMagnetUnit !== undefined) {
+        Column.prototype.getMagnetDate = function(date, magnetValue, magnetUnit) {
+            if (magnetValue > 0 && magnetUnit !== undefined) {
+                var initialDate = date;
                 date = moment(date);
-                var value = date.get(this.columnMagnetUnit);
-                var magnetValue = Math.round(value/this.columnMagnetValue) * this.columnMagnetValue;
-                date.startOf(this.columnMagnetUnit);
-                date.set(this.columnMagnetUnit, magnetValue);
-                return date;
+                var value;
+                var roundedMagnet;
+                var duration;
+
+                if (magnetValue < 1) {
+                    date.startOf(magnetUnit);
+                    value = initialDate.diff(date, 'milliseconds');
+                    duration = moment.duration(magnetValue, magnetUnit).asMilliseconds();
+
+                    roundedMagnet = Math.round(value/duration) * duration;
+                    date.set('milliseconds', roundedMagnet);
+                } else {
+                    value = date.get(magnetUnit);
+                    roundedMagnet = Math.round(value/magnetValue) * magnetValue;
+                    date.startOf(magnetUnit);
+                    date.set(magnetUnit, roundedMagnet);
+                }
+
+                // Snap to a timeFrame border if initialDate is nearer of timeFrame border than actual magnet date.
+                for (var i= 0, l=this.timeFrames.length; i < l; i++) {
+                    var timeFrame = this.timeFrames[i];
+
+                    var previousCropped;
+                    if (timeFrame.cropped && date >= timeFrame.start && date <= timeFrame.end) {
+                        previousCropped = true;
+                    }
+
+                    if (!timeFrame.cropped && (previousCropped || date >= timeFrame.start && date <= timeFrame.end)) {
+                        if (previousCropped) {
+                            previousCropped = false;
+                            if (date < timeFrame.start) {
+                                initialDate = timeFrame.start;
+                            } else if (date > timeFrame.end) {
+                                initialDate = timeFrame.end;
+                            }
+                        }
+
+                        var magnetDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
+                        if (initialDate.diff(timeFrame.start, 'milliseconds') < magnetDiff) {
+                            date = timeFrame.start;
+                        } else if (timeFrame.end.diff(initialDate, 'milliseconds') < magnetDiff) {
+                            date = timeFrame.end;
+                        }
+
+                        break;
+                    }
+                }
             }
             return date;
         };
 
-        var getDateByPositionUsingTimeFrames = function(timeFrames, position) {
-            for (var i=0; i < timeFrames.length; i++) {
+        Column.prototype.getDateByPositionUsingTimeFrames = function(position) {
+            for (var i= 0, l = this.timeFrames.length; i < l; i++) {
                 // TODO: performance optimization could be done.
-                var timeFrame = timeFrames[i];
+                var timeFrame = this.timeFrames[i];
                 if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
                     var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
                     var date = moment(timeFrame.start).add(positionDuration, 'milliseconds');
@@ -37225,7 +37512,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             }
         };
 
-        Column.prototype.getDateByPosition = function(position, magnet) {
+        Column.prototype.getDateByPosition = function(position, magnetValue, magnetUnit) {
             var positionDuration;
             var date;
 
@@ -37237,7 +37524,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             }
 
             if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
-                date = getDateByPositionUsingTimeFrames(this.timeFrames, position);
+                date = this.getDateByPositionUsingTimeFrames(position);
             }
 
             if (date === undefined) {
@@ -37245,9 +37532,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 date = moment(this.date).add(positionDuration, 'milliseconds');
             }
 
-            if (magnet) {
-                return this.getMagnetDate(date);
-            }
+            date = this.getMagnetDate(date, magnetValue, magnetUnit);
 
             return date;
         };
@@ -37319,17 +37604,6 @@ Github: https://github.com/angular-gantt/angular-gantt
             var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
             var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
 
-            var columnMagnetValue;
-            var columnMagnetUnit;
-
-            if (columnsManager.gantt.$scope.columnMagnet) {
-                var splittedColumnMagnet = columnsManager.gantt.$scope.columnMagnet.trim().split(' ');
-                if (splittedColumnMagnet.length > 1) {
-                    columnMagnetValue = parseInt(splittedColumnMagnet[0]);
-                    columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
-                }
-            }
-
             // Generates one column for each time unit between the given from and to date.
             self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
                 if (!to && !maximumWidth) {
@@ -37355,7 +37629,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                     var startDate = moment(date);
                     var endDate = moment(startDate).add(1, unit);
 
-                    var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode, columnMagnetValue, columnMagnetUnit);
+                    var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
                     if (!column.cropped) {
                         generatedCols.push(column);
                         if (reverse) {
@@ -37406,13 +37680,13 @@ Github: https://github.com/angular-gantt/angular-gantt
         // Used to display the Gantt grid and header.
         // The columns are generated by the column generator.
 
-        var ColumnHeader = function(date, unit, left, width, label) {
+        var ColumnHeader = function(date, unit, left, width, labelFormat) {
             var startDate = moment(date);
             var endDate = moment(startDate).add(1, unit);
 
             var column = new Column(startDate, endDate, left, width);
             column.unit = unit;
-            column.label = label;
+            column.label = angular.isFunction(labelFormat) ? labelFormat(column): startDate.format(labelFormat);
 
             return column;
         };
@@ -37444,7 +37718,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
+            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
                 if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
@@ -37577,8 +37851,9 @@ Github: https://github.com/angular-gantt/angular-gantt
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            if (this.gantt.$scope.columnWidth === undefined) {
-                var newWidth = this.gantt.$scope.ganttElementWidth - (this.gantt.$scope.showLabelsColumn ? this.gantt.$scope.labelsWidth : 0);
+            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            if (autoFitWidthEnabled) {
+                var newWidth = this.gantt.getElementWidth() - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
 
                 if (this.gantt.$scope.maxHeight > 0) {
                     newWidth = newWidth - layout.getScrollBarWidth();
@@ -37598,7 +37873,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            this.updateVisibleColumns();
+            this.updateVisibleColumns(autoFitWidthEnabled);
             this.gantt.rowsManager.updateVisibleObjects();
 
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
@@ -37637,7 +37912,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
-            });
+            }, true);
             return columns[0] !== undefined ? columns[0] : columns[1];
         };
 
@@ -37647,7 +37922,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             return bs.get(extendedColumns, x, function(c) {
                 return c.left;
-            })[0];
+            }, true)[0];
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
@@ -37705,7 +37980,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             return this.headers.length;
         };
 
-        ColumnsManager.prototype.updateVisibleColumns = function() {
+        ColumnsManager.prototype.updateVisibleColumns = function(includeViews) {
             this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
@@ -37713,15 +37988,17 @@ Github: https://github.com/angular-gantt/angular-gantt
                 this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
             }, this);
 
-            angular.forEach(this.visibleColumns, function(c) {
-                c.updateView();
-            });
-
-            angular.forEach(this.visibleHeaders, function(headerRow) {
-                angular.forEach(headerRow, function(header) {
-                    header.updateView();
+            if (includeViews) {
+                angular.forEach(this.visibleColumns, function(c) {
+                    c.updateView();
                 });
-            });
+
+                angular.forEach(this.visibleHeaders, function(headerRow) {
+                    angular.forEach(headerRow, function(header) {
+                        header.updateView();
+                    });
+                });
+            }
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
@@ -37763,9 +38040,9 @@ Github: https://github.com/angular-gantt/angular-gantt
                 var colDateVal = col.date.get(unit);
                 if (i === 0 || prevColDateVal !== colDateVal) {
                     prevColDateVal = colDateVal;
-                    var label = col.date.format(columnsManager.getHeaderFormat(unit));
+                    var labelFormat = columnsManager.getHeaderFormat(unit);
 
-                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, label);
+                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, labelFormat);
                     header.left = col.left;
                     header.width = col.width;
                     generatedHeaders.push(header);
@@ -37829,8 +38106,8 @@ Github: https://github.com/angular-gantt/angular-gantt
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment',
-        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment) {
+        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
+        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
@@ -37893,6 +38170,39 @@ Github: https://github.com/angular-gantt/angular-gantt
                     }
                 });
 
+                $scope.$watch('columnMagnet', function() {
+                    var splittedColumnMagnet;
+                    if ($scope.columnMagnet) {
+                        splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
+                        self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                        self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+                    } else {
+                        self.columnMagnetValue = undefined;
+                        self.columnMagnetUnit = undefined;
+                    }
+                });
+
+                $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function() {
+                    var splittedColumnMagnet;
+                    if ($scope.shiftColumnMagnet) {
+                        splittedColumnMagnet = $scope.shiftColumnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
+                        self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                        self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+                    } else {
+                        self.shiftColumnMagnetValue = undefined;
+                        self.shiftColumnMagnetUnit = undefined;
+                    }
+                });
+
+                $document.on('keyup keydown', function(e) {
+                    self.shiftKey = e.shiftKey;
+                    return true;
+                });
+
                 this.scroll = new Scroll(this);
                 this.body = new Body(this);
                 this.rowHeader = new RowHeader(this);
@@ -37931,7 +38241,24 @@ Github: https://github.com/angular-gantt/angular-gantt
             Gantt.prototype.getDateByPosition = function(x, magnet) {
                 var column = this.columnsManager.getColumnByPosition(x);
                 if (column !== undefined) {
-                    return column.getDateByPosition(x - column.left, magnet);
+                    var magnetValue;
+                    var magnetUnit;
+                    if (magnet) {
+                        if (this.shiftKey) {
+                            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                                magnetValue = this.shiftColumnMagnetValue;
+                                magnetUnit = this.shiftColumnMagnetUnit;
+                            } else {
+                                magnetValue = 0.25;
+                                magnetUnit = this.$scope.viewScale;
+                            }
+                        } else {
+                            magnetValue = this.columnMagnetValue;
+                            magnetUnit = this.columnMagnetUnit;
+                        }
+                    }
+
+                    return column.getDateByPosition(x - column.left, magnetValue, magnetUnit);
                 } else {
                     return undefined;
                 }
@@ -37990,6 +38317,10 @@ Github: https://github.com/angular-gantt/angular-gantt
             Gantt.prototype.clearData = function() {
                 this.rowsManager.removeAll();
                 this.api.data.raise.clear(this.$scope);
+            };
+
+            Gantt.prototype.getElementWidth = function() {
+                return this.$element[0].offsetWidth;
             };
 
             return Gantt;
@@ -38304,12 +38635,6 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
-            this.gantt.$scope.$watchGroup(['scrollLeft', 'scrollWidth'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
-                    self.updateVisibleTasks();
-                }
-            });
-
             this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
                 if (oldValues !== newValues) {
                     self.updateVisibleTasks();
@@ -38589,7 +38914,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             var filteredTasks = [];
             var tasks = [];
 
-            angular.forEach(this.filteredRows, function(row) {
+            angular.forEach(this.rows, function(row) {
                 oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
                 filteredTasks = filteredTasks.concat(row.filteredTasks);
@@ -38664,7 +38989,7 @@ Github: https://github.com/angular-gantt/angular-gantt
     }]);
 }());
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt').factory('GanttTask', [function() {
         var Task = function(row, model) {
@@ -38716,6 +39041,18 @@ Github: https://github.com/angular-gantt/angular-gantt
             if (this.$element) {
                 this.$element.css('left', this.left + 'px');
                 this.$element.css('width', this.width + 'px');
+
+                this.$element.css('background-color', this.model.color);
+                this.$element.css('z-index', this.model.priority);
+
+                this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
+                this.$element.toggleClass('gantt-task', !this.isMilestone());
+
+                for (var i = 0; i < this.model.classes; i++) {
+                    this.$element.toggleClass(this.model.classes[i], true);
+                }
+
+                this.$element.toggleClass('gantt-task', !this.isMilestone());
             }
         };
 
@@ -38761,6 +39098,9 @@ Github: https://github.com/angular-gantt/angular-gantt
             this.foreground = new BodyForeground(this);
             this.columns = new BodyColumns(this);
             this.rows = new BodyRows(this);
+        };
+        Body.prototype.getWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
         };
         return Body;
     }]);
@@ -38842,9 +39182,9 @@ Github: https://github.com/angular-gantt/angular-gantt
     angular.module('gantt').factory('GanttLabels', [function() {
         var Labels= function(gantt) {
             this.gantt = gantt;
-            this.gantt.api.registerEvent('labels', 'resize');
-            this.gantt.api.registerEvent('labels', 'resizeBegin');
-            this.gantt.api.registerEvent('labels', 'resizeEnd');
+        };
+        Labels.prototype.getWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
         };
         return Labels;
     }]);
@@ -38871,6 +39211,10 @@ Github: https://github.com/angular-gantt/angular-gantt
 
         Scroll.prototype.getScrollWidth = function() {
             return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
+        };
+
+        Scroll.prototype.getScrollContainerWidth = function() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
         };
 
         /**
@@ -39055,6 +39399,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                     if (timespan.model.id === timespanId) {
                         removedTimespan = timespan;
                         this.timespans.splice(i, 1); // Remove from array
+                        break;
                     }
                 }
 
@@ -39173,23 +39518,23 @@ Github: https://github.com/angular-gantt/angular-gantt
         // The compare function defined which property of the value to compare (e.g.: c => c.left)
 
         return {
-            getIndicesOnly: function(input, value, comparer) {
+            getIndicesOnly: function(input, value, comparer, strict) {
                 var lo = -1, hi = input.length;
                 while (hi - lo > 1) {
                     var mid = Math.floor((lo + hi) / 2);
-                    if (comparer(input[mid]) <= value) {
+                    if (strict ? comparer(input[mid]) < value : comparer(input[mid]) <= value) {
                         lo = mid;
                     } else {
                         hi = mid;
                     }
                 }
-                if (input[lo] !== undefined && comparer(input[lo]) === value) {
+                if (!strict && input[lo] !== undefined && comparer(input[lo]) === value) {
                     hi = lo;
                 }
                 return [lo, hi];
             },
-            get: function(input, value, comparer) {
-                var res = this.getIndicesOnly(input, value, comparer);
+            get: function(input, value, comparer, strict) {
+                var res = this.getIndicesOnly(input, value, comparer, strict);
                 return [input[res[0]], input[res[1]]];
             }
         };
@@ -39301,107 +39646,6 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsResize', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
-
-        return {
-            restrict: 'A',
-            require: '^gantt',
-            scope: { enabled: '=ganttLabelsResize',
-                width: '=ganttLabelsResizeWidth',
-                minWidth: '=ganttLabelsResizeMinWidth'},
-            link: function(scope, element, attrs, ganttCtrl) {
-                var api = ganttCtrl.gantt.api;
-
-                var resizeAreaWidth = 5;
-                var cursor = 'ew-resize';
-                var originalPos;
-
-                element.bind('mousedown', function(e) {
-                    if (scope.enabled && isInResizeArea(e)) {
-                        enableResizeMode(e);
-                        e.preventDefault();
-                    }
-                });
-
-                element.bind('mousemove', function(e) {
-                    if (scope.enabled) {
-                        if (isInResizeArea(e)) {
-                            element.css('cursor', cursor);
-                        } else {
-                            element.css('cursor', '');
-                        }
-                    }
-                });
-
-                var resize = function(x) {
-                    if (scope.width === 0) {
-                        scope.width = element[0].offsetWidth;
-                    }
-
-                    scope.width += x - originalPos;
-                    if (scope.width < scope.minWidth) {
-                        scope.width = scope.minWidth;
-                    }
-
-                    originalPos = x;
-                };
-
-                var isInResizeArea = function(e) {
-                    var x = mouseOffset.getOffset(e).x;
-
-                    return x > element[0].offsetWidth - resizeAreaWidth;
-                };
-
-                var enableResizeMode = function(e) {
-                    originalPos = e.screenX;
-
-                    angular.element($document[0].body).css({
-                        '-moz-user-select': '-moz-none',
-                        '-webkit-user-select': 'none',
-                        '-ms-user-select': 'none',
-                        'user-select': 'none',
-                        'cursor': cursor
-                    });
-
-                    var moveHandler = function(e) {
-                        scope.$evalAsync(function(){
-                            resize(e.screenX);
-                            api.labels.raise.resize(scope.width);
-                        });
-
-                    };
-
-                    angular.element($document[0].body).bind('mousemove', moveHandler);
-
-                    angular.element($document[0].body).one('mouseup', function() {
-                        angular.element($document[0].body).unbind('mousemove', moveHandler);
-                        disableResizeMode();
-                    });
-
-                    api.labels.raise.resizeBegin(scope.width);
-                };
-
-                var disableResizeMode = function() {
-                    element.css('cursor', '');
-
-                    angular.element($document[0].body).css({
-                        '-moz-user-select': '',
-                        '-webkit-user-select': '',
-                        '-ms-user-select': '',
-                        'user-select': '',
-                        'cursor': ''
-                    });
-
-                    api.labels.raise.resizeEnd(scope.width);
-                };
-            }
-        };
-    }]);
-}());
-
-
-(function(){
-    'use strict';
     angular.module('gantt').filter('ganttColumnLimit', [ 'ganttBinarySearch', function(bs) {
         // Returns only the columns which are visible on the screen
         var leftComparator = function(c) {
@@ -39410,11 +39654,11 @@ Github: https://github.com/angular-gantt/angular-gantt
 
         return function(input, gantt) {
             var scrollLeft = gantt.scroll.getScrollLeft();
-            var scrollWidth = gantt.scroll.getScrollWidth();
+            var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
 
-            if (scrollWidth > 0) {
+            if (scrollContainerWidth > 0) {
                 var start = bs.getIndicesOnly(input, scrollLeft, leftComparator)[0];
-                var end = bs.getIndicesOnly(input, scrollLeft + scrollWidth, leftComparator)[1];
+                var end = bs.getIndicesOnly(input, scrollLeft + scrollContainerWidth, leftComparator)[1];
                 return input.slice(start, end);
             } else {
                 return input.slice();
@@ -39440,7 +39684,7 @@ Github: https://github.com/angular-gantt/angular-gantt
                 var res = [];
 
                 var scrollLeft = gantt.scroll.getScrollLeft();
-                var scrollWidth = gantt.scroll.getScrollWidth();
+                var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
 
                 for (var i = 0, l = input.length; i < l; i++) {
                     var task = input[i];
@@ -39448,17 +39692,13 @@ Github: https://github.com/angular-gantt/angular-gantt
                     if (task.active) {
                         res.push(task);
                     } else {
-                        // If the task can be drawn with gantt columns only.
-                        if (task.model.to > gantt.columnsManager.getFirstColumn().date && task.model.from < gantt.columnsManager.getLastColumn().endDate) {
+                        // If task has a visible part on the screen
+                        if (!scrollContainerWidth ||
+                            task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
+                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollContainerWidth ||
+                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollContainerWidth) {
 
-                            // If task has a visible part on the screen
-                            if (!scrollWidth ||
-                                task.left >= scrollLeft && task.left <= scrollLeft + scrollWidth ||
-                                task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollWidth ||
-                                task.left < scrollLeft && task.left + task.width > scrollLeft + scrollWidth) {
-
-                                res.push(task);
-                            }
+                            res.push(task);
                         }
                     }
                 }
@@ -39472,6 +39712,99 @@ Github: https://github.com/angular-gantt/angular-gantt
 }());
 
 
+(function() {
+    'use strict';
+
+    angular.module('gantt').directive('ganttResizer', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
+        return {
+            restrict: 'A',
+            require: '^gantt',
+            scope: {
+                targetElement: '=ganttResizer',
+                enabled: '=?ganttResizerEnabled'
+            },
+            link: function ($scope, $element, $attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+                var eventTopic = $attrs.ganttResizerEventTopic;
+
+                if ($scope.enabled === undefined) {
+                    $scope.enabled = true;
+                }
+
+                $scope.$watch('enabled', function (value) {
+                    if (value === undefined) {
+                        value = true;
+                    }
+
+                    $element.toggleClass('gantt-resizer-enabled', value);
+
+                    if (value) {
+                        $element.on('mousedown', mousedown);
+                    } else {
+                        $element.off('mousedown', mousedown);
+                    }
+                });
+
+                function mousedown(event) {
+                    event.preventDefault();
+
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeBegin(getWidth());
+                    }
+                    $document.on('mousemove', mousemove);
+                    $document.on('mouseup', mouseup);
+                }
+
+                function mousemove(event) {
+                    var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
+                    var width = offset.x;
+
+                    if (width !== undefined) {
+                        setWidth(width);
+                    }
+                }
+
+                function mouseup() {
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeEnd(getWidth());
+                    }
+                    $document.unbind('mousemove', mousemove);
+                    $document.unbind('mouseup', mouseup);
+                }
+
+                function setWidth(width) {
+                    var oldWidth = getWidth();
+                    if (oldWidth !== width) {
+                        $scope.targetElement[0].style.width = width + 'px';
+
+                        if ($attrs.resizerWidth) {
+                            $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                            ganttCtrl.gantt.$scope.$digest(); // May not be there as resizer is generic ?
+                        }
+
+                        if (eventTopic !== undefined) {
+                            api[eventTopic].raise.resize(width);
+                        }
+                    }
+                }
+
+                function getWidth() {
+                    return $scope.targetElement[0].offsetWidth;
+                }
+
+                if (eventTopic) {
+                    api.registerEvent(eventTopic, 'resize');
+                    api.registerEvent(eventTopic, 'resizeBegin');
+                    api.registerEvent(eventTopic, 'resizeEnd');
+
+                    api.registerMethod(eventTopic, 'setWidth', setWidth, this);
+                    api.registerMethod(eventTopic, 'getWidth', getWidth, this);
+                }
+            }
+        };
+    }]);
+}());
+
 (function(){
     'use strict';
     angular.module('gantt').directive('ganttHorizontalScrollReceiver', function() {
@@ -39480,9 +39813,9 @@ Github: https://github.com/angular-gantt/angular-gantt
         return {
             restrict: 'A',
             require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                $scope.scrollManager.registerHorizontalReceiver($element);
-            }]
+            link: function(scope, element, attrs, ganttScrollManagerCtrl) {
+                ganttScrollManagerCtrl.registerHorizontalReceiver(element);
+            }
         };
     });
 }());
@@ -39494,20 +39827,27 @@ Github: https://github.com/angular-gantt/angular-gantt
 
         return {
             restrict: 'A',
+            scope: {},
             controller: ['$scope', function($scope) {
-                $scope.scrollManager = {
-                    horizontal: [],
-                    vertical: [],
+                $scope.horizontal = [];
+                $scope.vertical = [];
 
-                    registerVerticalReceiver: function (element) {
-                        element.css('position', 'relative');
-                        $scope.scrollManager.vertical.push(element[0]);
-                    },
+                this.registerVerticalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.vertical.push(element[0]);
+                };
 
-                    registerHorizontalReceiver: function (element) {
-                        element.css('position', 'relative');
-                        $scope.scrollManager.horizontal.push(element[0]);
-                    }
+                this.registerHorizontalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.horizontal.push(element[0]);
+                };
+
+                this.getHorizontalRecievers = function() {
+                    return $scope.horizontal;
+                };
+
+                this.getVerticalRecievers = function() {
+                    return $scope.vertical;
                 };
             }]
         };
@@ -39522,39 +39862,45 @@ Github: https://github.com/angular-gantt/angular-gantt
 
         return {
             restrict: 'A',
-            require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                var el = $element[0];
+            require: ['^gantt', '^ganttScrollManager'],
+            link: function(scope, element, attrs, controllers) {
+                var el = element[0];
 
                 var updateListeners = function() {
                     var i, l;
 
-                    for (i = 0, l = $scope.scrollManager.vertical.length; i < l; i++) {
-                        var vElement = $scope.scrollManager.vertical[i];
+                    var vertical = controllers[1].getVerticalRecievers();
+                    for (i = 0, l = vertical.length; i < l; i++) {
+                        var vElement = vertical[i];
                         if (vElement.parentNode.scrollTop !== el.scrollTop) {
                             vElement.parentNode.scrollTop = el.scrollTop;
                         }
                     }
 
-                    for (i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
-                        var hElement = $scope.scrollManager.horizontal[i];
+                    var horizontal = controllers[1].getHorizontalRecievers();
+                    for (i = 0, l = horizontal.length; i < l; i++) {
+                        var hElement =horizontal[i];
                         if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
                             hElement.parentNode.scrollLeft  = el.scrollLeft;
                         }
                     }
                 };
 
-                $element.bind('scroll', updateListeners);
+                element.bind('scroll', updateListeners);
 
-                $scope.$watch('bodyRowsWidth', function(newValue, oldValue) {
-                    if (oldValue !== newValue) {
-                        for (var i = 0, l = $scope.scrollManager.horizontal.length; i < l; i++) {
-                            var hElement = $scope.scrollManager.horizontal[i];
-                            hElement.style.width = newValue + 'px';
+                scope.oldBodyWidth = undefined;
+                scope.$watch(function() {
+                    var newWidth = controllers[0].gantt.body.getWidth();
+                    if (scope.oldBodyWidth !== newWidth) {
+                        scope.oldBodyWidth = newWidth;
+                        var horizontal = controllers[1].getHorizontalRecievers();
+                        for (var i = 0, l = horizontal.length; i < l; i++) {
+                            var hElement = horizontal[i];
+                            hElement.style.width = newWidth + 'px';
                         }
                     }
                 });
-            }]
+            }
         };
     }]);
 }());
@@ -39612,6 +39958,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
                 lastScrollLeft = el.scrollLeft;
                 $scope.gantt.columnsManager.updateVisibleColumns();
+                $scope.gantt.rowsManager.updateVisibleTasks();
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
@@ -39624,7 +39971,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width + scrollBarWidth) {
+                if ($scope.gantt.width > 0 && $scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
                     css.width = $scope.gantt.width + scrollBarWidth + 'px';
                 }
 
@@ -39651,40 +39998,11 @@ Github: https://github.com/angular-gantt/angular-gantt
         return {
             restrict: 'A',
             require: '^ganttScrollManager',
-            controller: ['$scope', '$element', function($scope, $element) {
-                $scope.scrollManager.registerVerticalReceiver($element);
-            }]
+            link: function(scope, element, attrs, ganttScrollManagerCtrl) {
+                ganttScrollManagerCtrl.registerVerticalReceiver(element);
+            }
         };
     });
-}());
-
-
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttElementHeightListener', [function() {
-        return {
-            restrict: 'A',
-            controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
-                var scopeVariable = $attrs.ganttElementHeightListener;
-                if (scopeVariable === '') {
-                    scopeVariable = 'ganttElementHeight';
-                }
-
-                var effectiveScope = $scope;
-
-                while(scopeVariable.indexOf('$parent.') === 0) {
-                    scopeVariable = scopeVariable.substring('$parent.'.length);
-                    effectiveScope = effectiveScope.$parent;
-                }
-
-                effectiveScope.$watch(function() {
-                    if ($element[0].offsetHeight > 0) {
-                        effectiveScope[scopeVariable] = $element[0].offsetHeight;
-                    }
-                });
-            }]
-        };
-    }]);
 }());
 
 
@@ -39821,7 +40139,7 @@ Github: https://github.com/angular-gantt/angular-gantt
             $scope.getHeaderCss = function() {
                 var css = {};
 
-                if ($scope.ganttElementWidth - ($scope.showLabelsColumn ? $scope.labelsWidth : 0) > $scope.gantt.width) {
+                if ($scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width) {
                     css.width = $scope.gantt.width + 'px';
                 }
 
@@ -39924,13 +40242,17 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttTask', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttTask', ['GanttDirectiveBuilder', 'moment', function(Builder, moment) {
         var builder = new Builder('ganttTask');
         builder.controller = function($scope, $element) {
             $scope.task.$element = $element;
             $scope.task.$scope = $scope;
 
-            $scope.$watchGroup(['task.model.from', 'task.model.to'], function() {
+            $scope.simplifyMoment = function(d) {
+                return moment.isMoment(d) ? d.unix() : d;
+            };
+
+            $scope.$watchGroup(['simplifyMoment(task.model.from)', 'simplifyMoment(task.model.to)'], function() {
                 $scope.task.updatePosAndSize();
             });
         };
@@ -40218,7 +40540,7 @@ Github: https://github.com/angular-gantt/angular-gantt
 
 angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('template/gantt.tmpl.html',
-        '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener>\n' +
+        '<div class="gantt unselectable" ng-cloak gantt-scroll-manager>\n' +
         '    <gantt-labels>\n' +
         '        <gantt-labels-header>\n' +
         '            <gantt-row-header></gantt-row-header>\n' +
@@ -40228,11 +40550,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <gantt-row-label></gantt-row-label>\n' +
         '            </div>\n' +
         '        </gantt-labels-body>\n' +
+        '        <div gantt-resizer="gantt.labels.$element" gantt-resizer-event-topic="labels" gantt-resizer-enabled="$parent.allowLabelsResizing" resizer-width="$parent.$parent.labelsWidth" class="gantt-resizer">\n' +
+        '            <div ng-show="$parent.allowLabelsResizing" class="gantt-resizer-display"></div>\n' +
+        '        </div>\n' +
         '    </gantt-labels>\n' +
         '    <gantt-header>\n' +
         '        <gantt-header-columns>\n' +
         '            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
-        '                <div class="gantt-header-row" ng-class="$last && \'gantt-header-row-last\' || \'\'">\n' +
+        '                <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
         '                    <div ng-repeat="column in header">\n' +
         '                        <gantt-column-header ></gantt-column-header>\n' +
         '                    </div>\n' +
@@ -40248,7 +40573,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                </div>\n' +
         '            </gantt-body-background>\n' +
         '            <gantt-body-foreground>\n' +
-        '                <div class="gantt-current-date-line" ng-if="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
+        '                <div class="gantt-current-date-line" ng-show="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
         '            </gantt-body-foreground>\n' +
         '            <gantt-body-columns>\n' +
         '                <div ng-repeat="column in gantt.columnsManager.visibleColumns">\n' +
@@ -40259,14 +40584,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    </gantt-column>\n' +
         '                </div>\n' +
         '            </gantt-body-columns>\n' +
-        '            <gantt-body-rows gantt-element-height-listener="$parent.$parent.bodyRowsHeight" gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
-        '                <div ng-repeat="timespan in gantt.timespansManager.timespans">\n' +
+        '            <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth">\n' +
+        '                <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">\n' +
         '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
         '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                    <gantt-row>\n' +
         '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
-        '                            <gantt-task ></gantt-task>\n' +
+        '                            <gantt-task></gantt-task>\n' +
         '                        </div>\n' +
         '                    </gantt-row>\n' +
         '                </div>\n' +
@@ -40285,15 +40610,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body"\n' +
-        '             ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
         '    <script type="text/ng-template" id="template/ganttHeader.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-header"\n' +
-        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
-        '             ng-style="getHeaderCss()"></div>\n' +
+        '             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row label template -->\n' +
@@ -40301,8 +40624,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="row.model.classes" ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
-        '                <span class="gantt-labels-text">{{ row.model.name }}</span>\n' +
+        '             ng-class="::row.model.classes" ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                <span class="gantt-labels-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -40331,12 +40654,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Labels template -->\n' +
         '    <script type="text/ng-template" id="template/ganttLabels.tmpl.html">\n' +
-        '        <div ng-transclude ng-if="showLabelsColumn" class="gantt-labels"\n' +
-        '             ng-style="($parent.labelsWidth > 0 && {\'width\': $parent.labelsWidth+\'px\'} || {})"\n' +
-        '             gantt-labels-resize="$parent.allowLabelsResizing"\n' +
-        '             gantt-labels-resize-width="$parent.labelsWidth"\n' +
-        '             gantt-labels-resize-min-width="50"\n' +
-        '             gantt-element-width-listener="$parent.labelsWidth"></div>\n' +
+        '        <div ng-transclude ng-show="showLabelsColumn" class="gantt-labels"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header columns template -->\n' +
@@ -40346,9 +40664,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">\n' +
-        '        <div class="gantt-column-header">\n' +
-        '            {{ ::column.label }}\n' +
-        '        </div>\n' +
+        '        <div class="gantt-column-header">{{::column.label}}</div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Body background template -->\n' +
@@ -40361,8 +40677,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="row.model.classes"\n' +
-        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '             ng-class="::row.model.classes"\n' +
+        '             ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -40396,16 +40712,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Timespan template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
-        '        <div class="gantt-timespan"\n' +
-        '             ng-style="{\'z-index\': (timespan.priority || 0)}"\n' +
-        '             ng-class="timespan.classes">\n' +
+        '        <div class="gantt-timespan" ng-class="::timespan.classes">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
-        '        <div ng-class="(task.isMilestone() === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.model.classes)"\n' +
-        '             ng-style="{\'z-index\': (task.active === true && 1  || task.model.priority || \'\'), \'background-color\': task.model.color}">\n' +
+        '        <div>\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
@@ -40415,13 +40728,13 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
         '        <div class="gantt-task-content-container">\n' +
-        '            <div class="gantt-task-content"><span>{{ (task.isMilestone() === true && \'&nbsp;\' || task.model.name) }}</span></div>\n' +
+        '            <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRow.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="{\'height\': row.model.height}"></div>\n' +
+        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{\'height\': row.model.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '</div>\n' +
@@ -40430,55 +40743,12 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt for AngularJS
-Author: Marco Schweighauser
-Contributors: Rémi Alvergnat
-License: MIT.
-Github: https://github.com/angular-gantt/angular-gantt
+Project: angular-gantt v1.0.0-rc4 - Gantt chart component for AngularJS
+Authors: Marco Schweighauser, Rémi Alvergnat
+License: MIT
+Homepage: http://www.angular-gantt.com
+Github: https://github.com/angular-gantt/angular-gantt.git
 */
-angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
-        '<div ng-show="bounds && isTaskMouseOver && enabled" class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
-        '');
-}]);
-
-angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.history.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/progress/taskProgress.tmpl.html',
-        '<div ng-cloak ng-show=\'enabled\' class=\'gantt-task-progress\' ng-style="getCss()" ng-class="getClasses()"></div>\n' +
-        '');
-}]);
-
-angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
-
-}]);
-
-angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
-    $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
-        '<div ng-show="showTooltips && visible" class="gantt-task-info" ng-cloak ng-style="css">\n' +
-        '    <div class="gantt-task-info-content">\n' +
-        '        {{ task.model.name }}</br>\n' +
-        '        <small>\n' +
-        '            {{\n' +
-        '            task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel());\n' +
-        '            }}\n' +
-        '        </small>\n' +
-        '    </div>\n' +
-        '</div>\n' +
-        '');
-}]);
-
 (function(){
     'use strict';
     angular.module('gantt.bounds', ['gantt', 'gantt.bounds.templates']).directive('ganttBounds', ['moment', '$compile', '$document', function(moment, $compile, $document) {
@@ -40486,9 +40756,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?',
-                templateUrl: '=?',
-                template: '=?'
+                enabled: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -40500,18 +40768,26 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     }
                 }
 
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var boundsScope = taskScope.$new();
                         boundsScope.pluginScope = scope;
+
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.est && task.model.lct && pluginScope.enabled');
                         var boundsElement = $document[0].createElement('gantt-task-bounds');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(boundsElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(boundsElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(boundsElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(boundsElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(boundsElement)(boundsScope));
+                        angular.element(ifElement).append(boundsElement);
+                        taskElement.append($compile(ifElement)(boundsScope));
                     }
                 });
 
@@ -40541,6 +40817,10 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
@@ -40589,7 +40869,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                 restrict: 'E',
                 require: '^gantt',
                 scope: {
-                    enabled: '=',
+                    enabled: '=?',
                     allowMoving: '=?',
                     allowResizing: '=?',
                     allowRowSwitching: '=?'
@@ -40958,9 +41238,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?',
-                templateUrl : '=?',
-                template: '='
+                enabled: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -40980,15 +41258,19 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     if (directiveName === 'ganttTask') {
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
+
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.progress !== undefined && pluginScope.enabled');
+
                         var progressElement = $document[0].createElement('gantt-task-progress');
-                        angular.element(progressElement).attr('data-ng-if', 'task.model.progress !== undefined');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(progressElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(progressElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(progressElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(progressElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(progressElement)(progressScope));
+                        angular.element(ifElement).append(progressElement);
+                        taskElement.append($compile(ifElement)(progressScope));
                     }
                 });
 
@@ -41077,9 +41359,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?',
-                templateUrl: '=?',
-                template: '=?'
+                dateFormat: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -41098,18 +41378,26 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     scope.dateFormat = 'MMM DD, HH:mm';
                 }
 
+                scope.api = api;
+
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                     if (directiveName === 'ganttTask') {
                         var tooltipScope = taskScope.$new();
+
                         tooltipScope.pluginScope = scope;
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+
                         var tooltipElement = $document[0].createElement('gantt-tooltip');
-                        if (scope.templateUrl !== undefined) {
-                            angular.element(tooltipElement).attr('data-template-url', scope.templateUrl);
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(tooltipElement).attr('data-template-url', attrs.templateUrl);
                         }
-                        if (scope.template !== undefined) {
-                            angular.element(tooltipElement).attr('data-template', scope.template);
+                        if (attrs.template !== undefined) {
+                            angular.element(tooltipElement).attr('data-template', attrs.template);
                         }
-                        taskElement.append($compile(tooltipElement)(tooltipScope));
+
+                        angular.element(ifElement).append(tooltipElement);
+                        taskElement.append($compile(ifElement)(tooltipScope));
                     }
                 });
             }
@@ -41120,7 +41408,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 (function(){
     'use strict';
-    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', function($templateCache) {
+    angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', 'moment', function($templateCache, moment) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
         return {
@@ -41140,55 +41428,40 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             replace: true,
             scope: true,
             controller: ['$scope', '$element', function($scope, $element) {
-                var css = {};
+                $element.toggleClass('ng-hide', true);
 
-                $scope.$watchGroup(['task.model.est', 'task.model.lct', 'task.left', 'task.width'], function() {
-                    if ($scope.task.model.est !== undefined && $scope.task.model.lct !== undefined) {
-                        $scope.bounds = {};
-                        $scope.bounds.left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
-                        $scope.bounds.width = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct) - $scope.bounds.left;
+                $scope.simplifyMoment = function(d) {
+                    return moment.isMoment(d) ? d.unix() : d;
+                };
+
+                $scope.$watchGroup(['simplifyMoment(task.model.est)', 'simplifyMoment(task.model.lct)', 'task.left', 'task.width'], function() {
+                    var left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
+                    var right = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct);
+
+                    $element.css('left', left - $scope.task.left + 'px');
+                    $element.css('width', right - left + 'px');
+
+                    $element.toggleClass('gantt-task-bounds-in', false);
+                    $element.toggleClass('gantt-task-bounds-out', false);
+                    if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
+                        $element.toggleClass('gantt-task-bounds-in', true);
+                    } else if ($scope.task.model.est > $scope.task.model.from) {
+                        $element.toggleClass('gantt-task-bounds-out', true);
+                    }
+                    else if ($scope.task.model.lct < $scope.task.model.to) {
+                        $element.toggleClass('gantt-task-bounds-out', true);
                     } else {
-                        $scope.bounds = undefined;
+                        $element.toggleClass('gantt-task-bounds-in', true);
                     }
                 });
 
                 $scope.task.$element.bind('mouseenter', function() {
-                    $scope.isTaskMouseOver = true;
-                    $scope.$digest();
+                    $element.toggleClass('ng-hide', false);
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
-                    $scope.isTaskMouseOver = false;
-                    $scope.$digest();
+                    $element.toggleClass('ng-hide', true);
                 });
-
-                $scope.getCss = function() {
-                    if ($scope.bounds !== undefined) {
-                        css.width = $scope.bounds.width + 'px';
-
-                        if ($scope.task.isMilestone() === true || $scope.task.width === 0) {
-                            css.left = ($scope.bounds.left - ($scope.task.left - 0.3)) + 'px';
-                        } else {
-                            css.left = ($scope.bounds.left - $scope.task.left) + 'px';
-                        }
-                    }
-
-                    return css;
-                };
-
-                $scope.getClass = function() {
-                    if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
-                        return 'gantt-task-bounds-in';
-                    } else if ($scope.task.model.est > $scope.task.model.from) {
-                        return 'gantt-task-bounds-out';
-                    }
-                    else if ($scope.task.model.lct < $scope.task.model.to) {
-                        return 'gantt-task-bounds-out';
-                    }
-                    else {
-                        return 'gantt-task-bounds-in';
-                    }
-                };
 
                 $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
                 $scope.$on('$destroy', function() {
@@ -41242,8 +41515,8 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                 $scope.getClasses = function() {
                     var classes = [];
 
-                    if ($scope.task.model.progress !== undefined && (typeof($scope.task.model.progress) !== 'object')) {
-                        classes = $scope.task.model.classes;
+                    if (typeof($scope.task.model.progress) === 'object') {
+                        classes = $scope.task.model.progress.classes;
                     }
 
                     return classes;
@@ -41307,12 +41580,11 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
             replace: true,
             controller: ['$scope', '$element', 'ganttUtils', function($scope, $element, utils) {
                 var bodyElement = angular.element($document[0].body);
-                var parentElement = $element.parent();
+                var parentElement = $scope.task.$element;
                 var showTooltipPromise;
                 var mousePositionX;
 
-                $scope.css = {};
-                $scope.visible = false;
+                $element.toggleClass('ng-hide', true);
 
                 $scope.getFromLabel = function() {
                     var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
@@ -41324,7 +41596,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                     return $scope.task.model.to.format(dateFormat);
                 };
 
-                $scope.$watch('isTaskMouseOver', function(newValue) {
+                var displayTooltip = function(newValue) {
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
@@ -41338,7 +41610,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                             hideTooltip();
                         }
                     }
-                });
+                };
 
                 $scope.task.$element.bind('mousemove', function(evt) {
                     mousePositionX = evt.clientX;
@@ -41346,28 +41618,45 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
                 $scope.task.$element.bind('mouseenter', function(evt) {
                     $scope.mouseEnterX = evt.clientX;
-                    $scope.isTaskMouseOver = true;
+                    displayTooltip(true);
                     $scope.$digest();
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
                     $scope.mouseEnterX = undefined;
-                    $scope.isTaskMouseOver = false;
+                    displayTooltip(false);
                     $scope.$digest();
                 });
 
-                var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                    updateTooltip(e.clientX);
-                }, 5, false));
+                if ($scope.pluginScope.api.tasks.on.moveBegin) {
+                    var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
+                        updateTooltip(e.clientX);
+                    }, 5, false));
 
-                $scope.$watch('task.isMoving', function(newValue) {
-                    if (newValue === true) {
-                        mouseMoveHandler.bind();
-                    } else if (newValue === false) {
-                        mouseMoveHandler.unbind();
-                        hideTooltip();
-                    }
-                });
+                    $scope.pluginScope.api.tasks.on.moveBegin($scope, function(task) {
+                        if (task === $scope.task) {
+                            mouseMoveHandler.bind();
+                        }
+                    });
+
+                    $scope.pluginScope.api.tasks.on.moveEnd($scope, function(task) {
+                        if (task === $scope.task) {
+                            mouseMoveHandler.unbind();
+                        }
+                    });
+
+                    $scope.pluginScope.api.tasks.on.resizeBegin($scope, function(task) {
+                        if (task === $scope.task) {
+                            mouseMoveHandler.bind();
+                        }
+                    });
+
+                    $scope.pluginScope.api.tasks.on.resizeEnd($scope, function(task) {
+                        if (task === $scope.task) {
+                            mouseMoveHandler.unbind();
+                        }
+                    });
+                }
 
                 var getViewPortWidth = function() {
                     var d = $document[0];
@@ -41375,33 +41664,33 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
                 };
 
                 var showTooltip = function(x) {
-                    $scope.visible = true;
+                    $element.toggleClass('ng-hide', false);
 
                     $timeout(function() {
                         updateTooltip(x);
 
-                        $scope.css.top = parentElement[0].getBoundingClientRect().top + 'px';
-                        $scope.css.marginTop = -$element[0].offsetHeight - 8 + 'px';
-                        $scope.css.opacity = 1;
+                        $element.css('top', parentElement[0].getBoundingClientRect().top + 'px');
+                        $element.css('marginTop', -$element[0].offsetHeight - 8 + 'px');
+                        $element.css('opacity', 1);
                     }, 0, true);
                 };
 
                 var updateTooltip = function(x) {
                     // Check if info is overlapping with view port
                     if (x + $element[0].offsetWidth > getViewPortWidth()) {
-                        $scope.css.left = (x + 20 - $element[0].offsetWidth) + 'px';
+                        $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
                         $element.addClass('gantt-task-infoArrowR'); // Right aligned info
                         $element.removeClass('gantt-task-infoArrow');
                     } else {
-                        $scope.css.left = (x - 20) + 'px';
+                        $element.css('left', (x - 20) + 'px');
                         $element.addClass('gantt-task-infoArrow');
                         $element.removeClass('gantt-task-infoArrowR');
                     }
                 };
 
                 var hideTooltip = function() {
-                    $scope.css.opacity = 0;
-                    $scope.visible = false;
+                    $element.css('opacity', 0);
+                    $element.toggleClass('ng-hide', true);
                 };
 
                 $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
@@ -41413,5 +41702,42 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
     }]);
 }());
 
+
+angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
+        '<div ng-cloak class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
+        '');
+}]);
+
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/progress/taskProgress.tmpl.html',
+        '<div ng-cloak class="gantt-task-progress" ng-style="getCss()" ng-class="getClasses()"></div>\n' +
+        '');
+}]);
+
+angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
+        '<div ng-cloak class="gantt-task-info">\n' +
+        '    <div class="gantt-task-info-content">\n' +
+        '        {{::task.model.name}}</br>\n' +
+        '        <small>\n' +
+        '            {{::task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel());}}\n' +
+        '        </small>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+}]);
 
 //# sourceMappingURL=angular-gantt-plugins.js.map
