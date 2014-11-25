@@ -741,6 +741,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
 
+            timeFrames = $filter('filter')(timeFrames, function(timeFrame) {
+                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+            });
+
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return -timeFrame.getDuration();
             });
@@ -759,7 +763,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             //       timeFrame:          |tttttt|
                             //          result:|sssssssss|tttttt|sssssssssssssssss|
 
-                            timeFrame = timeFrame.clone();
                             var newSolvedTimeFrame = solvedTimeFrame.clone();
 
                             solvedTimeFrame.end = moment(timeFrame.start);
@@ -767,6 +770,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
+                            dispatched = false;
                         } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
                             // timeFrame is dispatched on two solvedTimeFrame.
                             // First part
@@ -774,10 +778,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             //       timeFrame:                                |tttttt|
                             //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
 
-                            timeFrame = timeFrame.clone();
-
                             solvedTimeFrame.end = moment(timeFrame.start);
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
+                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone());
 
                             dispatched = true;
                         } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
@@ -1295,7 +1297,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
+            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
                 if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }

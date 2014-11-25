@@ -21,7 +21,7 @@
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'columnMagnet', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
+            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
                 if (oldValues !== newValues && self.gantt.rendered) {
                     self.generateColumns();
                 }

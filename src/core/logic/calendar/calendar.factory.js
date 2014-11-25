@@ -376,6 +376,10 @@
 
             var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
 
+            timeFrames = $filter('filter')(timeFrames, function(timeFrame) {
+                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+            });
+
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return -timeFrame.getDuration();
             });
@@ -394,7 +398,6 @@
                             //       timeFrame:          |tttttt|
                             //          result:|sssssssss|tttttt|sssssssssssssssss|
 
-                            timeFrame = timeFrame.clone();
                             var newSolvedTimeFrame = solvedTimeFrame.clone();
 
                             solvedTimeFrame.end = moment(timeFrame.start);
@@ -402,6 +405,7 @@
 
                             tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
+                            dispatched = false;
                         } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
                             // timeFrame is dispatched on two solvedTimeFrame.
                             // First part
@@ -409,10 +413,8 @@
                             //       timeFrame:                                |tttttt|
                             //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
 
-                            timeFrame = timeFrame.clone();
-
                             solvedTimeFrame.end = moment(timeFrame.start);
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame);
+                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone());
 
                             dispatched = true;
                         } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
