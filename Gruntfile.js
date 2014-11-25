@@ -7,6 +7,17 @@ module.exports = function(grunt) {
 
     var coverage = grunt.option('coverage');
 
+    var sources = {
+        js: {
+            core:['src/core/*.js', 'src/core/**/*.js', '.tmp/generated/core/**/*.js'],
+            plugins: ['src/plugins/*.js', 'src/plugins/**/*.js', '.tmp/generated/plugins/**/*.js']
+        },
+        css: {
+            core: ['src/core/*.css', 'src/core/**/*.css'],
+            plugins: ['src/plugins/*.css', 'src/plugins/**/*.css']
+        }
+    };
+
     var config = {
         pkg: grunt.file.readJSON('package.json'),
         html2js: {
@@ -34,23 +45,27 @@ module.exports = function(grunt) {
                 '*/\n'
             },
             core: {
-                src: ['src/core/*.js', 'src/core/**/*.js', '.tmp/generated/core/**/*.js'],
+                src: sources.js.core,
                 dest: 'assets/<%= pkg.name %>.js'
             },
             plugins: {
-                src: ['.tmp/generated/plugins/**/*.js', 'src/plugins/*.js', 'src/plugins/**/*.js'],
+                src: sources.js.plugins,
                 dest: 'assets/<%= pkg.name %>-plugins.js'
             }
         },
         concatCss: {
             core: {
-                src: ['src/core/*.css', 'src/core/**/*.css'],
+                src: sources.css.core,
                 dest: 'assets/<%= pkg.name %>.css'
             },
             plugins: {
-                src: ['src/plugins/*.css', 'src/plugins/**/*.css'],
+                src: sources.css.plugins,
                 dest: 'assets/<%= pkg.name %>-plugins.css'
             }
+        },
+        cleanempty: {
+            options: {},
+            src: 'assets/**/*'
         },
         uglify: {
             options: {
@@ -65,23 +80,31 @@ module.exports = function(grunt) {
             },
             core: {
                 files: {
-                    'assets/<%= pkg.name %>.min.js': ['<%= concat.core.dest %>']
+                    'dist/<%= pkg.name %>.min.js': sources.js.core
                 }
             },
             plugins: {
                 files: {
-                    'assets/<%= pkg.name %>-plugins.min.js': ['<%= concat.plugins.dest %>']
+                    'dist/<%= pkg.name %>-plugins.min.js': sources.js.plugins
                 }
             }
         },
         cssmin: {
             core: {
-                src: ['src/core/*.css'],
-                dest: 'assets/<%= pkg.name %>.min.css'
+                src: sources.css.core,
+                dest: 'dist/<%= pkg.name %>.min.css'
             },
             plugins: {
-                src: ['src/plugins/*.css', 'src/plugins/**/*.css'],
-                dest: 'assets/<%= pkg.name %>-plugins.min.css'
+                src: sources.css.plugins,
+                dest: 'dist/<%= pkg.name %>-plugins.min.css'
+            }
+        },
+        copy: {
+            assetsToDist: {
+                files: [
+                    // includes files within path
+                    {expand: true, cwd: 'assets/', src: ['**'], dest: 'dist/'},
+                ]
             }
         },
         jshint: {
@@ -100,7 +123,7 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            files: ['src/**/*.js', 'src/**/*.css', 'src/**/*.html'],
+            files: [].concat(sources.js.core, sources.js.plugins, ['src/**/*.html']),
             tasks: ['build']
         },
         karma: {
@@ -135,10 +158,10 @@ module.exports = function(grunt) {
         };
         config.cssmin[plugin] = {
             src: ['src/plugins/' + plugin + '.css', 'src/plugins/' + plugin + '/**/*.css'],
-            dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.min.css'
+            dest: 'dist/<%= pkg.name %>-' + plugin + '-plugin.min.css'
         };
         var uglifyFiles = {};
-        uglifyFiles['assets/<%= pkg.name %>-' + plugin + '-plugin.min.js'] = ['<%= concat.' + plugin + '.dest %>'];
+        uglifyFiles['dist/<%= pkg.name %>-' + plugin + '-plugin.min.js'] = config.concat[plugin].src;
         config.uglify[plugin] = {files: uglifyFiles};
     }
 
@@ -149,6 +172,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-cleanempty');
+
 
     grunt.loadNpmTasks('grunt-html2js');
 
@@ -165,7 +191,9 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['karma']);
 
-    grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'concatCss', 'uglify', 'cssmin']);
+    grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'concatCss', 'cleanempty']);
+
+    grunt.registerTask('dist', ['build', 'copy:assetsToDist', 'uglify', 'cssmin']);
 
     grunt.registerTask('default', ['build', 'test']);
 

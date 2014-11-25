@@ -5,8 +5,6 @@
 /bower_components/
 /node_modules/
 /gh-pages/
-/assets/*.min.*
-/assets/*.map
 /docs/_build/
 /site/
 /coverage-results/
