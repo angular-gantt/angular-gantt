@@ -16,7 +16,8 @@
 Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com/demo).
 
 [Unstable Demo Application](http://rawgit.com/angular-gantt/angular-gantt/master/demo/dist/index.html) is also available.
-It is build against [github master]() branch, and allows to preview bleeding edge features, but may be very unstable.
+It is build against [github master](https://github.com/angular-gantt/angular-gantt) branch, and allows to preview 
+bleeding edge features, but may be very unstable.
 
 ## Features
 - Two-way data binding between model and view.
@@ -47,6 +48,8 @@ or
 
 [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
 [download](https://github.com/angular-gantt/angular-gantt/releases/latest) on Github and is the recommended and stable version.
+
+You can also find released version on [CDNjs](http://www.cdnjs.com/) and [jsDelivr](http://www.jsdelivr.com/)
 
 [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 

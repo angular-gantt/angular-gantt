@@ -27,6 +27,8 @@ other dependencies declared in your project.
     [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
     [download](https://github.com/angular-gantt/angular-gantt/releases/latest) on Github and is the recommended and stable version.
     
+    You can also find released version on [CDNjs](http://www.cdnjs.com/) and [jsDelivr](http://www.jsdelivr.com/)
+    
     [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
 3. Copy `angular-gantt.js` and `angular-gantt.css` located in `assets` directory to your application source folder.
