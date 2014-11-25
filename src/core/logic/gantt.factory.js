@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment',
-        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment) {
+        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttLabels', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
+        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Labels, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
@@ -65,6 +65,39 @@
                     }
                 });
 
+                $scope.$watch('columnMagnet', function() {
+                    var splittedColumnMagnet;
+                    if ($scope.columnMagnet) {
+                        splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
+                        self.columnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                        self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+                    } else {
+                        self.columnMagnetValue = undefined;
+                        self.columnMagnetUnit = undefined;
+                    }
+                });
+
+                $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function() {
+                    var splittedColumnMagnet;
+                    if ($scope.shiftColumnMagnet) {
+                        splittedColumnMagnet = $scope.shiftColumnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
+                        self.shiftColumnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                        self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
+                    } else {
+                        self.shiftColumnMagnetValue = undefined;
+                        self.shiftColumnMagnetUnit = undefined;
+                    }
+                });
+
+                $document.on('keyup keydown', function(e) {
+                    self.shiftKey = e.shiftKey;
+                    return true;
+                });
+
                 this.scroll = new Scroll(this);
                 this.body = new Body(this);
                 this.rowHeader = new RowHeader(this);
@@ -103,7 +136,24 @@
             Gantt.prototype.getDateByPosition = function(x, magnet) {
                 var column = this.columnsManager.getColumnByPosition(x);
                 if (column !== undefined) {
-                    return column.getDateByPosition(x - column.left, magnet);
+                    var magnetValue;
+                    var magnetUnit;
+                    if (magnet) {
+                        if (this.shiftKey) {
+                            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                                magnetValue = this.shiftColumnMagnetValue;
+                                magnetUnit = this.shiftColumnMagnetUnit;
+                            } else {
+                                magnetValue = 0.25;
+                                magnetUnit = this.$scope.viewScale;
+                            }
+                        } else {
+                            magnetValue = this.columnMagnetValue;
+                            magnetUnit = this.columnMagnetUnit;
+                        }
+                    }
+
+                    return column.getDateByPosition(x - column.left, magnetValue, magnetUnit);
                 } else {
                     return undefined;
                 }

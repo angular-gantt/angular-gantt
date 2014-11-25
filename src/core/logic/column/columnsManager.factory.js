@@ -215,7 +215,7 @@
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
-            });
+            }, true);
             return columns[0] !== undefined ? columns[0] : columns[1];
         };
 
@@ -225,7 +225,7 @@
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             return bs.get(extendedColumns, x, function(c) {
                 return c.left;
-            })[0];
+            }, true)[0];
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {

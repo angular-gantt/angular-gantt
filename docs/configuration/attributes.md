@@ -65,7 +65,8 @@
 
 - ### column-magnet
 
-    Precision of the column. All date and time computation will be rounded using this precision.
+    Precision of the column. All date and time computation will be rounded using this precision. It will also snap
+    to start and end of timeFrames and columns.
     
     Format is `<integer> <momentjs-unit>`. See [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) for 
     a list of supported unit.
@@ -78,6 +79,12 @@
     - `3 hours`
     
     default: `15 minutes`
+
+- ### shift-column-magnet
+
+    Precision of the column when holding down SHIFT key.
+
+    If undefined, it will use 0.25 viewScale.
 
 - ### data
 
