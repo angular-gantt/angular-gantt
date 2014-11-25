@@ -71,7 +71,7 @@
                         splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
                     }
                     if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
-                        self.columnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                        self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
                         self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
                     } else {
                         self.columnMagnetValue = undefined;
@@ -85,7 +85,7 @@
                         splittedColumnMagnet = $scope.shiftColumnMagnet.trim().split(' ');
                     }
                     if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
-                        self.shiftColumnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                        self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
                         self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
                     } else {
                         self.shiftColumnMagnetValue = undefined;

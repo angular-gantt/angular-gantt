@@ -36256,7 +36256,7 @@ angular.module("ang-drag-drop",[])
 }(angular));
 
 /*
-Project: angular-gantt v1.0.0-rc2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -38012,7 +38012,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
                     }
                     if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
-                        self.columnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                        self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
                         self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
                     } else {
                         self.columnMagnetValue = undefined;
@@ -38026,7 +38026,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         splittedColumnMagnet = $scope.shiftColumnMagnet.trim().split(' ');
                     }
                     if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
-                        self.shiftColumnMagnetValue = parseInt(splittedColumnMagnet[0]);
+                        self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
                         self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length-1];
                     } else {
                         self.shiftColumnMagnetValue = undefined;
@@ -40579,7 +40579,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.0.0-rc2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
