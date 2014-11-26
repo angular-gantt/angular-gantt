@@ -56,11 +56,6 @@
 
                 this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
                 this.$element.toggleClass('gantt-task', !this.isMilestone());
-
-                for (var i = 0; i < this.model.classes; i++) {
-                    this.$element.toggleClass(this.model.classes[i], true);
-                }
-
                 this.$element.toggleClass('gantt-task', !this.isMilestone());
             }
         };

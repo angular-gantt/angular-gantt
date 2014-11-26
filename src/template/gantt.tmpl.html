@@ -82,7 +82,7 @@
         <div class="gantt-labels-row gantt-row-height"
              ng-class-odd="'gantt-background-row'"
              ng-class-even="'gantt-background-row-alt'"
-             ng-class="::row.model.classes" ng-style="::{'background-color': row.model.color, 'height': row.model.height}">
+             ng-class="row.model.classes" ng-style="::{'background-color': row.model.color, 'height': row.model.height}">
                 <span class="gantt-labels-text">{{row.model.name}}</span>
         </div>
     </script>
@@ -176,7 +176,7 @@
 
     <!-- Task template -->
     <script type="text/ng-template" id="template/ganttTask.tmpl.html">
-        <div>
+        <div ng-class="::task.model.classes">
             <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
             <gantt-task-content></gantt-task-content>
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>

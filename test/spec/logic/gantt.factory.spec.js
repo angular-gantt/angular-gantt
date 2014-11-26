@@ -63,7 +63,7 @@ describe('Unit: Gantt', function() {
             {'name': 'SW / DNS/ Backups', 'color': '#F1C232', 'from': new Date(2013, 10, 18, 12, 0, 0), 'to': new Date(2013, 10, 21, 18, 0, 0)}
         ]},
         {'name': 'Deployment', 'tasks': [
-            {'name': 'Depl. & Final testing', 'color': '#F1C232', 'from': new Date(2013, 10, 21, 8, 0, 0), 'to': new Date(2013, 10, 22, 12, 0, 0)}
+            {'name': 'Depl. & Final testing', 'color': '#F1C232', 'from': new Date(2013, 10, 21, 8, 0, 0), 'to': new Date(2013, 10, 22, 12, 0, 0), 'classes': 'gantt-task-deployment'}
         ]},
         {'name': 'Workshop', 'tasks': [
             {'name': 'On-side education', 'color': '#F1C232', 'from': new Date(2013, 10, 24, 9, 0, 0), 'to': new Date(2013, 10, 25, 15, 0, 0)}
@@ -141,6 +141,16 @@ describe('Unit: Gantt', function() {
             var rowText = rowLabelElement.find('span').text();
             expect(rowText).toEqual(rowModel.name);
 
+            if (rowModel.classes) {
+                var rowClasses = rowModel.classes;
+                if (!angular.isArray(rowClasses)) {
+                    rowClasses = [rowClasses];
+                }
+                angular.forEach(rowClasses, function(rowClass) {
+                    expect(rowLabelElement.hasClass(rowClass)).toBeTruthy();
+                });
+            }
+
             var rowTaskElements = rowLabelElement.find('div.gantt-task, div.gantt-task-milestone');
 
             angular.forEach(rowTaskElements, function(rowTaskElement, j) {
@@ -149,6 +159,16 @@ describe('Unit: Gantt', function() {
                 var taskModel = rowModel.tasks[j];
                 var taskText = rowTaskElement.find('span').text();
                 expect(taskText).toEqual(taskModel.name);
+
+                if (taskModel.classes) {
+                    var taskClasses = taskModel.classes;
+                    if (!angular.isArray(taskClasses)) {
+                        taskClasses = [taskClasses];
+                    }
+                    angular.forEach(taskClasses, function(taskClass) {
+                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
+                    });
+                }
             });
         });
     };
@@ -202,6 +222,10 @@ describe('Unit: Gantt', function() {
             checkData($scope.data, ganttElement);
 
             $scope.data[2].tasks[0].name = 'Modified';
+            $scope.$digest();
+            checkData($scope.data, ganttElement);
+
+            $scope.data[2].tasks[0].classes = ['other-custom-class'];
             $scope.$digest();
             checkData($scope.data, ganttElement);
         }

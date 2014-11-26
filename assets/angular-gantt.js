@@ -2626,11 +2626,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
                 this.$element.toggleClass('gantt-task', !this.isMilestone());
-
-                for (var i = 0; i < this.model.classes; i++) {
-                    this.$element.toggleClass(this.model.classes[i], true);
-                }
-
                 this.$element.toggleClass('gantt-task', !this.isMilestone());
             }
         };
@@ -4212,7 +4207,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-labels-row gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="::row.model.classes" ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '             ng-class="row.model.classes" ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '                <span class="gantt-labels-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </script>\n' +
@@ -4306,7 +4301,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
-        '        <div>\n' +
+        '        <div ng-class="::task.model.classes">\n' +
         '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
