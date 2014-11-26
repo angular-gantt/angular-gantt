@@ -36420,7 +36420,7 @@ angular.module("ang-drag-drop",[])
 }(angular));
 
 /*
-Project: angular-gantt v1.0.0-rc4 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc5 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -36431,7 +36431,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
         .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout, $templateCache) {
         return {
-            restrict: 'EA',
+            restrict: 'A',
             transclude: true,
             templateUrl: function(tElement, tAttrs) {
                 var templateUrl;
@@ -39057,24 +39057,33 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         // Expands the start of the task to the specified position (in em)
-        Task.prototype.setFrom = function(x) {
-            this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
+        Task.prototype.setFrom = function(x, magnetEnabled) {
+            this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
             this.row.setFromToByTask(this);
             this.updatePosAndSize();
         };
 
         // Expands the end of the task to the specified position (in em)
-        Task.prototype.setTo = function(x) {
-            this.model.to = this.rowsManager.gantt.getDateByPosition(x, true);
+        Task.prototype.setTo = function(x, magnetEnabled) {
+            this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
             this.row.setFromToByTask(this);
             this.updatePosAndSize();
         };
 
         // Moves the task to the specified position (in em)
-        Task.prototype.moveTo = function(x) {
-            this.model.from = this.rowsManager.gantt.getDateByPosition(x, true);
-            var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-            this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, true);
+        Task.prototype.moveTo = function(x, magnetEnabled) {
+            if (x > this.left) {
+                // Driven by right/to side.
+                this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
+                var newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
+                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskRight - this.modelWidth, false);
+            } else {
+                // Drive by left/from side.
+                this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+                var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, false);
+            }
+
             this.row.setFromToByTask(this);
             this.updatePosAndSize();
         };
@@ -40743,7 +40752,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.0.0-rc4 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc5 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -40991,7 +41000,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                                 x = taskScope.gantt.width - taskScope.task.width;
                                             }
                                         }
-                                        taskScope.task.moveTo(x);
+                                        taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
                                     }
@@ -41003,7 +41012,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                             x = taskScope.gantt.width;
                                         }
                                     }
-                                    taskScope.task.setTo(x);
+                                    taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 } else {
@@ -41014,7 +41023,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                             x = 0;
                                         }
                                     }
-                                    taskScope.task.setFrom(x);
+                                    taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 }
@@ -41582,7 +41591,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var bodyElement = angular.element($document[0].body);
                 var parentElement = $scope.task.$element;
                 var showTooltipPromise;
-                var mousePositionX;
+                var visible = false;
+                var mouseEnterX;
 
                 $element.toggleClass('ng-hide', true);
 
@@ -41596,43 +41606,29 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return $scope.task.model.to.format(dateFormat);
                 };
 
-                var displayTooltip = function(newValue) {
-                    if (showTooltipPromise) {
-                        $timeout.cancel(showTooltipPromise);
-                    }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
-                    if (enabled && newValue === true) {
-                        showTooltipPromise = $timeout(function() {
-                            showTooltip(mousePositionX);
-                        }, 500, true);
+                var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
+                    if (!visible) {
+                        mouseEnterX = e.clientX;
+                        displayTooltip(true, false);
                     } else {
-                        if (!$scope.task.active) {
-                            hideTooltip();
-                        }
+                        updateTooltip(e.clientX);
                     }
-                };
+                }, 5, false));
 
                 $scope.task.$element.bind('mousemove', function(evt) {
-                    mousePositionX = evt.clientX;
+                    mouseEnterX = evt.clientX;
                 });
 
                 $scope.task.$element.bind('mouseenter', function(evt) {
-                    $scope.mouseEnterX = evt.clientX;
-                    displayTooltip(true);
-                    $scope.$digest();
+                    mouseEnterX = evt.clientX;
+                    displayTooltip(true, true);
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
-                    $scope.mouseEnterX = undefined;
                     displayTooltip(false);
-                    $scope.$digest();
                 });
 
                 if ($scope.pluginScope.api.tasks.on.moveBegin) {
-                    var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                        updateTooltip(e.clientX);
-                    }, 5, false));
-
                     $scope.pluginScope.api.tasks.on.moveBegin($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.bind();
@@ -41642,6 +41638,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $scope.pluginScope.api.tasks.on.moveEnd($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.unbind();
+                            displayTooltip(false);
                         }
                     });
 
@@ -41654,25 +41651,46 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $scope.pluginScope.api.tasks.on.resizeEnd($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.unbind();
+                            displayTooltip(false);
                         }
                     });
                 }
 
-                var getViewPortWidth = function() {
-                    var d = $document[0];
-                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
+                var displayTooltip = function(newValue, showDelayed) {
+                    if (showTooltipPromise) {
+                        $timeout.cancel(showTooltipPromise);
+                    }
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
+                    if (enabled && !visible && newValue) {
+                        if (showDelayed) {
+                            showTooltipPromise = $timeout(function() {
+                                showTooltip(mouseEnterX);
+                            }, 500, false);
+                        } else {
+                            showTooltip(mouseEnterX);
+                        }
+                    } else if (!newValue) {
+                        if (!$scope.task.active) {
+                            hideTooltip();
+                        }
+                    }
                 };
 
                 var showTooltip = function(x) {
+                    visible = true;
                     $element.toggleClass('ng-hide', false);
 
                     $timeout(function() {
                         updateTooltip(x);
-
                         $element.css('top', parentElement[0].getBoundingClientRect().top + 'px');
                         $element.css('marginTop', -$element[0].offsetHeight - 8 + 'px');
                         $element.css('opacity', 1);
                     }, 0, true);
+                };
+
+                var getViewPortWidth = function() {
+                    var d = $document[0];
+                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
                 };
 
                 var updateTooltip = function(x) {
@@ -41689,9 +41707,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 };
 
                 var hideTooltip = function() {
+                    visible = false;
                     $element.css('opacity', 0);
                     $element.toggleClass('ng-hide', true);
                 };
+
+                if ($scope.task.isMoving) {
+                    // Restore tooltip because task has been moved to a new row
+                    mouseMoveHandler.bind();
+                }
 
                 $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
                 $scope.$on('$destroy', function() {
@@ -41731,9 +41755,9 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
     $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
         '<div ng-cloak class="gantt-task-info">\n' +
         '    <div class="gantt-task-info-content">\n' +
-        '        {{::task.model.name}}</br>\n' +
+        '        {{task.model.name}}</br>\n' +
         '        <small>\n' +
-        '            {{::task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel());}}\n' +
+        '            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
         '        </small>\n' +
         '    </div>\n' +
         '</div>\n' +

@@ -250,7 +250,7 @@
 <h3 id="api">api</h3>
 <p>Registers an API Object to call methods of the component and listen or raise events.</p>
 <p>See <a href="#api">API</a> for more details.</p>
-<pre><code>&lt;gantt api="registerApi"&gt;&lt;/gantt&gt;
+<pre><code>&lt;div gantt api="registerApi"&gt;&lt;/div&gt;
 </code></pre>
 <!-- -->
 
@@ -289,7 +289,7 @@
 <li>
 <h3 id="current-date-value">current-date-value</h3>
 <p>Current date in the chart.</p>
-<pre><code>&lt;gantt current-date="getToday"&gt;&lt;/gantt&gt;
+<pre><code>&lt;div gantt current-date="getToday"&gt;&lt;/div&gt;
 </code></pre>
 <!-- -->
 
@@ -369,14 +369,14 @@ tasks, or empty time after the last task, or truncate next tasks.</p>
 </ul>
 <!-- -->
 
-<pre><code>&lt;gantt headers="['month', 'week', 'day']"&gt;&lt;/gantt&gt;
+<pre><code>&lt;dif gantt headers="['month', 'week', 'day']"&gt;&lt;/div&gt;
 </code></pre>
 </li>
 <li>
 <h3 id="headers-formats">headers-formats</h3>
 <p>Associative object of headers format. Key is the header, and value is the format.</p>
 <p>See <a href="http://momentjs.com/docs/#/displaying/format/">momentJS#format()</a></p>
-<pre><code>&lt;gantt headers-formats="headersFormats"&gt;&lt;/gantt&gt;
+<pre><code>&lt;div gantt headers-formats="headersFormats"&gt;&lt;/div&gt;
 </code></pre>
 <!-- -->
 
@@ -411,7 +411,7 @@ A TimeFrame can also be marked as default to be used for every day displayed in 
 <p>A DateFrame is a configuration object that will reference one or many TimeFrame names for specific days in the
 calendar. Using DateFrame configurations, it's possible to setup holidays, weekends and other special days that will
 have different time schedules than usual.</p>
-<pre><code>&lt;gantt time-frames="timeFrames" date-frames="dateFrames"&gt;&lt;/gantt&gt;
+<pre><code>&lt;div gantt time-frames="timeFrames" date-frames="dateFrames"&gt;&lt;/div&gt;
 </code></pre>
 <!-- -->
 
@@ -499,7 +499,7 @@ DateFrame. If no DateFrame at all match the day, it will use <code>default</code
 <h3 id="options">options</h3>
 <p>Configure the gantt using as a plain old javascript object, keys of <code>options</code> representing the configuration
 attributes. camelCased version of attributes must be used as key (<code>autoExpand</code> instead of <code>auto-expand</code>).</p>
-<pre><code>&lt;gantt options="options"&gt;&lt;/gantt&gt;
+<pre><code>&lt;div gantt options="options"&gt;&lt;/div&gt;
 </code></pre>
 <!-- -->
 

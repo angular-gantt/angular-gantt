@@ -185,6 +185,8 @@
         
             <li><a href="#install-automatically">Install Automatically</a></li>
         
+            <li><a href="#install-using-cdns">Install using CDNs</a></li>
+        
             <li><a href="#install-manually">Install Manually</a></li>
         
             <li><a href="#usage">Usage</a></li>
@@ -214,16 +216,59 @@ other dependencies declared in your project.</p>
 </code></pre>
 </li>
 </ol>
+<h2 id="install-using-cdns">Install using CDNs</h2>
+<ol>
+<li>
+<p>You can find released version on CDNs.</p>
+<p><a href="http://www.jsdelivr.com/">jsDelivr</a></p>
+<pre><code>//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css
+</code></pre>
+<p><a href="http://www.cdnjs.com/">CDNjs</a> (Replace <code>&lt;version&gt;</code> with latest github tag)</p>
+<pre><code>//cdnjs.cloudflare.com/ajax/libs/angular-gantt/&lt;version&gt;/angular-gantt.min.css
+</code></pre>
+</li>
+<li>
+<p>Add <code>angular-gantt.min.js</code> and <code>angular-gantt.min.css</code> URLs to your HTML code.</p>
+<pre><code>&lt;head&gt;
+  &lt;link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css"/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
+</li>
+<li>
+<p>[Optional] Some features of angular-gantt are optional and defined in <a href="../configuration/plugins">Plugins</a>. 
+Add <code>angular-gantt-plugins.min.js</code> and <code>angular-gantt-plugins.min.css</code> URLs to your HTML code.</p>
+<p><a href="http://www.jsdelivr.com/">jsDelivr</a></p>
+<pre><code>//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
+</code></pre>
+<p><a href="http://www.cdnjs.com/">CDNjs</a> (Replace <code>&lt;version&gt;</code> with latest github tag)</p>
+<pre><code>//cdnjs.cloudflare.com/ajax/libs/angular-gantt/&lt;version&gt;/angular-gantt-plugins.min.css
+</code></pre>
+<!-- -->
+
+<pre><code>&lt;head&gt;
+  &lt;link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css"/&gt;
+  &lt;link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css"/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.js"&gt;&lt;/script&gt;
+  &lt;script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
+<p><em>Some plugins require additional dependencies.</em></p>
+</li>
+</ol>
 <h2 id="install-manually">Install Manually</h2>
 <ol>
 <li>
 <p>Install <a href="../faq#what-are-the-dependencies">dependencies</a> in your application (That's why you should use <a href="http://bower.io/">bower</a>).</p>
 </li>
 <li>
-<p>Download angular-gantt.
+<p>Download angular-gantt or use CDNs.
     <a href="https://github.com/angular-gantt/angular-gantt/releases/latest">Latest released version</a> is available to 
     <a href="https://github.com/angular-gantt/angular-gantt/releases/latest">download</a> on Github and is the recommended and stable version.</p>
-<p>You can also find released version on <a href="http://www.cdnjs.com/">CDNjs</a> and <a href="http://www.jsdelivr.com/">jsDelivr</a></p>
 <p><a href="https://github.com/angular-gantt/angular-gantt/tree/master">Master branch version</a> contains bleeding edge features, but may be very unstable.</p>
 </li>
 <li>
@@ -239,6 +284,20 @@ other dependencies declared in your project.</p>
 &lt;/body&gt;
 </code></pre>
 </li>
+<li>
+<p>[Optional] Some features of angular-gantt are optional and defined in <a href="../configuration/plugins">Plugins</a>. 
+Add <code>angular-gantt-plugins.js</code> and <code>angular-gantt-plugins.css</code> files to your HTML code.</p>
+<pre><code>&lt;head&gt;
+  &lt;link rel="stylesheet" href="assets/angular-gantt-plugins.css"/&gt;
+  &lt;link rel="stylesheet" href="assets/angular-gantt.css"/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script src="../assets/angular-gantt-plugins.js"&gt;&lt;/script&gt;
+  &lt;script src="../assets/angular-gantt.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
+<p><em>Some plugins require additional dependencies.</em></p>
+</li>
 </ol>
 <h2 id="usage">Usage</h2>
 <ol>
@@ -249,7 +308,7 @@ other dependencies declared in your project.</p>
 </li>
 <li>
 <p>Put <code>gantt</code> directive into your HTML code at the position you would like to show the Gantt chart.</p>
-<pre><code>&lt;gantt data=data&gt;&lt;/gantt&gt;
+<pre><code>&lt;div gantt data=data&gt;&lt;/div&gt;
 </code></pre>
 </li>
 <li>
@@ -270,7 +329,7 @@ other dependencies declared in your project.</p>
 </code></pre>
 </li>
 <li>
-<p>For a sample app see the files in <code>demo/app/</code>.</p>
+<p>For a sample app see the files in <code>demo/app/</code> or <a href="http://plnkr.co/hchknn">Plunker</a>.</p>
 </li>
 </ol>
 </div>
