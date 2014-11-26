@@ -8,4 +8,5 @@
 /docs/_build/
 /site/
 /coverage-results/
+/assets/*.map
 *.log

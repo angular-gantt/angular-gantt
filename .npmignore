@@ -3,7 +3,6 @@
 /.tmp
 /demo
 /test
-/dist
 /.travis.yml
 /*.html
 /*.iml
@@ -11,7 +10,6 @@
 /bower_components/
 /node_modules/
 /gh-pages/
-/assets/*.min.js
 /assets/*.map
 /docs/_build/
 /site/
