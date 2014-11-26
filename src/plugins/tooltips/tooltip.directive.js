@@ -23,7 +23,7 @@
                 var bodyElement = angular.element($document[0].body);
                 var parentElement = $scope.task.$element;
                 var showTooltipPromise;
-                var mousePositionX;
+                var visible = false;
 
                 $element.toggleClass('ng-hide', true);
 
@@ -37,43 +37,23 @@
                     return $scope.task.model.to.format(dateFormat);
                 };
 
-                var displayTooltip = function(newValue) {
-                    if (showTooltipPromise) {
-                        $timeout.cancel(showTooltipPromise);
-                    }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
-                    if (enabled && newValue === true) {
-                        showTooltipPromise = $timeout(function() {
-                            showTooltip(mousePositionX);
-                        }, 500, true);
+                var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
+                    if (!visible) {
+                        showTooltip(e.clientX);
                     } else {
-                        if (!$scope.task.active) {
-                            hideTooltip();
-                        }
+                        updateTooltip(e.clientX);
                     }
-                };
-
-                $scope.task.$element.bind('mousemove', function(evt) {
-                    mousePositionX = evt.clientX;
-                });
+                }, 5, false));
 
                 $scope.task.$element.bind('mouseenter', function(evt) {
-                    $scope.mouseEnterX = evt.clientX;
-                    displayTooltip(true);
-                    $scope.$digest();
+                    displayTooltip(true, evt.clientX);
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
-                    $scope.mouseEnterX = undefined;
                     displayTooltip(false);
-                    $scope.$digest();
                 });
 
                 if ($scope.pluginScope.api.tasks.on.moveBegin) {
-                    var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                        updateTooltip(e.clientX);
-                    }, 5, false));
-
                     $scope.pluginScope.api.tasks.on.moveBegin($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.bind();
@@ -83,6 +63,7 @@
                     $scope.pluginScope.api.tasks.on.moveEnd($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.unbind();
+                            displayTooltip(false);
                         }
                     });
 
@@ -95,25 +76,42 @@
                     $scope.pluginScope.api.tasks.on.resizeEnd($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.unbind();
+                            displayTooltip(false);
                         }
                     });
                 }
 
-                var getViewPortWidth = function() {
-                    var d = $document[0];
-                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
+                var displayTooltip = function(newValue, x) {
+                    if (showTooltipPromise) {
+                        $timeout.cancel(showTooltipPromise);
+                    }
+                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
+                    if (enabled && !visible && newValue) {
+                        showTooltipPromise = $timeout(function() {
+                            showTooltip(x);
+                        }, 500, false);
+                    } else if (!newValue) {
+                        if (!$scope.task.active) {
+                            hideTooltip();
+                        }
+                    }
                 };
 
                 var showTooltip = function(x) {
+                    visible = true;
                     $element.toggleClass('ng-hide', false);
 
                     $timeout(function() {
                         updateTooltip(x);
-
                         $element.css('top', parentElement[0].getBoundingClientRect().top + 'px');
                         $element.css('marginTop', -$element[0].offsetHeight - 8 + 'px');
                         $element.css('opacity', 1);
                     }, 0, true);
+                };
+
+                var getViewPortWidth = function() {
+                    var d = $document[0];
+                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
                 };
 
                 var updateTooltip = function(x) {
@@ -130,9 +128,15 @@
                 };
 
                 var hideTooltip = function() {
+                    visible = false;
                     $element.css('opacity', 0);
                     $element.toggleClass('ng-hide', true);
                 };
+
+                if ($scope.task.isMoving) {
+                    // Restore tooltip because task has been moved to a new row
+                    mouseMoveHandler.bind();
+                }
 
                 $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
                 $scope.$on('$destroy', function() {
