@@ -41591,6 +41591,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var parentElement = $scope.task.$element;
                 var showTooltipPromise;
                 var visible = false;
+                var mouseEnterX;
 
                 $element.toggleClass('ng-hide', true);
 
@@ -41606,14 +41607,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
                     if (!visible) {
-                        showTooltip(e.clientX);
+                        mouseEnterX = e.clientX;
+                        displayTooltip(true, false);
                     } else {
                         updateTooltip(e.clientX);
                     }
                 }, 5, false));
 
+                $scope.task.$element.bind('mousemove', function(evt) {
+                    mouseEnterX = evt.clientX;
+                });
+
                 $scope.task.$element.bind('mouseenter', function(evt) {
-                    displayTooltip(true, evt.clientX);
+                    mouseEnterX = evt.clientX;
+                    displayTooltip(true, true);
                 });
 
                 $scope.task.$element.bind('mouseleave', function() {
@@ -41648,15 +41655,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     });
                 }
 
-                var displayTooltip = function(newValue, x) {
+                var displayTooltip = function(newValue, showDelayed) {
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
                     var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && !visible && newValue) {
-                        showTooltipPromise = $timeout(function() {
-                            showTooltip(x);
-                        }, 500, false);
+                        if (showDelayed) {
+                            showTooltipPromise = $timeout(function() {
+                                showTooltip(mouseEnterX);
+                            }, 500, false);
+                        } else {
+                            showTooltip(mouseEnterX);
+                        }
                     } else if (!newValue) {
                         if (!$scope.task.active) {
                             hideTooltip();
