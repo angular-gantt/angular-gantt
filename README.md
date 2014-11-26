@@ -36,7 +36,7 @@ Docs are built using [MkDocs](http://www.mkdocs.org/) and available at
 [angular-gantt website](http://www.angular-gantt.com) (stable) and [ReadTheDocs](http://angular-gantt.readthedocs.org/en/latest/)
 (master).
 
-## Download
+## Bower
 
 angular-gantt is available through [bower](http://bower.io/) and [npm](https://www.npmjs.org/package/angular-gantt).
 
@@ -47,18 +47,33 @@ or
 
     bower install angular-gantt#master
     npm install https://github.com/angular-gantt/angular-gantt/tarball/master
+    
+## CDNs
 
+You can find released version on CDNs.
+
+[jsDelivr](http://www.jsdelivr.com/)
+
+    //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
+    //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js
+
+[CDNjs](http://www.cdnjs.com/) (Replace <version> with latest github tag)
+
+    //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
+    //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt.min.js
+
+## Download
 
 [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
 [download](https://github.com/angular-gantt/angular-gantt/releases/latest) on Github and is the recommended and stable version.
-
-You can also find released version on [CDNjs](http://www.cdnjs.com/) and [jsDelivr](http://www.jsdelivr.com/)
 
 [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
 ## Dependencies
 - [AngularJS](https://angularjs.org) >= 1.3
 - [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
+
+Note: Some plugins require additional dependencies.
 
 ## The MIT License
 
