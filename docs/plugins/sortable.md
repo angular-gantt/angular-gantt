@@ -12,9 +12,9 @@ Sort rows by drag & drop on rows label.
 
 <!-- -->
 
-    <gantt>
+    <div gantt>
       <gantt-sortable enabled="..."></gantt-sortable>
-    </gantt>
+    </div>
 
 ## Attributes
 

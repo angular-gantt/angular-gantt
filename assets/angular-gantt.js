@@ -10,7 +10,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
         .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout, $templateCache) {
         return {
-            restrict: 'EA',
+            restrict: 'A',
             transclude: true,
             templateUrl: function(tElement, tAttrs) {
                 var templateUrl;

@@ -8,11 +8,11 @@ Draw new tasks with the mouse.
 
 <!-- -->
 
-    <gantt>
+    <div gantt>
         <gantt-movable enabled="true",
                        task-factory="drawTaskFactory">
         <gantt-movable/>
-    </gantt>
+    </div>
  
 <!-- -->
    

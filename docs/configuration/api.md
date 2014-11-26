@@ -4,7 +4,7 @@ angular-gantt has an API to call methods of the component and listen or raise ev
 
 Register the API Object using `api` attribute.
 
-    <gantt api="registerApi"></gantt>
+    <div gantt api="registerApi"></div>
 
 <!-- -->
     

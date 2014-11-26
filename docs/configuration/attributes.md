@@ -9,7 +9,7 @@
   
     See [API](#api) for more details.
     
-        <gantt api="registerApi"></gantt>
+        <div gantt api="registerApi"></div>
     
     <!-- -->
         
@@ -48,7 +48,7 @@
 
     Current date in the chart.
     
-        <gantt current-date="getToday"></gantt>
+        <div gantt current-date="getToday"></div>
       
     <!-- -->
       
@@ -137,7 +137,7 @@
       
     <!-- -->
     
-        <gantt headers="['month', 'week', 'day']"></gantt>
+        <dif gantt headers="['month', 'week', 'day']"></div>
 
 - ### headers-formats
 
@@ -145,7 +145,7 @@
     
     See [momentJS#format()](http://momentjs.com/docs/#/displaying/format/)
     
-        <gantt headers-formats="headersFormats"></gantt>
+        <div gantt headers-formats="headersFormats"></div>
       
     <!-- -->
     
@@ -184,7 +184,7 @@
     calendar. Using DateFrame configurations, it's possible to setup holidays, weekends and other special days that will
     have different time schedules than usual.
     
-        <gantt time-frames="timeFrames" date-frames="dateFrames"></gantt>
+        <div gantt time-frames="timeFrames" date-frames="dateFrames"></div>
 
     <!-- -->
   
@@ -278,7 +278,7 @@
     Configure the gantt using as a plain old javascript object, keys of `options` representing the configuration
     attributes. camelCased version of attributes must be used as key (`autoExpand` instead of `auto-expand`).
   
-        <gantt options="options"></gantt>
+        <div gantt options="options"></div>
     
     <!-- -->
   

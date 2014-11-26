@@ -138,6 +138,33 @@ module.exports = function(grunt) {
                 coverageDir: 'coverage-results',
                 recursive: true
             }
+        },
+        connect: {
+            options: {
+                port: 9101,
+                hostname: '0.0.0.0',
+                keepalive: true,
+                livereload: 39729
+            },
+            plunker: {
+                options: {
+                    open: true,
+                    middleware: function(connect) {
+                        return [
+                            connect().use(
+                                '/bower_components', connect.static('./bower_components')
+                            ),
+                            connect().use(
+                                '/assets', connect.static('./assets')
+                            ),
+                            connect().use(
+                                '/dist', connect.static('./dist')
+                            ),
+                            connect.static('plunker')
+                        ];
+                    }
+                }
+            }
         }
     };
 
@@ -173,6 +200,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-cleanempty');
 
 
@@ -194,6 +222,8 @@ module.exports = function(grunt) {
     grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'concatCss', 'cleanempty']);
 
     grunt.registerTask('dist', ['build', 'copy:assetsToDist', 'uglify', 'cssmin']);
+
+    grunt.registerTask('plunker', ['connect:plunker']);
 
     grunt.registerTask('default', ['build', 'test']);
 

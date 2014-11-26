@@ -109,7 +109,7 @@ describe('Unit: Gantt', function() {
             ganttApi = undefined;
             ready = false;
 
-            $compile('<gantt api="api"></gantt>')($scope);
+            $compile('<div gantt api="api"></div>')($scope);
             $scope.$digest();
             $timeout.flush();
 

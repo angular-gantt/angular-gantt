@@ -34,7 +34,7 @@ and modification made to `angular-gantt` will be applied to `data`.
 
 ## Example
 
-    <gantt data=data></gantt>
+    <div gantt data=data></div>
 
 <!-- -->
 

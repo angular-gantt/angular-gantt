@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script type='text/javascript' src="bower_components/angular/angular.js"></script>
+    <script type='text/javascript' src="bower_components/moment/moment.js"></script>
+    <script type='text/javascript' src="bower_components/angular-moment/angular-moment.js"></script>
+
+    <script type='text/javascript' src="bower_components/angular-native-dragdrop/draganddrop.js"></script>
+
+    <script type='text/javascript' src="assets/angular-gantt-plugins.js"></script>
+    <script type='text/javascript' src="assets/angular-gantt.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/angular-gantt-plugins.css">
+    <link rel="stylesheet" type="text/css" href="assets/angular-gantt.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script type='text/javascript' src="script.js"></script>
+</head>
+
+<body>
+<div ng-app="plnkrGanttMaster" ng-controller="Ctrl">
+    <div gantt data="data">
+        <gantt-tooltips></gantt-tooltips>
+        <gantt-bounds></gantt-bounds>
+        <gantt-progress></gantt-progress>
+        <gantt-sortable></gantt-sortable>
+        <gantt-movable></gantt-movable>
+        <gantt-draw-task></gantt-draw-task>
+    </div>
+</div>
+</body>
+
+</html>

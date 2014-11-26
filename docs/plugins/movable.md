@@ -8,13 +8,13 @@ Move and resize tasks.
 
 <!-- -->
 
-    <gantt>
+    <div gantt>
         <gantt-movable enabled="true",
                        allow-moving="true" 
                        allow-resizing="true"
                        allow-row-switching="true">
         <gantt-movable/>
-    </gantt>
+    </div>
 
 
 ## Attributes

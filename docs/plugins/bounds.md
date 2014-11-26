@@ -8,9 +8,9 @@ Display configured bounds when moving mouse over a task.
     
 <!-- -->
 
-    <gantt>
+    <div gantt>
         <gantt-bounds enabled="..."><gantt-bounds/>
-    </gantt>
+    </div>
 
 <!-- -->
 

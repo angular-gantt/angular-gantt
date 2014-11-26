@@ -17,9 +17,9 @@ files, where `xxxxxx` plugin is the name of the plugin.
 
 2. Add the plugin directive as a child element of the gantt directive.
 
-        <gantt>
+        <div gantt>
             <gantt-xxxxxx></gantt-xxxxxx>
-        </gantt>
+        </div>
 
 ## Supported plugins
 

@@ -58,7 +58,7 @@ Hooks can be installed using [api.directives.on.new](api.md#directives) event an
 using [api.directives.on.destroy](api.md#directives) event. Those events are raised when any template `gantt-*`
 directive is added/removed from the DOM by AngularJS. They are entry points for [writing a Plugin](write_plugin.md).
 
-    <gantt api=registerApi></gantt>
+    <div gantt api=registerApi></div>
 
 <!-- -->
 

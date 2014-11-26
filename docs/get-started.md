@@ -50,7 +50,7 @@ other dependencies declared in your project.
 
 2. Put `gantt` directive into your HTML code at the position you would like to show the Gantt chart.
 
-        <gantt data=data></gantt>
+        <div gantt data=data></div>
 
 3. Define data variable in your scope to start using gantt through two-way binding.
 
