@@ -1004,7 +1004,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '    <div class="gantt-task-info-content">\n' +
         '        {{task.model.name}}</br>\n' +
         '        <small>\n' +
-        '            afd {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
+        '            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
         '        </small>\n' +
         '    </div>\n' +
         '</div>\n' +

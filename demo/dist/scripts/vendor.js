@@ -36048,10 +36048,11 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 (function(angular){
 
 function isDnDsSupported(){
-    return 'draggable' in document.createElement("span");
+    return 'ondrag' in document.createElement("a");
 }
 
 if(!isDnDsSupported()){
+    angular.module("ang-drag-drop", []);
     return;
 }
 
@@ -41756,7 +41757,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '    <div class="gantt-task-info-content">\n' +
         '        {{task.model.name}}</br>\n' +
         '        <small>\n' +
-        '            afd {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
+        '            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
         '        </small>\n' +
         '    </div>\n' +
         '</div>\n' +

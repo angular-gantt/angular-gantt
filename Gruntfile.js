@@ -65,7 +65,7 @@ module.exports = function(grunt) {
         },
         cleanempty: {
             options: {},
-            src: 'assets/**/*'
+            assets: 'assets/**/*'
         },
         uglify: {
             options: {
@@ -135,7 +135,7 @@ module.exports = function(grunt) {
         coveralls: {
             options: {
                 force: true,
-                coverage_dir: 'coverage-results',
+                coverageDir: 'coverage-results',
                 recursive: true
             }
         }

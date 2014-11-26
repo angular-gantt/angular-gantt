@@ -2,7 +2,7 @@
     <div class="gantt-task-info-content">
         {{task.model.name}}</br>
         <small>
-            afd {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + ' - ' + getToLabel())}}
+            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + ' - ' + getToLabel())}}
         </small>
     </div>
 </div>
