@@ -57,7 +57,7 @@ You can find released version on CDNs.
     //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
     //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js
 
-[CDNjs](http://www.cdnjs.com/) (Replace <version> with latest github tag)
+[CDNjs](http://www.cdnjs.com/) (Replace `<version>` with latest github tag)
 
     //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
     //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt.min.js

@@ -27,7 +27,7 @@ other dependencies declared in your project.
     
         //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css
     
-    [CDNjs](http://www.cdnjs.com/) (Replace <version> with latest github tag)
+    [CDNjs](http://www.cdnjs.com/) (Replace `<version>` with latest github tag)
     
         //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt.min.css
     
@@ -47,7 +47,7 @@ Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to y
     
         //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
     
-    [CDNjs](http://www.cdnjs.com/) (Replace <version> with latest github tag)
+    [CDNjs](http://www.cdnjs.com/) (Replace `<version>` with latest github tag)
     
         //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
 
