@@ -1,10 +1,9 @@
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, layout, moment) {
+    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, moment) {
         var builder = new Builder('ganttScrollable');
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
-
             var lastScrollLeft;
 
             var lastAutoExpand;
@@ -65,6 +64,7 @@
                 if ($scope.maxHeight > 0) {
                     css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
+                    css['border-right'] = 'none'; // Could be enhanced, display borders only when vertical scroll is displayed.
                 }
 
                 return css;

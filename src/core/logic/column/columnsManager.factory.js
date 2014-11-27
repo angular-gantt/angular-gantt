@@ -155,7 +155,7 @@
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
             var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
-            var scrollWidth = this.gantt.getElementWidth() - this.gantt.side.getWidth();
+            var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
             if (autoFitWidthEnabled) {
                 var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
 

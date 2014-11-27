@@ -213,7 +213,7 @@
                 this.api.data.raise.clear(this.$scope);
             };
 
-            Gantt.prototype.getElementWidth = function() {
+            Gantt.prototype.getWidth = function() {
                 return this.$element[0].offsetWidth;
             };
 

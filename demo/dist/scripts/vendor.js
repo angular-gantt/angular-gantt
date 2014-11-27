@@ -32694,10 +32694,11 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 (function(angular){
 
 function isDnDsSupported(){
-    return 'draggable' in document.createElement("span");
+    return 'ondrag' in document.createElement("a");
 }
 
 if(!isDnDsSupported()){
+    angular.module("ang-drag-drop", []);
     return;
 }
 
@@ -37846,7 +37847,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
             var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
-            var scrollWidth = this.gantt.getElementWidth() - this.gantt.side.getWidth();
+            var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
             if (autoFitWidthEnabled) {
                 var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
 
@@ -38309,7 +38310,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.api.data.raise.clear(this.$scope);
             };
 
-            Gantt.prototype.getElementWidth = function() {
+            Gantt.prototype.getWidth = function() {
                 return this.$element[0].offsetWidth;
             };
 
@@ -39922,11 +39923,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, layout, moment) {
+    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'ganttLayout', 'moment', function(Builder, debounce, moment) {
         var builder = new Builder('ganttScrollable');
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
-
             var lastScrollLeft;
 
             var lastAutoExpand;
@@ -39987,6 +39987,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if ($scope.maxHeight > 0) {
                     css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
+                    css['border-right'] = 'none'; // Could be enhanced, display borders only when vertical scroll is displayed.
                 }
 
                 return css;
@@ -40222,8 +40223,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttScrollableHeader', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttScrollableHeader', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttScrollableHeader');
+        builder.controller = function($scope) {
+            var scrollBarWidth = layout.getScrollBarWidth();
+            $scope.getScrollableHeaderCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight > 0) {
+                    css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - scrollBarWidth + 'px';
+                }
+
+                return css;
+            };
+        };
         return builder.build();
     }]);
 }());
@@ -40418,13 +40431,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').service('ganttLayout', [function() {
+    angular.module('gantt').service('ganttLayout', ['$document', function($document) {
         return {
             /**
              * Compute the width of scrollbar.
              *
              * @returns {number} width of the scrollbar, in px.
              */
+            getScrollBarWidth: function() {
+                var inner = $document[0].createElement('p');
+                inner.style.width = '100%';
+                inner.style.height = '200px';
+
+                var outer = $document[0].createElement('div');
+                outer.style.position = 'absolute';
+                outer.style.top = '0px';
+                outer.style.left = '0px';
+                outer.style.visibility = 'hidden';
+                outer.style.width = '200px';
+                outer.style.height = '150px';
+                outer.style.overflow = 'hidden';
+                outer.appendChild (inner);
+
+                $document[0].body.appendChild (outer);
+                var w1 = inner.offsetWidth;
+                outer.style.overflow = 'scroll';
+                var w2 = inner.offsetWidth;
+                if (w1 === w2) {
+                    w2 = outer.clientWidth;
+                }
+                $document[0].body.removeChild (outer);
+
+                return (w1 - w2);
+            },
+
             setColumnsWidth: function(width, originalWidth, columns) {
                 if (width && originalWidth && columns) {
 
@@ -40661,7 +40701,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttScrollableHeader.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-scrollable-header"></div>\n' +
+        '        <div ng-transclude class="gantt-scrollable-header" ng-style="getScrollableHeaderCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Rows template -->\n' +
