@@ -54,13 +54,13 @@ You can find released version on CDNs.
 
 [jsDelivr](http://www.jsdelivr.com/)
 
-    //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
     //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js
+    //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
 
 [CDNjs](http://www.cdnjs.com/) (Replace `<version>` with latest github tag)
 
-    //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
     //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt.min.js
+    //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
 
 ## Download
 

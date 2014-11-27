@@ -41,7 +41,7 @@ other dependencies declared in your project.
         </body>
 
 3. [Optional] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
-Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to your HTML code.
+Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to your HTML code (after core sources).
 
     [jsDelivr](http://www.jsdelivr.com/)
     
@@ -54,12 +54,12 @@ Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to y
     <!-- -->
 
         <head>
-          <link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css"/>
           <link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css"/>
+          <link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css"/>
         </head>
         <body>
-          <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.js"></script>
           <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"></script>
+          <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.js"></script>
         </body>
         
     *Some plugins require additional dependencies.*
@@ -86,15 +86,15 @@ Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to y
         </body>
 
 5. [Optional] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
-Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTML code.
+Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTML code (after core sources).
 
         <head>
-          <link rel="stylesheet" href="assets/angular-gantt-plugins.css"/>
           <link rel="stylesheet" href="assets/angular-gantt.css"/>
+          <link rel="stylesheet" href="assets/angular-gantt-plugins.css"/>
         </head>
         <body>
-          <script src="assets/angular-gantt-plugins.js"></script>
           <script src="assets/angular-gantt.js"></script>
+          <script src="assets/angular-gantt-plugins.js"></script>
         </body>
 
     *Some plugins require additional dependencies.*
