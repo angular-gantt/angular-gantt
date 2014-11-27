@@ -97,8 +97,9 @@
                                     var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
+                                        var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
 
-                                        var targetRowElement = utils.findElementFromPoint(scrollRect.left, evt.clientY, function(element) {
+                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
                                         var rows = ganttCtrl.gantt.rowsManager.rows;
