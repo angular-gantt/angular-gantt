@@ -23,6 +23,10 @@ files, where `xxxxxx` plugin is the name of the plugin.
 
 ## Supported plugins
 
+- ### [Labels](../plugins/labels.md)
+
+    Display row labels on the side.
+
 - ### [Sortable](../plugins/sortable.md)
 
     Sort rows by drag & drop on rows label.

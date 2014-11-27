@@ -10,6 +10,8 @@
             this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
             this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
             this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
+
+            this.gantt.api.registerMethod('scroll', 'setWidth', Scroll.prototype.setWidth, this);
         };
 
         Scroll.prototype.getScrollLeft = function() {
@@ -20,8 +22,18 @@
             return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
         };
 
-        Scroll.prototype.getScrollContainerWidth = function() {
+        Scroll.prototype.getWidth = function() {
             return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        };
+
+        Scroll.prototype.setWidth = function(width) {
+            if (this.$element[0]) {
+                this.$element[0].offsetWidth = width;
+            }
+        };
+
+        Scroll.prototype.getBordersWidth = function() {
+            return this.$element === undefined ? undefined : (this.$element[0].offsetWidth - this.$element[0].clientWidth);
         };
 
         /**

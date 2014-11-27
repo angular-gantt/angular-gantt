@@ -109,8 +109,8 @@
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-text-width"></i> Labels</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
-                                                            <button type="button" class="btn btn-default" ng-model="options.showLabelsColumn" bs-checkbox>Show</button>
-                                                            <button type="button" class="btn btn-default" ng-model="options.allowLabelsResizing" bs-checkbox>Resizable</button>
+                                                            <button type="button" class="btn btn-default" ng-model="options.labelsEnabled" bs-checkbox>Show</button>
+                                                            <button type="button" class="btn btn-default" ng-model="options.allowSideResizing" bs-checkbox>Resizable</button>
                                                         </div>
                                                     </div>
 
@@ -169,8 +169,7 @@
                                                task-out-of-range="options.taskOutOfRange"
                                                from-date = "options.fromDate"
                                                to-date = "options.toDate"
-                                               allow-labels-resizing = "options.allowLabelsResizing"
-                                               show-labels-column="options.showLabelsColumn"
+                                               allow-side-resizing = "options.allowSideResizing"
                                                current-date="options.currentDate"
                                                current-date-value="options.currentDateValue"
                                                headers="options.width && options.shortHeaders || options.longHeaders"
@@ -180,6 +179,7 @@
                                                time-frames-non-working-mode="options.timeFramesNonWorkingMode"
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
+                                            <gantt-labels enabled="options.labelsEnabled"></gantt-labels>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>

@@ -28,9 +28,9 @@
     - `right`
     - `none`
 
-- ### allow-labels-resizing
+- ### allow-side-resizing
 
-    Row label section can be resized.
+    Side section can be resized.
     
     default: `true`
 
@@ -167,12 +167,6 @@
           }
         };
 
-- ### show-labels-column
-
-    Whether the column with labels is to be shown or not.
-    
-    default: `true`
-  
 - ### time-frames, date-frames
 
     TimeFrames and DateFrames are used to configure global calendar in the gantt.

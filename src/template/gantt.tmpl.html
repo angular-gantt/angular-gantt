@@ -1,28 +1,24 @@
 <div class="gantt unselectable" ng-cloak gantt-scroll-manager>
-    <gantt-labels>
-        <gantt-labels-header>
-            <gantt-row-header></gantt-row-header>
-        </gantt-labels-header>
-        <gantt-labels-body>
-            <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
-                <gantt-row-label></gantt-row-label>
-            </div>
-        </gantt-labels-body>
-        <div gantt-resizer="gantt.labels.$element" gantt-resizer-event-topic="labels" gantt-resizer-enabled="$parent.allowLabelsResizing" resizer-width="$parent.$parent.labelsWidth" class="gantt-resizer">
-            <div ng-show="$parent.allowLabelsResizing" class="gantt-resizer-display"></div>
+    <gantt-side>
+        <gantt-side-content>
+        </gantt-side-content>
+        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="$parent.allowSideResizing" resizer-width="$parent.$parent.sideWidth" class="gantt-resizer">
+            <div ng-show="$parent.allowSideResizing" class="gantt-resizer-display"></div>
         </div>
-    </gantt-labels>
-    <gantt-header>
-        <gantt-header-columns>
-            <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
-                <div class="gantt-header-row" ng-class="{'gantt-header-row-last': $last, 'gantt-header-row-first': $first}">
-                    <div ng-repeat="column in header">
-                        <gantt-column-header ></gantt-column-header>
+    </gantt-side>
+    <gantt-scrollable-header>
+        <gantt-header>
+            <gantt-header-columns>
+                <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
+                    <div class="gantt-header-row" ng-class="{'gantt-header-row-last': $last, 'gantt-header-row-first': $first}">
+                        <div ng-repeat="column in header">
+                            <gantt-column-header ></gantt-column-header>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </gantt-header-columns>
-    </gantt-header>
+            </gantt-header-columns>
+        </gantt-header>
+    </gantt-scrollable-header>
     <gantt-scrollable>
         <gantt-body>
             <gantt-body-background>
@@ -42,7 +38,7 @@
                     </gantt-column>
                 </div>
             </gantt-body-columns>
-            <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth">
+            <gantt-body-rows gantt-element-width-listener="$parent.$parent.bodyRowsWidth" gantt-element-left-listener="$parent.$parent.bodyRowsLeft">
                 <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">
                     <gantt-timespan></gantt-timespan>
                 </div>
@@ -77,42 +73,15 @@
              ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"></div>
     </script>
 
-    <!-- Row label template -->
-    <script type="text/ng-template" id="template/ganttRowLabel.tmpl.html">
-        <div class="gantt-labels-row gantt-row-height"
-             ng-class-odd="'gantt-background-row'"
-             ng-class-even="'gantt-background-row-alt'"
-             ng-class="row.model.classes" ng-style="::{'background-color': row.model.color, 'height': row.model.height}">
-                <span class="gantt-labels-text">{{row.model.name}}</span>
-        </div>
+    <!-- Side template -->
+    <script type="text/ng-template" id="template/ganttSide.tmpl.html">
+        <div ng-transclude class="gantt-side"></div>
     </script>
 
-    <!-- Row header template -->
-    <script type="text/ng-template" id="template/ganttRowHeader.tmpl.html">
-        <div class="gantt-labels-header-row gantt-labels-header-row-last"
-             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"
-             ng-style="{'margin-top': ((gantt.columnsManager.headers.length-1)*2)+'em'}">
-            <span>Name</span>
+    <!-- Side content template-->
+    <script type="text/ng-template" id="template/ganttSideContent.tmpl.html">
+        <div class="gantt-side-content">
         </div>
-    </script>
-
-    <!-- Labels header template-->
-    <script type="text/ng-template" id="template/ganttLabelsHeader.tmpl.html">
-        <div ng-transclude= class="gantt-labels-header">
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="template/ganttLabelsBody.tmpl.html">
-    <div class="gantt-labels-body"
-         ng-style="(maxHeight > 0 && {'max-height': (maxHeight - gantt.header.getHeight())+'px'} || {})">
-        <div ng-transclude gantt-vertical-scroll-receiver>
-        </div>
-    </div>
-    </script>
-
-    <!-- Labels template -->
-    <script type="text/ng-template" id="template/ganttLabels.tmpl.html">
-        <div ng-transclude ng-show="showLabelsColumn" class="gantt-labels"></div>
     </script>
 
     <!-- Header columns template -->
@@ -122,7 +91,7 @@
     </script>
 
     <script type="text/ng-template" id="template/ganttColumnHeader.tmpl.html">
-        <div class="gantt-column-header">{{::column.label}}</div>
+        <div class="gantt-column-header" ng-class="{'gantt-column-header-last': $last, 'gantt-column-header-first': $first}">{{::column.label}}</div>
     </script>
 
     <!-- Body background template -->
@@ -151,7 +120,7 @@
     </script>
 
     <script type="text/ng-template" id="template/ganttColumn.tmpl.html">
-        <div ng-transclude class="gantt-column gantt-foreground-col"></div>
+        <div ng-transclude class="gantt-column gantt-foreground-col" ng-class="{'gantt-column-last': $last, 'gantt-column-first': $first}"></div>
     </script>
 
     <script type="text/ng-template" id="template/ganttTimeFrame.tmpl.html">
@@ -161,6 +130,10 @@
     <!-- Scrollable template -->
     <script type="text/ng-template" id="template/ganttScrollable.tmpl.html">
         <div ng-transclude class="gantt-scrollable" gantt-scroll-sender ng-style="getScrollableCss()"></div>
+    </script>
+
+    <script type="text/ng-template" id="template/ganttScrollableHeader.tmpl.html">
+        <div ng-transclude class="gantt-scrollable-header"></div>
     </script>
 
     <!-- Rows template -->

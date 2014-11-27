@@ -8,6 +8,7 @@
             this.templateUrl = templateUrl === undefined ? 'template/' + directiveName + '.tmpl.html' : templateUrl;
             this.require = require === undefined ? '^gantt' : require;
             this.restrict = restrict === undefined ? 'E' : restrict;
+            this.scope = false;
             this.transclude = true;
             this.replace = true;
 
@@ -21,6 +22,7 @@
                     require: self.require,
                     transclude: self.transclude,
                     replace: self.replace,
+                    scope: self.scope,
                     templateUrl: function(tElement, tAttrs) {
                         if (tAttrs.templateUrl === undefined) {
                             return templateUrl;

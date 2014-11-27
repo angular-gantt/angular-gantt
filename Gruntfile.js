@@ -3,7 +3,7 @@
 /*jshint undef:false */
 /*jshint camelcase:false */
 module.exports = function(grunt) {
-    var plugins = ['sortable', 'movable', 'drawtask', 'tooltips', 'bounds', 'progress'];
+    var plugins = ['labels', 'sortable', 'movable', 'drawtask', 'tooltips', 'bounds', 'progress'];
 
     var coverage = grunt.option('coverage');
 
@@ -123,7 +123,7 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            files: [].concat(sources.js.core, sources.js.plugins, ['src/**/*.html']),
+            files: [].concat(sources.js.core, sources.js.plugins, sources.css.core, sources.css.plugins, ['src/**/*.html']),
             tasks: ['build']
         },
         karma: {
