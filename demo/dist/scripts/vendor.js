@@ -41912,10 +41912,10 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '</div>\n' +
         '');
     $templateCache.put('plugins/labels/rowHeader.tmpl.html',
-        '<div class="gantt-row-height gantt-labels-header-row"\n' +
-        '     ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
-        '     ng-style="{\'margin-top\': ((gantt.columnsManager.headers.length-1)*2)+\'em\'}">\n' +
-        '    <span>Name</span>\n' +
+        '<div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
+        '    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? "Name" : ""}}</span></div>\n' +
+        '    </div>\n' +
         '</div>\n' +
         '');
     $templateCache.put('plugins/labels/rowLabel.tmpl.html',
