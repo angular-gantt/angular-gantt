@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc4 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -136,7 +136,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                                 x = taskScope.gantt.width - taskScope.task.width;
                                             }
                                         }
-                                        taskScope.task.moveTo(x);
+                                        taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
                                     }
@@ -148,7 +148,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                             x = taskScope.gantt.width;
                                         }
                                     }
-                                    taskScope.task.setTo(x);
+                                    taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 } else {
@@ -159,7 +159,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                             x = 0;
                                         }
                                     }
-                                    taskScope.task.setFrom(x);
+                                    taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 }

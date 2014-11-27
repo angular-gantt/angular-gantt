@@ -3,6 +3,8 @@
 /.tmp
 /demo
 /test
+/dist
+/plunker
 /.travis.yml
 /*.html
 /*.iml
