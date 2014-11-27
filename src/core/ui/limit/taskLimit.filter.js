@@ -12,7 +12,7 @@
                 var res = [];
 
                 var scrollLeft = gantt.scroll.getScrollLeft();
-                var scrollContainerWidth = gantt.scroll.getScrollContainerWidth();
+                var scrollContainerWidth = gantt.scroll.getWidth();
 
                 for (var i = 0, l = input.length; i < l; i++) {
                     var task = input[i];

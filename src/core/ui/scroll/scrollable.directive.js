@@ -5,7 +5,6 @@
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
 
-            var scrollBarWidth = layout.getScrollBarWidth();
             var lastScrollLeft;
 
             var lastAutoExpand;
@@ -63,15 +62,9 @@
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.gantt.width > 0 && $scope.gantt.width - ($scope.showLabelsColumn ? $scope.gantt.labels.getWidth() : 0) > $scope.gantt.width + scrollBarWidth) {
-                    css.width = $scope.gantt.width + scrollBarWidth + 'px';
-                }
-
                 if ($scope.maxHeight > 0) {
                     css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
-                } else {
-                    css['overflow-y'] = 'hidden';
                 }
 
                 return css;

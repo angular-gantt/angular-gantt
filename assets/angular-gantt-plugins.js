@@ -118,6 +118,61 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', '$timeout', function(utils, $compile, $document, $timeout) {
+        // Provides the row sort functionality to any Gantt row
+        // Uses the sortableState to share the current row
+
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.sortable) === 'object') {
+                    for (var option in scope.options.sortable) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                scope.$watch('enabled', function(oldValue, newValue) {
+                    if (oldValue !== newValue) {
+                        $timeout(function() {
+                            api.columns.refresh();
+                        });
+                    }
+                });
+
+                api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
+                    if (directiveName === 'ganttSideContent') {
+                        var labelsScope = sideContentScope.$new();
+                        labelsScope.pluginScope = scope;
+
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+
+                        var labelsElement = $document[0].createElement('gantt-side-content-labels');
+                        angular.element(ifElement).append(labelsElement);
+
+                        sideContentElement.append($compile(ifElement)(labelsScope));
+                    }
+                });
+
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
         function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
@@ -731,6 +786,61 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttLabelsHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttLabelsHeader', 'plugins/labels/labelsHeader.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowHeader', 'plugins/labels/rowHeader.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowLabel', 'plugins/labels/rowLabel.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowLabels', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowLabels', 'plugins/labels/rowLabels.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttSideContentLabels', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttSideContentLabels', 'plugins/labels/sideContentLabels.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
         return {
             initialize: function(options) {
@@ -982,6 +1092,52 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
 
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
 
+}]);
+
+angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/labels/labelsBody.tmpl.html',
+        '<div class="gantt-labels-body"\n' +
+        '     ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})">\n' +
+        '    <div gantt-vertical-scroll-receiver>\n' +
+        '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '            <gantt-row-label></gantt-row-label>\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/labels/labelsHeader.tmpl.html',
+        '<div class="gantt-labels-header">\n' +
+        '    <gantt-row-header></gantt-row-header>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/labels/rowHeader.tmpl.html',
+        '<div class="gantt-row-height gantt-labels-header-row"\n' +
+        '     ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
+        '     ng-style="{\'margin-top\': ((gantt.columnsManager.headers.length-1)*2)+\'em\'}">\n' +
+        '    <span>Name</span>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/labels/rowLabel.tmpl.html',
+        '<div class="gantt-row-label gantt-row-height"\n' +
+        '     ng-class-odd="\'gantt-background-row\'"\n' +
+        '     ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '     ng-class="row.model.classes" ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '    <span>{{row.model.name}}</span>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/labels/rowLabels.tmpl.html',
+        '<div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '    <gantt-row-label></gantt-row-label>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/labels/sideContentLabels.tmpl.html',
+        '<div class="gantt-side-content-labels">\n' +
+        '    <gantt-labels-header>\n' +
+        '    </gantt-labels-header>\n' +
+        '    <gantt-labels-body>\n' +
+        '    </gantt-labels-body>\n' +
+        '</div>\n' +
+        '');
 }]);
 
 angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {

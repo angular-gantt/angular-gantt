@@ -16,7 +16,8 @@ angular.module('angularGanttDemoApp', [
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',
+    'gantt.labels',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
-    $compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
+    $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
 }]);

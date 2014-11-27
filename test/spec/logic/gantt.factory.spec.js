@@ -1,7 +1,10 @@
 'use strict';
 describe('Unit: Gantt', function() {
     // Load the module with MainController
-    beforeEach(module('gantt'));
+    beforeEach(function(){
+        module('gantt');
+        module('gantt.labels');
+    });
 
     var Gantt;
     var moment;
@@ -126,13 +129,41 @@ describe('Unit: Gantt', function() {
             }
         });
 
-        var rowLabelsElements = ganttElement.find('div.gantt-labels-body div.gantt-labels-row');
         var rowElements = ganttElement.find('div.gantt-body-rows div.gantt-row');
         var taskElements = ganttElement.find('div.gantt-task, div.gantt-task-milestone');
 
-        expect(rowLabelsElements.length).toBe(data.length);
         expect(rowElements.length).toBe(data.length);
         expect(taskElements.length).toBe(tasks.length);
+
+        angular.forEach(rowElements, function(rowElement, i) {
+            rowElement = angular.element(rowElement);
+
+            var rowTaskElements = rowElement.find('div.gantt-task, div.gantt-task-milestone');
+            var rowModel = data[i];
+
+            angular.forEach(rowTaskElements, function(rowTaskElement, j) {
+                rowTaskElement = angular.element(rowTaskElement);
+
+                var taskModel = rowModel.tasks[j];
+                var taskText = rowTaskElement.find('span').text();
+                expect(taskText).toEqual(taskModel.name);
+
+                if (taskModel.classes) {
+                    var taskClasses = taskModel.classes;
+                    if (!angular.isArray(taskClasses)) {
+                        taskClasses = [taskClasses];
+                    }
+                    angular.forEach(taskClasses, function(taskClass) {
+                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
+                    });
+                }
+            });
+        });
+    };
+
+    var checkLabels = function(data, ganttElement) {
+        var rowLabelsElements = ganttElement.find('div.gantt-labels-body div.gantt-row-label');
+        expect(rowLabelsElements.length).toBe(data.length);
 
         angular.forEach(rowLabelsElements, function(rowLabelElement, i) {
             rowLabelElement = angular.element(rowLabelElement);
@@ -150,26 +181,6 @@ describe('Unit: Gantt', function() {
                     expect(rowLabelElement.hasClass(rowClass)).toBeTruthy();
                 });
             }
-
-            var rowTaskElements = rowLabelElement.find('div.gantt-task, div.gantt-task-milestone');
-
-            angular.forEach(rowTaskElements, function(rowTaskElement, j) {
-                rowTaskElement = angular.element(rowTaskElements);
-
-                var taskModel = rowModel.tasks[j];
-                var taskText = rowTaskElement.find('span').text();
-                expect(taskText).toEqual(taskModel.name);
-
-                if (taskModel.classes) {
-                    var taskClasses = taskModel.classes;
-                    if (!angular.isArray(taskClasses)) {
-                        taskClasses = [taskClasses];
-                    }
-                    angular.forEach(taskClasses, function(taskClass) {
-                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
-                    });
-                }
-            });
         });
     };
 
@@ -257,4 +268,16 @@ describe('Unit: Gantt', function() {
         }
     );
 
+    it('Load labels plugin properly',
+        function() {
+            var $scope = $rootScope.$new();
+
+            $scope.data = angular.copy(mockData);
+            var ganttElement = $compile('<div gantt data="data"><gantt-labels></gantt-labels></div>')($scope);
+            $scope.$digest();
+            $timeout.flush();
+
+            checkLabels($scope.data, ganttElement);
+        }
+    );
 });

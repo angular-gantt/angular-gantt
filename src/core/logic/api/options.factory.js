@@ -23,7 +23,7 @@
             options.fromDate = options.fromDate || undefined;
             options.toDate = options.toDate || undefined;
 
-            options.allowLabelsResizing = options.allowLabelsResizing !== undefined ? !!options.allowLabelsResizing : true;
+            options.allowSideResizing = options.allowSideResizing !== undefined ? !!options.allowSideResizing : true;
 
             options.currentDate = options.currentDate || 'line';
             options.currentDateValue = options.currentDateValue || moment();
@@ -32,9 +32,6 @@
             options.taskOutOfRange = options.taskOutOfRange || 'truncate';
 
             options.maxHeight = options.maxHeight || 0;
-
-            options.showLabelsColumn = options.showLabelsColumn !== undefined ? !!options.showLabelsColumn : true;
-            options.showTooltips = options.showTooltips !== undefined ? !!options.showTooltips : true;
 
             options.headers = options.headers || undefined;
             options.headersFormats = options.headersFormats || undefined;

@@ -39,7 +39,7 @@
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['bodyRowsWidth', 'labelsWidth', 'showLabelsColumn', 'maxHeight'], function(oldValues, newValues) {
+            this.gantt.$scope.$watchGroup(['bodyRowsWidth', 'bodyRowsLeft', 'ganttElementWidth', 'sideWidth', 'maxHeight'], function(oldValues, newValues) {
                 if (oldValues !== newValues && self.gantt.rendered) {
                     self.updateColumnsMeta();
                 }
@@ -155,12 +155,9 @@
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
             var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            var scrollWidth = this.gantt.getElementWidth() - this.gantt.side.getWidth();
             if (autoFitWidthEnabled) {
-                var newWidth = this.gantt.getElementWidth() - (this.gantt.$scope.showLabelsColumn ? this.gantt.labels.getWidth() : 0);
-
-                if (this.gantt.$scope.maxHeight > 0) {
-                    newWidth = newWidth - layout.getScrollBarWidth();
-                }
+                var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
 
                 layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.previousColumns);
                 layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.columns);

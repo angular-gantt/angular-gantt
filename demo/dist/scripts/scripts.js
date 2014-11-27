@@ -16,9 +16,10 @@ angular.module('angularGanttDemoApp', [
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',
+    'gantt.labels',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
-    $compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
+    $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
 }]);
 
 'use strict';
@@ -45,8 +46,8 @@ angular.module('angularGanttDemoApp')
             taskOutOfRange: 'truncate',
             fromDate: undefined,
             toDate: undefined,
-            allowLabelsResizing: true,
-            showLabelsColumn: true,
+            allowSideResizing: true,
+            labelsEnabled: true,
             currentDate: 'line',
             currentDateValue: new Date(2013, 9, 23, 11, 20, 0),
             draw: false,
@@ -127,9 +128,9 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.move($scope, addEventName('rows.on.move', logRowEvent));
                     api.rows.on.remove($scope, addEventName('rows.on.remove', logRowEvent));
 
-                    api.labels.on.resizeBegin($scope, addEventName('labels.on.resizeBegin', logLabelsEvent));
-                    //api.labels.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
-                    api.labels.on.resizeEnd($scope, addEventName('labels.on.resizeEnd', logLabelsEvent));
+                    api.side.on.resizeBegin($scope, addEventName('labels.on.resizeBegin', logLabelsEvent));
+                    //api.side.on.resize($scope, addEventName('labels.on.resize', logLabelsEvent));
+                    api.side.on.resizeEnd($scope, addEventName('labels.on.resizeEnd', logLabelsEvent));
 
                     api.timespans.on.add($scope, addEventName('timespans.on.add', logTimespanEvent));
                     api.columns.on.generate($scope, logColumnsGenerateEvent);
