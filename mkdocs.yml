@@ -17,6 +17,7 @@ pages:
 - [configuration/customize.md, Configuration, Customize]
 - [configuration/api.md, Configuration, API]
 - [configuration/write_plugin.md, Configuration, Write a Plugin]
+- [plugins/labels.md, Plugins, Labels]
 - [plugins/sortable.md, Plugins, Sortable]
 - [plugins/movable.md, Plugins, Movable]
 - [plugins/drawtask.md, Plugins, Draw Task]
