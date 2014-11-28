@@ -9,7 +9,7 @@
         <link rel="canonical" href="http://www.angular-gantt.com/plugins/sortable/">
         <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>Sortable - angular-gantt</title>
+        <title>Sortable - angular-gantt - Gantt chart component for AngularJS</title>
 
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -39,7 +39,7 @@
             </button>
 
             <!-- Main title -->
-            <a class="navbar-brand" href="../..">angular-gantt</a>
+            <a class="navbar-brand" href="../..">angular-gantt - Gantt chart component for AngularJS</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -94,6 +94,10 @@
                 <li class="dropdown active">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
                     <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../labels">Labels</a>
+                        </li>
                     
                         <li class="active">
                             <a href=".">Sortable</a>
@@ -153,7 +157,7 @@
             <ul class="nav navbar-nav navbar-right">
                 
                 <li >
-                    <a rel="next" href="../../configuration/write_plugin">
+                    <a rel="next" href="../labels">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
@@ -197,13 +201,15 @@
 <h1 id="sortable">Sortable</h1>
 <p>Sort rows by drag &amp; drop on rows label.</p>
 <h2 id="dependency">Dependency</h2>
-<p><a href="https://github.com/ganarajpr/angular-dragdrop">angular-native-dragdrop</a> &gt;= 1.0.7</p>
+<p><a href="https://github.com/ganarajpr/angular-dragdrop">angular-native-dragdrop</a> &gt;= 1.0.7
+<a href="../labels">Labels plugin</a></p>
 <h2 id="usage">Usage</h2>
-<pre><code>angular.module('myApp', ['gantt', 'gantt.sortable']);
+<pre><code>angular.module('myApp', ['gantt', 'gantt.labels', 'gantt.sortable']);
 </code></pre>
 <!-- -->
 
 <pre><code>&lt;div gantt&gt;
+  &lt;gantt-labels&gt;&lt;/gantt-labels&gt;
   &lt;gantt-sortable enabled="..."&gt;&lt;/gantt-sortable&gt;
 &lt;/div&gt;
 </code></pre>
@@ -230,9 +236,9 @@
         
 
         <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <script src="../../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../../js/prettify-1.0.min.js"></script>
-        <script src="../../js/base.js"></script>
-        <script src="../../skeletons/plugin.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+        <script src="../skeletons/plugin.js"></script>
     </body>
 </html>

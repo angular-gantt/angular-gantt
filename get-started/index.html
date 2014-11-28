@@ -9,7 +9,7 @@
         <link rel="canonical" href="http://www.angular-gantt.com/get-started/">
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-        <title>Get Started - angular-gantt</title>
+        <title>Get Started - angular-gantt - Gantt chart component for AngularJS</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -39,7 +39,7 @@
             </button>
 
             <!-- Main title -->
-            <a class="navbar-brand" href="..">angular-gantt</a>
+            <a class="navbar-brand" href="..">angular-gantt - Gantt chart component for AngularJS</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -94,6 +94,10 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
                     <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../plugins/labels">Labels</a>
+                        </li>
                     
                         <li >
                             <a href="../plugins/sortable">Sortable</a>
@@ -239,7 +243,7 @@ other dependencies declared in your project.</p>
 </li>
 <li>
 <p>[Optional] Some features of angular-gantt are optional and defined in <a href="../configuration/plugins">Plugins</a>. 
-Add <code>angular-gantt-plugins.min.js</code> and <code>angular-gantt-plugins.min.css</code> URLs to your HTML code.</p>
+Add <code>angular-gantt-plugins.min.js</code> and <code>angular-gantt-plugins.min.css</code> URLs to your HTML code (after core sources).</p>
 <p><a href="http://www.jsdelivr.com/">jsDelivr</a></p>
 <pre><code>//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
 </code></pre>
@@ -249,12 +253,12 @@ Add <code>angular-gantt-plugins.min.js</code> and <code>angular-gantt-plugins.mi
 <!-- -->
 
 <pre><code>&lt;head&gt;
-  &lt;link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css"/&gt;
   &lt;link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css"/&gt;
+  &lt;link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css"/&gt;
 &lt;/head&gt;
 &lt;body&gt;
-  &lt;script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.js"&gt;&lt;/script&gt;
   &lt;script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"&gt;&lt;/script&gt;
+  &lt;script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.js"&gt;&lt;/script&gt;
 &lt;/body&gt;
 </code></pre>
 <p><em>Some plugins require additional dependencies.</em></p>
@@ -286,14 +290,14 @@ Add <code>angular-gantt-plugins.min.js</code> and <code>angular-gantt-plugins.mi
 </li>
 <li>
 <p>[Optional] Some features of angular-gantt are optional and defined in <a href="../configuration/plugins">Plugins</a>. 
-Add <code>angular-gantt-plugins.js</code> and <code>angular-gantt-plugins.css</code> files to your HTML code.</p>
+Add <code>angular-gantt-plugins.js</code> and <code>angular-gantt-plugins.css</code> files to your HTML code (after core sources).</p>
 <pre><code>&lt;head&gt;
-  &lt;link rel="stylesheet" href="assets/angular-gantt-plugins.css"/&gt;
   &lt;link rel="stylesheet" href="assets/angular-gantt.css"/&gt;
+  &lt;link rel="stylesheet" href="assets/angular-gantt-plugins.css"/&gt;
 &lt;/head&gt;
 &lt;body&gt;
-  &lt;script src="assets/angular-gantt-plugins.js"&gt;&lt;/script&gt;
   &lt;script src="assets/angular-gantt.js"&gt;&lt;/script&gt;
+  &lt;script src="assets/angular-gantt-plugins.js"&gt;&lt;/script&gt;
 &lt;/body&gt;
 </code></pre>
 <p><em>Some plugins require additional dependencies.</em></p>
@@ -338,9 +342,9 @@ Add <code>angular-gantt-plugins.js</code> and <code>angular-gantt-plugins.css</c
         
 
         <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <script src="../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../js/prettify-1.0.min.js"></script>
-        <script src="../js/base.js"></script>
-        <script src="../skeletons/plugin.js"></script>
+        <script src="js/bootstrap-3.0.3.min.js"></script>
+        <script src="js/prettify-1.0.min.js"></script>
+        <script src="js/base.js"></script>
+        <script src="skeletons/plugin.js"></script>
     </body>
 </html>

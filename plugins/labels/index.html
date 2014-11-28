@@ -6,10 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         
-        <link rel="canonical" href="http://www.angular-gantt.com/plugins/movable/">
+        <link rel="canonical" href="http://www.angular-gantt.com/plugins/labels/">
         <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>Movable - angular-gantt - Gantt chart component for AngularJS</title>
+        <title>Labels - angular-gantt - Gantt chart component for AngularJS</title>
 
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -95,16 +95,16 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                     
-                        <li >
-                            <a href="../labels">Labels</a>
+                        <li class="active">
+                            <a href=".">Labels</a>
                         </li>
                     
                         <li >
                             <a href="../sortable">Sortable</a>
                         </li>
                     
-                        <li class="active">
-                            <a href=".">Movable</a>
+                        <li >
+                            <a href="../movable">Movable</a>
                         </li>
                     
                         <li >
@@ -157,12 +157,12 @@
             <ul class="nav navbar-nav navbar-right">
                 
                 <li >
-                    <a rel="next" href="../sortable">
+                    <a rel="next" href="../../configuration/write_plugin">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../drawtask">
+                    <a rel="prev" href="../sortable">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -185,79 +185,34 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#movable">Movable</a></li>
+        <li class="main active"><a href="#labels">Labels</a></li>
         
             <li><a href="#usage">Usage</a></li>
         
             <li><a href="#attributes">Attributes</a></li>
-        
-            <li><a href="#api">API</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="movable">Movable</h1>
-<p>Move and resize tasks.</p>
+<h1 id="labels">Labels</h1>
+<p>Display labels on the side.</p>
 <h2 id="usage">Usage</h2>
-<pre><code>angular.module('myApp', ['gantt', 'gantt.movable']);
+<pre><code>angular.module('myApp', ['gantt', 'gantt.labels']);
 </code></pre>
 <!-- -->
 
 <pre><code>&lt;div gantt&gt;
-    &lt;gantt-movable enabled="true",
-                   allow-moving="true" 
-                   allow-resizing="true"
-                   allow-row-switching="true"&gt;
-    &lt;gantt-movable/&gt;
+  &lt;gantt-labels enabled="..."&gt;&lt;/gantt-labels&gt;
 &lt;/div&gt;
 </code></pre>
 <h2 id="attributes">Attributes</h2>
 <ul>
 <li>
-<h3 id="enabled">enabled</h3>
-<p>Enable moving and resizing of tasks.</p>
+<h4 id="enabled">enabled</h4>
+<p>Enable display of labels.</p>
 <p>default: <code>true</code></p>
-</li>
-<li>
-<h3 id="allow-moving">allow-moving</h3>
-<p>Tasks can be moved inside a row.</p>
-<p>default: <code>true</code></p>
-</li>
-<li>
-<h3 id="allow-resizing">allow-resizing</h3>
-<p>Tasks can be resized.</p>
-<p>default: <code>true</code></p>
-</li>
-<li>
-<h3 id="allow-row-switching">allow-row-switching</h3>
-<p>Tasks can be moved to a different row.</p>
-<p>default: <code>true</code></p>
-</li>
-</ul>
-<p>Attributes can be defined for a specific <code>Row</code> or <code>Task</code> object using an object property named <code>movable</code></p>
-<pre><code>{
-  ...
-  // Inside Row or Task object
-  'movable': {
-    'enabled': &lt;Boolean&gt;,
-    'allowMoving': &lt;Boolean&gt;,
-    'allowResizing': &lt;Boolean&gt;,
-    'allowRowSwitching': &lt;Boolean&gt;
-  }
-}
-</code></pre>
-<h2 id="api">API</h2>
-<h3 id="events">Events</h3>
-<ul>
-<li>
-<p><strong>api.tasks.on.moveBegin(task)</strong>, <strong>api.tasks.on.move(task, fromRow)</strong>, <strong>api.tasks.on.moveEnd(task)</strong></p>
-<p>A task is starting to move, moving or has stopped moving.</p>
-</li>
-<li>
-<p><strong>api.tasks.on.resizeBegin(task)</strong>, <strong>api.tasks.on.resize(task)</strong>, <strong>api.tasks.on.resizeEnd(task)</strong></p>
-<p>A task is starting to resize, resizing or has stopped resizing.</p>
 </li>
 </ul>
 </div>

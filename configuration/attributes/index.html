@@ -9,7 +9,7 @@
         <link rel="canonical" href="http://www.angular-gantt.com/configuration/attributes/">
         <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>Attributes - angular-gantt</title>
+        <title>Attributes - angular-gantt - Gantt chart component for AngularJS</title>
 
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -39,7 +39,7 @@
             </button>
 
             <!-- Main title -->
-            <a class="navbar-brand" href="../..">angular-gantt</a>
+            <a class="navbar-brand" href="../..">angular-gantt - Gantt chart component for AngularJS</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -94,6 +94,10 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
                     <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../../plugins/labels">Labels</a>
+                        </li>
                     
                         <li >
                             <a href="../../plugins/sortable">Sortable</a>
@@ -187,7 +191,7 @@
         
             <li><a href="#auto-expand">auto-expand</a></li>
         
-            <li><a href="#allow-labels-resizing">allow-labels-resizing</a></li>
+            <li><a href="#allow-side-resizing">allow-side-resizing</a></li>
         
             <li><a href="#current-date">current-date</a></li>
         
@@ -212,8 +216,6 @@
             <li><a href="#headers">headers</a></li>
         
             <li><a href="#headers-formats">headers-formats</a></li>
-        
-            <li><a href="#show-labels-column">show-labels-column</a></li>
         
             <li><a href="#time-frames-date-frames">time-frames, date-frames</a></li>
         
@@ -272,8 +274,8 @@
 </ul>
 </li>
 <li>
-<h3 id="allow-labels-resizing">allow-labels-resizing</h3>
-<p>Row label section can be resized.</p>
+<h3 id="allow-side-resizing">allow-side-resizing</h3>
+<p>Side section can be resized.</p>
 <p>default: <code>true</code></p>
 </li>
 <li>
@@ -397,11 +399,6 @@ tasks, or empty time after the last task, or truncate next tasks.</p>
   }
 };
 </code></pre>
-</li>
-<li>
-<h3 id="show-labels-column">show-labels-column</h3>
-<p>Whether the column with labels is to be shown or not.</p>
-<p>default: <code>true</code></p>
 </li>
 <li>
 <h3 id="time-frames-date-frames">time-frames, date-frames</h3>
@@ -571,9 +568,9 @@ template included in <code>angular-gantt.js</code>.</em></p>
         
 
         <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <script src="../../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../../js/prettify-1.0.min.js"></script>
-        <script src="../../js/base.js"></script>
-        <script src="../../skeletons/plugin.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+        <script src="../skeletons/plugin.js"></script>
     </body>
 </html>
