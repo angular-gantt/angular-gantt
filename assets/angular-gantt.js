@@ -1491,9 +1491,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         ColumnsManager.prototype.getColumnByPosition = function(x) {
             this.expandExtendedColumnsForPosition(x);
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
-            return bs.get(extendedColumns, x, function(c) {
+            var columns = bs.get(extendedColumns, x, function(c) {
                 return c.left;
-            }, true)[0];
+            }, true);
+            return columns[0] === undefined ? columns[1]: columns[0];
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {

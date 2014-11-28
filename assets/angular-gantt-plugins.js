@@ -210,6 +210,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var _moveEvents = 'touchmove mousemove';
                     var _releaseEvents = 'touchend mouseup';
 
+                    var taskWithSmallWidth = 15;
                     var resizeAreaWidthBig = 5;
                     var resizeAreaWidthSmall = 3;
                     var scrollSpeed = 15;
@@ -245,10 +246,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             taskElement.on('mousemove', function(evt) {
                                 var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
-                                if (enabled) {
+                                if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
-                                    if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                    if (mode !== '' && mode !== 'M') {
                                         taskElement.css('cursor', getCursor(mode));
                                     } else {
                                         taskElement.css('cursor', '');
@@ -256,17 +257,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
                             });
 
-                            var handleMove = function(mode, evt) {
-                                moveTask(mode, evt);
-                                scrollScreen(mode, evt);
+                            var handleMove = function(evt) {
+                                moveTask(evt);
+                                scrollScreen(evt);
                             };
 
-                            var moveTask = function(mode, evt) {
+                            var moveTask = function(evt) {
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
 
-                                if (mode === 'M') {
+                                if (taskScope.task.moveMode === 'M') {
                                     var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
@@ -296,6 +297,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
+
                                         if (taskScope.taskOutOfRange !== 'truncate') {
                                             if (x < 0) {
                                                 x = 0;
@@ -303,29 +305,36 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                                 x = taskScope.gantt.width - taskScope.task.width;
                                             }
                                         }
+
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
                                     }
-                                } else if (mode === 'E') {
-                                    if (taskScope.taskOutOfRange !== 'truncate') {
-                                        if (x < taskScope.task.left) {
-                                            x = taskScope.task.left;
-                                        } else if (x > taskScope.gantt.width) {
-                                            x = taskScope.gantt.width;
-                                        }
+                                } else if (taskScope.task.moveMode === 'E') {
+                                    if (x <= taskScope.task.left) {
+                                        x = taskScope.task.left;
+                                        taskScope.task.moveMode = 'W';
+                                        setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
+
+                                    if (taskScope.taskOutOfRange !== 'truncate' && x >= taskScope.gantt.width) {
+                                        x = taskScope.gantt.width;
+                                    }
+
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 } else {
-                                    if (taskScope.taskOutOfRange !== 'truncate') {
-                                        if (x > taskScope.task.left + taskScope.task.width) {
-                                            x = taskScope.task.left + taskScope.task.width;
-                                        } else if (x < 0) {
-                                            x = 0;
-                                        }
+                                    if (x > taskScope.task.left + taskScope.task.width) {
+                                        x = taskScope.task.left + taskScope.task.width;
+                                        taskScope.task.moveMode = 'E';
+                                        setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
+
+                                    if (taskScope.taskOutOfRange !== 'truncate' && x < 0) {
+                                        x = 0;
+                                    }
+
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
@@ -334,7 +343,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskHasBeenChanged = true;
                             };
 
-                            var scrollScreen = function(mode, evt) {
+                            var scrollScreen = function(evt) {
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var leftScreenBorder = ganttScrollElement[0].scrollLeft;
                                 var screenWidth = ganttScrollElement[0].offsetWidth;
@@ -360,7 +369,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 if (keepOnScrolling) {
                                     scrollInterval = $timeout(function() {
-                                        handleMove(mode, evt);
+                                        handleMove(evt);
                                     }, 100, true);
                                 }
                             };
@@ -381,7 +390,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
-                                    distance = taskElement[0].offsetWidth < 10 ? resizeAreaWidthSmall : resizeAreaWidthBig;
+                                    distance = taskElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
                                 }
 
                                 if (allowResizing && x > taskElement[0].offsetWidth - distance) {
@@ -406,6 +415,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
                             };
 
+                            var setGlobalCursor = function(cursor) {
+                                taskElement.css('cursor', cursor);
+                                angular.element($document[0].body).css({
+                                 '-moz-user-select': cursor === '' ? '': '-moz-none',
+                                 '-webkit-user-select': cursor === '' ? '': 'none',
+                                 '-ms-user-select': cursor === '' ? '': 'none',
+                                 'user-select': cursor === '' ? '': 'none',
+                                 'cursor': cursor
+                                 });
+                            };
+
                             var enableMoveMode = function(mode, x) {
                                 // Clone taskModel
                                 if (taskScope.task.originalModel === undefined) {
@@ -427,7 +447,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
 
                                 // Init mouse start variables (if tasks was not move from another row)
-                                if (!taskScope.task.isMoving) {
+                                if (!taskScope.task.isMoving && !taskScope.task.isResizing) {
                                     moveStartX = x;
                                     mouseStartOffsetX = x - taskScope.task.modelLeft;
                                 }
@@ -449,7 +469,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         // Without this check, task.changed event is not fired for faster moves.
                                         // See github issue #190
                                         clearScrollInterval();
-                                        handleMove(mode, evt);
+                                        handleMove(evt);
                                     }
                                 };
                                 var moveSmartEvent = smartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
@@ -464,15 +484,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.$digest();
                                 }).bindOnce();
 
-                                // Show mouse move/resize cursor
-                                taskElement.css('cursor', getCursor(mode));
-                                angular.element($document[0].body).css({
-                                    '-moz-user-select': '-moz-none',
-                                    '-webkit-user-select': 'none',
-                                    '-ms-user-select': 'none',
-                                    'user-select': 'none',
-                                    'cursor': getCursor(mode)
-                                });
+                                setGlobalCursor(getCursor(mode));
                             };
 
                             var disableMoveMode = function() {
@@ -501,14 +513,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 clearScrollInterval();
 
                                 // Set mouse cursor back to default
-                                taskElement.css('cursor', '');
-                                angular.element($document[0].body).css({
-                                    '-moz-user-select': '',
-                                    '-webkit-user-select': '',
-                                    '-ms-user-select': '',
-                                    'user-select': '',
-                                    'cursor': ''
-                                });
+                                setGlobalCursor('');
 
                                 // Raise move end event
                                 if (taskScope.task.moveMode === 'M') {
@@ -528,8 +533,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             if (taskScope.task.isResizing) {
-                                delete taskScope.task.isResizing;
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
+                                delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
                                 // In case the task has been moved to another row a new controller is is created by angular.
                                 // Enable the move mode again if this was the case.
