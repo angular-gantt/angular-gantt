@@ -20,13 +20,17 @@
                     if (task.active) {
                         res.push(task);
                     } else {
-                        // If task has a visible part on the screen
-                        if (!scrollContainerWidth ||
-                            task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
-                            task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollContainerWidth ||
-                            task.left < scrollLeft && task.left + task.width > scrollLeft + scrollContainerWidth) {
+                        // If the task can be drawn with gantt columns only.
+                        if (task.model.to > firstColumn.date && task.model.from < lastColumn.endDate) {
 
-                            res.push(task);
+                            // If task has a visible part on the screen
+                            if (!scrollContainerWidth ||
+                                task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
+                                task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollContainerWidth ||
+                                task.left < scrollLeft && task.left + task.width > scrollLeft + scrollContainerWidth) {
+
+                                res.push(task);
+                            }
                         }
                     }
                 }

@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', function(ColumnGenerator, HeaderGenerator, $filter, $timeout, layout, bs) {
+    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', 'moment', function(ColumnGenerator, HeaderGenerator, $filter, $timeout, layout, bs, moment) {
         var ColumnsManager = function(gantt) {
             var self = this;
 
@@ -124,6 +124,14 @@
                 if (!to) {
                     return false;
                 }
+            }
+
+            if (from !== undefined && !moment.isMoment(from)) {
+                from = moment(from);
+            }
+
+            if (to !== undefined && !moment.isMoment(to)) {
+                to = moment(to);
             }
 
             if (this.gantt.$scope.taskOutOfRange === 'expand') {

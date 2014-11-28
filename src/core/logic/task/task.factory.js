@@ -18,29 +18,37 @@
             this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
             this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
 
-            this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
-            if (this.modelLeft < 0) {
-                this.truncatedLeft = true;
-                if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
-                    this.truncatedRight = true;
-                    this.width = this.rowsManager.gantt.width;
-                } else {
-                    this.truncatedRight = false;
-                    this.width = this.modelWidth + this.modelLeft;
-                }
-            } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
-                this.truncatedRight = true;
-                this.truncatedLeft = false;
-                this.width = this.rowsManager.gantt.width - this.modelLeft;
-            } else {
-                this.truncatedLeft = false;
-                this.truncatedRight = false;
-                this.width = this.modelWidth;
-            }
+            var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+            var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.width < 0) {
-                this.left = this.left + this.width;
-                this.width = -this.width;
+            if (this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+                this.left = undefined;
+                this.width = undefined;
+            } else {
+                this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
+                if (this.modelLeft < 0) {
+                    this.truncatedLeft = true;
+                    if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                        this.truncatedRight = true;
+                        this.width = this.rowsManager.gantt.width;
+                    } else {
+                        this.truncatedRight = false;
+                        this.width = this.modelWidth + this.modelLeft;
+                    }
+                } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                    this.truncatedRight = true;
+                    this.truncatedLeft = false;
+                    this.width = this.rowsManager.gantt.width - this.modelLeft;
+                } else {
+                    this.truncatedLeft = false;
+                    this.truncatedRight = false;
+                    this.width = this.modelWidth;
+                }
+
+                if (this.width < 0) {
+                    this.left = this.left + this.width;
+                    this.width = -this.width;
+                }
             }
 
             this.updateView();
@@ -48,16 +56,24 @@
 
         Task.prototype.updateView = function() {
             if (this.$element) {
-                this.$element.css('left', this.left + 'px');
-                this.$element.css('width', this.width + 'px');
+                if (this.left === undefined || this.width === undefined) {
+                    this.$element.css('display', 'none');
+                } else {
+                    this.$element.css('display', '');
 
-                this.$element.css('background-color', this.model.color);
-                if (this.model.priority > 0) {
-                    this.$element.css('z-index', this.model.priority);
+                    this.$element.css('left', this.left + 'px');
+                    this.$element.css('width', this.width + 'px');
+
+                    this.$element.css('background-color', this.model.color);
+                    if (this.model.priority > 0) {
+                        this.$element.css('z-index', this.model.priority);
+                    }
+
+                    this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
+                    this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
 
-                this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
-                this.$element.toggleClass('gantt-task', !this.isMilestone());
+
             }
         };
 

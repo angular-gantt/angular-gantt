@@ -285,48 +285,48 @@ angular.module('angularGanttDemoApp')
         // Event handler
         var logScrollEvent = function(left, date, direction) {
             if (date !== undefined) {
-                $log.log('[Event] api.on.scroll: ' + left + ', ' + (date === undefined ? 'undefined' : date.format()) + ', ' + direction);
+                $log.info('[Event] api.on.scroll: ' + left + ', ' + (date === undefined ? 'undefined' : date.format()) + ', ' + direction);
             }
         };
 
         // Event handler
         var logTaskEvent = function(eventName, task) {
-            $log.log('[Event] ' + eventName + ': ' + task.model.name);
+            $log.info('[Event] ' + eventName + ': ' + task.model.name);
         };
 
         // Event handler
         var logRowEvent = function(eventName, row) {
-            $log.log('[Event] ' + eventName + ': ' + row.model.name);
+            $log.info('[Event] ' + eventName + ': ' + row.model.name);
         };
 
         // Event handler
         var logTimespanEvent = function(eventName, timespan) {
-            $log.log('[Event] ' + eventName + ': ' + timespan.model.name);
+            $log.info('[Event] ' + eventName + ': ' + timespan.model.name);
         };
 
         // Event handler
         var logLabelsEvent = function(eventName, width) {
-            $log.log('[Event] ' + eventName + ': ' + width);
+            $log.info('[Event] ' + eventName + ': ' + width);
         };
 
         // Event handler
         var logColumnsGenerateEvent = function(columns, headers) {
-            $log.log('[Event] ' + 'columns.on.generate' + ': ' + columns.length + ' column(s), ' + headers.length + ' header(s)');
+            $log.info('[Event] ' + 'columns.on.generate' + ': ' + columns.length + ' column(s), ' + headers.length + ' header(s)');
         };
 
         // Event handler
         var logRowsFilterEvent = function(rows, filteredRows) {
-            $log.log('[Event] rows.on.filter: ' + filteredRows.length + '/' + rows.length + ' rows displayed.');
+            $log.info('[Event] rows.on.filter: ' + filteredRows.length + '/' + rows.length + ' rows displayed.');
         };
 
         // Event handler
         var logTasksFilterEvent = function(tasks, filteredTasks) {
-            $log.log('[Event] tasks.on.filter: ' + filteredTasks.length + '/' + tasks.length + ' tasks displayed.');
+            $log.info('[Event] tasks.on.filter: ' + filteredTasks.length + '/' + tasks.length + ' tasks displayed.');
         };
 
         // Event handler
         var logReadyEvent = function() {
-            $log.log('[Event] core.on.ready');
+            $log.info('[Event] core.on.ready');
         };
 
         // Event utility function
