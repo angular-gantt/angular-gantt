@@ -38110,26 +38110,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
-            var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
-            if (autoFitWidthEnabled) {
-                var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
-
-                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.previousColumns);
-                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.columns);
-                layout.setColumnsWidth(newWidth, this.gantt.originalWidth, this.nextColumns);
-
-                angular.forEach(this.headers, function(header) {
-                    layout.setColumnsWidth(newWidth, this.gantt.originalWidth, header);
-                }, this);
-            }
+            var columnsWidthChanged = this.updateColumnsWidths([this.previousColumns, this.columns, this.nextColumns, this.headers]);
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
-            this.updateVisibleColumns(autoFitWidthEnabled);
+            this.updateVisibleColumns(columnsWidthChanged);
             this.gantt.rowsManager.updateVisibleObjects();
 
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
@@ -38182,6 +38170,28 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return columns[0] === undefined ? columns[1]: columns[0];
         };
 
+        var updateColumnsWidthImpl = function(newWidth, originalWidth, columnsArray) {
+            if (angular.isArray(columnsArray)) {
+                if (columnsArray.length > 0 && angular.isArray(columnsArray[0])) {
+                    angular.forEach(columnsArray, function(columns) {
+                        updateColumnsWidthImpl(newWidth, originalWidth, columns);
+                    });
+                    return;
+                }
+            }
+            layout.setColumnsWidth(newWidth, originalWidth, columnsArray);
+        };
+
+        ColumnsManager.prototype.updateColumnsWidths = function(columns) {
+            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
+            if (autoFitWidthEnabled) {
+                var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
+                updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+            }
+            return autoFitWidthEnabled;
+        };
+
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
             if (x < 0) {
                 var firstColumn = this.getFirstColumn();
@@ -38189,6 +38199,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.left > x) {
                     this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
+                    this.updateColumnsWidths(this.previousColumns);
                 }
                 return true;
             } else if (x > this.gantt.width) {
@@ -38197,6 +38208,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var lastExtendedColumn = this.getLastColumn(true);
                 if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
                     this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
+                    this.updateColumnsWidths(this.nextColumns);
                 }
                 return true;
             }
@@ -38220,12 +38232,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.date > date) {
                     this.previousColumns = new ColumnGenerator(this).generate(from, date, undefined, 0, true);
+                    this.updateColumnsWidths(this.previousColumns);
                 }
                 return true;
             } else if (endDate && date > endDate) {
                 var lastExtendedColumn = this.getLastColumn(true);
                 if (!lastExtendedColumn || endDate < lastExtendedColumn) {
                     this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
+                    this.updateColumnsWidths(this.nextColumns);
                 }
                 return true;
             }
