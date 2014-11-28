@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc6 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc7 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -210,6 +210,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var _moveEvents = 'touchmove mousemove';
                     var _releaseEvents = 'touchend mouseup';
 
+                    var taskWithSmallWidth = 15;
                     var resizeAreaWidthBig = 5;
                     var resizeAreaWidthSmall = 3;
                     var scrollSpeed = 15;
@@ -245,10 +246,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             taskElement.on('mousemove', function(evt) {
                                 var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
-                                if (enabled) {
+                                if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
-                                    if (mode !== '' && (taskScope.task.isMoving || mode !== 'M')) {
+                                    if (mode !== '' && mode !== 'M') {
                                         taskElement.css('cursor', getCursor(mode));
                                     } else {
                                         taskElement.css('cursor', '');
@@ -256,22 +257,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
                             });
 
-                            var handleMove = function(mode, evt) {
-                                moveTask(mode, evt);
-                                scrollScreen(mode, evt);
+                            var handleMove = function(evt) {
+                                moveTask(evt);
+                                scrollScreen(evt);
                             };
 
-                            var moveTask = function(mode, evt) {
+                            var moveTask = function(evt) {
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
 
-                                if (mode === 'M') {
+                                if (taskScope.task.moveMode === 'M') {
                                     var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
+                                        var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
 
-                                        var targetRowElement = utils.findElementFromPoint(scrollRect.left, evt.clientY, function(element) {
+                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
                                         var rows = ganttCtrl.gantt.rowsManager.rows;
@@ -295,6 +297,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
+
                                         if (taskScope.taskOutOfRange !== 'truncate') {
                                             if (x < 0) {
                                                 x = 0;
@@ -302,29 +305,36 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                                 x = taskScope.gantt.width - taskScope.task.width;
                                             }
                                         }
+
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
                                     }
-                                } else if (mode === 'E') {
-                                    if (taskScope.taskOutOfRange !== 'truncate') {
-                                        if (x < taskScope.task.left) {
-                                            x = taskScope.task.left;
-                                        } else if (x > taskScope.gantt.width) {
-                                            x = taskScope.gantt.width;
-                                        }
+                                } else if (taskScope.task.moveMode === 'E') {
+                                    if (x <= taskScope.task.left) {
+                                        x = taskScope.task.left;
+                                        taskScope.task.moveMode = 'W';
+                                        setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
+
+                                    if (taskScope.taskOutOfRange !== 'truncate' && x >= taskScope.gantt.width) {
+                                        x = taskScope.gantt.width;
+                                    }
+
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
                                 } else {
-                                    if (taskScope.taskOutOfRange !== 'truncate') {
-                                        if (x > taskScope.task.left + taskScope.task.width) {
-                                            x = taskScope.task.left + taskScope.task.width;
-                                        } else if (x < 0) {
-                                            x = 0;
-                                        }
+                                    if (x > taskScope.task.left + taskScope.task.width) {
+                                        x = taskScope.task.left + taskScope.task.width;
+                                        taskScope.task.moveMode = 'E';
+                                        setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
+
+                                    if (taskScope.taskOutOfRange !== 'truncate' && x < 0) {
+                                        x = 0;
+                                    }
+
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
@@ -333,7 +343,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskHasBeenChanged = true;
                             };
 
-                            var scrollScreen = function(mode, evt) {
+                            var scrollScreen = function(evt) {
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var leftScreenBorder = ganttScrollElement[0].scrollLeft;
                                 var screenWidth = ganttScrollElement[0].offsetWidth;
@@ -359,7 +369,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 if (keepOnScrolling) {
                                     scrollInterval = $timeout(function() {
-                                        handleMove(mode, evt);
+                                        handleMove(evt);
                                     }, 100, true);
                                 }
                             };
@@ -380,7 +390,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
-                                    distance = taskElement[0].offsetWidth < 10 ? resizeAreaWidthSmall : resizeAreaWidthBig;
+                                    distance = taskElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
                                 }
 
                                 if (allowResizing && x > taskElement[0].offsetWidth - distance) {
@@ -405,6 +415,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
                             };
 
+                            var setGlobalCursor = function(cursor) {
+                                taskElement.css('cursor', cursor);
+                                angular.element($document[0].body).css({
+                                 '-moz-user-select': cursor === '' ? '': '-moz-none',
+                                 '-webkit-user-select': cursor === '' ? '': 'none',
+                                 '-ms-user-select': cursor === '' ? '': 'none',
+                                 'user-select': cursor === '' ? '': 'none',
+                                 'cursor': cursor
+                                 });
+                            };
+
                             var enableMoveMode = function(mode, x) {
                                 // Clone taskModel
                                 if (taskScope.task.originalModel === undefined) {
@@ -426,7 +447,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
 
                                 // Init mouse start variables (if tasks was not move from another row)
-                                if (!taskScope.task.isMoving) {
+                                if (!taskScope.task.isMoving && !taskScope.task.isResizing) {
                                     moveStartX = x;
                                     mouseStartOffsetX = x - taskScope.task.modelLeft;
                                 }
@@ -448,7 +469,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         // Without this check, task.changed event is not fired for faster moves.
                                         // See github issue #190
                                         clearScrollInterval();
-                                        handleMove(mode, evt);
+                                        handleMove(evt);
                                     }
                                 };
                                 var moveSmartEvent = smartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
@@ -463,15 +484,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.$digest();
                                 }).bindOnce();
 
-                                // Show mouse move/resize cursor
-                                taskElement.css('cursor', getCursor(mode));
-                                angular.element($document[0].body).css({
-                                    '-moz-user-select': '-moz-none',
-                                    '-webkit-user-select': 'none',
-                                    '-ms-user-select': 'none',
-                                    'user-select': 'none',
-                                    'cursor': getCursor(mode)
-                                });
+                                setGlobalCursor(getCursor(mode));
                             };
 
                             var disableMoveMode = function() {
@@ -500,14 +513,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 clearScrollInterval();
 
                                 // Set mouse cursor back to default
-                                taskElement.css('cursor', '');
-                                angular.element($document[0].body).css({
-                                    '-moz-user-select': '',
-                                    '-webkit-user-select': '',
-                                    '-ms-user-select': '',
-                                    'user-select': '',
-                                    'cursor': ''
-                                });
+                                setGlobalCursor('');
 
                                 // Raise move end event
                                 if (taskScope.task.moveMode === 'M') {
@@ -527,8 +533,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             if (taskScope.task.isResizing) {
-                                delete taskScope.task.isResizing;
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
+                                delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
                                 // In case the task has been moved to another row a new controller is is created by angular.
                                 // Enable the move mode again if this was the case.
@@ -602,63 +608,120 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.sortable', ['gantt', 'ang-drag-drop']).directive('ganttSortable', ['ganttUtils', '$compile', function(utils, $compile) {
-        // Provides the row sort functionality to any Gantt row
-        // Uses the sortableState to share the current row
 
-        return {
-            restrict: 'E',
-            require: '^gantt',
-            scope: {
-                enabled: '=?'
-            },
-            link: function(scope, element, attrs, ganttCtrl) {
-                var api = ganttCtrl.gantt.api;
+    var moduleName = 'gantt.sortable';
+    var directiveName = 'ganttSortable';
+    var pluginDependencies = [
+        'gantt',
+        {module:'ang-drag-drop', url:'https://github.com/ganarajpr/angular-dragdrop.git#master'}
+    ];
 
-                // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
-                    }
-                }
+    var failedDependencies = [];
+    var loadedDependencies = [];
+    var failedDependency;
 
-                if (scope.enabled === undefined) {
-                    scope.enabled = true;
-                }
-
-                api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
-                    if (directiveName === 'ganttRowLabel') {
-                        rowScope.checkDraggable = function() {
-                            return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
-                        };
-
-                        rowScope.onDropSuccess = function() {
-                            rowScope.$evalAsync();
-                        };
-
-                        rowScope.onDrop = function(evt, data) {
-                            var row = rowScope.row.rowsManager.rowsMap[data.id];
-                            if (row !== rowScope) {
-                                rowScope.row.rowsManager.moveRow(row, rowScope.row);
-                                rowScope.$evalAsync();
-                            }
-                        };
-
-                        rowElement.attr('ui-draggable', '{{checkDraggable()}}');
-                        rowElement.attr('drag-channel', '\'sortable\'');
-                        rowElement.attr('ui-on-drop', 'onDrop($event, $data)');
-                        rowElement.attr('on-drop-success', 'onDropSuccess()');
-
-                        rowElement.attr('drop-channel', '\'sortable\'');
-                        rowElement.attr('drag', 'row.model');
-
-                        $compile(rowElement)(rowScope);
-                    }
-                });
-
+    for (var i = 0, l = pluginDependencies.length; i < l; i++) {
+        var currentDependency = pluginDependencies[i];
+        try {
+            if (angular.isString(currentDependency)) {
+                currentDependency = {module: currentDependency};
+                pluginDependencies[i] = currentDependency;
             }
-        };
-    }]);
+            angular.module(currentDependency.module);
+            loadedDependencies.push(currentDependency.module);
+        } catch (e) {
+            currentDependency.exception = e;
+            failedDependencies.push(currentDependency);
+        }
+    }
+
+    if (failedDependencies.length > 0) {
+        angular.module(moduleName, []).directive(directiveName, ['$log', function($log) {
+            return {
+                restrict: 'E',
+                require: '^gantt',
+                scope: {
+                    enabled: '=?'
+                },
+                link: function() {
+                    $log.warn(moduleName + ' module can\'t require some dependencies:');
+                    for (var i= 0,l =failedDependencies.length; i<l; i++) {
+                        failedDependency = failedDependencies[i];
+
+                        var errorMessage = failedDependency.module;
+                        if (failedDependency.url) {
+                            errorMessage += ' (' + failedDependency.url + ')';
+                        }
+                        if (failedDependency.exception && failedDependency.exception.message) {
+                            errorMessage += ': ' + failedDependency.exception.message;
+                        }
+
+                        $log.warn(errorMessage);
+                    }
+                    $log.warn(directiveName + ' plugin directive won\'t be available');
+                }
+            };
+        }]);
+    } else {
+        angular.module(moduleName, loadedDependencies).directive(directiveName, ['ganttUtils', '$compile', function(utils, $compile) {
+            // Provides the row sort functionality to any Gantt row
+            // Uses the sortableState to share the current row
+
+            return {
+                restrict: 'E',
+                require: '^gantt',
+                scope: {
+                    enabled: '=?'
+                },
+                link: function(scope, element, attrs, ganttCtrl) {
+                    var api = ganttCtrl.gantt.api;
+
+                    // Load options from global options attribute.
+                    if (scope.options && typeof(scope.options.sortable) === 'object') {
+                        for (var option in scope.options.sortable) {
+                            scope[option] = scope.options[option];
+                        }
+                    }
+
+                    if (scope.enabled === undefined) {
+                        scope.enabled = true;
+                    }
+
+                    api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
+                        if (directiveName === 'ganttRowLabel') {
+                            rowScope.checkDraggable = function() {
+                                return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                            };
+
+                            rowScope.onDropSuccess = function() {
+                                rowScope.$evalAsync();
+                            };
+
+                            rowScope.onDrop = function(evt, data) {
+                                var row = rowScope.row.rowsManager.rowsMap[data.id];
+                                if (row !== rowScope) {
+                                    rowScope.row.rowsManager.moveRow(row, rowScope.row);
+                                    rowScope.$evalAsync();
+                                }
+                            };
+
+                            rowElement.attr('ui-draggable', '{{checkDraggable()}}');
+                            rowElement.attr('drag-channel', '\'sortable\'');
+                            rowElement.attr('ui-on-drop', 'onDrop($event, $data)');
+                            rowElement.attr('on-drop-success', 'onDropSuccess()');
+
+                            rowElement.attr('drop-channel', '\'sortable\'');
+                            rowElement.attr('drag', 'row.model');
+
+                            $compile(rowElement)(rowScope);
+                        }
+                    });
+
+                }
+            };
+        }]);
+    }
+
 }());
 
 
@@ -1111,10 +1174,10 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '</div>\n' +
         '');
     $templateCache.put('plugins/labels/rowHeader.tmpl.html',
-        '<div class="gantt-row-height gantt-labels-header-row"\n' +
-        '     ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"\n' +
-        '     ng-style="{\'margin-top\': ((gantt.columnsManager.headers.length-1)*2)+\'em\'}">\n' +
-        '    <span>Name</span>\n' +
+        '<div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
+        '    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? "Name" : ""}}</span></div>\n' +
+        '    </div>\n' +
         '</div>\n' +
         '');
     $templateCache.put('plugins/labels/rowLabel.tmpl.html',

@@ -296,7 +296,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('buildDemo', ['run:buildDemo']);
 
-    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'replace:site', 'replace:siteMkdocsFix', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite']);
+    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite', 'replace:site', 'replace:siteMkdocsFix']);
 
     grunt.registerTask('uploadSite', ['gh-pages']);
 

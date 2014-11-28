@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc6 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc7 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com

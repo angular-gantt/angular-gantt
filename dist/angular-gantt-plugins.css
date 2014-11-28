@@ -37,7 +37,6 @@
 
 .gantt-labels-header {
     overflow: hidden;
-    border-bottom: 1px solid #dddddd;
 }
 
 .gantt-labels-body {
@@ -52,6 +51,8 @@
 }
 
 .gantt-task-moving, .gantt-task-resizing {
+    z-index: 750 !important;
+
     opacity: 0.6;
     filter: alpha(opacity=60);
 
