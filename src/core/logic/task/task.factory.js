@@ -52,10 +52,11 @@
                 this.$element.css('width', this.width + 'px');
 
                 this.$element.css('background-color', this.model.color);
-                this.$element.css('z-index', this.model.priority);
+                if (this.model.priority > 0) {
+                    this.$element.css('z-index', this.model.priority);
+                }
 
                 this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
-                this.$element.toggleClass('gantt-task', !this.isMilestone());
                 this.$element.toggleClass('gantt-task', !this.isMilestone());
             }
         };
