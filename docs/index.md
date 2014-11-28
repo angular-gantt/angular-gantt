@@ -14,6 +14,8 @@ Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com/
 
 You can even try the API using [Plunker](http://plnkr.co/hchknn) sandbox (latest release).
 
+Latest version is @@version
+
 ## Features
 - Two-way data binding between model and view.
 - Advanced calendar support to define holidays and working hours.

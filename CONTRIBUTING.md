@@ -7,6 +7,7 @@ We'd love for you to contribute to our source code and to make angular-gantt bet
  - [Branching Guidelines](#branching)
  - [Pull Request Guidelines](#pull-request)
  - [Git Commit Guidelines](#commit)
+ - [Release Guidelines](#release)
  
 ## <a name="issue"></a> Issues Guidelines
 
@@ -107,3 +108,37 @@ reference GitHub issues that this commit **Closes**.
 A detailed explanation can be found in this [document][commit-message-format].
 
 [commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
+
+## <a name="release"></a> Release Guidelines
+
+Release are performed in interactive mode using [release-it](https://github.com/webpro/release-it).
+    
+1. `grunt release-it[:<version>|patch|minor|major] [--no-write]`
+
+    The optional qualifier passed to task can be, as defined by [semver](http://semver.org/):
+    
+    - `<version>`: Will use the exact given version.
+    - `patch`: Will increment version to next patch (default).
+    - `minor`: Will increment version to next minor.
+    - `major`: Will increment version to next major.
+        
+    `.release.json` is the `release-it` configuration. It's configured to run `grunt dist`.
+    
+    `grunt dist` automates the preparation of release, and can be run manually to check if everything works as expected.
+    
+    - Build `angular-gantt`.
+    - Run tests.
+    - Populate `dist` directory with distribution files for CDNs.
+    - Populate `site` directory, containing docs, demo and files located in gh-pages.
+    - Replace `@@version` by version number in `site` directory.
+    
+    `grunt dist` won't commit or push anything. A dry-run of the release process can also be performed using `--no-write` option.
+     
+     Make sure both tasks are working properly before running `grunt release-it` without the `--no-write` option.
+    
+    `release-it` will finally publish the release on github (release & tag) and npm (publish).
+        
+2. `grunt uploadSite`
+
+    This task upload the local `site` directory to github pages. Make sure the local site is working properly and contains
+    the demo, because missing files will be removed from github pages.

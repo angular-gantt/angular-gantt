@@ -1,0 +1,18 @@
+{
+    "non-interactive": false,
+    "dry-run": false,
+    "verbose": true,
+    "force": false,
+    "pkgFiles": ["package.json", "bower.json", "demo/package.json", "demo/bower.json"],
+    "increment": "patch",
+    "commitMessage": "chore(release) Release v%s",
+    "tagName": "v%s",
+    "tagAnnotation": "v%s",
+    "buildCommand": "grunt dist",
+    "distRepo": false,
+    "distStageDir": ".stage",
+    "distBase": "dist",
+    "distFiles": ["**/*"],
+    "publish": true,
+    "publishPath": "."
+}

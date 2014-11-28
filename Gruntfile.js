@@ -67,6 +67,10 @@ module.exports = function(grunt) {
             options: {},
             assets: 'assets/**/*'
         },
+        clean: {
+            site: ['site'],
+            dist: ['dist']
+        },
         uglify: {
             options: {
                 banner: '/*\n' +
@@ -104,6 +108,18 @@ module.exports = function(grunt) {
                 files: [
                     // includes files within path
                     {expand: true, cwd: 'assets/', src: ['**'], dest: 'dist/'},
+                ]
+            },
+            demoToSite: {
+                files: [
+                    // includes files within path
+                    {expand: true, cwd: 'demo/dist/', src: ['**'], dest: 'site/demo'},
+                ]
+            },
+            ghPagesToSite: {
+                files: [
+                    // includes files within path
+                    {expand: true, cwd: 'gh-pages/', src: ['**'], dest: 'site/'},
                 ]
             }
         },
@@ -165,6 +181,61 @@ module.exports = function(grunt) {
                     }
                 }
             }
+        },
+        run: {
+            buildDemo: {
+                options: {
+                    cwd: 'demo'
+                },
+                cmd: 'grunt'
+            },
+            buildDocs: {
+                exec: 'mkdocs build --clean'
+            }
+        },
+        replace: {
+            site: {
+                options: {
+                    patterns: [
+                        {
+                            match: 'site_name',
+                            replacement: 'angular-gantt - Gantt chart component for AngularJS'
+                        },
+                        {
+                            match: 'site_description',
+                            replacement: 'Gantt chart component for AngularJS'
+                        },
+                        {
+                            match: 'version',
+                            replacement: '<%= pkg.version %>'
+                        }
+                    ]
+                },
+                files: [
+                    {src: ['site/**'], dest: './'}
+                ]
+            },
+            siteMkdocsFix : { // https://github.com/tomchristie/mkdocs/issues/240. Wait for Mkdocs>0.11.1.
+                options: {
+                    usePrefix: false,
+                    patterns: [
+                        {
+                            match: /script src=".{2}\//g,
+                            replacement: 'script src="'
+                        }
+                    ]
+                },
+                files: [
+                    {src: ['site/**'], dest: './'}
+                ]
+            }
+        },
+        'gh-pages': {
+            options: {
+                base: 'site',
+                message: 'chore(site): Automatic update'
+            },
+            src: ['**']
         }
     };
 
@@ -200,11 +271,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-cleanempty');
-
-
+    grunt.loadNpmTasks('grunt-replace');
     grunt.loadNpmTasks('grunt-html2js');
+    grunt.loadNpmTasks('grunt-cleanempty');
+    grunt.loadNpmTasks('grunt-run');
+    grunt.loadNpmTasks('grunt-release-it');
 
     grunt.loadNpmTasks('grunt-karma');
 
@@ -221,7 +294,13 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'concatCss', 'cleanempty']);
 
-    grunt.registerTask('dist', ['build', 'copy:assetsToDist', 'uglify', 'cssmin']);
+    grunt.registerTask('buildDemo', ['run:buildDemo']);
+
+    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'replace:site', 'replace:siteMkdocsFix', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite']);
+
+    grunt.registerTask('uploadSite', ['gh-pages']);
+
+    grunt.registerTask('dist', ['clean:dist', 'build', 'buildSite', 'copy:assetsToDist', 'uglify', 'cssmin']);
 
     grunt.registerTask('plunker', ['connect:plunker']);
 
