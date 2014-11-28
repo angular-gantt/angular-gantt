@@ -198,21 +198,26 @@ module.exports = function(grunt) {
                 options: {
                     patterns: [
                         {
-                            match: 'site_name',
-                            replacement: 'angular-gantt - Gantt chart component for AngularJS'
-                        },
-                        {
-                            match: 'site_description',
-                            replacement: 'Gantt chart component for AngularJS'
-                        },
-                        {
                             match: 'version',
                             replacement: '<%= pkg.version %>'
                         }
                     ]
                 },
                 files: [
-                    {src: ['site/**'], dest: './'}
+                    {src: ['site/**/*.html'], dest: './'}
+                ]
+            },
+            siteIndexTitle: {
+                options: {
+                    patterns: [
+                        {
+                            match: /<title>.*?<\/title>/,
+                            replacement: '<title>angular-gantt - Gantt chart component for AngularJS</title>'
+                        }
+                    ]
+                },
+                files: [
+                    {src: ['site/index.html'], dest: './'}
                 ]
             },
             siteMkdocsFix : { // https://github.com/tomchristie/mkdocs/issues/240. Wait for Mkdocs>0.11.1.
@@ -226,14 +231,14 @@ module.exports = function(grunt) {
                     ]
                 },
                 files: [
-                    {src: ['site/**'], dest: './'}
+                    {src: ['site/**/*.html'], dest: './'}
                 ]
             }
         },
         'gh-pages': {
             options: {
                 base: 'site',
-                message: 'chore(site): Automatic update'
+                message: 'chore(site): Automatic update (grunt-gh-pages)'
             },
             src: ['**']
         }
@@ -276,6 +281,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-replace');
     grunt.loadNpmTasks('grunt-html2js');
     grunt.loadNpmTasks('grunt-cleanempty');
+    grunt.loadNpmTasks('grunt-gh-pages');
     grunt.loadNpmTasks('grunt-run');
     grunt.loadNpmTasks('grunt-release-it');
 
@@ -296,7 +302,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('buildDemo', ['run:buildDemo']);
 
-    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite', 'replace:site', 'replace:siteMkdocsFix']);
+    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite', 'replace:site', 'replace:siteIndexTitle', 'replace:siteMkdocsFix']);
 
     grunt.registerTask('uploadSite', ['gh-pages']);
 

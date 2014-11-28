@@ -15,6 +15,7 @@
 /assets/*.map
 /docs/_build/
 /site/
+/gh-pages/
 /coverage-results/
 *.log
 /resources/
