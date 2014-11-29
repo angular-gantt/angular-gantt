@@ -1,51 +1,50 @@
-(function(){
+(function() {
     'use strict';
-    angular.module('gantt').factory('ganttOptions', ['moment', function(moment) {
-        return {initialize: function(options) {
-            options.api = options.api || angular.noop();
+    angular.module('gantt').factory('GanttOptions', [function() {
+        var GanttOptions = function(values, defaultValues) {
+            this.defaultValues = defaultValues;
+            this.values = values;
 
-            options.data = options.data || [];
+            this.defaultValue = function(optionName) {
+                var defaultValue = this.defaultValues[optionName];
+                if (angular.isFunction(defaultValue)) {
+                    defaultValue = defaultValue();
+                }
+                if (typeof defaultValue !== 'boolean') {
+                    return defaultValue;
+                }
+                return undefined;
+            };
 
-            options.timespans = options.timespans || [];
+            this.sanitize = function(optionName, optionValue) {
+                if (!optionValue) {
+                    var defaultValue = this.defaultValue(optionName);
+                    if (defaultValue !== undefined) {
+                        return defaultValue;
+                    }
+                }
+                return optionValue;
+            };
 
-            options.sortMode = options.sortMode || undefined;
+            this.value = function(optionName) {
+                return this.sanitize(optionName, this.values[optionName]);
+            };
 
-            options.filterTask = options.filterTask || undefined;
-            options.filterTaskComparator = options.filterTaskComparator || undefined;
+            this.set = function(optionName, optionValue) {
+                this.values[optionName] = optionValue;
+            };
 
-            options.filterRow = options.filterRow || undefined;
-            options.filterRowComparator = options.filterRowComparator || undefined;
-
-            options.viewScale = options.viewScale || 'day';
-            options.columnMagnet = options.columnMagnet || '15 minutes';
-            options.columnWidth = options.columnWidth || undefined;
-
-            options.fromDate = options.fromDate || undefined;
-            options.toDate = options.toDate || undefined;
-
-            options.sideWidth = options.sideWidth || 150;
-            options.showSide = options.showSide !== undefined ? !!options.showSide : true;
-            options.allowSideResizing = options.allowSideResizing !== undefined ? !!options.allowSideResizing : true;
-
-            options.currentDate = options.currentDate || 'line';
-            options.currentDateValue = options.currentDateValue || moment();
-
-            options.autoExpand = options.autoExpand || 'none';
-            options.taskOutOfRange = options.taskOutOfRange || 'truncate';
-
-            options.maxHeight = options.maxHeight || 0;
-
-            options.headers = options.headers || undefined;
-            options.headersFormats = options.headersFormats || undefined;
-
-            options.timeFrames = options.timeFrames || [];
-            options.dateFrames = options.dateFrames || [];
-
-            options.timeFramesWorkingMode = options.timeFramesWorkingMode || 'hidden';
-            options.timeFramesNonWorkingMode = options.timeFramesNonWorkingMode || 'visible';
-
-            return options;
-        }
+            this.initialize = function() {
+                for (var optionName in this.values) {
+                    var optionValue = this.values[optionName];
+                    if (this.values.hasOwnProperty(optionName)) {
+                        this.values[optionName] = this.value(optionName, optionValue);
+                    }
+                }
+                return this.values;
+            };
         };
+
+        return GanttOptions;
     }]);
 }());

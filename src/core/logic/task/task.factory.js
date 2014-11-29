@@ -93,16 +93,20 @@
 
         // Moves the task to the specified position (in em)
         Task.prototype.moveTo = function(x, magnetEnabled) {
-            if (x > this.left) {
+            var newTaskRight;
+            var newTaskLeft;
+            if (x > this.modelLeft) {
                 // Driven by right/to side.
                 this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
-                var newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
-                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskRight - this.modelWidth, false);
+                newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
+                newTaskLeft = newTaskRight - this.modelWidth;
+                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskLeft, false);
             } else {
                 // Drive by left/from side.
                 this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-                var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, false);
+                newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                newTaskRight = newTaskLeft + this.modelWidth;
+                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskRight, false);
             }
 
             this.row.setFromToByTask(this);

@@ -16,7 +16,7 @@
 
             this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function(newValues, oldValues) {
                 if (newValues !== oldValues) {
-                    self.setCurrentDate(self.gantt.$scope.currentDateValue);
+                    self.setCurrentDate(self.gantt.options.value('currentDateValue'));
                 }
             });
         };
@@ -31,18 +31,17 @@
             }
 
             if (this.date !== undefined) {
-                var column = this.gantt.columnsManager.getColumnByDate(this.date);
+                var column = this.gantt.columnsManager.getColumnByDate(this.date, true);
                 if (column !== undefined) {
                     this.currentDateColumn = column;
-                    if (this.gantt.$scope.currentDate === 'column' && this.currentDateColumn.$element !== undefined) {
+                    if (this.gantt.options.value('currentDate') === 'column' && this.currentDateColumn.$element !== undefined) {
                         this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
                     }
                 }
             }
 
-            this.position = this.gantt.getPositionByDate(this.date);
+            this.position = this.gantt.getPositionByDate(this.date, true);
         };
         return GanttCurrentDateManager;
     }]);
-    /* code */
 }());

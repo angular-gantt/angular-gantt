@@ -82,16 +82,16 @@
         };
 
         Row.prototype.updateVisibleTasks = function() {
-            if (this.rowsManager.gantt.$scope.filterTask) {
-                var filterTask = this.rowsManager.gantt.$scope.filterTask;
+            var filterTask = this.rowsManager.gantt.options.value('filterTask');
+            if (filterTask) {
                 if (typeof(filterTask) === 'object') {
                     filterTask = {model: filterTask};
                 }
 
-                var filterTaskComparator = this.rowsManager.gantt.$scope.filterTaskComparator;
+                var filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
                 if (typeof(filterTaskComparator) === 'function') {
                     filterTaskComparator = function(actual, expected) {
-                        return this.rowsManager.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                        return filterTaskComparator(actual.model, expected.model);
                     };
                 }
 

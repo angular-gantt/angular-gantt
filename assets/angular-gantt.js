@@ -8,7 +8,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function(){
     'use strict';
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
-        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout, $templateCache) {
+        .directive('gantt', ['Gantt', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, enableNgAnimate, $timeout, $templateCache) {
         return {
             restrict: 'A',
             transclude: true,
@@ -59,8 +59,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $scope[option] = $scope.options[option];
                 }
 
-                Options.initialize($scope);
-
                 // Disable animation if ngAnimate is present, as it drops down performance.
                 enableNgAnimate(false, $element);
 
@@ -74,12 +72,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
 
                 $timeout(function() {
-                    // Gantt is initialized. Signal that the Gantt is ready.
-                    scope.gantt.api.core.raise.ready(scope.gantt.api);
-
-                    scope.gantt.rendered = true;
-                    scope.gantt.columnsManager.generateColumns();
-                    scope.gantt.api.core.raise.rendered(scope.gantt.api);
+                    scope.gantt.initialized();
                 });
             }
         };
@@ -309,55 +302,54 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 })();
 
-(function(){
+(function() {
     'use strict';
-    angular.module('gantt').factory('ganttOptions', ['moment', function(moment) {
-        return {initialize: function(options) {
-            options.api = options.api || angular.noop();
+    angular.module('gantt').factory('GanttOptions', [function() {
+        var GanttOptions = function(values, defaultValues) {
+            this.defaultValues = defaultValues;
+            this.values = values;
 
-            options.data = options.data || [];
+            this.defaultValue = function(optionName) {
+                var defaultValue = this.defaultValues[optionName];
+                if (angular.isFunction(defaultValue)) {
+                    defaultValue = defaultValue();
+                }
+                if (typeof defaultValue !== 'boolean') {
+                    return defaultValue;
+                }
+                return undefined;
+            };
 
-            options.timespans = options.timespans || [];
+            this.sanitize = function(optionName, optionValue) {
+                if (!optionValue) {
+                    var defaultValue = this.defaultValue(optionName);
+                    if (defaultValue !== undefined) {
+                        return defaultValue;
+                    }
+                }
+                return optionValue;
+            };
 
-            options.sortMode = options.sortMode || undefined;
+            this.value = function(optionName) {
+                return this.sanitize(optionName, this.values[optionName]);
+            };
 
-            options.filterTask = options.filterTask || undefined;
-            options.filterTaskComparator = options.filterTaskComparator || undefined;
+            this.set = function(optionName, optionValue) {
+                this.values[optionName] = optionValue;
+            };
 
-            options.filterRow = options.filterRow || undefined;
-            options.filterRowComparator = options.filterRowComparator || undefined;
-
-            options.viewScale = options.viewScale || 'day';
-            options.columnMagnet = options.columnMagnet || '15 minutes';
-            options.columnWidth = options.columnWidth || undefined;
-
-            options.fromDate = options.fromDate || undefined;
-            options.toDate = options.toDate || undefined;
-
-            options.sideWidth = options.sideWidth || 150;
-            options.showSide = options.showSide !== undefined ? !!options.showSide : true;
-            options.allowSideResizing = options.allowSideResizing !== undefined ? !!options.allowSideResizing : true;
-
-            options.currentDate = options.currentDate || 'line';
-            options.currentDateValue = options.currentDateValue || moment();
-
-            options.autoExpand = options.autoExpand || 'none';
-            options.taskOutOfRange = options.taskOutOfRange || 'truncate';
-
-            options.maxHeight = options.maxHeight || 0;
-
-            options.headers = options.headers || undefined;
-            options.headersFormats = options.headersFormats || undefined;
-
-            options.timeFrames = options.timeFrames || [];
-            options.dateFrames = options.dateFrames || [];
-
-            options.timeFramesWorkingMode = options.timeFramesWorkingMode || 'hidden';
-            options.timeFramesNonWorkingMode = options.timeFramesNonWorkingMode || 'visible';
-
-            return options;
-        }
+            this.initialize = function() {
+                for (var optionName in this.values) {
+                    var optionValue = this.values[optionName];
+                    if (this.values.hasOwnProperty(optionName)) {
+                        this.values[optionName] = this.value(optionName, optionValue);
+                    }
+                }
+                return this.values;
+            };
         };
+
+        return GanttOptions;
     }]);
 }());
 
@@ -825,7 +817,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function(newValues, oldValues) {
                 if (newValues !== oldValues) {
-                    self.setCurrentDate(self.gantt.$scope.currentDateValue);
+                    self.setCurrentDate(self.gantt.options.value('currentDateValue'));
                 }
             });
         };
@@ -840,20 +832,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
 
             if (this.date !== undefined) {
-                var column = this.gantt.columnsManager.getColumnByDate(this.date);
+                var column = this.gantt.columnsManager.getColumnByDate(this.date, true);
                 if (column !== undefined) {
                     this.currentDateColumn = column;
-                    if (this.gantt.$scope.currentDate === 'column' && this.currentDateColumn.$element !== undefined) {
+                    if (this.gantt.options.value('currentDate') === 'column' && this.currentDateColumn.$element !== undefined) {
                         this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
                     }
                 }
             }
 
-            this.position = this.gantt.getPositionByDate(this.date);
+            this.position = this.gantt.getPositionByDate(this.date, true);
         };
         return GanttCurrentDateManager;
     }]);
-    /* code */
 }());
 
 (function(){
@@ -1174,20 +1165,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         var ColumnGenerator = function(columnsManager) {
             var self = this;
 
-            var columnWidth = columnsManager.gantt.$scope.columnWidth;
-            if (columnWidth === undefined) {
-                columnWidth = 20;
-            }
-            var unit = columnsManager.gantt.$scope.viewScale;
-            var calendar = columnsManager.gantt.calendar;
-            var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
-            var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
+            this.columnsManager = columnsManager;
 
             // Generates one column for each time unit between the given from and to date.
             self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
                 if (!to && !maximumWidth) {
                     throw 'to or maximumWidth must be defined';
                 }
+
+                var unit = self.columnsManager.gantt.options.value('viewScale');
+                var calendar = self.columnsManager.gantt.calendar;
+                var timeFramesWorkingMode = self.columnsManager.gantt.options.value('timeFramesWorkingMode');
+                var timeFramesNonWorkingMode = self.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
+                var columnWidth = self.columnsManager.getColumnsWidth();
 
                 var excludeTo = false;
                 from = moment(from).startOf(unit);
@@ -1197,6 +1187,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var date = moment(from).startOf(unit);
+                if (reverse) {
+                    date.add(-1, unit);
+                }
                 var generatedCols = [];
                 var left = 0;
 
@@ -1233,7 +1226,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 if (reverse) {
-                    if (isToDateToExclude(from)) {
+                    if (isToDateToExclude(from, unit)) {
                         generatedCols.shift();
                     }
                     generatedCols.reverse();
@@ -1245,7 +1238,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             // Columns are generated including or excluding the to date.
             // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
 
-            var isToDateToExclude = function(to) {
+            var isToDateToExclude = function(to, unit) {
                 return moment(to).add(1, unit).startOf(unit) === to;
             };
         };
@@ -1382,11 +1375,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         ColumnsManager.prototype.generateColumns = function(from, to) {
             if (!from) {
-                from = this.gantt.$scope.fromDate;
+                from = this.gantt.options.value('fromDate');
             }
 
             if (!to) {
-                to = this.gantt.$scope.toDate;
+                to = this.gantt.options.value('toDate');
             }
 
             if (!from) {
@@ -1411,7 +1404,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 to = moment(to);
             }
 
-            if (this.gantt.$scope.taskOutOfRange === 'expand') {
+            if (this.gantt.options.value('taskOutOfRange') === 'expand') {
                 from = this.gantt.rowsManager.getExpandedFrom(from);
                 to = this.gantt.rowsManager.getExpandedTo(to);
             }
@@ -1443,7 +1436,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
-            if (sideVisibilityChanged && !this.gantt.$scope.showSide) {
+            var showSide = this.gantt.options.value('showSide');
+            if (sideVisibilityChanged && !showSide) {
                 // Prevent unnecessary v-scrollbar if side is hidden here
                 this.gantt.side.show(false);
             }
@@ -1453,10 +1447,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.updateVisibleColumns(columnsWidthChanged);
 
+            var currentDateValue = this.gantt.options.value('currentDateValue');
             this.gantt.rowsManager.updateVisibleObjects();
-            this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
+            this.gantt.currentDateManager.setCurrentDate(currentDateValue);
 
-            if (sideVisibilityChanged && this.gantt.$scope.showSide) {
+            if (sideVisibilityChanged && showSide) {
                 // Prevent unnecessary v-scrollbar if side is shown here
                 this.gantt.side.show(true);
             }
@@ -1490,8 +1485,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         // Returns the column at the given or next possible date
-        ColumnsManager.prototype.getColumnByDate = function(date) {
-            this.expandExtendedColumnsForDate(date);
+        ColumnsManager.prototype.getColumnByDate = function(date, disableExpand) {
+            if (!disableExpand) {
+                this.expandExtendedColumnsForDate(date);
+            }
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
@@ -1500,8 +1497,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         // Returns the column at the given position x (in em)
-        ColumnsManager.prototype.getColumnByPosition = function(x) {
-            this.expandExtendedColumnsForPosition(x);
+        ColumnsManager.prototype.getColumnByPosition = function(x, disableExpand) {
+            if (!disableExpand) {
+                this.expandExtendedColumnsForPosition(x);
+            }
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, x, function(c) {
                 return c.left;
@@ -1522,13 +1521,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         ColumnsManager.prototype.updateColumnsWidths = function(columns) {
-            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            var columnWidth = this.gantt.options.value('columnWidth');
+            var autoFitWidthEnabled = columnWidth === undefined;
             if (autoFitWidthEnabled) {
                 var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
-                var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
+                var borderWidth = this.gantt.scroll.getBordersWidth();
+                var newWidth = scrollWidth - (borderWidth !== undefined ? this.gantt.scroll.getBordersWidth() : 0);
                 updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
             }
             return autoFitWidthEnabled;
+        };
+
+        ColumnsManager.prototype.getColumnsWidth = function() {
+            var columnWidth = this.gantt.options.value('columnWidth');
+            if (columnWidth === undefined) {
+                if (this.gantt.width <= 0) {
+                    columnWidth = 20;
+                } else {
+                    columnWidth = this.gantt.width / this.columns.length;
+                }
+            }
+            return columnWidth;
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
@@ -1537,8 +1550,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var from = firstColumn.date;
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
-                    this.updateColumnsWidths(this.previousColumns);
+                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, -this.getColumnsWidth(), true);
                 }
                 return true;
             } else if (x > this.gantt.width) {
@@ -1547,7 +1559,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var lastExtendedColumn = this.getLastColumn(true);
                 if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
                     this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
-                    this.updateColumnsWidths(this.nextColumns);
                 }
                 return true;
             }
@@ -1571,14 +1582,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.date > date) {
                     this.previousColumns = new ColumnGenerator(this).generate(from, date, undefined, 0, true);
-                    this.updateColumnsWidths(this.previousColumns);
                 }
                 return true;
-            } else if (endDate && date > endDate) {
+            } else if (endDate && date >= endDate) {
                 var lastExtendedColumn = this.getLastColumn(true);
-                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
                     this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
-                    this.updateColumnsWidths(this.nextColumns);
                 }
                 return true;
             }
@@ -1617,13 +1626,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         ColumnsManager.prototype.getHeaderFormat = function(unit) {
             var format;
-            if (this.gantt.$scope.headersFormats !== undefined) {
-                format = this.gantt.$scope.headersFormats[unit];
+            var headersFormats = this.gantt.options.value('headersFormats');
+            if (headersFormats !== undefined) {
+                format = headersFormats[unit];
             }
             if (format === undefined) {
-                if (['millisecond', 'second', 'minute', 'hour'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                var viewScale = this.gantt.options.value('viewScale');
+
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScale) > -1) {
                     format = defaultDayHeadersFormats[unit];
-                } else if (['month', 'quarter', 'year'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                } else if (['month', 'quarter', 'year'].indexOf(viewScale) > -1) {
                     format = defaultYearHeadersFormats[unit];
                 }
                 if (format === undefined) {
@@ -1668,37 +1680,38 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         return function(columnsManager) {
             this.generate = function(columns) {
                 var units = [];
-                if (columnsManager.gantt.$scope.headers === undefined) {
+                if (columnsManager.gantt.options.value('headers') === undefined) {
+                    var viewScale = columnsManager.gantt.options.value('viewScale');
                     units = [];
-                    if (['year', 'quarter', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['year', 'quarter', 'month'].indexOf(viewScale) > -1) {
                         units.push('year');
                     }
-                    if (['quarter'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['quarter'].indexOf(viewScale) > -1) {
                         units.push('quarter');
                     }
-                    if (['day', 'week', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['day', 'week', 'month'].indexOf(viewScale) > -1) {
                         units.push('month');
                     }
-                    if (['day', 'week'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['day', 'week'].indexOf(viewScale) > -1) {
                         units.push('week');
                     }
-                    if (['hour', 'day'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['hour', 'day'].indexOf(viewScale) > -1) {
                         units.push('day');
                     }
-                    if (['hour', 'minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['hour', 'minute', 'second'].indexOf(viewScale) > -1) {
                         units.push('hour');
                     }
-                    if (['minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['minute', 'second'].indexOf(viewScale) > -1) {
                         units.push('minute');
                     }
-                    if (['second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['second'].indexOf(viewScale) > -1) {
                         units.push('second');
                     }
                     if (units.length === 0) {
-                        units.push(columnsManager.gantt.$scope.viewScale);
+                        units.push(viewScale);
                     }
                 } else {
-                    units = columnsManager.gantt.$scope.headers;
+                    units = columnsManager.gantt.options.value('headers');
                 }
 
                 var headers = [];
@@ -1716,14 +1729,35 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
-        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
+        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
+        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
 
                 this.$scope = $scope;
                 this.$element = $element;
+
+                this.options = new Options($scope, {
+                    'api': angular.noop,
+                    'data': [],
+                    'timespans': [],
+                    'viewScale': 'day',
+                    'columnMagnet': '15 minutes',
+                    'showSide': true,
+                    'sideWidth': 150,
+                    'allowSideResizing': true,
+                    'currentDate': 'line',
+                    'currentDateValue': moment,
+                    'autoExpand': 'none',
+                    'taskOutOfRange': 'truncate',
+                    'maxHeight': 0,
+                    'timeFrames': [],
+                    'dateFrames': [],
+                    'timeFramesWorkingMode': 'hidden',
+                    'timeFramesNonWorkingMode': 'visible'
+                });
+                //this.options.initialize();
 
                 this.api = new GanttApi(this);
 
@@ -1748,8 +1782,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.api.registerMethod('data', 'get', this.getData, this);
 
                 this.calendar = new Calendar(this);
-                this.calendar.registerTimeFrames(this.$scope.timeFrames);
-                this.calendar.registerDateFrames(this.$scope.dateFrames);
+                this.calendar.registerTimeFrames(this.options.value('timeFrames'));
+                this.calendar.registerDateFrames(this.options.value('dateFrames'));
 
                 this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
                 this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
@@ -1783,8 +1817,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $scope.$watch('columnMagnet', function(newValue, oldValue) {
                     if (newValue !== oldValue) {
                         var splittedColumnMagnet;
-                        if ($scope.columnMagnet) {
-                            splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+                        var columnMagnet = self.options.value('columnMagnet');
+                        if (columnMagnet) {
+                            splittedColumnMagnet = columnMagnet.trim().split(' ');
                         }
                         if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
                             self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
@@ -1799,8 +1834,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function(newValues, oldValues) {
                     if (newValues !== oldValues) {
                         var splittedColumnMagnet;
-                        if ($scope.shiftColumnMagnet) {
-                            splittedColumnMagnet = $scope.shiftColumnMagnet.trim().split(' ');
+                        var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+                        if (shiftColumnMagnet) {
+                            splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
                         }
                         if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
                             self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
@@ -1851,8 +1887,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             };
 
             // Returns the exact column date at the given position x (in em)
-            Gantt.prototype.getDateByPosition = function(x, magnet) {
-                var column = this.columnsManager.getColumnByPosition(x);
+            Gantt.prototype.getDateByPosition = function(x, magnet, disableExpand) {
+                var column = this.columnsManager.getColumnByPosition(x, disableExpand);
                 if (column !== undefined) {
                     var magnetValue;
                     var magnetUnit;
@@ -1863,7 +1899,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 magnetUnit = this.shiftColumnMagnetUnit;
                             } else {
                                 magnetValue = 0.25;
-                                magnetUnit = this.$scope.viewScale;
+                                magnetUnit = this.options.value('viewScale');
                             }
                         } else {
                             magnetValue = this.columnMagnetValue;
@@ -1878,7 +1914,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             };
 
             // Returns the position inside the Gantt calculated by the given date
-            Gantt.prototype.getPositionByDate = function(date) {
+            Gantt.prototype.getPositionByDate = function(date, disableExpand) {
                 if (date === undefined) {
                     return undefined;
                 }
@@ -1887,7 +1923,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     date = moment(date);
                 }
 
-                var column = this.columnsManager.getColumnByDate(date);
+                var column = this.columnsManager.getColumnByDate(date, disableExpand);
                 if (column !== undefined) {
                     return column.getPositionByDate(date);
                 } else {
@@ -1934,6 +1970,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             Gantt.prototype.getWidth = function() {
                 return this.$scope.ganttElementWidth;
+            };
+
+            Gantt.prototype.initialized = function() {
+                // Gantt is initialized. Signal that the Gantt is ready.
+                this.api.core.raise.ready(this.api);
+
+                this.rendered = true;
+                this.columnsManager.generateColumns();
+                this.api.core.raise.rendered(this.api);
             };
 
             return Gantt;
@@ -2088,16 +2133,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Row.prototype.updateVisibleTasks = function() {
-            if (this.rowsManager.gantt.$scope.filterTask) {
-                var filterTask = this.rowsManager.gantt.$scope.filterTask;
+            var filterTask = this.rowsManager.gantt.options.value('filterTask');
+            if (filterTask) {
                 if (typeof(filterTask) === 'object') {
                     filterTask = {model: filterTask};
                 }
 
-                var filterTaskComparator = this.rowsManager.gantt.$scope.filterTaskComparator;
+                var filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
                 if (typeof(filterTaskComparator) === 'function') {
                     filterTaskComparator = function(actual, expected) {
-                        return this.rowsManager.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                        return filterTaskComparator(actual.model, expected.model);
                     };
                 }
 
@@ -2428,7 +2473,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         RowsManager.prototype.sortRows = function() {
-            var expression = this.gantt.$scope.sortMode;
+            var expression = this.gantt.options.value('sortMode');
 
             if (expression !== undefined) {
                 var reverse = false;
@@ -2464,11 +2509,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         RowsManager.prototype.moveRow = function(row, targetRow) {
-            if (this.gantt.$scope.sortMode !== undefined) {
+            var sortMode = this.gantt.options.value('sortMode');
+            if (sortMode !== undefined) {
                 // Apply current sort to model
                 this.applySort();
-
-                this.gantt.$scope.sortMode = undefined;
+                this.gantt.options.set('sortMode', undefined);
             }
 
             var targetRowIndex = this.rows.indexOf(targetRow);
@@ -2494,16 +2539,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         RowsManager.prototype.updateVisibleRows = function() {
             var oldFilteredRows = this.filteredRows;
-            if (this.gantt.$scope.filterRow) {
-                var filterRow = this.gantt.$scope.filterRow;
+            var filterRow = this.gantt.options.value('filterRow');
+            if (filterRow) {
                 if (typeof(filterRow) === 'object') {
                     filterRow = {model: filterRow};
                 }
 
-                var filterRowComparator = this.gantt.$scope.filterRowComparator;
+                var filterRowComparator = this.gantt.options.value('filterRowComparator');
                 if (typeof(filterRowComparator) === 'function') {
                     filterRowComparator = function(actual, expected) {
-                        return this.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                        return this.gantt.options.value('filterRowComparator')(actual.model, expected.model);
                     };
                 }
 
@@ -2572,7 +2617,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     maxRowTo = row.to;
                 }
             });
-            if (maxRowTo && (!this.gantt.$scope.toDate || maxRowTo > this.gantt.$scope.toDate)) {
+            var toDate = this.gantt.options.value('toDate');
+            if (maxRowTo && (!toDate || maxRowTo > toDate)) {
                 return maxRowTo;
             }
             return to;
@@ -2697,16 +2743,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         // Moves the task to the specified position (in em)
         Task.prototype.moveTo = function(x, magnetEnabled) {
-            if (x > this.left) {
+            var newTaskRight;
+            var newTaskLeft;
+            if (x > this.modelLeft) {
                 // Driven by right/to side.
                 this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
-                var newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
-                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskRight - this.modelWidth, false);
+                newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
+                newTaskLeft = newTaskRight - this.modelWidth;
+                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskLeft, false);
             } else {
                 // Drive by left/from side.
                 this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-                var newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskLeft + this.modelWidth, false);
+                newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                newTaskRight = newTaskLeft + this.modelWidth;
+                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskRight, false);
             }
 
             this.row.setFromToByTask(this);
@@ -2915,7 +2965,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('side', 'setWidth', Side.prototype.setWidth, this);
         };
         Side.prototype.getWidth = function() {
-            return this.gantt.$scope.showSide ? this.gantt.$scope.sideWidth: 0;
+            return this.gantt.options.value('showSide') ? this.gantt.options.value('sideWidth') : 0;
         };
         Side.prototype.show = function(value) {
             this.$element.toggleClass('ng-hide', !value);
@@ -3418,13 +3468,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt').directive('ganttResizer', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
+    angular.module('gantt').directive('ganttResizer', ['$document', '$parse', 'ganttMouseOffset', function($document, $parse, mouseOffset) {
         return {
             restrict: 'A',
             require: '^gantt',
             scope: {
                 targetElement: '=ganttResizer',
-                enabled: '=?ganttResizerEnabled'
+                enabled: '@?ganttResizerEnabled'
             },
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -3434,6 +3484,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
                 }
+
+                $attrs.$observe('ganttResizerEnabled', function(value) {
+                    $scope.enabled = $parse(value)();
+                });
 
                 $scope.$watch('enabled', function (value) {
                     if (value === undefined) {
@@ -3617,7 +3671,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastAutoExpand;
             var autoExpandCoolDownPeriod = 500;
             var autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                var autoExpand = $scope.gantt.options.value('autoExpand');
+                if (autoExpand !== 'both' && autoExpand !== true && autoExpand !== direction) {
                     return;
                 }
 
@@ -3628,12 +3683,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var from, to;
                 var expandHour = 1, expandDay = 31;
 
+                var viewScale = $scope.gantt.options.value('viewScale');
+
                 if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    from = viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
                     to = date;
                 } else {
                     from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                    to = viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
                 $scope.fromDate = from;
@@ -3669,8 +3726,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.maxHeight > 0) {
-                    css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
+                var maxHeight = $scope.gantt.options.value('maxHeight');
+                if (maxHeight > 0) {
+                    css['max-height'] = maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
 
                     if ($scope.gantt.scroll.isVScrollbarVisible()) {
@@ -3893,7 +3951,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                if ($scope.maxHeight > 0) {
+                if ($scope.gantt.options.value('maxHeight') > 0) {
                     css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - scrollBarWidth + 'px';
                 }
 
@@ -4269,8 +4327,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-side>\n' +
         '        <gantt-side-content>\n' +
         '        </gantt-side-content>\n' +
-        '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="$parent.allowSideResizing" resizer-width="$parent.$parent.sideWidth" class="gantt-resizer">\n' +
-        '            <div ng-show="$parent.allowSideResizing" class="gantt-resizer-display"></div>\n' +
+        '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width="$parent.$parent.sideWidth" class="gantt-resizer">\n' +
+        '            <div ng-show="$parent.gantt.options.value(\'allowSideResizing\')" class="gantt-resizer-display"></div>\n' +
         '        </div>\n' +
         '    </gantt-side>\n' +
         '    <gantt-scrollable-header>\n' +

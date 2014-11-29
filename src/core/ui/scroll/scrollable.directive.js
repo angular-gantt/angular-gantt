@@ -9,7 +9,8 @@
             var lastAutoExpand;
             var autoExpandCoolDownPeriod = 500;
             var autoExpandColumns = function(el, date, direction) {
-                if ($scope.autoExpand !== 'both' && $scope.autoExpand !== true && $scope.autoExpand !== direction) {
+                var autoExpand = $scope.gantt.options.value('autoExpand');
+                if (autoExpand !== 'both' && autoExpand !== true && autoExpand !== direction) {
                     return;
                 }
 
@@ -20,12 +21,14 @@
                 var from, to;
                 var expandHour = 1, expandDay = 31;
 
+                var viewScale = $scope.gantt.options.value('viewScale');
+
                 if (direction === 'left') {
-                    from = $scope.viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    from = viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
                     to = date;
                 } else {
                     from = date;
-                    to = $scope.viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                    to = viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
                 $scope.fromDate = from;
@@ -61,8 +64,9 @@
             $scope.getScrollableCss = function() {
                 var css = {};
 
-                if ($scope.maxHeight > 0) {
-                    css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
+                var maxHeight = $scope.gantt.options.value('maxHeight');
+                if (maxHeight > 0) {
+                    css['max-height'] = maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
 
                     if ($scope.gantt.scroll.isVScrollbarVisible()) {

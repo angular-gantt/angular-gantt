@@ -93,6 +93,7 @@
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
+                                var taskOutOfRange = taskScope.task.row.rowsManager.gantt.options.value('taskOutOfRange');
 
                                 if (taskScope.task.moveMode === 'M') {
                                     var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
@@ -125,7 +126,7 @@
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
 
-                                        if (taskScope.taskOutOfRange !== 'truncate') {
+                                        if (taskOutOfRange !== 'truncate') {
                                             if (x < 0) {
                                                 x = 0;
                                             } else if (x + taskScope.task.width >= taskScope.gantt.width) {
@@ -144,7 +145,7 @@
                                         setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
 
-                                    if (taskScope.taskOutOfRange !== 'truncate' && x >= taskScope.gantt.width) {
+                                    if (taskOutOfRange !== 'truncate' && x >= taskScope.gantt.width) {
                                         x = taskScope.gantt.width;
                                     }
 
@@ -158,7 +159,7 @@
                                         setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
 
-                                    if (taskScope.taskOutOfRange !== 'truncate' && x < 0) {
+                                    if (taskOutOfRange !== 'truncate' && x < 0) {
                                         x = 0;
                                     }
 

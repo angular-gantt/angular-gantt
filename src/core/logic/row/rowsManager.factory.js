@@ -193,7 +193,7 @@
         };
 
         RowsManager.prototype.sortRows = function() {
-            var expression = this.gantt.$scope.sortMode;
+            var expression = this.gantt.options.value('sortMode');
 
             if (expression !== undefined) {
                 var reverse = false;
@@ -229,11 +229,11 @@
         };
 
         RowsManager.prototype.moveRow = function(row, targetRow) {
-            if (this.gantt.$scope.sortMode !== undefined) {
+            var sortMode = this.gantt.options.value('sortMode');
+            if (sortMode !== undefined) {
                 // Apply current sort to model
                 this.applySort();
-
-                this.gantt.$scope.sortMode = undefined;
+                this.gantt.options.set('sortMode', undefined);
             }
 
             var targetRowIndex = this.rows.indexOf(targetRow);
@@ -259,16 +259,16 @@
 
         RowsManager.prototype.updateVisibleRows = function() {
             var oldFilteredRows = this.filteredRows;
-            if (this.gantt.$scope.filterRow) {
-                var filterRow = this.gantt.$scope.filterRow;
+            var filterRow = this.gantt.options.value('filterRow');
+            if (filterRow) {
                 if (typeof(filterRow) === 'object') {
                     filterRow = {model: filterRow};
                 }
 
-                var filterRowComparator = this.gantt.$scope.filterRowComparator;
+                var filterRowComparator = this.gantt.options.value('filterRowComparator');
                 if (typeof(filterRowComparator) === 'function') {
                     filterRowComparator = function(actual, expected) {
-                        return this.gantt.$scope.filterRowComparator(actual.model, expected.model);
+                        return this.gantt.options.value('filterRowComparator')(actual.model, expected.model);
                     };
                 }
 
@@ -337,7 +337,8 @@
                     maxRowTo = row.to;
                 }
             });
-            if (maxRowTo && (!this.gantt.$scope.toDate || maxRowTo > this.gantt.$scope.toDate)) {
+            var toDate = this.gantt.options.value('toDate');
+            if (maxRowTo && (!toDate || maxRowTo > toDate)) {
                 return maxRowTo;
             }
             return to;

@@ -1,7 +1,7 @@
 (function(){
     'use strict';
     angular.module('gantt', ['gantt.templates', 'angularMoment'])
-        .directive('gantt', ['Gantt', 'ganttOptions', 'GanttCalendar', 'moment', 'ganttMouseOffset', 'ganttDebounce', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, Options, Calendar, moment, mouseOffset, debounce, enableNgAnimate, $timeout, $templateCache) {
+        .directive('gantt', ['Gantt', 'ganttEnableNgAnimate', '$timeout', '$templateCache', function(Gantt, enableNgAnimate, $timeout, $templateCache) {
         return {
             restrict: 'A',
             transclude: true,
@@ -52,8 +52,6 @@
                     $scope[option] = $scope.options[option];
                 }
 
-                Options.initialize($scope);
-
                 // Disable animation if ngAnimate is present, as it drops down performance.
                 enableNgAnimate(false, $element);
 
@@ -67,12 +65,7 @@
                 });
 
                 $timeout(function() {
-                    // Gantt is initialized. Signal that the Gantt is ready.
-                    scope.gantt.api.core.raise.ready(scope.gantt.api);
-
-                    scope.gantt.rendered = true;
-                    scope.gantt.columnsManager.generateColumns();
-                    scope.gantt.api.core.raise.rendered(scope.gantt.api);
+                    scope.gantt.initialized();
                 });
             }
         };

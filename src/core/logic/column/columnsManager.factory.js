@@ -106,11 +106,11 @@
 
         ColumnsManager.prototype.generateColumns = function(from, to) {
             if (!from) {
-                from = this.gantt.$scope.fromDate;
+                from = this.gantt.options.value('fromDate');
             }
 
             if (!to) {
-                to = this.gantt.$scope.toDate;
+                to = this.gantt.options.value('toDate');
             }
 
             if (!from) {
@@ -135,7 +135,7 @@
                 to = moment(to);
             }
 
-            if (this.gantt.$scope.taskOutOfRange === 'expand') {
+            if (this.gantt.options.value('taskOutOfRange') === 'expand') {
                 from = this.gantt.rowsManager.getExpandedFrom(from);
                 to = this.gantt.rowsManager.getExpandedTo(to);
             }
@@ -167,7 +167,8 @@
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
-            if (sideVisibilityChanged && !this.gantt.$scope.showSide) {
+            var showSide = this.gantt.options.value('showSide');
+            if (sideVisibilityChanged && !showSide) {
                 // Prevent unnecessary v-scrollbar if side is hidden here
                 this.gantt.side.show(false);
             }
@@ -177,10 +178,11 @@
 
             this.updateVisibleColumns(columnsWidthChanged);
 
+            var currentDateValue = this.gantt.options.value('currentDateValue');
             this.gantt.rowsManager.updateVisibleObjects();
-            this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
+            this.gantt.currentDateManager.setCurrentDate(currentDateValue);
 
-            if (sideVisibilityChanged && this.gantt.$scope.showSide) {
+            if (sideVisibilityChanged && showSide) {
                 // Prevent unnecessary v-scrollbar if side is shown here
                 this.gantt.side.show(true);
             }
@@ -214,8 +216,10 @@
         };
 
         // Returns the column at the given or next possible date
-        ColumnsManager.prototype.getColumnByDate = function(date) {
-            this.expandExtendedColumnsForDate(date);
+        ColumnsManager.prototype.getColumnByDate = function(date, disableExpand) {
+            if (!disableExpand) {
+                this.expandExtendedColumnsForDate(date);
+            }
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
@@ -224,8 +228,10 @@
         };
 
         // Returns the column at the given position x (in em)
-        ColumnsManager.prototype.getColumnByPosition = function(x) {
-            this.expandExtendedColumnsForPosition(x);
+        ColumnsManager.prototype.getColumnByPosition = function(x, disableExpand) {
+            if (!disableExpand) {
+                this.expandExtendedColumnsForPosition(x);
+            }
             var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
             var columns = bs.get(extendedColumns, x, function(c) {
                 return c.left;
@@ -246,13 +252,27 @@
         };
 
         ColumnsManager.prototype.updateColumnsWidths = function(columns) {
-            var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
+            var columnWidth = this.gantt.options.value('columnWidth');
+            var autoFitWidthEnabled = columnWidth === undefined;
             if (autoFitWidthEnabled) {
                 var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
-                var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
+                var borderWidth = this.gantt.scroll.getBordersWidth();
+                var newWidth = scrollWidth - (borderWidth !== undefined ? this.gantt.scroll.getBordersWidth() : 0);
                 updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
             }
             return autoFitWidthEnabled;
+        };
+
+        ColumnsManager.prototype.getColumnsWidth = function() {
+            var columnWidth = this.gantt.options.value('columnWidth');
+            if (columnWidth === undefined) {
+                if (this.gantt.width <= 0) {
+                    columnWidth = 20;
+                } else {
+                    columnWidth = this.gantt.width / this.columns.length;
+                }
+            }
+            return columnWidth;
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
@@ -261,8 +281,7 @@
                 var from = firstColumn.date;
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
-                    this.updateColumnsWidths(this.previousColumns);
+                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, -this.getColumnsWidth(), true);
                 }
                 return true;
             } else if (x > this.gantt.width) {
@@ -271,7 +290,6 @@
                 var lastExtendedColumn = this.getLastColumn(true);
                 if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
                     this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
-                    this.updateColumnsWidths(this.nextColumns);
                 }
                 return true;
             }
@@ -295,14 +313,12 @@
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.date > date) {
                     this.previousColumns = new ColumnGenerator(this).generate(from, date, undefined, 0, true);
-                    this.updateColumnsWidths(this.previousColumns);
                 }
                 return true;
-            } else if (endDate && date > endDate) {
+            } else if (endDate && date >= endDate) {
                 var lastExtendedColumn = this.getLastColumn(true);
-                if (!lastExtendedColumn || endDate < lastExtendedColumn) {
+                if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
                     this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
-                    this.updateColumnsWidths(this.nextColumns);
                 }
                 return true;
             }
@@ -341,13 +357,16 @@
 
         ColumnsManager.prototype.getHeaderFormat = function(unit) {
             var format;
-            if (this.gantt.$scope.headersFormats !== undefined) {
-                format = this.gantt.$scope.headersFormats[unit];
+            var headersFormats = this.gantt.options.value('headersFormats');
+            if (headersFormats !== undefined) {
+                format = headersFormats[unit];
             }
             if (format === undefined) {
-                if (['millisecond', 'second', 'minute', 'hour'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                var viewScale = this.gantt.options.value('viewScale');
+
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScale) > -1) {
                     format = defaultDayHeadersFormats[unit];
-                } else if (['month', 'quarter', 'year'].indexOf(this.gantt.$scope.viewScale) > -1) {
+                } else if (['month', 'quarter', 'year'].indexOf(viewScale) > -1) {
                     format = defaultYearHeadersFormats[unit];
                 }
                 if (format === undefined) {

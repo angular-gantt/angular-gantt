@@ -4,20 +4,19 @@
         var ColumnGenerator = function(columnsManager) {
             var self = this;
 
-            var columnWidth = columnsManager.gantt.$scope.columnWidth;
-            if (columnWidth === undefined) {
-                columnWidth = 20;
-            }
-            var unit = columnsManager.gantt.$scope.viewScale;
-            var calendar = columnsManager.gantt.calendar;
-            var timeFramesWorkingMode = columnsManager.gantt.$scope.timeFramesWorkingMode;
-            var timeFramesNonWorkingMode = columnsManager.gantt.$scope.timeFramesNonWorkingMode;
+            this.columnsManager = columnsManager;
 
             // Generates one column for each time unit between the given from and to date.
             self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
                 if (!to && !maximumWidth) {
                     throw 'to or maximumWidth must be defined';
                 }
+
+                var unit = self.columnsManager.gantt.options.value('viewScale');
+                var calendar = self.columnsManager.gantt.calendar;
+                var timeFramesWorkingMode = self.columnsManager.gantt.options.value('timeFramesWorkingMode');
+                var timeFramesNonWorkingMode = self.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
+                var columnWidth = self.columnsManager.getColumnsWidth();
 
                 var excludeTo = false;
                 from = moment(from).startOf(unit);
@@ -27,6 +26,9 @@
                 }
 
                 var date = moment(from).startOf(unit);
+                if (reverse) {
+                    date.add(-1, unit);
+                }
                 var generatedCols = [];
                 var left = 0;
 
@@ -63,7 +65,7 @@
                 }
 
                 if (reverse) {
-                    if (isToDateToExclude(from)) {
+                    if (isToDateToExclude(from, unit)) {
                         generatedCols.shift();
                     }
                     generatedCols.reverse();
@@ -75,7 +77,7 @@
             // Columns are generated including or excluding the to date.
             // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
 
-            var isToDateToExclude = function(to) {
+            var isToDateToExclude = function(to, unit) {
                 return moment(to).add(1, unit).startOf(unit) === to;
             };
         };

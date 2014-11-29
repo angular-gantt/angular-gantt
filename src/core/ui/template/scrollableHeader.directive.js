@@ -7,7 +7,7 @@
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                if ($scope.maxHeight > 0) {
+                if ($scope.gantt.options.value('maxHeight') > 0) {
                     css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - scrollBarWidth + 'px';
                 }
 

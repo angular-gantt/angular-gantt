@@ -1,13 +1,13 @@
 (function() {
     'use strict';
 
-    angular.module('gantt').directive('ganttResizer', ['$document', 'ganttMouseOffset', function($document, mouseOffset) {
+    angular.module('gantt').directive('ganttResizer', ['$document', '$parse', 'ganttMouseOffset', function($document, $parse, mouseOffset) {
         return {
             restrict: 'A',
             require: '^gantt',
             scope: {
                 targetElement: '=ganttResizer',
-                enabled: '=?ganttResizerEnabled'
+                enabled: '@?ganttResizerEnabled'
             },
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -17,6 +17,10 @@
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
                 }
+
+                $attrs.$observe('ganttResizerEnabled', function(value) {
+                    $scope.enabled = $parse(value)();
+                });
 
                 $scope.$watch('enabled', function (value) {
                     if (value === undefined) {

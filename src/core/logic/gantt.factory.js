@@ -1,14 +1,35 @@
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
-        function(GanttApi, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
+        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
+        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
 
                 this.$scope = $scope;
                 this.$element = $element;
+
+                this.options = new Options($scope, {
+                    'api': angular.noop,
+                    'data': [],
+                    'timespans': [],
+                    'viewScale': 'day',
+                    'columnMagnet': '15 minutes',
+                    'showSide': true,
+                    'sideWidth': 150,
+                    'allowSideResizing': true,
+                    'currentDate': 'line',
+                    'currentDateValue': moment,
+                    'autoExpand': 'none',
+                    'taskOutOfRange': 'truncate',
+                    'maxHeight': 0,
+                    'timeFrames': [],
+                    'dateFrames': [],
+                    'timeFramesWorkingMode': 'hidden',
+                    'timeFramesNonWorkingMode': 'visible'
+                });
+                //this.options.initialize();
 
                 this.api = new GanttApi(this);
 
@@ -33,8 +54,8 @@
                 this.api.registerMethod('data', 'get', this.getData, this);
 
                 this.calendar = new Calendar(this);
-                this.calendar.registerTimeFrames(this.$scope.timeFrames);
-                this.calendar.registerDateFrames(this.$scope.dateFrames);
+                this.calendar.registerTimeFrames(this.options.value('timeFrames'));
+                this.calendar.registerDateFrames(this.options.value('dateFrames'));
 
                 this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
                 this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
@@ -68,8 +89,9 @@
                 $scope.$watch('columnMagnet', function(newValue, oldValue) {
                     if (newValue !== oldValue) {
                         var splittedColumnMagnet;
-                        if ($scope.columnMagnet) {
-                            splittedColumnMagnet = $scope.columnMagnet.trim().split(' ');
+                        var columnMagnet = self.options.value('columnMagnet');
+                        if (columnMagnet) {
+                            splittedColumnMagnet = columnMagnet.trim().split(' ');
                         }
                         if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
                             self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
@@ -84,8 +106,9 @@
                 $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function(newValues, oldValues) {
                     if (newValues !== oldValues) {
                         var splittedColumnMagnet;
-                        if ($scope.shiftColumnMagnet) {
-                            splittedColumnMagnet = $scope.shiftColumnMagnet.trim().split(' ');
+                        var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+                        if (shiftColumnMagnet) {
+                            splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
                         }
                         if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
                             self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
@@ -136,8 +159,8 @@
             };
 
             // Returns the exact column date at the given position x (in em)
-            Gantt.prototype.getDateByPosition = function(x, magnet) {
-                var column = this.columnsManager.getColumnByPosition(x);
+            Gantt.prototype.getDateByPosition = function(x, magnet, disableExpand) {
+                var column = this.columnsManager.getColumnByPosition(x, disableExpand);
                 if (column !== undefined) {
                     var magnetValue;
                     var magnetUnit;
@@ -148,7 +171,7 @@
                                 magnetUnit = this.shiftColumnMagnetUnit;
                             } else {
                                 magnetValue = 0.25;
-                                magnetUnit = this.$scope.viewScale;
+                                magnetUnit = this.options.value('viewScale');
                             }
                         } else {
                             magnetValue = this.columnMagnetValue;
@@ -163,7 +186,7 @@
             };
 
             // Returns the position inside the Gantt calculated by the given date
-            Gantt.prototype.getPositionByDate = function(date) {
+            Gantt.prototype.getPositionByDate = function(date, disableExpand) {
                 if (date === undefined) {
                     return undefined;
                 }
@@ -172,7 +195,7 @@
                     date = moment(date);
                 }
 
-                var column = this.columnsManager.getColumnByDate(date);
+                var column = this.columnsManager.getColumnByDate(date, disableExpand);
                 if (column !== undefined) {
                     return column.getPositionByDate(date);
                 } else {
@@ -219,6 +242,15 @@
 
             Gantt.prototype.getWidth = function() {
                 return this.$scope.ganttElementWidth;
+            };
+
+            Gantt.prototype.initialized = function() {
+                // Gantt is initialized. Signal that the Gantt is ready.
+                this.api.core.raise.ready(this.api);
+
+                this.rendered = true;
+                this.columnsManager.generateColumns();
+                this.api.core.raise.rendered(this.api);
             };
 
             return Gantt;

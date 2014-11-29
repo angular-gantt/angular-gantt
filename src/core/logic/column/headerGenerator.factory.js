@@ -29,37 +29,38 @@
         return function(columnsManager) {
             this.generate = function(columns) {
                 var units = [];
-                if (columnsManager.gantt.$scope.headers === undefined) {
+                if (columnsManager.gantt.options.value('headers') === undefined) {
+                    var viewScale = columnsManager.gantt.options.value('viewScale');
                     units = [];
-                    if (['year', 'quarter', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['year', 'quarter', 'month'].indexOf(viewScale) > -1) {
                         units.push('year');
                     }
-                    if (['quarter'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['quarter'].indexOf(viewScale) > -1) {
                         units.push('quarter');
                     }
-                    if (['day', 'week', 'month'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['day', 'week', 'month'].indexOf(viewScale) > -1) {
                         units.push('month');
                     }
-                    if (['day', 'week'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['day', 'week'].indexOf(viewScale) > -1) {
                         units.push('week');
                     }
-                    if (['hour', 'day'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['hour', 'day'].indexOf(viewScale) > -1) {
                         units.push('day');
                     }
-                    if (['hour', 'minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['hour', 'minute', 'second'].indexOf(viewScale) > -1) {
                         units.push('hour');
                     }
-                    if (['minute', 'second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['minute', 'second'].indexOf(viewScale) > -1) {
                         units.push('minute');
                     }
-                    if (['second'].indexOf(columnsManager.gantt.$scope.viewScale) > -1) {
+                    if (['second'].indexOf(viewScale) > -1) {
                         units.push('second');
                     }
                     if (units.length === 0) {
-                        units.push(columnsManager.gantt.$scope.viewScale);
+                        units.push(viewScale);
                     }
                 } else {
-                    units = columnsManager.gantt.$scope.headers;
+                    units = columnsManager.gantt.options.value('headers');
                 }
 
                 var headers = [];
