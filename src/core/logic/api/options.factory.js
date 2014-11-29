@@ -23,6 +23,8 @@
             options.fromDate = options.fromDate || undefined;
             options.toDate = options.toDate || undefined;
 
+            options.sideWidth = options.sideWidth || 150;
+            options.showSide = options.showSide !== undefined ? !!options.showSide : true;
             options.allowSideResizing = options.allowSideResizing !== undefined ? !!options.allowSideResizing : true;
 
             options.currentDate = options.currentDate || 'line';

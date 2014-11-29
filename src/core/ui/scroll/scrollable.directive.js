@@ -64,7 +64,11 @@
                 if ($scope.maxHeight > 0) {
                     css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
-                    css['border-right'] = 'none'; // Could be enhanced, display borders only when vertical scroll is displayed.
+
+                    var vScrollbarVisible = $scope.gantt.scroll.$element[0].clientHeight !== $scope.gantt.scroll.$element[0].offsetWidth;
+                    if (vScrollbarVisible) {
+                        css['border-right'] = 'none';
+                    }
                 }
 
                 return css;

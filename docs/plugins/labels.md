@@ -19,3 +19,11 @@ Display labels on the side.
     Enable display of labels.
 
     default: `true`
+
+## API
+
+### Methods
+
+- **api.labels.fitSideWidth()**
+
+    Adjusts the side section to the width of the biggest label.

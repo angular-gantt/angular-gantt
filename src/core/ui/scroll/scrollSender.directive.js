@@ -22,7 +22,7 @@
 
                     var horizontal = controllers[1].getHorizontalRecievers();
                     for (i = 0, l = horizontal.length; i < l; i++) {
-                        var hElement =horizontal[i];
+                        var hElement = horizontal[i];
                         if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
                             hElement.parentNode.scrollLeft  = el.scrollLeft;
                         }
@@ -31,15 +31,14 @@
 
                 element.bind('scroll', updateListeners);
 
-                scope.oldBodyWidth = undefined;
                 scope.$watch(function() {
-                    var newWidth = controllers[0].gantt.body.getWidth();
-                    if (scope.oldBodyWidth !== newWidth) {
-                        scope.oldBodyWidth = newWidth;
+                    return controllers[0].gantt.width;
+                }, function(newValue, oldValue) {
+                    if (newValue !== oldValue) {
                         var horizontal = controllers[1].getHorizontalRecievers();
                         for (var i = 0, l = horizontal.length; i < l; i++) {
                             var hElement = horizontal[i];
-                            hElement.style.width = newWidth + 'px';
+                            hElement.style.width = newValue + 'px';
                         }
                     }
                 });

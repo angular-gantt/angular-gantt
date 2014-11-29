@@ -118,7 +118,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', '$timeout', function(utils, $compile, $document, $timeout) {
+    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
         // Provides the row sort functionality to any Gantt row
         // Uses the sortableState to share the current row
 
@@ -142,14 +142,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.enabled = true;
                 }
 
-                scope.$watch('enabled', function(oldValue, newValue) {
-                    if (oldValue !== newValue) {
-                        $timeout(function() {
-                            api.columns.refresh();
-                        });
-                    }
-                });
-
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
                     if (directiveName === 'ganttSideContent') {
                         var labelsScope = sideContentScope.$new();
@@ -165,6 +157,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
+                function fitSideWidthToLabels() {
+                    var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
+                    var newSideWidth = 0;
+
+                    angular.forEach(labels, function (label) {
+                        var width = label.children[0].offsetWidth;
+                        newSideWidth = Math.max(newSideWidth, width);
+                    });
+
+                    if (newSideWidth > 0) {
+                        api.side.setWidth(newSideWidth);
+                    }
+                }
+
+                api.registerMethod('labels', 'fitSideWidth', fitSideWidthToLabels, this);
             }
         };
     }]);

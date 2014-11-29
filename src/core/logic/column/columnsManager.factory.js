@@ -21,27 +21,28 @@
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
-            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(oldValues, newValues) {
-                if (oldValues !== newValues && self.gantt.rendered) {
+            this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function(newValues, oldValues) {
+                if (newValues !== oldValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
-            this.gantt.$scope.$watchCollection('headers', function(oldValues, newValues) {
-                if (oldValues !== newValues && self.gantt.rendered) {
+            this.gantt.$scope.$watchCollection('headers', function(newValues, oldValues) {
+                if (newValues !== oldValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
-            this.gantt.$scope.$watchCollection('headersFormats', function(oldValues, newValues) {
-                if (oldValues !== newValues && self.gantt.rendered) {
+            this.gantt.$scope.$watchCollection('headersFormats', function(newValues, oldValues) {
+                if (newValues !== oldValues && self.gantt.rendered) {
                     self.generateColumns();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['bodyRowsWidth', 'bodyRowsLeft', 'ganttElementWidth', 'sideWidth', 'maxHeight'], function(oldValues, newValues) {
-                if (oldValues !== newValues && self.gantt.rendered) {
-                    self.updateColumnsMeta();
+            this.gantt.$scope.$watchGroup([/*'bodyRowsWidth', 'bodyRowsLeft', */'ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
+                if (newValues !== oldValues && self.gantt.rendered) {
+                    var sideVisibilityChanged = newValues[1] !== oldValues[1];
+                    self.updateColumnsMeta(sideVisibilityChanged);
                 }
             });
 
@@ -158,7 +159,7 @@
             this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
-        ColumnsManager.prototype.updateColumnsMeta = function() {
+        ColumnsManager.prototype.updateColumnsMeta = function(sideVisibilityChanged) {
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
@@ -166,13 +167,23 @@
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
+            if (sideVisibilityChanged && !this.gantt.$scope.showSide) {
+                // Prevent unnecessary v-scrollbar if side is hidden here
+                this.gantt.side.show(false);
+            }
+
             this.gantt.rowsManager.updateTasksPosAndSize();
             this.gantt.timespansManager.updateTimespansPosAndSize();
 
             this.updateVisibleColumns(columnsWidthChanged);
-            this.gantt.rowsManager.updateVisibleObjects();
 
+            this.gantt.rowsManager.updateVisibleObjects();
             this.gantt.currentDateManager.setCurrentDate(this.gantt.$scope.currentDateValue);
+
+            if (sideVisibilityChanged && this.gantt.$scope.showSide) {
+                // Prevent unnecessary v-scrollbar if side is shown here
+                this.gantt.side.show(true);
+            }
         };
 
         // Returns the last Gantt column or undefined
@@ -236,8 +247,8 @@
 
         ColumnsManager.prototype.updateColumnsWidths = function(columns) {
             var autoFitWidthEnabled = this.gantt.$scope.columnWidth === undefined;
-            var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
             if (autoFitWidthEnabled) {
+                var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
                 var newWidth = scrollWidth - this.gantt.scroll.getBordersWidth();
                 updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
             }
