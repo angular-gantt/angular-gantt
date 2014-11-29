@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc7 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc8 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -118,7 +118,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', '$timeout', function(utils, $compile, $document, $timeout) {
+    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
         // Provides the row sort functionality to any Gantt row
         // Uses the sortableState to share the current row
 
@@ -126,7 +126,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                header: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -142,13 +143,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.enabled = true;
                 }
 
-                scope.$watch('enabled', function(oldValue, newValue) {
-                    if (oldValue !== newValue) {
-                        $timeout(function() {
-                            api.columns.refresh();
-                        });
-                    }
-                });
+                if (scope.header === undefined) {
+                    scope.header = 'Name';
+                }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
                     if (directiveName === 'ganttSideContent') {
@@ -165,6 +162,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
+                function fitSideWidthToLabels() {
+                    var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
+                    var newSideWidth = 0;
+
+                    angular.forEach(labels, function (label) {
+                        var width = label.children[0].offsetWidth;
+                        newSideWidth = Math.max(newSideWidth, width);
+                    });
+
+                    if (newSideWidth > 0) {
+                        api.side.setWidth(newSideWidth);
+                    }
+                }
+
+                api.registerMethod('labels', 'fitSideWidth', fitSideWidthToLabels, this);
             }
         };
     }]);
@@ -266,6 +278,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
+                                var taskOutOfRange = taskScope.task.row.rowsManager.gantt.options.value('taskOutOfRange');
 
                                 if (taskScope.task.moveMode === 'M') {
                                     var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
@@ -298,7 +311,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
 
-                                        if (taskScope.taskOutOfRange !== 'truncate') {
+                                        if (taskOutOfRange !== 'truncate') {
                                             if (x < 0) {
                                                 x = 0;
                                             } else if (x + taskScope.task.width >= taskScope.gantt.width) {
@@ -317,7 +330,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
 
-                                    if (taskScope.taskOutOfRange !== 'truncate' && x >= taskScope.gantt.width) {
+                                    if (taskOutOfRange !== 'truncate' && x >= taskScope.gantt.width) {
                                         x = taskScope.gantt.width;
                                     }
 
@@ -331,7 +344,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         setGlobalCursor(getCursor(taskScope.task.moveMode ));
                                     }
 
-                                    if (taskScope.taskOutOfRange !== 'truncate' && x < 0) {
+                                    if (taskOutOfRange !== 'truncate' && x < 0) {
                                         x = 0;
                                     }
 
@@ -849,8 +862,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.side.$element = $element;
+            $scope.gantt.side.$scope = $scope;
+            var hScrollBarHeight = layout.getScrollBarHeight();
+
+            $scope.getScrollableCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight) {
+                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                }
+
+                return css;
+            };
+        };
         return builder.build();
     }]);
 }());
@@ -1160,7 +1189,7 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body"\n' +
-        '     ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})">\n' +
+        '     ng-style="getScrollableCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '            <gantt-row-label></gantt-row-label>\n' +
@@ -1176,7 +1205,7 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
     $templateCache.put('plugins/labels/rowHeader.tmpl.html',
         '<div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? "Name" : ""}}</span></div>\n' +
+        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');
