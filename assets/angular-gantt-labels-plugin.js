@@ -15,7 +15,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                header: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -29,6 +30,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
+                }
+
+                if (scope.header === undefined) {
+                    scope.header = 'Name';
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
