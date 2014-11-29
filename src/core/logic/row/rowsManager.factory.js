@@ -13,20 +13,20 @@
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
-            this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+            this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(newValues, oldValues) {
+                if (newValues !== oldValues) {
                     self.updateVisibleTasks();
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+            this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function(newValues, oldValues) {
+                if (newValues !== oldValues) {
                     self.updateVisibleRows();
                 }
             });
 
-            this.gantt.$scope.$watch('sortMode', function(oldValues, newValues) {
-                if (oldValues !== newValues) {
+            this.gantt.$scope.$watch('sortMode', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
                     self.sortRows();
                 }
             });

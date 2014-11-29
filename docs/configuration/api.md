@@ -135,11 +135,11 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
     Columns have been cleared.
   
-#### labels
+#### side
 
-- **api.labels.on.resizeBegin(width)**, **api.labels.on.resize(width)**, **api.labels.on.resizeEnd(width)**
+- **api.side.on.resizeBegin(width)**, **api.side.on.resize(width)**, **api.side.on.resizeEnd(width)**
 
-    Row label area is starting to resize, resizing or has stopped resizing.
+    Side area is starting to resize, resizing or has stopped resizing.
         
 #### scroll
 
@@ -213,15 +213,15 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
     Refresh columns and current date. It will also apply filters, and may be required if you use 
     [filter-task](attributes.md#filter-task-filter-task-comparator) or [filter-row](attributes.md##filter-row-filter-row-comparator) with a function.
 
-#### labels
+#### side
 
-- **api.labels.setWidth(width)**
+- **api.side.setWidth(width)**
 
-    Set labels area width.
+    Set side area width.
 
-- **api.labels.getWidth()**
+- **api.side.getWidth()**
 
-    Get labels area width.
+    Get side area width.
 
 #### rows
 

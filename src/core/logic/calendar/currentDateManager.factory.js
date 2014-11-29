@@ -14,8 +14,10 @@
                 return moment.isMoment(d) ? d.unix() : d;
             };
 
-            this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function() {
-                self.setCurrentDate(self.gantt.$scope.currentDateValue);
+            this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function(newValues, oldValues) {
+                if (newValues !== oldValues) {
+                    self.setCurrentDate(self.gantt.$scope.currentDateValue);
+                }
             });
         };
 

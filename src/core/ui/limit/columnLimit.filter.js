@@ -8,7 +8,7 @@
 
         return function(input, gantt) {
             var scrollLeft = gantt.scroll.getScrollLeft();
-            var scrollContainerWidth = gantt.scroll.getWidth();
+            var scrollContainerWidth = gantt.getWidth() - gantt.side.getWidth();
 
             if (scrollContainerWidth > 0) {
                 var start = bs.getIndicesOnly(input, scrollLeft, leftComparator)[0];
@@ -17,8 +17,6 @@
             } else {
                 return input.slice();
             }
-
-
         };
     }]);
 }());

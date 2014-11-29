@@ -36,6 +36,18 @@
             return this.$element === undefined ? undefined : (this.$element[0].offsetWidth - this.$element[0].clientWidth);
         };
 
+        Scroll.prototype.getBordersHeight = function() {
+            return this.$element === undefined ? undefined : (this.$element[0].offsetHeight - this.$element[0].clientHeight);
+        };
+
+        Scroll.prototype.isVScrollbarVisible = function () {
+            return this.getBordersWidth() !== 0;
+        };
+
+        Scroll.prototype.isHScrollbarVisible = function () {
+            return this.getBordersHeight() !== 0;
+        };
+
         /**
          * Scroll to a position
          *

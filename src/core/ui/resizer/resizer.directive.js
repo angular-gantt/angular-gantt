@@ -12,6 +12,7 @@
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
                 var eventTopic = $attrs.ganttResizerEventTopic;
+                $scope.resizerWidth = $scope.$eval($attrs.resizerWidth);
 
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
@@ -42,12 +43,12 @@
                 }
 
                 function mousemove(event) {
-                    var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
-                    var width = offset.x;
-
-                    if (width !== undefined) {
+                    $scope.$evalAsync(function (){
+                        var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
+                        var maxWidth = ganttCtrl.gantt.getWidth()-ganttCtrl.gantt.scroll.getBordersWidth();
+                        var width = Math.min(Math.max(offset.x, 0), maxWidth);
                         setWidth(width);
-                    }
+                    });
                 }
 
                 function mouseup() {
@@ -58,15 +59,13 @@
                     $document.unbind('mouseup', mouseup);
                 }
 
-                function setWidth(width) {
-                    var oldWidth = getWidth();
-                    if (oldWidth !== width) {
-                        $scope.targetElement[0].style.width = width + 'px';
+                $scope.$watch($attrs.resizerWidth , function(newValue) {
+                    $scope.targetElement.css('width', newValue + 'px');
+                });
 
-                        if ($attrs.resizerWidth) {
-                            $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
-                            ganttCtrl.gantt.$scope.$digest(); // May not be there as resizer is generic ?
-                        }
+                function setWidth(width) {
+                    if (width !== getWidth()) {
+                        $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
 
                         if (eventTopic !== undefined) {
                             api[eventTopic].raise.resize(width);
@@ -75,14 +74,13 @@
                 }
 
                 function getWidth() {
-                    return $scope.targetElement[0].offsetWidth;
+                    return $scope.$eval($attrs.resizerWidth);
                 }
 
                 if (eventTopic) {
                     api.registerEvent(eventTopic, 'resize');
                     api.registerEvent(eventTopic, 'resizeBegin');
                     api.registerEvent(eventTopic, 'resizeEnd');
-
                     api.registerMethod(eventTopic, 'setWidth', setWidth, this);
                     api.registerMethod(eventTopic, 'getWidth', getWidth, this);
                 }
