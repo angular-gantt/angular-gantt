@@ -191,6 +191,8 @@
         
             <li><a href="#attributes">Attributes</a></li>
         
+            <li><a href="#api">API</a></li>
+        
     
     </ul>
 </div></div>
@@ -204,7 +206,8 @@
 <!-- -->
 
 <pre><code>&lt;div gantt&gt;
-  &lt;gantt-labels enabled="..."&gt;&lt;/gantt-labels&gt;
+  &lt;gantt-labels enabled="..." header="..."&gt;
+  &lt;/gantt-labels&gt;
 &lt;/div&gt;
 </code></pre>
 <h2 id="attributes">Attributes</h2>
@@ -213,6 +216,19 @@
 <h4 id="enabled">enabled</h4>
 <p>Enable display of labels.</p>
 <p>default: <code>true</code></p>
+</li>
+<li>
+<h4 id="header">header</h4>
+<p>Column header for the labels.</p>
+<p>default: <code>Name</code></p>
+</li>
+</ul>
+<h2 id="api">API</h2>
+<h3 id="methods">Methods</h3>
+<ul>
+<li>
+<p><strong>api.labels.fitSideWidth()</strong></p>
+<p>Adjusts the side section to the width of the biggest label.</p>
 </li>
 </ul>
 </div>
