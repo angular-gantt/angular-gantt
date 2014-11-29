@@ -8,7 +8,8 @@
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                header: '='
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -33,9 +34,11 @@
                 });
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
-                    if (directiveName === 'ganttSideContent') {
+                    if (directiveName === 'ganttSideContent') {                        
                         var labelsScope = sideContentScope.$new();
                         labelsScope.pluginScope = scope;
+
+                        labelsScope.labelHeader = scope.header || 'Name';
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
