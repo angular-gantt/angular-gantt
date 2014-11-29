@@ -856,8 +856,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.side.$element = $element;
+            $scope.gantt.side.$scope = $scope;
+            var hScrollBarHeight = layout.getScrollBarHeight();
+
+            $scope.getScrollableCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight) {
+                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                }
+
+                return css;
+            };
+        };
         return builder.build();
     }]);
 }());
@@ -1167,7 +1183,7 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body"\n' +
-        '     ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})">\n' +
+        '     ng-style="getScrollableCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '            <gantt-row-label></gantt-row-label>\n' +

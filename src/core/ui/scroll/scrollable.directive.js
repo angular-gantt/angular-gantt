@@ -65,8 +65,7 @@
                     css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
 
-                    var vScrollbarVisible = $scope.gantt.scroll.$element[0].clientHeight !== $scope.gantt.scroll.$element[0].offsetWidth;
-                    if (vScrollbarVisible) {
+                    if ($scope.gantt.scroll.isVScrollbarVisible()) {
                         css['border-right'] = 'none';
                     }
                 }

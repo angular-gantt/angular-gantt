@@ -39523,6 +39523,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return this.$element === undefined ? undefined : (this.$element[0].offsetWidth - this.$element[0].clientWidth);
         };
 
+        Scroll.prototype.getBordersHeight = function() {
+            return this.$element === undefined ? undefined : (this.$element[0].offsetHeight - this.$element[0].clientHeight);
+        };
+
+        Scroll.prototype.isVScrollbarVisible = function () {
+            return this.getBordersWidth() !== 0;
+        };
+
+        Scroll.prototype.isHScrollbarVisible = function () {
+            return this.getBordersHeight() !== 0;
+        };
+
         /**
          * Scroll to a position
          *
@@ -40338,8 +40350,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     css['max-height'] = $scope.maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
 
-                    var vScrollbarVisible = $scope.gantt.scroll.$element[0].clientHeight !== $scope.gantt.scroll.$element[0].offsetWidth;
-                    if (vScrollbarVisible) {
+                    if ($scope.gantt.scroll.isVScrollbarVisible()) {
                         css['border-right'] = 'none';
                     }
                 }
@@ -40783,17 +40794,53 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 outer.appendChild (inner);
 
                 $document[0].body.appendChild (outer);
+
                 var w1 = inner.offsetWidth;
                 outer.style.overflow = 'scroll';
+
                 var w2 = inner.offsetWidth;
                 if (w1 === w2) {
                     w2 = outer.clientWidth;
                 }
+
                 $document[0].body.removeChild (outer);
 
                 return (w1 - w2);
             },
+            /**
+             * Compute the height of scrollbar.
+             *
+             * @returns {number} height of the scrollbar, in px.
+             */
+            getScrollBarHeight: function() {
+                var inner = $document[0].createElement('p');
+                inner.style.width = '200px;';
+                inner.style.height = '100%';
 
+                var outer = $document[0].createElement('div');
+                outer.style.position = 'absolute';
+                outer.style.top = '0px';
+                outer.style.left = '0px';
+                outer.style.visibility = 'hidden';
+                outer.style.width = '150px';
+                outer.style.height = '200px';
+                outer.style.overflow = 'hidden';
+                outer.appendChild (inner);
+
+                $document[0].body.appendChild (outer);
+
+                var h1 = inner.offsetHeight;
+                outer.style.overflow = 'scroll';
+
+                var h2 = inner.offsetHeight;
+                if (h1 === h2) {
+                    h2 = outer.clientHeight;
+                }
+
+                $document[0].body.removeChild (outer);
+
+                return (h1 - h2);
+            },
             setColumnsWidth: function(width, originalWidth, columns) {
                 if (width && originalWidth && columns) {
 
@@ -41928,8 +41975,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
+        builder.controller = function($scope, $element) {
+            $scope.gantt.side.$element = $element;
+            $scope.gantt.side.$scope = $scope;
+            var hScrollBarHeight = layout.getScrollBarHeight();
+
+            $scope.getScrollableCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight) {
+                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                }
+
+                return css;
+            };
+        };
         return builder.build();
     }]);
 }());
@@ -42239,7 +42302,7 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body"\n' +
-        '     ng-style="(maxHeight > 0 && {\'max-height\': (maxHeight - gantt.header.getHeight())+\'px\'} || {})">\n' +
+        '     ng-style="getScrollableCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '            <gantt-row-label></gantt-row-label>\n' +
