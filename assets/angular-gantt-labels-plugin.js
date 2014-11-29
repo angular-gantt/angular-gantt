@@ -33,7 +33,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
-                    if (directiveName === 'ganttSideContent') {                        
+                    if (directiveName === 'ganttSideContent') {
                         var labelsScope = sideContentScope.$new();
                         labelsScope.pluginScope = scope;
 
