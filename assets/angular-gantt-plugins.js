@@ -156,7 +156,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var labelsScope = sideContentScope.$new();
                         labelsScope.pluginScope = scope;
 
-                        labelsScope.labelHeader = scope.header || 'None';
+                        labelsScope.labelHeader = scope.header || 'Name';
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
