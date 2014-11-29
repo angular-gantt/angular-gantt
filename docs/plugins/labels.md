@@ -9,7 +9,9 @@ Display labels on the side.
 <!-- -->
 
     <div gantt>
-      <gantt-labels enabled="..."></gantt-labels>
+      <gantt-labels enabled="true"
+                    header="'Events'">
+      </gantt-labels>
     </div>
 
 ## Attributes
@@ -19,6 +21,12 @@ Display labels on the side.
     Enable display of labels.
 
     default: `true`
+
+- #### header
+
+    Column header for the side labels. This will not change once defined.
+
+    default: `Name`
 
 ## API
 

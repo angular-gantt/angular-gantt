@@ -10,3 +10,4 @@
 /coverage-results/
 /assets/*.map
 *.log
+/.bowerrc

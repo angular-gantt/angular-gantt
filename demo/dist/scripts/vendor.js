@@ -41303,7 +41303,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                header: '='
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -41323,6 +41324,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (directiveName === 'ganttSideContent') {
                         var labelsScope = sideContentScope.$new();
                         labelsScope.pluginScope = scope;
+
+                        labelsScope.labelHeader = scope.header || 'Name';
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
@@ -42377,7 +42380,7 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
     $templateCache.put('plugins/labels/rowHeader.tmpl.html',
         '<div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? "Name" : ""}}</span></div>\n' +
+        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? labelHeader : ""}}</span></div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');
