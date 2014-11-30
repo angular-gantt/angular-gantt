@@ -85,8 +85,11 @@
                             });
 
                             var handleMove = function(evt) {
-                                moveTask(evt);
-                                scrollScreen(evt);
+                                if (taskScope.task.isMoving && !taskScope.destroyed) {
+                                    clearScrollInterval();
+                                    moveTask(evt);
+                                    scrollScreen(evt);
+                                }
                             };
 
                             var moveTask = function(evt) {
@@ -286,23 +289,19 @@
                                 taskScope.task.isMoving = true;
                                 taskScope.task.active = true;
 
-                                // Add move event handlers
+                                // Add move event handler
                                 var taskMoveHandler = function(evt) {
                                     evt.stopImmediatePropagation();
                                     if (_hasTouch) {
                                         evt = mouseOffset.getTouch(evt);
                                     }
-                                    if (taskScope.task.isMoving) {
-                                        // As this function is defered, disableMoveMode may have been called before.
-                                        // Without this check, task.changed event is not fired for faster moves.
-                                        // See github issue #190
-                                        clearScrollInterval();
-                                        handleMove(evt);
-                                    }
+
+                                    handleMove(evt);
                                 };
                                 var moveSmartEvent = smartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
                                 moveSmartEvent.bind();
 
+                                // Remove move event handler on mouse up / touch end
                                 smartEvent(taskScope, windowElement, _releaseEvents, function(evt) {
                                     if (_hasTouch) {
                                         evt = mouseOffset.getTouch(evt);
@@ -359,6 +358,14 @@
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.change(taskScope.task);
                                 }
                             };
+
+                            // Stop scroll cycle (if running) when scope is destroyed.
+                            // This is needed when the task is moved to a new row during scroll because
+                            // the old scope will continue to scroll otherwise
+                            taskScope.$on('$destroy', function() {
+                                taskScope.destroyed = true;
+                                clearScrollInterval();
+                            });
 
                             if (taskScope.task.isResizing) {
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
