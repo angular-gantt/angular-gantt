@@ -29,7 +29,6 @@
                     'timeFramesWorkingMode': 'hidden',
                     'timeFramesNonWorkingMode': 'visible'
                 });
-                //this.options.initialize();
 
                 this.api = new GanttApi(this);
 

@@ -12,7 +12,6 @@
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
                 var eventTopic = $attrs.ganttResizerEventTopic;
-                $scope.resizerWidth = $scope.$eval($attrs.resizerWidth);
 
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
@@ -63,13 +62,15 @@
                     $document.unbind('mouseup', mouseup);
                 }
 
-                $scope.$watch($attrs.resizerWidth , function(newValue) {
+                $scope.$watch(function() {
+                    return getWidth();
+                }, function(newValue) {
                     $scope.targetElement.css('width', newValue + 'px');
                 });
 
                 function setWidth(width) {
                     if (width !== getWidth()) {
-                        $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
 
                         if (eventTopic !== undefined) {
                             api[eventTopic].raise.resize(width);
@@ -78,7 +79,7 @@
                 }
 
                 function getWidth() {
-                    return $scope.$eval($attrs.resizerWidth);
+                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
                 }
 
                 if (eventTopic) {

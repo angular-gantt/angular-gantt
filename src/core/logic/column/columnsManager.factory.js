@@ -39,7 +39,7 @@
                 }
             });
 
-            this.gantt.$scope.$watchGroup([/*'bodyRowsWidth', 'bodyRowsLeft', */'ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
+            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
                 if (newValues !== oldValues && self.gantt.rendered) {
                     var sideVisibilityChanged = newValues[1] !== oldValues[1];
                     self.updateColumnsMeta(sideVisibilityChanged);

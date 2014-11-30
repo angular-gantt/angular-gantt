@@ -1308,7 +1308,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             });
 
-            this.gantt.$scope.$watchGroup([/*'bodyRowsWidth', 'bodyRowsLeft', */'ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
+            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
                 if (newValues !== oldValues && self.gantt.rendered) {
                     var sideVisibilityChanged = newValues[1] !== oldValues[1];
                     self.updateColumnsMeta(sideVisibilityChanged);
@@ -1757,7 +1757,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timeFramesWorkingMode': 'hidden',
                     'timeFramesNonWorkingMode': 'visible'
                 });
-                //this.options.initialize();
 
                 this.api = new GanttApi(this);
 
@@ -2961,8 +2960,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt').factory('GanttSide', [function() {
         var Side= function(gantt) {
             this.gantt = gantt;
-
-            this.gantt.api.registerMethod('side', 'setWidth', Side.prototype.setWidth, this);
         };
         Side.prototype.getWidth = function() {
             return this.gantt.options.value('showSide') ? this.gantt.options.value('sideWidth') : 0;
@@ -3479,7 +3476,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
                 var eventTopic = $attrs.ganttResizerEventTopic;
-                $scope.resizerWidth = $scope.$eval($attrs.resizerWidth);
 
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
@@ -3530,13 +3526,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $document.unbind('mouseup', mouseup);
                 }
 
-                $scope.$watch($attrs.resizerWidth , function(newValue) {
+                $scope.$watch(function() {
+                    return getWidth();
+                }, function(newValue) {
                     $scope.targetElement.css('width', newValue + 'px');
                 });
 
                 function setWidth(width) {
                     if (width !== getWidth()) {
-                        $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
 
                         if (eventTopic !== undefined) {
                             api[eventTopic].raise.resize(width);
@@ -3545,7 +3543,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 function getWidth() {
-                    return $scope.$eval($attrs.resizerWidth);
+                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
                 }
 
                 if (eventTopic) {
@@ -4327,7 +4325,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-side>\n' +
         '        <gantt-side-content>\n' +
         '        </gantt-side-content>\n' +
-        '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width="$parent.$parent.sideWidth" class="gantt-resizer">\n' +
+        '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width="sideWidth" class="gantt-resizer">\n' +
         '            <div ng-show="$parent.gantt.options.value(\'allowSideResizing\')" class="gantt-resizer-display"></div>\n' +
         '        </div>\n' +
         '    </gantt-side>\n' +
