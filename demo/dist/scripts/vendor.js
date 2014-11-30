@@ -42049,7 +42049,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope) {
             var hScrollBarHeight = layout.getScrollBarHeight();
 
-            $scope.getScrollableCss = function() {
+            $scope.getLabelsCss = function() {
                 var css = {};
 
                 if ($scope.maxHeight) {
@@ -42369,7 +42369,7 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body"\n' +
-        '     ng-style="getScrollableCss()">\n' +
+        '     ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '            <gantt-row-label></gantt-row-label>\n' +

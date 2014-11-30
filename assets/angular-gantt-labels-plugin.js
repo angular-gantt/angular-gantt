@@ -79,7 +79,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope) {
             var hScrollBarHeight = layout.getScrollBarHeight();
 
-            $scope.getScrollableCss = function() {
+            $scope.getLabelsCss = function() {
                 var css = {};
 
                 if ($scope.maxHeight) {
