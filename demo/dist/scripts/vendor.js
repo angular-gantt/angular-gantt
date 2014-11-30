@@ -40411,6 +40411,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }
 
+                var columnWidth = this.gantt.options.value('columnWidth');
+                var bodySmallerThanGantt = $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+                if (columnWidth !== undefined && bodySmallerThanGantt) {
+                    css.width = ($scope.gantt.width + this.gantt.scroll.getBordersWidth()) + 'px';
+                }
+
                 return css;
             };
         };
@@ -40566,16 +40572,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope, $element) {
             $scope.gantt.header.$element = $element;
             $scope.gantt.header.$scope = $scope;
-
-            $scope.getHeaderCss = function() {
-                var css = {};
-
-                if ($scope.gantt.width - $scope.gantt.side.getWidth() > $scope.gantt.width) {
-                    css.width = $scope.gantt.width + 'px';
-                }
-
-                return css;
-            };
         };
         return builder.build();
     }]);
@@ -40626,8 +40622,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                if ($scope.gantt.options.value('maxHeight') > 0) {
-                    css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - scrollBarWidth + 'px';
+                var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
+                var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
+                var columnWidth = this.gantt.options.value('columnWidth');
+                var bodySmallerThanGantt = $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+
+                if (columnWidth !== undefined && bodySmallerThanGantt) {
+                    css.width = ($scope.gantt.width - vScrollbarWidth + this.gantt.scroll.getBordersWidth()) + 'px';
+                } else if (maxHeightActivated) {
+                    css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - vScrollbarWidth + 'px';
                 }
 
                 return css;
