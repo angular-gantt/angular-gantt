@@ -16,7 +16,7 @@
                     'timespans': [],
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
-                    'showSide': true,
+                    'showSide': false,
                     'sideWidth': 150,
                     'allowSideResizing': true,
                     'currentDate': 'line',

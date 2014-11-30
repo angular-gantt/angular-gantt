@@ -288,7 +288,7 @@
 
     Show the side section. Make sure that a side section plugin (e.g. [Labels](../plugins/labels.md)) is activated otherwise the side section is not shown.
         
-    default: `true`
+    default: `false`
 
 - ### sort-mode
 

@@ -36991,19 +36991,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (angular.isFunction(defaultValue)) {
                     defaultValue = defaultValue();
                 }
-                if (typeof defaultValue !== 'boolean') {
-                    return defaultValue;
-                }
-                return undefined;
+
+                return defaultValue;
             };
 
             this.sanitize = function(optionName, optionValue) {
                 if (!optionValue) {
                     var defaultValue = this.defaultValue(optionName);
                     if (defaultValue !== undefined) {
+                        if (optionValue !== undefined && typeof defaultValue === 'boolean') {
+                            return optionValue;
+                        }
+
                         return defaultValue;
                     }
                 }
+
                 return optionValue;
             };
 
@@ -38421,7 +38424,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timespans': [],
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
-                    'showSide': true,
+                    'showSide': false,
                     'sideWidth': 150,
                     'allowSideResizing': true,
                     'currentDate': 'line',
@@ -40412,7 +40415,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var columnWidth = this.gantt.options.value('columnWidth');
-                var bodySmallerThanGantt = $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+                var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
                 if (columnWidth !== undefined && bodySmallerThanGantt) {
                     css.width = ($scope.gantt.width + this.gantt.scroll.getBordersWidth()) + 'px';
                 }
@@ -40461,9 +40464,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 effectiveScope.$watch(function() {
                     return $element[0].offsetWidth;
-                }, function(newValue, oldValue) {
-                    if (newValue !== oldValue && newValue > 0) {
-                        effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                }, function(newValue) {
+                    if (newValue > 0) {
+                        effectiveScope[scopeVariable] = newValue;
                     }
                 });
             }]
@@ -40625,7 +40628,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
                 var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
                 var columnWidth = this.gantt.options.value('columnWidth');
-                var bodySmallerThanGantt = $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+                var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
 
                 if (columnWidth !== undefined && bodySmallerThanGantt) {
                     css.width = ($scope.gantt.width - vScrollbarWidth + this.gantt.scroll.getBordersWidth()) + 'px';
@@ -40648,6 +40651,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope, $element) {
             $scope.gantt.side.$element = $element;
             $scope.gantt.side.$scope = $scope;
+
+            $scope.getSideCss = function() {
+                var css = {};
+                css.height = $scope.gantt.$element[0].offsetHeight + 'px';
+                return css;
+            };
         };
         return builder.build();
     }]);
@@ -41078,7 +41087,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Side template -->\n' +
         '    <script type="text/ng-template" id="template/ganttSide.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-side"></div>\n' +
+        '        <div ng-transclude class="gantt-side" ng-style="getSideCss()"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Side content template-->\n' +

@@ -18,9 +18,9 @@
 
                 effectiveScope.$watch(function() {
                     return $element[0].offsetWidth;
-                }, function(newValue, oldValue) {
-                    if (newValue !== oldValue && newValue > 0) {
-                        effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                }, function(newValue) {
+                    if (newValue > 0) {
+                        effectiveScope[scopeVariable] = newValue;
                     }
                 });
             }]

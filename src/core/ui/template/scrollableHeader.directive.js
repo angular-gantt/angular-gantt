@@ -10,7 +10,7 @@
                 var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
                 var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
                 var columnWidth = this.gantt.options.value('columnWidth');
-                var bodySmallerThanGantt = $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+                var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
 
                 if (columnWidth !== undefined && bodySmallerThanGantt) {
                     css.width = ($scope.gantt.width - vScrollbarWidth + this.gantt.scroll.getBordersWidth()) + 'px';

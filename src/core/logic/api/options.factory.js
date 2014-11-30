@@ -10,19 +10,22 @@
                 if (angular.isFunction(defaultValue)) {
                     defaultValue = defaultValue();
                 }
-                if (typeof defaultValue !== 'boolean') {
-                    return defaultValue;
-                }
-                return undefined;
+
+                return defaultValue;
             };
 
             this.sanitize = function(optionName, optionValue) {
                 if (!optionValue) {
                     var defaultValue = this.defaultValue(optionName);
                     if (defaultValue !== undefined) {
+                        if (optionValue !== undefined && typeof defaultValue === 'boolean') {
+                            return optionValue;
+                        }
+
                         return defaultValue;
                     }
                 }
+
                 return optionValue;
             };
 

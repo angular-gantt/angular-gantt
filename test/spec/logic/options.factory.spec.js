@@ -1,0 +1,112 @@
+'use strict';
+describe('Unit: GanttOptions', function() {
+    // Load the module with MainController
+    beforeEach(function(){
+        module('gantt');
+    });
+
+    var Options;
+    var $controller;
+    var $rootScope;
+    var $compile;
+
+    beforeEach(inject(['$controller', '$rootScope', '$compile', 'GanttOptions', function(_$controller_, _$rootScope_, _$compile_, _Options_) {
+        Options = _Options_;
+        $controller = _$controller_;
+        $rootScope = _$rootScope_;
+        $compile = _$compile_;
+    }]));
+
+    it('Returns undefined for a non existing option value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            var options = new Options($scope, {});
+
+            var value = options.value('non existing');
+
+            expect(value).toBeUndefined();
+        }
+    );
+
+    it('Returns the value for a existing option value (non-boolean)',
+        function() {
+            var $scope = $rootScope.$new();
+
+            $scope.existing = 100;
+            var options = new Options($scope, {});
+
+            var value = options.value('existing');
+
+            expect(value).toEqual(100);
+        }
+    );
+
+    it('Returns the default value for a non existing option value (non-boolean)',
+        function() {
+            var $scope = $rootScope.$new();
+
+            var options = new Options($scope, {
+                'default': 100
+            });
+
+            var value = options.value('default');
+
+            expect(value).toEqual(100);
+        }
+    );
+
+    it('Returns false for a existing non-truthy option value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            $scope.existing = false;
+            var options = new Options($scope, {});
+
+            var value = options.value('existing');
+
+            expect(value).toEqual(false);
+        }
+    );
+
+    it('Returns true for a existing truthy boolean option value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            $scope.existing = true;
+            var options = new Options($scope, {});
+
+            var value = options.value('existing');
+
+            expect(value).toEqual(true);
+        }
+    );
+
+    it('Returns false as default value for a non existing non-truthy boolean option value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            var options = new Options($scope, {
+                'default': false
+            });
+
+            var value = options.value('default');
+
+            expect(value).toEqual(false);
+        }
+    );
+
+    it('Returns true as default value for a non existing truthy boolean option value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            var options = new Options($scope, {
+                'default': true
+            });
+
+            var value = options.value('default');
+
+            expect(value).toEqual(true);
+        }
+    );
+});
