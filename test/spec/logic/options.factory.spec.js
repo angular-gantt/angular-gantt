@@ -69,7 +69,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns true for a existing truthy boolean option value',
+    it('Returns true for a existing truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -82,7 +82,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns false as default value for a non existing non-truthy boolean option value',
+    it('Returns false as default value for a non existing non-truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -96,7 +96,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns true as default value for a non existing truthy boolean option value',
+    it('Returns true as default value for a non existing truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -107,6 +107,50 @@ describe('Unit: GanttOptions', function() {
             var value = options.value('default');
 
             expect(value).toEqual(true);
+        }
+    );
+
+    it('Returns false for a non-truthy option value which has a default value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            $scope.existing = false;
+            var options = new Options($scope, {
+                'existing': true
+            });
+
+            var value = options.value('existing');
+
+            expect(value).toEqual(false);
+        }
+    );
+
+    it('Returns true for a truthy boolean option value which has a default value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            $scope.existing = true;
+            var options = new Options($scope, {
+                'existing': false
+            });
+
+            var value = options.value('existing');
+
+            expect(value).toEqual(true);
+        }
+    );
+
+    it('Set a option value to the specified value',
+        function() {
+            var $scope = $rootScope.$new();
+
+            var options = new Options($scope, {});
+
+            options.set('toSet', 100);
+            expect($scope.toSet).toEqual(100);
+
+            var value = options.value('toSet');
+            expect(value).toEqual(100);
         }
     );
 });
