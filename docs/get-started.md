@@ -125,14 +125,19 @@ Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTM
           ...
         ]
 
-4. \[Optional\] Enable [labels](plugins/labels.md) plugin and set show-side attribute to true to display row names on left side.
+4. \[Optional\] You can load [plugins](configuration/plugins.md) like 
+  [labels](plugins/labels.md) to display row names on left side, 
+  [movable](plugins/movable.md) to make tasks movable and resizable with mouse and touch events, and 
+  [tooltips](plugins/tooltips.md) to enable tooltips on mouse over.
 
-        var myApp = angular.module('myApp', ['gantt', 'gantt.labels']);
+        var myApp = angular.module('myApp', ['gantt', 'gantt.labels', 'gantt.movable', 'gantt.tooltips']);
         
     <!-- -->
     
-        <div gantt data=data show-side="true">
+        <div gantt data=data>
           <gantt-labels></gantt-labels>
+          <gantt-movable></gantt-movable>
+          <gantt-tooltips></gantt-tooltips>
         </div>
 
 5. For a sample app see the files in `demo/app/` or [Plunker](http://plnkr.co/hchknn).

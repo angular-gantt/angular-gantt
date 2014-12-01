@@ -38426,7 +38426,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timespans': [],
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
-                    'showSide': false,
+                    'showSide': true,
                     'allowSideResizing': true,
                     'currentDate': 'line',
                     'currentDateValue': moment,
