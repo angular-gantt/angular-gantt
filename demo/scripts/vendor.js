@@ -36676,7 +36676,7 @@ angular.module("ang-drag-drop",[])
 
 
 /*
-Project: angular-gantt v1.0.0-rc8 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc.9 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -36991,19 +36991,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (angular.isFunction(defaultValue)) {
                     defaultValue = defaultValue();
                 }
-                if (typeof defaultValue !== 'boolean') {
-                    return defaultValue;
-                }
-                return undefined;
+
+                return defaultValue;
             };
 
             this.sanitize = function(optionName, optionValue) {
                 if (!optionValue) {
                     var defaultValue = this.defaultValue(optionName);
                     if (defaultValue !== undefined) {
+                        if (optionValue !== undefined && typeof defaultValue === 'boolean') {
+                            return optionValue;
+                        }
+
                         return defaultValue;
                     }
                 }
+
                 return optionValue;
             };
 
@@ -37985,10 +37988,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             });
 
-            this.gantt.$scope.$watchGroup([/*'bodyRowsWidth', 'bodyRowsLeft', */'ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
+            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
                 if (newValues !== oldValues && self.gantt.rendered) {
-                    var sideVisibilityChanged = newValues[1] !== oldValues[1];
-                    self.updateColumnsMeta(sideVisibilityChanged);
+                    self.updateColumnsMeta();
                 }
             });
 
@@ -38105,7 +38107,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
-        ColumnsManager.prototype.updateColumnsMeta = function(sideVisibilityChanged) {
+        ColumnsManager.prototype.updateColumnsMeta = function() {
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
@@ -38114,6 +38116,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
             var showSide = this.gantt.options.value('showSide');
+            var sideShown = this.gantt.side.isShown();
+            var sideVisibilityChanged = showSide !== sideShown;
+
             if (sideVisibilityChanged && !showSide) {
                 // Prevent unnecessary v-scrollbar if side is hidden here
                 this.gantt.side.show(false);
@@ -38406,8 +38411,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
-        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
+        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document', '$timeout',
+        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document, $timeout) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
@@ -38422,7 +38427,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
                     'showSide': true,
-                    'sideWidth': 150,
                     'allowSideResizing': true,
                     'currentDate': 'line',
                     'currentDateValue': moment,
@@ -38434,7 +38438,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timeFramesWorkingMode': 'hidden',
                     'timeFramesNonWorkingMode': 'visible'
                 });
-                //this.options.initialize();
 
                 this.api = new GanttApi(this);
 
@@ -38655,7 +38658,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 this.rendered = true;
                 this.columnsManager.generateColumns();
-                this.api.core.raise.rendered(this.api);
+
+                var gantt = this;
+                var renderedFunction = function() {
+                    gantt.options.set('sideWidth', gantt.side.getWidth());
+                    gantt.api.core.raise.rendered(gantt.api);
+                };
+                $timeout(renderedFunction);
             };
 
             return Gantt;
@@ -39635,17 +39644,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+
     angular.module('gantt').factory('GanttSide', [function() {
         var Side= function(gantt) {
             this.gantt = gantt;
-
-            this.gantt.api.registerMethod('side', 'setWidth', Side.prototype.setWidth, this);
         };
         Side.prototype.getWidth = function() {
-            return this.gantt.options.value('showSide') ? this.gantt.options.value('sideWidth') : 0;
+            if (this.gantt.options.value('showSide')) {
+                var width = this.gantt.options.value('sideWidth');
+                if (width === undefined && this.$element !== undefined) {
+                    width = this.$element[0].offsetWidth;
+                }
+                if (width !== undefined) {
+                    return width;
+                }
+            }
+            return 0;
         };
         Side.prototype.show = function(value) {
-            this.$element.toggleClass('ng-hide', !value);
+            if (this.$element !== undefined) {
+                this.$element.toggleClass('ng-hide', !value);
+            }
+        };
+        Side.prototype.isShown = function() {
+            if (this.$element !== undefined) {
+                return !this.$element.hasClass('ng-hide');
+            }
         };
 
         return Side;
@@ -40156,7 +40180,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link: function ($scope, $element, $attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
                 var eventTopic = $attrs.ganttResizerEventTopic;
-                $scope.resizerWidth = $scope.$eval($attrs.resizerWidth);
 
                 if ($scope.enabled === undefined) {
                     $scope.enabled = true;
@@ -40207,13 +40230,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $document.unbind('mouseup', mouseup);
                 }
 
-                $scope.$watch($attrs.resizerWidth , function(newValue) {
+                $scope.$watch(function() {
+                    return getWidth();
+                }, function(newValue) {
                     $scope.targetElement.css('width', newValue + 'px');
                 });
 
                 function setWidth(width) {
                     if (width !== getWidth()) {
-                        $scope.$eval($attrs.resizerWidth + ' =  $$xValue', {'$$xValue': width});
+                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
 
                         if (eventTopic !== undefined) {
                             api[eventTopic].raise.resize(width);
@@ -40222,7 +40247,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 function getWidth() {
-                    return $scope.$eval($attrs.resizerWidth);
+                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
                 }
 
                 if (eventTopic) {
@@ -40413,6 +40438,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }
 
+                var columnWidth = this.gantt.options.value('columnWidth');
+                var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+                if (columnWidth !== undefined && bodySmallerThanGantt) {
+                    css.width = ($scope.gantt.width + this.gantt.scroll.getBordersWidth()) + 'px';
+                }
+
                 return css;
             };
         };
@@ -40457,9 +40488,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 effectiveScope.$watch(function() {
                     return $element[0].offsetWidth;
-                }, function(newValue, oldValue) {
-                    if (newValue !== oldValue && newValue > 0) {
-                        effectiveScope[scopeVariable] = $element[0].offsetWidth;
+                }, function(newValue) {
+                    if (newValue > 0) {
+                        effectiveScope[scopeVariable] = newValue;
                     }
                 });
             }]
@@ -40568,16 +40599,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope, $element) {
             $scope.gantt.header.$element = $element;
             $scope.gantt.header.$scope = $scope;
-
-            $scope.getHeaderCss = function() {
-                var css = {};
-
-                if ($scope.gantt.width - $scope.gantt.side.getWidth() > $scope.gantt.width) {
-                    css.width = $scope.gantt.width + 'px';
-                }
-
-                return css;
-            };
         };
         return builder.build();
     }]);
@@ -40628,8 +40649,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                if ($scope.gantt.options.value('maxHeight') > 0) {
-                    css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - scrollBarWidth + 'px';
+                var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
+                var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
+                var columnWidth = this.gantt.options.value('columnWidth');
+                var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+
+                if (columnWidth !== undefined && bodySmallerThanGantt) {
+                    css.width = ($scope.gantt.width - vScrollbarWidth + this.gantt.scroll.getBordersWidth()) + 'px';
+                } else if (maxHeightActivated) {
+                    css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - vScrollbarWidth + 'px';
                 }
 
                 return css;
@@ -41004,7 +41032,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-side>\n' +
         '        <gantt-side-content>\n' +
         '        </gantt-side-content>\n' +
-        '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width="$parent.$parent.sideWidth" class="gantt-resizer">\n' +
+        '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width="sideWidth" class="gantt-resizer">\n' +
         '            <div ng-show="$parent.gantt.options.value(\'allowSideResizing\')" class="gantt-resizer-display"></div>\n' +
         '        </div>\n' +
         '    </gantt-side>\n' +
@@ -41176,7 +41204,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.0.0-rc8 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc.9 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -41348,7 +41376,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         newSideWidth = Math.max(newSideWidth, width);
                     });
 
-                    if (newSideWidth > 0) {
+                    if (newSideWidth >= 0) {
                         api.side.setWidth(newSideWidth);
                     }
                 }
@@ -41447,8 +41475,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             });
 
                             var handleMove = function(evt) {
-                                moveTask(evt);
-                                scrollScreen(evt);
+                                if (taskScope.task.isMoving && !taskScope.destroyed) {
+                                    clearScrollInterval();
+                                    moveTask(evt);
+                                    scrollScreen(evt);
+                                }
                             };
 
                             var moveTask = function(evt) {
@@ -41648,23 +41679,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.isMoving = true;
                                 taskScope.task.active = true;
 
-                                // Add move event handlers
+                                // Add move event handler
                                 var taskMoveHandler = function(evt) {
                                     evt.stopImmediatePropagation();
                                     if (_hasTouch) {
                                         evt = mouseOffset.getTouch(evt);
                                     }
-                                    if (taskScope.task.isMoving) {
-                                        // As this function is defered, disableMoveMode may have been called before.
-                                        // Without this check, task.changed event is not fired for faster moves.
-                                        // See github issue #190
-                                        clearScrollInterval();
-                                        handleMove(evt);
-                                    }
+
+                                    handleMove(evt);
                                 };
                                 var moveSmartEvent = smartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
                                 moveSmartEvent.bind();
 
+                                // Remove move event handler on mouse up / touch end
                                 smartEvent(taskScope, windowElement, _releaseEvents, function(evt) {
                                     if (_hasTouch) {
                                         evt = mouseOffset.getTouch(evt);
@@ -41721,6 +41748,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.change(taskScope.task);
                                 }
                             };
+
+                            // Stop scroll cycle (if running) when scope is destroyed.
+                            // This is needed when the task is moved to a new row during scroll because
+                            // the old scope will continue to scroll otherwise
+                            taskScope.$on('$destroy', function() {
+                                taskScope.destroyed = true;
+                                clearScrollInterval();
+                            });
 
                             if (taskScope.task.isResizing) {
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
@@ -42041,12 +42076,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
     angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
-        builder.controller = function($scope, $element) {
-            $scope.gantt.side.$element = $element;
-            $scope.gantt.side.$scope = $scope;
+        builder.controller = function($scope) {
             var hScrollBarHeight = layout.getScrollBarHeight();
 
-            $scope.getScrollableCss = function() {
+            $scope.getLabelsCss = function() {
                 var css = {};
 
                 if ($scope.maxHeight) {
@@ -42366,7 +42399,7 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body"\n' +
-        '     ng-style="getScrollableCss()">\n' +
+        '     ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '            <gantt-row-label></gantt-row-label>\n' +

@@ -333,6 +333,22 @@ Add <code>angular-gantt-plugins.js</code> and <code>angular-gantt-plugins.css</c
 </code></pre>
 </li>
 <li>
+<p>[Optional] You can load <a href="../configuration/plugins">plugins</a> like 
+  <a href="../plugins/labels">labels</a> to display row names on left side, 
+  <a href="../plugins/movable">movable</a> to make tasks movable and resizable with mouse and touch events, and 
+  <a href="../plugins/tooltips">tooltips</a> to enable tooltips on mouse over.</p>
+<pre><code>var myApp = angular.module('myApp', ['gantt', 'gantt.labels', 'gantt.movable', 'gantt.tooltips']);
+</code></pre>
+<!-- -->
+
+<pre><code>&lt;div gantt data=data&gt;
+  &lt;gantt-labels&gt;&lt;/gantt-labels&gt;
+  &lt;gantt-movable&gt;&lt;/gantt-movable&gt;
+  &lt;gantt-tooltips&gt;&lt;/gantt-tooltips&gt;
+&lt;/div&gt;
+</code></pre>
+</li>
+<li>
 <p>For a sample app see the files in <code>demo/app/</code> or <a href="http://plnkr.co/hchknn">Plunker</a>.</p>
 </li>
 </ol>
