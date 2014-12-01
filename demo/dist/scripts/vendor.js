@@ -40155,6 +40155,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var firstColumn = gantt.columnsManager.getFirstColumn();
             var lastColumn = gantt.columnsManager.getLastColumn();
 
+            var fromDate = gantt.options.value('fromDate');
+            var toDate = gantt.options.value('toDate');
+
+
+            if (fromDate === undefined) {
+                fromDate = firstColumn.date;
+            }
+
+            if (toDate === undefined) {
+                toDate = lastColumn.endDate;
+            }
+
             if (firstColumn !== undefined && lastColumn !== undefined) {
                 var res = [];
 
@@ -40168,7 +40180,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         res.push(task);
                     } else {
                         // If the task can be drawn with gantt columns only.
-                        if (task.model.to > firstColumn.date && task.model.from < lastColumn.endDate) {
+                        if (task.model.to >= fromDate && task.model.from <= toDate) {
 
                             // If task has a visible part on the screen
                             if (!scrollContainerWidth ||
