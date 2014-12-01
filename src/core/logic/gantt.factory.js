@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
-        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
+        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document', '$timeout',
+        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document, $timeout) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
@@ -17,7 +17,6 @@
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
                     'showSide': false,
-                    'sideWidth': 150,
                     'allowSideResizing': true,
                     'currentDate': 'line',
                     'currentDateValue': moment,
@@ -249,7 +248,13 @@
 
                 this.rendered = true;
                 this.columnsManager.generateColumns();
-                this.api.core.raise.rendered(this.api);
+
+                var gantt = this;
+                var renderedFunction = function() {
+                    gantt.options.set('sideWidth', gantt.side.getWidth());
+                    gantt.api.core.raise.rendered(gantt.api);
+                };
+                $timeout(renderedFunction);
             };
 
             return Gantt;

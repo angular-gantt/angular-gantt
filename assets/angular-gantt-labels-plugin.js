@@ -60,7 +60,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         newSideWidth = Math.max(newSideWidth, width);
                     });
 
-                    if (newSideWidth > 0) {
+                    if (newSideWidth >= 0) {
                         api.side.setWidth(newSideWidth);
                     }
                 }

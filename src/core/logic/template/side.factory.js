@@ -1,11 +1,21 @@
 (function(){
     'use strict';
+
     angular.module('gantt').factory('GanttSide', [function() {
         var Side= function(gantt) {
             this.gantt = gantt;
         };
         Side.prototype.getWidth = function() {
-            return this.gantt.options.value('showSide') ? this.gantt.options.value('sideWidth') : 0;
+            if (this.gantt.options.value('showSide')) {
+                var width = this.gantt.options.value('sideWidth');
+                if (width === undefined && this.$element !== undefined) {
+                    width = this.$element[0].offsetWidth;
+                }
+                if (width !== undefined) {
+                    return width;
+                }
+            }
+            return 0;
         };
         Side.prototype.show = function(value) {
             if (this.$element !== undefined) {

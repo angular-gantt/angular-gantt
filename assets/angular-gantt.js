@@ -1734,8 +1734,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
     angular.module('gantt').factory('Gantt', [
-        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document',
-        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document) {
+        'GanttApi', 'GanttOptions', 'GanttCalendar', 'GanttScroll', 'GanttBody', 'GanttRowHeader', 'GanttHeader', 'GanttSide', 'GanttObjectModel', 'GanttRowsManager', 'GanttColumnsManager', 'GanttTimespansManager', 'GanttCurrentDateManager', 'ganttArrays', 'moment', '$document', '$timeout',
+        function(GanttApi, Options, Calendar, Scroll, Body, RowHeader, Header, Side, ObjectModel, RowsManager, ColumnsManager, TimespansManager, CurrentDateManager, arrays, moment, $document, $timeout) {
             // Gantt logic. Manages the columns, rows and sorting functionality.
             var Gantt = function($scope, $element) {
                 var self = this;
@@ -1750,7 +1750,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
                     'showSide': false,
-                    'sideWidth': 150,
                     'allowSideResizing': true,
                     'currentDate': 'line',
                     'currentDateValue': moment,
@@ -1982,7 +1981,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 this.rendered = true;
                 this.columnsManager.generateColumns();
-                this.api.core.raise.rendered(this.api);
+
+                var gantt = this;
+                var renderedFunction = function() {
+                    gantt.options.set('sideWidth', gantt.side.getWidth());
+                    gantt.api.core.raise.rendered(gantt.api);
+                };
+                $timeout(renderedFunction);
             };
 
             return Gantt;
@@ -2962,12 +2967,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+
     angular.module('gantt').factory('GanttSide', [function() {
         var Side= function(gantt) {
             this.gantt = gantt;
         };
         Side.prototype.getWidth = function() {
-            return this.gantt.options.value('showSide') ? this.gantt.options.value('sideWidth') : 0;
+            if (this.gantt.options.value('showSide')) {
+                var width = this.gantt.options.value('sideWidth');
+                if (width === undefined && this.$element !== undefined) {
+                    width = this.$element[0].offsetWidth;
+                }
+                if (width !== undefined) {
+                    return width;
+                }
+            }
+            return 0;
         };
         Side.prototype.show = function(value) {
             if (this.$element !== undefined) {
@@ -3983,12 +3998,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope, $element) {
             $scope.gantt.side.$element = $element;
             $scope.gantt.side.$scope = $scope;
-
-            $scope.getSideCss = function() {
-                var css = {};
-                css.height = $scope.gantt.$element[0].offsetHeight + 'px';
-                return css;
-            };
         };
         return builder.build();
     }]);
@@ -4419,7 +4428,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Side template -->\n' +
         '    <script type="text/ng-template" id="template/ganttSide.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-side" ng-style="getSideCss()"></div>\n' +
+        '        <div ng-transclude class="gantt-side"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Side content template-->\n' +
