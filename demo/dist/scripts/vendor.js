@@ -37990,8 +37990,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
                 if (newValues !== oldValues && self.gantt.rendered) {
-                    var sideVisibilityChanged = newValues[1] !== oldValues[1];
-                    self.updateColumnsMeta(sideVisibilityChanged);
+                    self.updateColumnsMeta();
                 }
             });
 
@@ -38108,7 +38107,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.columns.raise.generate(this.columns, this.headers);
         };
 
-        ColumnsManager.prototype.updateColumnsMeta = function(sideVisibilityChanged) {
+        ColumnsManager.prototype.updateColumnsMeta = function() {
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
@@ -38117,6 +38116,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
             var showSide = this.gantt.options.value('showSide');
+            var sideShown = this.gantt.side.isShown();
+            var sideVisibilityChanged = showSide !== sideShown;
+
             if (sideVisibilityChanged && !showSide) {
                 // Prevent unnecessary v-scrollbar if side is hidden here
                 this.gantt.side.show(false);
@@ -39645,7 +39647,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return this.gantt.options.value('showSide') ? this.gantt.options.value('sideWidth') : 0;
         };
         Side.prototype.show = function(value) {
-            this.$element.toggleClass('ng-hide', !value);
+            if (this.$element !== undefined) {
+                this.$element.toggleClass('ng-hide', !value);
+            }
+        };
+        Side.prototype.isShown = function() {
+            if (this.$element !== undefined) {
+                return !this.$element.hasClass('ng-hide');
+            }
         };
 
         return Side;
