@@ -40,7 +40,7 @@ other dependencies declared in your project.
           <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"></script>
         </body>
 
-3. [Optional] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
+3. \[Optional\] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
 Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to your HTML code (after core sources).
 
     [jsDelivr](http://www.jsdelivr.com/)
@@ -85,7 +85,7 @@ Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to y
           <script src="assets/angular-gantt.js"></script>
         </body>
 
-5. [Optional] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
+5. \[Optional\] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
 Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTML code (after core sources).
 
         <head>
@@ -125,4 +125,14 @@ Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTM
           ...
         ]
 
-4. For a sample app see the files in `demo/app/` or [Plunker](http://plnkr.co/hchknn).
+4. \[Optional\] Enable [labels](plugins/labels.md) plugin and set show-side attribute to true to display row names on left side.
+
+        var myApp = angular.module('myApp', ['gantt', 'gantt.labels']);
+        
+    <!-- -->
+    
+        <div gantt data=data show-side="true">
+          <gantt-labels></gantt-labels>
+        </div>
+
+5. For a sample app see the files in `demo/app/` or [Plunker](http://plnkr.co/hchknn).
