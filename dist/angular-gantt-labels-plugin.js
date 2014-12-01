@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc8 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0-rc.9 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -60,7 +60,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         newSideWidth = Math.max(newSideWidth, width);
                     });
 
-                    if (newSideWidth > 0) {
+                    if (newSideWidth >= 0) {
                         api.side.setWidth(newSideWidth);
                     }
                 }
@@ -76,12 +76,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
     angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
-        builder.controller = function($scope, $element) {
-            $scope.gantt.side.$element = $element;
-            $scope.gantt.side.$scope = $scope;
+        builder.controller = function($scope) {
             var hScrollBarHeight = layout.getScrollBarHeight();
 
-            $scope.getScrollableCss = function() {
+            $scope.getLabelsCss = function() {
                 var css = {};
 
                 if ($scope.maxHeight) {
