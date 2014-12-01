@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment', function(Row, arrays, $filter, moment) {
+    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', '$timeout', 'moment', function(Row, arrays, $filter, $timeout, moment) {
         var RowsManager = function(gantt) {
             var self = this;
 
@@ -28,6 +28,20 @@
             this.gantt.$scope.$watch('sortMode', function(newValue, oldValue) {
                 if (newValue !== oldValue) {
                     self.sortRows();
+                }
+            });
+
+            // Listen to vertical scrollbar visibility changes to update columns width
+            var _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
+            this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    $timeout(function() {
+                        var newVScrollbarVisible = self.gantt.scroll.isVScrollbarVisible();
+                        if (newVScrollbarVisible !== _oldVScrollbarVisible) {
+                            _oldVScrollbarVisible = newVScrollbarVisible;
+                            self.gantt.columnsManager.updateColumnsMeta();
+                        }
+                    });
                 }
             });
 

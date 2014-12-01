@@ -41,11 +41,15 @@
         };
 
         Scroll.prototype.isVScrollbarVisible = function () {
-            return this.getBordersWidth() !== 0;
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
+            }
         };
 
         Scroll.prototype.isHScrollbarVisible = function () {
-            return this.getBordersHeight() !== 0;
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
+            }
         };
 
         /**

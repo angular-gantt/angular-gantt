@@ -4,10 +4,11 @@
         var builder = new Builder('ganttScrollableHeader');
         builder.controller = function($scope) {
             var scrollBarWidth = layout.getScrollBarWidth();
+            //var oldMaxHeightActivated = false;
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
+                var maxHeightActivated = $scope.gantt.scroll.isVScrollbarVisible();
                 var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
                 var columnWidth = this.gantt.options.value('columnWidth');
                 var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
@@ -17,6 +18,13 @@
                 } else if (maxHeightActivated) {
                     css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - vScrollbarWidth + 'px';
                 }
+
+                /*
+                if (oldMaxHeightActivated !== maxHeightActivated) {
+                    oldMaxHeightActivated = maxHeightActivated;
+                    $scope.gantt.columnsManager.updateColumnsMeta();
+                }
+                */
 
                 return css;
             };

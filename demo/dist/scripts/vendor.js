@@ -38966,7 +38966,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment', function(Row, arrays, $filter, moment) {
+    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', '$timeout', 'moment', function(Row, arrays, $filter, $timeout, moment) {
         var RowsManager = function(gantt) {
             var self = this;
 
@@ -38994,6 +38994,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.$scope.$watch('sortMode', function(newValue, oldValue) {
                 if (newValue !== oldValue) {
                     self.sortRows();
+                }
+            });
+
+            // Listen to vertical scrollbar visibility changes to update columns width
+            var _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
+            this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    $timeout(function() {
+                        var newVScrollbarVisible = self.gantt.scroll.isVScrollbarVisible();
+                        if (newVScrollbarVisible !== _oldVScrollbarVisible) {
+                            _oldVScrollbarVisible = newVScrollbarVisible;
+                            self.gantt.columnsManager.updateColumnsMeta();
+                        }
+                    });
                 }
             });
 
@@ -39587,11 +39601,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Scroll.prototype.isVScrollbarVisible = function () {
-            return this.getBordersWidth() !== 0;
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
+            }
         };
 
         Scroll.prototype.isHScrollbarVisible = function () {
-            return this.getBordersHeight() !== 0;
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
+            }
         };
 
         /**
@@ -40646,10 +40664,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         var builder = new Builder('ganttScrollableHeader');
         builder.controller = function($scope) {
             var scrollBarWidth = layout.getScrollBarWidth();
+            //var oldMaxHeightActivated = false;
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
+                var maxHeightActivated = $scope.gantt.scroll.isVScrollbarVisible();
                 var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
                 var columnWidth = this.gantt.options.value('columnWidth');
                 var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
@@ -40659,6 +40678,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 } else if (maxHeightActivated) {
                     css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - vScrollbarWidth + 'px';
                 }
+
+                /*
+                if (oldMaxHeightActivated !== maxHeightActivated) {
+                    oldMaxHeightActivated = maxHeightActivated;
+                    $scope.gantt.columnsManager.updateColumnsMeta();
+                }
+                */
 
                 return css;
             };
