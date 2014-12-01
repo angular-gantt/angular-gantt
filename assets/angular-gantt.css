@@ -199,16 +199,16 @@
 
 .gantt-task {
     position: absolute;
+
     margin: auto;
     top: 0; bottom: 0;
     min-width: 0.6em;
     height: 80%;
-    background-color: grey;
-    border-radius: 2px;
 }
 
 .gantt-task-milestone {
     position: absolute;
+
     margin: auto;
     top: 0; bottom: 0;
     width: 0.6em !important;
@@ -217,14 +217,59 @@
     border-radius: 0.3em;
 }
 
+
+.gantt-task-background {
+    position: absolute;
+
+    height: 100%;
+    width: 100%;
+
+    background-color: grey;
+    border-radius: 2px;
+}
+
+.gantt-task-foreground {
+    position: absolute;
+
+    height: 100%;
+    width: 100%;
+}
+
+.gantt-task-content-container {
+    position: absolute;
+
+    height: 100%;
+    width: 100%;
+}
+
 .gantt-task-content {
     position: relative;
+
     margin-left: 5px;
     margin-right: 5px;
-    margin-top: 0.3em;
+    margin-top: auto;
+    margin-bottom: auto;
+
+    height:100%;
+
+    vertical-align: middle;
+
     text-align: center;
     overflow: hidden;
     z-index: 10;
+}
+
+.gantt-task-content span  {
+    display: inline-block;
+    vertical-align: middle;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.gantt-task-content span.middle-placeholder  {
+    display:inline-block;
+    vertical-align: middle;
+    /*height: 100%;  Can't align vertically ... Doesn't work when label is truncated because placeholder is ignored */
 }
 
 .gantt-task-truncated-left {
@@ -243,11 +288,6 @@
     color: #ffffff;
     font-size: 1.5em;
     font-weight: bolder;
-}
-
-.gantt-task-content span  {
-    display: inline-block;
-    white-space: nowrap;
 }
 
 .gantt-timespan {

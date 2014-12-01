@@ -149,17 +149,28 @@
 
     <!-- Task template -->
     <script type="text/ng-template" id="template/ganttTask.tmpl.html">
-        <div ng-class="::task.model.classes">
-            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
+        <div>
+            <gantt-task-background></gantt-task-background>
             <gantt-task-content></gantt-task-content>
+            <gantt-task-foreground></gantt-task-foreground>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">
+        <div class="gantt-task-background" ng-class="::task.model.classes"></div>
+    </script>
+
+    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">
+        <div class="gantt-task-foreground">
             <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
+            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
         </div>
     </script>
 
     <!-- Task content template -->
     <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">
         <div class="gantt-task-content-container">
-            <div class="gantt-task-content"><span>{{task.model.name}}</span></div>
+            <div class="gantt-task-content"><span>{{task.model.name}}</span><span class="middle-placeholder"></span></div>
         </div>
     </script>
 

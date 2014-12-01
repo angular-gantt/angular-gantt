@@ -265,13 +265,14 @@
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
                                 }
 
+                                var styleElement = taskScope.task.getStyleElement();
                                 if (mode === 'M') {
-                                    taskElement.addClass('gantt-task-moving');
+                                    styleElement.addClass('gantt-task-moving');
                                     if (!taskScope.task.isMoving) {
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
                                     }
                                 } else {
-                                    taskElement.addClass('gantt-task-resizing');
+                                    styleElement.addClass('gantt-task-resizing');
                                     if (!taskScope.task.isMoving) {
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
                                     }
@@ -315,8 +316,9 @@
                             };
 
                             var disableMoveMode = function() {
-                                taskElement.removeClass('gantt-task-moving');
-                                taskElement.removeClass('gantt-task-resizing');
+                                var styleElement = taskScope.task.getStyleElement(taskElement);
+                                styleElement.removeClass('gantt-task-moving');
+                                styleElement.removeClass('gantt-task-resizing');
 
                                 if (taskScope.task.originalModel !== undefined) {
                                     angular.extend(taskScope.task.originalModel, taskScope.task.model);

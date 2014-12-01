@@ -22,7 +22,7 @@
                 }
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                    if (directiveName === 'ganttTask') {
+                    if (directiveName === 'ganttTaskBackground') {
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
 

@@ -64,7 +64,8 @@
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    this.$element.css('background-color', this.model.color);
+                    var styleElement = this.getStyleElement();
+                    styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
@@ -72,8 +73,14 @@
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
                     this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
+            }
+        };
 
-
+        Task.prototype.getStyleElement = function() {
+            if (this.$element !== undefined) {
+                var styleElement = this.$element[0].querySelector('.gantt-task-background');
+                styleElement = angular.element(styleElement);
+                return styleElement;
             }
         };
 

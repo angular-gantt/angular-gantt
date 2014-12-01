@@ -154,7 +154,8 @@ describe('Unit: Gantt', function() {
                         taskClasses = [taskClasses];
                     }
                     angular.forEach(taskClasses, function(taskClass) {
-                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
+                        var taskBackgroundElement = rowTaskElement.find('.gantt-task-background');
+                        expect(taskBackgroundElement.hasClass(taskClass)).toBeTruthy();
                     });
                 }
             });

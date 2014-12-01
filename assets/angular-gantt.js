@@ -2737,7 +2737,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    this.$element.css('background-color', this.model.color);
+                    var styleElement = this.getStyleElement();
+                    styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
@@ -2745,8 +2746,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
                     this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
+            }
+        };
 
-
+        Task.prototype.getStyleElement = function() {
+            if (this.$element !== undefined) {
+                var styleElement = this.$element[0].querySelector('.gantt-task-background');
+                styleElement = angular.element(styleElement);
+                return styleElement;
             }
         };
 
@@ -4061,8 +4068,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt').directive('ganttTaskBackground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTaskBackground');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt').directive('ganttTaskContent', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttTaskContent');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTaskForeground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTaskForeground');
         return builder.build();
     }]);
 }());
@@ -4528,17 +4553,28 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
-        '        <div ng-class="::task.model.classes">\n' +
-        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
+        '        <div>\n' +
+        '            <gantt-task-background></gantt-task-background>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
+        '            <gantt-task-foreground></gantt-task-foreground>\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">\n' +
+        '        <div class="gantt-task-background" ng-class="::task.model.classes"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
+        '        <div class="gantt-task-foreground">\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
+        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
         '        <div class="gantt-task-content-container">\n' +
-        '            <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
+        '            <div class="gantt-task-content"><span>{{task.model.name}}</span><span class="middle-placeholder"></span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
