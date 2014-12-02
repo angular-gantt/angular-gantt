@@ -225,8 +225,8 @@ module.exports = function(grunt) {
                     usePrefix: false,
                     patterns: [
                         {
-                            match: /script src=".{2}\//g,
-                            replacement: 'script src="'
+                            match: /script src=".{2}\/assets/g,
+                            replacement: 'script src="assets'
                         }
                     ]
                 },
