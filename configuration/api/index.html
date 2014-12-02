@@ -238,15 +238,22 @@ api.featureName.methodName();
 <h4 id="data">data</h4>
 <ul>
 <li>
+<p><strong>api.data.on.change(newData, oldData)</strong></p>
+<p>Data has changed.</p>
+</li>
+<li>
 <p><strong>api.data.on.load(data)</strong></p>
+<p><em>DEPRECATED - Use <code>change</code> event instead</em></p>
 <p>Data has been loaded.</p>
 </li>
 <li>
 <p><strong>api.data.on.remove(data)</strong></p>
+<p><em>DEPRECATED - Use <code>change</code> event instead</em></p>
 <p>Data has been removed.</p>
 </li>
 <li>
 <p><strong>api.data.on.clear()</strong></p>
+<p><em>DEPRECATED - Use <code>change</code> event instead</em></p>
 <p>Data has been cleared.</p>
 </li>
 </ul>
@@ -361,21 +368,24 @@ api.featureName.methodName();
 <ul>
 <li>
 <p><strong>api.data.load(data)</strong></p>
+<p><em>DEPRECATED - Use <code>data</code> attribute instead</em></p>
 <p>Loads more data to the Gantt.</p>
 <p>See <a href="../data">Data</a> for more information.</p>
 </li>
 <li>
 <p><strong>api.data.remove(data)</strong></p>
+<p><em>DEPRECATED - Use <code>data</code> attribute instead</em></p>
 <p>Removes data from the Gantt.</p>
 <p>It is possible to remove complete rows or specific tasks</p>
 </li>
 <li>
 <p><strong>api.data.clear()</strong></p>
+<p><em>DEPRECATED - Use <code>data</code> attribute instead</em></p>
 <p>Removes all rows and tasks at once.</p>
 </li>
 <li>
 <p><strong>api.data.get()</strong></p>
-<p>Get the data model binded to gantt.</p>
+<p>Get the data model bound to the gantt.</p>
 </li>
 </ul>
 <h4 id="timespans_1">timespans</h4>
