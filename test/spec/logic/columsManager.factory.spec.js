@@ -100,6 +100,7 @@ describe('Unit: Columns', function() {
             var gantt = new Gantt($scope, $element);
 
             gantt.loadData($scope.data);
+            $scope.$digest();
             gantt.initialized();
 
             var columnsManager = gantt.columnsManager;
@@ -158,6 +159,7 @@ describe('Unit: Columns', function() {
             var gantt = new Gantt($scope, $element);
 
             gantt.loadData($scope.data);
+            $scope.$digest();
             gantt.initialized();
 
             var toDate;
@@ -207,6 +209,7 @@ describe('Unit: Columns', function() {
             var gantt = new Gantt($scope, $element);
 
             gantt.loadData($scope.data);
+            $scope.$digest();
             gantt.initialized();
 
             var toDate;
@@ -256,6 +259,7 @@ describe('Unit: Columns', function() {
             var gantt = new Gantt($scope, $element);
 
             gantt.loadData($scope.data);
+            $scope.$digest();
             gantt.initialized();
 
             var toDate;

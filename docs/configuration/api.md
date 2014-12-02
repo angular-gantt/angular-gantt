@@ -46,15 +46,25 @@ On each feature, `on` object is used to register listeners, and `raise` object t
   
 #### data
 
+- **api.data.on.change(newData, oldData)**
+    
+    Data has changed.
+
 - **api.data.on.load(data)**
 
+    *DEPRECATED - Use `change` event instead*
+    
     Data has been loaded.
     
 - **api.data.on.remove(data)**
 
+    *DEPRECATED - Use `change` event instead*
+
     Data has been removed.
 
 - **api.data.on.clear()**
+    
+    *DEPRECATED - Use `change` event instead*
     
     Data has been cleared.
   
@@ -164,11 +174,15 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
 - **api.data.load(data)**
   
+    *DEPRECATED - Use `data` attribute instead*
+  
     Loads more data to the Gantt.
   
     See [Data](data.md) for more information.
 
 - **api.data.remove(data)**
+  
+    *DEPRECATED - Use `data` attribute instead*
   
     Removes data from the Gantt.
     
@@ -176,11 +190,13 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
 - **api.data.clear()**
 
+    *DEPRECATED - Use `data` attribute instead*
+
     Removes all rows and tasks at once.
   
 - **api.data.get()**
 
-    Get the data model binded to gantt.
+    Get the data model bound to the gantt.
 
 #### timespans
 

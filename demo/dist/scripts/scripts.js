@@ -34,7 +34,7 @@ angular.module('angularGanttDemoApp', [
 angular.module('angularGanttDemoApp')
     .controller('MainCtrl', ['$scope', '$timeout', '$log', 'ganttUtils', 'GanttObjectModel', 'Sample', 'ganttMouseOffset', 'ganttDebounce', 'moment', function($scope, $timeout, $log, utils, ObjectModel, Sample, mouseOffset, debounce, moment) {
         var objectModel;
-        var originalData;
+        var dataToRemove;
 
         $scope.options = {
             mode: 'custom',
@@ -138,10 +138,25 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
 
-                    api.data.on.load($scope, function() {
+                    api.data.on.change($scope, function() {
                         $scope.live.row = $scope.data[5];
 
-                        originalData = angular.copy($scope.data);
+                        if (dataToRemove === undefined) {
+                            dataToRemove = [
+                                {'id': $scope.data[2].id}, // Remove Kickoff row
+                                {
+                                    'id': $scope.data[0].id, 'tasks': [
+                                    {'id': $scope.data[0].tasks[0].id},
+                                    {'id': $scope.data[0].tasks[3].id}
+                                ]
+                                }, // Remove some Milestones
+                                {
+                                    'id': $scope.data[6].id, 'tasks': [
+                                    {'id': $scope.data[6].tasks[0].id}
+                                ]
+                                } // Remove order basket from Sprint 2
+                            ];
+                        }
                     });
 
                     // When gantt is ready, load data.
@@ -196,6 +211,8 @@ angular.module('angularGanttDemoApp')
         // Reload data action
         $scope.load = function() {
             $scope.data = Sample.getSampleData();
+            dataToRemove = undefined;
+
             $scope.timespans = Sample.getSampleTimespans();
         };
 
@@ -205,20 +222,7 @@ angular.module('angularGanttDemoApp')
 
         // Remove data action
         $scope.remove = function() {
-            $scope.api.data.remove([
-                {'id': originalData[2].id}, // Remove Kickoff row
-                {
-                    'id': originalData[0].id, 'tasks': [
-                    {'id': originalData[0].tasks[0].id},
-                    {'id': originalData[0].tasks[3].id}
-                ]
-                }, // Remove some Milestones
-                {
-                    'id': originalData[6].id, 'tasks': [
-                    {'id': originalData[6].tasks[0].id}
-                ]
-                } // Remove order basket from Sprint 2
-            ]);
+            $scope.api.data.remove(dataToRemove);
         };
 
         // Clear data action

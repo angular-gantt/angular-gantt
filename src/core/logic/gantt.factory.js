@@ -39,6 +39,7 @@
                 this.api.registerEvent('directives', 'new');
                 this.api.registerEvent('directives', 'destroy');
 
+                this.api.registerEvent('data', 'change');
                 this.api.registerEvent('data', 'load');
                 this.api.registerEvent('data', 'remove');
                 this.api.registerEvent('data', 'clear');
@@ -142,16 +143,61 @@
                     this.$scope.api(this.api);
                 }
 
-                this.$scope.$watchCollection('data', function(newData, oldData) {
-                    var toRemoveIds = arrays.getRemovedIds(newData, oldData);
+                var hasRowModelOrderChanged = function(data1, data2) {
+                    if (data2 === undefined || data1.length !== data2.length) {
+                        return true;
+                    }
 
-                    for (var i = 0, l = toRemoveIds.length; i < l; i++) {
-                        var toRemoveId = toRemoveIds[i];
-                        self.rowsManager.removeRow(toRemoveId);
+                    for (var i = 0, l = data1.length; i < l; i++) {
+                        if (data1[i].id !== data2[i].id) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                };
+
+                $scope.$watchCollection('data', function(newData, oldData) {
+                    if (oldData !== undefined) {
+                        var toRemoveIds = arrays.getRemovedIds(newData, oldData);
+                        if (toRemoveIds.length === oldData.length) {
+                            self.rowsManager.removeAll();
+
+                            // DEPRECATED
+                            self.api.data.raise.clear(self.$scope);
+                        } else {
+                            for (var i = 0, l = toRemoveIds.length; i < l; i++) {
+                                var toRemoveId = toRemoveIds[i];
+                                self.rowsManager.removeRow(toRemoveId);
+                            }
+
+                            // DEPRECATED
+                            var removedRows = [];
+                            angular.forEach(oldData, function(removedRow) {
+                                if (toRemoveIds.indexOf(removedRow.id) > -1) {
+                                    removedRows.push(removedRow);
+                                }
+                            });
+                            self.api.data.raise.remove(self.$scope, removedRows);
+                        }
                     }
 
                     if (newData !== undefined) {
-                        self.loadData(newData);
+                        var modelOrderChanged = hasRowModelOrderChanged(newData, oldData);
+
+                        if (modelOrderChanged) {
+                            self.rowsManager.resetNonModelLists();
+                        }
+
+                        for (var j = 0, k = newData.length; j < k; j++) {
+                            var rowData = newData[j];
+                            self.rowsManager.addRow(rowData, modelOrderChanged);
+                        }
+
+                        self.api.data.raise.change(self.$scope, newData, oldData);
+
+                        // DEPRECATED
+                        self.api.data.raise.load(self.$scope, newData);
                     }
                 });
             };
@@ -201,41 +247,67 @@
                 }
             };
 
-            // Adds or update rows and tasks.
+            // DEPRECATED - Use getData instead.
             Gantt.prototype.loadData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
                 }
 
-                if (this.$scope.data === undefined || this.$scope.data !== data) {
-                    this.$scope.data = [];
+                if (this.$scope.data === undefined) {
+                    this.$scope.data = data;
+                } else {
+                    for (var i = 0, l = data.length; i < l; i++) {
+                        var row = data[i];
+
+                        var j = arrays.indexOfId(this.$scope.data, row.id);
+                        if (j > -1) {
+                            this.$scope.data[j] = row;
+                        } else {
+                            this.$scope.data.push(row);
+                        }
+                    }
                 }
-                for (var i = 0, l = data.length; i < l; i++) {
-                    var rowData = data[i];
-                    this.rowsManager.addRow(rowData);
-                }
-                this.api.data.raise.load(this.$scope, data);
             };
 
             Gantt.prototype.getData = function() {
                 return this.$scope.data;
             };
 
-            // Removes specified rows or tasks.
-            // If a row has no tasks inside the complete row will be deleted.
+            // DEPRECATED - Use getData instead.
             Gantt.prototype.removeData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
                 }
 
-                this.rowsManager.removeData(data);
-                this.api.data.raise.remove(this.$scope, data);
+                if (this.$scope.data !== undefined) {
+                    for (var i = 0, l = data.length; i < l; i++) {
+                        var rowToRemove = data[i];
+
+                        var j = arrays.indexOfId(this.$scope.data, rowToRemove.id);
+                        if (j > -1) {
+                            if (rowToRemove.tasks === undefined || rowToRemove.tasks.length === 0) {
+                                // Remove complete row
+                                this.$scope.data.splice(j, 1);
+                            } else {
+                                // Remove single tasks
+                                var row = this.$scope.data[j];
+                                for (var ti = 0, tl = rowToRemove.tasks.length; ti < tl; ti++) {
+                                    var taskToRemove = rowToRemove.tasks[ti];
+
+                                    var tj = arrays.indexOfId(row.tasks, taskToRemove.id);
+                                    if (tj > -1) {
+                                        row.tasks.splice(tj, 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             };
 
-            // Removes all rows and tasks
+            // DEPRECATED - Use getData instead.
             Gantt.prototype.clearData = function() {
-                this.rowsManager.removeAll();
-                this.api.data.raise.clear(this.$scope);
+                this.$scope.data = undefined;
             };
 
             Gantt.prototype.getWidth = function() {

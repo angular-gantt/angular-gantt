@@ -65,7 +65,14 @@
             this.updateVisibleObjects();
         };
 
-        RowsManager.prototype.addRow = function(rowModel) {
+        RowsManager.prototype.resetNonModelLists = function() {
+            this.rows = [];
+            this.sortedRows = [];
+            this.filteredRows = [];
+            this.visibleRows = [];
+        };
+
+        RowsManager.prototype.addRow = function(rowModel, modelOrderChanged) {
             // Copy to new row (add) or merge with existing (update)
             var row, i, l, isUpdate = false;
 
@@ -73,6 +80,14 @@
 
             if (rowModel.id in this.rowsMap) {
                 row = this.rowsMap[rowModel.id];
+
+                if (modelOrderChanged) {
+                    this.rows.push(row);
+                    this.sortedRows.push(row);
+                    this.filteredRows.push(row);
+                    this.visibleRows.push(row);
+                }
+
                 if (row.model === rowModel) {
                     return;
                 }
@@ -92,11 +107,6 @@
                 this.sortedRows.push(row);
                 this.filteredRows.push(row);
                 this.visibleRows.push(row);
-
-                if (this.gantt.$scope.data.indexOf(rowModel) === -1) {
-                    this.gantt.$scope.data.push(rowModel);
-                }
-
             }
 
             if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
@@ -155,7 +165,6 @@
                 arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
                 arrays.removeId(this.filteredRows, rowId, ['model', 'id']);
                 arrays.removeId(this.visibleRows, rowId, ['model', 'id']);
-                arrays.remove(this.gantt.$scope.data, removedRow.model);
 
                 this.gantt.api.rows.raise.remove(removedRow);
                 return row;
@@ -164,41 +173,13 @@
             return undefined;
         };
 
-        RowsManager.prototype.removeData = function(data) {
-            for (var i = 0, l = data.length; i < l; i++) {
-                var rowData = data[i];
-                var row;
-
-                if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-                    // Only delete the specified tasks but not the row and the other tasks
-
-                    if (rowData.id in this.rowsMap) {
-                        row = this.rowsMap[rowData.id];
-
-                        for (var j = 0, k = rowData.tasks.length; j < k; j++) {
-                            row.removeTask(rowData.tasks[j].id);
-                        }
-
-                        this.gantt.api.rows.raise.change(row);
-                    }
-                } else {
-                    // Delete the complete row
-                    row = this.removeRow(rowData.id);
-                }
-            }
-            this.updateVisibleObjects();
-        };
-
         RowsManager.prototype.removeAll = function() {
             this.rowsMap = {};
             this.rows = [];
             this.sortedRows = [];
             this.filteredRows = [];
             this.visibleRows = [];
-            var data = this.gantt.$scope.data;
-            while(data > 0) {
-                data.pop();
-            }
+
             for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
                 var deregisterFunction = this.rowsTaskWatchers[i];
                 deregisterFunction();

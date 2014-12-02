@@ -11,16 +11,15 @@
             var fromDate = gantt.options.value('fromDate');
             var toDate = gantt.options.value('toDate');
 
-
-            if (fromDate === undefined) {
-                fromDate = firstColumn.date;
-            }
-
-            if (toDate === undefined) {
-                toDate = lastColumn.endDate;
-            }
-
             if (firstColumn !== undefined && lastColumn !== undefined) {
+                if (fromDate === undefined) {
+                    fromDate = firstColumn.date;
+                }
+
+                if (toDate === undefined) {
+                    toDate = lastColumn.endDate;
+                }
+
                 var res = [];
 
                 var scrollLeft = gantt.scroll.getScrollLeft();
