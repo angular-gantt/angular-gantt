@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc.9 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -1772,6 +1772,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.api.registerEvent('directives', 'new');
                 this.api.registerEvent('directives', 'destroy');
 
+                this.api.registerEvent('data', 'change');
                 this.api.registerEvent('data', 'load');
                 this.api.registerEvent('data', 'remove');
                 this.api.registerEvent('data', 'clear');
@@ -1875,16 +1876,61 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$scope.api(this.api);
                 }
 
-                this.$scope.$watchCollection('data', function(newData, oldData) {
-                    var toRemoveIds = arrays.getRemovedIds(newData, oldData);
+                var hasRowModelOrderChanged = function(data1, data2) {
+                    if (data2 === undefined || data1.length !== data2.length) {
+                        return true;
+                    }
 
-                    for (var i = 0, l = toRemoveIds.length; i < l; i++) {
-                        var toRemoveId = toRemoveIds[i];
-                        self.rowsManager.removeRow(toRemoveId);
+                    for (var i = 0, l = data1.length; i < l; i++) {
+                        if (data1[i].id !== data2[i].id) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                };
+
+                $scope.$watchCollection('data', function(newData, oldData) {
+                    if (oldData !== undefined) {
+                        var toRemoveIds = arrays.getRemovedIds(newData, oldData);
+                        if (toRemoveIds.length === oldData.length) {
+                            self.rowsManager.removeAll();
+
+                            // DEPRECATED
+                            self.api.data.raise.clear(self.$scope);
+                        } else {
+                            for (var i = 0, l = toRemoveIds.length; i < l; i++) {
+                                var toRemoveId = toRemoveIds[i];
+                                self.rowsManager.removeRow(toRemoveId);
+                            }
+
+                            // DEPRECATED
+                            var removedRows = [];
+                            angular.forEach(oldData, function(removedRow) {
+                                if (toRemoveIds.indexOf(removedRow.id) > -1) {
+                                    removedRows.push(removedRow);
+                                }
+                            });
+                            self.api.data.raise.remove(self.$scope, removedRows);
+                        }
                     }
 
                     if (newData !== undefined) {
-                        self.loadData(newData);
+                        var modelOrderChanged = hasRowModelOrderChanged(newData, oldData);
+
+                        if (modelOrderChanged) {
+                            self.rowsManager.resetNonModelLists();
+                        }
+
+                        for (var j = 0, k = newData.length; j < k; j++) {
+                            var rowData = newData[j];
+                            self.rowsManager.addRow(rowData, modelOrderChanged);
+                        }
+
+                        self.api.data.raise.change(self.$scope, newData, oldData);
+
+                        // DEPRECATED
+                        self.api.data.raise.load(self.$scope, newData);
                     }
                 });
             };
@@ -1934,41 +1980,67 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
-            // Adds or update rows and tasks.
+            // DEPRECATED - Use getData instead.
             Gantt.prototype.loadData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
                 }
 
-                if (this.$scope.data === undefined || this.$scope.data !== data) {
-                    this.$scope.data = [];
+                if (this.$scope.data === undefined) {
+                    this.$scope.data = data;
+                } else {
+                    for (var i = 0, l = data.length; i < l; i++) {
+                        var row = data[i];
+
+                        var j = arrays.indexOfId(this.$scope.data, row.id);
+                        if (j > -1) {
+                            this.$scope.data[j] = row;
+                        } else {
+                            this.$scope.data.push(row);
+                        }
+                    }
                 }
-                for (var i = 0, l = data.length; i < l; i++) {
-                    var rowData = data[i];
-                    this.rowsManager.addRow(rowData);
-                }
-                this.api.data.raise.load(this.$scope, data);
             };
 
             Gantt.prototype.getData = function() {
                 return this.$scope.data;
             };
 
-            // Removes specified rows or tasks.
-            // If a row has no tasks inside the complete row will be deleted.
+            // DEPRECATED - Use getData instead.
             Gantt.prototype.removeData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
                 }
 
-                this.rowsManager.removeData(data);
-                this.api.data.raise.remove(this.$scope, data);
+                if (this.$scope.data !== undefined) {
+                    for (var i = 0, l = data.length; i < l; i++) {
+                        var rowToRemove = data[i];
+
+                        var j = arrays.indexOfId(this.$scope.data, rowToRemove.id);
+                        if (j > -1) {
+                            if (rowToRemove.tasks === undefined || rowToRemove.tasks.length === 0) {
+                                // Remove complete row
+                                this.$scope.data.splice(j, 1);
+                            } else {
+                                // Remove single tasks
+                                var row = this.$scope.data[j];
+                                for (var ti = 0, tl = rowToRemove.tasks.length; ti < tl; ti++) {
+                                    var taskToRemove = rowToRemove.tasks[ti];
+
+                                    var tj = arrays.indexOfId(row.tasks, taskToRemove.id);
+                                    if (tj > -1) {
+                                        row.tasks.splice(tj, 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             };
 
-            // Removes all rows and tasks
+            // DEPRECATED - Use getData instead.
             Gantt.prototype.clearData = function() {
-                this.rowsManager.removeAll();
-                this.api.data.raise.clear(this.$scope);
+                this.$scope.data = undefined;
             };
 
             Gantt.prototype.getWidth = function() {
@@ -2289,7 +2361,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', 'moment', function(Row, arrays, $filter, moment) {
+    angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', '$timeout', 'moment', function(Row, arrays, $filter, $timeout, moment) {
         var RowsManager = function(gantt) {
             var self = this;
 
@@ -2320,6 +2392,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             });
 
+            // Listen to vertical scrollbar visibility changes to update columns width
+            var _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
+            this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    $timeout(function() {
+                        var newVScrollbarVisible = self.gantt.scroll.isVScrollbarVisible();
+                        if (newVScrollbarVisible !== _oldVScrollbarVisible) {
+                            _oldVScrollbarVisible = newVScrollbarVisible;
+                            self.gantt.columnsManager.updateColumnsMeta();
+                        }
+                    });
+                }
+            });
+
             this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
             this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
             this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
@@ -2340,7 +2426,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.updateVisibleObjects();
         };
 
-        RowsManager.prototype.addRow = function(rowModel) {
+        RowsManager.prototype.resetNonModelLists = function() {
+            this.rows = [];
+            this.sortedRows = [];
+            this.filteredRows = [];
+            this.visibleRows = [];
+        };
+
+        RowsManager.prototype.addRow = function(rowModel, modelOrderChanged) {
             // Copy to new row (add) or merge with existing (update)
             var row, i, l, isUpdate = false;
 
@@ -2348,6 +2441,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             if (rowModel.id in this.rowsMap) {
                 row = this.rowsMap[rowModel.id];
+
+                if (modelOrderChanged) {
+                    this.rows.push(row);
+                    this.sortedRows.push(row);
+                    this.filteredRows.push(row);
+                    this.visibleRows.push(row);
+                }
+
                 if (row.model === rowModel) {
                     return;
                 }
@@ -2367,11 +2468,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.sortedRows.push(row);
                 this.filteredRows.push(row);
                 this.visibleRows.push(row);
-
-                if (this.gantt.$scope.data.indexOf(rowModel) === -1) {
-                    this.gantt.$scope.data.push(rowModel);
-                }
-
             }
 
             if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
@@ -2430,7 +2526,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
                 arrays.removeId(this.filteredRows, rowId, ['model', 'id']);
                 arrays.removeId(this.visibleRows, rowId, ['model', 'id']);
-                arrays.remove(this.gantt.$scope.data, removedRow.model);
 
                 this.gantt.api.rows.raise.remove(removedRow);
                 return row;
@@ -2439,41 +2534,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return undefined;
         };
 
-        RowsManager.prototype.removeData = function(data) {
-            for (var i = 0, l = data.length; i < l; i++) {
-                var rowData = data[i];
-                var row;
-
-                if (rowData.tasks !== undefined && rowData.tasks.length > 0) {
-                    // Only delete the specified tasks but not the row and the other tasks
-
-                    if (rowData.id in this.rowsMap) {
-                        row = this.rowsMap[rowData.id];
-
-                        for (var j = 0, k = rowData.tasks.length; j < k; j++) {
-                            row.removeTask(rowData.tasks[j].id);
-                        }
-
-                        this.gantt.api.rows.raise.change(row);
-                    }
-                } else {
-                    // Delete the complete row
-                    row = this.removeRow(rowData.id);
-                }
-            }
-            this.updateVisibleObjects();
-        };
-
         RowsManager.prototype.removeAll = function() {
             this.rowsMap = {};
             this.rows = [];
             this.sortedRows = [];
             this.filteredRows = [];
             this.visibleRows = [];
-            var data = this.gantt.$scope.data;
-            while(data > 0) {
-                data.pop();
-            }
+
             for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
                 var deregisterFunction = this.rowsTaskWatchers[i];
                 deregisterFunction();
@@ -2723,7 +2790,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    this.$element.css('background-color', this.model.color);
+                    var styleElement = this.getStyleElement();
+                    styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
@@ -2731,8 +2799,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
                     this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
+            }
+        };
 
-
+        Task.prototype.getStyleElement = function() {
+            if (this.$element !== undefined) {
+                var styleElement = this.$element[0].querySelector('.gantt-task-background');
+                styleElement = angular.element(styleElement);
+                return styleElement;
             }
         };
 
@@ -2910,11 +2984,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Scroll.prototype.isVScrollbarVisible = function () {
-            return this.getBordersWidth() !== 0;
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
+            }
         };
 
         Scroll.prototype.isHScrollbarVisible = function () {
-            return this.getBordersHeight() !== 0;
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
+            }
         };
 
         /**
@@ -3453,7 +3531,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var firstColumn = gantt.columnsManager.getFirstColumn();
             var lastColumn = gantt.columnsManager.getLastColumn();
 
+            var fromDate = gantt.options.value('fromDate');
+            var toDate = gantt.options.value('toDate');
+
             if (firstColumn !== undefined && lastColumn !== undefined) {
+                if (fromDate === undefined) {
+                    fromDate = firstColumn.date;
+                }
+
+                if (toDate === undefined) {
+                    toDate = lastColumn.endDate;
+                }
+
                 var res = [];
 
                 var scrollLeft = gantt.scroll.getScrollLeft();
@@ -3466,7 +3555,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         res.push(task);
                     } else {
                         // If the task can be drawn with gantt columns only.
-                        if (task.model.to > firstColumn.date && task.model.from < lastColumn.endDate) {
+                        if (task.model.to >= fromDate && task.model.from <= toDate) {
 
                             // If task has a visible part on the screen
                             if (!scrollContainerWidth ||
@@ -3969,10 +4058,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         var builder = new Builder('ganttScrollableHeader');
         builder.controller = function($scope) {
             var scrollBarWidth = layout.getScrollBarWidth();
+            //var oldMaxHeightActivated = false;
             $scope.getScrollableHeaderCss = function() {
                 var css = {};
 
-                var maxHeightActivated = $scope.gantt.options.value('maxHeight') > 0;
+                var maxHeightActivated = $scope.gantt.scroll.isVScrollbarVisible();
                 var vScrollbarWidth = maxHeightActivated ? scrollBarWidth: 0;
                 var columnWidth = this.gantt.options.value('columnWidth');
                 var bodySmallerThanGantt = $scope.gantt.width === 0 ? false: $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
@@ -3982,6 +4072,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 } else if (maxHeightActivated) {
                     css.width = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - vScrollbarWidth + 'px';
                 }
+
+                /*
+                if (oldMaxHeightActivated !== maxHeightActivated) {
+                    oldMaxHeightActivated = maxHeightActivated;
+                    $scope.gantt.columnsManager.updateColumnsMeta();
+                }
+                */
 
                 return css;
             };
@@ -4035,8 +4132,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt').directive('ganttTaskBackground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTaskBackground');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt').directive('ganttTaskContent', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttTaskContent');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTaskForeground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTaskForeground');
         return builder.build();
     }]);
 }());
@@ -4502,17 +4617,28 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
-        '        <div ng-class="::task.model.classes">\n' +
-        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
+        '        <div>\n' +
+        '            <gantt-task-background></gantt-task-background>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
+        '            <gantt-task-foreground></gantt-task-foreground>\n' +
+        '        </div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">\n' +
+        '        <div class="gantt-task-background" ng-class="::task.model.classes"></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
+        '        <div class="gantt-task-foreground">\n' +
         '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
+        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
         '        <div class="gantt-task-content-container">\n' +
-        '            <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
+        '            <div class="gantt-task-content"><span>{{task.model.name}}</span><span class="middle-placeholder"></span></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +

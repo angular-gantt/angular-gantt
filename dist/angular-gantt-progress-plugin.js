@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc.9 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -29,7 +29,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                    if (directiveName === 'ganttTask') {
+                    if (directiveName === 'ganttTaskBackground') {
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
 

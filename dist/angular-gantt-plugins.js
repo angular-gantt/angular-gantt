@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0-rc.9 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -450,13 +450,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
                                 }
 
+                                var styleElement = taskScope.task.getStyleElement();
                                 if (mode === 'M') {
-                                    taskElement.addClass('gantt-task-moving');
+                                    styleElement.addClass('gantt-task-moving');
                                     if (!taskScope.task.isMoving) {
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
                                     }
                                 } else {
-                                    taskElement.addClass('gantt-task-resizing');
+                                    styleElement.addClass('gantt-task-resizing');
                                     if (!taskScope.task.isMoving) {
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
                                     }
@@ -500,8 +501,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             var disableMoveMode = function() {
-                                taskElement.removeClass('gantt-task-moving');
-                                taskElement.removeClass('gantt-task-resizing');
+                                var styleElement = taskScope.task.getStyleElement(taskElement);
+                                styleElement.removeClass('gantt-task-moving');
+                                styleElement.removeClass('gantt-task-resizing');
 
                                 if (taskScope.task.originalModel !== undefined) {
                                     angular.extend(taskScope.task.originalModel, taskScope.task.model);
@@ -592,7 +594,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                    if (directiveName === 'ganttTask') {
+                    if (directiveName === 'ganttTaskBackground') {
                         var progressScope = taskScope.$new();
                         progressScope.pluginScope = scope;
 

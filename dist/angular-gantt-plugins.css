@@ -64,8 +64,9 @@
 }
 
 .gantt-task-progress {
-    position: relative;
+    position: absolute;
     overflow: hidden;
+    bottom: 0px;
     height: 6px;
     border-radius: 2px;
 }
