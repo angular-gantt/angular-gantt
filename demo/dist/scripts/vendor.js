@@ -38495,37 +38495,33 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                $scope.$watch('columnMagnet', function(newValue, oldValue) {
-                    if (newValue !== oldValue) {
-                        var splittedColumnMagnet;
-                        var columnMagnet = self.options.value('columnMagnet');
-                        if (columnMagnet) {
-                            splittedColumnMagnet = columnMagnet.trim().split(' ');
-                        }
-                        if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
-                            self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                            self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
-                        } else {
-                            self.columnMagnetValue = undefined;
-                            self.columnMagnetUnit = undefined;
-                        }
+                $scope.$watch('columnMagnet', function() {
+                    var splittedColumnMagnet;
+                    var columnMagnet = self.options.value('columnMagnet');
+                    if (columnMagnet) {
+                        splittedColumnMagnet = columnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
+                        self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                        self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
+                    } else {
+                        self.columnMagnetValue = undefined;
+                        self.columnMagnetUnit = undefined;
                     }
                 });
 
-                $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function(newValues, oldValues) {
-                    if (newValues !== oldValues) {
-                        var splittedColumnMagnet;
-                        var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
-                        if (shiftColumnMagnet) {
-                            splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
-                        }
-                        if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
-                            self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                            self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
-                        } else {
-                            self.shiftColumnMagnetValue = undefined;
-                            self.shiftColumnMagnetUnit = undefined;
-                        }
+                $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function() {
+                    var splittedColumnMagnet;
+                    var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+                    if (shiftColumnMagnet) {
+                        splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
+                        self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                        self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
+                    } else {
+                        self.shiftColumnMagnetValue = undefined;
+                        self.shiftColumnMagnetUnit = undefined;
                     }
                 });
 
