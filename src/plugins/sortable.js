@@ -82,7 +82,13 @@
                     api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
                         if (directiveName === 'ganttRowLabel') {
                             rowScope.checkDraggable = function() {
-                                return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                                var rowSortable = rowScope.row.model.sortable;
+
+                                if (typeof(rowSortable) === 'boolean') {
+                                    rowSortable = {enabled: rowSortable};
+                                }
+
+                                return utils.firstProperty([rowSortable], 'enabled', scope.enabled);
                             };
 
                             rowScope.onDropSuccess = function() {

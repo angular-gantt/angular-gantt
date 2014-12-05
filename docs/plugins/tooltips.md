@@ -54,8 +54,12 @@ Attributes can be defined for a specific `Row` or `Task` object using an object 
     {
       ...
       // Inside Row or Task object
+      // Full options object
       'tooltips': {
         'enabled': <Boolean>,
         'dateFormat': <string>
       }
+
+      // Or shortcut for enabled property
+      'movable': <Boolean>
     }

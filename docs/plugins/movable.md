@@ -48,12 +48,16 @@ Attributes can be defined for a specific `Row` or `Task` object using an object 
     {
       ...
       // Inside Row or Task object
+      // Full options object
       'movable': {
         'enabled': <Boolean>,
         'allowMoving': <Boolean>,
         'allowResizing': <Boolean>,
         'allowRowSwitching': <Boolean>
       }
+      
+      // Or shortcut for enabled property
+      'movable': <Boolean>
     }
 
 ## API

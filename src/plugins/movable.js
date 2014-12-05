@@ -61,7 +61,18 @@
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
                                 }
-                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var enabled = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
                                 if (enabled) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -74,7 +85,18 @@
                             });
 
                             foregroundElement.on('mousemove', function(evt) {
-                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var enabled = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);

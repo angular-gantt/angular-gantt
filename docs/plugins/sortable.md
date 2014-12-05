@@ -31,7 +31,11 @@ Sort rows by drag & drop on rows label.
       {
         ...
         // Inside Row object
+        // Full options object
         'sortable': {
           'enabled': <Boolean>
         }
+
+        // Or shortcut for enabled property
+        'movable': <Boolean>
       }
