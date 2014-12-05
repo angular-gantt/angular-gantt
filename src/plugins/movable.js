@@ -54,9 +54,9 @@
                             var taskHasBeenChanged = false;
                             var scrollInterval;
 
-                            var contentElement = taskScope.task.getContentElement();
+                            var foregroundElement = taskScope.task.getForegroundElement();
 
-                            contentElement.on(_pressEvents, function(evt) {
+                            foregroundElement.on(_pressEvents, function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
@@ -73,15 +73,15 @@
                                 }
                             });
 
-                            contentElement.on('mousemove', function(evt) {
+                            foregroundElement.on('mousemove', function(evt) {
                                 var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
-                                        contentElement.css('cursor', getCursor(mode));
+                                        foregroundElement.css('cursor', getCursor(mode));
                                     } else {
-                                        contentElement.css('cursor', '');
+                                        foregroundElement.css('cursor', '');
                                     }
                                 }
                             });
@@ -223,14 +223,14 @@
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
-                                    distance = contentElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
+                                    distance = foregroundElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
                                 }
 
-                                if (allowResizing && x > contentElement[0].offsetWidth - distance) {
+                                if (allowResizing && x > foregroundElement[0].offsetWidth - distance) {
                                     return 'E';
                                 } else if (allowResizing && x < distance) {
                                     return 'W';
-                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= contentElement[0].offsetWidth - distance) {
+                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= foregroundElement[0].offsetWidth - distance) {
                                     return 'M';
                                 } else {
                                     return '';
@@ -249,7 +249,7 @@
                             };
 
                             var setGlobalCursor = function(cursor) {
-                                contentElement.css('cursor', cursor);
+                                foregroundElement.css('cursor', cursor);
                                 angular.element($document[0].body).css({
                                  '-moz-user-select': cursor === '' ? '': '-moz-none',
                                  '-webkit-user-select': cursor === '' ? '': 'none',
