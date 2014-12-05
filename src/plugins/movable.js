@@ -45,7 +45,7 @@
                     var mouseStartOffsetX;
                     var moveStartX;
 
-                    api.directives.on.new(scope, function(directiveName, taskScope) {
+                    api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
                         if (directiveName === 'ganttTask') {
                             var windowElement = angular.element($window);
                             var ganttBodyElement = taskScope.row.rowsManager.gantt.body.$element;
@@ -117,6 +117,8 @@
                             };
 
                             var moveTask = function(evt) {
+                                var oldTaskHasBeenChanged = taskHasBeenChanged;
+
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
@@ -157,6 +159,7 @@
                                             targetRow.moveTaskToRow(taskScope.task, true);
                                             sourceRow.$scope.$digest();
                                             targetRow.$scope.$digest();
+                                            taskHasBeenChanged = true;
                                         }
                                     }
 
@@ -175,6 +178,7 @@
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                        taskHasBeenChanged = true;
                                     }
                                 } else if (taskScope.task.moveMode === 'E') {
                                     if (x <= taskScope.task.left) {
@@ -190,6 +194,7 @@
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    taskHasBeenChanged = true;
                                 } else {
                                     if (x > taskScope.task.left + taskScope.task.width) {
                                         x = taskScope.task.left + taskScope.task.width;
@@ -204,9 +209,19 @@
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    taskHasBeenChanged = true;
                                 }
 
-                                taskHasBeenChanged = true;
+                                if (!oldTaskHasBeenChanged && taskHasBeenChanged) {
+                                    var backgroundElement = taskScope.task.getBackgroundElement();
+                                    if (taskScope.task.moveMode === 'M') {
+                                        backgroundElement.addClass('gantt-task-moving');
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
+                                    } else {
+                                        backgroundElement.addClass('gantt-task-resizing');
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
+                                    }
+                                }
                             };
 
                             var scrollScreen = function(evt) {
@@ -294,7 +309,7 @@
                             };
 
                             var setGlobalCursor = function(cursor) {
-                                foregroundElement.css('cursor', cursor);
+                                taskElement.css('cursor', cursor);
                                 angular.element($document[0].body).css({
                                  '-moz-user-select': cursor === '' ? '': '-moz-none',
                                  '-webkit-user-select': cursor === '' ? '': 'none',
@@ -310,19 +325,6 @@
                                     taskScope.task.originalRow = taskScope.task.row;
                                     taskScope.task.originalModel = taskScope.task.model;
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
-                                }
-
-                                var backgroundElement = taskScope.task.getBackgroundElement();
-                                if (mode === 'M') {
-                                    backgroundElement.addClass('gantt-task-moving');
-                                    if (!taskScope.task.isMoving) {
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
-                                    }
-                                } else {
-                                    backgroundElement.addClass('gantt-task-resizing');
-                                    if (!taskScope.task.isMoving) {
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
-                                    }
                                 }
 
                                 // Init mouse start variables (if tasks was not move from another row)
@@ -391,21 +393,21 @@
                                 // Set mouse cursor back to default
                                 setGlobalCursor('');
 
-                                // Raise move end event
-                                if (taskScope.task.moveMode === 'M') {
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.moveEnd(taskScope.task);
-                                } else {
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(taskScope.task);
-                                }
-
-                                taskScope.task.moveMode = undefined;
-
                                 // Raise task changed event
                                 if (taskHasBeenChanged === true) {
+                                    // Raise move end event
+                                    if (taskScope.task.moveMode === 'M') {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveEnd(taskScope.task);
+                                    } else {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(taskScope.task);
+                                    }
+
                                     taskHasBeenChanged = false;
                                     taskScope.task.row.sortTasks(); // Sort tasks so they have the right z-order
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.change(taskScope.task);
                                 }
+
+                                taskScope.task.moveMode = undefined;
                             };
 
                             // Stop scroll cycle (if running) when scope is destroyed.
