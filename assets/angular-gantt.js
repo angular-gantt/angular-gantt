@@ -2786,7 +2786,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    var styleElement = this.getStyleElement();
+                    var styleElement = this.getBackgroundElement();
                     styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
@@ -2798,11 +2798,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
-        Task.prototype.getStyleElement = function() {
+        Task.prototype.getBackgroundElement = function() {
             if (this.$element !== undefined) {
-                var styleElement = this.$element[0].querySelector('.gantt-task-background');
-                styleElement = angular.element(styleElement);
-                return styleElement;
+                var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
+                backgroundElement = angular.element(backgroundElement);
+                return backgroundElement;
+            }
+        };
+
+        Task.prototype.getContentElement = function() {
+            if (this.$element !== undefined) {
+                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                contentElement = angular.element(contentElement);
+                return contentElement;
+            }
+        };
+
+        Task.prototype.getForegroundElement = function() {
+            if (this.$element !== undefined) {
+                var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
+                foregroundElement = angular.element(foregroundElement);
+                return foregroundElement;
             }
         };
 

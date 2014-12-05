@@ -45,7 +45,7 @@
                     var mouseStartOffsetX;
                     var moveStartX;
 
-                    api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                    api.directives.on.new(scope, function(directiveName, taskScope) {
                         if (directiveName === 'ganttTask') {
                             var windowElement = angular.element($window);
                             var ganttBodyElement = taskScope.row.rowsManager.gantt.body.$element;
@@ -54,7 +54,9 @@
                             var taskHasBeenChanged = false;
                             var scrollInterval;
 
-                            taskElement.on(_pressEvents, function(evt) {
+                            var contentElement = taskScope.task.getContentElement();
+
+                            contentElement.on(_pressEvents, function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
@@ -71,15 +73,15 @@
                                 }
                             });
 
-                            taskElement.on('mousemove', function(evt) {
+                            contentElement.on('mousemove', function(evt) {
                                 var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
-                                        taskElement.css('cursor', getCursor(mode));
+                                        contentElement.css('cursor', getCursor(mode));
                                     } else {
-                                        taskElement.css('cursor', '');
+                                        contentElement.css('cursor', '');
                                     }
                                 }
                             });
@@ -221,14 +223,14 @@
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
-                                    distance = taskElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
+                                    distance = contentElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
                                 }
 
-                                if (allowResizing && x > taskElement[0].offsetWidth - distance) {
+                                if (allowResizing && x > contentElement[0].offsetWidth - distance) {
                                     return 'E';
                                 } else if (allowResizing && x < distance) {
                                     return 'W';
-                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
+                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= contentElement[0].offsetWidth - distance) {
                                     return 'M';
                                 } else {
                                     return '';
@@ -247,7 +249,7 @@
                             };
 
                             var setGlobalCursor = function(cursor) {
-                                taskElement.css('cursor', cursor);
+                                contentElement.css('cursor', cursor);
                                 angular.element($document[0].body).css({
                                  '-moz-user-select': cursor === '' ? '': '-moz-none',
                                  '-webkit-user-select': cursor === '' ? '': 'none',
@@ -265,14 +267,14 @@
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
                                 }
 
-                                var styleElement = taskScope.task.getStyleElement();
+                                var backgroundElement = taskScope.task.getBackgroundElement();
                                 if (mode === 'M') {
-                                    styleElement.addClass('gantt-task-moving');
+                                    backgroundElement.addClass('gantt-task-moving');
                                     if (!taskScope.task.isMoving) {
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
                                     }
                                 } else {
-                                    styleElement.addClass('gantt-task-resizing');
+                                    backgroundElement.addClass('gantt-task-resizing');
                                     if (!taskScope.task.isMoving) {
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
                                     }
@@ -316,9 +318,9 @@
                             };
 
                             var disableMoveMode = function() {
-                                var styleElement = taskScope.task.getStyleElement(taskElement);
-                                styleElement.removeClass('gantt-task-moving');
-                                styleElement.removeClass('gantt-task-resizing');
+                                var getBackgroundElement = taskScope.task.getBackgroundElement();
+                                getBackgroundElement.removeClass('gantt-task-moving');
+                                getBackgroundElement.removeClass('gantt-task-resizing');
 
                                 if (taskScope.task.originalModel !== undefined) {
                                     angular.extend(taskScope.task.originalModel, taskScope.task.model);
