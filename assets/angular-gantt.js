@@ -2808,7 +2808,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         Task.prototype.getContentElement = function() {
             if (this.$element !== undefined) {
-                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                var contentElement = this.$element[0].querySelector('.gantt-task-content-container');
                 contentElement = angular.element(contentElement);
                 return contentElement;
             }

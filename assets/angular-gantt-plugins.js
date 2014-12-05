@@ -307,8 +307,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.mouseOffsetX = x;
                                 var taskOutOfRange = taskScope.task.row.rowsManager.gantt.options.value('taskOutOfRange');
 
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
                                 if (taskScope.task.moveMode === 'M') {
-                                    var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                    var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
@@ -334,7 +345,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         }
                                     }
 
-                                    var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+                                    var allowMoving = utils.firstProperty([taskMovable, rowMovable], 'allowMoving', scope.allowMoving);
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
 
@@ -424,9 +435,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var getMoveMode = function(x) {
                                 var distance = 0;
 
-                                var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
-                                var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
-                                var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var allowResizing = utils.firstProperty([taskMovable, rowMovable], 'allowResizing', scope.allowResizing);
+                                var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
+                                var allowMoving = utils.firstProperty([taskMovable, rowMovable], 'allowMoving', scope.allowMoving);
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
@@ -1083,12 +1106,34 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $element.toggleClass('ng-hide', true);
 
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 

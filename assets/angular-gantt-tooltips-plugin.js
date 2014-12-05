@@ -91,12 +91,34 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $element.toggleClass('ng-hide', true);
 
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 

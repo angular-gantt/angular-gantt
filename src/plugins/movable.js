@@ -122,8 +122,19 @@
                                 taskScope.task.mouseOffsetX = x;
                                 var taskOutOfRange = taskScope.task.row.rowsManager.gantt.options.value('taskOutOfRange');
 
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
                                 if (taskScope.task.moveMode === 'M') {
-                                    var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                    var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
@@ -149,7 +160,7 @@
                                         }
                                     }
 
-                                    var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+                                    var allowMoving = utils.firstProperty([taskMovable, rowMovable], 'allowMoving', scope.allowMoving);
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
 
@@ -239,9 +250,21 @@
                             var getMoveMode = function(x) {
                                 var distance = 0;
 
-                                var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
-                                var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
-                                var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var allowResizing = utils.firstProperty([taskMovable, rowMovable], 'allowResizing', scope.allowResizing);
+                                var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
+                                var allowMoving = utils.firstProperty([taskMovable, rowMovable], 'allowMoving', scope.allowMoving);
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
