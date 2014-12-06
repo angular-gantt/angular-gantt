@@ -9,7 +9,7 @@ Move and resize tasks.
 <!-- -->
 
     <div gantt>
-        <gantt-movable enabled="true",
+        <gantt-movable enabled="true"
                        allow-moving="true" 
                        allow-resizing="true"
                        allow-row-switching="true">

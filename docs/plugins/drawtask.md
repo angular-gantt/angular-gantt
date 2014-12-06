@@ -9,9 +9,9 @@ Draw new tasks with the mouse.
 <!-- -->
 
     <div gantt>
-        <gantt-movable enabled="true",
+        <gantt-draw-task enabled="true"
                        task-factory="drawTaskFactory">
-        <gantt-movable/>
+        <gantt-draw-task/>
     </div>
  
 <!-- -->
@@ -36,6 +36,8 @@ Draw new tasks with the mouse.
 
 - ### task-factory
 
-    Factory method which creates the task. The factory method is called when the user is starting to draw a task. Supported task properties according to [Data](../configuration/data.md). `From` and `To` properties are set by the plugin and there is no need in specifying them.
+    Factory method which creates the task. The factory method is called when the user is starting to draw a task. 
+    Supported task properties according to [Data](../configuration/data.md). 
+    `From` and `To` properties are set by the plugin and there is no need in specifying them.
     
     default: `undefined`
