@@ -184,6 +184,37 @@ angular.module('angularGanttDemoApp')
             }
         };
 
+        $scope.canAutoWidth = function(scale) {
+            if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
+                return false;
+            }
+            return true;
+        };
+
+        $scope.getColumnWidth = function(widthEnabled, scale) {
+            if (!widthEnabled && $scope.canAutoWidth(scale)) {
+                return undefined;
+            }
+
+            if (scale.match(/.*?week.*?/)) {
+                return 150;
+            }
+
+            if (scale.match(/.*?month.*?/)) {
+                return 300;
+            }
+
+            if (scale.match(/.*?quarter.*?/)) {
+                return 500;
+            }
+
+            if (scale.match(/.*?year.*?/)) {
+                return 800;
+            }
+
+            return 40;
+        };
+
         // Reload data action
         $scope.load = function() {
             $scope.data = Sample.getSampleData();

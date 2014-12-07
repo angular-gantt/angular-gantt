@@ -210,8 +210,27 @@
                                 magnetValue = this.shiftColumnMagnetValue;
                                 magnetUnit = this.shiftColumnMagnetUnit;
                             } else {
-                                magnetValue = 0.25;
-                                magnetUnit = this.options.value('viewScale');
+                                var viewScale = this.options.value('viewScale');
+                                viewScale = viewScale.trim();
+                                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                                }
+                                var viewScaleValue;
+                                var viewScaleUnit;
+                                var splittedViewScale;
+
+                                if (viewScale) {
+                                    splittedViewScale = viewScale.split(' ');
+                                }
+                                if (splittedViewScale && splittedViewScale.length > 1) {
+                                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                                } else {
+                                    viewScaleValue = 1;
+                                    viewScaleUnit = viewScale;
+                                }
+                                magnetValue = viewScaleValue * 0.25;
+                                magnetUnit = viewScaleUnit;
                             }
                         } else {
                             magnetValue = this.columnMagnetValue;

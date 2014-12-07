@@ -22,13 +22,17 @@
                 var expandHour = 1, expandDay = 31;
 
                 var viewScale = $scope.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
 
                 if (direction === 'left') {
-                    from = viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    from = viewScale.substring(viewScale.length - 4) === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
                     to = date;
                 } else {
                     from = date;
-                    to = viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                    to = viewScale.substring(viewScale.length - 4) === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
                 $scope.fromDate = from;

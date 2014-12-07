@@ -57,7 +57,7 @@
                                                 <div class="form-inline">
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-search"></i> Scale</label><br>
-                                                        <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'year']" bs-select></button>
+                                                        <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['minute', '5 minutes', 'hour', '3 hours', 'day', 'week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
                                                     </div>
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
@@ -102,7 +102,7 @@
                                                         <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
-                                                            <button ng-disabled="options.scale === 'hour' || options.scale === 'minute'" type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
+                                                            <button ng-disabled="!canAutoWidth(options.scale)" type="button" class="btn btn-default" ng-model="options.width" bs-checkbox>Width</button>
                                                         </div>
                                                     </div>
 
@@ -165,7 +165,7 @@
                                                filter-row="{'name': options.filterRow}"
                                                sort-mode="options.sortMode"
                                                view-scale="options.scale"
-                                               column-width="(options.width || options.scale === 'hour' || options.scale === 'minute') && {minute: 40, hour: 40, day: 40, week: 150, month: 300, quarter: 500, year: 800}[options.scale] || undefined"
+                                               column-width="getColumnWidth(options.width, options.scale)"
                                                auto-expand="options.autoExpand"
                                                task-out-of-range="options.taskOutOfRange"
                                                from-date = "options.fromDate"

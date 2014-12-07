@@ -365,10 +365,26 @@
             }
             if (format === undefined) {
                 var viewScale = this.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
 
-                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScale) > -1) {
+                var viewScaleUnit;
+                var splittedViewScale;
+
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleUnit = viewScale;
+                }
+
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
                     format = defaultDayHeadersFormats[unit];
-                } else if (['month', 'quarter', 'year'].indexOf(viewScale) > -1) {
+                } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
                     format = defaultYearHeadersFormats[unit];
                 }
                 if (format === undefined) {

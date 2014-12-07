@@ -335,7 +335,7 @@
 - ### view-scale
 
     Column scale using any of [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) supported unit.
-  
+
     - `second`
     - `minute`
     - `hour`
@@ -344,5 +344,7 @@
     - `month`
     - `quarter`
     - `year`
+
+    An optional number value can be prepended to this scale, like `5 minutes`, `3 hours` or `6 months`.
     
     default: `day`

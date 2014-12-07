@@ -1,19 +1,34 @@
 (function(){
     'use strict';
     angular.module('gantt').factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
-        var generateHeader = function(columnsManager, columns, unit) {
+        var generateHeader = function(columnsManager, columns, viewScale) {
             var generatedHeaders = [];
             var header;
             var prevColDateVal;
 
+            var viewScaleValue;
+            var viewScaleUnit;
+            var splittedViewScale;
+
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+
             for (var i = 0, l = columns.length; i < l; i++) {
                 var col = columns[i];
-                var colDateVal = col.date.get(unit);
+                var colDateVal = col.date.get(viewScaleUnit);
                 if (i === 0 || prevColDateVal !== colDateVal) {
                     prevColDateVal = colDateVal;
-                    var labelFormat = columnsManager.getHeaderFormat(unit);
+                    var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
 
-                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, labelFormat);
+                    header = new ColumnHeader(col.date, viewScaleValue, viewScaleUnit, col.originalSize.left, col.originalSize.width, labelFormat);
                     header.left = col.left;
                     header.width = col.width;
                     generatedHeaders.push(header);
@@ -31,34 +46,42 @@
                 var units = [];
                 if (columnsManager.gantt.options.value('headers') === undefined) {
                     var viewScale = columnsManager.gantt.options.value('viewScale');
-                    units = [];
-                    if (['year', 'quarter', 'month'].indexOf(viewScale) > -1) {
+                    viewScale = viewScale.trim();
+                    if (viewScale.charAt(viewScale.length - 1) === 's') {
+                        viewScale = viewScale.substring(0, viewScale.length - 1);
+                    }
+
+                    var viewScaleUnit;
+                    var splittedViewScale;
+
+                    if (viewScale) {
+                        splittedViewScale = viewScale.split(' ');
+                    }
+                    if (splittedViewScale && splittedViewScale.length > 1) {
+                        viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                    } else {
+                        viewScaleUnit = viewScale;
+                    }
+
+                    if (['quarter','month'].indexOf(viewScaleUnit) > -1) {
                         units.push('year');
                     }
-                    if (['quarter'].indexOf(viewScale) > -1) {
-                        units.push('quarter');
-                    }
-                    if (['day', 'week', 'month'].indexOf(viewScale) > -1) {
+                    if (['day', 'week'].indexOf(viewScaleUnit) > -1) {
                         units.push('month');
                     }
-                    if (['day', 'week'].indexOf(viewScale) > -1) {
+                    if (['day'].indexOf(viewScaleUnit) > -1) {
                         units.push('week');
                     }
-                    if (['hour', 'day'].indexOf(viewScale) > -1) {
+                    if (['hour'].indexOf(viewScaleUnit) > -1) {
                         units.push('day');
                     }
-                    if (['hour', 'minute', 'second'].indexOf(viewScale) > -1) {
+                    if (['minute', 'second'].indexOf(viewScaleUnit) > -1) {
                         units.push('hour');
                     }
-                    if (['minute', 'second'].indexOf(viewScale) > -1) {
+                    if (['second'].indexOf(viewScaleUnit) > -1) {
                         units.push('minute');
                     }
-                    if (['second'].indexOf(viewScale) > -1) {
-                        units.push('second');
-                    }
-                    if (units.length === 0) {
-                        units.push(viewScale);
-                    }
+                    units.push(viewScale);
                 } else {
                     units = columnsManager.gantt.options.value('headers');
                 }

@@ -1162,9 +1162,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
-    angular.module('gantt').factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
+    angular.module('gantt').factory('GanttColumnGenerator', ['GanttColumn', 'moment', function(Column, moment) {
         var ColumnGenerator = function(columnsManager) {
             var self = this;
 
@@ -1176,22 +1176,41 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     throw 'to or maximumWidth must be defined';
                 }
 
-                var unit = self.columnsManager.gantt.options.value('viewScale');
+                var viewScale = self.columnsManager.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
+                var viewScaleValue;
+                var viewScaleUnit;
+                var splittedViewScale;
+
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleValue = 1;
+                    viewScaleUnit = viewScale;
+                }
+
                 var calendar = self.columnsManager.gantt.calendar;
                 var timeFramesWorkingMode = self.columnsManager.gantt.options.value('timeFramesWorkingMode');
                 var timeFramesNonWorkingMode = self.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
                 var columnWidth = self.columnsManager.getColumnsWidth();
 
                 var excludeTo = false;
-                from = moment(from).startOf(unit);
+                from = moment(from).startOf(viewScaleUnit);
                 if (to) {
                     excludeTo = isToDateToExclude(to);
-                    to = moment(to).startOf(unit);
+                    to = moment(to).startOf(viewScaleUnit);
                 }
 
-                var date = moment(from).startOf(unit);
+                var date = moment(from).startOf(viewScaleUnit);
                 if (reverse) {
-                    date.add(-1, unit);
+                    date.add(-viewScaleValue, viewScaleUnit);
                 }
                 var generatedCols = [];
                 var left = 0;
@@ -1202,7 +1221,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     var startDate = moment(date);
-                    var endDate = moment(startDate).add(1, unit);
+                    var endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
+                    ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
 
                     var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
                     if (!column.cropped) {
@@ -1225,11 +1245,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             }
                         }
                     }
-                    date.add(reverse ? -1 : 1, unit);
+                    if (reverse) {
+                        date.add(-viewScaleValue, viewScaleUnit);
+                        ensureNoUnitOverflow(viewScaleUnit, date, startDate);
+                    } else {
+                        date.add(viewScaleValue, viewScaleUnit);
+                        ensureNoUnitOverflow(viewScaleUnit, startDate, date);
+                    }
                 }
 
                 if (reverse) {
-                    if (isToDateToExclude(from, unit)) {
+                    if (isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
                         generatedCols.shift();
                     }
                     generatedCols.reverse();
@@ -1241,8 +1267,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             // Columns are generated including or excluding the to date.
             // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
 
-            var isToDateToExclude = function(to, unit) {
-                return moment(to).add(1, unit).startOf(unit) === to;
+            var isToDateToExclude = function(to, value, unit) {
+                return moment(to).add(value, unit).startOf(unit) === to;
+            };
+
+            var ensureNoUnitOverflow = function(unit, startDate, endDate) {
+                var v1 = startDate.get(unit);
+                var v2 = endDate.get(unit);
+                if (v2 !== 0 && v2 < v1) {
+                    endDate.set(unit, 0);
+                }
             };
         };
         return ColumnGenerator;
@@ -1255,12 +1289,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         // Used to display the Gantt grid and header.
         // The columns are generated by the column generator.
 
-        var ColumnHeader = function(date, unit, left, width, labelFormat) {
+        var ColumnHeader = function(date, viewScaleValue, viewScaleUnit, left, width, labelFormat) {
             var startDate = moment(date);
-            var endDate = moment(startDate).add(1, unit);
+            var endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
 
             var column = new Column(startDate, endDate, left, width);
-            column.unit = unit;
+            column.unit = viewScaleUnit;
             column.label = angular.isFunction(labelFormat) ? labelFormat(column): startDate.format(labelFormat);
 
             return column;
@@ -1637,10 +1671,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
             if (format === undefined) {
                 var viewScale = this.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
 
-                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScale) > -1) {
+                var viewScaleUnit;
+                var splittedViewScale;
+
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleUnit = viewScale;
+                }
+
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
                     format = defaultDayHeadersFormats[unit];
-                } else if (['month', 'quarter', 'year'].indexOf(viewScale) > -1) {
+                } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
                     format = defaultYearHeadersFormats[unit];
                 }
                 if (format === undefined) {
@@ -1657,19 +1707,34 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function(){
     'use strict';
     angular.module('gantt').factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
-        var generateHeader = function(columnsManager, columns, unit) {
+        var generateHeader = function(columnsManager, columns, viewScale) {
             var generatedHeaders = [];
             var header;
             var prevColDateVal;
 
+            var viewScaleValue;
+            var viewScaleUnit;
+            var splittedViewScale;
+
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+
             for (var i = 0, l = columns.length; i < l; i++) {
                 var col = columns[i];
-                var colDateVal = col.date.get(unit);
+                var colDateVal = col.date.get(viewScaleUnit);
                 if (i === 0 || prevColDateVal !== colDateVal) {
                     prevColDateVal = colDateVal;
-                    var labelFormat = columnsManager.getHeaderFormat(unit);
+                    var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
 
-                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, labelFormat);
+                    header = new ColumnHeader(col.date, viewScaleValue, viewScaleUnit, col.originalSize.left, col.originalSize.width, labelFormat);
                     header.left = col.left;
                     header.width = col.width;
                     generatedHeaders.push(header);
@@ -1687,34 +1752,42 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var units = [];
                 if (columnsManager.gantt.options.value('headers') === undefined) {
                     var viewScale = columnsManager.gantt.options.value('viewScale');
-                    units = [];
-                    if (['year', 'quarter', 'month'].indexOf(viewScale) > -1) {
+                    viewScale = viewScale.trim();
+                    if (viewScale.charAt(viewScale.length - 1) === 's') {
+                        viewScale = viewScale.substring(0, viewScale.length - 1);
+                    }
+
+                    var viewScaleUnit;
+                    var splittedViewScale;
+
+                    if (viewScale) {
+                        splittedViewScale = viewScale.split(' ');
+                    }
+                    if (splittedViewScale && splittedViewScale.length > 1) {
+                        viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                    } else {
+                        viewScaleUnit = viewScale;
+                    }
+
+                    if (['quarter','month'].indexOf(viewScaleUnit) > -1) {
                         units.push('year');
                     }
-                    if (['quarter'].indexOf(viewScale) > -1) {
-                        units.push('quarter');
-                    }
-                    if (['day', 'week', 'month'].indexOf(viewScale) > -1) {
+                    if (['day', 'week'].indexOf(viewScaleUnit) > -1) {
                         units.push('month');
                     }
-                    if (['day', 'week'].indexOf(viewScale) > -1) {
+                    if (['day'].indexOf(viewScaleUnit) > -1) {
                         units.push('week');
                     }
-                    if (['hour', 'day'].indexOf(viewScale) > -1) {
+                    if (['hour'].indexOf(viewScaleUnit) > -1) {
                         units.push('day');
                     }
-                    if (['hour', 'minute', 'second'].indexOf(viewScale) > -1) {
+                    if (['minute', 'second'].indexOf(viewScaleUnit) > -1) {
                         units.push('hour');
                     }
-                    if (['minute', 'second'].indexOf(viewScale) > -1) {
+                    if (['second'].indexOf(viewScaleUnit) > -1) {
                         units.push('minute');
                     }
-                    if (['second'].indexOf(viewScale) > -1) {
-                        units.push('second');
-                    }
-                    if (units.length === 0) {
-                        units.push(viewScale);
-                    }
+                    units.push(viewScale);
                 } else {
                     units = columnsManager.gantt.options.value('headers');
                 }
@@ -1943,8 +2016,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 magnetValue = this.shiftColumnMagnetValue;
                                 magnetUnit = this.shiftColumnMagnetUnit;
                             } else {
-                                magnetValue = 0.25;
-                                magnetUnit = this.options.value('viewScale');
+                                var viewScale = this.options.value('viewScale');
+                                viewScale = viewScale.trim();
+                                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                                }
+                                var viewScaleValue;
+                                var viewScaleUnit;
+                                var splittedViewScale;
+
+                                if (viewScale) {
+                                    splittedViewScale = viewScale.split(' ');
+                                }
+                                if (splittedViewScale && splittedViewScale.length > 1) {
+                                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                                } else {
+                                    viewScaleValue = 1;
+                                    viewScaleUnit = viewScale;
+                                }
+                                magnetValue = viewScaleValue * 0.25;
+                                magnetUnit = viewScaleUnit;
                             }
                         } else {
                             magnetValue = this.columnMagnetValue;
@@ -3810,13 +3902,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var expandHour = 1, expandDay = 31;
 
                 var viewScale = $scope.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
 
                 if (direction === 'left') {
-                    from = viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
+                    from = viewScale.substring(viewScale.length - 4) === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
                     to = date;
                 } else {
                     from = date;
-                    to = viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                    to = viewScale.substring(viewScale.length - 4) === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
                 }
 
                 $scope.fromDate = from;
