@@ -110,8 +110,15 @@
             var ensureNoUnitOverflow = function(unit, startDate, endDate) {
                 var v1 = startDate.get(unit);
                 var v2 = endDate.get(unit);
-                if (v2 !== 0 && v2 < v1) {
-                    endDate.set(unit, 0);
+                var firstValue = getFirstValue(unit);
+                if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+                    endDate.set(unit, firstValue);
+                }
+            };
+
+            var getFirstValue = function(unit) {
+                if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+                    return 0;
                 }
             };
         };
