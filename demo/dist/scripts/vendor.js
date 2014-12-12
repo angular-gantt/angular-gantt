@@ -38752,7 +38752,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
-            // DEPRECATED - Use getData instead.
+            // DEPRECATED - Use $data instead.
             Gantt.prototype.loadData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
@@ -38772,13 +38772,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     }
                 }
+
+                var w = this.side.getWidth();
+                if (w > 0) {
+                    this.options.set('sideWidth', w);
+                }
+                this.api.data.raise.load(data);
             };
 
             Gantt.prototype.getData = function() {
                 return this.$scope.data;
             };
 
-            // DEPRECATED - Use getData instead.
+            // DEPRECATED - Use $data instead.
             Gantt.prototype.removeData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
@@ -38808,11 +38814,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     }
                 }
+
+                this.api.data.raise.remove(data);
             };
 
-            // DEPRECATED - Use getData instead.
+            // DEPRECATED - Use $data instead.
             Gantt.prototype.clearData = function() {
                 this.$scope.data = undefined;
+                this.api.data.raise.clear();
             };
 
             Gantt.prototype.getWidth = function() {
@@ -38828,7 +38837,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var gantt = this;
                 var renderedFunction = function() {
-                    gantt.options.set('sideWidth', gantt.side.getWidth());
+                    var w = gantt.side.getWidth();
+                    if (w > 0) {
+                        gantt.options.set('sideWidth', w);
+                    }
                     gantt.api.core.raise.rendered(gantt.api);
                 };
                 $timeout(renderedFunction);
