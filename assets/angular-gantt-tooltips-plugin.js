@@ -151,6 +151,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     });
 
+                    $scope.pluginScope.api.tasks.on.move($scope, function(task, fromRow) {
+                        if (task === $scope.task && task.row !== fromRow) {
+                            displayTooltip(false);
+                            mouseMoveHandler.unbind();
+                        }
+                    });
+
                     $scope.pluginScope.api.tasks.on.moveEnd($scope, function(task) {
                         if (task === $scope.task) {
                             mouseMoveHandler.unbind();
@@ -241,7 +248,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 };
 
                 if ($scope.task.isMoving) {
-                    // Restore tooltip because task has been moved to a new row
+                    // Display tooltip because task has been moved to a new row
                     mouseMoveHandler.bind();
                 }
 
