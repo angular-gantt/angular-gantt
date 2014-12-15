@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'moment', function(Builder, debounce, moment) {
+    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', '$timeout', 'ganttDebounce', 'moment', function(Builder, $timeout, debounce, moment) {
         var builder = new Builder('ganttScrollable');
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
@@ -14,30 +14,53 @@
                     return;
                 }
 
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
-                }
-
                 var from, to;
-                var expandHour = 1, expandDay = 31;
 
                 var viewScale = $scope.gantt.options.value('viewScale');
                 viewScale = viewScale.trim();
                 if (viewScale.charAt(viewScale.length - 1) === 's') {
                     viewScale = viewScale.substring(0, viewScale.length - 1);
                 }
+                var viewScaleValue;
+                var viewScaleUnit;
+                var splittedViewScale;
 
-                if (direction === 'left') {
-                    from = viewScale.substring(viewScale.length - 4) === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
                 } else {
-                    from = date;
-                    to = viewScale.substring(viewScale.length - 4) === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                    viewScaleValue = 1;
+                    viewScaleUnit = viewScale;
                 }
 
-                $scope.fromDate = from;
-                $scope.toDate = to;
+                if (direction === 'left') {
+                    from = moment(date).add(-5 * viewScaleValue, viewScaleUnit);
+                    $scope.fromDate = from;
+                } else {
+                    to = moment(date).add(5 * viewScaleValue, viewScaleUnit);
+                    $scope.toDate = to;
+                }
+
                 lastAutoExpand = Date.now();
+                $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
+                $timeout(function() {
+                    var nDirection, nDate;
+
+                    if (el.scrollLeft === 0) {
+                        nDirection = 'left';
+                        nDate = from;
+                    } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                        nDirection = 'right';
+                        nDate = to;
+                    }
+
+                    if (nDirection === direction) {
+                        autoExpandColumns(el, nDate, direction);
+                    }
+                }, autoExpandCoolDownPeriod);
             };
 
             $element.bind('scroll', debounce(function() {
@@ -59,7 +82,6 @@
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
                 } else {
                     $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
                 }
