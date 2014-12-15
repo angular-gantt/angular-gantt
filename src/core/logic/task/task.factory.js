@@ -64,8 +64,6 @@
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    var styleElement = this.getBackgroundElement();
-                    styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }

@@ -2893,8 +2893,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    var styleElement = this.getBackgroundElement();
-                    styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
@@ -4695,8 +4693,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="::row.model.classes"\n' +
-        '             ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '             ng-class="row.model.classes"\n' +
+        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -4748,7 +4746,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">\n' +
-        '        <div class="gantt-task-background" ng-class="::task.model.classes"></div>\n' +
+        '        <div class="gantt-task-background" ng-class="task.model.classes" ng-style="{\'background-color\': task.model.color}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
