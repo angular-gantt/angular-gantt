@@ -1164,33 +1164,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if ($scope.pluginScope.api.tasks.on.moveBegin) {
                     $scope.pluginScope.api.tasks.on.moveBegin($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.bind();
-                        }
-                    });
-
-                    $scope.pluginScope.api.tasks.on.move($scope, function(task, fromRow) {
-                        if (task === $scope.task && task.row !== fromRow) {
-                            displayTooltip(false);
-                            mouseMoveHandler.unbind();
+                            displayTooltip(true);
                         }
                     });
 
                     $scope.pluginScope.api.tasks.on.moveEnd($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.unbind();
                             displayTooltip(false);
                         }
                     });
 
                     $scope.pluginScope.api.tasks.on.resizeBegin($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.bind();
+                            displayTooltip(true);
                         }
                     });
 
                     $scope.pluginScope.api.tasks.on.resizeEnd($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.unbind();
                             displayTooltip(false);
                         }
                     });
@@ -1230,6 +1221,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var showTooltip = function(x) {
                     visible = true;
+                    mouseMoveHandler.bind();
                     $element.toggleClass('ng-hide', false);
 
                     $timeout(function() {
@@ -1260,13 +1252,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var hideTooltip = function() {
                     visible = false;
+                    mouseMoveHandler.unbind();
                     $element.css('opacity', 0);
                     $element.toggleClass('ng-hide', true);
                 };
 
                 if ($scope.task.isMoving) {
                     // Display tooltip because task has been moved to a new row
-                    mouseMoveHandler.bind();
+                    displayTooltip(true, false);
                 }
 
                 $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
