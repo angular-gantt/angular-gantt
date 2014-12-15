@@ -287,7 +287,6 @@
                 if (w > 0) {
                     this.options.set('sideWidth', w);
                 }
-                this.api.data.raise.load(data);
             };
 
             Gantt.prototype.getData = function() {
@@ -324,14 +323,11 @@
                         }
                     }
                 }
-
-                this.api.data.raise.remove(data);
             };
 
             // DEPRECATED - Use $data instead.
             Gantt.prototype.clearData = function() {
                 this.$scope.data = undefined;
-                this.api.data.raise.clear();
             };
 
             Gantt.prototype.getWidth = function() {

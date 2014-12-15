@@ -108,6 +108,11 @@ angular.module('angularGanttDemoApp')
                     api.scroll.on.scroll($scope, logScrollEvent);
                     api.core.on.ready($scope, logReadyEvent);
 
+                    api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent));
+                    api.data.on.load($scope, addEventName('data.on.load', logDataEvent));
+                    api.data.on.clear($scope, addEventName('data.on.clear', logDataEvent));
+
+
                     api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
                     api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
                     api.tasks.on.rowChange($scope, addEventName('tasks.on.rowChange', logTaskEvent));
@@ -346,6 +351,11 @@ angular.module('angularGanttDemoApp')
             if (date !== undefined) {
                 $log.info('[Event] api.on.scroll: ' + left + ', ' + (date === undefined ? 'undefined' : date.format()) + ', ' + direction);
             }
+        };
+
+        // Event handler
+        var logDataEvent = function(eventName) {
+            $log.info('[Event] ' + eventName);
         };
 
         // Event handler

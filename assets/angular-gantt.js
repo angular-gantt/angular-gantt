@@ -2100,7 +2100,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (w > 0) {
                     this.options.set('sideWidth', w);
                 }
-                this.api.data.raise.load(data);
             };
 
             Gantt.prototype.getData = function() {
@@ -2137,14 +2136,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     }
                 }
-
-                this.api.data.raise.remove(data);
             };
 
             // DEPRECATED - Use $data instead.
             Gantt.prototype.clearData = function() {
                 this.$scope.data = undefined;
-                this.api.data.raise.clear();
             };
 
             Gantt.prototype.getWidth = function() {
