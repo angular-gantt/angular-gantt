@@ -112,7 +112,6 @@ angular.module('angularGanttDemoApp')
                     api.data.on.load($scope, addEventName('data.on.load', logDataEvent));
                     api.data.on.clear($scope, addEventName('data.on.clear', logDataEvent));
 
-
                     api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
                     api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
                     api.tasks.on.rowChange($scope, addEventName('tasks.on.rowChange', logTaskEvent));

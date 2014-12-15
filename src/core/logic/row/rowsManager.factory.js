@@ -192,7 +192,7 @@
 
             if (expression !== undefined) {
                 var reverse = false;
-                if (expression.charAt(0) === '-') {
+                if (angular.isString(expression) && expression.charAt(0) === '-') {
                     reverse = true;
                     expression = expression.substr(1);
                 }
