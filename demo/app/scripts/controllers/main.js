@@ -146,7 +146,8 @@ angular.module('angularGanttDemoApp')
                     // Add some DOM events
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttTask') {
-                            element.bind('click', function() {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
                                 logTaskEvent('task-click', directiveScope.task);
                             });
                             element.bind('mousedown touchstart', function(event) {
@@ -160,7 +161,8 @@ angular.module('angularGanttDemoApp')
                                 $scope.$digest();
                             });
                         } else if (directiveName === 'ganttRow') {
-                            element.bind('click', function() {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
                                 logRowEvent('row-click', directiveScope.row);
                             });
                             element.bind('mousedown touchstart', function(event) {
