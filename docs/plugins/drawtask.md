@@ -30,7 +30,7 @@ Draw new tasks with the mouse.
 
 - ### enabled
 
-    Enable drawing.
+    Enable drawing. Can also be a function (`fn(event)`) which has one parameter for the event. Such a function can be used to only activate the drawing when a certain mouse button is pressed.
     
     default: `true`
 

@@ -82,7 +82,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (directiveName === 'ganttRow') {
                         var drawHandler = function(evt) {
                             var evtTarget = (evt.target ? evt.target : evt.srcElement);
-                            if (scope.enabled && evtTarget.className.indexOf('gantt-row') > -1) {
+                            var enabled = angular.isFunction(scope.enabled) ? scope.enabled(evt): scope.enabled;
+                            if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var startDate = api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
                                 var endDate = moment(startDate);
 

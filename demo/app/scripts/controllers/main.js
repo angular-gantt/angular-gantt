@@ -68,6 +68,10 @@ angular.module('angularGanttDemoApp')
             },
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '5 minutes',
+            canDraw: function(event) {
+                var isLeftMouseButton = event.button === 0 || event.button === 1;
+                return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
+            },
             drawTaskFactory: function() {
                 return {
                     id: utils.randomUuid(),  // Unique id of the task.

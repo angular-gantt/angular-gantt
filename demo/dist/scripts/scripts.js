@@ -92,6 +92,10 @@ angular.module('angularGanttDemoApp')
             },
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '5 minutes',
+            canDraw: function(event) {
+                var isLeftMouseButton = event.button === 0 || event.button === 1;
+                return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
+            },
             drawTaskFactory: function() {
                 return {
                     id: utils.randomUuid(),  // Unique id of the task.
@@ -170,7 +174,8 @@ angular.module('angularGanttDemoApp')
                     // Add some DOM events
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttTask') {
-                            element.bind('click', function() {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
                                 logTaskEvent('task-click', directiveScope.task);
                             });
                             element.bind('mousedown touchstart', function(event) {
@@ -184,7 +189,8 @@ angular.module('angularGanttDemoApp')
                                 $scope.$digest();
                             });
                         } else if (directiveName === 'ganttRow') {
-                            element.bind('click', function() {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
                                 logRowEvent('row-click', directiveScope.row);
                             });
                             element.bind('mousedown touchstart', function(event) {
