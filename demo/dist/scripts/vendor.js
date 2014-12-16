@@ -41732,7 +41732,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     rowMovable = {enabled: rowMovable};
                                 }
 
-                                var enabled = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
+                                var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -41756,7 +41757,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     rowMovable = {enabled: rowMovable};
                                 }
 
-                                var enabled = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
+                                var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
