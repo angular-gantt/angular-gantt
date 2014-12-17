@@ -4371,7 +4371,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var templateUrl = self.templateUrl;
                 var controllerFunction = self.controller;
 
-                return {
+                var directive = {
                     restrict: self.restrict,
                     require: self.require,
                     transclude: self.transclude,
@@ -4407,6 +4407,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
                     }]
                 };
+
+                if (!templateUrl) {
+                    delete directive.templateUrl;
+                    delete directive.replace;
+                    delete directive.transclude;
+                }
+
+                return directive;
             };
         };
 

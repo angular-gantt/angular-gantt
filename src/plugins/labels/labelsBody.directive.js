@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
+    angular.module('gantt.labels').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
         builder.controller = function($scope) {
             var hScrollBarHeight = layout.getScrollBarHeight();
