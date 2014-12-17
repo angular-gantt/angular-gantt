@@ -17,6 +17,7 @@
 .gantt-tree-body .gantt-row-label span {
     padding: 0;
     margin: 0;
+    vertical-align: middle;
 }
 
 .gantt-row-label {

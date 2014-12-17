@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt.tree', ['gantt', 'gantt.tree.templates']).directive('ganttTree', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
+    angular.module('gantt.tree', ['gantt', 'gantt.tree.templates', 'ui.tree']).directive('ganttTree', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
         // Provides the row sort functionality to any Gantt row
         // Uses the sortableState to share the current row
 
