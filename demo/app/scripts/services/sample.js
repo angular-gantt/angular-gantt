@@ -59,13 +59,13 @@ angular.module('angularGanttDemoApp')
                             {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
                         ]},
                         {name: 'Hosting'},
-                        {name: 'Server', parent: 'Hosting', children: ['Setup', 'Config']},
                         {name: 'Setup', tasks: [
                             {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
                         ]},
                         {name: 'Config', tasks: [
                             {name: 'SW / DNS/ Backups', color: '#F1C232', from: new Date(2013, 10, 18, 12, 0, 0), to: new Date(2013, 10, 21, 18, 0, 0)}
                         ]},
+                        {name: 'Server', parent: 'Hosting', children: ['Setup', 'Config']},
                         {name: 'Deployment', parent: 'Hosting', tasks: [
                             {name: 'Depl. & Final testing', color: '#F1C232', from: new Date(2013, 10, 21, 8, 0, 0), to: new Date(2013, 10, 22, 12, 0, 0), 'classes': 'gantt-task-deployment'}
                         ]},

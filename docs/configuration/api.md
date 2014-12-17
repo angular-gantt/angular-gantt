@@ -254,6 +254,35 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
     Refresh rows. It will also apply filters, and may be required if you use [filter-task](attributes.md#filter-task-filter-task-comparator) or
     [filter-row](attributes.md##filter-row-filter-row-comparator) with a function.
 
+- **api.rows.addRowSorter(sorter)**, **api.rows.removeRowSorter(sorter)**
+
+    Register a function that will be called to customize sorting of rows.
+    
+        sorter = function(rows) {
+          return rows.reverse();
+        }
+        
+        api.rows.addRowSorter(sorter);
+        
+        $scope.$on('$destroy', function() {
+          api.rows.removeRowSorter(sorter);
+        };
+
+- **api.rows.addRowFilter(filter)**, **api.rows.removeRowFilter(filter)**
+
+    Register a function that will be called to customize filtering of rows.
+
+        filter = function(rows) {
+          rows.pop();
+          return rows;
+        }
+        
+        api.rows.addRowFilter(filter);
+        
+        $scope.$on('$destroy', function() {
+          api.rows.removeRowFilter(filter);
+        };
+
 #### timeframes
 
 - **api.timeframes.registerTimeFrames(timeframes)**

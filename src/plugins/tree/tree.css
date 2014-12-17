@@ -92,3 +92,11 @@
     top: 50%;
     transform: translateY(-50%);
 }
+
+.angular-ui-tree-handle {
+    cursor: inherit;
+    text-decoration: inherit;
+    font-weight: inherit;
+    min-height: inherit;
+    line-height: inherit;
+}
