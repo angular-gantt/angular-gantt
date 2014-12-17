@@ -1,3 +1,7 @@
 <div class="gantt-labels-header">
-    <gantt-row-header></gantt-row-header>
+    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">
+        <div ng-repeat="header in gantt.columnsManager.headers">
+            <div class="gantt-row-height" ng-class="{'gantt-labels-header-row': $last, 'gantt-labels-header-row-last': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>
+        </div>
+    </div>
 </div>

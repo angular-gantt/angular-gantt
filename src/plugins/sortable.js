@@ -80,7 +80,7 @@
                     }
 
                     api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
-                        if (directiveName === 'ganttRowLabel') {
+                        if (directiveName === 'ganttRowLabel' && rowElement.attr('drag') === undefined) {
                             rowScope.checkDraggable = function() {
                                 var rowSortable = rowScope.row.model.sortable;
 

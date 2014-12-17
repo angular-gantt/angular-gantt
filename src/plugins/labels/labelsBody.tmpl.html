@@ -1,8 +1,14 @@
-<div class="gantt-labels-body"
-     ng-style="getLabelsCss()">
+<div class="gantt-labels-body" ng-style="getLabelsCss()">
     <div gantt-vertical-scroll-receiver>
         <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
-            <gantt-row-label></gantt-row-label>
+            <div gantt-row-label
+                 class="gantt-row-label gantt-row-height"
+                 ng-class-odd="'gantt-background-row'"
+                 ng-class-even="'gantt-background-row-alt'"
+                 ng-class="row.model.classes"
+                 ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+                <span>{{row.model.name}}</span>
+            </div>
         </div>
     </div>
 </div>
