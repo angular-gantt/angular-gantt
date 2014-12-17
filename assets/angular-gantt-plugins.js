@@ -862,6 +862,59 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt.tree', ['gantt', 'gantt.tree.templates']).directive('ganttTree', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
+        // Provides the row sort functionality to any Gantt row
+        // Uses the sortableState to share the current row
+
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?',
+                header: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.sortable) === 'object') {
+                    for (var option in scope.options.sortable) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                if (scope.header === undefined) {
+                    scope.header = 'Name';
+                }
+
+                api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
+                    if (directiveName === 'ganttSideContent') {
+                        var labelsScope = sideContentScope.$new();
+                        labelsScope.pluginScope = scope;
+
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+
+                        var labelsElement = $document[0].createElement('gantt-side-content-tree');
+                        angular.element(ifElement).append(labelsElement);
+
+                        sideContentElement.append($compile(ifElement)(labelsScope));
+                    }
+                });
+
+
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt.bounds').directive('ganttTaskBounds', ['$templateCache', 'moment', function($templateCache, moment) {
         // Displays a box representing the earliest allowable start time and latest completion time for a job
 
@@ -1264,6 +1317,59 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttRowTreeLabel', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowTreeLabel');
+        builder.restrict = 'A';
+        builder.templateUrl = undefined;
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttSideContentTree', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttSideContentTree', 'plugins/tree/sideContentTree.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTreeBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
+        var builder = new Builder('ganttTreeBody', 'plugins/tree/treeBody.tmpl.html');
+        builder.controller = function($scope) {
+            var hScrollBarHeight = layout.getScrollBarHeight();
+
+            $scope.getLabelsCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight) {
+                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                }
+
+                return css;
+            };
+        };
+        return builder.build();
+    }]);
+}());
+
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttTreeHeader', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttTreeHeader', 'plugins/tree/treeHeader.tmpl.html');
+        return builder.build();
+    }]);
+}());
+
+
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
         '<div ng-cloak class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
@@ -1380,50 +1486,31 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
     $templateCache.put('plugins/tree/treeBody.tmpl.html',
         '<div class="gantt-tree-body" ng-style="getLabelsCss()">\n' +
-        '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
-        '        <div class="gantt-row-label-background">\n' +
-        '            <div class="gantt-row-label gantt-row-height"\n' +
-        '                 ng-class-odd="\'gantt-background-row\'"\n' +
-        '                 ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                 ng-class="row.model.classes"\n' +
-        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}"\n' +
-        '                 ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '                &nbsp;\n' +
-        '            </div>\n' +
-        '        </div>\n' +
-        '        <div ui-tree data-drag-enabled="false">\n' +
-        '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
-        '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node\n' +
-        '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '    <div gantt-vertical-scroll-receiver>\n' +
+        '        <div ui-tree>\n' +
+        '            <ol ui-tree-nodes ng-model="gantt.rowsManager.visibleRows">\n' +
+        '                <li ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id" ui-tree-node>\n' +
+        '                    <div ui-tree-handle\n' +
+        '                         class="gantt-row-label gantt-row-height"\n' +
+        '                         ng-class-odd="\'gantt-background-row\'"\n' +
+        '                         ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                         ng-class="row.model.classes"\n' +
+        '                         ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                        <div class="valign-container">\n' +
+        '                            <div class="valign-content">\n' +
+        '                                <a data-nodrag class="btn btn-xs" ng-click="toggle(this)">\n' +
+        '                                    <span class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
+        '                                          ng-class="{\'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed}"></span>\n' +
+        '                                </a>\n' +
+        '                                <span>{{row.model.name}}</span>\n' +
+        '                            </div>\n' +
+        '                        </div>\n' +
+        '                    </div>\n' +
         '                </li>\n' +
         '            </ol>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
-        '');
-    $templateCache.put('plugins/tree/treeBodyChildren.tmpl.html',
-        '<div ui-tree-handle\n' +
-        '     ng-controller="GanttTreeChildrenController"\n' +
-        '     class="gantt-row-label gantt-row-height" ,\n' +
-        '     ng-class="row.model.classes"\n' +
-        '     ng-style="{\'height\': row.model.height}">\n' +
-        '    <div class="valign-container">\n' +
-        '        <div class="valign-content">\n' +
-        '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag class="btn btn-xs" ng-click="toggle(this)"><span\n' +
-        '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
-        '                ng-class="{\n' +
-        '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
-        '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
-        '            </a>\n' +
-        '            <span>{{row.model.name}}</span>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
-        '</div>\n' +
-        '<ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">\n' +
-        '    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node\n' +
-        '        ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
-        '    </li>\n' +
-        '</ol>\n' +
         '');
     $templateCache.put('plugins/tree/treeHeader.tmpl.html',
         '<div class="gantt-tree-header">\n' +

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="bower_components/angular-motion/dist/angular-motion.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css" />
     <link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt.css" />
     <link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt-plugins.css" />
     <!-- endbower -->
@@ -192,7 +193,7 @@
                                                time-frames-magnet="options.timeFramesMagnet"
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
-                                            <gantt-labels></gantt-labels>
+                                            <gantt-tree></gantt-tree>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>
@@ -265,6 +266,7 @@
     <script src="bower_components/angular-native-dragdrop/draganddrop.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/angular-moment/angular-moment.js"></script>
+    <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
     <script src="bower_components/angular-gantt/assets/angular-gantt.js"></script>
     <script src="bower_components/angular-gantt/assets/angular-gantt-plugins.js"></script>
     <!-- endbower -->
