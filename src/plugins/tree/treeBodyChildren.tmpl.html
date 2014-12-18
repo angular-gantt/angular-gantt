@@ -1,18 +1,22 @@
 <div ui-tree-handle
      ng-controller="GanttTreeChildrenController"
-     class="gantt-row-label gantt-row-height"
+     class="gantt-row-label gantt-row-height" ,
+     ng-class="row.model.classes"
      ng-style="{'height': row.model.height}">
     <div class="valign-container">
         <div class="valign-content">
-            <a data-nodrag class="btn btn-xs" ng-click="toggle(this)">
-                                    <span class="gantt-tree-handle glyphicon glyphicon-chevron-down"
-                                          ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
+            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag class="btn btn-xs" ng-click="toggle(this)"><span
+                class="gantt-tree-handle glyphicon glyphicon-chevron-down"
+                ng-class="{
+                'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed,
+                'gantt-tree-collapsed': collapsed, 'gantt-tree-expanded': !collapsed}"></span>
             </a>
             <span>{{row.model.name}}</span>
         </div>
     </div>
 </div>
 <ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">
-    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">
+    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node
+        ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">
     </li>
 </ol>
