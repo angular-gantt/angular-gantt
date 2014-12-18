@@ -16,6 +16,7 @@ angular.module('angularGanttDemoApp')
             mode: 'custom',
             scale: 'day',
             sortMode: undefined,
+            sideMode: 'Tree',
             maxHeight: false,
             width: false,
             autoExpand: 'none',
