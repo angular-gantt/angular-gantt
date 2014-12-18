@@ -1,0 +1,27 @@
+<div class="gantt-side-content-table" ng-controller="TableController">
+    <table ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0" class="gantt-table">
+        <thead>
+            <tr class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">
+                <th class="gantt-table-column" ng-repeat="column in pluginScope.columns">
+                    <div class="gantt-row-height gantt-table-cell" ng-class="{'gantt-labels-header-row': $parent.$last, 'gantt-labels-header-row-last': $parent.$last}"><span>{{$parent.$last ? getHeader(this, column) : ""}}</span></div>
+                </th>
+            </tr>
+        </thead>
+        <tbody gantt-vertical-scroll-receiver>
+            <tr class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                <td class="gantt-table-column" ng-repeat="column in pluginScope.columns">
+                    <div gantt-row-label
+                         class="gantt-row-label gantt-row-height"
+                         ng-class="row.model.classes"
+                         ng-style="{'height': row.model.height}">
+                        <div class="gantt-valign-container">
+                            <div class="gantt-valign-content">
+                                <span>{{getValue($parent, column)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -16,7 +16,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',
-    'gantt.labels',
+    'gantt.table',
     'gantt.tree',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {

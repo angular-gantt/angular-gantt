@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -43,6 +43,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+                        angular.element(ifElement).addClass('side-element');
 
                         var labelsElement = $document[0].createElement('gantt-side-content-tree');
                         angular.element(ifElement).append(labelsElement);

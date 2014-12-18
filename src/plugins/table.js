@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt.tree', ['gantt', 'gantt.tree.templates', 'ui.tree']).directive('ganttTree', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
+    angular.module('gantt.table', ['gantt', 'gantt.table.templates']).directive('ganttTable', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
         // Provides the row sort functionality to any Gantt row
         // Uses the sortableState to share the current row
 
@@ -9,7 +9,10 @@
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                header: '=?'
+                columns: '=',
+                headers: '=?',
+                formatters: '=?',
+                headerFormatter: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -25,41 +28,34 @@
                     scope.enabled = true;
                 }
 
-                if (scope.header === undefined) {
-                    scope.header = 'Name';
+                if (scope.columns === undefined) {
+                    scope.columns = ['model.name'];
+                }
+
+                if (scope.headers === undefined) {
+                    scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.formatters === undefined) {
+                    scope.formatters = {};
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
                     if (directiveName === 'ganttSideContent') {
-                        var labelsScope = sideContentScope.$new();
-                        labelsScope.pluginScope = scope;
+                        var tableScope = sideContentScope.$new();
+                        tableScope.pluginScope = scope;
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
                         angular.element(ifElement).addClass('side-element');
 
-                        var labelsElement = $document[0].createElement('gantt-side-content-tree');
-                        angular.element(ifElement).append(labelsElement);
+                        var tableElement = $document[0].createElement('gantt-side-content-table');
+                        angular.element(ifElement).append(tableElement);
 
-                        sideContentElement.append($compile(ifElement)(labelsScope));
+                        sideContentElement.append($compile(ifElement)(tableScope));
                     }
                 });
 
-                function fitSideWidthToLabels() {
-                    var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
-                    var newSideWidth = 0;
-
-                    angular.forEach(labels, function (label) {
-                        var width = label.children[0].offsetWidth;
-                        newSideWidth = Math.max(newSideWidth, width);
-                    });
-
-                    if (newSideWidth >= 0) {
-                        api.side.setWidth(newSideWidth);
-                    }
-                }
-
-                api.registerMethod('tree', 'fitSideWidth', fitSideWidthToLabels, this);
             }
         };
     }]);

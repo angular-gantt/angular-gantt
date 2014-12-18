@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
+    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', '$log', function(utils, $compile, $document, $log) {
         // Provides the row sort functionality to any Gantt row
         // Uses the sortableState to share the current row
 
@@ -13,6 +13,8 @@
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                $log.warn('Angular Gantt Labels plugin is deprecated. Please use Table plugin instead.');
 
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.sortable) === 'object') {
@@ -36,6 +38,7 @@
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+                        angular.element(ifElement).addClass('side-element');
 
                         var labelsElement = $document[0].createElement('gantt-side-content-labels');
                         angular.element(ifElement).append(labelsElement);

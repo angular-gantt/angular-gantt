@@ -4288,6 +4288,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt').directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowLabel');
+        builder.restrict = 'A';
+        builder.templateUrl = undefined;
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt').directive('ganttScrollableHeader', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttScrollableHeader');
         builder.controller = function($scope) {
@@ -4330,6 +4341,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.gantt.side.$element = $element;
             $scope.gantt.side.$scope = $scope;
         };
+        return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttSideBackground', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttSideBackground');
         return builder.build();
     }]);
 }());
@@ -4710,6 +4730,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
     $templateCache.put('template/gantt.tmpl.html',
         '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener="ganttElementWidth">\n' +
         '    <gantt-side>\n' +
+        '        <gantt-side-background>\n' +
+        '        </gantt-side-background>\n' +
         '        <gantt-side-content>\n' +
         '        </gantt-side-content>\n' +
         '        <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width="sideWidth" class="gantt-resizer">\n' +
@@ -4889,6 +4911,31 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{\'height\': row.model.height}"></div>\n' +
         '    </script>\n' +
         '\n' +
+        '    <!-- Side background template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
+        '        <div class="gantt-side-background">\n' +
+        '            <div class="gantt-side-background-header">\n' +
+        '                <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
+        '                    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '                        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"></div>\n' +
+        '                    </div>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '            <div class="gantt-side-background-body">\n' +
+        '                <div gantt-vertical-scroll-receiver>\n' +
+        '                    <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                        <div gantt-row-label\n' +
+        '                             class="gantt-row-label gantt-row-height"\n' +
+        '                             ng-class-odd="\'gantt-background-row\'"\n' +
+        '                             ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                             ng-class="row.model.classes"\n' +
+        '                             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                        </div>\n' +
+        '                    </div>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '    </script>\n' +
         '</div>\n' +
         '');
 }]);

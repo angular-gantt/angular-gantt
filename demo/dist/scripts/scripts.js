@@ -16,7 +16,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.tooltips',
     'gantt.bounds',
     'gantt.progress',
-    'gantt.labels',
+    'gantt.table',
     'gantt.tree',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
@@ -41,9 +41,20 @@ angular.module('angularGanttDemoApp')
             mode: 'custom',
             scale: 'day',
             sortMode: undefined,
-            sideMode: 'Tree',
+            sideMode: 'TreeTable',
             maxHeight: false,
             width: false,
+            columns: ['model.name', 'from', 'to'],
+            treeTableColumns: ['from', 'to'],
+            columnsHeaders: {'model.name' : 'Name', 'from': 'From', 'to': 'To'},
+            columnsFormatters: {
+                'from': function(from) {
+                    return from !== undefined ? from.format('lll') : undefined;
+                },
+                'to': function(to) {
+                    return to !== undefined ? to.format('lll') : undefined;
+                }
+            },
             autoExpand: 'none',
             taskOutOfRange: 'truncate',
             fromDate: undefined,

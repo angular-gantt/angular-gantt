@@ -102,7 +102,7 @@
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-crop"></i> Side</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
-                                                            <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.sideMode" ng-options="s for s in ['Tree', 'Labels', 'Disabled']" bs-select></button>
+                                                            <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.sideMode" ng-options="s for s in ['Tree', 'Table', 'TreeTable', 'Disabled']" bs-select></button>
                                                         </div>
                                                     </div>
 
@@ -189,8 +189,8 @@
                                                time-frames-magnet="options.timeFramesMagnet"
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
-                                            <gantt-labels enabled="options.sideMode === 'Labels'"></gantt-labels>
-                                            <gantt-tree enabled="options.sideMode === 'Tree'"></gantt-tree>
+                                            <gantt-tree enabled="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'"></gantt-tree>
+                                            <gantt-table enabled="options.sideMode === 'Table' || options.sideMode === 'TreeTable'" columns="options.sideMode === 'TreeTable' ? options.treeTableColumns : options.columns" headers="options.columnsHeaders" formatters="options.columnsFormatters"></gantt-table>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>

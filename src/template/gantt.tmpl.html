@@ -1,5 +1,7 @@
 <div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener="ganttElementWidth">
     <gantt-side>
+        <gantt-side-background>
+        </gantt-side-background>
         <gantt-side-content>
         </gantt-side-content>
         <div gantt-resizer="gantt.side.$element" gantt-resizer-event-topic="side" gantt-resizer-enabled="{{$parent.gantt.options.value('allowSideResizing')}}" resizer-width="sideWidth" class="gantt-resizer">
@@ -179,4 +181,29 @@
         <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{'height': row.model.height}"></div>
     </script>
 
+    <!-- Side background template -->
+    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">
+        <div class="gantt-side-background">
+            <div class="gantt-side-background-header">
+                <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">
+                    <div ng-repeat="header in gantt.columnsManager.headers">
+                        <div class="gantt-row-height" ng-class="{'gantt-labels-header-row': $last, 'gantt-labels-header-row-last': $last}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="gantt-side-background-body">
+                <div gantt-vertical-scroll-receiver>
+                    <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                        <div gantt-row-label
+                             class="gantt-row-label gantt-row-height"
+                             ng-class-odd="'gantt-background-row'"
+                             ng-class-even="'gantt-background-row-alt'"
+                             ng-class="row.model.classes"
+                             ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
 </div>

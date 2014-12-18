@@ -36,6 +36,57 @@
     overflow: hidden;
 }
 
+.gantt-row-label span {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    display: inline-block;
+    text-align: center;
+    padding-top: 0.5em;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.gantt-row-label span {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.gantt-row-label {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.gantt-valign-container {
+    height: 100%;
+}
+
+.gantt-valign-content {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.gantt-side-background {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.gantt-side-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.gantt-side-content > div.side-element {
+    float: left;
+    overflow: hidden;
+}
+
+.gantt-side-content > div.side-element:last-child {
+    float: none;
+}
+
 .gantt-header-columns {
     position: relative;
     height: 100%;
