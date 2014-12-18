@@ -1,8 +1,19 @@
 <div class="gantt-tree-body" ng-style="getLabelsCss()">
     <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">
+        <div class="gantt-row-label-background">
+            <div class="gantt-row-label gantt-row-height"
+                 ng-class-odd="'gantt-background-row'"
+                 ng-class-even="'gantt-background-row-alt'"
+                 ng-class="row.model.classes"
+                 ng-style="{'background-color': row.model.color, 'height': row.model.height}"
+                 ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                &nbsp;
+            </div>
+        </div>
         <div ui-tree data-drag-enabled="false">
             <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">
-                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">
+                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node
+                    ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">
                 </li>
             </ol>
         </div>

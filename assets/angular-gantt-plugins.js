@@ -1668,9 +1668,20 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
     $templateCache.put('plugins/tree/treeBody.tmpl.html',
         '<div class="gantt-tree-body" ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
+        '        <div class="gantt-row-label-background">\n' +
+        '            <div class="gantt-row-label gantt-row-height"\n' +
+        '                 ng-class-odd="\'gantt-background-row\'"\n' +
+        '                 ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                 ng-class="row.model.classes"\n' +
+        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}"\n' +
+        '                 ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                &nbsp;\n' +
+        '            </div>\n' +
+        '        </div>\n' +
         '        <div ui-tree data-drag-enabled="false">\n' +
         '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
-        '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node\n' +
+        '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
         '                </li>\n' +
         '            </ol>\n' +
         '        </div>\n' +
@@ -1681,10 +1692,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '<div ui-tree-handle\n' +
         '     ng-controller="GanttTreeChildrenController"\n' +
         '     class="gantt-row-label gantt-row-height"\n' +
-        '     ng-class-odd="\'gantt-background-row\'"\n' +
-        '     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '     ng-class="row.model.classes"\n' +
-        '     ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="valign-container">\n' +
         '        <div class="valign-content">\n' +
         '            <a data-nodrag class="btn btn-xs" ng-click="toggle(this)">\n' +

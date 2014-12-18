@@ -147,6 +147,11 @@
     right: 11px;
 }
 
+.gantt-row-label-background {
+    position: absolute;
+    width: 100%;
+}
+
 .gantt-row-label span {
     box-sizing:border-box;
     -moz-box-sizing:border-box;
