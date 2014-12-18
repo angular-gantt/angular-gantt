@@ -127,8 +127,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var handleChildren = function(row) {
                 sortedRows.push(row);
                 var children = $scope.children(row);
+
+
+
                 if (children !== undefined && children.length > 0) {
-                    angular.forEach(children, function(child) {
+                    var sortedChildren = children.sort(function(a, b) {
+                        return rows.indexOf(a) - rows.indexOf(b);
+                    });
+
+                    angular.forEach(sortedChildren, function(child) {
                         handleChildren(child);
                     });
                 }
