@@ -44614,7 +44614,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
     $templateCache.put('plugins/tree/treeBody.tmpl.html',
         '<div class="gantt-tree-body" ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
-        '        <div ui-tree>\n' +
+        '        <div ui-tree data-drag-enabled="false">\n' +
         '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
         '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
         '                </li>\n' +

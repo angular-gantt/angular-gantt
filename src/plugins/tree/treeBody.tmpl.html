@@ -1,6 +1,6 @@
 <div class="gantt-tree-body" ng-style="getLabelsCss()">
     <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">
-        <div ui-tree>
+        <div ui-tree data-drag-enabled="false">
             <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">
                 <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">
                 </li>
