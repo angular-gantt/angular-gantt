@@ -34,3 +34,7 @@ Display a tree hierarchy of labels on the side.
 - **api.tree.fitSideWidth()**
 
     Adjusts the side section to the width of the biggest label.
+    
+- **api.tree.refresh()**
+
+    Refresh hierarchy of rows based on model.

@@ -98,7 +98,7 @@
             }
         };
 
-        var updateHierarchy = function() {
+        var refresh = function() {
             nameToRow = {};
             idToRow = {};
 
@@ -145,14 +145,17 @@
                     $scope.rootRows.push(row);
                 }
             });
-        };
 
-        $scope.$watchCollection('gantt.rowsManager.filteredRows', function(newValue) {
-            updateHierarchy();
-            if (newValue !== undefined && newValue.length >= 0) {
+            if ($scope.gantt.rowsManager.filteredRows.length > 0) {
                 $scope.gantt.api.rows.sort();
                 $scope.gantt.api.rows.refresh();
             }
+        };
+
+        $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
+
+        $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
+            refresh();
         });
 
         $scope.children = function(row) {

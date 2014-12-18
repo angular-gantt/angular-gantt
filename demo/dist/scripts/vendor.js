@@ -43852,7 +43852,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
+                function fitSideWidthToLabels() {
+                    var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
+                    var newSideWidth = 0;
 
+                    angular.forEach(labels, function (label) {
+                        var width = label.children[0].offsetWidth;
+                        newSideWidth = Math.max(newSideWidth, width);
+                    });
+
+                    if (newSideWidth >= 0) {
+                        api.side.setWidth(newSideWidth);
+                    }
+                }
+
+                api.registerMethod('tree', 'fitSideWidth', fitSideWidthToLabels, this);
             }
         };
     }]);
@@ -44383,7 +44397,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
-        var updateHierarchy = function() {
+        var refresh = function() {
             nameToRow = {};
             idToRow = {};
 
@@ -44430,14 +44444,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $scope.rootRows.push(row);
                 }
             });
-        };
 
-        $scope.$watchCollection('gantt.rowsManager.filteredRows', function(newValue) {
-            updateHierarchy();
-            if (newValue !== undefined && newValue.length >= 0) {
+            if ($scope.gantt.rowsManager.filteredRows.length > 0) {
                 $scope.gantt.api.rows.sort();
                 $scope.gantt.api.rows.refresh();
             }
+        };
+
+        $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
+
+        $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
+            refresh();
         });
 
         $scope.children = function(row) {

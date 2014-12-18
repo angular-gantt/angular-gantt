@@ -44,7 +44,21 @@
                     }
                 });
 
+                function fitSideWidthToLabels() {
+                    var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
+                    var newSideWidth = 0;
 
+                    angular.forEach(labels, function (label) {
+                        var width = label.children[0].offsetWidth;
+                        newSideWidth = Math.max(newSideWidth, width);
+                    });
+
+                    if (newSideWidth >= 0) {
+                        api.side.setWidth(newSideWidth);
+                    }
+                }
+
+                api.registerMethod('tree', 'fitSideWidth', fitSideWidthToLabels, this);
             }
         };
     }]);
