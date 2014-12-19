@@ -17,6 +17,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.bounds',
     'gantt.progress',
     'gantt.labels',
+    'gantt.tree',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
     $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
@@ -40,6 +41,7 @@ angular.module('angularGanttDemoApp')
             mode: 'custom',
             scale: 'day',
             sortMode: undefined,
+            sideMode: 'Tree',
             maxHeight: false,
             width: false,
             autoExpand: 'none',
@@ -343,8 +345,8 @@ angular.module('angularGanttDemoApp')
 
         $scope.$watchCollection('live.row', function(row) {
             $scope.live.rowJson = angular.toJson(row, true);
-            if (row !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
-                $scope.live.task = (row.tasks === undefined || row.tasks.length <= 0) ? undefined : row.tasks[0];
+            if (row !== undefined && row.tasks !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
+                $scope.live.task = row.tasks[0];
             }
         });
 
@@ -459,6 +461,7 @@ angular.module('angularGanttDemoApp')
                             {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                                 progress: 100}
                         ]},
+                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4']},
                         {name: 'Sprint 1', tooltips: false, tasks: [
                             {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
                                 progress: 25}
@@ -472,13 +475,15 @@ angular.module('angularGanttDemoApp')
                         {name: 'Sprint 4', tasks: [
                             {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
                         ]},
-                        {name: 'Setup server', tasks: [
+                        {name: 'Hosting'},
+                        {name: 'Setup', tasks: [
                             {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
                         ]},
-                        {name: 'Config server', tasks: [
+                        {name: 'Config', tasks: [
                             {name: 'SW / DNS/ Backups', color: '#F1C232', from: new Date(2013, 10, 18, 12, 0, 0), to: new Date(2013, 10, 21, 18, 0, 0)}
                         ]},
-                        {name: 'Deployment', tasks: [
+                        {name: 'Server', parent: 'Hosting', children: ['Setup', 'Config']},
+                        {name: 'Deployment', parent: 'Hosting', tasks: [
                             {name: 'Depl. & Final testing', color: '#F1C232', from: new Date(2013, 10, 21, 8, 0, 0), to: new Date(2013, 10, 22, 12, 0, 0), 'classes': 'gantt-task-deployment'}
                         ]},
                         {name: 'Workshop', tasks: [

@@ -16,6 +16,7 @@ angular.module('angularGanttDemoApp')
             mode: 'custom',
             scale: 'day',
             sortMode: undefined,
+            sideMode: 'Tree',
             maxHeight: false,
             width: false,
             autoExpand: 'none',
@@ -319,8 +320,8 @@ angular.module('angularGanttDemoApp')
 
         $scope.$watchCollection('live.row', function(row) {
             $scope.live.rowJson = angular.toJson(row, true);
-            if (row !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
-                $scope.live.task = (row.tasks === undefined || row.tasks.length <= 0) ? undefined : row.tasks[0];
+            if (row !== undefined && row.tasks !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
+                $scope.live.task = row.tasks[0];
             }
         });
 

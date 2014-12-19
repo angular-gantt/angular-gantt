@@ -2512,8 +2512,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.rows = [];
             this.sortedRows = [];
             this.filteredRows = [];
+            this.customFilteredRows = [];
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
+
+            this.customRowSorters = [];
+            this.customRowFilters = [];
 
             this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function(newValues, oldValues) {
                 if (newValues !== oldValues) {
@@ -2551,6 +2555,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
             this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
 
+            this.gantt.api.registerMethod('rows', 'removeRowSorter', RowsManager.prototype.removeCustomRowSorter, this);
+            this.gantt.api.registerMethod('rows', 'addRowSorter', RowsManager.prototype.addCustomRowSorter, this);
+
+            this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
+            this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
             this.gantt.api.registerEvent('tasks', 'rowChange');
@@ -2571,6 +2581,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.rows = [];
             this.sortedRows = [];
             this.filteredRows = [];
+            this.customFilteredRows = [];
             this.visibleRows = [];
         };
 
@@ -2587,6 +2598,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.rows.push(row);
                     this.sortedRows.push(row);
                     this.filteredRows.push(row);
+                    this.customFilteredRows.push(row);
                     this.visibleRows.push(row);
                 }
 
@@ -2608,6 +2620,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.rows.push(row);
                 this.sortedRows.push(row);
                 this.filteredRows.push(row);
+                this.customFilteredRows.push(row);
                 this.visibleRows.push(row);
             }
 
@@ -2666,6 +2679,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
                 arrays.removeId(this.filteredRows, rowId, ['model', 'id']);
+                arrays.removeId(this.customFilteredRows, rowId, ['model', 'id']);
                 arrays.removeId(this.visibleRows, rowId, ['model', 'id']);
 
                 this.gantt.api.rows.raise.remove(removedRow);
@@ -2680,6 +2694,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.rows = [];
             this.sortedRows = [];
             this.filteredRows = [];
+            this.customFilteredRows = [];
             this.visibleRows = [];
 
             for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
@@ -2705,7 +2720,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.sortedRows = this.rows.slice();
             }
 
+            this.sortedRows = this.applyCustomRowSorters(this.sortedRows);
+
             this.updateVisibleRows();
+        };
+
+        RowsManager.prototype.removeCustomRowSorter = function(sorterFunction) {
+            var i = this.customRowSorters.indexOf(sorterFunction);
+            if (i > -1) {
+                this.customRowSorters.remove(i);
+            }
+        };
+
+        RowsManager.prototype.addCustomRowSorter = function(sorterFunction) {
+            this.customRowSorters.push(sorterFunction);
+        };
+
+        RowsManager.prototype.applyCustomRowSorters = function(sortedRows) {
+            angular.forEach(this.customRowSorters, function(sorterFunction) {
+                sortedRows = sorterFunction(sortedRows);
+            });
+            return sortedRows;
         };
 
         /**
@@ -2774,14 +2809,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.filteredRows = this.sortedRows.slice(0);
             }
 
-
             var raiseEvent = !angular.equals(oldFilteredRows, this.filteredRows);
+            this.customFilteredRows = this.applyCustomRowFilters(this.filteredRows);
 
             // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
-            this.visibleRows = this.filteredRows;
+            this.visibleRows = this.customFilteredRows;
             if (raiseEvent) {
                 this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
             }
+        };
+
+        RowsManager.prototype.removeCustomRowFilter = function(filterFunction) {
+            var i = this.customRowFilters.indexOf(filterFunction);
+            if (i > -1) {
+                this.customRowFilters.remove(i);
+            }
+        };
+
+        RowsManager.prototype.addCustomRowFilter = function(filterFunction) {
+            this.customRowFilters.push(filterFunction);
+        };
+
+        RowsManager.prototype.applyCustomRowFilters = function(filteredRows) {
+            angular.forEach(this.customRowFilters, function(filterFunction) {
+                filteredRows = filterFunction(filteredRows);
+            });
+            return filteredRows;
         };
 
         RowsManager.prototype.updateVisibleTasks = function() {

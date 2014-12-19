@@ -1,0 +1,124 @@
+.gantt-row-label-background {
+    position: absolute;
+    width: 100%;
+}
+
+.gantt-row-label span {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    display: inline-block;
+    text-align: center;
+    padding-top: 0.5em;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.gantt-row-label span {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.gantt-tree-body .gantt-row-label span {
+    margin: 0;
+}
+
+.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button {
+    padding: 0;
+    position: relative;
+    top: -0.50em;
+}
+
+.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button.gantt-tree-expanded {
+    top: -0.40em;
+}
+
+.gantt-tree-body .gantt-row-label span.gantt-tree-handle {
+    padding: 0;
+    position: relative;
+}
+
+.gantt-tree-body .gantt-row-label span.gantt-tree-text {
+    padding-left: 0;
+}
+
+.gantt-row-label {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.gantt-tree-header {
+    overflow: hidden;
+}
+
+.gantt-tree-body {
+    overflow: hidden;
+}
+
+.gantt-tree-header-row  {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    height: 2em;
+    white-space: nowrap;
+    border-top: 1px solid #dddddd;
+}
+
+.gantt-tree-header-row-last {
+    border-bottom: 1px solid #dddddd;
+}
+
+.gantt-tree-header-row {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    white-space: nowrap;
+}
+
+.gantt-tree-header-row  {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+
+    padding-left: 12px;
+    padding-right: 12px;
+
+    height: 2em;
+    white-space: nowrap;
+    border-top: 1px solid #dddddd;
+    overflow: hidden;
+}
+
+.gantt-tree-header-row span {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    display: inline-block;
+    height: 2em;
+    text-align: center;
+    padding-top: 0.5em;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.gantt-tree-body ol {
+    padding-left: 0;
+}
+
+.gantt-tree-body .gantt-row-label .valign-container {
+    height: 100%;
+}
+
+.gantt-tree-body .gantt-row-label .valign-content {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.angular-ui-tree-handle {
+    cursor: inherit;
+    text-decoration: inherit;
+    font-weight: inherit;
+    min-height: inherit;
+    line-height: inherit;
+}

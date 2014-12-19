@@ -100,6 +100,13 @@
                                                     </div>
 
                                                     <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-crop"></i> Side</label><br>
+                                                        <div class="btn-group" bs-checkbox-group>
+                                                            <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.sideMode" ng-options="s for s in ['Tree', 'Labels', 'Disabled']" bs-select></button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
@@ -182,7 +189,8 @@
                                                time-frames-magnet="options.timeFramesMagnet"
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
-                                            <gantt-labels></gantt-labels>
+                                            <gantt-labels enabled="options.sideMode === 'Labels'"></gantt-labels>
+                                            <gantt-tree enabled="options.sideMode === 'Tree'"></gantt-tree>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>

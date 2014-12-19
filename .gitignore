@@ -12,3 +12,4 @@
 /assets/*.min.*
 *.log
 /.bowerrc
+/assets/*.min.*

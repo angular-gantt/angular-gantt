@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="bower_components/angular-motion/dist/angular-motion.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css" />
     <link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt.css" />
     <link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt-plugins.css" />
     <!-- endbower -->
@@ -110,6 +111,13 @@
                                                     </div>
 
                                                     <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-crop"></i> Side</label><br>
+                                                        <div class="btn-group" bs-checkbox-group>
+                                                            <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.sideMode" ng-options="s for s in ['Tree', 'Labels', 'Disabled']" bs-select></button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
@@ -192,7 +200,8 @@
                                                time-frames-magnet="options.timeFramesMagnet"
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
-                                            <gantt-labels></gantt-labels>
+                                            <gantt-labels enabled="options.sideMode === 'Labels'"></gantt-labels>
+                                            <gantt-tree enabled="options.sideMode === 'Tree'"></gantt-tree>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>
@@ -263,6 +272,7 @@
     <script src="bower_components/angular-strap/dist/angular-strap.js"></script>
     <script src="bower_components/angular-strap/dist/angular-strap.tpl.js"></script>
     <script src="bower_components/angular-native-dragdrop/draganddrop.js"></script>
+    <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/angular-moment/angular-moment.js"></script>
     <script src="bower_components/angular-gantt/assets/angular-gantt.js"></script>
