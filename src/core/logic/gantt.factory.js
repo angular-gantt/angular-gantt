@@ -93,10 +93,10 @@
                     }
                     if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
                         self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                        self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
+                        self.columnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
                     } else {
-                        self.columnMagnetValue = undefined;
-                        self.columnMagnetUnit = undefined;
+                        self.columnMagnetValue = 1;
+                        self.columnMagnetUnit = moment.normalizeUnits(columnMagnet);
                     }
                 });
 
@@ -108,10 +108,10 @@
                     }
                     if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
                         self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                        self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
+                        self.shiftColumnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
                     } else {
-                        self.shiftColumnMagnetValue = undefined;
-                        self.shiftColumnMagnetUnit = undefined;
+                        self.shiftColumnMagnetValue = 1;
+                        self.shiftColumnMagnetUnit = moment.normalizeUnits(shiftColumnMagnet);
                     }
                 });
 
@@ -212,9 +212,6 @@
                             } else {
                                 var viewScale = this.options.value('viewScale');
                                 viewScale = viewScale.trim();
-                                if (viewScale.charAt(viewScale.length - 1) === 's') {
-                                    viewScale = viewScale.substring(0, viewScale.length - 1);
-                                }
                                 var viewScaleValue;
                                 var viewScaleUnit;
                                 var splittedViewScale;
@@ -224,10 +221,10 @@
                                 }
                                 if (splittedViewScale && splittedViewScale.length > 1) {
                                     viewScaleValue = parseFloat(splittedViewScale[0]);
-                                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                                    viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
                                 } else {
                                     viewScaleValue = 1;
-                                    viewScaleUnit = viewScale;
+                                    viewScaleUnit = moment.normalizeUnits(viewScale);
                                 }
                                 magnetValue = viewScaleValue * 0.25;
                                 magnetUnit = viewScaleUnit;

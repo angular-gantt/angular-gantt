@@ -71,6 +71,9 @@
     Format is `<integer> <momentjs-unit>`. See [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) for 
     a list of supported unit.
     
+    If `column-magnet` value is greater than `view-scale` or defined to `column`, it will apply magnets to column borders.
+    You can't defined a `column-magnet` value that covers multiple columns.
+    
     Examples:
     
     - `1 minute`
@@ -85,6 +88,12 @@
     Precision of the column when holding down SHIFT key.
 
     If undefined, it will use 0.25 viewScale.
+    
+- ### time-frames-magnet
+
+    If enabled, magnet will snap to timeFrame borders.
+    
+    default: `true`
 
 - ### data
 

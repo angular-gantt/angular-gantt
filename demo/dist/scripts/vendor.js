@@ -37824,55 +37824,92 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return this.date === other.date;
         };
 
+        Column.prototype.roundTo = function (date, unit, offset, midpoint) {
+            // Waiting merge of https://github.com/moment/moment/pull/1794
+            if (unit === 'day') {
+                // Inconsistency in units in momentJS.
+                unit = 'date';
+            }
+
+            offset = offset || 1;
+            var value = date.get(unit);
+
+            switch (midpoint) {
+                case 'up':
+                    value = Math.ceil(value / offset);
+                    break;
+                case 'down':
+                    value = Math.floor(value / offset);
+                    break;
+                default:
+                    value = Math.round(value / offset);
+                    break;
+            }
+
+            var units = ['millisecond', 'second', 'minute', 'hour', 'date', 'month', 'year'];
+            date.set(unit, value * offset);
+
+            var indexOf = units.indexOf(unit);
+            for (var i=0; i<indexOf; i++) {
+                date.set(units[i], 0);
+            }
+        };
+
         Column.prototype.getMagnetDate = function(date, magnetValue, magnetUnit) {
             if (magnetValue > 0 && magnetUnit !== undefined) {
                 var initialDate = date;
                 date = moment(date);
-                var value;
-                var roundedMagnet;
-                var duration;
 
-                if (magnetValue < 1) {
-                    date.startOf(magnetUnit);
-                    value = initialDate.diff(date, 'milliseconds');
-                    duration = moment.duration(magnetValue, magnetUnit).asMilliseconds();
+                if (magnetUnit === 'column') {
+                    // Snap to column borders only.
+                    var position = this.getPositionByDate(date);
 
-                    roundedMagnet = Math.round(value/duration) * duration;
-                    date.set('milliseconds', roundedMagnet);
+                    if (position < this.width / 2) {
+                        date = moment(this.date);
+                    } else {
+                        date = moment(this.endDate);
+                    }
                 } else {
-                    value = date.get(magnetUnit);
-                    roundedMagnet = Math.round(value/magnetValue) * magnetValue;
-                    date.startOf(magnetUnit);
-                    date.set(magnetUnit, roundedMagnet);
+                    // Round the value
+                    this.roundTo(date, magnetUnit, magnetValue, 'down');
+
+                    // Snap to column borders if date overflows.
+                    if (date < this.date) {
+                        date = moment(this.date);
+                    } else if (date > this.endDate) {
+                        date = moment(this.endDate);
+                    }
                 }
 
-                // Snap to a timeFrame border if initialDate is nearer of timeFrame border than actual magnet date.
                 for (var i= 0, l=this.timeFrames.length; i < l; i++) {
+                    // Snap to a timeFrame border if initialDate is nearer of timeFrame border than actual magnet date.
                     var timeFrame = this.timeFrames[i];
 
-                    var previousCropped;
-                    if (timeFrame.cropped && date >= timeFrame.start && date <= timeFrame.end) {
-                        previousCropped = true;
-                    }
+                    if (!timeFrame.working) {
+                        var previousCropped;
+                        if (timeFrame.cropped && date >= timeFrame.start && date <= timeFrame.end) {
+                            previousCropped = true;
+                        }
 
-                    if (!timeFrame.cropped && (previousCropped || date >= timeFrame.start && date <= timeFrame.end)) {
-                        if (previousCropped) {
-                            previousCropped = false;
-                            if (date < timeFrame.start) {
-                                initialDate = timeFrame.start;
-                            } else if (date > timeFrame.end) {
-                                initialDate = timeFrame.end;
+                        if (!timeFrame.cropped && (previousCropped || date >= timeFrame.start && date <= timeFrame.end)) {
+                            if (previousCropped) {
+                                previousCropped = false;
+                                if (date < timeFrame.start) {
+                                    initialDate = timeFrame.start;
+                                } else if (date > timeFrame.end) {
+                                    initialDate = timeFrame.end;
+                                }
                             }
-                        }
 
-                        var magnetDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
-                        if (initialDate.diff(timeFrame.start, 'milliseconds') < magnetDiff) {
-                            date = timeFrame.start;
-                        } else if (timeFrame.end.diff(initialDate, 'milliseconds') < magnetDiff) {
-                            date = timeFrame.end;
-                        }
+                            var magnetDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
+                            if (initialDate.diff(timeFrame.start, 'milliseconds') < magnetDiff) {
+                                date = timeFrame.start;
+                            } else if (timeFrame.end.diff(initialDate, 'milliseconds') < magnetDiff) {
+                                date = timeFrame.end;
+                            }
 
-                        break;
+                            break;
+                        }
                     }
                 }
             }
@@ -38712,10 +38749,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                     if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
                         self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                        self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
+                        self.columnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
                     } else {
-                        self.columnMagnetValue = undefined;
-                        self.columnMagnetUnit = undefined;
+                        self.columnMagnetValue = 1;
+                        self.columnMagnetUnit = moment.normalizeUnits(columnMagnet);
                     }
                 });
 
@@ -38727,10 +38764,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                     if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
                         self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                        self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
+                        self.shiftColumnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
                     } else {
-                        self.shiftColumnMagnetValue = undefined;
-                        self.shiftColumnMagnetUnit = undefined;
+                        self.shiftColumnMagnetValue = 1;
+                        self.shiftColumnMagnetUnit = moment.normalizeUnits(shiftColumnMagnet);
                     }
                 });
 
@@ -38831,9 +38868,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             } else {
                                 var viewScale = this.options.value('viewScale');
                                 viewScale = viewScale.trim();
-                                if (viewScale.charAt(viewScale.length - 1) === 's') {
-                                    viewScale = viewScale.substring(0, viewScale.length - 1);
-                                }
                                 var viewScaleValue;
                                 var viewScaleUnit;
                                 var splittedViewScale;
@@ -38843,10 +38877,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
                                 if (splittedViewScale && splittedViewScale.length > 1) {
                                     viewScaleValue = parseFloat(splittedViewScale[0]);
-                                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                                    viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
                                 } else {
                                     viewScaleValue = 1;
-                                    viewScaleUnit = viewScale;
+                                    viewScaleUnit = moment.normalizeUnits(viewScale);
                                 }
                                 magnetValue = viewScaleValue * 0.25;
                                 magnetUnit = viewScaleUnit;
