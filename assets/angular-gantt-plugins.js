@@ -1064,7 +1064,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
@@ -1091,8 +1091,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var showTooltipPromise;
                 var visible = false;
                 var mouseEnterX;
-
-                $element.toggleClass('ng-hide', true);
 
                 $scope.getFromLabel = function() {
                     var taskTooltips = $scope.task.model.tooltips;
@@ -1135,16 +1133,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.$element.bind('mousemove', function(evt) {
+                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.$element.bind('mouseenter', function(evt) {
+                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.$element.bind('mouseleave', function() {
+                $scope.task.getForegroundElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
@@ -1209,14 +1207,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var showTooltip = function(x) {
                     visible = true;
                     mouseMoveHandler.bind();
-                    $element.toggleClass('ng-hide', false);
 
-                    $timeout(function() {
+                    $scope.displayed = true;
+
+                    $scope.$evalAsync(function() {
+                        var restoreNgHide;
+                        if ($element.hasClass('ng-hide')) {
+                            $element.removeClass('ng-hide');
+                            restoreNgHide = true;
+                        }
+                        $scope.elementHeight = $element[0].offsetHeight;
+                        if (restoreNgHide) {
+                            $element.addClass('ng-hide');
+                        }
+                        $scope.taskRect = parentElement[0].getBoundingClientRect();
                         updateTooltip(x);
-                        $element.css('top', parentElement[0].getBoundingClientRect().top + 'px');
-                        $element.css('marginTop', -$element[0].offsetHeight - 8 + 'px');
-                        $element.css('opacity', 1);
-                    }, 0, true);
+                    });
                 };
 
                 var getViewPortWidth = function() {
@@ -1228,20 +1234,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Check if info is overlapping with view port
                     if (x + $element[0].offsetWidth > getViewPortWidth()) {
                         $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
-                        $element.addClass('gantt-task-infoArrowR'); // Right aligned info
-                        $element.removeClass('gantt-task-infoArrow');
+                        $scope.isRightAligned = true;
                     } else {
                         $element.css('left', (x - 20) + 'px');
-                        $element.addClass('gantt-task-infoArrow');
-                        $element.removeClass('gantt-task-infoArrowR');
+                        $scope.isRightAligned = false;
                     }
                 };
 
                 var hideTooltip = function() {
                     visible = false;
                     mouseMoveHandler.unbind();
-                    $element.css('opacity', 0);
-                    $element.toggleClass('ng-hide', true);
+                    $scope.$evalAsync(function() {
+                        $scope.displayed = false;
+                    });
                 };
 
                 if ($scope.task.isMoving) {
@@ -1319,9 +1324,41 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 
 }]);
 
+angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/table/sideContentTable.tmpl.html',
+        '<div class="gantt-side-content-table" ng-controller="TableController">\n' +
+        '    <table ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0" class="gantt-table">\n' +
+        '        <thead>\n' +
+        '            <tr class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '                <th class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '                    <div class="gantt-row-height gantt-table-cell" ng-class="{\'gantt-labels-header-row\': $parent.$last, \'gantt-labels-header-row-last\': $parent.$last}"><span>{{$parent.$last ? getHeader(this, column) : ""}}</span></div>\n' +
+        '                </th>\n' +
+        '            </tr>\n' +
+        '        </thead>\n' +
+        '        <tbody gantt-vertical-scroll-receiver>\n' +
+        '            <tr class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                <td class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '                    <div gantt-row-label\n' +
+        '                         class="gantt-row-label gantt-row-height"\n' +
+        '                         ng-class="row.model.classes"\n' +
+        '                         ng-style="{\'height\': row.model.height}">\n' +
+        '                        <span>{{getValue($parent, column)}}</span>\n' +
+        '                    </div>\n' +
+        '                </td>\n' +
+        '            </tr>\n' +
+        '        </tbody>\n' +
+        '    </table>\n' +
+        '</div>\n' +
+        '');
+}]);
+
 angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
-        '<div ng-cloak class="gantt-task-info">\n' +
+        '<div ng-cloak\n' +
+        '     class="gantt-task-info"\n' +
+        '     ng-show="displayed"\n' +
+        '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
+        '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
         '    <div class="gantt-task-info-content">\n' +
         '        {{task.model.name}}</br>\n' +
         '        <small>\n' +
@@ -1367,20 +1404,24 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
     $templateCache.put('plugins/tree/treeBodyChildren.tmpl.html',
         '<div ui-tree-handle\n' +
         '     ng-controller="GanttTreeChildrenController"\n' +
-        '     class="gantt-row-label gantt-row-height"\n' +
+        '     class="gantt-row-label gantt-row-height" ,\n' +
+        '     ng-class="row.model.classes"\n' +
         '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="valign-container">\n' +
         '        <div class="valign-content">\n' +
-        '            <a data-nodrag class="btn btn-xs" ng-click="toggle(this)">\n' +
-        '                                    <span class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
-        '                                          ng-class="{\'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed}"></span>\n' +
+        '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag class="btn btn-xs" ng-click="toggle(this)"><span\n' +
+        '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
+        '                ng-class="{\n' +
+        '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
+        '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
         '            <span>{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '<ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">\n' +
-        '    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node\n' +
+        '        ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
         '    </li>\n' +
         '</ol>\n' +
         '');

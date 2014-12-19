@@ -60,7 +60,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
@@ -87,8 +87,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var showTooltipPromise;
                 var visible = false;
                 var mouseEnterX;
-
-                $element.toggleClass('ng-hide', true);
 
                 $scope.getFromLabel = function() {
                     var taskTooltips = $scope.task.model.tooltips;
@@ -131,16 +129,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.$element.bind('mousemove', function(evt) {
+                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.$element.bind('mouseenter', function(evt) {
+                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.$element.bind('mouseleave', function() {
+                $scope.task.getForegroundElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
@@ -205,14 +203,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var showTooltip = function(x) {
                     visible = true;
                     mouseMoveHandler.bind();
-                    $element.toggleClass('ng-hide', false);
 
-                    $timeout(function() {
+                    $scope.displayed = true;
+
+                    $scope.$evalAsync(function() {
+                        var restoreNgHide;
+                        if ($element.hasClass('ng-hide')) {
+                            $element.removeClass('ng-hide');
+                            restoreNgHide = true;
+                        }
+                        $scope.elementHeight = $element[0].offsetHeight;
+                        if (restoreNgHide) {
+                            $element.addClass('ng-hide');
+                        }
+                        $scope.taskRect = parentElement[0].getBoundingClientRect();
                         updateTooltip(x);
-                        $element.css('top', parentElement[0].getBoundingClientRect().top + 'px');
-                        $element.css('marginTop', -$element[0].offsetHeight - 8 + 'px');
-                        $element.css('opacity', 1);
-                    }, 0, true);
+                    });
                 };
 
                 var getViewPortWidth = function() {
@@ -224,20 +230,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Check if info is overlapping with view port
                     if (x + $element[0].offsetWidth > getViewPortWidth()) {
                         $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
-                        $element.addClass('gantt-task-infoArrowR'); // Right aligned info
-                        $element.removeClass('gantt-task-infoArrow');
+                        $scope.isRightAligned = true;
                     } else {
                         $element.css('left', (x - 20) + 'px');
-                        $element.addClass('gantt-task-infoArrow');
-                        $element.removeClass('gantt-task-infoArrowR');
+                        $scope.isRightAligned = false;
                     }
                 };
 
                 var hideTooltip = function() {
                     visible = false;
                     mouseMoveHandler.unbind();
-                    $element.css('opacity', 0);
-                    $element.toggleClass('ng-hide', true);
+                    $scope.$evalAsync(function() {
+                        $scope.displayed = false;
+                    });
                 };
 
                 if ($scope.task.isMoving) {

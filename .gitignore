@@ -9,5 +9,6 @@
 /site/
 /coverage-results/
 /assets/*.map
+/assets/*.min.*
 *.log
 /.bowerrc
