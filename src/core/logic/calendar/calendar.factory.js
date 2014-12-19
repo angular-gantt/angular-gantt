@@ -11,6 +11,7 @@
          * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
          * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
          * @param {boolean} working is this timeFrame flagged as working.
+         * @param {boolean} magnet is this timeFrame will magnet.
          * @param {boolean} default is this timeFrame will be used as default.
          * @param {color} css color attached to this timeFrame.
          * @param {string} classes css classes attached to this timeFrame.
@@ -25,6 +26,7 @@
             this.start = options.start;
             this.end = options.end;
             this.working = options.working;
+            this.magnet = options.magnet !== undefined ? options.magnet : true;
             this.default = options.default;
             this.color = options.color;
             this.classes = options.classes;
@@ -374,7 +376,7 @@
                 endDate = maxDate;
             }
 
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, magnet: false, color: color, classes: classes})];
 
             timeFrames = $filter('filter')(timeFrames, function(timeFrame) {
                 return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);

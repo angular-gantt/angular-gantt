@@ -66,16 +66,17 @@
 - ### column-magnet
 
     Precision of the column. All date and time computation will be rounded using this precision. It will also snap
-    to start and end of timeFrames and columns.
+    to borders of timeFrames and columns is `time-frames-magnet` is `true`.
     
     Format is `<integer> <momentjs-unit>`. See [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) for 
     a list of supported unit.
     
-    If `column-magnet` value is greater than `view-scale` or defined to `column`, it will apply magnets to column borders.
-    You can't defined a `column-magnet` value that covers multiple columns.
+    If `column-magnet` value is greater than `view-scale` or defined to `column` value, it will apply magnets to 
+    column borders. You can't defined a `column-magnet` value that covers multiple columns.
     
     Examples:
     
+    - `column`
     - `1 minute`
     - `30 minutes`
     - `1 hour`
@@ -91,7 +92,7 @@
     
 - ### time-frames-magnet
 
-    If enabled, magnet will snap to timeFrame borders.
+    Make timeFrame borders snap. Columns magnet must be enabled too.
     
     default: `true`
 
@@ -201,10 +202,12 @@
                             noon: {
                                 start: moment('12:00', 'HH:mm'),
                                 end: moment('13:30', 'HH:mm'),
+                                magnet: false, // This will disable magnet snapping
                                 working: false, // This is a resting period
                                 default: true // It will be used for each day
                             },
                             closed: {
+                                magnet: false, // This will disable magnet snapping
                                 working: false // We don't work when it's closed
                             }
         };

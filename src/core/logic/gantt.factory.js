@@ -16,6 +16,7 @@
                     'timespans': [],
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
+                    'timeFramesMagnet': true,
                     'showSide': true,
                     'allowSideResizing': true,
                     'currentDate': 'line',
@@ -235,7 +236,7 @@
                         }
                     }
 
-                    return column.getDateByPosition(x - column.left, magnetValue, magnetUnit);
+                    return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
                 } else {
                     return undefined;
                 }

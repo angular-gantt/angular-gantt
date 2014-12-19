@@ -43,6 +43,7 @@
                 timespans: '=?',
                 columnMagnet: '=?',
                 shiftColumnMagnet: '=?',
+                timeFramesMagnet: '=?',
                 data: '=?',
                 api: '=?',
                 options: '=?'

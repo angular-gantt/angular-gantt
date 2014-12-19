@@ -91,7 +91,8 @@ angular.module('angularGanttDemoApp')
                 }
             },
             timeFramesNonWorkingMode: 'visible',
-            columnMagnet: '5 minutes',
+            columnMagnet: '15 minutes',
+            timeFramesMagnet: true,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;
                 return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
