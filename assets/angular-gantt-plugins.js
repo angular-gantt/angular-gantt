@@ -1720,13 +1720,16 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="valign-container">\n' +
         '        <div class="valign-content">\n' +
-        '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag class="btn btn-xs" ng-click="toggle(this)"><span\n' +
+        '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag\n' +
+        '               class="gantt-tree-handle-button btn btn-xs"\n' +
+        '               ng-class="{\'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"\n' +
+        '               ng-click="toggle(this)"><span\n' +
         '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
         '                ng-class="{\n' +
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span>{{row.model.name}}</span>\n' +
+        '            <span class="gantt-tree-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +

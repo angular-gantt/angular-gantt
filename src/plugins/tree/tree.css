@@ -20,9 +20,26 @@
 }
 
 .gantt-tree-body .gantt-row-label span {
-    padding-left: 0;
     margin: 0;
-    vertical-align: middle;
+}
+
+.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button {
+    padding: 0;
+    position: relative;
+    top: -0.50em;
+}
+
+.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button.gantt-tree-expanded {
+    top: -0.40em;
+}
+
+.gantt-tree-body .gantt-row-label span.gantt-tree-handle {
+    padding: 0;
+    position: relative;
+}
+
+.gantt-tree-body .gantt-row-label span.gantt-tree-text {
+    padding-left: 0;
 }
 
 .gantt-row-label {
