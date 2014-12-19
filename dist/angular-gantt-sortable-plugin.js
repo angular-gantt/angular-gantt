@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -87,9 +87,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
-                        if (directiveName === 'ganttRowLabel') {
+                        if (directiveName === 'ganttRowLabel' && rowElement.attr('drag') === undefined) {
                             rowScope.checkDraggable = function() {
-                                return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                                var rowSortable = rowScope.row.model.sortable;
+
+                                if (typeof(rowSortable) === 'boolean') {
+                                    rowSortable = {enabled: rowSortable};
+                                }
+
+                                return utils.firstProperty([rowSortable], 'enabled', scope.enabled);
                             };
 
                             rowScope.onDropSuccess = function() {
