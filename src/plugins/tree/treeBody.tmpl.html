@@ -10,7 +10,7 @@
                 &nbsp;
             </div>
         </div>
-        <div ui-tree data-drag-enabled="false">
+        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">
             <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">
                 <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node
                     ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">

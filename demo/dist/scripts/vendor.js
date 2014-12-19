@@ -44648,7 +44648,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                &nbsp;\n' +
         '            </div>\n' +
         '        </div>\n' +
-        '        <div ui-tree data-drag-enabled="false">\n' +
+        '        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">\n' +
         '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
         '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node\n' +
         '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
