@@ -233,7 +233,7 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
 - **api.side.setWidth(width)**
 
-    Set side area width.
+    Set side area width. If given `width` is `undefined`, it will be computed automatically based on content.
 
 - **api.side.getWidth()**
 

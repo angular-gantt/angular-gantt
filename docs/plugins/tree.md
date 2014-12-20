@@ -53,10 +53,6 @@ Take care to define a non-recursive hierarchy model.
 ## API
 
 ### Methods
-
-- **api.tree.fitSideWidth()**
-
-    Adjusts the side section to the width of the biggest label.
     
 - **api.tree.refresh()**
 

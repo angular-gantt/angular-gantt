@@ -9,6 +9,9 @@
             if (this.gantt.options.value('showSide')) {
                 var width = this.gantt.options.value('sideWidth');
                 if (width === undefined && this.$element !== undefined) {
+                    if (this.$element.css('width') !== undefined) {
+                        this.$element.css('width', '');
+                    }
                     width = this.$element[0].offsetWidth;
                 }
                 if (width !== undefined) {

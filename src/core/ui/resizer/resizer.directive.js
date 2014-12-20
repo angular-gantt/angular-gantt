@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('gantt').directive('ganttResizer', ['$document', '$parse', 'ganttMouseOffset', function($document, $parse, mouseOffset) {
+    angular.module('gantt').directive('ganttResizer', ['$document', '$parse', '$timeout', 'ganttMouseOffset', function($document, $parse, $timeout, mouseOffset) {
         return {
             restrict: 'A',
             require: '^gantt',
@@ -29,11 +29,18 @@
                     $element.toggleClass('gantt-resizer-enabled', value);
 
                     if (value) {
+                        $element.on('dblclick', dblclick);
                         $element.on('mousedown', mousedown);
                     } else {
+                        $element.off('dblclick', dblclick);
                         $element.off('mousedown', mousedown);
                     }
                 });
+
+                function dblclick(event) {
+                    event.preventDefault();
+                    setWidth(undefined);
+                }
 
                 function mousedown(event) {
                     event.preventDefault();
@@ -75,6 +82,10 @@
                         if (eventTopic !== undefined) {
                             api[eventTopic].raise.resize(width);
                         }
+
+                        $timeout(function() {
+                            ganttCtrl.gantt.columnsManager.updateColumnsMeta();
+                        });
                     }
                 }
 

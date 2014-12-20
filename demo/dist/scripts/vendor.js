@@ -41383,6 +41383,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (this.gantt.options.value('showSide')) {
                 var width = this.gantt.options.value('sideWidth');
                 if (width === undefined && this.$element !== undefined) {
+                    if (this.$element.css('width') !== undefined) {
+                        this.$element.css('width', '');
+                    }
                     width = this.$element[0].offsetWidth;
                 }
                 if (width !== undefined) {
@@ -41910,7 +41913,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt').directive('ganttResizer', ['$document', '$parse', 'ganttMouseOffset', function($document, $parse, mouseOffset) {
+    angular.module('gantt').directive('ganttResizer', ['$document', '$parse', '$timeout', 'ganttMouseOffset', function($document, $parse, $timeout, mouseOffset) {
         return {
             restrict: 'A',
             require: '^gantt',
@@ -41938,11 +41941,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $element.toggleClass('gantt-resizer-enabled', value);
 
                     if (value) {
+                        $element.on('dblclick', dblclick);
                         $element.on('mousedown', mousedown);
                     } else {
+                        $element.off('dblclick', dblclick);
                         $element.off('mousedown', mousedown);
                     }
                 });
+
+                function dblclick(event) {
+                    event.preventDefault();
+                    setWidth(undefined);
+                }
 
                 function mousedown(event) {
                     event.preventDefault();
@@ -41984,6 +41994,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (eventTopic !== undefined) {
                             api[eventTopic].raise.resize(width);
                         }
+
+                        $timeout(function() {
+                            ganttCtrl.gantt.columnsManager.updateColumnsMeta();
+                        });
                     }
                 }
 
@@ -44037,22 +44051,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         sideContentElement.append($compile(ifElement)(labelsScope));
                     }
                 });
-
-                function fitSideWidthToLabels() {
-                    var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
-                    var newSideWidth = 0;
-
-                    angular.forEach(labels, function (label) {
-                        var width = label.children[0].offsetWidth;
-                        newSideWidth = Math.max(newSideWidth, width);
-                    });
-
-                    if (newSideWidth >= 0) {
-                        api.side.setWidth(newSideWidth);
-                    }
-                }
-
-                api.registerMethod('tree', 'fitSideWidth', fitSideWidthToLabels, this);
             }
         };
     }]);
