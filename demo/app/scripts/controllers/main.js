@@ -40,6 +40,7 @@ angular.module('angularGanttDemoApp')
             currentDateValue: new Date(2013, 9, 23, 11, 20, 0),
             draw: false,
             readOnly: false,
+            groupDisplayMode: 'group',
             filterTask: '',
             filterRow: '',
             timeFrames: {

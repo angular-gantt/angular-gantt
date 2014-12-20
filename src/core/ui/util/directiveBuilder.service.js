@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').service('GanttDirectiveBuilder', [function() {
+    angular.module('gantt').service('GanttDirectiveBuilder', ['$templateCache', function($templateCache) {
         var DirectiveBuilder = function DirectiveBuilder(directiveName, templateUrl, require, restrict) {
             var self = this;
 
@@ -24,11 +24,13 @@
                     replace: self.replace,
                     scope: self.scope,
                     templateUrl: function(tElement, tAttrs) {
-                        if (tAttrs.templateUrl === undefined) {
-                            return templateUrl;
-                        } else {
-                            return tAttrs.templateUrl;
+                        if (tAttrs.templateUrl !== undefined) {
+                            templateUrl = tAttrs.templateUrl;
                         }
+                        if (tAttrs.template !== undefined) {
+                            $templateCache.put(templateUrl, tAttrs.template);
+                        }
+                        return templateUrl;
                     },
                     compile: function () {
                         return {

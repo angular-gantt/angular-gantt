@@ -15,6 +15,11 @@
 
         // Updates the pos and size of the task according to the from - to date
         Task.prototype.updatePosAndSize = function() {
+            var oldModelLeft = this.modelLeft;
+            var oldModelWidth = this.modelWidth;
+            var oldTruncatedRight = this.truncatedRight;
+            var oldTruncatedLeft = this.truncatedLeft;
+
             this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
             this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
 
@@ -52,6 +57,13 @@
             }
 
             this.updateView();
+            if (!this.rowsManager.gantt.isRefreshingColumns &&
+                (oldModelLeft !== this.modelLeft ||
+                oldModelWidth !== this.modelWidth ||
+                oldTruncatedRight !== this.truncatedRight ||
+                oldTruncatedLeft !== this.truncatedLeft)) {
+                this.rowsManager.gantt.api.tasks.raise.viewChange(this);
+            }
         };
 
         Task.prototype.updateView = function() {

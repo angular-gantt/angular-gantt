@@ -1,0 +1,54 @@
+(function(){
+    'use strict';
+    angular.module('gantt.groups').controller('GanttGroupController', ['$scope', 'GanttTaskGroup', 'ganttUtils', function($scope, TaskGroup, utils) {
+        var updateTaskGroup = function() {
+            var rowGroups = $scope.row.model.groups;
+
+            if (typeof(rowGroups) === 'boolean') {
+                rowGroups = {enabled: rowGroups};
+            }
+
+            var enabledValue = utils.firstProperty([rowGroups], 'enabled', $scope.pluginScope.enabled);
+            if (enabledValue) {
+                $scope.display = utils.firstProperty([rowGroups], 'display', $scope.pluginScope.display);
+                $scope.taskGroup = new TaskGroup($scope.row, $scope.pluginScope);
+
+                $scope.row.setFromTo();
+                $scope.row.setFromToByValues($scope.taskGroup.from, $scope.taskGroup.to);
+            } else {
+                $scope.taskGroup = undefined;
+                $scope.display = undefined;
+            }
+        };
+
+        $scope.gantt.api.tasks.on.change($scope, function(task) {
+            if ($scope.taskGroup !== undefined) {
+                if ($scope.taskGroup.tasks.indexOf(task) > -1) {
+                    $scope.$apply(function() {
+                        updateTaskGroup();
+                    });
+                } else {
+                    var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
+                    if (descendants.indexOf(task.row) > -1) {
+                        $scope.$apply(function() {
+                            updateTaskGroup();
+                        });
+                    }
+                }
+            }
+        });
+
+        $scope.pluginScope.$watch('display', function() {
+            updateTaskGroup();
+        });
+
+        $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
+            updateTaskGroup();
+        });
+
+        $scope.gantt.api.columns.on.refresh($scope, function() {
+            updateTaskGroup();
+        });
+    }]);
+}());
+

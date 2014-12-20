@@ -1,0 +1,54 @@
+# Groups
+
+Groups tasks into a single row based on defined hierarchy See [Tree Plugin](tree.md) to define this tree hierarchy.
+
+## Usage
+
+    angular.module('myApp', ['gantt', 'gantt.groups']);
+
+<!-- -->
+
+    <div gantt>
+      <gantt-groups enabled="..." display="...">
+      </gantt-groups>
+    </div>
+
+## Attributes
+
+- #### enabled
+
+    Enable display of groups.
+
+    default: `true`
+
+- #### display
+
+    Display mode of groups.
+
+    `group`: Display a single object representing the grouped task.
+    `overview`: Display a minimized overview of each grouped task.
+
+    default: `group`
+
+Attributes can be defined for a specific `Row` or `Task` object using an object property named `groups`
+
+    {
+      ...
+      // Inside Row or Task object
+      // Full options object
+      'groups': {
+        'enabled': <Boolean>,
+        'display': '...',
+      }
+
+      // Or shortcut for enabled property
+      'groups': <Boolean>
+    }
+
+## API
+
+### Methods
+    
+- **api.groups.refresh()**
+
+    Refresh hierarchy of groups based on model.

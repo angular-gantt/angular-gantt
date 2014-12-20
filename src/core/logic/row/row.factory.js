@@ -184,17 +184,26 @@
         };
 
         Row.prototype.setFromToByTask = function(task) {
-            if (this.from === undefined) {
-                this.from = moment(task.model.from);
-            } else if (task.model.from < this.from) {
-                this.from = moment(task.model.from);
+            this.setFromToByValues(task.model.from, task.model.to);
+        };
+
+        Row.prototype.setFromToByValues = function(from, to) {
+            if (from !== undefined) {
+                if (this.from === undefined) {
+                    this.from = moment(from);
+                } else if (from < this.from) {
+                    this.from = moment(from);
+                }
             }
 
-            if (this.to === undefined) {
-                this.to = moment(task.model.to);
-            } else if (task.model.to > this.to) {
-                this.to = moment(task.model.to);
+            if (to !== undefined) {
+                if (this.to === undefined) {
+                    this.to = moment(to);
+                } else if (to > this.to) {
+                    this.to = moment(to);
+                }
             }
+
         };
 
         Row.prototype.sortTasks = function() {
