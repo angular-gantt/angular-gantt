@@ -206,7 +206,7 @@
 <!-- -->
 
 <pre><code>&lt;div gantt&gt;
-    &lt;gantt-movable enabled="true",
+    &lt;gantt-movable enabled="true"
                    allow-moving="true" 
                    allow-resizing="true"
                    allow-row-switching="true"&gt;
@@ -217,7 +217,7 @@
 <ul>
 <li>
 <h3 id="enabled">enabled</h3>
-<p>Enable moving and resizing of tasks.</p>
+<p>Enable moving and resizing of tasks. Can also be a function (<code>fn(event)</code>) which has one parameter for the event. Such a function can be used to only activate the moving when a certain mouse button is pressed or the task is in a certain condition.</p>
 <p>default: <code>true</code></p>
 </li>
 <li>
@@ -240,12 +240,16 @@
 <pre><code>{
   ...
   // Inside Row or Task object
+  // Full options object
   'movable': {
     'enabled': &lt;Boolean&gt;,
     'allowMoving': &lt;Boolean&gt;,
     'allowResizing': &lt;Boolean&gt;,
     'allowRowSwitching': &lt;Boolean&gt;
   }
+
+  // Or shortcut for enabled property
+  'movable': &lt;Boolean&gt;
 }
 </code></pre>
 <h2 id="api">API</h2>

@@ -203,6 +203,8 @@
         
             <li><a href="#shift-column-magnet">shift-column-magnet</a></li>
         
+            <li><a href="#time-frames-magnet">time-frames-magnet</a></li>
+        
             <li><a href="#data">data</a></li>
         
             <li><a href="#filter-task-filter-task-comparator">filter-task, filter-task-comparator</a></li>
@@ -310,11 +312,14 @@ have wider columns for days than for other column scales.</p>
 <li>
 <h3 id="column-magnet">column-magnet</h3>
 <p>Precision of the column. All date and time computation will be rounded using this precision. It will also snap
-to start and end of timeFrames and columns.</p>
+to borders of timeFrames and columns is <code>time-frames-magnet</code> is <code>true</code>.</p>
 <p>Format is <code>&lt;integer&gt; &lt;momentjs-unit&gt;</code>. See <a href="http://momentjs.com/docs/#/manipulating/add/">momentJS#add()</a> for 
 a list of supported unit.</p>
+<p>If <code>column-magnet</code> value is greater than <code>view-scale</code> or defined to <code>column</code> value, it will apply magnets to 
+column borders. You can't defined a <code>column-magnet</code> value that covers multiple columns.</p>
 <p>Examples:</p>
 <ul>
+<li><code>column</code></li>
 <li><code>1 minute</code></li>
 <li><code>30 minutes</code></li>
 <li><code>1 hour</code></li>
@@ -326,6 +331,11 @@ a list of supported unit.</p>
 <h3 id="shift-column-magnet">shift-column-magnet</h3>
 <p>Precision of the column when holding down SHIFT key.</p>
 <p>If undefined, it will use 0.25 viewScale.</p>
+</li>
+<li>
+<h3 id="time-frames-magnet">time-frames-magnet</h3>
+<p>Make timeFrame borders snap. Columns magnet must be enabled too.</p>
+<p>default: <code>true</code></p>
 </li>
 <li>
 <h3 id="data">data</h3>
@@ -424,10 +434,12 @@ have different time schedules than usual.</p>
                     noon: {
                         start: moment('12:00', 'HH:mm'),
                         end: moment('13:30', 'HH:mm'),
+                        magnet: false, // This will disable magnet snapping
                         working: false, // This is a resting period
                         default: true // It will be used for each day
                     },
                     closed: {
+                        magnet: false, // This will disable magnet snapping
                         working: false // We don't work when it's closed
                     }
 };
@@ -566,6 +578,7 @@ template included in <code>angular-gantt.js</code>.</em></p>
 <li><code>quarter</code></li>
 <li><code>year</code></li>
 </ul>
+<p>An optional number value can be prepended to this scale, like <code>5 minutes</code>, <code>3 hours</code> or <code>6 months</code>.</p>
 <p>default: <code>day</code></p>
 </li>
 </ul>

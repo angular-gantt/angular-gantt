@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.4
+ * @license AngularJS v1.3.8
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.4/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.8/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -109,6 +109,7 @@ function minErr(module, ErrorConstructor) {
   isWindow: true,
   isScope: true,
   isFile: true,
+  isFormData: true,
   isBlob: true,
   isBoolean: true,
   isPromiseLike: true,
@@ -226,8 +227,8 @@ if ('i' !== 'I'.toLowerCase()) {
 }
 
 
-var /** holds major version number for IE or NaN for real browsers */
-    msie,
+var
+    msie,             // holds major version number for IE, or NaN if UA is not IE.
     jqLite,           // delay binding since jQuery could be loaded after us.
     jQuery,           // delay binding
     slice             = [].slice,
@@ -464,6 +465,8 @@ noop.$inject = [];
        return (transformationFn || angular.identity)(value);
      };
    ```
+  * @param {*} value to be returned.
+  * @returns {*} the value passed in.
  */
 function identity($) {return $;}
 identity.$inject = [];
@@ -630,6 +633,11 @@ function isFile(obj) {
 }
 
 
+function isFormData(obj) {
+  return toString.call(obj) === '[object FormData]';
+}
+
+
 function isBlob(obj) {
   return toString.call(obj) === '[object Blob]';
 }
@@ -713,7 +721,7 @@ function arrayRemove(array, value) {
  * Creates a deep copy of `source`, which should be an object or an array.
  *
  * * If no destination is supplied, a copy of the object or array is created.
- * * If a destination is provided, all of its elements (for array) or properties (for objects)
+ * * If a destination is provided, all of its elements (for arrays) or properties (for objects)
  *   are deleted and then all elements/properties from the source are copied to it.
  * * If `source` is not an object or array (inc. `null` and `undefined`), `source` is returned.
  * * If `source` is identical to 'destination' an exception will be thrown.
@@ -1028,12 +1036,16 @@ function toJsonReplacer(key, value) {
  * stripped since angular uses this notation internally.
  *
  * @param {Object|Array|Date|string|number} obj Input to be serialized into JSON.
- * @param {boolean=} pretty If set to true, the JSON output will contain newlines and whitespace.
+ * @param {boolean|number=} pretty If set to true, the JSON output will contain newlines and whitespace.
+ *    If set to an integer, the JSON output will contain that many spaces per indentation (the default is 2).
  * @returns {string|undefined} JSON-ified string representing `obj`.
  */
 function toJson(obj, pretty) {
   if (typeof obj === 'undefined') return undefined;
-  return JSON.stringify(obj, toJsonReplacer, pretty ? '  ' : null);
+  if (!isNumber(pretty)) {
+    pretty = pretty ? 2 : null;
+  }
+  return JSON.stringify(obj, toJsonReplacer, pretty);
 }
 
 
@@ -1047,7 +1059,7 @@ function toJson(obj, pretty) {
  * Deserializes a JSON string.
  *
  * @param {string} json JSON string to deserialize.
- * @returns {Object|Array|string|number} Deserialized thingy.
+ * @returns {Object|Array|string|number} Deserialized JSON string.
  */
 function fromJson(json) {
   return isString(json)
@@ -1220,7 +1232,7 @@ function getNgAttribute(element, ngAttr) {
  * {@link angular.bootstrap} instead. AngularJS applications cannot be nested within each other.
  *
  * You can specify an **AngularJS module** to be used as the root module for the application.  This
- * module will be loaded into the {@link auto.$injector} when the application is bootstrapped and
+ * module will be loaded into the {@link auto.$injector} when the application is bootstrapped. It
  * should contain the application code needed or have dependencies on other modules that will
  * contain the code. See {@link angular.module} for more information.
  *
@@ -1228,7 +1240,7 @@ function getNgAttribute(element, ngAttr) {
  * document would not be compiled, the `AppController` would not be instantiated and the `{{ a+b }}`
  * would not be resolved to `3`.
  *
- * `ngApp` is the easiest, and most common, way to bootstrap an application.
+ * `ngApp` is the easiest, and most common way to bootstrap an application.
  *
  <example module="ngAppDemo">
    <file name="index.html">
@@ -1488,7 +1500,12 @@ function reloadWithDebugInfo() {
  * @param {DOMElement} element DOM element which is the root of angular application.
  */
 function getTestability(rootElement) {
-  return angular.element(rootElement).injector().get('$$testability');
+  var injector = angular.element(rootElement).injector();
+  if (!injector) {
+    throw ngMinErr('test',
+      'no injector found for element argument to getTestability');
+  }
+  return injector.get('$$testability');
 }
 
 var SNAKE_CASE_REGEXP = /[A-Z]/g;
@@ -2081,7 +2098,8 @@ function toDebugString(obj) {
   $TimeoutProvider,
   $$RAFProvider,
   $$AsyncCallbackProvider,
-  $WindowProvider
+  $WindowProvider,
+  $$jqLiteProvider
 */
 
 
@@ -2100,11 +2118,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.4',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.8',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 4,
-  codeName: 'highfalutin-petroglyph'
+  dot: 8,
+  codeName: 'prophetic-narwhal'
 };
 
 
@@ -2234,7 +2252,8 @@ function publishExternalAPI(angular) {
         $timeout: $TimeoutProvider,
         $window: $WindowProvider,
         $$rAF: $$RAFProvider,
-        $$asyncCallback: $$AsyncCallbackProvider
+        $$asyncCallback: $$AsyncCallbackProvider,
+        $$jqLite: $$jqLiteProvider
       });
     }
   ]);
@@ -3244,6 +3263,27 @@ forEach({
   JQLite.prototype.unbind = JQLite.prototype.off;
 });
 
+
+// Provider for private $$jqLite service
+function $$jqLiteProvider() {
+  this.$get = function $$jqLite() {
+    return extend(JQLite, {
+      hasClass: function(node, classes) {
+        if (node.attr) node = node[0];
+        return jqLiteHasClass(node, classes);
+      },
+      addClass: function(node, classes) {
+        if (node.attr) node = node[0];
+        return jqLiteAddClass(node, classes);
+      },
+      removeClass: function(node, classes) {
+        if (node.attr) node = node[0];
+        return jqLiteRemoveClass(node, classes);
+      }
+    });
+  };
+}
+
 /**
  * Computes a hash of an 'obj'.
  * Hash of a:
@@ -3496,6 +3536,7 @@ function annotate(fn, strictDi, name) {
  * Return an instance of the service.
  *
  * @param {string} name The name of the instance to retrieve.
+ * @param {string} caller An optional string to provide the origin of the function call for error messages.
  * @return {*} The instance.
  */
 
@@ -3946,14 +3987,17 @@ function createInjector(modulesToLoad, strictDi) {
           }
       },
       providerInjector = (providerCache.$injector =
-          createInternalInjector(providerCache, function() {
+          createInternalInjector(providerCache, function(serviceName, caller) {
+            if (angular.isString(caller)) {
+              path.push(caller);
+            }
             throw $injectorMinErr('unpr', "Unknown provider: {0}", path.join(' <- '));
           })),
       instanceCache = {},
       instanceInjector = (instanceCache.$injector =
-          createInternalInjector(instanceCache, function(servicename) {
-            var provider = providerInjector.get(servicename + providerSuffix);
-            return instanceInjector.invoke(provider.$get, provider, undefined, servicename);
+          createInternalInjector(instanceCache, function(serviceName, caller) {
+            var provider = providerInjector.get(serviceName + providerSuffix, caller);
+            return instanceInjector.invoke(provider.$get, provider, undefined, serviceName);
           }));
 
 
@@ -3988,7 +4032,7 @@ function createInjector(modulesToLoad, strictDi) {
 
   function enforceReturnValue(name, factory) {
     return function enforcedReturnValue() {
-      var result = instanceInjector.invoke(factory, this, undefined, name);
+      var result = instanceInjector.invoke(factory, this);
       if (isUndefined(result)) {
         throw $injectorMinErr('undef', "Provider '{0}' must return a value from $get factory method.", name);
       }
@@ -4083,7 +4127,7 @@ function createInjector(modulesToLoad, strictDi) {
 
   function createInternalInjector(cache, factory) {
 
-    function getService(serviceName) {
+    function getService(serviceName, caller) {
       if (cache.hasOwnProperty(serviceName)) {
         if (cache[serviceName] === INSTANTIATING) {
           throw $injectorMinErr('cdep', 'Circular dependency found: {0}',
@@ -4094,7 +4138,7 @@ function createInjector(modulesToLoad, strictDi) {
         try {
           path.unshift(serviceName);
           cache[serviceName] = INSTANTIATING;
-          return cache[serviceName] = factory(serviceName);
+          return cache[serviceName] = factory(serviceName, caller);
         } catch (err) {
           if (cache[serviceName] === INSTANTIATING) {
             delete cache[serviceName];
@@ -4126,7 +4170,7 @@ function createInjector(modulesToLoad, strictDi) {
         args.push(
           locals && locals.hasOwnProperty(key)
           ? locals[key]
-          : getService(key)
+          : getService(key, serviceName)
         );
       }
       if (isArray(fn)) {
@@ -4870,6 +4914,11 @@ function Browser(window, document, $log, $sniffer) {
     }
   }
 
+  function getHash(url) {
+    var index = url.indexOf('#');
+    return index === -1 ? '' : url.substr(index + 1);
+  }
+
   /**
    * @private
    * Note: this method is used only by scenario runner
@@ -4999,8 +5048,10 @@ function Browser(window, document, $log, $sniffer) {
         }
         if (replace) {
           location.replace(url);
-        } else {
+        } else if (!sameBase) {
           location.href = url;
+        } else {
+          location.hash = getHash(url);
         }
       }
       return self;
@@ -5779,7 +5830,7 @@ function $TemplateCacheProvider() {
  * #### `multiElement`
  * When this property is set to true, the HTML compiler will collect DOM nodes between
  * nodes with the attributes `directive-name-start` and `directive-name-end`, and group them
- * together as the directive elements. It is recomended that this feature be used on directives
+ * together as the directive elements. It is recommended that this feature be used on directives
  * which are not strictly behavioural (such as {@link ngClick}), and which
  * do not manipulate or replace child nodes (such as {@link ngInclude}).
  *
@@ -6467,7 +6518,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
    * Retrieves or overrides the default regular expression that is used for whitelisting of safe
    * urls during a[href] sanitization.
    *
-   * The sanitization is a security measure aimed at prevent XSS attacks via html links.
+   * The sanitization is a security measure aimed at preventing XSS attacks via html links.
    *
    * Any url about to be assigned to a[href] via data-binding is first normalized and turned into
    * an absolute url. Afterwards, the url is matched against the `aHrefSanitizationWhitelist`
@@ -6534,7 +6585,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
    * * `ng-binding` CSS class
    * * `$binding` data property containing an array of the binding expressions
    *
-   * You may want to use this in production for a significant performance boost. See
+   * You may want to disable this in production for a significant performance boost. See
    * {@link guide/production#disabling-debug-data Disabling Debug Data} for more.
    *
    * The default value is true.
@@ -6571,6 +6622,21 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
     };
 
     Attributes.prototype = {
+      /**
+       * @ngdoc method
+       * @name $compile.directive.Attributes#$normalize
+       * @kind function
+       *
+       * @description
+       * Converts an attribute name (e.g. dash/colon/underscore-delimited string, optionally prefixed with `x-` or
+       * `data-`) to its normalized, camelCase form.
+       *
+       * Also there is special case for Moz prefix starting with upper case letter.
+       *
+       * For further information check out the guide on {@link guide/directive#matching-directives Matching Directives}
+       *
+       * @param {string} name Name to normalize
+       */
       $normalize: directiveNormalize,
 
 
@@ -7069,7 +7135,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
             // support ngAttr attribute binding
             ngAttrName = directiveNormalize(name);
             if (isNgAttr = NG_ATTR_BINDING.test(ngAttrName)) {
-              name = snake_case(ngAttrName.substr(6), '-');
+              name = name.replace(PREFIX_REGEXP, '')
+                .substr(8).replace(/_(.)/g, function(match, letter) {
+                  return letter.toUpperCase();
+                });
             }
 
             var directiveNName = ngAttrName.replace(/(Start|End)$/, '');
@@ -7981,7 +8050,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
 
     function addAttrInterpolateDirective(node, directives, value, name, allOrNothing) {
-      var interpolateFn = $interpolate(value, true);
+      var trustedContext = getTrustedContext(node, name);
+      allOrNothing = ALL_OR_NOTHING_ATTRS[name] || allOrNothing;
+
+      var interpolateFn = $interpolate(value, true, trustedContext, allOrNothing);
 
       // no interpolation found -> ignore
       if (!interpolateFn) return;
@@ -8006,15 +8078,15 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                           "ng- versions (such as ng-click instead of onclick) instead.");
                 }
 
-                // If the attribute was removed, then we are done
-                if (!attr[name]) {
-                  return;
+                // If the attribute has changed since last $interpolate()ed
+                var newValue = attr[name];
+                if (newValue !== value) {
+                  // we need to interpolate again since the attribute value has been updated
+                  // (e.g. by another directive's compile function)
+                  // ensure unset/empty values make interpolateFn falsy
+                  interpolateFn = newValue && $interpolate(newValue, true, trustedContext, allOrNothing);
+                  value = newValue;
                 }
-
-                // we need to interpolate again, in case the attribute value has been updated
-                // (e.g. by another directive's compile function)
-                interpolateFn = $interpolate(attr[name], true, getTrustedContext(node, name),
-                    ALL_OR_NOTHING_ATTRS[name] || allOrNothing);
 
                 // if attribute was updated so that there is no interpolation going on we don't want to
                 // register any observers
@@ -8149,13 +8221,6 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 var PREFIX_REGEXP = /^((?:x|data)[\:\-_])/i;
 /**
  * Converts all accepted directives format into proper directive name.
- * All of these will become 'myDirective':
- *   my:Directive
- *   my-directive
- *   x-my-directive
- *   data-my:directive
- *
- * Also there is special case for Moz prefix starting with upper case letter.
  * @param name Name to normalize
  */
 function directiveNormalize(name) {
@@ -8483,21 +8548,32 @@ function $ExceptionHandlerProvider() {
 
 var APPLICATION_JSON = 'application/json';
 var CONTENT_TYPE_APPLICATION_JSON = {'Content-Type': APPLICATION_JSON + ';charset=utf-8'};
-var JSON_START = /^\s*(\[|\{[^\{])/;
-var JSON_END = /[\}\]]\s*$/;
+var JSON_START = /^\[|^\{(?!\{)/;
+var JSON_ENDS = {
+  '[': /]$/,
+  '{': /}$/
+};
 var JSON_PROTECTION_PREFIX = /^\)\]\}',?\n/;
 
 function defaultHttpResponseTransform(data, headers) {
   if (isString(data)) {
-    // strip json vulnerability protection prefix
-    data = data.replace(JSON_PROTECTION_PREFIX, '');
-    var contentType = headers('Content-Type');
-    if ((contentType && contentType.indexOf(APPLICATION_JSON) === 0 && data.trim()) ||
-        (JSON_START.test(data) && JSON_END.test(data))) {
-      data = fromJson(data);
+    // Strip json vulnerability protection prefix and trim whitespace
+    var tempData = data.replace(JSON_PROTECTION_PREFIX, '').trim();
+
+    if (tempData) {
+      var contentType = headers('Content-Type');
+      if ((contentType && (contentType.indexOf(APPLICATION_JSON) === 0)) || isJsonLike(tempData)) {
+        data = fromJson(tempData);
+      }
     }
   }
+
   return data;
+}
+
+function isJsonLike(str) {
+    var jsonStart = str.match(JSON_START);
+    return jsonStart && JSON_ENDS[jsonStart[0]].test(str);
 }
 
 /**
@@ -8562,16 +8638,17 @@ function headersGetter(headers) {
  * This function is used for both request and response transforming
  *
  * @param {*} data Data to transform.
- * @param {function(string=)} headers Http headers getter fn.
+ * @param {function(string=)} headers HTTP headers getter fn.
+ * @param {number} status HTTP status code of the response.
  * @param {(Function|Array.<Function>)} fns Function or an array of functions.
  * @returns {*} Transformed data.
  */
-function transformData(data, headers, fns) {
+function transformData(data, headers, status, fns) {
   if (isFunction(fns))
-    return fns(data, headers);
+    return fns(data, headers, status);
 
   forEach(fns, function(fn) {
-    data = fn(data, headers);
+    data = fn(data, headers, status);
   });
 
   return data;
@@ -8623,7 +8700,7 @@ function $HttpProvider() {
 
     // transform outgoing request data
     transformRequest: [function(d) {
-      return isObject(d) && !isFile(d) && !isBlob(d) ? toJson(d) : d;
+      return isObject(d) && !isFile(d) && !isBlob(d) && !isFormData(d) ? toJson(d) : d;
     }],
 
     // default headers
@@ -8850,7 +8927,7 @@ function $HttpProvider() {
      *
      * Both requests and responses can be transformed using transformation functions: `transformRequest`
      * and `transformResponse`. These properties can be a single function that returns
-     * the transformed value (`{function(data, headersGetter)`) or an array of such transformation functions,
+     * the transformed value (`{function(data, headersGetter, status)`) or an array of such transformation functions,
      * which allows you to `push` or `unshift` a new transformation function into the transformation chain.
      *
      * ### Default Transformations
@@ -9091,12 +9168,14 @@ function $HttpProvider() {
      *      `{function(data, headersGetter)|Array.<function(data, headersGetter)>}` –
      *      transform function or an array of such functions. The transform function takes the http
      *      request body and headers and returns its transformed (typically serialized) version.
-     *      See {@link #overriding-the-default-transformations-per-request Overriding the Default Transformations}
+     *      See {@link ng.$http#overriding-the-default-transformations-per-request
+     *      Overriding the Default Transformations}
      *    - **transformResponse** –
-     *      `{function(data, headersGetter)|Array.<function(data, headersGetter)>}` –
+     *      `{function(data, headersGetter, status)|Array.<function(data, headersGetter, status)>}` –
      *      transform function or an array of such functions. The transform function takes the http
-     *      response body and headers and returns its transformed (typically deserialized) version.
-     *      See {@link #overriding-the-default-transformations-per-request Overriding the Default Transformations}
+     *      response body, headers and status and returns its transformed (typically deserialized) version.
+     *      See {@link ng.$http#overriding-the-default-transformations-per-request
+     *      Overriding the Default Transformations}
      *    - **cache** – `{boolean|Cache}` – If true, a default $http cache will be used to cache the
      *      GET request, otherwise if a cache instance built with
      *      {@link ng.$cacheFactory $cacheFactory}, this cache will be used for
@@ -9217,24 +9296,23 @@ function $HttpProvider() {
 </example>
      */
     function $http(requestConfig) {
-      var config = {
-        method: 'get',
-        transformRequest: defaults.transformRequest,
-        transformResponse: defaults.transformResponse
-      };
-      var headers = mergeHeaders(requestConfig);
 
       if (!angular.isObject(requestConfig)) {
         throw minErr('$http')('badreq', 'Http request configuration must be an object.  Received: {0}', requestConfig);
       }
 
-      extend(config, requestConfig);
-      config.headers = headers;
+      var config = extend({
+        method: 'get',
+        transformRequest: defaults.transformRequest,
+        transformResponse: defaults.transformResponse
+      }, requestConfig);
+
+      config.headers = mergeHeaders(requestConfig);
       config.method = uppercase(config.method);
 
       var serverRequest = function(config) {
-        headers = config.headers;
-        var reqData = transformData(config.data, headersGetter(headers), config.transformRequest);
+        var headers = config.headers;
+        var reqData = transformData(config.data, headersGetter(headers), undefined, config.transformRequest);
 
         // strip content-type if data is undefined
         if (isUndefined(reqData)) {
@@ -9250,7 +9328,7 @@ function $HttpProvider() {
         }
 
         // send request
-        return sendReq(config, reqData, headers).then(transformResponse, transformResponse);
+        return sendReq(config, reqData).then(transformResponse, transformResponse);
       };
 
       var chain = [serverRequest, undefined];
@@ -9295,11 +9373,28 @@ function $HttpProvider() {
         if (!response.data) {
           resp.data = response.data;
         } else {
-          resp.data = transformData(response.data, response.headers, config.transformResponse);
+          resp.data = transformData(response.data, response.headers, response.status, config.transformResponse);
         }
         return (isSuccess(response.status))
           ? resp
           : $q.reject(resp);
+      }
+
+      function executeHeaderFns(headers) {
+        var headerContent, processedHeaders = {};
+
+        forEach(headers, function(headerFn, header) {
+          if (isFunction(headerFn)) {
+            headerContent = headerFn();
+            if (headerContent != null) {
+              processedHeaders[header] = headerContent;
+            }
+          } else {
+            processedHeaders[header] = headerFn;
+          }
+        });
+
+        return processedHeaders;
       }
 
       function mergeHeaders(config) {
@@ -9324,23 +9419,7 @@ function $HttpProvider() {
         }
 
         // execute if header value is a function for merged headers
-        execHeaders(reqHeaders);
-        return reqHeaders;
-
-        function execHeaders(headers) {
-          var headerContent;
-
-          forEach(headers, function(headerFn, header) {
-            if (isFunction(headerFn)) {
-              headerContent = headerFn();
-              if (headerContent != null) {
-                headers[header] = headerContent;
-              } else {
-                delete headers[header];
-              }
-            }
-          });
-        }
+        return executeHeaderFns(reqHeaders);
       }
     }
 
@@ -9483,11 +9562,12 @@ function $HttpProvider() {
      * !!! ACCESSES CLOSURE VARS:
      * $httpBackend, defaults, $log, $rootScope, defaultCache, $http.pendingRequests
      */
-    function sendReq(config, reqData, reqHeaders) {
+    function sendReq(config, reqData) {
       var deferred = $q.defer(),
           promise = deferred.promise,
           cache,
           cachedResp,
+          reqHeaders = config.headers,
           url = buildUrl(config.url, config.params);
 
       $http.pendingRequests.push(config);
@@ -9506,8 +9586,7 @@ function $HttpProvider() {
         if (isDefined(cachedResp)) {
           if (isPromiseLike(cachedResp)) {
             // cached request has already been sent, but there is no response yet
-            cachedResp.then(removePendingReq, removePendingReq);
-            return cachedResp;
+            cachedResp.then(resolvePromiseWithResult, resolvePromiseWithResult);
           } else {
             // serving from cache
             if (isArray(cachedResp)) {
@@ -9585,6 +9664,9 @@ function $HttpProvider() {
         });
       }
 
+      function resolvePromiseWithResult(result) {
+        resolvePromise(result.data, result.status, shallowCopy(result.headers()), result.statusText);
+      }
 
       function removePendingReq() {
         var idx = $http.pendingRequests.indexOf(config);
@@ -9746,7 +9828,9 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
 
     function completeRequest(callback, status, response, headersString, statusText) {
       // cancel timeout and subsequent timeout promise resolution
-      timeoutId && $browserDefer.cancel(timeoutId);
+      if (timeoutId !== undefined) {
+        $browserDefer.cancel(timeoutId);
+      }
       jsonpDone = xhr = null;
 
       callback(status, response, headersString, statusText);
@@ -10194,33 +10278,33 @@ function $IntervalProvider() {
       *             // Don't start a new fight if we are already fighting
       *             if ( angular.isDefined(stop) ) return;
       *
-      *           stop = $interval(function() {
-      *             if ($scope.blood_1 > 0 && $scope.blood_2 > 0) {
-      *               $scope.blood_1 = $scope.blood_1 - 3;
-      *               $scope.blood_2 = $scope.blood_2 - 4;
-      *             } else {
-      *               $scope.stopFight();
+      *             stop = $interval(function() {
+      *               if ($scope.blood_1 > 0 && $scope.blood_2 > 0) {
+      *                 $scope.blood_1 = $scope.blood_1 - 3;
+      *                 $scope.blood_2 = $scope.blood_2 - 4;
+      *               } else {
+      *                 $scope.stopFight();
+      *               }
+      *             }, 100);
+      *           };
+      *
+      *           $scope.stopFight = function() {
+      *             if (angular.isDefined(stop)) {
+      *               $interval.cancel(stop);
+      *               stop = undefined;
       *             }
-      *           }, 100);
-      *         };
+      *           };
       *
-      *         $scope.stopFight = function() {
-      *           if (angular.isDefined(stop)) {
-      *             $interval.cancel(stop);
-      *             stop = undefined;
-      *           }
-      *         };
+      *           $scope.resetFight = function() {
+      *             $scope.blood_1 = 100;
+      *             $scope.blood_2 = 120;
+      *           };
       *
-      *         $scope.resetFight = function() {
-      *           $scope.blood_1 = 100;
-      *           $scope.blood_2 = 120;
-      *         };
-      *
-      *         $scope.$on('$destroy', function() {
-      *           // Make sure that the interval is destroyed too
-      *           $scope.stopFight();
-      *         });
-      *       }])
+      *           $scope.$on('$destroy', function() {
+      *             // Make sure that the interval is destroyed too
+      *             $scope.stopFight();
+      *           });
+      *         }])
       *       // Register the 'myCurrentTime' directive factory method.
       *       // We inject $interval and dateFilter service since the factory method is DI.
       *       .directive('myCurrentTime', ['$interval', 'dateFilter',
@@ -10463,6 +10547,10 @@ function stripHash(url) {
   return index == -1 ? url : url.substr(0, index);
 }
 
+function trimEmptyHash(url) {
+  return url.replace(/(#.+)|#$/, '$1');
+}
+
 
 function stripFile(url) {
   return url.substr(0, stripHash(url).lastIndexOf('/') + 1);
@@ -10574,16 +10662,25 @@ function LocationHashbangUrl(appBase, hashPrefix) {
    */
   this.$$parse = function(url) {
     var withoutBaseUrl = beginsWith(appBase, url) || beginsWith(appBaseNoFile, url);
-    var withoutHashUrl = withoutBaseUrl.charAt(0) == '#'
-        ? beginsWith(hashPrefix, withoutBaseUrl)
-        : (this.$$html5)
-          ? withoutBaseUrl
-          : '';
+    var withoutHashUrl;
 
-    if (!isString(withoutHashUrl)) {
-      throw $locationMinErr('ihshprfx', 'Invalid url "{0}", missing hash prefix "{1}".', url,
-          hashPrefix);
+    if (withoutBaseUrl.charAt(0) === '#') {
+
+      // The rest of the url starts with a hash so we have
+      // got either a hashbang path or a plain hash fragment
+      withoutHashUrl = beginsWith(hashPrefix, withoutBaseUrl);
+      if (isUndefined(withoutHashUrl)) {
+        // There was no hashbang prefix so we just have a hash fragment
+        withoutHashUrl = withoutBaseUrl;
+      }
+
+    } else {
+      // There was no hashbang path nor hash fragment:
+      // If we are in HTML5 mode we use what is left as the path;
+      // Otherwise we ignore what is left
+      withoutHashUrl = this.$$html5 ? withoutBaseUrl : '';
     }
+
     parseAppUrl(withoutHashUrl, this);
 
     this.$$path = removeWindowsDriveName(this.$$path, withoutHashUrl, appBase);
@@ -10946,7 +11043,7 @@ var locationPrototype = {
    *
    *
    * ```js
-   * // given url http://example.com/some/path?foo=bar&baz=xoxo#hashValue
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo#hashValue
    * var hash = $location.hash();
    * // => "hashValue"
    * ```
@@ -11170,8 +11267,8 @@ function $LocationProvider() {
    * @param {string=} oldState History state object that was before it was changed.
    */
 
-  this.$get = ['$rootScope', '$browser', '$sniffer', '$rootElement',
-      function($rootScope, $browser, $sniffer, $rootElement) {
+  this.$get = ['$rootScope', '$browser', '$sniffer', '$rootElement', '$window',
+      function($rootScope, $browser, $sniffer, $rootElement, $window) {
     var $location,
         LocationMode,
         baseHref = $browser.baseHref(), // if base[href] is undefined, it defaults to ''
@@ -11253,7 +11350,7 @@ function $LocationProvider() {
           if ($location.absUrl() != $browser.url()) {
             $rootScope.$apply();
             // hack to work around FF6 bug 684208 when scenario runner clicks on links
-            window.angular['ff-684208-preventDefault'] = true;
+            $window.angular['ff-684208-preventDefault'] = true;
           }
         }
       }
@@ -11298,10 +11395,11 @@ function $LocationProvider() {
 
     // update browser
     $rootScope.$watch(function $locationWatch() {
-      var oldUrl = $browser.url();
+      var oldUrl = trimEmptyHash($browser.url());
+      var newUrl = trimEmptyHash($location.absUrl());
       var oldState = $browser.state();
       var currentReplace = $location.$$replace;
-      var urlOrStateChanged = oldUrl !== $location.absUrl() ||
+      var urlOrStateChanged = oldUrl !== newUrl ||
         ($location.$$html5 && $sniffer.history && oldState !== $location.$$state);
 
       if (initializing || urlOrStateChanged) {
@@ -11868,6 +11966,8 @@ Parser.prototype = {
       primary = this.arrayDeclaration();
     } else if (this.expect('{')) {
       primary = this.object();
+    } else if (this.peek().identifier && this.peek().text in CONSTANTS) {
+      primary = CONSTANTS[this.consume().text];
     } else if (this.peek().identifier) {
       primary = this.identifier();
     } else if (this.peek().constant) {
@@ -11970,7 +12070,7 @@ Parser.prototype = {
       id += this.consume().text + this.consume().text;
     }
 
-    return CONSTANTS[id] || getterFn(id, this.options, this.text);
+    return getterFn(id, this.options, this.text);
   },
 
   constant: function() {
@@ -12104,8 +12204,8 @@ Parser.prototype = {
   logicalAND: function() {
     var left = this.equality();
     var token;
-    if ((token = this.expect('&&'))) {
-      left = this.binaryFn(left, token.text, this.logicalAND(), true);
+    while ((token = this.expect('&&'))) {
+      left = this.binaryFn(left, token.text, this.equality(), true);
     }
     return left;
   },
@@ -12113,8 +12213,8 @@ Parser.prototype = {
   equality: function() {
     var left = this.relational();
     var token;
-    if ((token = this.expect('==','!=','===','!=='))) {
-      left = this.binaryFn(left, token.text, this.equality());
+    while ((token = this.expect('==','!=','===','!=='))) {
+      left = this.binaryFn(left, token.text, this.relational());
     }
     return left;
   },
@@ -12122,8 +12222,8 @@ Parser.prototype = {
   relational: function() {
     var left = this.additive();
     var token;
-    if ((token = this.expect('<', '>', '<=', '>='))) {
-      left = this.binaryFn(left, token.text, this.relational());
+    while ((token = this.expect('<', '>', '<=', '>='))) {
+      left = this.binaryFn(left, token.text, this.additive());
     }
     return left;
   },
@@ -12160,17 +12260,16 @@ Parser.prototype = {
   },
 
   fieldAccess: function(object) {
-    var expression = this.text;
-    var field = this.consume().text;
-    var getter = getterFn(field, this.options, expression);
+    var getter = this.identifier();
 
     return extend(function $parseFieldAccess(scope, locals, self) {
-      return getter(self || object(scope, locals));
+      var o = self || object(scope, locals);
+      return (o == null) ? undefined : getter(o);
     }, {
       assign: function(scope, value, locals) {
         var o = object(scope, locals);
         if (!o) object.assign(scope, o = {});
-        return setter(o, field, value, expression);
+        return getter.assign(o, value);
       }
     });
   },
@@ -12215,7 +12314,7 @@ Parser.prototype = {
     var args = argsFn.length ? [] : null;
 
     return function $parseFunctionCall(scope, locals) {
-      var context = contextGetter ? contextGetter(scope, locals) : scope;
+      var context = contextGetter ? contextGetter(scope, locals) : isDefined(contextGetter) ? undefined : scope;
       var fn = fnGetter(scope, locals, context) || noop;
 
       if (args) {
@@ -12228,13 +12327,13 @@ Parser.prototype = {
       ensureSafeObject(context, expressionText);
       ensureSafeFunction(fn, expressionText);
 
-      // IE stupidity! (IE doesn't have apply for some native functions)
+      // IE doesn't have apply for some native functions
       var v = fn.apply
             ? fn.apply(context, args)
             : fn(args[0], args[1], args[2], args[3], args[4]);
 
       return ensureSafeObject(v, expressionText);
-    };
+      };
   },
 
   // This is used with json array declaration
@@ -13328,12 +13427,10 @@ function qFactory(nextTick, exceptionHandler) {
 function $$RAFProvider() { //rAF
   this.$get = ['$window', '$timeout', function($window, $timeout) {
     var requestAnimationFrame = $window.requestAnimationFrame ||
-                                $window.webkitRequestAnimationFrame ||
-                                $window.mozRequestAnimationFrame;
+                                $window.webkitRequestAnimationFrame;
 
     var cancelAnimationFrame = $window.cancelAnimationFrame ||
                                $window.webkitCancelAnimationFrame ||
-                               $window.mozCancelAnimationFrame ||
                                $window.webkitCancelRequestAnimationFrame;
 
     var rafSupported = !!requestAnimationFrame;
@@ -13462,7 +13559,6 @@ function $RootScopeProvider() {
          var child = parent.$new();
 
          parent.salutation = "Hello";
-         child.name = "World";
          expect(child.salutation).toEqual('Hello');
 
          child.salutation = "Welcome";
@@ -14100,7 +14196,7 @@ function $RootScopeProvider() {
           while (asyncQueue.length) {
             try {
               asyncTask = asyncQueue.shift();
-              asyncTask.scope.$eval(asyncTask.expression);
+              asyncTask.scope.$eval(asyncTask.expression, asyncTask.locals);
             } catch (e) {
               $exceptionHandler(e);
             }
@@ -14315,8 +14411,9 @@ function $RootScopeProvider() {
        *    - `string`: execute using the rules as defined in {@link guide/expression expression}.
        *    - `function(scope)`: execute the function with the current `scope` parameter.
        *
+       * @param {(object)=} locals Local variables object, useful for overriding values in scope.
        */
-      $evalAsync: function(expr) {
+      $evalAsync: function(expr, locals) {
         // if we are outside of an $digest loop and this is the first time we are scheduling async
         // task also schedule async auto-flush
         if (!$rootScope.$$phase && !asyncQueue.length) {
@@ -14327,7 +14424,7 @@ function $RootScopeProvider() {
           });
         }
 
-        asyncQueue.push({scope: this, expression: expr});
+        asyncQueue.push({scope: this, expression: expr, locals: locals});
       },
 
       $$postDigest: function(fn) {
@@ -15870,7 +15967,9 @@ function $SnifferProvider() {
         // IE9 implements 'input' event it's so fubared that we rather pretend that it doesn't have
         // it. In particular the event is not fired when backspace or delete key are pressed or
         // when cut operation is performed.
-        if (event == 'input' && msie == 9) return false;
+        // IE10+ implements 'input' event but it erroneously fires under various situations,
+        // e.g. when placeholder changes, or a form is focused.
+        if (event === 'input' && msie <= 11) return false;
 
         if (isUndefined(eventSupport[event])) {
           var divElm = document.createElement('div');
@@ -15897,7 +15996,7 @@ var $compileMinErr = minErr('$compile');
  * @description
  * The `$templateRequest` service downloads the provided template using `$http` and, upon success,
  * stores the contents inside of `$templateCache`. If the HTTP request fails or the response data
- * of the HTTP request is empty then a `$compile` error will be thrown (the exception can be thwarted
+ * of the HTTP request is empty, a `$compile` error will be thrown (the exception can be thwarted
  * by setting the 2nd parameter of the function to true).
  *
  * @param {string} tpl The HTTP request template URL
@@ -15916,14 +16015,9 @@ function $TemplateRequestProvider() {
       var transformResponse = $http.defaults && $http.defaults.transformResponse;
 
       if (isArray(transformResponse)) {
-        var original = transformResponse;
-        transformResponse = [];
-        for (var i = 0; i < original.length; ++i) {
-          var transformer = original[i];
-          if (transformer !== defaultHttpResponseTransform) {
-            transformResponse.push(transformer);
-          }
-        }
+        transformResponse = transformResponse.filter(function(transformer) {
+          return transformer !== defaultHttpResponseTransform;
+        });
       } else if (transformResponse === defaultHttpResponseTransform) {
         transformResponse = null;
       }
@@ -15935,18 +16029,16 @@ function $TemplateRequestProvider() {
 
       return $http.get(tpl, httpOptions)
         .then(function(response) {
-          var html = response.data;
           self.totalPendingRequests--;
-          $templateCache.put(tpl, html);
-          return html;
+          return response.data;
         }, handleError);
 
-      function handleError() {
+      function handleError(resp) {
         self.totalPendingRequests--;
         if (!ignoreRequestError) {
           throw $compileMinErr('tpload', 'Failed to load template: {0}', tpl);
         }
-        return $q.reject();
+        return $q.reject(resp);
       }
     }
 
@@ -16464,18 +16556,25 @@ function $FilterProvider($provide) {
  *
  *   Can be one of:
  *
- *   - `string`: The string is evaluated as an expression and the resulting value is used for substring match against
- *     the contents of the `array`. All strings or objects with string properties in `array` that contain this string
- *     will be returned. The predicate can be negated by prefixing the string with `!`.
+ *   - `string`: The string is used for matching against the contents of the `array`. All strings or
+ *     objects with string properties in `array` that match this string will be returned. This also
+ *     applies to nested object properties.
+ *     The predicate can be negated by prefixing the string with `!`.
  *
  *   - `Object`: A pattern object can be used to filter specific properties on objects contained
  *     by `array`. For example `{name:"M", phone:"1"}` predicate will return an array of items
  *     which have property `name` containing "M" and property `phone` containing "1". A special
  *     property name `$` can be used (as in `{$:"text"}`) to accept a match against any
- *     property of the object. That's equivalent to the simple substring match with a `string`
- *     as described above. The predicate can be negated by prefixing the string with `!`.
- *     For Example `{name: "!M"}` predicate will return an array of items which have property `name`
+ *     property of the object or its nested object properties. That's equivalent to the simple
+ *     substring match with a `string` as described above. The predicate can be negated by prefixing
+ *     the string with `!`.
+ *     For example `{name: "!M"}` predicate will return an array of items which have property `name`
  *     not containing "M".
+ *
+ *     Note that a named property will match properties on the same level only, while the special
+ *     `$` property will match properties on the same level or deeper. E.g. an array item like
+ *     `{name: {first: 'John', last: 'Doe'}}` will **not** be matched by `{name: 'John'}`, but
+ *     **will** be matched by `{$: 'John'}`.
  *
  *   - `function(value, index)`: A predicate function can be used to write arbitrary filters. The
  *     function is called for each element of `array`. The final result is an array of those
@@ -16489,10 +16588,10 @@ function $FilterProvider($provide) {
  *
  *   - `function(actual, expected)`:
  *     The function will be given the object value and the predicate value to compare and
- *     should return true if the item should be included in filtered result.
+ *     should return true if both values should be considered equal.
  *
- *   - `true`: A shorthand for `function(actual, expected) { return angular.equals(expected, actual)}`.
- *     this is essentially strict comparison of expected and actual.
+ *   - `true`: A shorthand for `function(actual, expected) { return angular.equals(actual, expected)}`.
+ *     This is essentially strict comparison of expected and actual.
  *
  *   - `false|undefined`: A short hand for a function which will look for a substring match in case
  *     insensitive way.
@@ -16569,106 +16668,107 @@ function filterFilter() {
   return function(array, expression, comparator) {
     if (!isArray(array)) return array;
 
-    var comparatorType = typeof(comparator),
-        predicates = [];
+    var predicateFn;
+    var matchAgainstAnyProp;
 
-    predicates.check = function(value, index) {
-      for (var j = 0; j < predicates.length; j++) {
-        if (!predicates[j](value, index)) {
-          return false;
-        }
-      }
-      return true;
-    };
-
-    if (comparatorType !== 'function') {
-      if (comparatorType === 'boolean' && comparator) {
-        comparator = function(obj, text) {
-          return angular.equals(obj, text);
-        };
-      } else {
-        comparator = function(obj, text) {
-          if (obj && text && typeof obj === 'object' && typeof text === 'object') {
-            for (var objKey in obj) {
-              if (objKey.charAt(0) !== '$' && hasOwnProperty.call(obj, objKey) &&
-                  comparator(obj[objKey], text[objKey])) {
-                return true;
-              }
-            }
-            return false;
-          }
-          text = ('' + text).toLowerCase();
-          return ('' + obj).toLowerCase().indexOf(text) > -1;
-        };
-      }
-    }
-
-    var search = function(obj, text) {
-      if (typeof text === 'string' && text.charAt(0) === '!') {
-        return !search(obj, text.substr(1));
-      }
-      switch (typeof obj) {
-        case 'boolean':
-        case 'number':
-        case 'string':
-          return comparator(obj, text);
-        case 'object':
-          switch (typeof text) {
-            case 'object':
-              return comparator(obj, text);
-            default:
-              for (var objKey in obj) {
-                if (objKey.charAt(0) !== '$' && search(obj[objKey], text)) {
-                  return true;
-                }
-              }
-              break;
-          }
-          return false;
-        case 'array':
-          for (var i = 0; i < obj.length; i++) {
-            if (search(obj[i], text)) {
-              return true;
-            }
-          }
-          return false;
-        default:
-          return false;
-      }
-    };
     switch (typeof expression) {
+      case 'function':
+        predicateFn = expression;
+        break;
       case 'boolean':
       case 'number':
       case 'string':
-        // Set up expression object and fall through
-        expression = {$:expression};
-        // jshint -W086
+        matchAgainstAnyProp = true;
+        //jshint -W086
       case 'object':
-        // jshint +W086
-        for (var key in expression) {
-          (function(path) {
-            if (typeof expression[path] === 'undefined') return;
-            predicates.push(function(value) {
-              return search(path == '$' ? value : (value && value[path]), expression[path]);
-            });
-          })(key);
-        }
-        break;
-      case 'function':
-        predicates.push(expression);
+        //jshint +W086
+        predicateFn = createPredicateFn(expression, comparator, matchAgainstAnyProp);
         break;
       default:
         return array;
     }
-    var filtered = [];
-    for (var j = 0; j < array.length; j++) {
-      var value = array[j];
-      if (predicates.check(value, j)) {
-        filtered.push(value);
-      }
-    }
-    return filtered;
+
+    return array.filter(predicateFn);
   };
+}
+
+// Helper functions for `filterFilter`
+function createPredicateFn(expression, comparator, matchAgainstAnyProp) {
+  var shouldMatchPrimitives = isObject(expression) && ('$' in expression);
+  var predicateFn;
+
+  if (comparator === true) {
+    comparator = equals;
+  } else if (!isFunction(comparator)) {
+    comparator = function(actual, expected) {
+      if (isObject(actual) || isObject(expected)) {
+        // Prevent an object to be considered equal to a string like `'[object'`
+        return false;
+      }
+
+      actual = lowercase('' + actual);
+      expected = lowercase('' + expected);
+      return actual.indexOf(expected) !== -1;
+    };
+  }
+
+  predicateFn = function(item) {
+    if (shouldMatchPrimitives && !isObject(item)) {
+      return deepCompare(item, expression.$, comparator, false);
+    }
+    return deepCompare(item, expression, comparator, matchAgainstAnyProp);
+  };
+
+  return predicateFn;
+}
+
+function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatchWholeObject) {
+  var actualType = typeof actual;
+  var expectedType = typeof expected;
+
+  if ((expectedType === 'string') && (expected.charAt(0) === '!')) {
+    return !deepCompare(actual, expected.substring(1), comparator, matchAgainstAnyProp);
+  } else if (actualType === 'array') {
+    // In case `actual` is an array, consider it a match
+    // if ANY of it's items matches `expected`
+    return actual.some(function(item) {
+      return deepCompare(item, expected, comparator, matchAgainstAnyProp);
+    });
+  }
+
+  switch (actualType) {
+    case 'object':
+      var key;
+      if (matchAgainstAnyProp) {
+        for (key in actual) {
+          if ((key.charAt(0) !== '$') && deepCompare(actual[key], expected, comparator, true)) {
+            return true;
+          }
+        }
+        return dontMatchWholeObject ? false : deepCompare(actual, expected, comparator, false);
+      } else if (expectedType === 'object') {
+        for (key in expected) {
+          var expectedVal = expected[key];
+          if (isFunction(expectedVal)) {
+            continue;
+          }
+
+          var matchAnyProperty = key === '$';
+          var actualVal = matchAnyProperty ? actual : actual[key];
+          if (!deepCompare(actualVal, expectedVal, comparator, matchAnyProperty, matchAnyProperty)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return comparator(actual, expected);
+      }
+      break;
+    case 'function':
+      return false;
+    default:
+      return comparator(actual, expected);
+  }
 }
 
 /**
@@ -16821,7 +16921,6 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
   if (numStr.indexOf('e') !== -1) {
     var match = numStr.match(/([\d\.]+)e(-?)(\d+)/);
     if (match && match[2] == '-' && match[3] > fractionSize + 1) {
-      numStr = '0';
       number = 0;
     } else {
       formatedText = numStr;
@@ -16841,10 +16940,6 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     // inspired by:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
     number = +(Math.round(+(number.toString() + 'e' + fractionSize)).toString() + 'e' + -fractionSize);
-
-    if (number === 0) {
-      isNegative = false;
-    }
 
     var fraction = ('' + number).split(DECIMAL_SEP);
     var whole = fraction[0];
@@ -16878,10 +16973,14 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
 
     if (fractionSize && fractionSize !== "0") formatedText += decimalSep + fraction.substr(0, fractionSize);
   } else {
-
-    if (fractionSize > 0 && number > -1 && number < 1) {
+    if (fractionSize > 0 && number < 1) {
       formatedText = number.toFixed(fractionSize);
+      number = parseFloat(formatedText);
     }
+  }
+
+  if (number === 0) {
+    isNegative = false;
   }
 
   parts.push(isNegative ? pattern.negPre : pattern.posPre,
@@ -17028,8 +17127,8 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d
  *   * `'.sss' or ',sss'`: Millisecond in second, padded (000-999)
  *   * `'a'`: AM/PM marker
  *   * `'Z'`: 4 digit (+sign) representation of the timezone offset (-1200-+1200)
- *   * `'ww'`: ISO-8601 week of year (00-53)
- *   * `'w'`: ISO-8601 week of year (0-53)
+ *   * `'ww'`: Week of year, padded (00-53). Week 01 is the week with the first Thursday of the year
+ *   * `'w'`: Week of year (0-53). Week 1 is the week with the first Thursday of the year
  *
  *   `format` string can also be one of the following predefined
  *   {@link guide/i18n localizable formats}:
@@ -17173,25 +17272,31 @@ function dateFilter($locale) {
  *   the binding is automatically converted to JSON.
  *
  * @param {*} object Any JavaScript object (including arrays and primitive types) to filter.
+ * @param {number=} spacing The number of spaces to use per indentation, defaults to 2.
  * @returns {string} JSON string.
  *
  *
  * @example
    <example>
      <file name="index.html">
-       <pre>{{ {'name':'value'} | json }}</pre>
+       <pre id="default-spacing">{{ {'name':'value'} | json }}</pre>
+       <pre id="custom-spacing">{{ {'name':'value'} | json:4 }}</pre>
      </file>
      <file name="protractor.js" type="protractor">
        it('should jsonify filtered objects', function() {
-         expect(element(by.binding("{'name':'value'}")).getText()).toMatch(/\{\n  "name": ?"value"\n}/);
+         expect(element(by.id('default-spacing')).getText()).toMatch(/\{\n  "name": ?"value"\n}/);
+         expect(element(by.id('custom-spacing')).getText()).toMatch(/\{\n    "name": ?"value"\n}/);
        });
      </file>
    </example>
  *
  */
 function jsonFilter() {
-  return function(object) {
-    return toJson(object, true);
+  return function(object, spacing) {
+    if (isUndefined(spacing)) {
+        spacing = 2;
+    }
+    return toJson(object, spacing);
   };
 }
 
@@ -17323,8 +17428,7 @@ function limitToFilter() {
       }
     }
 
-    var out = [],
-      i, n;
+    var i, n;
 
     // if abs(limit) exceeds maximum length, trim it
     if (limit > input.length)
@@ -17336,15 +17440,14 @@ function limitToFilter() {
       i = 0;
       n = limit;
     } else {
+      // zero and NaN check on limit - return empty array
+      if (!limit) return [];
+
       i = input.length + limit;
       n = input.length;
     }
 
-    for (; i < n; i++) {
-      out.push(input[i]);
-    }
-
-    return out;
+    return input.slice(i, n);
   };
 }
 
@@ -17478,9 +17581,7 @@ function orderByFilter($parse) {
         }
         if (predicate === '') {
           // Effectively no predicate was passed so we compare identity
-          return reverseComparator(function(a, b) {
-            return compare(a, b);
-          }, descending);
+          return reverseComparator(compare, descending);
         }
         get = $parse(predicate);
         if (get.constant) {
@@ -17508,15 +17609,40 @@ function orderByFilter($parse) {
           ? function(a, b) {return comp(b,a);}
           : comp;
     }
+
+    function isPrimitive(value) {
+      switch (typeof value) {
+        case 'number': /* falls through */
+        case 'boolean': /* falls through */
+        case 'string':
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    function objectToString(value) {
+      if (value === null) return 'null';
+      if (typeof value.valueOf === 'function') {
+        value = value.valueOf();
+        if (isPrimitive(value)) return value;
+      }
+      if (typeof value.toString === 'function') {
+        value = value.toString();
+        if (isPrimitive(value)) return value;
+      }
+      return '';
+    }
+
     function compare(v1, v2) {
       var t1 = typeof v1;
       var t2 = typeof v2;
-      if (t1 == t2) {
-        if (isDate(v1) && isDate(v2)) {
-          v1 = v1.valueOf();
-          v2 = v2.valueOf();
-        }
-        if (t1 == "string") {
+      if (t1 === t2 && t1 === "object") {
+        v1 = objectToString(v1);
+        v2 = objectToString(v2);
+      }
+      if (t1 === t2) {
+        if (t1 === "string") {
            v1 = v1.toLowerCase();
            v2 = v2.toLowerCase();
         }
@@ -17582,9 +17708,8 @@ var htmlAnchorDirective = valueFn({
  * make the link go to the wrong URL if the user clicks it before
  * Angular has a chance to replace the `{{hash}}` markup with its
  * value. Until Angular replaces the markup the link will be broken
- * and will most likely return a 404 error.
- *
- * The `ngHref` directive solves this problem.
+ * and will most likely return a 404 error. The `ngHref` directive
+ * solves this problem.
  *
  * The wrong way to write it:
  * ```html
@@ -19466,7 +19591,6 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
 }
 
 function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
-  var placeholder = element[0].placeholder, noevent = {};
   var type = lowercase(element[0].type);
 
   // In composition mode, users are still inputing intermediate text buffer,
@@ -19486,18 +19610,13 @@ function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   }
 
   var listener = function(ev) {
+    if (timeout) {
+      $browser.defer.cancel(timeout);
+      timeout = null;
+    }
     if (composing) return;
     var value = element.val(),
         event = ev && ev.type;
-
-    // IE (11 and under) seem to emit an 'input' event if the placeholder value changes.
-    // We don't want to dirty the value when this happens, so we abort here. Unfortunately,
-    // IE also sends input events for other non-input-related things, (such as focusing on a
-    // form control), so this change is not entirely enough to solve this.
-    if (msie && (ev || noevent).type === 'input' && element[0].placeholder !== placeholder) {
-      placeholder = element[0].placeholder;
-      return;
-    }
 
     // By default we will trim the value
     // If the attribute ng-trim exists we will avoid trimming
@@ -19521,11 +19640,13 @@ function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   } else {
     var timeout;
 
-    var deferListener = function(ev) {
+    var deferListener = function(ev, input, origValue) {
       if (!timeout) {
         timeout = $browser.defer(function() {
-          listener(ev);
           timeout = null;
+          if (!input || input.value !== origValue) {
+            listener(ev);
+          }
         });
       }
     };
@@ -19537,7 +19658,7 @@ function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
       //    command            modifiers                   arrows
       if (key === 91 || (15 < key && key < 19) || (37 <= key && key <= 40)) return;
 
-      deferListener(event);
+      deferListener(event, this, this.value);
     });
 
     // if user modifies input value using context menu in IE, we need "paste" and "cut" events to catch it
@@ -20712,11 +20833,15 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     var prevModelValue = ctrl.$modelValue;
     var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
     ctrl.$$rawModelValue = modelValue;
+
     if (allowInvalid) {
       ctrl.$modelValue = modelValue;
       writeToModelIfNeeded();
     }
-    ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
+
+    // Pass the $$lastCommittedViewValue here, because the cached viewValue might be out of date.
+    // This can happen if e.g. $setViewValue is called from inside a parser
+    ctrl.$$runValidators(parserValid, modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
       if (!allowInvalid) {
         // Note: Don't check ctrl.$valid here, as we could have
         // external validators (e.g. calculated on the server),
@@ -24248,7 +24373,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
       var aliasAs = match[3];
       var trackByExp = match[4];
 
-      match = lhs.match(/^(?:([\$\w]+)|\(([\$\w]+)\s*,\s*([\$\w]+)\))$/);
+      match = lhs.match(/^(?:(\s*[\$\w]+)|\(\s*([\$\w]+)\s*,\s*([\$\w]+)\s*\))$/);
 
       if (!match) {
         throw ngRepeatMinErr('iidexp', "'_item_' in '_item_ in _collection_' should be an identifier or '(_key_, _value_)' expression, but got '{0}'.",
@@ -25058,7 +25183,7 @@ var ngSwitchDefaultDirective = ngDirective({
          }]);
        </script>
        <div ng-controller="ExampleController">
-         <input ng-model="title"><br>
+         <input ng-model="title"> <br/>
          <textarea ng-model="text"></textarea> <br/>
          <pane title="{{title}}">{{text}}</pane>
        </div>
@@ -25136,7 +25261,6 @@ var scriptDirective = ['$templateCache', function($templateCache) {
     compile: function(element, attr) {
       if (attr.type == 'text/ng-template') {
         var templateUrl = attr.id,
-            // IE is not consistent, in scripts we have to read .text but in other nodes we have to read .textContent
             text = element[0].text;
 
         $templateCache.put(templateUrl, text);
@@ -25158,14 +25282,15 @@ var ngOptionsMinErr = minErr('ngOptions');
  *
  * The `ngOptions` attribute can be used to dynamically generate a list of `<option>`
  * elements for the `<select>` element using the array or object obtained by evaluating the
- * `ngOptions` comprehension_expression.
+ * `ngOptions` comprehension expression.
  *
  * In many cases, `ngRepeat` can be used on `<option>` elements instead of `ngOptions` to achieve a
- * similar result. However, the `ngOptions` provides some benefits such as reducing memory and
+ * similar result. However, `ngOptions` provides some benefits such as reducing memory and
  * increasing speed by not creating a new scope for each repeated instance, as well as providing
- * more flexibility in how the `select`'s model is assigned via `select as`. `ngOptions` should be
- * used when the `select` model needs to be bound to a non-string value. This is because an option
- * element can only be bound to string values at present.
+ * more flexibility in how the `<select>`'s model is assigned via the `select` **`as`** part of the
+ * comprehension expression. `ngOptions` should be used when the `<select>` model needs to be bound
+ *  to a non-string value. This is because an option element can only be bound to string values at
+ * present.
  *
  * When an item in the `<select>` menu is selected, the array element or object property
  * represented by the selected option will be bound to the model identified by the `ngModel`
@@ -25180,28 +25305,51 @@ var ngOptionsMinErr = minErr('ngOptions');
  * array of objects. See an example [in this jsfiddle](http://jsfiddle.net/qWzTb/).
  * </div>
  *
- * ## `select as`
+ * ## `select` **`as`**
  *
- * Using `select as` will bind the result of the `select as` expression to the model, but
+ * Using `select` **`as`** will bind the result of the `select` expression to the model, but
  * the value of the `<select>` and `<option>` html elements will be either the index (for array data sources)
- * or property name (for object data sources) of the value within the collection. If a `track by` expression
+ * or property name (for object data sources) of the value within the collection. If a **`track by`** expression
  * is used, the result of that expression will be set as the value of the `option` and `select` elements.
  *
- * ### `select as` with `trackexpr`
  *
- * Using `select as` together with `trackexpr` is not recommended. Reasoning:
+ * ### `select` **`as`** and **`track by`**
  *
- * - Example: &lt;select ng-options="item.subItem as item.label for item in values track by item.id" ng-model="selected"&gt;
- *   values: [{id: 1, label: 'aLabel', subItem: {name: 'aSubItem'}}, {id: 2, label: 'bLabel', subItem: {name: 'bSubItem'}}],
- *   $scope.selected = {name: 'aSubItem'};
- * - track by is always applied to `value`, with the purpose of preserving the selection,
- *   (to `item` in this case)
- * - to calculate whether an item is selected we do the following:
- *   1. apply `track by` to the values in the array, e.g.
- *      In the example: [1,2]
- *   2. apply `track by` to the already selected value in `ngModel`:
- *      In the example: this is not possible, as `track by` refers to `item.id`, but the selected
- *      value from `ngModel` is `{name: aSubItem}`.
+ * <div class="alert alert-warning">
+ * Do not use `select` **`as`** and **`track by`** in the same expression. They are not designed to work together.
+ * </div>
+ *
+ * Consider the following example:
+ *
+ * ```html
+ * <select ng-options="item.subItem as item.label for item in values track by item.id" ng-model="selected">
+ * ```
+ *
+ * ```js
+ * $scope.values = [{
+ *   id: 1,
+ *   label: 'aLabel',
+ *   subItem: { name: 'aSubItem' }
+ * }, {
+ *   id: 2,
+ *   label: 'bLabel',
+ *   subItem: { name: 'bSubItem' }
+ * }];
+ *
+ * $scope.selected = { name: 'aSubItem' };
+ * ```
+ *
+ * With the purpose of preserving the selection, the **`track by`** expression is always applied to the element
+ * of the data source (to `item` in this example). To calculate whether an element is selected, we do the
+ * following:
+ *
+ * 1. Apply **`track by`** to the elements in the array. In the example: `[1, 2]`
+ * 2. Apply **`track by`** to the already selected value in `ngModel`.
+ *    In the example: this is not possible as **`track by`** refers to `item.id`, but the selected
+ *    value from `ngModel` is `{name: 'aSubItem'}`, so the **`track by`** expression is applied to
+ *    a wrong object, the selected element can't be found, `<select>` is always reset to the "not
+ *    selected" option.
+ *
  *
  * @param {string} ngModel Assignable angular expression to data-bind to.
  * @param {string=} name Property name of the form under which the control is published.
@@ -25214,8 +25362,10 @@ var ngOptionsMinErr = minErr('ngOptions');
  *   * for array data sources:
  *     * `label` **`for`** `value` **`in`** `array`
  *     * `select` **`as`** `label` **`for`** `value` **`in`** `array`
- *     * `label`  **`group by`** `group` **`for`** `value` **`in`** `array`
- *     * `select` **`as`** `label` **`group by`** `group` **`for`** `value` **`in`** `array` **`track by`** `trackexpr`
+ *     * `label` **`group by`** `group` **`for`** `value` **`in`** `array`
+ *     * `label` **`group by`** `group` **`for`** `value` **`in`** `array` **`track by`** `trackexpr`
+ *     * `label` **`for`** `value` **`in`** `array` | orderBy:`orderexpr` **`track by`** `trackexpr`
+ *        (for including a filter with `track by`)
  *   * for object data sources:
  *     * `label` **`for (`**`key` **`,`** `value`**`) in`** `object`
  *     * `select` **`as`** `label` **`for (`**`key` **`,`** `value`**`) in`** `object`
@@ -25357,7 +25507,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
       self.removeOption = function(value) {
         if (this.hasOption(value)) {
           delete optionsMap[value];
-          if (ngModelCtrl.$viewValue == value) {
+          if (ngModelCtrl.$viewValue === value) {
             this.renderUnknownOption(value);
           }
         }
@@ -25824,18 +25974,23 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
               updateLabelMap(labelMap, option.label, false);
               option.element.remove();
             }
-            forEach(labelMap, function(count, label) {
-              if (count > 0) {
-                selectCtrl.addOption(label);
-              } else if (count < 0) {
-                selectCtrl.removeOption(label);
-              }
-            });
           }
           // remove any excessive OPTGROUPs from select
           while (optionGroupsCache.length > groupIndex) {
-            optionGroupsCache.pop()[0].element.remove();
+            // remove all the labels in the option group
+            optionGroup = optionGroupsCache.pop();
+            for (index = 1; index < optionGroup.length; ++index) {
+              updateLabelMap(labelMap, optionGroup[index].label, false);
+            }
+            optionGroup[0].element.remove();
           }
+          forEach(labelMap, function(count, label) {
+            if (count > 0) {
+              selectCtrl.addOption(label);
+            } else if (count < 0) {
+              selectCtrl.removeOption(label);
+            }
+          });
         }
       }
     }
@@ -25914,7 +26069,7 @@ var styleDirective = valueFn({
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.4
+ * @license AngularJS v1.3.8
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -25934,7 +26089,7 @@ var styleDirective = valueFn({
  * # Usage
  *
  * To see animations in action, all that is required is to define the appropriate CSS classes
- * or to register a JavaScript animation via the myModule.animation() function. The directives that support animation automatically are:
+ * or to register a JavaScript animation via the `myModule.animation()` function. The directives that support animation automatically are:
  * `ngRepeat`, `ngInclude`, `ngIf`, `ngSwitch`, `ngShow`, `ngHide`, `ngView` and `ngClass`. Custom directives can take advantage of animation
  * by using the `$animate` service.
  *
@@ -26076,8 +26231,8 @@ var styleDirective = valueFn({
  * ### Structural transition animations
  *
  * Structural transitions (such as enter, leave and move) will always apply a `0s none` transition
- * value to force the browser into rendering the styles defined in the setup (.ng-enter, .ng-leave
- * or .ng-move) class. This means that any active transition animations operating on the element
+ * value to force the browser into rendering the styles defined in the setup (`.ng-enter`, `.ng-leave`
+ * or `.ng-move`) class. This means that any active transition animations operating on the element
  * will be cut off to make way for the enter, leave or move animation.
  *
  * ### Class-based transition animations
@@ -26394,11 +26549,12 @@ angular.module('ngAnimate', ['ng'])
     function isMatchingElement(elm1, elm2) {
       return extractElementNode(elm1) == extractElementNode(elm2);
     }
-
+    var $$jqLite;
     $provide.decorator('$animate',
-        ['$delegate', '$$q', '$injector', '$sniffer', '$rootElement', '$$asyncCallback', '$rootScope', '$document', '$templateRequest',
- function($delegate,   $$q,   $injector,   $sniffer,   $rootElement,   $$asyncCallback,   $rootScope,   $document,   $templateRequest) {
+        ['$delegate', '$$q', '$injector', '$sniffer', '$rootElement', '$$asyncCallback', '$rootScope', '$document', '$templateRequest', '$$jqLite',
+ function($delegate,   $$q,   $injector,   $sniffer,   $rootElement,   $$asyncCallback,   $rootScope,   $document,   $templateRequest,   $$$jqLite) {
 
+      $$jqLite = $$$jqLite;
       $rootElement.data(NG_ANIMATE_STATE, rootAnimateState);
 
       // Wait until all directive and route-related templates are downloaded and
@@ -26753,7 +26909,8 @@ angular.module('ngAnimate', ['ng'])
        * promise that was returned when the animation was started.
        *
        * ```js
-       * var promise = $animate.addClass(element, 'super-long-animation').then(function() {
+       * var promise = $animate.addClass(element, 'super-long-animation');
+       * promise.then(function() {
        *   //this will still be called even if cancelled
        * });
        *
@@ -26792,22 +26949,22 @@ angular.module('ngAnimate', ['ng'])
          *
          * Below is a breakdown of each step that occurs during the `animate` animation:
          *
-         * | Animation Step                                                                                                    | What the element class attribute looks like                |
-         * |-------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
-         * | 1. $animate.animate(...) is called                                                                                | class="my-animation"                                       |
-         * | 2. $animate waits for the next digest to start the animation                                                      | class="my-animation ng-animate"                            |
-         * | 3. $animate runs the JavaScript-defined animations detected on the element                                        | class="my-animation ng-animate"                            |
-         * | 4. the className class value is added to the element                                                              | class="my-animation ng-animate className"                  |
-         * | 5. $animate scans the element styles to get the CSS transition/animation duration and delay                       | class="my-animation ng-animate className"                  |
-         * | 6. $animate blocks all CSS transitions on the element to ensure the .className class styling is applied right away| class="my-animation ng-animate className"                  |
-         * | 7. $animate applies the provided collection of `from` CSS styles to the element                                   | class="my-animation ng-animate className"                  |
-         * | 8. $animate waits for a single animation frame (this performs a reflow)                                           | class="my-animation ng-animate className"                  |
-         * | 9. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate className"                  |
-         * | 10. the className-active class is added (this triggers the CSS transition/animation)                              | class="my-animation ng-animate className className-active" |
-         * | 11. $animate applies the collection of `to` CSS styles to the element which are then handled by the transition    | class="my-animation ng-animate className className-active" |
-         * | 12. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate className className-active" |
-         * | 13. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                       |
-         * | 14. The returned promise is resolved.                                                                             | class="my-animation"                                       |
+         * | Animation Step                                                                                                        | What the element class attribute looks like                  |
+         * |-----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+         * | 1. `$animate.animate(...)` is called                                                                                  | `class="my-animation"`                                       |
+         * | 2. `$animate` waits for the next digest to start the animation                                                        | `class="my-animation ng-animate"`                            |
+         * | 3. `$animate` runs the JavaScript-defined animations detected on the element                                          | `class="my-animation ng-animate"`                            |
+         * | 4. the `className` class value is added to the element                                                                | `class="my-animation ng-animate className"`                  |
+         * | 5. `$animate` scans the element styles to get the CSS transition/animation duration and delay                         | `class="my-animation ng-animate className"`                  |
+         * | 6. `$animate` blocks all CSS transitions on the element to ensure the `.className` class styling is applied right away| `class="my-animation ng-animate className"`                  |
+         * | 7. `$animate` applies the provided collection of `from` CSS styles to the element                                     | `class="my-animation ng-animate className"`                  |
+         * | 8. `$animate` waits for a single animation frame (this performs a reflow)                                             | `class="my-animation ng-animate className"`                  |
+         * | 9. `$animate` removes the CSS transition block placed on the element                                                  | `class="my-animation ng-animate className"`                  |
+         * | 10. the `className-active` class is added (this triggers the CSS transition/animation)                                | `class="my-animation ng-animate className className-active"` |
+         * | 11. `$animate` applies the collection of `to` CSS styles to the element which are then handled by the transition      | `class="my-animation ng-animate className className-active"` |
+         * | 12. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate className className-active"` |
+         * | 13. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                       |
+         * | 14. The returned promise is resolved.                                                                                 | `class="my-animation"`                                       |
          *
          * @param {DOMElement} element the element that will be the focus of the enter animation
          * @param {object} from a collection of CSS styles that will be applied to the element at the start of the animation
@@ -26838,21 +26995,21 @@ angular.module('ngAnimate', ['ng'])
          *
          * Below is a breakdown of each step that occurs during enter animation:
          *
-         * | Animation Step                                                                                                    | What the element class attribute looks like              |
-         * |-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
-         * | 1. $animate.enter(...) is called                                                                                  | class="my-animation"                                     |
-         * | 2. element is inserted into the parentElement element or beside the afterElement element                          | class="my-animation"                                     |
-         * | 3. $animate waits for the next digest to start the animation                                                      | class="my-animation ng-animate"                          |
-         * | 4. $animate runs the JavaScript-defined animations detected on the element                                        | class="my-animation ng-animate"                          |
-         * | 5. the .ng-enter class is added to the element                                                                    | class="my-animation ng-animate ng-enter"                 |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                       | class="my-animation ng-animate ng-enter"                 |
-         * | 7. $animate blocks all CSS transitions on the element to ensure the .ng-enter class styling is applied right away | class="my-animation ng-animate ng-enter"                 |
-         * | 8. $animate waits for a single animation frame (this performs a reflow)                                           | class="my-animation ng-animate ng-enter"                 |
-         * | 9. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate ng-enter"                 |
-         * | 10. the .ng-enter-active class is added (this triggers the CSS transition/animation)                              | class="my-animation ng-animate ng-enter ng-enter-active" |
-         * | 11. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate ng-enter ng-enter-active" |
-         * | 12. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                     |
-         * | 13. The returned promise is resolved.                                                                             | class="my-animation"                                     |
+         * | Animation Step                                                                                                        | What the element class attribute looks like                |
+         * |-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+         * | 1. `$animate.enter(...)` is called                                                                                    | `class="my-animation"`                                     |
+         * | 2. element is inserted into the `parentElement` element or beside the `afterElement` element                          | `class="my-animation"`                                     |
+         * | 3. `$animate` waits for the next digest to start the animation                                                        | `class="my-animation ng-animate"`                          |
+         * | 4. `$animate` runs the JavaScript-defined animations detected on the element                                          | `class="my-animation ng-animate"`                          |
+         * | 5. the `.ng-enter` class is added to the element                                                                      | `class="my-animation ng-animate ng-enter"`                 |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                         | `class="my-animation ng-animate ng-enter"`                 |
+         * | 7. `$animate` blocks all CSS transitions on the element to ensure the `.ng-enter` class styling is applied right away | `class="my-animation ng-animate ng-enter"`                 |
+         * | 8. `$animate` waits for a single animation frame (this performs a reflow)                                             | `class="my-animation ng-animate ng-enter"`                 |
+         * | 9. `$animate` removes the CSS transition block placed on the element                                                  | `class="my-animation ng-animate ng-enter"`                 |
+         * | 10. the `.ng-enter-active` class is added (this triggers the CSS transition/animation)                                | `class="my-animation ng-animate ng-enter ng-enter-active"` |
+         * | 11. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate ng-enter ng-enter-active"` |
+         * | 12. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                     |
+         * | 13. The returned promise is resolved.                                                                                 | `class="my-animation"`                                     |
          *
          * @param {DOMElement} element the element that will be the focus of the enter animation
          * @param {DOMElement} parentElement the parent element of the element that will be the focus of the enter animation
@@ -26884,21 +27041,21 @@ angular.module('ngAnimate', ['ng'])
          *
          * Below is a breakdown of each step that occurs during leave animation:
          *
-         * | Animation Step                                                                                                    | What the element class attribute looks like              |
-         * |-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
-         * | 1. $animate.leave(...) is called                                                                                  | class="my-animation"                                     |
-         * | 2. $animate runs the JavaScript-defined animations detected on the element                                        | class="my-animation ng-animate"                          |
-         * | 3. $animate waits for the next digest to start the animation                                                      | class="my-animation ng-animate"                          |
-         * | 4. the .ng-leave class is added to the element                                                                    | class="my-animation ng-animate ng-leave"                 |
-         * | 5. $animate scans the element styles to get the CSS transition/animation duration and delay                       | class="my-animation ng-animate ng-leave"                 |
-         * | 6. $animate blocks all CSS transitions on the element to ensure the .ng-leave class styling is applied right away | class="my-animation ng-animate ng-leave"                 |
-         * | 7. $animate waits for a single animation frame (this performs a reflow)                                           | class="my-animation ng-animate ng-leave"                 |
-         * | 8. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate ng-leave"                 |
-         * | 9. the .ng-leave-active class is added (this triggers the CSS transition/animation)                               | class="my-animation ng-animate ng-leave ng-leave-active" |
-         * | 10. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate ng-leave ng-leave-active" |
-         * | 11. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                     |
-         * | 12. The element is removed from the DOM                                                                           | ...                                                      |
-         * | 13. The returned promise is resolved.                                                                             | ...                                                      |
+         * | Animation Step                                                                                                        | What the element class attribute looks like                |
+         * |-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+         * | 1. `$animate.leave(...)` is called                                                                                    | `class="my-animation"`                                     |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                                          | `class="my-animation ng-animate"`                          |
+         * | 3. `$animate` waits for the next digest to start the animation                                                        | `class="my-animation ng-animate"`                          |
+         * | 4. the `.ng-leave` class is added to the element                                                                      | `class="my-animation ng-animate ng-leave"`                 |
+         * | 5. `$animate` scans the element styles to get the CSS transition/animation duration and delay                         | `class="my-animation ng-animate ng-leave"`                 |
+         * | 6. `$animate` blocks all CSS transitions on the element to ensure the `.ng-leave` class styling is applied right away | `class="my-animation ng-animate ng-leave"`                 |
+         * | 7. `$animate` waits for a single animation frame (this performs a reflow)                                             | `class="my-animation ng-animate ng-leave"`                 |
+         * | 8. `$animate` removes the CSS transition block placed on the element                                                  | `class="my-animation ng-animate ng-leave"`                 |
+         * | 9. the `.ng-leave-active` class is added (this triggers the CSS transition/animation)                                 | `class="my-animation ng-animate ng-leave ng-leave-active"` |
+         * | 10. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate ng-leave ng-leave-active"` |
+         * | 11. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                     |
+         * | 12. The element is removed from the DOM                                                                               | ...                                                        |
+         * | 13. The returned promise is resolved.                                                                                 | ...                                                        |
          *
          * @param {DOMElement} element the element that will be the focus of the leave animation
          * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
@@ -26929,21 +27086,21 @@ angular.module('ngAnimate', ['ng'])
          *
          * Below is a breakdown of each step that occurs during move animation:
          *
-         * | Animation Step                                                                                                   | What the element class attribute looks like            |
-         * |------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
-         * | 1. $animate.move(...) is called                                                                                  | class="my-animation"                                   |
-         * | 2. element is moved into the parentElement element or beside the afterElement element                            | class="my-animation"                                   |
-         * | 3. $animate waits for the next digest to start the animation                                                     | class="my-animation ng-animate"                        |
-         * | 4. $animate runs the JavaScript-defined animations detected on the element                                       | class="my-animation ng-animate"                        |
-         * | 5. the .ng-move class is added to the element                                                                    | class="my-animation ng-animate ng-move"                |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation ng-animate ng-move"                |
-         * | 7. $animate blocks all CSS transitions on the element to ensure the .ng-move class styling is applied right away | class="my-animation ng-animate ng-move"                |
-         * | 8. $animate waits for a single animation frame (this performs a reflow)                                          | class="my-animation ng-animate ng-move"                |
-         * | 9. $animate removes the CSS transition block placed on the element                                               | class="my-animation ng-animate ng-move"                |
-         * | 10. the .ng-move-active class is added (this triggers the CSS transition/animation)                              | class="my-animation ng-animate ng-move ng-move-active" |
-         * | 11. $animate waits for the animation to complete (via events and timeout)                                        | class="my-animation ng-animate ng-move ng-move-active" |
-         * | 12. The animation ends and all generated CSS classes are removed from the element                                | class="my-animation"                                   |
-         * | 13. The returned promise is resolved.                                                                            | class="my-animation"                                   |
+         * | Animation Step                                                                                                       | What the element class attribute looks like              |
+         * |----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+         * | 1. `$animate.move(...)` is called                                                                                    | `class="my-animation"`                                   |
+         * | 2. element is moved into the parentElement element or beside the afterElement element                                | `class="my-animation"`                                   |
+         * | 3. `$animate` waits for the next digest to start the animation                                                       | `class="my-animation ng-animate"`                        |
+         * | 4. `$animate` runs the JavaScript-defined animations detected on the element                                         | `class="my-animation ng-animate"`                        |
+         * | 5. the `.ng-move` class is added to the element                                                                      | `class="my-animation ng-animate ng-move"`                |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                        | `class="my-animation ng-animate ng-move"`                |
+         * | 7. `$animate` blocks all CSS transitions on the element to ensure the `.ng-move` class styling is applied right away | `class="my-animation ng-animate ng-move"`                |
+         * | 8. `$animate` waits for a single animation frame (this performs a reflow)                                            | `class="my-animation ng-animate ng-move"`                |
+         * | 9. `$animate` removes the CSS transition block placed on the element                                                 | `class="my-animation ng-animate ng-move"`                |
+         * | 10. the `.ng-move-active` class is added (this triggers the CSS transition/animation)                                | `class="my-animation ng-animate ng-move ng-move-active"` |
+         * | 11. `$animate` waits for the animation to complete (via events and timeout)                                          | `class="my-animation ng-animate ng-move ng-move-active"` |
+         * | 12. The animation ends and all generated CSS classes are removed from the element                                    | `class="my-animation"`                                   |
+         * | 13. The returned promise is resolved.                                                                                | `class="my-animation"`                                   |
          *
          * @param {DOMElement} element the element that will be the focus of the move animation
          * @param {DOMElement} parentElement the parentElement element of the element that will be the focus of the move animation
@@ -26977,18 +27134,18 @@ angular.module('ngAnimate', ['ng'])
          *
          * Below is a breakdown of each step that occurs during addClass animation:
          *
-         * | Animation Step                                                                                     | What the element class attribute looks like                      |
-         * |----------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-         * | 1. $animate.addClass(element, 'super') is called                                                   | class="my-animation"                                             |
-         * | 2. $animate runs the JavaScript-defined animations detected on the element                         | class="my-animation ng-animate"                                  |
-         * | 3. the .super-add class is added to the element                                                    | class="my-animation ng-animate super-add"                        |
-         * | 4. $animate waits for a single animation frame (this performs a reflow)                            | class="my-animation ng-animate super-add"                        |
-         * | 5. the .super and .super-add-active classes are added (this triggers the CSS transition/animation) | class="my-animation ng-animate super super-add super-add-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay        | class="my-animation ng-animate super super-add super-add-active" |
-         * | 7. $animate waits for the animation to complete (via events and timeout)                           | class="my-animation ng-animate super super-add super-add-active" |
-         * | 8. The animation ends and all generated CSS classes are removed from the element                   | class="my-animation super"                                       |
-         * | 9. The super class is kept on the element                                                          | class="my-animation super"                                       |
-         * | 10. The returned promise is resolved.                                                              | class="my-animation super"                                       |
+         * | Animation Step                                                                                         | What the element class attribute looks like                        |
+         * |--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+         * | 1. `$animate.addClass(element, 'super')` is called                                                     | `class="my-animation"`                                             |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                           | `class="my-animation ng-animate"`                                  |
+         * | 3. the `.super-add` class is added to the element                                                      | `class="my-animation ng-animate super-add"`                        |
+         * | 4. `$animate` waits for a single animation frame (this performs a reflow)                              | `class="my-animation ng-animate super-add"`                        |
+         * | 5. the `.super` and `.super-add-active` classes are added (this triggers the CSS transition/animation) | `class="my-animation ng-animate super super-add super-add-active"` |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay          | `class="my-animation ng-animate super super-add super-add-active"` |
+         * | 7. `$animate` waits for the animation to complete (via events and timeout)                             | `class="my-animation ng-animate super super-add super-add-active"` |
+         * | 8. The animation ends and all generated CSS classes are removed from the element                       | `class="my-animation super"`                                       |
+         * | 9. The super class is kept on the element                                                              | `class="my-animation super"`                                       |
+         * | 10. The returned promise is resolved.                                                                  | `class="my-animation super"`                                       |
          *
          * @param {DOMElement} element the element that will be animated
          * @param {string} className the CSS class that will be added to the element and then animated
@@ -27011,17 +27168,17 @@ angular.module('ngAnimate', ['ng'])
          *
          * Below is a breakdown of each step that occurs during removeClass animation:
          *
-         * | Animation Step                                                                                                   | What the element class attribute looks like                      |
-         * |------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-         * | 1. $animate.removeClass(element, 'super') is called                                                              | class="my-animation super"                                       |
-         * | 2. $animate runs the JavaScript-defined animations detected on the element                                       | class="my-animation super ng-animate"                            |
-         * | 3. the .super-remove class is added to the element                                                               | class="my-animation super ng-animate super-remove"               |
-         * | 4. $animate waits for a single animation frame (this performs a reflow)                                          | class="my-animation super ng-animate super-remove"               |
-         * | 5. the .super-remove-active classes are added and .super is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate super-remove super-remove-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation ng-animate super-remove super-remove-active" |
-         * | 7. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate super-remove super-remove-active" |
-         * | 8. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                             |
-         * | 9. The returned promise is resolved.                                                                             | class="my-animation"                                             |
+         * | Animation Step                                                                                                       | What the element class attribute looks like                        |
+         * |----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+         * | 1. `$animate.removeClass(element, 'super')` is called                                                                | `class="my-animation super"`                                       |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                                         | `class="my-animation super ng-animate"`                            |
+         * | 3. the `.super-remove` class is added to the element                                                                 | `class="my-animation super ng-animate super-remove"`               |
+         * | 4. `$animate` waits for a single animation frame (this performs a reflow)                                            | `class="my-animation super ng-animate super-remove"`               |
+         * | 5. the `.super-remove-active` classes are added and `.super` is removed (this triggers the CSS transition/animation) | `class="my-animation ng-animate super-remove super-remove-active"` |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                        | `class="my-animation ng-animate super-remove super-remove-active"` |
+         * | 7. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate super-remove super-remove-active"` |
+         * | 8. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                             |
+         * | 9. The returned promise is resolved.                                                                                 | `class="my-animation"`                                             |
          *
          *
          * @param {DOMElement} element the element that will be animated
@@ -27039,19 +27196,19 @@ angular.module('ngAnimate', ['ng'])
          * @name $animate#setClass
          *
          * @description Adds and/or removes the given CSS classes to and from the element.
-         * Once complete, the done() callback will be fired (if provided).
+         * Once complete, the `done()` callback will be fired (if provided).
          *
-         * | Animation Step                                                                                                                       | What the element class attribute looks like                                          |
-         * |--------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-         * | 1. $animate.setClass(element, 'on', 'off') is called                                                                                 | class="my-animation off"                                                             |
-         * | 2. $animate runs the JavaScript-defined animations detected on the element                                                           | class="my-animation ng-animate off"                                                  |
-         * | 3. the .on-add and .off-remove classes are added to the element                                                                      | class="my-animation ng-animate on-add off-remove off"                                |
-         * | 4. $animate waits for a single animation frame (this performs a reflow)                                                              | class="my-animation ng-animate on-add off-remove off"                                |
-         * | 5. the .on, .on-add-active and .off-remove-active classes are added and .off is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                                          | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
-         * | 7. $animate waits for the animation to complete (via events and timeout)                                                             | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
-         * | 8. The animation ends and all generated CSS classes are removed from the element                                                     | class="my-animation on"                                                              |
-         * | 9. The returned promise is resolved.                                                                                                 | class="my-animation on"                                                              |
+         * | Animation Step                                                                                                                               | What the element class attribute looks like                                            |
+         * |----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+         * | 1. `$animate.setClass(element, 'on', 'off')` is called                                                                                       | `class="my-animation off"`                                                             |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                                                                 | `class="my-animation ng-animate off"`                                                  |
+         * | 3. the `.on-add` and `.off-remove` classes are added to the element                                                                          | `class="my-animation ng-animate on-add off-remove off"`                                |
+         * | 4. `$animate` waits for a single animation frame (this performs a reflow)                                                                    | `class="my-animation ng-animate on-add off-remove off"`                                |
+         * | 5. the `.on`, `.on-add-active` and `.off-remove-active` classes are added and `.off` is removed (this triggers the CSS transition/animation) | `class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active"` |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                                                | `class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active"` |
+         * | 7. `$animate` waits for the animation to complete (via events and timeout)                                                                   | `class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active"` |
+         * | 8. The animation ends and all generated CSS classes are removed from the element                                                             | `class="my-animation on"`                                                              |
+         * | 9. The returned promise is resolved.                                                                                                         | `class="my-animation on"`                                                              |
          *
          * @param {DOMElement} element the element which will have its CSS classes changed
          *   removed from it
@@ -27189,7 +27346,7 @@ angular.module('ngAnimate', ['ng'])
         all animations call this shared animation triggering function internally.
         The animationEvent variable refers to the JavaScript animation event that will be triggered
         and the className value is the name of the animation that will be applied within the
-        CSS code. Element, parentElement and afterElement are provided DOM elements for the animation
+        CSS code. Element, `parentElement` and `afterElement` are provided DOM elements for the animation
         and the onComplete callback will be fired once the animation is fully complete.
       */
       function performAnimation(animationEvent, className, element, parentElement, afterElement, domOperation, options, doneCallback) {
@@ -27301,10 +27458,10 @@ angular.module('ngAnimate', ['ng'])
 
         //the ng-animate class does nothing, but it's here to allow for
         //parent animations to find and cancel child animations when needed
-        element.addClass(NG_ANIMATE_CLASS_NAME);
+        $$jqLite.addClass(element, NG_ANIMATE_CLASS_NAME);
         if (options && options.tempClasses) {
           forEach(options.tempClasses, function(className) {
-            element.addClass(className);
+            $$jqLite.addClass(element, className);
           });
         }
 
@@ -27382,7 +27539,7 @@ angular.module('ngAnimate', ['ng'])
             closeAnimation.hasBeenRun = true;
             if (options && options.tempClasses) {
               forEach(options.tempClasses, function(className) {
-                element.removeClass(className);
+                $$jqLite.removeClass(element, className);
               });
             }
 
@@ -27444,7 +27601,7 @@ angular.module('ngAnimate', ['ng'])
           }
 
           if (removeAnimations || !data.totalActive) {
-            element.removeClass(NG_ANIMATE_CLASS_NAME);
+            $$jqLite.removeClass(element, NG_ANIMATE_CLASS_NAME);
             element.removeData(NG_ANIMATE_STATE);
           }
         }
@@ -27685,14 +27842,14 @@ angular.module('ngAnimate', ['ng'])
           var staggerCacheKey = cacheKey + ' ' + staggerClassName;
           var applyClasses = !lookupCache[staggerCacheKey];
 
-          applyClasses && element.addClass(staggerClassName);
+          applyClasses && $$jqLite.addClass(element, staggerClassName);
 
           stagger = getElementAnimationDetails(element, staggerCacheKey);
 
-          applyClasses && element.removeClass(staggerClassName);
+          applyClasses && $$jqLite.removeClass(element, staggerClassName);
         }
 
-        element.addClass(className);
+        $$jqLite.addClass(element, className);
 
         var formerData = element.data(NG_ANIMATE_CSS_DATA_KEY) || {};
         var timings = getElementAnimationDetails(element, eventCacheKey);
@@ -27700,7 +27857,7 @@ angular.module('ngAnimate', ['ng'])
         var animationDuration = timings.animationDuration;
 
         if (structural && transitionDuration === 0 && animationDuration === 0) {
-          element.removeClass(className);
+          $$jqLite.removeClass(element, className);
           return false;
         }
 
@@ -27772,7 +27929,7 @@ angular.module('ngAnimate', ['ng'])
         }
 
         if (!staggerTime) {
-          element.addClass(activeClassName);
+          $$jqLite.addClass(element, activeClassName);
           if (elementData.blockTransition) {
             blockTransitions(node, false);
           }
@@ -27782,7 +27939,7 @@ angular.module('ngAnimate', ['ng'])
         var timings = getElementAnimationDetails(element, eventCacheKey);
         var maxDuration = Math.max(timings.transitionDuration, timings.animationDuration);
         if (maxDuration === 0) {
-          element.removeClass(activeClassName);
+          $$jqLite.removeClass(element, activeClassName);
           animateClose(element, className);
           activeAnimationComplete();
           return;
@@ -27817,7 +27974,7 @@ angular.module('ngAnimate', ['ng'])
 
         var staggerTimeout;
         if (staggerTime > 0) {
-          element.addClass(pendingClassName);
+          $$jqLite.addClass(element, pendingClassName);
           staggerTimeout = $timeout(function() {
             staggerTimeout = null;
 
@@ -27828,8 +27985,8 @@ angular.module('ngAnimate', ['ng'])
               blockAnimations(node, false);
             }
 
-            element.addClass(activeClassName);
-            element.removeClass(pendingClassName);
+            $$jqLite.addClass(element, activeClassName);
+            $$jqLite.removeClass(element, pendingClassName);
 
             if (styles) {
               if (timings.transitionDuration === 0) {
@@ -27856,8 +28013,8 @@ angular.module('ngAnimate', ['ng'])
         // timeout done method.
         function onEnd() {
           element.off(css3AnimationEvents, onAnimationProgress);
-          element.removeClass(activeClassName);
-          element.removeClass(pendingClassName);
+          $$jqLite.removeClass(element, activeClassName);
+          $$jqLite.removeClass(element, pendingClassName);
           if (staggerTimeout) {
             $timeout.cancel(staggerTimeout);
           }
@@ -27945,7 +28102,7 @@ angular.module('ngAnimate', ['ng'])
       }
 
       function animateClose(element, className) {
-        element.removeClass(className);
+        $$jqLite.removeClass(element, className);
         var data = element.data(NG_ANIMATE_CSS_DATA_KEY);
         if (data) {
           if (data.running) {
@@ -32971,8 +33128,7 @@ angular.module("ang-drag-drop",[])
         '$dragImage',
         function ($parse, $rootScope, $dragImage) {
             return function (scope, element, attrs) {
-                var dragData = "",
-                    isDragHandleUsed = false,
+                var isDragHandleUsed = false,
                     dragHandleClass,
                     draggingClass = attrs.draggingClass || "on-dragging",
                     dragTarget;
@@ -32988,12 +33144,6 @@ angular.module("ang-drag-drop",[])
                     }
 
                 });
-
-                if (attrs.drag) {
-                    scope.$watch(attrs.drag, function (newValue) {
-                        dragData = newValue || "";
-                    });
-                }
 
                 if (angular.isString(attrs.dragHandleClass)) {
                     isDragHandleUsed = true;
@@ -33028,45 +33178,51 @@ angular.module("ang-drag-drop",[])
                     element.removeClass(draggingClass);
                 }
 
+	            function dragstartHandler(e) {
+		            var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
+
+		            if (isDragAllowed) {
+			            var sendChannel = attrs.dragChannel || "defaultchannel";
+			            var dragData = "";
+			            if (attrs.drag) {
+				            dragData = scope.$eval(attrs.drag);
+			            }
+			            var sendData = angular.toJson({ data: dragData, channel: sendChannel });
+			            var dragImage = attrs.dragImage || null;
+
+			            element.addClass(draggingClass);
+			            element.bind('$destroy', dragendHandler);
+
+			            if (dragImage) {
+				            var dragImageFn = $parse(attrs.dragImage);
+				            scope.$apply(function() {
+					            var dragImageParameters = dragImageFn(scope, {$event: e});
+					            if (dragImageParameters) {
+						            if (angular.isString(dragImageParameters)) {
+							            dragImageParameters = $dragImage.generate(dragImageParameters);
+						            }
+						            if (dragImageParameters.image) {
+							            var xOffset = dragImageParameters.xOffset || 0,
+							                yOffset = dragImageParameters.yOffset || 0;
+							            e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
+						            }
+					            }
+				            });
+			            }
+
+			            e.dataTransfer.setData("dataToSend", sendData);
+			            currentData = angular.fromJson(sendData);
+			            e.dataTransfer.effectAllowed = "copyMove";
+			            $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
+		            }
+		            else {
+			            e.preventDefault();
+		            }
+	            }
+
                 element.bind("dragend", dragendHandler);
 
-                element.bind("dragstart", function (e) {
-                    var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
-
-                    if (isDragAllowed) {
-                        var sendChannel = attrs.dragChannel || "defaultchannel";
-                        var sendData = angular.toJson({ data: dragData, channel: sendChannel });
-                        var dragImage = attrs.dragImage || null;
-
-                        element.addClass(draggingClass);
-                        element.bind('$destroy', dragendHandler);
-
-                        if (dragImage) {
-                            var dragImageFn = $parse(attrs.dragImage);
-                            scope.$evalAsync(function() {
-                                var dragImageParameters = dragImageFn(scope, {$event: e});
-                                if (dragImageParameters) {
-                                    if (angular.isString(dragImageParameters)) {
-                                        dragImageParameters = $dragImage.generate(dragImageParameters);
-                                    }
-                                    if (dragImageParameters.image) {
-                                        var xOffset = dragImageParameters.xOffset || 0,
-                                            yOffset = dragImageParameters.yOffset || 0;
-                                        e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
-                                    }
-                                }
-                            });
-                        }
-
-                        e.dataTransfer.setData("dataToSend", sendData);
-                        currentData = angular.fromJson(sendData);
-                        e.dataTransfer.effectAllowed = "copyMove";
-                        $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
-                    }
-                    else {
-                        e.preventDefault();
-                    }
-                });
+                element.bind("dragstart", dragstartHandler);
             };
         }
     ])
@@ -36258,9 +36414,11 @@ angular.module("ang-drag-drop",[])
     }
 }).call(this);
 
-/* angular-moment.js / v0.8.2 / (c) 2013, 2014 Uri Shaked / MIT Licence */
+/* angular-moment.js / v0.8.3 / (c) 2013, 2014 Uri Shaked / MIT Licence */
 
-/* global define */
+'format global'; /* global define */
+'deps angular';
+'deps moment';
 
 (function () {
 	'use strict';
@@ -36361,7 +36519,19 @@ angular.module("ang-drag-drop",[])
 				 * If set, time ago will be calculated relative to the given value.
 				 * If null, local time will be used. Defaults to null.
 				 */
-				serverTime: null
+				serverTime: null,
+
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.amTimeAgoConfig#format
+				 * @propertyOf angularMoment.config:amTimeAgoConfig
+				 * @returns {string} The format of the date to be displayed in the title of the element. If null,
+				 * 		the directive set the title of the element.
+				 *
+				 * @description
+				 * Specify the format of the date when displayed. null by default.
+				 */
+				titleFormat: null
 			})
 
 		/**
@@ -36378,6 +36548,7 @@ angular.module("ang-drag-drop",[])
 					var currentValue;
 					var currentFormat = angularMomentConfig.format;
 					var withoutSuffix = amTimeAgoConfig.withoutSuffix;
+					var titleFormat = amTimeAgoConfig.titleFormat;
 					var localDate = new Date().getTime();
 					var preprocess = angularMomentConfig.preprocess;
 					var modelName = attr.amTimeAgo.replace(/^::/, '');
@@ -36407,6 +36578,11 @@ angular.module("ang-drag-drop",[])
 
 					function updateTime(momentInstance) {
 						element.text(momentInstance.from(getNow(), withoutSuffix));
+
+						if (titleFormat && !element.attr('title')) {
+							element.attr('title', momentInstance.local().format(titleFormat));
+						}
+
 						if (!isBindOnce) {
 
 							var howOld = Math.abs(getNow().diff(momentInstance, 'minute'));
@@ -36664,11 +36840,35 @@ angular.module("ang-drag-drop",[])
 
 					return moment.duration(value, format).humanize(suffix);
 				};
-			}]);
+			}])
+
+		/**
+		 * @ngdoc filter
+		 * @name angularMoment.filter:amTimeAgo
+		 * @module angularMoment
+		 * @function
+		 */
+			.filter('amTimeAgo', ['moment', 'amMoment', function (moment, amMoment) {
+					return function (value, preprocess, suffix) {
+						if (typeof value === 'undefined' || value === null) {
+							return '';
+						}
+
+						value = amMoment.preprocessDate(value, preprocess);
+						var date = moment(value);
+						if (!date.isValid()) {
+							return '';
+						}
+
+						return amMoment.applyTimezone(date).fromNow(suffix);
+					};
+				}]);
 	}
 
 	if (typeof define === 'function' && define.amd) {
 		define('angular-moment', ['angular', 'moment'], angularMoment);
+	} else if (typeof module !== 'undefined' && module && module.exports) {
+		angularMoment(angular, require('moment'));
 	} else {
 		angularMoment(angular, window.moment);
 	}
@@ -36676,7 +36876,7 @@ angular.module("ang-drag-drop",[])
 
 
 /*
-Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -36727,6 +36927,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 timespans: '=?',
                 columnMagnet: '=?',
                 shiftColumnMagnet: '=?',
+                timeFramesMagnet: '=?',
                 data: '=?',
                 api: '=?',
                 options: '=?'
@@ -37046,6 +37247,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
          * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
          * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
          * @param {boolean} working is this timeFrame flagged as working.
+         * @param {boolean} magnet is this timeFrame will magnet.
          * @param {boolean} default is this timeFrame will be used as default.
          * @param {color} css color attached to this timeFrame.
          * @param {string} classes css classes attached to this timeFrame.
@@ -37060,6 +37262,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.start = options.start;
             this.end = options.end;
             this.working = options.working;
+            this.magnet = options.magnet !== undefined ? options.magnet : true;
             this.default = options.default;
             this.color = options.color;
             this.classes = options.classes;
@@ -37409,7 +37612,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 endDate = maxDate;
             }
 
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, color: color, classes: classes})];
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, magnet: false, color: color, classes: classes})];
 
             timeFrames = $filter('filter')(timeFrames, function(timeFrame) {
                 return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
@@ -37527,9 +37730,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-(function(){
+(function() {
     'use strict';
-    angular.module('gantt').factory('GanttColumn', [ 'moment', function(moment) {
+    angular.module('gantt').factory('GanttColumn', ['moment', function(moment) {
         // Used to display the Gantt grid and header.
         // The columns are generated by the column generator.
         var Column = function(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode) {
@@ -37558,7 +37761,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.$element.css('left', this.left + 'px');
                 this.$element.css('width', this.width + 'px');
 
-                for (var i= 0, l = this.timeFrames.length; i<l;i++) {
+                for (var i = 0, l = this.timeFrames.length; i < l; i++) {
                     this.timeFrames[i].updateView();
                 }
             }
@@ -37695,55 +37898,92 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return this.date === other.date;
         };
 
-        Column.prototype.getMagnetDate = function(date, magnetValue, magnetUnit) {
+        Column.prototype.roundTo = function(date, unit, offset, midpoint) {
+            // Waiting merge of https://github.com/moment/moment/pull/1794
+            if (unit === 'day') {
+                // Inconsistency in units in momentJS.
+                unit = 'date';
+            }
+
+            offset = offset || 1;
+            var value = date.get(unit);
+
+            switch (midpoint) {
+                case 'up':
+                    value = Math.ceil(value / offset);
+                    break;
+                case 'down':
+                    value = Math.floor(value / offset);
+                    break;
+                default:
+                    value = Math.round(value / offset);
+                    break;
+            }
+
+            var units = ['millisecond', 'second', 'minute', 'hour', 'date', 'month', 'year'];
+            date.set(unit, value * offset);
+
+            var indexOf = units.indexOf(unit);
+            for (var i = 0; i < indexOf; i++) {
+                date.set(units[i], 0);
+            }
+
+            return date;
+        };
+
+        Column.prototype.getMagnetDate = function(date, magnetValue, magnetUnit, timeFramesMagnet) {
             if (magnetValue > 0 && magnetUnit !== undefined) {
                 var initialDate = date;
                 date = moment(date);
-                var value;
-                var roundedMagnet;
-                var duration;
 
-                if (magnetValue < 1) {
-                    date.startOf(magnetUnit);
-                    value = initialDate.diff(date, 'milliseconds');
-                    duration = moment.duration(magnetValue, magnetUnit).asMilliseconds();
+                if (magnetUnit === 'column') {
+                    // Snap to column borders only.
+                    var position = this.getPositionByDate(date);
 
-                    roundedMagnet = Math.round(value/duration) * duration;
-                    date.set('milliseconds', roundedMagnet);
+                    if (position < this.width / 2) {
+                        date = moment(this.date);
+                    } else {
+                        date = moment(this.endDate);
+                    }
                 } else {
-                    value = date.get(magnetUnit);
-                    roundedMagnet = Math.round(value/magnetValue) * magnetValue;
-                    date.startOf(magnetUnit);
-                    date.set(magnetUnit, roundedMagnet);
+                    // Round the value
+                    date = this.roundTo(date, magnetUnit, magnetValue);
+
+                    // Snap to column borders if date overflows.
+                    if (date < this.date) {
+                        date = moment(this.date);
+                    } else if (date > this.endDate) {
+                        date = moment(this.endDate);
+                    }
                 }
 
-                // Snap to a timeFrame border if initialDate is nearer of timeFrame border than actual magnet date.
-                for (var i= 0, l=this.timeFrames.length; i < l; i++) {
-                    var timeFrame = this.timeFrames[i];
+                if (timeFramesMagnet) {
+                    var maxTimeFrameDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
+                    var currentTimeFrameDiff;
 
-                    var previousCropped;
-                    if (timeFrame.cropped && date >= timeFrame.start && date <= timeFrame.end) {
-                        previousCropped = true;
-                    }
+                    for (var i=0; i<this.timeFrames.length; i++) {
+                        var timeFrame = this.timeFrames[i];
+                        if (timeFrame.magnet) {
+                            var previousTimeFrame = this.timeFrames[i-1];
+                            var nextTimeFrame = this.timeFrames[i+1];
+                            var timeFrameDiff;
 
-                    if (!timeFrame.cropped && (previousCropped || date >= timeFrame.start && date <= timeFrame.end)) {
-                        if (previousCropped) {
-                            previousCropped = false;
-                            if (date < timeFrame.start) {
-                                initialDate = timeFrame.start;
-                            } else if (date > timeFrame.end) {
-                                initialDate = timeFrame.end;
+                            if (previousTimeFrame === undefined || previousTimeFrame.working !== timeFrame.working) {
+                                timeFrameDiff = Math.abs(initialDate.diff(timeFrame.start, 'milliseconds'));
+                                if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
+                                    currentTimeFrameDiff = timeFrameDiff;
+                                    date = timeFrame.start;
+                                }
+                            }
+
+                            if (nextTimeFrame === undefined || nextTimeFrame.working !== timeFrame.working) {
+                                timeFrameDiff = Math.abs(initialDate.diff(timeFrame.end, 'milliseconds'));
+                                if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
+                                    currentTimeFrameDiff = timeFrameDiff;
+                                    date = timeFrame.end;
+                                }
                             }
                         }
-
-                        var magnetDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
-                        if (initialDate.diff(timeFrame.start, 'milliseconds') < magnetDiff) {
-                            date = timeFrame.start;
-                        } else if (timeFrame.end.diff(initialDate, 'milliseconds') < magnetDiff) {
-                            date = timeFrame.end;
-                        }
-
-                        break;
                     }
                 }
             }
@@ -37751,7 +37991,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Column.prototype.getDateByPositionUsingTimeFrames = function(position) {
-            for (var i= 0, l = this.timeFrames.length; i < l; i++) {
+            for (var i = 0, l = this.timeFrames.length; i < l; i++) {
                 // TODO: performance optimization could be done.
                 var timeFrame = this.timeFrames[i];
                 if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
@@ -37762,7 +38002,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
-        Column.prototype.getDateByPosition = function(position, magnetValue, magnetUnit) {
+        Column.prototype.getDateByPosition = function(position, magnetValue, magnetUnit, timeFramesMagnet) {
             var positionDuration;
             var date;
 
@@ -37782,7 +38022,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 date = moment(this.date).add(positionDuration, 'milliseconds');
             }
 
-            date = this.getMagnetDate(date, magnetValue, magnetUnit);
+            date = this.getMagnetDate(date, magnetValue, magnetUnit, timeFramesMagnet);
 
             return date;
         };
@@ -37802,12 +38042,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
                 var croppedDate = date;
                 var timeFrames = this.getDayTimeFrame(croppedDate);
-                for (var i=0; i < timeFrames.length; i++) {
+                for (var i = 0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
                     if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
                         if (timeFrame.cropped) {
-                            if (timeFrames.length > i+1) {
-                                croppedDate = timeFrames[i+1].start;
+                            if (timeFrames.length > i + 1) {
+                                croppedDate = timeFrames[i + 1].start;
                             } else {
                                 croppedDate = timeFrame.end;
                             }
@@ -37839,9 +38079,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
-    angular.module('gantt').factory('GanttColumnGenerator', [ 'GanttColumn', 'moment', function(Column, moment) {
+    angular.module('gantt').factory('GanttColumnGenerator', ['GanttColumn', 'moment', function(Column, moment) {
         var ColumnGenerator = function(columnsManager) {
             var self = this;
 
@@ -37853,22 +38093,41 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     throw 'to or maximumWidth must be defined';
                 }
 
-                var unit = self.columnsManager.gantt.options.value('viewScale');
+                var viewScale = self.columnsManager.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
+                var viewScaleValue;
+                var viewScaleUnit;
+                var splittedViewScale;
+
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleValue = 1;
+                    viewScaleUnit = viewScale;
+                }
+
                 var calendar = self.columnsManager.gantt.calendar;
                 var timeFramesWorkingMode = self.columnsManager.gantt.options.value('timeFramesWorkingMode');
                 var timeFramesNonWorkingMode = self.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
                 var columnWidth = self.columnsManager.getColumnsWidth();
 
                 var excludeTo = false;
-                from = moment(from).startOf(unit);
+                from = moment(from).startOf(viewScaleUnit);
                 if (to) {
                     excludeTo = isToDateToExclude(to);
-                    to = moment(to).startOf(unit);
+                    to = moment(to).startOf(viewScaleUnit);
                 }
 
-                var date = moment(from).startOf(unit);
+                var date = moment(from).startOf(viewScaleUnit);
                 if (reverse) {
-                    date.add(-1, unit);
+                    date.add(-viewScaleValue, viewScaleUnit);
                 }
                 var generatedCols = [];
                 var left = 0;
@@ -37879,7 +38138,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     var startDate = moment(date);
-                    var endDate = moment(startDate).add(1, unit);
+                    var endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
+                    ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
 
                     var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
                     if (!column.cropped) {
@@ -37902,11 +38162,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             }
                         }
                     }
-                    date.add(reverse ? -1 : 1, unit);
+                    if (reverse) {
+                        date.add(-viewScaleValue, viewScaleUnit);
+                        ensureNoUnitOverflow(viewScaleUnit, date, startDate);
+                    } else {
+                        date.add(viewScaleValue, viewScaleUnit);
+                        ensureNoUnitOverflow(viewScaleUnit, startDate, date);
+                    }
                 }
 
                 if (reverse) {
-                    if (isToDateToExclude(from, unit)) {
+                    if (isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
                         generatedCols.shift();
                     }
                     generatedCols.reverse();
@@ -37918,8 +38184,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             // Columns are generated including or excluding the to date.
             // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
 
-            var isToDateToExclude = function(to, unit) {
-                return moment(to).add(1, unit).startOf(unit) === to;
+            var isToDateToExclude = function(to, value, unit) {
+                return moment(to).add(value, unit).startOf(unit) === to;
+            };
+
+            var ensureNoUnitOverflow = function(unit, startDate, endDate) {
+                var v1 = startDate.get(unit);
+                var v2 = endDate.get(unit);
+                var firstValue = getFirstValue(unit);
+                if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+                    endDate.set(unit, firstValue);
+                }
+            };
+
+            var getFirstValue = function(unit) {
+                if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+                    return 0;
+                }
             };
         };
         return ColumnGenerator;
@@ -37932,12 +38213,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         // Used to display the Gantt grid and header.
         // The columns are generated by the column generator.
 
-        var ColumnHeader = function(date, unit, left, width, labelFormat) {
+        var ColumnHeader = function(date, viewScaleValue, viewScaleUnit, left, width, labelFormat) {
             var startDate = moment(date);
-            var endDate = moment(startDate).add(1, unit);
+            var endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
 
             var column = new Column(startDate, endDate, left, width);
-            column.unit = unit;
+            column.unit = viewScaleUnit;
             column.label = angular.isFunction(labelFormat) ? labelFormat(column): startDate.format(labelFormat);
 
             return column;
@@ -38314,10 +38595,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
             if (format === undefined) {
                 var viewScale = this.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
 
-                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScale) > -1) {
+                var viewScaleUnit;
+                var splittedViewScale;
+
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleUnit = viewScale;
+                }
+
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
                     format = defaultDayHeadersFormats[unit];
-                } else if (['month', 'quarter', 'year'].indexOf(viewScale) > -1) {
+                } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
                     format = defaultYearHeadersFormats[unit];
                 }
                 if (format === undefined) {
@@ -38334,19 +38631,34 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function(){
     'use strict';
     angular.module('gantt').factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {
-        var generateHeader = function(columnsManager, columns, unit) {
+        var generateHeader = function(columnsManager, columns, viewScale) {
             var generatedHeaders = [];
             var header;
             var prevColDateVal;
 
+            var viewScaleValue;
+            var viewScaleUnit;
+            var splittedViewScale;
+
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+
             for (var i = 0, l = columns.length; i < l; i++) {
                 var col = columns[i];
-                var colDateVal = col.date.get(unit);
+                var colDateVal = col.date.get(viewScaleUnit);
                 if (i === 0 || prevColDateVal !== colDateVal) {
                     prevColDateVal = colDateVal;
-                    var labelFormat = columnsManager.getHeaderFormat(unit);
+                    var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
 
-                    header = new ColumnHeader(col.date, unit, col.originalSize.left, col.originalSize.width, labelFormat);
+                    header = new ColumnHeader(col.date, viewScaleValue, viewScaleUnit, col.originalSize.left, col.originalSize.width, labelFormat);
                     header.left = col.left;
                     header.width = col.width;
                     generatedHeaders.push(header);
@@ -38364,34 +38676,42 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var units = [];
                 if (columnsManager.gantt.options.value('headers') === undefined) {
                     var viewScale = columnsManager.gantt.options.value('viewScale');
-                    units = [];
-                    if (['year', 'quarter', 'month'].indexOf(viewScale) > -1) {
+                    viewScale = viewScale.trim();
+                    if (viewScale.charAt(viewScale.length - 1) === 's') {
+                        viewScale = viewScale.substring(0, viewScale.length - 1);
+                    }
+
+                    var viewScaleUnit;
+                    var splittedViewScale;
+
+                    if (viewScale) {
+                        splittedViewScale = viewScale.split(' ');
+                    }
+                    if (splittedViewScale && splittedViewScale.length > 1) {
+                        viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                    } else {
+                        viewScaleUnit = viewScale;
+                    }
+
+                    if (['quarter','month'].indexOf(viewScaleUnit) > -1) {
                         units.push('year');
                     }
-                    if (['quarter'].indexOf(viewScale) > -1) {
-                        units.push('quarter');
-                    }
-                    if (['day', 'week', 'month'].indexOf(viewScale) > -1) {
+                    if (['day', 'week'].indexOf(viewScaleUnit) > -1) {
                         units.push('month');
                     }
-                    if (['day', 'week'].indexOf(viewScale) > -1) {
+                    if (['day'].indexOf(viewScaleUnit) > -1) {
                         units.push('week');
                     }
-                    if (['hour', 'day'].indexOf(viewScale) > -1) {
+                    if (['hour'].indexOf(viewScaleUnit) > -1) {
                         units.push('day');
                     }
-                    if (['hour', 'minute', 'second'].indexOf(viewScale) > -1) {
+                    if (['minute', 'second'].indexOf(viewScaleUnit) > -1) {
                         units.push('hour');
                     }
-                    if (['minute', 'second'].indexOf(viewScale) > -1) {
+                    if (['second'].indexOf(viewScaleUnit) > -1) {
                         units.push('minute');
                     }
-                    if (['second'].indexOf(viewScale) > -1) {
-                        units.push('second');
-                    }
-                    if (units.length === 0) {
-                        units.push(viewScale);
-                    }
+                    units.push(viewScale);
                 } else {
                     units = columnsManager.gantt.options.value('headers');
                 }
@@ -38426,6 +38746,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timespans': [],
                     'viewScale': 'day',
                     'columnMagnet': '15 minutes',
+                    'timeFramesMagnet': true,
                     'showSide': true,
                     'allowSideResizing': true,
                     'currentDate': 'line',
@@ -38495,37 +38816,33 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                $scope.$watch('columnMagnet', function(newValue, oldValue) {
-                    if (newValue !== oldValue) {
-                        var splittedColumnMagnet;
-                        var columnMagnet = self.options.value('columnMagnet');
-                        if (columnMagnet) {
-                            splittedColumnMagnet = columnMagnet.trim().split(' ');
-                        }
-                        if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
-                            self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                            self.columnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
-                        } else {
-                            self.columnMagnetValue = undefined;
-                            self.columnMagnetUnit = undefined;
-                        }
+                $scope.$watch('columnMagnet', function() {
+                    var splittedColumnMagnet;
+                    var columnMagnet = self.options.value('columnMagnet');
+                    if (columnMagnet) {
+                        splittedColumnMagnet = columnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
+                        self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                        self.columnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+                    } else {
+                        self.columnMagnetValue = 1;
+                        self.columnMagnetUnit = moment.normalizeUnits(columnMagnet);
                     }
                 });
 
-                $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function(newValues, oldValues) {
-                    if (newValues !== oldValues) {
-                        var splittedColumnMagnet;
-                        var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
-                        if (shiftColumnMagnet) {
-                            splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
-                        }
-                        if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
-                            self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                            self.shiftColumnMagnetUnit = splittedColumnMagnet[splittedColumnMagnet.length - 1];
-                        } else {
-                            self.shiftColumnMagnetValue = undefined;
-                            self.shiftColumnMagnetUnit = undefined;
-                        }
+                $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function() {
+                    var splittedColumnMagnet;
+                    var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+                    if (shiftColumnMagnet) {
+                        splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
+                    }
+                    if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
+                        self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                        self.shiftColumnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+                    } else {
+                        self.shiftColumnMagnetValue = 1;
+                        self.shiftColumnMagnetUnit = moment.normalizeUnits(shiftColumnMagnet);
                     }
                 });
 
@@ -38624,8 +38941,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 magnetValue = this.shiftColumnMagnetValue;
                                 magnetUnit = this.shiftColumnMagnetUnit;
                             } else {
-                                magnetValue = 0.25;
-                                magnetUnit = this.options.value('viewScale');
+                                var viewScale = this.options.value('viewScale');
+                                viewScale = viewScale.trim();
+                                var viewScaleValue;
+                                var viewScaleUnit;
+                                var splittedViewScale;
+
+                                if (viewScale) {
+                                    splittedViewScale = viewScale.split(' ');
+                                }
+                                if (splittedViewScale && splittedViewScale.length > 1) {
+                                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                                    viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
+                                } else {
+                                    viewScaleValue = 1;
+                                    viewScaleUnit = moment.normalizeUnits(viewScale);
+                                }
+                                magnetValue = viewScaleValue * 0.25;
+                                magnetUnit = viewScaleUnit;
                             }
                         } else {
                             magnetValue = this.columnMagnetValue;
@@ -38633,7 +38966,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     }
 
-                    return column.getDateByPosition(x - column.left, magnetValue, magnetUnit);
+                    return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
                 } else {
                     return undefined;
                 }
@@ -38657,7 +38990,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
-            // DEPRECATED - Use getData instead.
+            // DEPRECATED - Use $data instead.
             Gantt.prototype.loadData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
@@ -38677,13 +39010,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     }
                 }
+
+                var w = this.side.getWidth();
+                if (w > 0) {
+                    this.options.set('sideWidth', w);
+                }
             };
 
             Gantt.prototype.getData = function() {
                 return this.$scope.data;
             };
 
-            // DEPRECATED - Use getData instead.
+            // DEPRECATED - Use $data instead.
             Gantt.prototype.removeData = function(data) {
                 if (!angular.isArray(data)) {
                     data = data !== undefined ? [data] : [];
@@ -38715,7 +39053,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
-            // DEPRECATED - Use getData instead.
+            // DEPRECATED - Use $data instead.
             Gantt.prototype.clearData = function() {
                 this.$scope.data = undefined;
             };
@@ -38733,7 +39071,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var gantt = this;
                 var renderedFunction = function() {
-                    gantt.options.set('sideWidth', gantt.side.getWidth());
+                    var w = gantt.side.getWidth();
+                    if (w > 0) {
+                        gantt.options.set('sideWidth', w);
+                    }
                     gantt.api.core.raise.rendered(gantt.api);
                 };
                 $timeout(renderedFunction);
@@ -39230,7 +39571,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             if (expression !== undefined) {
                 var reverse = false;
-                if (expression.charAt(0) === '-') {
+                if (angular.isString(expression) && expression.charAt(0) === '-') {
                     reverse = true;
                     expression = expression.substr(1);
                 }
@@ -39467,8 +39808,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.css('left', this.left + 'px');
                     this.$element.css('width', this.width + 'px');
 
-                    var styleElement = this.getStyleElement();
-                    styleElement.css('background-color', this.model.color);
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
@@ -39479,11 +39818,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
-        Task.prototype.getStyleElement = function() {
+        Task.prototype.getBackgroundElement = function() {
             if (this.$element !== undefined) {
-                var styleElement = this.$element[0].querySelector('.gantt-task-background');
-                styleElement = angular.element(styleElement);
-                return styleElement;
+                var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
+                backgroundElement = angular.element(backgroundElement);
+                return backgroundElement;
+            }
+        };
+
+        Task.prototype.getContentElement = function() {
+            if (this.$element !== undefined) {
+                var contentElement = this.$element[0].querySelector('.gantt-task-content-container');
+                contentElement = angular.element(contentElement);
+                return contentElement;
+            }
+        };
+
+        Task.prototype.getForegroundElement = function() {
+            if (this.$element !== undefined) {
+                var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
+                foregroundElement = angular.element(foregroundElement);
+                return foregroundElement;
             }
         };
 
@@ -40453,7 +40808,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', 'ganttDebounce', 'moment', function(Builder, debounce, moment) {
+    angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', '$timeout', 'ganttDebounce', 'moment', function(Builder, $timeout, debounce, moment) {
         var builder = new Builder('ganttScrollable');
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
@@ -40467,26 +40822,53 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return;
                 }
 
-                if (Date.now() - lastAutoExpand < autoExpandCoolDownPeriod) {
-                    return;
-                }
-
                 var from, to;
-                var expandHour = 1, expandDay = 31;
 
                 var viewScale = $scope.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
+                var viewScaleValue;
+                var viewScaleUnit;
+                var splittedViewScale;
 
-                if (direction === 'left') {
-                    from = viewScale === 'hour' ? moment(date).add(-expandHour, 'day') : moment(date).add(-expandDay, 'day');
-                    to = date;
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
                 } else {
-                    from = date;
-                    to = viewScale === 'hour' ? moment(date).add(expandHour, 'day') : moment(date).add(expandDay, 'day');
+                    viewScaleValue = 1;
+                    viewScaleUnit = viewScale;
                 }
 
-                $scope.fromDate = from;
-                $scope.toDate = to;
+                if (direction === 'left') {
+                    from = moment(date).add(-5 * viewScaleValue, viewScaleUnit);
+                    $scope.fromDate = from;
+                } else {
+                    to = moment(date).add(5 * viewScaleValue, viewScaleUnit);
+                    $scope.toDate = to;
+                }
+
                 lastAutoExpand = Date.now();
+                $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
+                $timeout(function() {
+                    var nDirection, nDate;
+
+                    if (el.scrollLeft === 0) {
+                        nDirection = 'left';
+                        nDate = from;
+                    } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                        nDirection = 'right';
+                        nDate = to;
+                    }
+
+                    if (nDirection === direction) {
+                        autoExpandColumns(el, nDate, direction);
+                    }
+                }, autoExpandCoolDownPeriod);
             };
 
             $element.bind('scroll', debounce(function() {
@@ -40508,7 +40890,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
                 } else {
                     $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
                 }
@@ -40905,7 +41286,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var templateUrl = self.templateUrl;
                 var controllerFunction = self.controller;
 
-                return {
+                var directive = {
                     restrict: self.restrict,
                     require: self.require,
                     transclude: self.transclude,
@@ -40941,6 +41322,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
                     }]
                 };
+
+                if (!templateUrl) {
+                    delete directive.templateUrl;
+                    delete directive.replace;
+                    delete directive.transclude;
+                }
+
+                return directive;
             };
         };
 
@@ -41249,8 +41638,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div class="gantt-row-height"\n' +
         '             ng-class-odd="\'gantt-background-row\'"\n' +
         '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="::row.model.classes"\n' +
-        '             ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '             ng-class="row.model.classes"\n' +
+        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -41302,7 +41691,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">\n' +
-        '        <div class="gantt-task-background" ng-class="::task.model.classes"></div>\n' +
+        '        <div class="gantt-task-background" ng-class="task.model.classes" ng-style="{\'background-color\': task.model.color}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
@@ -41330,7 +41719,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.0.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.0.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -41413,7 +41802,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (directiveName === 'ganttRow') {
                         var drawHandler = function(evt) {
                             var evtTarget = (evt.target ? evt.target : evt.srcElement);
-                            if (scope.enabled && evtTarget.className.indexOf('gantt-row') > -1) {
+                            var enabled = angular.isFunction(scope.enabled) ? scope.enabled(evt): scope.enabled;
+                            if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var startDate = api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
                                 var endDate = moment(startDate);
 
@@ -41570,12 +41960,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var taskHasBeenChanged = false;
                             var scrollInterval;
 
-                            taskElement.on(_pressEvents, function(evt) {
+                            var foregroundElement = taskScope.task.getForegroundElement();
+
+                            foregroundElement.on(_pressEvents, function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
                                 }
-                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -41587,15 +41991,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
                             });
 
-                            taskElement.on('mousemove', function(evt) {
-                                var enabled = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'enabled', scope.enabled);
+                            foregroundElement.on('mousemove', function(evt) {
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffset(evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
-                                        taskElement.css('cursor', getCursor(mode));
+                                        foregroundElement.css('cursor', getCursor(mode));
                                     } else {
-                                        taskElement.css('cursor', '');
+                                        foregroundElement.css('cursor', '');
                                     }
                                 }
                             });
@@ -41609,13 +42025,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             var moveTask = function(evt) {
+                                var oldTaskHasBeenChanged = taskHasBeenChanged;
+
                                 var mousePos = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt);
                                 var x = mousePos.x;
                                 taskScope.task.mouseOffsetX = x;
                                 var taskOutOfRange = taskScope.task.row.rowsManager.gantt.options.value('taskOutOfRange');
 
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
                                 if (taskScope.task.moveMode === 'M') {
-                                    var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
+                                    var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
@@ -41638,10 +42067,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                             targetRow.moveTaskToRow(taskScope.task, true);
                                             sourceRow.$scope.$digest();
                                             targetRow.$scope.$digest();
+                                            taskHasBeenChanged = true;
                                         }
                                     }
 
-                                    var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+                                    var allowMoving = utils.firstProperty([taskMovable, rowMovable], 'allowMoving', scope.allowMoving);
                                     if (allowMoving) {
                                         x = x - mouseStartOffsetX;
 
@@ -41656,6 +42086,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                        taskHasBeenChanged = true;
                                     }
                                 } else if (taskScope.task.moveMode === 'E') {
                                     if (x <= taskScope.task.left) {
@@ -41671,6 +42102,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    taskHasBeenChanged = true;
                                 } else {
                                     if (x > taskScope.task.left + taskScope.task.width) {
                                         x = taskScope.task.left + taskScope.task.width;
@@ -41685,9 +42117,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    taskHasBeenChanged = true;
                                 }
 
-                                taskHasBeenChanged = true;
+                                if (!oldTaskHasBeenChanged && taskHasBeenChanged) {
+                                    var backgroundElement = taskScope.task.getBackgroundElement();
+                                    if (taskScope.task.moveMode === 'M') {
+                                        backgroundElement.addClass('gantt-task-moving');
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
+                                    } else {
+                                        backgroundElement.addClass('gantt-task-resizing');
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
+                                    }
+                                }
                             };
 
                             var scrollScreen = function(evt) {
@@ -41731,20 +42173,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var getMoveMode = function(x) {
                                 var distance = 0;
 
-                                var allowResizing = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowResizing', scope.allowResizing);
-                                var allowRowSwitching = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowRowSwitching', scope.allowRowSwitching);
-                                var allowMoving = utils.firstProperty([taskScope.task.model.movable, taskScope.task.row.model.movable], 'allowMoving', scope.allowMoving);
+
+                                var taskMovable = taskScope.task.model.movable;
+                                var rowMovable = taskScope.task.row.model.movable;
+
+                                if (typeof(taskMovable) === 'boolean') {
+                                    taskMovable = {enabled: taskMovable};
+                                }
+
+                                if (typeof(rowMovable) === 'boolean') {
+                                    rowMovable = {enabled: rowMovable};
+                                }
+
+                                var allowResizing = utils.firstProperty([taskMovable, rowMovable], 'allowResizing', scope.allowResizing);
+                                var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
+                                var allowMoving = utils.firstProperty([taskMovable, rowMovable], 'allowMoving', scope.allowMoving);
 
                                 // Define resize&move area. Make sure the move area does not get too small.
                                 if (allowResizing) {
-                                    distance = taskElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
+                                    distance = foregroundElement[0].offsetWidth < taskWithSmallWidth ? resizeAreaWidthSmall : resizeAreaWidthBig;
                                 }
 
-                                if (allowResizing && x > taskElement[0].offsetWidth - distance) {
+                                if (allowResizing && x > foregroundElement[0].offsetWidth - distance) {
                                     return 'E';
                                 } else if (allowResizing && x < distance) {
                                     return 'W';
-                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= taskElement[0].offsetWidth - distance) {
+                                } else if ((allowMoving || allowRowSwitching) && x >= distance && x <= foregroundElement[0].offsetWidth - distance) {
                                     return 'M';
                                 } else {
                                     return '';
@@ -41779,19 +42233,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.originalRow = taskScope.task.row;
                                     taskScope.task.originalModel = taskScope.task.model;
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
-                                }
-
-                                var styleElement = taskScope.task.getStyleElement();
-                                if (mode === 'M') {
-                                    styleElement.addClass('gantt-task-moving');
-                                    if (!taskScope.task.isMoving) {
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
-                                    }
-                                } else {
-                                    styleElement.addClass('gantt-task-resizing');
-                                    if (!taskScope.task.isMoving) {
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
-                                    }
                                 }
 
                                 // Init mouse start variables (if tasks was not move from another row)
@@ -41832,9 +42273,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             var disableMoveMode = function() {
-                                var styleElement = taskScope.task.getStyleElement(taskElement);
-                                styleElement.removeClass('gantt-task-moving');
-                                styleElement.removeClass('gantt-task-resizing');
+                                var getBackgroundElement = taskScope.task.getBackgroundElement();
+                                getBackgroundElement.removeClass('gantt-task-moving');
+                                getBackgroundElement.removeClass('gantt-task-resizing');
 
                                 if (taskScope.task.originalModel !== undefined) {
                                     angular.extend(taskScope.task.originalModel, taskScope.task.model);
@@ -41860,21 +42301,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 // Set mouse cursor back to default
                                 setGlobalCursor('');
 
-                                // Raise move end event
-                                if (taskScope.task.moveMode === 'M') {
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.moveEnd(taskScope.task);
-                                } else {
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(taskScope.task);
-                                }
-
-                                taskScope.task.moveMode = undefined;
-
                                 // Raise task changed event
                                 if (taskHasBeenChanged === true) {
+                                    // Raise move end event
+                                    if (taskScope.task.moveMode === 'M') {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.moveEnd(taskScope.task);
+                                    } else {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resizeEnd(taskScope.task);
+                                    }
+
                                     taskHasBeenChanged = false;
                                     taskScope.task.row.sortTasks(); // Sort tasks so they have the right z-order
                                     taskScope.row.rowsManager.gantt.api.tasks.raise.change(taskScope.task);
                                 }
+
+                                taskScope.task.moveMode = undefined;
                             };
 
                             // Stop scroll cycle (if running) when scope is destroyed.
@@ -42041,9 +42482,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     api.directives.on.new(scope, function(directiveName, rowScope, rowElement) {
-                        if (directiveName === 'ganttRowLabel') {
+                        if (directiveName === 'ganttRowLabel' && rowElement.attr('drag') === undefined) {
                             rowScope.checkDraggable = function() {
-                                return utils.firstProperty([rowScope.row.model.sortable], 'enabled', scope.enabled);
+                                var rowSortable = rowScope.row.model.sortable;
+
+                                if (typeof(rowSortable) === 'boolean') {
+                                    rowSortable = {enabled: rowSortable};
+                                }
+
+                                return utils.firstProperty([rowSortable], 'enabled', scope.enabled);
                             };
 
                             rowScope.onDropSuccess = function() {
@@ -42202,7 +42649,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
+    angular.module('gantt.labels').directive('ganttLabelsBody', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttLabelsBody', 'plugins/labels/labelsBody.tmpl.html');
         builder.controller = function($scope) {
             var hScrollBarHeight = layout.getScrollBarHeight();
@@ -42226,7 +42673,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttLabelsHeader', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt.labels').directive('ganttLabelsHeader', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttLabelsHeader', 'plugins/labels/labelsHeader.tmpl.html');
         return builder.build();
     }]);
@@ -42235,8 +42682,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttRowHeader', ['GanttDirectiveBuilder', function(Builder) {
-        var builder = new Builder('ganttRowHeader', 'plugins/labels/rowHeader.tmpl.html');
+    angular.module('gantt.labels').directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttRowLabel');
+        builder.restrict = 'A';
+        builder.templateUrl = undefined;
         return builder.build();
     }]);
 }());
@@ -42244,25 +42693,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
-        var builder = new Builder('ganttRowLabel', 'plugins/labels/rowLabel.tmpl.html');
-        return builder.build();
-    }]);
-}());
-
-
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttRowLabels', ['GanttDirectiveBuilder', function(Builder) {
-        var builder = new Builder('ganttRowLabels', 'plugins/labels/rowLabels.tmpl.html');
-        return builder.build();
-    }]);
-}());
-
-
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttSideContentLabels', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt.labels').directive('ganttSideContentLabels', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttSideContentLabels', 'plugins/labels/sideContentLabels.tmpl.html');
         return builder.build();
     }]);
@@ -42353,7 +42784,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
@@ -42381,15 +42812,35 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var visible = false;
                 var mouseEnterX;
 
-                $element.toggleClass('ng-hide', true);
-
                 $scope.getFromLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.from.format(dateFormat);
                 };
 
                 $scope.getToLabel = function() {
-                    var dateFormat = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
 
@@ -42402,42 +42853,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.$element.bind('mousemove', function(evt) {
+                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.$element.bind('mouseenter', function(evt) {
+                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.$element.bind('mouseleave', function() {
+                $scope.task.getForegroundElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
                 if ($scope.pluginScope.api.tasks.on.moveBegin) {
                     $scope.pluginScope.api.tasks.on.moveBegin($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.bind();
+                            displayTooltip(true);
                         }
                     });
 
                     $scope.pluginScope.api.tasks.on.moveEnd($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.unbind();
                             displayTooltip(false);
                         }
                     });
 
                     $scope.pluginScope.api.tasks.on.resizeBegin($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.bind();
+                            displayTooltip(true);
                         }
                     });
 
                     $scope.pluginScope.api.tasks.on.resizeEnd($scope, function(task) {
                         if (task === $scope.task) {
-                            mouseMoveHandler.unbind();
                             displayTooltip(false);
                         }
                     });
@@ -42447,7 +42896,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (showTooltipPromise) {
                         $timeout.cancel(showTooltipPromise);
                     }
-                    var enabled = utils.firstProperty([$scope.task.model.tooltips, $scope.task.row.model.tooltips], 'enabled', $scope.pluginScope.enabled);
+
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && !visible && newValue) {
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
@@ -42465,14 +42926,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var showTooltip = function(x) {
                     visible = true;
-                    $element.toggleClass('ng-hide', false);
+                    mouseMoveHandler.bind();
 
-                    $timeout(function() {
+                    $scope.displayed = true;
+
+                    $scope.$evalAsync(function() {
+                        var restoreNgHide;
+                        if ($element.hasClass('ng-hide')) {
+                            $element.removeClass('ng-hide');
+                            restoreNgHide = true;
+                        }
+                        $scope.elementHeight = $element[0].offsetHeight;
+                        if (restoreNgHide) {
+                            $element.addClass('ng-hide');
+                        }
+                        $scope.taskRect = parentElement[0].getBoundingClientRect();
                         updateTooltip(x);
-                        $element.css('top', parentElement[0].getBoundingClientRect().top + 'px');
-                        $element.css('marginTop', -$element[0].offsetHeight - 8 + 'px');
-                        $element.css('opacity', 1);
-                    }, 0, true);
+                    });
                 };
 
                 var getViewPortWidth = function() {
@@ -42484,24 +42954,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Check if info is overlapping with view port
                     if (x + $element[0].offsetWidth > getViewPortWidth()) {
                         $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
-                        $element.addClass('gantt-task-infoArrowR'); // Right aligned info
-                        $element.removeClass('gantt-task-infoArrow');
+                        $scope.isRightAligned = true;
                     } else {
                         $element.css('left', (x - 20) + 'px');
-                        $element.addClass('gantt-task-infoArrow');
-                        $element.removeClass('gantt-task-infoArrowR');
+                        $scope.isRightAligned = false;
                     }
                 };
 
                 var hideTooltip = function() {
                     visible = false;
-                    $element.css('opacity', 0);
-                    $element.toggleClass('ng-hide', true);
+                    mouseMoveHandler.unbind();
+                    $scope.$evalAsync(function() {
+                        $scope.displayed = false;
+                    });
                 };
 
                 if ($scope.task.isMoving) {
-                    // Restore tooltip because task has been moved to a new row
-                    mouseMoveHandler.bind();
+                    // Display tooltip because task has been moved to a new row
+                    displayTooltip(true, false);
                 }
 
                 $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
@@ -42526,38 +42996,28 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 
 angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
-        '<div class="gantt-labels-body"\n' +
-        '     ng-style="getLabelsCss()">\n' +
+        '<div class="gantt-labels-body" ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '            <gantt-row-label></gantt-row-label>\n' +
+        '            <div gantt-row-label\n' +
+        '                 class="gantt-row-label gantt-row-height"\n' +
+        '                 ng-class-odd="\'gantt-background-row\'"\n' +
+        '                 ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                 ng-class="row.model.classes"\n' +
+        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                <span>{{row.model.name}}</span>\n' +
+        '            </div>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');
     $templateCache.put('plugins/labels/labelsHeader.tmpl.html',
         '<div class="gantt-labels-header">\n' +
-        '    <gantt-row-header></gantt-row-header>\n' +
-        '</div>\n' +
-        '');
-    $templateCache.put('plugins/labels/rowHeader.tmpl.html',
-        '<div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
-        '    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
+        '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '            <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '        </div>\n' +
         '    </div>\n' +
-        '</div>\n' +
-        '');
-    $templateCache.put('plugins/labels/rowLabel.tmpl.html',
-        '<div class="gantt-row-label gantt-row-height"\n' +
-        '     ng-class-odd="\'gantt-background-row\'"\n' +
-        '     ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '     ng-class="row.model.classes" ng-style="::{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
-        '    <span>{{row.model.name}}</span>\n' +
-        '</div>\n' +
-        '');
-    $templateCache.put('plugins/labels/rowLabels.tmpl.html',
-        '<div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '    <gantt-row-label></gantt-row-label>\n' +
         '</div>\n' +
         '');
     $templateCache.put('plugins/labels/sideContentLabels.tmpl.html',
@@ -42584,14 +43044,120 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 
 }]);
 
+angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/table/sideContentTable.tmpl.html',
+        '<div class="gantt-side-content-table" ng-controller="TableController">\n' +
+        '    <table ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0" class="gantt-table">\n' +
+        '        <thead>\n' +
+        '            <tr class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '                <th class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '                    <div class="gantt-row-height gantt-table-cell" ng-class="{\'gantt-labels-header-row\': $parent.$last, \'gantt-labels-header-row-last\': $parent.$last}"><span>{{$parent.$last ? getHeader(this, column) : ""}}</span></div>\n' +
+        '                </th>\n' +
+        '            </tr>\n' +
+        '        </thead>\n' +
+        '        <tbody gantt-vertical-scroll-receiver>\n' +
+        '            <tr class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                <td class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '                    <div gantt-row-label\n' +
+        '                         class="gantt-row-label gantt-row-height"\n' +
+        '                         ng-class="row.model.classes"\n' +
+        '                         ng-style="{\'height\': row.model.height}">\n' +
+        '                        <div class="gantt-valign-container">\n' +
+        '                            <div class="gantt-valign-content">\n' +
+        '                                <span>{{getValue($parent, column)}}</span>\n' +
+        '                            </div>\n' +
+        '                        </div>\n' +
+        '                    </div>\n' +
+        '                </td>\n' +
+        '            </tr>\n' +
+        '        </tbody>\n' +
+        '    </table>\n' +
+        '</div>\n' +
+        '');
+}]);
+
 angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
-        '<div ng-cloak class="gantt-task-info">\n' +
+        '<div ng-cloak\n' +
+        '     class="gantt-task-info"\n' +
+        '     ng-show="displayed"\n' +
+        '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
+        '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
         '    <div class="gantt-task-info-content">\n' +
         '        {{task.model.name}}</br>\n' +
         '        <small>\n' +
         '            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
         '        </small>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+}]);
+
+angular.module('gantt.tree.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/tree/sideContentTree.tmpl.html',
+        '<div class="gantt-side-content-tree">\n' +
+        '    <gantt-tree-header>\n' +
+        '    </gantt-tree-header>\n' +
+        '    <gantt-tree-body>\n' +
+        '    </gantt-tree-body>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/tree/treeBody.tmpl.html',
+        '<div class="gantt-tree-body" ng-style="getLabelsCss()">\n' +
+        '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
+        '        <div class="gantt-row-label-background">\n' +
+        '            <div class="gantt-row-label gantt-row-height"\n' +
+        '                 ng-class-odd="\'gantt-background-row\'"\n' +
+        '                 ng-class-even="\'gantt-background-row-alt\'"\n' +
+        '                 ng-class="row.model.classes"\n' +
+        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}"\n' +
+        '                 ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                &nbsp;\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">\n' +
+        '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
+        '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node\n' +
+        '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '                </li>\n' +
+        '            </ol>\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+    $templateCache.put('plugins/tree/treeBodyChildren.tmpl.html',
+        '<div ui-tree-handle\n' +
+        '     ng-controller="GanttTreeChildrenController"\n' +
+        '     class="gantt-row-label gantt-row-height" ,\n' +
+        '     ng-class="row.model.classes"\n' +
+        '     ng-style="{\'height\': row.model.height}">\n' +
+        '    <div class="gantt-valign-container">\n' +
+        '        <div class="gantt-valign-content">\n' +
+        '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag\n' +
+        '               class="gantt-tree-handle-button btn btn-xs"\n' +
+        '               ng-class="{\'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"\n' +
+        '               ng-click="toggle(this)"><span\n' +
+        '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
+        '                ng-class="{\n' +
+        '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
+        '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
+        '            </a>\n' +
+        '            <span class="gantt-tree-text">{{row.model.name}}</span>\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '<ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">\n' +
+        '    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node\n' +
+        '        ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '    </li>\n' +
+        '</ol>\n' +
+        '');
+    $templateCache.put('plugins/tree/treeHeader.tmpl.html',
+        '<div class="gantt-tree-header">\n' +
+        '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
+        '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '            <div class="gantt-row-height gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');

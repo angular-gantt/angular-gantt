@@ -204,9 +204,9 @@
 <!-- -->
 
 <pre><code>&lt;div gantt&gt;
-    &lt;gantt-movable enabled="true",
+    &lt;gantt-draw-task enabled="true"
                    task-factory="drawTaskFactory"&gt;
-    &lt;gantt-movable/&gt;
+    &lt;gantt-draw-task/&gt;
 &lt;/div&gt;
 </code></pre>
 <!-- -->
@@ -225,7 +225,7 @@
 <ul>
 <li>
 <h3 id="enabled">enabled</h3>
-<p>Enable drawing.</p>
+<p>Enable drawing. Can also be a function (<code>fn(event)</code>) which has one parameter for the event. Such a function can be used to only activate the drawing when a certain mouse button is pressed.</p>
 <p>default: <code>true</code></p>
 </li>
 <li>

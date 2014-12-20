@@ -91,7 +91,12 @@ angular.module('angularGanttDemoApp')
                 }
             },
             timeFramesNonWorkingMode: 'visible',
-            columnMagnet: '5 minutes',
+            columnMagnet: '15 minutes',
+            timeFramesMagnet: true,
+            canDraw: function(event) {
+                var isLeftMouseButton = event.button === 0 || event.button === 1;
+                return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
+            },
             drawTaskFactory: function() {
                 return {
                     id: utils.randomUuid(),  // Unique id of the task.
@@ -107,6 +112,10 @@ angular.module('angularGanttDemoApp')
                     // Log various events to console
                     api.scroll.on.scroll($scope, logScrollEvent);
                     api.core.on.ready($scope, logReadyEvent);
+
+                    api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent));
+                    api.data.on.load($scope, addEventName('data.on.load', logDataEvent));
+                    api.data.on.clear($scope, addEventName('data.on.clear', logDataEvent));
 
                     api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
                     api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
@@ -166,7 +175,8 @@ angular.module('angularGanttDemoApp')
                     // Add some DOM events
                     api.directives.on.new($scope, function(directiveName, directiveScope, element) {
                         if (directiveName === 'ganttTask') {
-                            element.bind('click', function() {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
                                 logTaskEvent('task-click', directiveScope.task);
                             });
                             element.bind('mousedown touchstart', function(event) {
@@ -180,7 +190,8 @@ angular.module('angularGanttDemoApp')
                                 $scope.$digest();
                             });
                         } else if (directiveName === 'ganttRow') {
-                            element.bind('click', function() {
+                            element.bind('click', function(event) {
+                                event.stopPropagation();
                                 logRowEvent('row-click', directiveScope.row);
                             });
                             element.bind('mousedown touchstart', function(event) {
@@ -206,6 +217,37 @@ angular.module('angularGanttDemoApp')
                     objectModel = new ObjectModel(api);
                 });
             }
+        };
+
+        $scope.canAutoWidth = function(scale) {
+            if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
+                return false;
+            }
+            return true;
+        };
+
+        $scope.getColumnWidth = function(widthEnabled, scale) {
+            if (!widthEnabled && $scope.canAutoWidth(scale)) {
+                return undefined;
+            }
+
+            if (scale.match(/.*?week.*?/)) {
+                return 150;
+            }
+
+            if (scale.match(/.*?month.*?/)) {
+                return 300;
+            }
+
+            if (scale.match(/.*?quarter.*?/)) {
+                return 500;
+            }
+
+            if (scale.match(/.*?year.*?/)) {
+                return 800;
+            }
+
+            return 40;
         };
 
         // Reload data action
@@ -318,6 +360,11 @@ angular.module('angularGanttDemoApp')
         };
 
         // Event handler
+        var logDataEvent = function(eventName) {
+            $log.info('[Event] ' + eventName);
+        };
+
+        // Event handler
         var logTaskEvent = function(eventName, task) {
             $log.info('[Event] ' + eventName + ': ' + task.model.name);
         };
@@ -381,7 +428,7 @@ angular.module('angularGanttDemoApp')
             getSampleData: function() {
                 return [
                         // Order is optional. If not specified it will be assigned automatically
-                        {name: 'Milestones', height: '3em', sortable: {enabled: false}, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
+                        {name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
                             // Dates can be specified as string, timestamp or javascript date object. The data attribute can be used to attach a custom object
                             {name: 'Kickoff', color: '#93C47D', from: '2013-10-07T09:00:00', to: '2013-10-07T10:00:00', data: 'Can contain any custom data or object'},
                             {name: 'Concept approval', color: '#93C47D', from: new Date(2013, 9, 18, 18, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0), est: new Date(2013, 9, 16, 7, 0, 0), lct: new Date(2013, 9, 19, 0, 0, 0)},
@@ -398,7 +445,7 @@ angular.module('angularGanttDemoApp')
                         ]},
                         {name: 'Kickoff', movable: {allowResizing: false}, tasks: [
                             {name: 'Day 1', color: '#9FC5F8', from: new Date(2013, 9, 7, 9, 0, 0), to: new Date(2013, 9, 7, 17, 0, 0),
-                                progress: {percent: 100, color: '#3C8CF8'}, movable: {enabled: false}},
+                                progress: {percent: 100, color: '#3C8CF8'}, movable: false},
                             {name: 'Day 2', color: '#9FC5F8', from: new Date(2013, 9, 8, 9, 0, 0), to: new Date(2013, 9, 8, 17, 0, 0),
                                 progress: {percent: 100, color: '#3C8CF8'}},
                             {name: 'Day 3', color: '#9FC5F8', from: new Date(2013, 9, 9, 8, 30, 0), to: new Date(2013, 9, 9, 12, 0, 0),
@@ -412,7 +459,7 @@ angular.module('angularGanttDemoApp')
                             {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                                 progress: 100}
                         ]},
-                        {name: 'Sprint 1', tooltips: {enabled: false}, tasks: [
+                        {name: 'Sprint 1', tooltips: false, tasks: [
                             {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
                                 progress: 25}
                         ]},
