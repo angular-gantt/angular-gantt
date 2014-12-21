@@ -4362,8 +4362,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttSideBackground', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt').directive('ganttSideBackground', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttSideBackground');
+        builder.controller = function($scope) {
+            var hScrollBarHeight = layout.getScrollBarHeight();
+
+            $scope.getMaxHeightCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight) {
+                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                }
+
+                return css;
+            };
+        };
         return builder.build();
     }]);
 }());
@@ -4935,7 +4949,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    </div>\n' +
         '                </div>\n' +
         '            </div>\n' +
-        '            <div class="gantt-side-background-body">\n' +
+        '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
         '                    <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                        <div gantt-row-label\n' +

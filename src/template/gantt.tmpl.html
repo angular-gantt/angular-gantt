@@ -191,7 +191,7 @@
                     </div>
                 </div>
             </div>
-            <div class="gantt-side-background-body">
+            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">
                 <div gantt-vertical-scroll-receiver>
                     <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
                         <div gantt-row-label

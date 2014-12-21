@@ -1174,8 +1174,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.table').directive('ganttSideContentTable', ['GanttDirectiveBuilder', function(Builder) {
+    angular.module('gantt.table').directive('ganttSideContentTable', ['GanttDirectiveBuilder', 'ganttLayout', function(Builder, layout) {
         var builder = new Builder('ganttSideContentTable', 'plugins/table/sideContentTable.tmpl.html');
+        builder.controller = function($scope) {
+            var hScrollBarHeight = layout.getScrollBarHeight();
+
+            $scope.getMaxHeightCss = function() {
+                var css = {};
+
+                if ($scope.maxHeight) {
+                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                }
+
+                return css;
+            };
+        };
         return builder.build();
     }]);
 }());
@@ -1718,31 +1732,32 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
         '<div class="gantt-side-content-table" ng-controller="TableController">\n' +
-        '    <table ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0" class="gantt-table">\n' +
-        '        <thead>\n' +
-        '            <tr class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '                <th class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
-        '                    <div class="gantt-row-height gantt-table-cell" ng-class="{\'gantt-labels-header-row\': $parent.$last, \'gantt-labels-header-row-last\': $parent.$last}"><span>{{$parent.$last ? getHeader(this, column) : ""}}</span></div>\n' +
-        '                </th>\n' +
-        '            </tr>\n' +
-        '        </thead>\n' +
-        '        <tbody gantt-vertical-scroll-receiver>\n' +
-        '            <tr class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '                <td class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
-        '                    <div gantt-row-label\n' +
-        '                         class="gantt-row-label gantt-row-height"\n' +
-        '                         ng-class="row.model.classes"\n' +
-        '                         ng-style="{\'height\': row.model.height}">\n' +
+        '\n' +
+        '    <div class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '\n' +
+        '        <div class="gantt-table-header">\n' +
+        '            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
+        '                <div class="gantt-row-height gantt-row-label gantt-table-header-row" ng-class="{\'gantt-table-header-row-last\': $last}">\n' +
+        '                    <span>{{$last ? getHeader(this, column) : ""}}</span>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '\n' +
+        '        <div class="gantt-table-content" ng-style="getMaxHeightCss()">\n' +
+        '            <div gantt-vertical-scroll-receiver>\n' +
+        '                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                    <div gantt-row-label class="gantt-row-label gantt-row-height" ng-class="row.model.classes" ng-style="{\'height\': row.model.height}">\n' +
         '                        <div class="gantt-valign-container">\n' +
         '                            <div class="gantt-valign-content">\n' +
-        '                                <span>{{getValue($parent, column)}}</span>\n' +
+        '                                <span>{{getValue(this, column)}}</span>\n' +
         '                            </div>\n' +
         '                        </div>\n' +
         '                    </div>\n' +
-        '                </td>\n' +
-        '            </tr>\n' +
-        '        </tbody>\n' +
-        '    </table>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '\n' +
+        '    </div>\n' +
         '</div>\n' +
         '');
 }]);
@@ -1778,10 +1793,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
         '        <div class="gantt-row-label-background">\n' +
         '            <div class="gantt-row-label gantt-row-height"\n' +
-        '                 ng-class-odd="\'gantt-background-row\'"\n' +
-        '                 ng-class-even="\'gantt-background-row-alt\'"\n' +
         '                 ng-class="row.model.classes"\n' +
-        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}"\n' +
+        '                 ng-style="{\'height\': row.model.height}"\n' +
         '                 ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                &nbsp;\n' +
         '            </div>\n' +
@@ -1827,7 +1840,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '<div class="gantt-tree-header">\n' +
         '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +

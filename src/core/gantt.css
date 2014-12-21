@@ -73,6 +73,10 @@
     width: 100%;
 }
 
+.gantt-side-background-body {
+    overflow: hidden;
+}
+
 .gantt-side-content {
     position: relative;
     overflow: hidden;

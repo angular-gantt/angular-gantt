@@ -77,10 +77,26 @@
     border-radius: 2px;
 }
 
-table.gantt-table {
-    background-color: transparent;
-    border-spacing: 0;
-    border-collapse: collapse;
+.gantt-table-header-row span {
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+    padding-top: 0.5em;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+div.gantt-table-content {
+    overflow: hidden;
+}
+
+.gantt-side-content-table > div.gantt-table-column {
+    float: left;
+    overflow: hidden;
+}
+
+.gantt-side-content-table > div.gantt-table-column:last-child {
+    float: none;
 }
 
 .gantt-task-info {
@@ -172,27 +188,16 @@ table.gantt-table {
     overflow: hidden;
 }
 
-.gantt-tree-header-row  {
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    height: 2em;
-    padding-left: 12px;
-    padding-right: 12px;
-    font-weight: bold;
-    white-space: nowrap;
-}
-
 .gantt-tree-header-row-last {
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
 }
 
 .gantt-tree-header-row span {
-    height: 2em;
-    text-align: center;
     display: inline-block;
     padding-top: 0.5em;
+    font-weight: bold;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: clip;
 }
