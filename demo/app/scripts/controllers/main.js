@@ -207,6 +207,15 @@ angular.module('angularGanttDemoApp')
             }
         };
 
+        $scope.$watch('options.sideMode', function(newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $scope.api.side.setWidth(undefined);
+                $timeout(function() {
+                    $scope.api.columns.refresh();
+                });
+            }
+        });
+
         $scope.canAutoWidth = function(scale) {
             if (scale.match(/.*?hour.*?/) || scale.match(/.*?minute.*?/)) {
                 return false;
