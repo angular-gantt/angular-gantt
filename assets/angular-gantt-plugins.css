@@ -20,8 +20,6 @@
 
 .gantt-labels-header-row  {
     box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
 
     padding-left: 12px;
     padding-right: 12px;
@@ -34,8 +32,7 @@
 
 .gantt-labels-header-row span {
     box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
+
     display: inline-block;
     height: 2em;
     text-align: center;
@@ -63,10 +60,8 @@
     filter: alpha(opacity=60);
 
     -webkit-filter: grayscale(0.7);
-    -moz-filter: grayscale(0.7);
-    -ms-filter: grayscale(0.7);
-    -o-filter: grayscale(0.7);
-    filter: grayscale(0.7);
+
+            filter: grayscale(0.7);
 }
 
 .gantt-task-progress {

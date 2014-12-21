@@ -142,6 +142,17 @@ module.exports = function(grunt) {
             files: [].concat(sources.js.core, sources.js.plugins, sources.css.core, sources.css.plugins, ['src/**/*.html']),
             tasks: ['build']
         },
+        autoprefixer: {
+            options: {
+                // Task-specific options go here.
+            },
+            core: {
+                src: sources.css.core
+            },
+            plugins: {
+                src: sources.css.plugins
+            }
+        },
         karma: {
             unit: {
                 configFile: coverage ? 'test/karma-coverage.conf.js' : 'test/karma.conf.js',
@@ -280,6 +291,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-replace');
     grunt.loadNpmTasks('grunt-html2js');
+    grunt.loadNpmTasks('grunt-autoprefixer');
     grunt.loadNpmTasks('grunt-cleanempty');
     grunt.loadNpmTasks('grunt-gh-pages');
     grunt.loadNpmTasks('grunt-run');
@@ -298,7 +310,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['karma']);
 
-    grunt.registerTask('build', ['html2js', 'jshint', 'concat', 'concatCss', 'cleanempty']);
+    grunt.registerTask('build', ['autoprefixer', 'html2js', 'jshint', 'concat', 'concatCss', 'cleanempty']);
 
     grunt.registerTask('buildDemo', ['run:buildDemo']);
 
