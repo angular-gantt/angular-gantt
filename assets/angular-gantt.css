@@ -79,16 +79,14 @@
 
 .gantt-side-content {
     position: relative;
+    vertical-align: top;
+    white-space: nowrap;
     overflow: hidden;
 }
 
 .gantt-side-content > div.side-element {
-    float: left;
     overflow: hidden;
-}
-
-.gantt-side-content > div.side-element:last-child {
-    float: none;
+    display: inline-block;
 }
 
 .gantt-header-columns {
