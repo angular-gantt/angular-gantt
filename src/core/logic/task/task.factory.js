@@ -101,14 +101,14 @@
         // Expands the start of the task to the specified position (in em)
         Task.prototype.setFrom = function(x, magnetEnabled) {
             this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-            this.row.setFromToByTask(this);
+            this.row.setFromTo();
             this.updatePosAndSize();
         };
 
         // Expands the end of the task to the specified position (in em)
         Task.prototype.setTo = function(x, magnetEnabled) {
             this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-            this.row.setFromToByTask(this);
+            this.row.setFromTo();
             this.updatePosAndSize();
         };
 
@@ -130,7 +130,7 @@
                 this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskRight, false);
             }
 
-            this.row.setFromToByTask(this);
+            this.row.setFromTo();
             this.updatePosAndSize();
         };
 
