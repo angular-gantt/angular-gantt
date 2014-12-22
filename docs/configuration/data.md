@@ -10,26 +10,80 @@ and modification made to `angular-gantt` will be applied to `data`.
 ## Row
 
     {
-      id: "...",  // Unique id of the row (Optional).
       name: "...", // Name shown on the left side of each row.
+      id: "...",  // Unique id of the row (Optional).
       height: "..." // Height of the row (Optional).
       color: "..." , // Color of the task in HEX format (Optional).
       classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
       tasks: [] // Array containing <Task> tasks to add in this row.
     }
 
-
 ## Task
 
     {
-      id: "...",  // Unique id of the task (Optional).
       name: "...", // Name shown on top of each task.
       from: <Date>, // Date can be a String, Timestamp, Date object or moment object.
       to: <Date>, // Date can be a String, Timestamp, Date object or moment object.
+      id: "...",  // Unique id of the task (Optional).
       color: "..." , // Color of the task in HEX format (Optional).
       classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
       priority: <Number> // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
       data: <Any> // Custom object. Use this to attach your own data (Optional).
+    }
+
+## CSS Selectors
+
+CSS Classes defined in model with `classes` property are applied to multiple elements for each row and task. 
+
+Using single class selector like `.custom-row` or `.custom-task` may not work as expected. You should use following selectors.
+
+### Row selectors
+
+Define `custom-row` class in the row model.
+
+    {
+      name: "Some row",
+      classes: "custom-row",
+      tasks: [...]
+    }
+
+Use the following selectors to customize this particular row.
+
+    .gantt-row.custom-row .gantt-row-background {
+      // Customize background of the row
+      background: blue;
+      opacity: 0.3;
+    }
+    
+    .gantt-row.custom-row .gantt-row-content {
+      // Customize content of the row
+      weight: bolder;
+    }
+
+### Task selectors
+
+Define `custom-task` class in the task model.
+
+    {
+      name: "Some task",
+      classes: "custom-task",
+    }
+
+Use the following selectors to customize this particular task.
+
+    .gantt-task.custom-task .gantt-task-background {
+      // Customize background of the task
+      background: blue;
+      opacity: 0.3;
+    }
+    
+    .gantt-task.custom-task .gantt-task-content {
+      // Customize content of the task
+      weight: bolder;
+    }
+    
+    .gantt-task.custom-task .gantt-task-foreground {
+      // Customize foreground of the task
     }
 
 ## Example

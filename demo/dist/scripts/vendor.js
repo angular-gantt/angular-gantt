@@ -42903,9 +42903,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-scrollable>\n' +
         '        <gantt-body>\n' +
         '            <gantt-body-background>\n' +
-        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '                    <gantt-row-background></gantt-row-background>\n' +
-        '                </div>\n' +
+        '                <gantt-row-background ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"></gantt-row-background>\n' +
         '            </gantt-body-background>\n' +
         '            <gantt-body-foreground>\n' +
         '                <div class="gantt-current-date-line" ng-show="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
@@ -42923,13 +42921,10 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">\n' +
         '                    <gantt-timespan></gantt-timespan>\n' +
         '                </div>\n' +
-        '                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '                    <gantt-row>\n' +
-        '                        <div ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
-        '                            <gantt-task></gantt-task>\n' +
-        '                        </div>\n' +
-        '                    </gantt-row>\n' +
-        '                </div>\n' +
+        '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
+        '                    </gantt-task>\n' +
+        '                </gantt-row>\n' +
         '            </gantt-body-rows>\n' +
         '        </gantt-body>\n' +
         '    </gantt-scrollable>\n' +
@@ -42980,16 +42975,6 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        <div ng-transclude class="gantt-body-background"></div>\n' +
         '    </script>\n' +
         '\n' +
-        '    <!-- Row background template -->\n' +
-        '    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">\n' +
-        '        <div class="gantt-row-height"\n' +
-        '             ng-class-odd="\'gantt-background-row\'"\n' +
-        '             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '             ng-class="row.model.classes"\n' +
-        '             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
-        '        </div>\n' +
-        '    </script>\n' +
-        '\n' +
         '    <!-- Body foreground template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBodyForeground.tmpl.html">\n' +
         '        <div ng-transclude class="gantt-body-foreground"></div>\n' +
@@ -43030,7 +43015,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
-        '        <div>\n' +
+        '        <div class="gantt-task" ng-class="task.model.classes">\n' +
         '            <gantt-task-background></gantt-task-background>\n' +
         '            <gantt-task-content></gantt-task-content>\n' +
         '            <gantt-task-foreground></gantt-task-foreground>\n' +
@@ -43038,26 +43023,42 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">\n' +
-        '        <div class="gantt-task-background" ng-class="task.model.classes" ng-style="{\'background-color\': task.model.color}"></div>\n' +
+        '        <div class="gantt-task-background" ng-style="{\'background-color\': task.model.color}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
         '        <div class="gantt-task-foreground">\n' +
-        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>\n' +
-        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>\n' +
+        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right">&gt;</div>\n' +
+        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left">&lt;</div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
-        '        <div class="gantt-task-content-container">\n' +
-        '            <div class="gantt-task-content"><span>{{task.model.name}}</span><span class="middle-placeholder"></span></div>\n' +
+        '        <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
+        '    </script>\n' +
+        '\n' +
+        '\n' +
+        '    <!-- Row background template -->\n' +
+        '    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">\n' +
+        '        <div class="gantt-row"\n' +
+        '             ng-class="row.model.classes"\n' +
+        '             ng-class-odd="\'gantt-row-odd\'"\n' +
+        '             ng-class-even="\'gantt-row-even\'">\n' +
+        '            <div class="gantt-row-background gantt-row-height"\n' +
+        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '            </div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRow.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{\'height\': row.model.height}"></div>\n' +
+        '        <div class="gantt-row"\n' +
+        '             ng-class="row.model.classes"\n' +
+        '             ng-class-odd="\'gantt-row-odd\'"\n' +
+        '             ng-class-even="\'gantt-row-even\'">\n' +
+        '            <div ng-transclude class="gantt-row-content gantt-row-height" ng-style="::{\'height\': row.model.height}"></div>\n' +
+        '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Side background template -->\n' +
@@ -43072,12 +43073,12 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
-        '                    <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '                        <div gantt-row-label\n' +
-        '                             class="gantt-row-label gantt-row-height"\n' +
-        '                             ng-class-odd="\'gantt-background-row\'"\n' +
-        '                             ng-class-even="\'gantt-background-row-alt\'"\n' +
-        '                             ng-class="row.model.classes"\n' +
+        '                    <div class="gantt-row"\n' +
+        '                         ng-class-odd="\'gantt-row-odd\'"\n' +
+        '                         ng-class-even="\'gantt-row-even\'"\n' +
+        '                         ng-class="row.model.classes"\n' +
+        '                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                        <div gantt-row-label class="gantt-row-label gantt-row-height gantt-row-background"\n' +
         '                             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
         '                        </div>\n' +
         '                    </div>\n' +

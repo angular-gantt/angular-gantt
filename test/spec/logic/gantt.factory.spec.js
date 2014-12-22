@@ -145,7 +145,7 @@ describe('Unit: Gantt', function() {
                 rowTaskElement = angular.element(rowTaskElement);
 
                 var taskModel = rowModel.tasks[j];
-                var taskText = rowTaskElement.find('span').text();
+                var taskText = rowTaskElement.find('.gantt-task-content').text();
                 expect(taskText).toEqual(taskModel.name);
 
                 if (taskModel.classes) {
@@ -154,8 +154,7 @@ describe('Unit: Gantt', function() {
                         taskClasses = [taskClasses];
                     }
                     angular.forEach(taskClasses, function(taskClass) {
-                        var taskBackgroundElement = rowTaskElement.find('.gantt-task-background');
-                        expect(taskBackgroundElement.hasClass(taskClass)).toBeTruthy();
+                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
                     });
                 }
             });

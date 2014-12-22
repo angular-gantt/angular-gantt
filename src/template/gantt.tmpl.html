@@ -24,9 +24,7 @@
     <gantt-scrollable>
         <gantt-body>
             <gantt-body-background>
-                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
-                    <gantt-row-background></gantt-row-background>
-                </div>
+                <gantt-row-background ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"></gantt-row-background>
             </gantt-body-background>
             <gantt-body-foreground>
                 <div class="gantt-current-date-line" ng-show="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
@@ -44,13 +42,10 @@
                 <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">
                     <gantt-timespan></gantt-timespan>
                 </div>
-                <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
-                    <gantt-row>
-                        <div ng-repeat="task in row.visibleTasks track by task.model.id">
-                            <gantt-task></gantt-task>
-                        </div>
-                    </gantt-row>
-                </div>
+                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id">
+                    </gantt-task>
+                </gantt-row>
             </gantt-body-rows>
         </gantt-body>
     </gantt-scrollable>
@@ -101,16 +96,6 @@
         <div ng-transclude class="gantt-body-background"></div>
     </script>
 
-    <!-- Row background template -->
-    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">
-        <div class="gantt-row-height"
-             ng-class-odd="'gantt-background-row'"
-             ng-class-even="'gantt-background-row-alt'"
-             ng-class="row.model.classes"
-             ng-style="{'background-color': row.model.color, 'height': row.model.height}">
-        </div>
-    </script>
-
     <!-- Body foreground template -->
     <script type="text/ng-template" id="template/ganttBodyForeground.tmpl.html">
         <div ng-transclude class="gantt-body-foreground"></div>
@@ -151,7 +136,7 @@
 
     <!-- Task template -->
     <script type="text/ng-template" id="template/ganttTask.tmpl.html">
-        <div>
+        <div class="gantt-task" ng-class="task.model.classes">
             <gantt-task-background></gantt-task-background>
             <gantt-task-content></gantt-task-content>
             <gantt-task-foreground></gantt-task-foreground>
@@ -159,26 +144,42 @@
     </script>
 
     <script type="text/ng-template" id="template/ganttTaskBackground.tmpl.html">
-        <div class="gantt-task-background" ng-class="task.model.classes" ng-style="{'background-color': task.model.color}"></div>
+        <div class="gantt-task-background" ng-style="{'background-color': task.model.color}"></div>
     </script>
 
     <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">
         <div class="gantt-task-foreground">
-            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right"><span>&gt;</span></div>
-            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left"><span>&lt;</span></div>
+            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right">&gt;</div>
+            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left">&lt;</div>
         </div>
     </script>
 
     <!-- Task content template -->
     <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">
-        <div class="gantt-task-content-container">
-            <div class="gantt-task-content"><span>{{task.model.name}}</span><span class="middle-placeholder"></span></div>
+        <div class="gantt-task-content"><span>{{task.model.name}}</span></div>
+    </script>
+
+
+    <!-- Row background template -->
+    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">
+        <div class="gantt-row"
+             ng-class="row.model.classes"
+             ng-class-odd="'gantt-row-odd'"
+             ng-class-even="'gantt-row-even'">
+            <div class="gantt-row-background gantt-row-height"
+                 ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+            </div>
         </div>
     </script>
 
     <!-- Row template -->
     <script type="text/ng-template" id="template/ganttRow.tmpl.html">
-        <div ng-transclude class="gantt-row gantt-row-height" ng-style="::{'height': row.model.height}"></div>
+        <div class="gantt-row"
+             ng-class="row.model.classes"
+             ng-class-odd="'gantt-row-odd'"
+             ng-class-even="'gantt-row-even'">
+            <div ng-transclude class="gantt-row-content gantt-row-height" ng-style="::{'height': row.model.height}"></div>
+        </div>
     </script>
 
     <!-- Side background template -->
@@ -193,12 +194,12 @@
             </div>
             <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">
                 <div gantt-vertical-scroll-receiver>
-                    <div ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
-                        <div gantt-row-label
-                             class="gantt-row-label gantt-row-height"
-                             ng-class-odd="'gantt-background-row'"
-                             ng-class-even="'gantt-background-row-alt'"
-                             ng-class="row.model.classes"
+                    <div class="gantt-row"
+                         ng-class-odd="'gantt-row-odd'"
+                         ng-class-even="'gantt-row-even'"
+                         ng-class="row.model.classes"
+                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                        <div gantt-row-label class="gantt-row-label gantt-row-height gantt-row-background"
                              ng-style="{'background-color': row.model.color, 'height': row.model.height}">
                         </div>
                     </div>
