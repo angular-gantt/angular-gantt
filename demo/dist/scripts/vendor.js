@@ -42892,9 +42892,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '            <gantt-header-columns>\n' +
         '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
         '                    <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
-        '                        <div ng-repeat="column in header">\n' +
-        '                            <gantt-column-header ></gantt-column-header>\n' +
-        '                        </div>\n' +
+        '                        <gantt-column-header ng-repeat="column in header"></gantt-column-header>\n' +
         '                    </div>\n' +
         '                </div>\n' +
         '            </gantt-header-columns>\n' +
@@ -42909,18 +42907,12 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                <div class="gantt-current-date-line" ng-show="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div>\n' +
         '            </gantt-body-foreground>\n' +
         '            <gantt-body-columns>\n' +
-        '                <div ng-repeat="column in gantt.columnsManager.visibleColumns">\n' +
-        '                    <gantt-column>\n' +
-        '                        <div ng-repeat="timeFrame in column.visibleTimeFrames">\n' +
-        '                            <gantt-time-frame></gantt-time-frame>\n' +
-        '                        </div>\n' +
-        '                    </gantt-column>\n' +
-        '                </div>\n' +
+        '                <gantt-column ng-repeat="column in gantt.columnsManager.visibleColumns">\n' +
+        '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
+        '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
         '            <gantt-body-rows>\n' +
-        '                <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">\n' +
-        '                    <gantt-timespan></gantt-timespan>\n' +
-        '                </div>\n' +
+        '                <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
         '                    <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id">\n' +
         '                    </gantt-task>\n' +

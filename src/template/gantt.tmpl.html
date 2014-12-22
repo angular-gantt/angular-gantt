@@ -13,9 +13,7 @@
             <gantt-header-columns>
                 <div ng-repeat="header in gantt.columnsManager.visibleHeaders">
                     <div class="gantt-header-row" ng-class="{'gantt-header-row-last': $last, 'gantt-header-row-first': $first}">
-                        <div ng-repeat="column in header">
-                            <gantt-column-header ></gantt-column-header>
-                        </div>
+                        <gantt-column-header ng-repeat="column in header"></gantt-column-header>
                     </div>
                 </div>
             </gantt-header-columns>
@@ -30,18 +28,12 @@
                 <div class="gantt-current-date-line" ng-show="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
             </gantt-body-foreground>
             <gantt-body-columns>
-                <div ng-repeat="column in gantt.columnsManager.visibleColumns">
-                    <gantt-column>
-                        <div ng-repeat="timeFrame in column.visibleTimeFrames">
-                            <gantt-time-frame></gantt-time-frame>
-                        </div>
-                    </gantt-column>
-                </div>
+                <gantt-column ng-repeat="column in gantt.columnsManager.visibleColumns">
+                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>
+                </gantt-column>
             </gantt-body-columns>
             <gantt-body-rows>
-                <div ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id">
-                    <gantt-timespan></gantt-timespan>
-                </div>
+                <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>
                 <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
                     <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id">
                     </gantt-task>
@@ -130,7 +122,7 @@
 
     <!-- Timespan template -->
     <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">
-        <div class="gantt-timespan" ng-class="::timespan.classes">
+        <div class="gantt-timespan" ng-class="timespan.classes">
         </div>
     </script>
 
@@ -178,7 +170,7 @@
              ng-class="row.model.classes"
              ng-class-odd="'gantt-row-odd'"
              ng-class-even="'gantt-row-even'">
-            <div ng-transclude class="gantt-row-content gantt-row-height" ng-style="::{'height': row.model.height}"></div>
+            <div ng-transclude class="gantt-row-content gantt-row-height" ng-style="{'height': row.model.height}"></div>
         </div>
     </script>
 
