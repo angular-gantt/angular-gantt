@@ -14,25 +14,101 @@
     border-color: #FF6347;
 }
 
-.gantt-row-label span {
+.gantt-task-group {
+    position: absolute;
+
+    background: rgb(99, 136, 205);
+
+    height: 30%;
+
+    top: -25%;
+    bottom: 0;
+    margin: auto;
+}
+
+.gantt-task-group-left-main, .gantt-task-group-right-main {
+    position: absolute;
+
+    width: 12px;
+    height: 100%;
+    background: rgb(99, 136, 205);
+
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+}
+
+.gantt-task-group-left-main {
+    left: -6px;
+}
+
+.gantt-task-group-right-main {
+    right: -6px;
+}
+
+.gantt-task-group-left-symbol, .gantt-task-group-right-symbol {
+    position: absolute;
+
+    width: 0;
+    height: 50%;
+
+    top: 75%;
+    bottom: 0;
+
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 12px solid rgb(99, 136, 205);
+}
+
+.gantt-task-group-left-symbol {
+    left: -6px;
+}
+
+.gantt-task-group-right-symbol {
+    right: -6px;
+}
+
+.gantt-task-overview {
+    height: 40%;
+    top: 40%;
+
+    -webkit-filter: grayscale(0.6);
+            filter: grayscale(0.6);
+}
+
+.gantt-task-overview .gantt-task-content {
+    display: none;
+}
+
+.gantt-labels-header {
+    overflow: hidden;
+}
+
+.gantt-labels-header-row  {
     box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
+
+    padding-left: 12px;
+    padding-right: 12px;
+
+    height: 2em;
+    white-space: nowrap;
+    border-top: 1px solid #dddddd;
+    overflow: hidden;
+}
+
+.gantt-labels-header-row span {
+    box-sizing:border-box;
+
     display: inline-block;
+    height: 2em;
     text-align: center;
     padding-top: 0.5em;
     overflow: hidden;
     text-overflow: clip;
 }
 
-.gantt-row-label span {
-    padding-left: 12px;
-    padding-right: 12px;
-}
-
-.gantt-row-label {
-    overflow: hidden;
-    white-space: nowrap;
+.gantt-labels-header-row-last {
+    border-bottom: 1px solid #dddddd;
 }
 
 .gantt-labels-header {
@@ -43,13 +119,6 @@
     overflow: hidden;
 }
 
-.gantt-labels-header-row {
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    white-space: nowrap;
-}
-
 .gantt-task-moving, .gantt-task-resizing {
     z-index: 750 !important;
 
@@ -57,10 +126,8 @@
     filter: alpha(opacity=60);
 
     -webkit-filter: grayscale(0.7);
-    -moz-filter: grayscale(0.7);
-    -ms-filter: grayscale(0.7);
-    -o-filter: grayscale(0.7);
-    filter: grayscale(0.7);
+
+            filter: grayscale(0.7);
 }
 
 .gantt-task-progress {
@@ -69,6 +136,28 @@
     bottom: 0px;
     height: 6px;
     border-radius: 2px;
+}
+
+.gantt-table-header-row span {
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+    padding-top: 0.5em;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+div.gantt-table-content {
+    overflow: hidden;
+}
+
+.gantt-side-content-table > div.gantt-table-column {
+    float: left;
+    overflow: hidden;
+}
+
+.gantt-side-content-table > div.gantt-table-column:last-child {
+    float: none;
 }
 
 .gantt-task-info {
@@ -122,4 +211,66 @@
 
 .gantt-task-infoArrowR:after {
     right: 11px;
+}
+
+.gantt-row-label-background {
+    position: absolute;
+    width: 100%;
+}
+
+.gantt-tree-body .gantt-row-label span {
+    margin: 0;
+}
+
+.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button {
+    padding: 0;
+    position: relative;
+    top: -0.50em;
+}
+
+.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button.gantt-tree-expanded {
+    top: -0.40em;
+}
+
+.gantt-tree-body .gantt-row-label span.gantt-tree-handle {
+    padding: 0;
+    position: relative;
+}
+
+.gantt-tree-body .gantt-row-label span.gantt-tree-text {
+    padding-left: 0;
+}
+
+.gantt-tree-header {
+    overflow: hidden;
+}
+
+.gantt-tree-body {
+    overflow: hidden;
+}
+
+.gantt-tree-header-row-last {
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+}
+
+.gantt-tree-header-row span {
+    display: inline-block;
+    padding-top: 0.5em;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.gantt-tree-body ol {
+    padding-left: 0;
+}
+
+.angular-ui-tree-handle {
+    cursor: inherit;
+    text-decoration: inherit;
+    font-weight: inherit;
+    min-height: inherit;
+    line-height: inherit;
 }

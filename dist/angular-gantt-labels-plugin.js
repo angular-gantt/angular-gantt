@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.0.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.1.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -7,7 +7,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
     'use strict';
-    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
+    angular.module('gantt.labels', ['gantt', 'gantt.labels.templates']).directive('ganttLabels', ['ganttUtils', '$compile', '$document', '$log', function(utils, $compile, $document, $log) {
         // Provides the row sort functionality to any Gantt row
         // Uses the sortableState to share the current row
 
@@ -20,6 +20,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                $log.warn('Angular Gantt Labels plugin is deprecated. Please use Table plugin instead.');
 
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.sortable) === 'object') {
@@ -43,6 +45,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         var ifElement = $document[0].createElement('div');
                         angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+                        angular.element(ifElement).addClass('side-element');
 
                         var labelsElement = $document[0].createElement('gantt-side-content-labels');
                         angular.element(ifElement).append(labelsElement);
@@ -100,17 +103,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
     angular.module('gantt.labels').directive('ganttLabelsHeader', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttLabelsHeader', 'plugins/labels/labelsHeader.tmpl.html');
-        return builder.build();
-    }]);
-}());
-
-
-(function(){
-    'use strict';
-    angular.module('gantt.labels').directive('ganttRowLabel', ['GanttDirectiveBuilder', function(Builder) {
-        var builder = new Builder('ganttRowLabel');
-        builder.restrict = 'A';
-        builder.templateUrl = undefined;
         return builder.build();
     }]);
 }());
