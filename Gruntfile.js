@@ -223,7 +223,12 @@ module.exports = function(grunt) {
                     patterns: [
                         {
                             match: /<title>.*?<\/title>/,
-                            replacement: '<title>angular-gantt - Gantt chart component for AngularJS</title>'
+                            replacement: '<title>Angular Gantt - Gantt chart component for AngularJS</title>\n'+
+                                         '        <meta property="og:title" content="Angular Gantt" />\n'+
+                                         '        <meta property="og:description" content="Gantt chart component for AngularJS" />\n'+
+                                         '        <meta property="og:type" content="website" />\n'+
+                                         '        <meta property="og:url" content="https://www.angular-gantt.com/" />\n'+
+                                         '        <meta property="og:image" content="https://www.angular-gantt.com/img/angular-gantt.png" />'
                         }
                     ]
                 },
