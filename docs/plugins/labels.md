@@ -1,6 +1,6 @@
 # Labels
 
-This plugin is deprecated, please use [Table](table.md) instead
+This plugin is **deprecated**, please use [Table](table.md) instead
 
 Display labels on the side.
 

@@ -1,6 +1,6 @@
 # Groups
 
-Groups tasks into a single row based on defined hierarchy See [Tree Plugin](tree.md) to define this tree hierarchy.
+Groups tasks into a single row based on defined hierarchy. See [Tree Plugin](tree.md#model) to define this tree hierarchy.
 
 ## Usage
 
@@ -25,8 +25,8 @@ Groups tasks into a single row based on defined hierarchy See [Tree Plugin](tree
 
     Display mode of groups.
 
-    `group`: Display a single object representing the grouped task.
-    `overview`: Display a minimized overview of each grouped task.
+    - `group`: Display a single object representing the grouped task.
+    - `overview`: Display a minimized overview of each grouped task.
 
     default: `group`
 
