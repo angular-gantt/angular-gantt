@@ -154,23 +154,25 @@
 
     <!-- Row background template -->
     <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">
-        <div class="gantt-row"
+        <div class="gantt-row gantt-row-height"
              ng-class="row.model.classes"
              ng-class-odd="'gantt-row-odd'"
-             ng-class-even="'gantt-row-even'">
-            <div class="gantt-row-background gantt-row-height"
-                 ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+             ng-class-even="'gantt-row-even'"
+             ng-style="{'height': row.model.height}">
+            <div class="gantt-row-background"
+                 ng-style="{'background-color': row.model.color}">
             </div>
         </div>
     </script>
 
     <!-- Row template -->
     <script type="text/ng-template" id="template/ganttRow.tmpl.html">
-        <div class="gantt-row"
+        <div class="gantt-row gantt-row-height"
              ng-class="row.model.classes"
              ng-class-odd="'gantt-row-odd'"
-             ng-class-even="'gantt-row-even'">
-            <div ng-transclude class="gantt-row-content gantt-row-height" ng-style="{'height': row.model.height}"></div>
+             ng-class-even="'gantt-row-even'"
+             ng-style="{'height': row.model.height}">
+            <div ng-transclude class="gantt-row-content"></div>
         </div>
     </script>
 
@@ -186,13 +188,14 @@
             </div>
             <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">
                 <div gantt-vertical-scroll-receiver>
-                    <div class="gantt-row"
+                    <div class="gantt-row gantt-row-height "
                          ng-class-odd="'gantt-row-odd'"
                          ng-class-even="'gantt-row-even'"
                          ng-class="row.model.classes"
-                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
-                        <div gantt-row-label class="gantt-row-label gantt-row-height gantt-row-background"
-                             ng-style="{'background-color': row.model.color, 'height': row.model.height}">
+                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"
+                         ng-style="{'height': row.model.height}">
+                        <div gantt-row-label class="gantt-row-label gantt-row-background"
+                             ng-style="{'background-color': row.model.color}">
                         </div>
                     </div>
                 </div>

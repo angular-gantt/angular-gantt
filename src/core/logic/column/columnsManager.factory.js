@@ -64,6 +64,7 @@
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
 
             this.gantt.api.registerEvent('columns', 'generate');
+            this.gantt.api.registerEvent('columns', 'refresh');
         };
 
         ColumnsManager.prototype.setScrollAnchor = function() {
@@ -159,6 +160,8 @@
         };
 
         ColumnsManager.prototype.updateColumnsMeta = function() {
+            this.gantt.isRefreshingColumns = true;
+
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
@@ -188,6 +191,9 @@
                 // Prevent unnecessary v-scrollbar if side is shown here
                 this.gantt.side.show(true);
             }
+
+            this.gantt.isRefreshingColumns = false;
+            this.gantt.api.columns.raise.refresh(this.columns, this.headers);
         };
 
         // Returns the last Gantt column or undefined

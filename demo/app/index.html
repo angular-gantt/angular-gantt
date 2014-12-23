@@ -118,6 +118,13 @@
                                                     </div>
 
                                                     <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-gear"></i> Groups</label><br>
+                                                        <div class="btn-group" bs-checkbox-group>
+                                                            <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.groupDisplayMode" ng-options="s for s in ['group', 'overview', 'Disabled']" bs-select></button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-crop"></i> Layout</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.maxHeight" bs-checkbox>Height</button>
@@ -202,6 +209,7 @@
                                                column-magnet="options.columnMagnet">
                                             <gantt-tree enabled="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'"></gantt-tree>
                                             <gantt-table enabled="options.sideMode === 'Table' || options.sideMode === 'TreeTable'" columns="options.sideMode === 'TreeTable' ? options.treeTableColumns : options.columns" headers="options.columnsHeaders" formatters="options.columnsFormatters"></gantt-table>
+                                            <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview'" display="options.groupDisplayMode"></gantt-groups>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>

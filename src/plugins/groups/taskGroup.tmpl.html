@@ -1,0 +1,14 @@
+<div ng-controller="GanttGroupController">
+    <div class="gantt-task-group-overview" ng-show="taskGroup.overviewTasks.length > 0">
+        <gantt-task-overview ng-repeat="task in taskGroup.overviewTasks"></gantt-task-overview>
+    </div>
+    <div class="gantt-task-group"
+         ng-show="taskGroup.groupedTasks.length > 0"
+         ng-style="{'left': taskGroup.left + 'px', 'width': taskGroup.width + 'px'}">
+        <div class="gantt-task-group-left-main"></div>
+        <div class="gantt-task-group-right-main"></div>
+        <div class="gantt-task-group-left-symbol"></div>
+        <div class="gantt-task-group-right-symbol"></div>
+    </div>
+</div>
+

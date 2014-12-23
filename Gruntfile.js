@@ -3,7 +3,7 @@
 /*jshint undef:false */
 /*jshint camelcase:false */
 module.exports = function(grunt) {
-    var plugins = ['labels', 'table', 'tree', 'sortable', 'movable', 'drawtask', 'tooltips', 'bounds', 'progress'];
+    var plugins = ['labels', 'table', 'tree', 'groups', 'sortable', 'movable', 'drawtask', 'tooltips', 'bounds', 'progress'];
 
     var coverage = grunt.option('coverage');
 

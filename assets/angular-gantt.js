@@ -1417,6 +1417,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
 
             this.gantt.api.registerEvent('columns', 'generate');
+            this.gantt.api.registerEvent('columns', 'refresh');
         };
 
         ColumnsManager.prototype.setScrollAnchor = function() {
@@ -1512,6 +1513,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         ColumnsManager.prototype.updateColumnsMeta = function() {
+            this.gantt.isRefreshingColumns = true;
+
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
@@ -1541,6 +1544,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Prevent unnecessary v-scrollbar if side is shown here
                 this.gantt.side.show(true);
             }
+
+            this.gantt.isRefreshingColumns = false;
+            this.gantt.api.columns.raise.refresh(this.columns, this.headers);
         };
 
         // Returns the last Gantt column or undefined
@@ -2457,17 +2463,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Row.prototype.setFromToByTask = function(task) {
-            if (this.from === undefined) {
-                this.from = moment(task.model.from);
-            } else if (task.model.from < this.from) {
-                this.from = moment(task.model.from);
+            this.setFromToByValues(task.model.from, task.model.to);
+        };
+
+        Row.prototype.setFromToByValues = function(from, to) {
+            if (from !== undefined) {
+                if (this.from === undefined) {
+                    this.from = moment(from);
+                } else if (from < this.from) {
+                    this.from = moment(from);
+                }
             }
 
-            if (this.to === undefined) {
-                this.to = moment(task.model.to);
-            } else if (task.model.to > this.to) {
-                this.to = moment(task.model.to);
+            if (to !== undefined) {
+                if (this.to === undefined) {
+                    this.to = moment(to);
+                } else if (to > this.to) {
+                    this.to = moment(to);
+                }
             }
+
         };
 
         Row.prototype.sortTasks = function() {
@@ -2563,6 +2578,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
+            this.gantt.api.registerEvent('tasks', 'viewChange');
+
             this.gantt.api.registerEvent('tasks', 'rowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
@@ -2935,6 +2952,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         // Updates the pos and size of the task according to the from - to date
         Task.prototype.updatePosAndSize = function() {
+            var oldModelLeft = this.modelLeft;
+            var oldModelWidth = this.modelWidth;
+            var oldTruncatedRight = this.truncatedRight;
+            var oldTruncatedLeft = this.truncatedLeft;
+
             this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
             this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
 
@@ -2972,6 +2994,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
 
             this.updateView();
+            if (!this.rowsManager.gantt.isRefreshingColumns &&
+                (oldModelLeft !== this.modelLeft ||
+                oldModelWidth !== this.modelWidth ||
+                oldTruncatedRight !== this.truncatedRight ||
+                oldTruncatedLeft !== this.truncatedLeft)) {
+                this.rowsManager.gantt.api.tasks.raise.viewChange(this);
+            }
         };
 
         Task.prototype.updateView = function() {
@@ -3602,6 +3631,144 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return [input[res[0]], input[res[1]]];
             }
         };
+    }]);
+}());
+
+(function(){
+    'use strict';
+
+    angular.module('gantt').factory('GanttHierarchy', [function() {
+        var Hierarchy = function () {
+            var self = this;
+
+            var nameToRow = {};
+
+            var idToRow = {};
+
+            var nameToChildren = {};
+            var idToChildren = {};
+
+            var nameToParent = {};
+            var idToParent = {};
+
+            var registerChildRow = function(row, childRow) {
+                if (childRow !== undefined) {
+                    var nameChildren = nameToChildren[row.model.name];
+                    if (nameChildren === undefined) {
+                        nameChildren = [];
+                        nameToChildren[row.model.name] = nameChildren;
+                    }
+                    nameChildren.push(childRow);
+
+
+                    var idChildren = idToChildren[row.model.id];
+                    if (idChildren === undefined) {
+                        idChildren = [];
+                        idToChildren[row.model.id] = idChildren;
+                    }
+                    idChildren.push(childRow);
+
+                    nameToParent[childRow.model.name] = row;
+                    idToParent[childRow.model.id] = row;
+                }
+            };
+
+            this.refresh = function(rows) {
+                nameToRow = {};
+                idToRow = {};
+
+                nameToChildren = {};
+                idToChildren = {};
+
+                nameToParent = {};
+                idToParent = {};
+
+                angular.forEach(rows, function(row) {
+                    nameToRow[row.model.name] = row;
+                    idToRow[row.model.id] = row;
+                });
+
+                angular.forEach(rows, function(row) {
+                    if (row.model.parent !== undefined) {
+                        var parentRow = nameToRow[row.model.parent];
+                        if (parentRow === undefined) {
+                            parentRow = idToRow[row.model.parent];
+                        }
+
+                        if (parentRow !== undefined) {
+                            registerChildRow(parentRow, row);
+                        }
+                    }
+
+                    if (row.model.children !== undefined) {
+                        angular.forEach(row.model.children, function(childRowNameOrId) {
+                            var childRow = nameToRow[childRowNameOrId];
+                            if (childRow === undefined) {
+                                childRow = idToRow[childRowNameOrId];
+                            }
+
+                            if (childRow !== undefined) {
+                                registerChildRow(row, childRow);
+                            }
+                        });
+                    }
+                });
+
+                var rootRows = [];
+                angular.forEach(rows, function(row) {
+                    if (self.parent(row) === undefined) {
+                        rootRows.push(row);
+                    }
+                });
+
+                return rootRows;
+            };
+
+            this.children = function(row) {
+                var children = idToChildren[row.model.id];
+                if (children === undefined) {
+                    children = nameToChildren[row.model.name];
+                }
+                return children;
+            };
+
+            this.descendants = function(row) {
+                var descendants = [];
+
+                var children = self.children(row);
+                descendants.push.apply(descendants, children);
+                if (children !== undefined) {
+                    angular.forEach(children, function(child) {
+                        var childDescendants = self.descendants(child);
+                        descendants.push.apply(descendants, childDescendants);
+                    });
+                }
+
+                return descendants;
+            };
+
+            this.parent = function(row) {
+                var parent = idToParent[row.model.id];
+                if (parent === undefined) {
+                    parent = nameToParent[row.model.name];
+                }
+                return parent;
+            };
+
+            this.ancestors = function(row) {
+                var ancestors = [];
+
+                var parent = self.parent(row);
+                while (parent !== undefined) {
+                    ancestors.push(parent);
+                    parent = self.parent(parent);
+                }
+
+                return ancestors;
+            };
+        };
+
+        return Hierarchy;
     }]);
 }());
 
@@ -4493,7 +4660,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').service('GanttDirectiveBuilder', [function() {
+    angular.module('gantt').service('GanttDirectiveBuilder', ['$templateCache', function($templateCache) {
         var DirectiveBuilder = function DirectiveBuilder(directiveName, templateUrl, require, restrict) {
             var self = this;
 
@@ -4517,11 +4684,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     replace: self.replace,
                     scope: self.scope,
                     templateUrl: function(tElement, tAttrs) {
-                        if (tAttrs.templateUrl === undefined) {
-                            return templateUrl;
-                        } else {
-                            return tAttrs.templateUrl;
+                        if (tAttrs.templateUrl !== undefined) {
+                            templateUrl = tAttrs.templateUrl;
                         }
+                        if (tAttrs.template !== undefined) {
+                            $templateCache.put(templateUrl, tAttrs.template);
+                        }
+                        return templateUrl;
                     },
                     compile: function () {
                         return {
@@ -4880,7 +5049,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Timespan template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
-        '        <div class="gantt-timespan" ng-class="::timespan.classes">\n' +
+        '        <div class="gantt-timespan" ng-class="timespan.classes">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -4912,23 +5081,25 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Row background template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRowBackground.tmpl.html">\n' +
-        '        <div class="gantt-row"\n' +
+        '        <div class="gantt-row gantt-row-height"\n' +
         '             ng-class="row.model.classes"\n' +
         '             ng-class-odd="\'gantt-row-odd\'"\n' +
-        '             ng-class-even="\'gantt-row-even\'">\n' +
-        '            <div class="gantt-row-background gantt-row-height"\n' +
-        '                 ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '             ng-class-even="\'gantt-row-even\'"\n' +
+        '             ng-style="{\'height\': row.model.height}">\n' +
+        '            <div class="gantt-row-background"\n' +
+        '                 ng-style="{\'background-color\': row.model.color}">\n' +
         '            </div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Row template -->\n' +
         '    <script type="text/ng-template" id="template/ganttRow.tmpl.html">\n' +
-        '        <div class="gantt-row"\n' +
+        '        <div class="gantt-row gantt-row-height"\n' +
         '             ng-class="row.model.classes"\n' +
         '             ng-class-odd="\'gantt-row-odd\'"\n' +
-        '             ng-class-even="\'gantt-row-even\'">\n' +
-        '            <div ng-transclude class="gantt-row-content gantt-row-height" ng-style="::{\'height\': row.model.height}"></div>\n' +
+        '             ng-class-even="\'gantt-row-even\'"\n' +
+        '             ng-style="{\'height\': row.model.height}">\n' +
+        '            <div ng-transclude class="gantt-row-content"></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -4944,13 +5115,14 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
-        '                    <div class="gantt-row"\n' +
+        '                    <div class="gantt-row gantt-row-height "\n' +
         '                         ng-class-odd="\'gantt-row-odd\'"\n' +
         '                         ng-class-even="\'gantt-row-even\'"\n' +
         '                         ng-class="row.model.classes"\n' +
-        '                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
-        '                        <div gantt-row-label class="gantt-row-label gantt-row-height gantt-row-background"\n' +
-        '                             ng-style="{\'background-color\': row.model.color, \'height\': row.model.height}">\n' +
+        '                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"\n' +
+        '                         ng-style="{\'height\': row.model.height}">\n' +
+        '                        <div gantt-row-label class="gantt-row-label gantt-row-background"\n' +
+        '                             ng-style="{\'background-color\': row.model.color}">\n' +
         '                        </div>\n' +
         '                    </div>\n' +
         '                </div>\n' +

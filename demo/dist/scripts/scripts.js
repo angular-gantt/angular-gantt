@@ -18,6 +18,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.progress',
     'gantt.table',
     'gantt.tree',
+    'gantt.groups',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
     $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
@@ -65,6 +66,7 @@ angular.module('angularGanttDemoApp')
             currentDateValue: new Date(2013, 9, 23, 11, 20, 0),
             draw: false,
             readOnly: false,
+            groupDisplayMode: 'group',
             filterTask: '',
             filterRow: '',
             timeFrames: {
