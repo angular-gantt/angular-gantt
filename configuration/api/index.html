@@ -100,6 +100,18 @@
                         </li>
                     
                         <li >
+                            <a href="../../plugins/table">Table</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tree">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/groups">Groups</a>
+                        </li>
+                    
+                        <li >
                             <a href="../../plugins/sortable">Sortable</a>
                         </li>
                     
@@ -285,6 +297,10 @@ api.featureName.methodName();
 <p>A task has been added, changed or removed</p>
 </li>
 <li>
+<p><strong>api.tasks.on.viewChange(task)</strong></p>
+<p>A task view has been changed and displayed.</p>
+</li>
+<li>
 <p><strong>api.tasks.on.rowChange(task, oldRow)</strong></p>
 <p>A task has been moved from one row to another</p>
 </li>
@@ -424,7 +440,7 @@ api.featureName.methodName();
 <ul>
 <li>
 <p><strong>api.side.setWidth(width)</strong></p>
-<p>Set side area width.</p>
+<p>Set side area width. If given <code>width</code> is <code>undefined</code>, it will be computed automatically based on content.</p>
 </li>
 <li>
 <p><strong>api.side.getWidth()</strong></p>
@@ -445,6 +461,35 @@ api.featureName.methodName();
 <p><strong>api.rows.refresh()</strong></p>
 <p>Refresh rows. It will also apply filters, and may be required if you use <a href="../attributes#filter-task-filter-task-comparator">filter-task</a> or
 <a href="../attributes##filter-row-filter-row-comparator">filter-row</a> with a function.</p>
+</li>
+<li>
+<p><strong>api.rows.addRowSorter(sorter)</strong>, <strong>api.rows.removeRowSorter(sorter)</strong></p>
+<p>Register a function that will be called to customize sorting of rows.</p>
+<pre><code>sorter = function(rows) {
+  return rows.reverse();
+}
+
+api.rows.addRowSorter(sorter);
+
+$scope.$on('$destroy', function() {
+  api.rows.removeRowSorter(sorter);
+};
+</code></pre>
+</li>
+<li>
+<p><strong>api.rows.addRowFilter(filter)</strong>, <strong>api.rows.removeRowFilter(filter)</strong></p>
+<p>Register a function that will be called to customize filtering of rows.</p>
+<pre><code>filter = function(rows) {
+  rows.pop();
+  return rows;
+}
+
+api.rows.addRowFilter(filter);
+
+$scope.$on('$destroy', function() {
+  api.rows.removeRowFilter(filter);
+};
+</code></pre>
 </li>
 </ul>
 <h4 id="timeframes">timeframes</h4>

@@ -100,6 +100,18 @@
                         </li>
                     
                         <li >
+                            <a href="../../plugins/table">Table</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tree">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/groups">Groups</a>
+                        </li>
+                    
+                        <li >
                             <a href="../../plugins/sortable">Sortable</a>
                         </li>
                     
@@ -191,6 +203,8 @@
         
             <li><a href="#task">Task</a></li>
         
+            <li><a href="#css-selectors">CSS Selectors</a></li>
+        
             <li><a href="#example">Example</a></li>
         
     
@@ -205,8 +219,8 @@ and modification made to <code>angular-gantt</code> will be applied to <code>dat
 <p><code>data</code> is a list of <code>Row</code> objects. Each <code>Row</code> object contains a list of <code>Task</code> object defined in <code>tasks</code> property. </p>
 <h2 id="row">Row</h2>
 <pre><code>{
-  id: "...",  // Unique id of the row (Optional).
   name: "...", // Name shown on the left side of each row.
+  id: "...",  // Unique id of the row (Optional).
   height: "..." // Height of the row (Optional).
   color: "..." , // Color of the task in HEX format (Optional).
   classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
@@ -215,14 +229,60 @@ and modification made to <code>angular-gantt</code> will be applied to <code>dat
 </code></pre>
 <h2 id="task">Task</h2>
 <pre><code>{
-  id: "...",  // Unique id of the task (Optional).
   name: "...", // Name shown on top of each task.
   from: &lt;Date&gt;, // Date can be a String, Timestamp, Date object or moment object.
   to: &lt;Date&gt;, // Date can be a String, Timestamp, Date object or moment object.
+  id: "...",  // Unique id of the task (Optional).
   color: "..." , // Color of the task in HEX format (Optional).
   classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
   priority: &lt;Number&gt; // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
   data: &lt;Any&gt; // Custom object. Use this to attach your own data (Optional).
+}
+</code></pre>
+<h2 id="css-selectors">CSS Selectors</h2>
+<p>CSS Classes defined in model with <code>classes</code> property are applied to multiple elements for each row and task. </p>
+<p>Using single class selector like <code>.custom-row</code> or <code>.custom-task</code> may not work as expected. You should use following selectors.</p>
+<h3 id="row-selectors">Row selectors</h3>
+<p>Define <code>custom-row</code> class in the row model.</p>
+<pre><code>{
+  name: "Some row",
+  classes: "custom-row",
+  tasks: [...]
+}
+</code></pre>
+<p>Use the following selectors to customize this particular row.</p>
+<pre><code>.gantt-row.custom-row .gantt-row-background {
+  // Customize background of the row
+  background: blue;
+  opacity: 0.3;
+}
+
+.gantt-row.custom-row .gantt-row-content {
+  // Customize content of the row
+  weight: bolder;
+}
+</code></pre>
+<h3 id="task-selectors">Task selectors</h3>
+<p>Define <code>custom-task</code> class in the task model.</p>
+<pre><code>{
+  name: "Some task",
+  classes: "custom-task",
+}
+</code></pre>
+<p>Use the following selectors to customize this particular task.</p>
+<pre><code>.gantt-task.custom-task .gantt-task-background {
+  // Customize background of the task
+  background: blue;
+  opacity: 0.3;
+}
+
+.gantt-task.custom-task .gantt-task-content {
+  // Customize content of the task
+  weight: bolder;
+}
+
+.gantt-task.custom-task .gantt-task-foreground {
+  // Customize foreground of the task
 }
 </code></pre>
 <h2 id="example">Example</h2>
