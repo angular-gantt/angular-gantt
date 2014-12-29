@@ -2,7 +2,7 @@
     'use strict';
     angular.module('gantt.table').controller('TableController', ['$scope', function($scope) {
         $scope.getValue = function(scope, column) {
-            var value = scope.$eval('row.' + column);
+            var value = scope.$eval(column, scope.row);
 
             var formatter = $scope.pluginScope.formatters[column];
             if (formatter !== undefined) {
