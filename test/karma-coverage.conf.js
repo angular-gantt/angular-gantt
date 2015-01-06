@@ -20,6 +20,7 @@ module.exports = function(config) {
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/moment/moment.js',
       'bower_components/angular-moment/angular-moment.js',
+      'bower_components/angular-ui-tree/dist/angular-ui-tree.js',
       'src/**/*.js',
       '.tmp/generated/**/*.js',
       'test/spec/**/*.js',
