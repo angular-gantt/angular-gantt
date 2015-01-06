@@ -44145,7 +44145,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                columns: '=',
+                columns: '=?',
                 headers: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'

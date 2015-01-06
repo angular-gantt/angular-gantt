@@ -9,7 +9,7 @@
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                columns: '=',
+                columns: '=?',
                 headers: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
