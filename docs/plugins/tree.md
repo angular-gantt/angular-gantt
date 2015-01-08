@@ -34,7 +34,7 @@ can be used to define the hierarchy.
       {name: 'Three', parent: 'Parent', tasks: [...]},
     ]
 
-Take care to define a non-recursive hierarchy model.
+Take care to define a non-recursive hierarchy model, and check that a row is attached to a maximum of one parent.
 
 ## Attributes
 
