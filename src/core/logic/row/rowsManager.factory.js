@@ -228,7 +228,7 @@
         RowsManager.prototype.removeCustomRowSorter = function(sorterFunction) {
             var i = this.customRowSorters.indexOf(sorterFunction);
             if (i > -1) {
-                this.customRowSorters.remove(i);
+                this.customRowSorters.splice(i, 1);
             }
         };
 
@@ -322,7 +322,7 @@
         RowsManager.prototype.removeCustomRowFilter = function(filterFunction) {
             var i = this.customRowFilters.indexOf(filterFunction);
             if (i > -1) {
-                this.customRowFilters.remove(i);
+                this.customRowFilters.splice(i, 1);
             }
         };
 
