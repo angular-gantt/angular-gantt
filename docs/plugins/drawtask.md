@@ -33,6 +33,12 @@ Draw new tasks with the mouse.
     Enable drawing. Can also be a function (`fn(event)`) which has one parameter for the event. Such a function can be used to only activate the drawing when a certain mouse button is pressed.
     
     default: `true`
+    
+- ### move-threshold
+
+    Threshold of how many pixel the user must move the mouse before the drawing begins. This is use full to differentiate between a single mouse click and drawing. Recommended value is `1-3`.
+
+    default: `0`
 
 - ### task-factory
 
