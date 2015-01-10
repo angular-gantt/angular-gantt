@@ -186,7 +186,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+
+                                        if (taskHasBeenChanged) {
+                                            taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                        }
                                         taskHasBeenChanged = true;
                                     }
                                 } else if (taskScope.task.moveMode === 'E') {
@@ -202,7 +205,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 } else {
                                     if (x > taskScope.task.left + taskScope.task.width) {
@@ -217,7 +223,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 }
 

@@ -179,7 +179,10 @@
 
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+
+                                        if (taskHasBeenChanged) {
+                                            taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                        }
                                         taskHasBeenChanged = true;
                                     }
                                 } else if (taskScope.task.moveMode === 'E') {
@@ -195,7 +198,10 @@
 
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 } else {
                                     if (x > taskScope.task.left + taskScope.task.width) {
@@ -210,7 +216,10 @@
 
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 }
 
