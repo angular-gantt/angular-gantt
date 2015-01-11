@@ -163,8 +163,8 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="form-group text-center">
-                                                        <label class="control-label"><i class="fa fa-database"></i> Data actions</label><br>
+                                                    <div ng-if="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'" class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa fa-chevron-circle-right"></i> Tree actions</label><br>
                                                         <div class="btn-group">
                                                             <button class="btn btn-default" ng-click="expandAll()">Expand all</button>
                                                             <button class="btn btn-default" ng-click="collapseAll()">Collapse all</button>
