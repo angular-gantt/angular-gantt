@@ -1818,13 +1818,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.parent = function(row) {
             return hierarchy.parent(row);
         };
-    }]).controller('GanttTreeChildrenController', ['$scope', function($scope) {
+    }]).controller('GanttTreeNodeController', ['$scope', function($scope) {
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
 
         $scope.$watch('collapsed', function(newValue) {
-            $scope.row._collapsed = newValue;
+            $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
             $scope.gantt.api.rows.refresh();
         });
     }]);
@@ -2021,7 +2021,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '        </div>\n' +
         '        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">\n' +
         '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
-        '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node\n' +
+        '                <li ng-repeat="row in rootRows" ui-tree-node\n' +
         '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
         '                </li>\n' +
         '            </ol>\n' +
@@ -2030,9 +2030,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '</div>\n' +
         '');
     $templateCache.put('plugins/tree/treeBodyChildren.tmpl.html',
-        '<div ui-tree-handle\n' +
-        '     ng-controller="GanttTreeChildrenController"\n' +
-        '     class="gantt-row-label gantt-row-height" ,\n' +
+        '<div ng-controller="GanttTreeNodeController"\n' +
+        '     class="gantt-row-label gantt-row-height"\n' +
         '     ng-class="row.model.classes"\n' +
         '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="gantt-valign-container">\n' +
@@ -2040,7 +2039,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag\n' +
         '               class="gantt-tree-handle-button btn btn-xs"\n' +
         '               ng-class="{\'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"\n' +
-        '               ng-click="toggle(this)"><span\n' +
+        '               ng-click="toggle()"><span\n' +
         '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
         '                ng-class="{\n' +
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
@@ -2051,8 +2050,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '    </div>\n' +
         '</div>\n' +
         '<ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">\n' +
-        '    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node\n' +
-        '        ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '    <li ng-repeat="row in childrenRows" ui-tree-node>\n' +
+        '        <div ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'"></div>\n' +
         '    </li>\n' +
         '</ol>\n' +
         '');

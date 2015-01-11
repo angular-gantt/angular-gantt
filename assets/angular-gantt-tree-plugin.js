@@ -173,13 +173,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.parent = function(row) {
             return hierarchy.parent(row);
         };
-    }]).controller('GanttTreeChildrenController', ['$scope', function($scope) {
+    }]).controller('GanttTreeNodeController', ['$scope', function($scope) {
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
 
         $scope.$watch('collapsed', function(newValue) {
-            $scope.row._collapsed = newValue;
+            $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
             $scope.gantt.api.rows.refresh();
         });
     }]);
