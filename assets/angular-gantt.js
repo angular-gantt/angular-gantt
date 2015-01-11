@@ -421,7 +421,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         TimeFrame.prototype.getDuration = function() {
-            return this.end.diff(this.start, 'milliseconds');
+            if (this.end !== undefined && this.start !== undefined) {
+                return this.end.diff(this.start, 'milliseconds');
+            }
         };
 
         TimeFrame.prototype.clone = function() {
