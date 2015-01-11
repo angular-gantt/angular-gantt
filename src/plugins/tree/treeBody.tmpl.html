@@ -8,7 +8,7 @@
                 &nbsp;
             </div>
         </div>
-        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">
+        <div ui-tree ng-controller="GanttUiTreeController" data-drag-enabled="false" data-empty-place-holder-enabled="false">
             <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">
                 <li ng-repeat="row in rootRows" ui-tree-node
                     ng-include="'plugins/tree/treeBodyChildren.tmpl.html'">

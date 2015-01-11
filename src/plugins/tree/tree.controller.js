@@ -60,7 +60,6 @@
 
             return sortedRows;
         };
-
         $scope.gantt.api.rows.addRowSorter(sortRowsFunction);
         $scope.gantt.api.rows.addRowFilter(filterRowsFunction);
 
@@ -78,7 +77,26 @@
             }
         };
 
+        var isRowCollapsed = function(rowId) {
+            var row;
+            if (typeof rowId === 'string') {
+                row = $scope.gantt.rowsManager.rowsMap[rowId];
+            } else {
+                row = rowId;
+            }
+            if (row === undefined) {
+                return undefined;
+            }
+            if (row._collapsed === undefined) {
+                return false;
+            }
+            return row._collapsed;
+        };
+
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
+        $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
+
+        $scope.gantt.api.registerEvent('tree', 'collapsed');
 
         $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
             refresh();
@@ -94,14 +112,31 @@
         $scope.parent = function(row) {
             return hierarchy.parent(row);
         };
+    }]).controller('GanttUiTreeController', ['$scope', function($scope) {
+        var collapseAll = function() {
+            $scope.collapseAll();
+        };
+
+        var expandAll = function() {
+            $scope.expandAll();
+        };
+
+        $scope.gantt.api.registerMethod('tree', 'collapseAll', collapseAll, $scope);
+        $scope.gantt.api.registerMethod('tree', 'expandAll', expandAll, $scope);
     }]).controller('GanttTreeNodeController', ['$scope', function($scope) {
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
 
         $scope.$watch('collapsed', function(newValue) {
-            $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
-            $scope.gantt.api.rows.refresh();
+            if ($scope.$modelValue._collapsed !== newValue) {
+                var oldValue = $scope.$modelValue._collapsed;
+                $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
+                if (oldValue !== undefined && newValue !== oldValue) {
+                    $scope.gantt.api.tree.raise.collapsed($scope, $scope.$modelValue, newValue);
+                    $scope.gantt.api.rows.refresh();
+                }
+            }
         });
     }]);
 }());

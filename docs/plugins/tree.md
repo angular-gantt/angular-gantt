@@ -57,3 +57,22 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
 - **api.tree.refresh()**
 
     Refresh hierarchy of rows based on model.
+
+- **api.tree.isCollapsed(rowId)**
+
+    Check if a row is collapsed.
+    
+- **api.tree.collapseAll()**
+    
+    Collapse all rows.
+    
+- **api.tree.expandAll()**
+        
+    Expand all rows.
+    
+    
+### Events
+    
+- **api.core.on.collapsed(row, collapsed)**
+
+    A row has collapsed or expanded

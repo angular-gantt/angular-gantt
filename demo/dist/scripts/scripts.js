@@ -234,6 +234,14 @@ angular.module('angularGanttDemoApp')
             }
         };
 
+        $scope.expandAll = function() {
+          $scope.api.tree.expandAll();
+        };
+
+        $scope.collapseAll = function() {
+            $scope.api.tree.collapseAll();
+        };
+
         $scope.$watch('options.sideMode', function(newValue, oldValue) {
             if (newValue !== oldValue) {
                 $scope.api.side.setWidth(undefined);
