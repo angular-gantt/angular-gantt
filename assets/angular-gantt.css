@@ -85,7 +85,6 @@
 }
 
 .gantt-side-content > div.side-element {
-    overflow: hidden;
     display: inline-block;
 }
 
