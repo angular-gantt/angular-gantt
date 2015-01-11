@@ -12,10 +12,6 @@ div.gantt-table-content {
 }
 
 .gantt-side-content-table > div.gantt-table-column {
-    float: left;
+    display: inline-block;
     overflow: hidden;
-}
-
-.gantt-side-content-table > div.gantt-table-column:last-child {
-    float: none;
 }
