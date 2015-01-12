@@ -2065,7 +2065,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '</div>\n' +
         '');
     $templateCache.put('plugins/tree/treeBodyChildren.tmpl.html',
-        '<div ng-controller="GanttTreeNodeController"\n' +
+        '<div gantt-row-label\n' +
+        '     ng-controller="GanttTreeNodeController"\n' +
         '     class="gantt-row-label gantt-row-height"\n' +
         '     ng-class="row.model.classes"\n' +
         '     ng-style="{\'height\': row.model.height}">\n' +
