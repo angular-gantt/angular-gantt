@@ -9,9 +9,9 @@ Register the API Object using `api` attribute.
 <!-- -->
     
     $scope.registerApi = function(api) {
-      api.core.on.ready() {
+      api.core.on.ready($scope, function () {
         // Call API methods and register events.
-      }
+      });
     }
 
 API Object contains features, like `api.core`, `api.data`, `api.rows` or `api.columns`.
