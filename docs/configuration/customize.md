@@ -64,7 +64,7 @@ directive is added/removed from the DOM by AngularJS. They are entry points for 
 
     $scope.registerApi = function(api) {
     
-      api.directives.on.new(scope, function(dName, dScope, dElement, dAttrs, dController) {
+      api.directives.on.new($scope, function(dName, dScope, dElement, dAttrs, dController) {
         if (dName === 'xxxxxx') { // 'xxxxxx' is the 'gantt*' directive name in camelCase.
           // Use dScope, dElement, dAttrs and dController to do what you want.
         }
