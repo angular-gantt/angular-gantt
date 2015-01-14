@@ -26,3 +26,14 @@
     angular-gantt use [angular-moment](https://github.com/urish/angular-moment), an angularJS wrapper for [momentJS](http://momentjs.com/). 
     For any features related to date, like date formats, week numbering, custom calendars and timezone support, please
     review those projects documentations.
+
+- ### How can i set first day of week and first week of year ?
+
+    Using [momentJS](http://momentjs.com/) API.
+    
+        moment.locale('en', {
+          week : {
+            dow : 1, // Monday is the first day of the week.
+            doy : 4 // The week that contains Jan 4th is the first week of the year.
+          }
+        });
