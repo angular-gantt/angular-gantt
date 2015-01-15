@@ -54,7 +54,7 @@ Display a table on the side with fully customizable columns count and data.
     Associative object headers definitions for headers. Key is the column expression defined in `columns` attribute,
     and value is the header to display, or a function `formatter(column)` returning the formatted header value.
     
-    ex: `['model.name': 'Label']`
+    ex: `{'model.name': 'Label'}`
 
 - #### headerFormatter
 
