@@ -63,6 +63,15 @@
                         mouseEnterX = e.clientX;
                         displayTooltip(true, false);
                     } else {
+                        // check if mouse goes outside the parent
+                        if(
+                            e.clientX < $scope.taskRect.left ||
+                            e.clientX > $scope.taskRect.right ||
+                            e.clientY > $scope.taskRect.bottom ||
+                            e.clientY < $scope.taskRect.top
+                        ) {
+                            displayTooltip(false, false);
+                        }
                         updateTooltip(e.clientX);
                     }
                 }, 5, false));
