@@ -43061,7 +43061,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-scrollable-header>\n' +
         '        <gantt-header>\n' +
         '            <gantt-header-columns>\n' +
-        '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
+        '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders track by $index">\n' +
         '                    <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
         '                        <gantt-column-header ng-repeat="column in header"></gantt-column-header>\n' +
         '                    </div>\n' +
