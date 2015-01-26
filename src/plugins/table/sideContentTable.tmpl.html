@@ -1,6 +1,6 @@
 <div class="gantt-side-content-table" ng-controller="TableController">
 
-    <div class="gantt-table-column" ng-repeat="column in pluginScope.columns">
+    <div class="gantt-table-column {{getClass(this, column)}}" ng-repeat="column in pluginScope.columns">
 
         <div class="gantt-table-header">
             <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">

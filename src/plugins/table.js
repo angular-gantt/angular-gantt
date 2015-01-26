@@ -11,6 +11,7 @@
                 enabled: '=?',
                 columns: '=?',
                 headers: '=?',
+                classes: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
             },
@@ -34,6 +35,10 @@
 
                 if (scope.headers === undefined) {
                     scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.classes === undefined) {
+                    scope.classes = {};
                 }
 
                 if (scope.formatters === undefined) {

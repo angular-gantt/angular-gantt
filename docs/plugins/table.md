@@ -52,9 +52,16 @@ Display a table on the side with fully customizable columns count and data.
 - #### headers
 
     Associative object headers definitions for headers. Key is the column expression defined in `columns` attribute,
-    and value is the header to display, or a function `formatter(column)` returning the formatted header value.
+    and value is the header to display.
     
     ex: `{'model.name': 'Label'}`
+
+- #### classes
+
+    Associative object CSS classes for headers. Key is the column expression defined in `columns` attribute,
+    and value is the class name to apply to column.
+    
+    ex: `{'model.name': 'gantt-column-name'}`
 
 - #### headerFormatter
 

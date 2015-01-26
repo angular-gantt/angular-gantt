@@ -44189,6 +44189,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 columns: '=?',
                 headers: '=?',
+                classes: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
             },
@@ -44212,6 +44213,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headers === undefined) {
                     scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.classes === undefined) {
+                    scope.classes = {};
                 }
 
                 if (scope.formatters === undefined) {
@@ -44757,6 +44762,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
             return header;
         };
+
+        $scope.getClass = function(scope, column) {
+            return $scope.pluginScope.classes[column];
+        };
     }]);
 }());
 
@@ -45256,7 +45265,7 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
         '<div class="gantt-side-content-table" ng-controller="TableController">\n' +
         '\n' +
-        '    <div class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '    <div class="gantt-table-column {{getClass(this, column)}}" ng-repeat="column in pluginScope.columns">\n' +
         '\n' +
         '        <div class="gantt-table-header">\n' +
         '            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +

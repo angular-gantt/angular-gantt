@@ -18,6 +18,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 columns: '=?',
                 headers: '=?',
+                classes: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
             },
@@ -41,6 +42,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headers === undefined) {
                     scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.classes === undefined) {
+                    scope.classes = {};
                 }
 
                 if (scope.formatters === undefined) {
@@ -119,6 +124,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return header;
             }
             return header;
+        };
+
+        $scope.getClass = function(scope, column) {
+            return $scope.pluginScope.classes[column];
         };
     }]);
 }());

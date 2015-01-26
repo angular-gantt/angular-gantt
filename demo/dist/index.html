@@ -215,7 +215,12 @@
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
                                             <gantt-tree enabled="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'"></gantt-tree>
-                                            <gantt-table enabled="options.sideMode === 'Table' || options.sideMode === 'TreeTable'" columns="options.sideMode === 'TreeTable' ? options.treeTableColumns : options.columns" headers="options.columnsHeaders" formatters="options.columnsFormatters"></gantt-table>
+                                            <gantt-table enabled="options.sideMode === 'Table' || options.sideMode === 'TreeTable'"
+                                                         columns="options.sideMode === 'TreeTable' ? options.treeTableColumns : options.columns"
+                                                         headers="options.columnsHeaders"
+                                                         classes="options.columnsClasses"
+                                                         formatters="options.columnsFormatters">
+                                            </gantt-table>
                                             <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview'" display="options.groupDisplayMode"></gantt-groups>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>

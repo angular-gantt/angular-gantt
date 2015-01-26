@@ -48,6 +48,7 @@ angular.module('angularGanttDemoApp')
             columns: ['model.name', 'from', 'to'],
             treeTableColumns: ['from', 'to'],
             columnsHeaders: {'model.name' : 'Name', 'from': 'From', 'to': 'To'},
+            columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to'},
             columnsFormatters: {
                 'from': function(from) {
                     return from !== undefined ? from.format('lll') : undefined;

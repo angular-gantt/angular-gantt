@@ -26,6 +26,10 @@
             }
             return header;
         };
+
+        $scope.getClass = function(scope, column) {
+            return $scope.pluginScope.classes[column];
+        };
     }]);
 }());
 
