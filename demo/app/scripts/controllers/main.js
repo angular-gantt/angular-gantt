@@ -19,6 +19,7 @@ angular.module('angularGanttDemoApp')
             sideMode: 'TreeTable',
             maxHeight: false,
             width: false,
+            zoom: 1,
             columns: ['model.name', 'from', 'to'],
             treeTableColumns: ['from', 'to'],
             columnsHeaders: {'model.name' : 'Name', 'from': 'From', 'to': 'To'},
@@ -233,28 +234,28 @@ angular.module('angularGanttDemoApp')
             return true;
         };
 
-        $scope.getColumnWidth = function(widthEnabled, scale) {
+        $scope.getColumnWidth = function(widthEnabled, scale, zoom) {
             if (!widthEnabled && $scope.canAutoWidth(scale)) {
                 return undefined;
             }
 
             if (scale.match(/.*?week.*?/)) {
-                return 150;
+                return 150 * zoom;
             }
 
             if (scale.match(/.*?month.*?/)) {
-                return 300;
+                return 300 * zoom;
             }
 
             if (scale.match(/.*?quarter.*?/)) {
-                return 500;
+                return 500 * zoom;
             }
 
             if (scale.match(/.*?year.*?/)) {
-                return 800;
+                return 800 * zoom;
             }
 
-            return 40;
+            return 40 * zoom;
         };
 
         // Reload data action

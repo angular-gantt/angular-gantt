@@ -132,6 +132,12 @@
                                                     </div>
 
                                                     <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-search"></i> Zoom</label><br>
+                                                        <input ng-disabled="!options.width" type="number" ng-model="options.zoom" step="0.1" min="0.1" max="5" class="form-control" />
+                                                    </div>
+
+
+                                                    <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-text-width"></i> Labels</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
                                                             <button type="button" class="btn btn-default" ng-model="options.labelsEnabled" bs-checkbox>Show</button>
@@ -198,7 +204,7 @@
                                                filter-row="{'name': options.filterRow}"
                                                sort-mode="options.sortMode"
                                                view-scale="options.scale"
-                                               column-width="getColumnWidth(options.width, options.scale)"
+                                               column-width="getColumnWidth(options.width, options.scale, options.zoom)"
                                                auto-expand="options.autoExpand"
                                                task-out-of-range="options.taskOutOfRange"
                                                from-date = "options.fromDate"
