@@ -44528,11 +44528,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (getTaskDisplay(task) !== undefined) {
                         self.tasks.push(task);
                     }
-                });
-                angular.forEach(descendant.visibleTasks, function(visibleTask) {
-                    var taskDisplay = getTaskDisplay(visibleTask);
+
+                    var taskDisplay = getTaskDisplay(task);
                     if (taskDisplay !== undefined) {
-                        var clone = new Task(self.row, visibleTask.model);
+                        var clone = new Task(self.row, task.model);
 
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
