@@ -1279,6 +1279,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             self.tasks = [];
             self.overviewTasks = [];
             self.groupedTasks = [];
+            self.promotedTasks = [];
 
             var groupRowGroups = self.row.model.groups;
             if (typeof(groupRowGroups) === 'boolean') {
@@ -1317,6 +1318,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
                             clone.updatePosAndSize();
+                        } else if(taskDisplay === 'promote'){
+                            self.promotedTasks.push(clone);
                         } else {
                             self.groupedTasks.push(clone);
                         }
@@ -2008,6 +2011,7 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
+
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
@@ -2017,6 +2021,9 @@ angular.module('gantt.groups.templates', []).run(['$templateCache', function($te
         '<div ng-controller="GanttGroupController">\n' +
         '    <div class="gantt-task-group-overview" ng-show="taskGroup.overviewTasks.length > 0">\n' +
         '        <gantt-task-overview ng-repeat="task in taskGroup.overviewTasks"></gantt-task-overview>\n' +
+        '    </div>\n' +
+        '    <div class="gantt-task-group-promote" ng-show="taskGroup.row._collapsed && taskGroup.promotedTasks.length > 0">\n' +
+        '        <gantt-task ng-repeat="task in taskGroup.promotedTasks"></gantt-task>\n' +
         '    </div>\n' +
         '    <div class="gantt-task-group"\n' +
         '         ng-show="taskGroup.groupedTasks.length > 0"\n' +

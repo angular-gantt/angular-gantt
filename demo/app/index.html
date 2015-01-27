@@ -130,7 +130,7 @@
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-gear"></i> Groups</label><br>
                                                         <div class="btn-group" bs-checkbox-group>
-                                                            <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.groupDisplayMode" ng-options="s for s in ['group', 'overview', 'Disabled']" bs-select></button>
+                                                            <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.groupDisplayMode" ng-options="s for s in ['group', 'overview', 'promote', 'Disabled']" bs-select></button>
                                                         </div>
                                                     </div>
 
@@ -242,7 +242,7 @@
                                                          contents="options.columnsContents"
                                                          header-contents="options.columnsHeaderContents">
                                             </gantt-table>
-                                            <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview'" display="options.groupDisplayMode"></gantt-groups>
+                                            <gantt-groups enabled="options.groupDisplayMode === 'group' || options.groupDisplayMode === 'overview' || options.groupDisplayMode === 'promote'" display="options.groupDisplayMode"></gantt-groups>
                                             <gantt-tooltips></gantt-tooltips>
                                             <gantt-bounds></gantt-bounds>
                                             <gantt-progress></gantt-progress>

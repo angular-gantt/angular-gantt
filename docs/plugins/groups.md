@@ -27,6 +27,7 @@ Groups tasks into a single row based on defined hierarchy. See [Tree Plugin](tre
 
     - `group`: Display a single object representing the grouped task.
     - `overview`: Display a minimized overview of each grouped task.
+    - `promote`: Move each grouped task to parent row on row collapse.
 
     default: `group`
 
