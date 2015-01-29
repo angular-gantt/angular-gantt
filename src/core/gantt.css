@@ -22,6 +22,10 @@
     pointer-events: auto;
 }
 
+.gantt a {
+    pointer-events: auto;
+}
+
 .gantt-scrollable {
     overflow-x: auto;
 
