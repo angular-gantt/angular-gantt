@@ -40608,6 +40608,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
             this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
+            this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
 
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');

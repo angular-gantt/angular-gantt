@@ -227,7 +227,11 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 - **api.columns.generate()**
 
     Generates all columns and display them.
-  
+
+- **api.columns.getColumnsWidth()**
+
+    Get the actual width of the columns.
+
 - **api.columns.refresh()**
   
     Refresh columns and current date. It will also apply filters, and may be required if you use 
