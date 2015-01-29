@@ -183,8 +183,9 @@
 
             this.updateVisibleColumns(columnsWidthChanged);
 
-            var currentDateValue = this.gantt.options.value('currentDateValue');
             this.gantt.rowsManager.updateVisibleObjects();
+
+            var currentDateValue = this.gantt.options.value('currentDateValue');
             this.gantt.currentDateManager.setCurrentDate(currentDateValue);
 
             if (sideVisibilityChanged && showSide) {
@@ -357,6 +358,9 @@
                     });
                 });
             }
+
+            var currentDateValue = this.gantt.options.value('currentDateValue');
+            this.gantt.currentDateManager.setCurrentDate(currentDateValue);
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
