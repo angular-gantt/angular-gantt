@@ -152,12 +152,8 @@ div.gantt-table-content {
 }
 
 .gantt-side-content-table > div.gantt-table-column {
-    float: left;
+    display: inline-block;
     overflow: hidden;
-}
-
-.gantt-side-content-table > div.gantt-table-column:last-child {
-    float: none;
 }
 
 .gantt-task-info {
@@ -273,4 +269,8 @@ div.gantt-table-content {
     font-weight: inherit;
     min-height: inherit;
     line-height: inherit;
+}
+
+.gantt-side-content-tree .gantt-tree-handle-button {
+    pointer-events: auto;
 }

@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.1.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.1.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -421,7 +421,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         TimeFrame.prototype.getDuration = function() {
-            return this.end.diff(this.start, 'milliseconds');
+            if (this.end !== undefined && this.start !== undefined) {
+                return this.end.diff(this.start, 'milliseconds');
+            }
         };
 
         TimeFrame.prototype.clone = function() {
@@ -815,7 +817,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.date = undefined;
             this.position = undefined;
-            this.currentDateColumn = undefined;
+            this.currentDateColumnElement = undefined;
 
             this.gantt.$scope.simplifyMoment = function(d) {
                 return moment.isMoment(d) ? d.unix() : d;
@@ -830,20 +832,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
             this.date = currentDate;
-            if (this.currentDateColumn !== undefined) {
-                if (this.currentDateColumn.$element !== undefined) {
-                    this.currentDateColumn.$element.removeClass('gantt-foreground-col-current-date');
-                }
-                delete this.currentDateColumn;
-            }
+            var oldElement = this.currentDateColumnElement;
+            var newElement;
 
-            if (this.date !== undefined) {
+            if (this.date !== undefined && this.gantt.options.value('currentDate') === 'column') {
                 var column = this.gantt.columnsManager.getColumnByDate(this.date, true);
-                if (column !== undefined) {
-                    this.currentDateColumn = column;
-                    if (this.gantt.options.value('currentDate') === 'column' && this.currentDateColumn.$element !== undefined) {
-                        this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
-                    }
+                if (column !== undefined && column.$element !== undefined) {
+                    newElement = column.$element;
+                }
+            }
+            this.currentDateColumnElement = newElement;
+
+            if (oldElement !== newElement) {
+                if (oldElement !== undefined) {
+                    oldElement.removeClass('gantt-foreground-col-current-date');
+                }
+                if (newElement !== undefined) {
+                    newElement.addClass('gantt-foreground-col-current-date');
                 }
             }
 
@@ -1536,8 +1541,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.updateVisibleColumns(columnsWidthChanged);
 
-            var currentDateValue = this.gantt.options.value('currentDateValue');
             this.gantt.rowsManager.updateVisibleObjects();
+
+            var currentDateValue = this.gantt.options.value('currentDateValue');
             this.gantt.currentDateManager.setCurrentDate(currentDateValue);
 
             if (sideVisibilityChanged && showSide) {
@@ -1710,6 +1716,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     });
                 });
             }
+
+            var currentDateValue = this.gantt.options.value('currentDateValue');
+            this.gantt.currentDateManager.setCurrentDate(currentDateValue);
         };
 
         var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
@@ -2745,7 +2754,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         RowsManager.prototype.removeCustomRowSorter = function(sorterFunction) {
             var i = this.customRowSorters.indexOf(sorterFunction);
             if (i > -1) {
-                this.customRowSorters.remove(i);
+                this.customRowSorters.splice(i, 1);
             }
         };
 
@@ -2839,7 +2848,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         RowsManager.prototype.removeCustomRowFilter = function(filterFunction) {
             var i = this.customRowFilters.indexOf(filterFunction);
             if (i > -1) {
-                this.customRowFilters.remove(i);
+                this.customRowFilters.splice(i, 1);
             }
         };
 
@@ -4938,7 +4947,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <gantt-scrollable-header>\n' +
         '        <gantt-header>\n' +
         '            <gantt-header-columns>\n' +
-        '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders">\n' +
+        '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders track by $index">\n' +
         '                    <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
         '                        <gantt-column-header ng-repeat="column in header"></gantt-column-header>\n' +
         '                    </div>\n' +

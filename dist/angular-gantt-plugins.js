@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.1.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.1.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -400,10 +400,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
-
+                                        var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
+                                        ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
                                         var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
+                                        ganttBody.css('pointer-events', '');
+
                                         var rows = ganttCtrl.gantt.rowsManager.rows;
                                         var targetRow;
                                         for (var i= 0, l=rows.length; i<l; i++) {
@@ -888,7 +891,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                columns: '=',
+                columns: '=?',
                 headers: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
@@ -1224,11 +1227,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (getTaskDisplay(task) !== undefined) {
                         self.tasks.push(task);
                     }
-                });
-                angular.forEach(descendant.visibleTasks, function(visibleTask) {
-                    var taskDisplay = getTaskDisplay(visibleTask);
+
+                    var taskDisplay = getTaskDisplay(task);
                     if (taskDisplay !== undefined) {
-                        var clone = new Task(self.row, visibleTask.model);
+                        var clone = new Task(self.row, task.model);
 
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
@@ -1434,7 +1436,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
     angular.module('gantt.table').controller('TableController', ['$scope', function($scope) {
         $scope.getValue = function(scope, column) {
-            var value = scope.$eval('row.' + column);
+            var value = scope.$eval(column, scope.row);
 
             var formatter = $scope.pluginScope.formatters[column];
             if (formatter !== undefined) {
@@ -1527,6 +1529,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         mouseEnterX = e.clientX;
                         displayTooltip(true, false);
                     } else {
+                        // check if mouse goes outside the parent
+                        if(
+                            e.clientX < $scope.taskRect.left ||
+                            e.clientX > $scope.taskRect.right ||
+                            e.clientY > $scope.taskRect.bottom ||
+                            e.clientY < $scope.taskRect.top
+                        ) {
+                            displayTooltip(false, false);
+                        }
                         updateTooltip(e.clientX);
                     }
                 }, 5, false));
@@ -1778,13 +1789,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.parent = function(row) {
             return hierarchy.parent(row);
         };
-    }]).controller('GanttTreeChildrenController', ['$scope', function($scope) {
+    }]).controller('GanttTreeNodeController', ['$scope', function($scope) {
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
 
         $scope.$watch('collapsed', function(newValue) {
-            $scope.row._collapsed = newValue;
+            $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
             $scope.gantt.api.rows.refresh();
         });
     }]);
@@ -1981,7 +1992,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '        </div>\n' +
         '        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">\n' +
         '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
-        '                <li ng-repeat="row in rootRows track by row.model.id" ui-tree-node\n' +
+        '                <li ng-repeat="row in rootRows" ui-tree-node\n' +
         '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
         '                </li>\n' +
         '            </ol>\n' +
@@ -1990,9 +2001,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '</div>\n' +
         '');
     $templateCache.put('plugins/tree/treeBodyChildren.tmpl.html',
-        '<div ui-tree-handle\n' +
-        '     ng-controller="GanttTreeChildrenController"\n' +
-        '     class="gantt-row-label gantt-row-height" ,\n' +
+        '<div ng-controller="GanttTreeNodeController"\n' +
+        '     class="gantt-row-label gantt-row-height"\n' +
         '     ng-class="row.model.classes"\n' +
         '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="gantt-valign-container">\n' +
@@ -2000,7 +2010,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag\n' +
         '               class="gantt-tree-handle-button btn btn-xs"\n' +
         '               ng-class="{\'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"\n' +
-        '               ng-click="toggle(this)"><span\n' +
+        '               ng-click="toggle()"><span\n' +
         '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
         '                ng-class="{\n' +
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
@@ -2011,8 +2021,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '    </div>\n' +
         '</div>\n' +
         '<ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">\n' +
-        '    <li ng-repeat="row in childrenRows track by row.model.id" ui-tree-node\n' +
-        '        ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
+        '    <li ng-repeat="row in childrenRows" ui-tree-node>\n' +
+        '        <div ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'"></div>\n' +
         '    </li>\n' +
         '</ol>\n' +
         '');
