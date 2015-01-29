@@ -142,10 +142,13 @@
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
-
+                                        var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
+                                        ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
                                         var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
+                                        ganttBody.css('pointer-events', '');
+
                                         var rows = ganttCtrl.gantt.rowsManager.rows;
                                         var targetRow;
                                         for (var i= 0, l=rows.length; i<l; i++) {

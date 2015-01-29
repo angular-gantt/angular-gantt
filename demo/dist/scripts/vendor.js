@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.8
+ * @license AngularJS v1.3.11
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.8/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.11/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -1402,7 +1402,7 @@ function angularInit(element, bootstrap) {
  * @param {DOMElement} element DOM element which is the root of angular application.
  * @param {Array<String|Function|Array>=} modules an array of modules to load into the application.
  *     Each item in the array should be the name of a predefined module or a (DI annotated)
- *     function that will be invoked by the injector as a run block.
+ *     function that will be invoked by the injector as a `config` block.
  *     See: {@link angular.module modules}
  * @param {Object=} config an object for defining configuration options for the application. The
  *     following keys are supported:
@@ -2118,11 +2118,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.8',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.11',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 8,
-  codeName: 'prophetic-narwhal'
+  dot: 11,
+  codeName: 'spiffy-manatee'
 };
 
 
@@ -4186,7 +4186,7 @@ function createInjector(modulesToLoad, strictDi) {
       // Check if Type is annotated and use just the given function at n-1 as parameter
       // e.g. someModule.factory('greeter', ['$window', function(renamed$window) {}]);
       // Object creation: http://jsperf.com/create-constructor/2
-      var instance = Object.create((isArray(Type) ? Type[Type.length - 1] : Type).prototype);
+      var instance = Object.create((isArray(Type) ? Type[Type.length - 1] : Type).prototype || null);
       var returnedValue = invoke(Type, instance, locals, serviceName);
 
       return isObject(returnedValue) || isFunction(returnedValue) ? returnedValue : instance;
@@ -7165,6 +7165,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
           // use class as directive
           className = node.className;
+          if (isObject(className)) {
+              // Maybe SVGAnimatedString
+              className = className.animVal;
+          }
           if (isString(className) && className !== '') {
             while (match = CLASS_DIRECTIVE_REGEXP.exec(className)) {
               nName = directiveNormalize(match[2]);
@@ -8431,7 +8435,7 @@ function $ControllerProvider() {
         // Object creation: http://jsperf.com/create-constructor/2
         var controllerPrototype = (isArray(expression) ?
           expression[expression.length - 1] : expression).prototype;
-        instance = Object.create(controllerPrototype);
+        instance = Object.create(controllerPrototype || null);
 
         if (identifier) {
           addIdentifier(locals, identifier, instance, constructor || expression.name);
@@ -8927,7 +8931,7 @@ function $HttpProvider() {
      *
      * Both requests and responses can be transformed using transformation functions: `transformRequest`
      * and `transformResponse`. These properties can be a single function that returns
-     * the transformed value (`{function(data, headersGetter, status)`) or an array of such transformation functions,
+     * the transformed value (`function(data, headersGetter, status)`) or an array of such transformation functions,
      * which allows you to `push` or `unshift` a new transformation function into the transformation chain.
      *
      * ### Default Transformations
@@ -11316,7 +11320,7 @@ function $LocationProvider() {
       // TODO(vojta): rewrite link when opening in new tab/window (in legacy browser)
       // currently we open nice url link and redirect then
 
-      if (!html5Mode.rewriteLinks || event.ctrlKey || event.metaKey || event.which == 2) return;
+      if (!html5Mode.rewriteLinks || event.ctrlKey || event.metaKey || event.shiftKey || event.which == 2 || event.button == 2) return;
 
       var elm = jqLite(event.target);
 
@@ -12268,7 +12272,7 @@ Parser.prototype = {
     }, {
       assign: function(scope, value, locals) {
         var o = object(scope, locals);
-        if (!o) object.assign(scope, o = {});
+        if (!o) object.assign(scope, o = {}, locals);
         return getter.assign(o, value);
       }
     });
@@ -12294,7 +12298,7 @@ Parser.prototype = {
         var key = ensureSafeMemberName(indexFn(self, locals), expression);
         // prevent overwriting of Function.constructor which would break ensureSafeObject check
         var o = ensureSafeObject(obj(self, locals), expression);
-        if (!o) obj.assign(self, o = {});
+        if (!o) obj.assign(self, o = {}, locals);
         return o[key] = value;
       }
     });
@@ -12404,18 +12408,19 @@ Parser.prototype = {
 // Parser helper functions
 //////////////////////////////////////////////////
 
-function setter(obj, path, setValue, fullExp) {
+function setter(obj, locals, path, setValue, fullExp) {
   ensureSafeObject(obj, fullExp);
+  ensureSafeObject(locals, fullExp);
 
   var element = path.split('.'), key;
   for (var i = 0; element.length > 1; i++) {
     key = ensureSafeMemberName(element.shift(), fullExp);
-    var propertyObj = ensureSafeObject(obj[key], fullExp);
+    var propertyObj = (i === 0 && locals && locals[key]) || obj[key];
     if (!propertyObj) {
       propertyObj = {};
       obj[key] = propertyObj;
     }
-    obj = propertyObj;
+    obj = ensureSafeObject(propertyObj, fullExp);
   }
   key = ensureSafeMemberName(element.shift(), fullExp);
   ensureSafeObject(obj[key], fullExp);
@@ -12542,8 +12547,8 @@ function getterFn(path, options, fullExp) {
   }
 
   fn.sharedGetter = true;
-  fn.assign = function(self, value) {
-    return setter(self, path, value, path);
+  fn.assign = function(self, value, locals) {
+    return setter(self, locals, path, value, path);
   };
   getterFnCache[path] = fn;
   return fn;
@@ -14499,7 +14504,7 @@ function $RootScopeProvider() {
        * @kind function
        *
        * @description
-       * Schedule the invokation of $apply to occur at a later time. The actual time difference
+       * Schedule the invocation of $apply to occur at a later time. The actual time difference
        * varies across browsers, but is typically around ~10 milliseconds.
        *
        * This can be used to queue up multiple expressions which need to be evaluated in the same
@@ -16009,8 +16014,7 @@ var $compileMinErr = minErr('$compile');
 function $TemplateRequestProvider() {
   this.$get = ['$templateCache', '$http', '$q', function($templateCache, $http, $q) {
     function handleRequestFn(tpl, ignoreRequestError) {
-      var self = handleRequestFn;
-      self.totalPendingRequests++;
+      handleRequestFn.totalPendingRequests++;
 
       var transformResponse = $http.defaults && $http.defaults.transformResponse;
 
@@ -16028,13 +16032,14 @@ function $TemplateRequestProvider() {
       };
 
       return $http.get(tpl, httpOptions)
+        .finally(function() {
+          handleRequestFn.totalPendingRequests--;
+        })
         .then(function(response) {
-          self.totalPendingRequests--;
           return response.data;
         }, handleError);
 
       function handleError(resp) {
-        self.totalPendingRequests--;
         if (!ignoreRequestError) {
           throw $compileMinErr('tpload', 'Failed to load template: {0}', tpl);
         }
@@ -16728,7 +16733,7 @@ function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatc
 
   if ((expectedType === 'string') && (expected.charAt(0) === '!')) {
     return !deepCompare(actual, expected.substring(1), comparator, matchAgainstAnyProp);
-  } else if (actualType === 'array') {
+  } else if (isArray(actual)) {
     // In case `actual` is an array, consider it a match
     // if ANY of it's items matches `expected`
     return actual.some(function(item) {
@@ -17124,7 +17129,7 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d
  *   * `'m'`: Minute in hour (0-59)
  *   * `'ss'`: Second in minute, padded (00-59)
  *   * `'s'`: Second in minute (0-59)
- *   * `'.sss' or ',sss'`: Millisecond in second, padded (000-999)
+ *   * `'sss'`: Millisecond in second, padded (000-999)
  *   * `'a'`: AM/PM marker
  *   * `'Z'`: 4 digit (+sign) representation of the timezone offset (-1200-+1200)
  *   * `'ww'`: Week of year, padded (00-53). Week 01 is the week with the first Thursday of the year
@@ -17419,35 +17424,12 @@ function limitToFilter() {
       limit = int(limit);
     }
 
-    if (isString(input)) {
-      //NaN check on limit
-      if (limit) {
-        return limit >= 0 ? input.slice(0, limit) : input.slice(limit, input.length);
-      } else {
-        return "";
-      }
-    }
-
-    var i, n;
-
-    // if abs(limit) exceeds maximum length, trim it
-    if (limit > input.length)
-      limit = input.length;
-    else if (limit < -input.length)
-      limit = -input.length;
-
-    if (limit > 0) {
-      i = 0;
-      n = limit;
+    //NaN check on limit
+    if (limit) {
+      return limit > 0 ? input.slice(0, limit) : input.slice(limit);
     } else {
-      // zero and NaN check on limit - return empty array
-      if (!limit) return [];
-
-      i = input.length + limit;
-      n = input.length;
+      return isString(input) ? "" : [];
     }
-
-    return input.slice(i, n);
   };
 }
 
@@ -17683,6 +17665,9 @@ var htmlAnchorDirective = valueFn({
   compile: function(element, attr) {
     if (!attr.href && !attr.xlinkHref && !attr.name) {
       return function(scope, element) {
+        // If the linked element is not an anchor tag anymore, do nothing
+        if (element[0].nodeName.toLowerCase() !== 'a') return;
+
         // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
         var href = toString.call(element.prop('href')) === '[object SVGAnimatedString]' ?
                    'xlink:href' : 'href';
@@ -18283,6 +18268,9 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
     forEach(form.$error, function(value, name) {
       form.$setValidity(name, null, control);
     });
+    forEach(form.$$success, function(value, name) {
+      form.$setValidity(name, null, control);
+    });
 
     arrayRemove(controls, control);
   };
@@ -18300,23 +18288,23 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
   addSetValidityMethod({
     ctrl: this,
     $element: element,
-    set: function(object, property, control) {
+    set: function(object, property, controller) {
       var list = object[property];
       if (!list) {
-        object[property] = [control];
+        object[property] = [controller];
       } else {
-        var index = list.indexOf(control);
+        var index = list.indexOf(controller);
         if (index === -1) {
-          list.push(control);
+          list.push(controller);
         }
       }
     },
-    unset: function(object, property, control) {
+    unset: function(object, property, controller) {
       var list = object[property];
       if (!list) {
         return;
       }
-      arrayRemove(list, control);
+      arrayRemove(list, controller);
       if (list.length === 0) {
         delete object[property];
       }
@@ -18609,19 +18597,19 @@ var formDirectiveFactory = function(isNgForm) {
                 alias = controller.$name;
 
             if (alias) {
-              setter(scope, alias, controller, alias);
+              setter(scope, null, alias, controller, alias);
               attr.$observe(attr.name ? 'name' : 'ngForm', function(newValue) {
                 if (alias === newValue) return;
-                setter(scope, alias, undefined, alias);
+                setter(scope, null, alias, undefined, alias);
                 alias = newValue;
-                setter(scope, alias, controller, alias);
+                setter(scope, null, alias, controller, alias);
                 parentFormCtrl.$$renameControl(controller, alias);
               });
             }
             formElement.on('$destroy', function() {
               parentFormCtrl.$removeControl(controller);
               if (alias) {
-                setter(scope, alias, undefined, alias);
+                setter(scope, null, alias, undefined, alias);
               }
               extend(controller, nullFormCtrl); //stop propagating child destruction handlers upwards
             });
@@ -18637,12 +18625,13 @@ var formDirectiveFactory = function(isNgForm) {
 var formDirective = formDirectiveFactory();
 var ngFormDirective = formDirectiveFactory(true);
 
-/* global VALID_CLASS: true,
-  INVALID_CLASS: true,
-  PRISTINE_CLASS: true,
-  DIRTY_CLASS: true,
-  UNTOUCHED_CLASS: true,
-  TOUCHED_CLASS: true,
+/* global VALID_CLASS: false,
+  INVALID_CLASS: false,
+  PRISTINE_CLASS: false,
+  DIRTY_CLASS: false,
+  UNTOUCHED_CLASS: false,
+  TOUCHED_CLASS: false,
+  $ngModelMinErr: false,
 */
 
 // Regex code is obtained from SO: https://stackoverflow.com/questions/3143070/javascript-regex-iso-datetime#answer-3143231
@@ -18655,9 +18644,6 @@ var DATETIMELOCAL_REGEXP = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)(?::(\d\d)(\.\d{
 var WEEK_REGEXP = /^(\d{4})-W(\d\d)$/;
 var MONTH_REGEXP = /^(\d{4})-(\d\d)$/;
 var TIME_REGEXP = /^(\d\d):(\d\d)(?::(\d\d)(\.\d{1,3})?)?$/;
-var DEFAULT_REGEXP = /(\s+|^)default(\s+|$)/;
-
-var $ngModelMinErr = new minErr('ngModel');
 
 var inputType = {
 
@@ -18700,19 +18686,21 @@ var inputType = {
          <script>
            angular.module('textInputExample', [])
              .controller('ExampleController', ['$scope', function($scope) {
-               $scope.text = 'guest';
-               $scope.word = /^\s*\w*\s*$/;
+               $scope.example = {
+                 text: 'guest',
+                 word: /^\s*\w*\s*$/
+               };
              }]);
          </script>
          <form name="myForm" ng-controller="ExampleController">
-           Single word: <input type="text" name="input" ng-model="text"
-                               ng-pattern="word" required ng-trim="false">
+           Single word: <input type="text" name="input" ng-model="example.text"
+                               ng-pattern="example.word" required ng-trim="false">
            <span class="error" ng-show="myForm.input.$error.required">
              Required!</span>
            <span class="error" ng-show="myForm.input.$error.pattern">
              Single word only!</span>
 
-           <tt>text = {{text}}</tt><br/>
+           <tt>text = {{example.text}}</tt><br/>
            <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
            <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
            <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -18720,9 +18708,9 @@ var inputType = {
           </form>
         </file>
         <file name="protractor.js" type="protractor">
-          var text = element(by.binding('text'));
+          var text = element(by.binding('example.text'));
           var valid = element(by.binding('myForm.input.$valid'));
-          var input = element(by.model('text'));
+          var input = element(by.model('example.text'));
 
           it('should initialize to model', function() {
             expect(text.getText()).toContain('guest');
@@ -18784,18 +18772,20 @@ var inputType = {
        <script>
           angular.module('dateInputExample', [])
             .controller('DateController', ['$scope', function($scope) {
-              $scope.value = new Date(2013, 9, 22);
+              $scope.example = {
+                value: new Date(2013, 9, 22)
+              };
             }]);
        </script>
        <form name="myForm" ng-controller="DateController as dateCtrl">
           Pick a date in 2013:
-          <input type="date" id="exampleInput" name="input" ng-model="value"
+          <input type="date" id="exampleInput" name="input" ng-model="example.value"
               placeholder="yyyy-MM-dd" min="2013-01-01" max="2013-12-31" required />
           <span class="error" ng-show="myForm.input.$error.required">
               Required!</span>
           <span class="error" ng-show="myForm.input.$error.date">
               Not a valid date!</span>
-           <tt>value = {{value | date: "yyyy-MM-dd"}}</tt><br/>
+           <tt>value = {{example.value | date: "yyyy-MM-dd"}}</tt><br/>
            <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
            <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
            <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -18803,9 +18793,9 @@ var inputType = {
        </form>
      </file>
      <file name="protractor.js" type="protractor">
-        var value = element(by.binding('value | date: "yyyy-MM-dd"'));
+        var value = element(by.binding('example.value | date: "yyyy-MM-dd"'));
         var valid = element(by.binding('myForm.input.$valid'));
-        var input = element(by.model('value'));
+        var input = element(by.model('example.value'));
 
         // currently protractor/webdriver does not support
         // sending keys to all known HTML5 input controls
@@ -18875,18 +18865,20 @@ var inputType = {
       <script>
         angular.module('dateExample', [])
           .controller('DateController', ['$scope', function($scope) {
-            $scope.value = new Date(2010, 11, 28, 14, 57);
+            $scope.example = {
+              value: new Date(2010, 11, 28, 14, 57)
+            };
           }]);
       </script>
       <form name="myForm" ng-controller="DateController as dateCtrl">
         Pick a date between in 2013:
-        <input type="datetime-local" id="exampleInput" name="input" ng-model="value"
+        <input type="datetime-local" id="exampleInput" name="input" ng-model="example.value"
             placeholder="yyyy-MM-ddTHH:mm:ss" min="2001-01-01T00:00:00" max="2013-12-31T00:00:00" required />
         <span class="error" ng-show="myForm.input.$error.required">
             Required!</span>
         <span class="error" ng-show="myForm.input.$error.datetimelocal">
             Not a valid date!</span>
-        <tt>value = {{value | date: "yyyy-MM-ddTHH:mm:ss"}}</tt><br/>
+        <tt>value = {{example.value | date: "yyyy-MM-ddTHH:mm:ss"}}</tt><br/>
         <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
         <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
         <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -18894,9 +18886,9 @@ var inputType = {
       </form>
     </file>
     <file name="protractor.js" type="protractor">
-      var value = element(by.binding('value | date: "yyyy-MM-ddTHH:mm:ss"'));
+      var value = element(by.binding('example.value | date: "yyyy-MM-ddTHH:mm:ss"'));
       var valid = element(by.binding('myForm.input.$valid'));
-      var input = element(by.model('value'));
+      var input = element(by.model('example.value'));
 
       // currently protractor/webdriver does not support
       // sending keys to all known HTML5 input controls
@@ -18967,18 +18959,20 @@ var inputType = {
      <script>
       angular.module('timeExample', [])
         .controller('DateController', ['$scope', function($scope) {
-          $scope.value = new Date(1970, 0, 1, 14, 57, 0);
+          $scope.example = {
+            value: new Date(1970, 0, 1, 14, 57, 0)
+          };
         }]);
      </script>
      <form name="myForm" ng-controller="DateController as dateCtrl">
         Pick a between 8am and 5pm:
-        <input type="time" id="exampleInput" name="input" ng-model="value"
+        <input type="time" id="exampleInput" name="input" ng-model="example.value"
             placeholder="HH:mm:ss" min="08:00:00" max="17:00:00" required />
         <span class="error" ng-show="myForm.input.$error.required">
             Required!</span>
         <span class="error" ng-show="myForm.input.$error.time">
             Not a valid date!</span>
-        <tt>value = {{value | date: "HH:mm:ss"}}</tt><br/>
+        <tt>value = {{example.value | date: "HH:mm:ss"}}</tt><br/>
         <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
         <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
         <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -18986,9 +18980,9 @@ var inputType = {
      </form>
    </file>
    <file name="protractor.js" type="protractor">
-      var value = element(by.binding('value | date: "HH:mm:ss"'));
+      var value = element(by.binding('example.value | date: "HH:mm:ss"'));
       var valid = element(by.binding('myForm.input.$valid'));
-      var input = element(by.model('value'));
+      var input = element(by.model('example.value'));
 
       // currently protractor/webdriver does not support
       // sending keys to all known HTML5 input controls
@@ -19058,18 +19052,20 @@ var inputType = {
       <script>
       angular.module('weekExample', [])
         .controller('DateController', ['$scope', function($scope) {
-          $scope.value = new Date(2013, 0, 3);
+          $scope.example = {
+            value: new Date(2013, 0, 3)
+          };
         }]);
       </script>
       <form name="myForm" ng-controller="DateController as dateCtrl">
         Pick a date between in 2013:
-        <input id="exampleInput" type="week" name="input" ng-model="value"
+        <input id="exampleInput" type="week" name="input" ng-model="example.value"
             placeholder="YYYY-W##" min="2012-W32" max="2013-W52" required />
         <span class="error" ng-show="myForm.input.$error.required">
             Required!</span>
         <span class="error" ng-show="myForm.input.$error.week">
             Not a valid date!</span>
-        <tt>value = {{value | date: "yyyy-Www"}}</tt><br/>
+        <tt>value = {{example.value | date: "yyyy-Www"}}</tt><br/>
         <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
         <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
         <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -19077,9 +19073,9 @@ var inputType = {
       </form>
     </file>
     <file name="protractor.js" type="protractor">
-      var value = element(by.binding('value | date: "yyyy-Www"'));
+      var value = element(by.binding('example.value | date: "yyyy-Www"'));
       var valid = element(by.binding('myForm.input.$valid'));
-      var input = element(by.model('value'));
+      var input = element(by.model('example.value'));
 
       // currently protractor/webdriver does not support
       // sending keys to all known HTML5 input controls
@@ -19149,18 +19145,20 @@ var inputType = {
      <script>
       angular.module('monthExample', [])
         .controller('DateController', ['$scope', function($scope) {
-          $scope.value = new Date(2013, 9, 1);
+          $scope.example = {
+            value: new Date(2013, 9, 1)
+          };
         }]);
      </script>
      <form name="myForm" ng-controller="DateController as dateCtrl">
-       Pick a month int 2013:
-       <input id="exampleInput" type="month" name="input" ng-model="value"
+       Pick a month in 2013:
+       <input id="exampleInput" type="month" name="input" ng-model="example.value"
           placeholder="yyyy-MM" min="2013-01" max="2013-12" required />
        <span class="error" ng-show="myForm.input.$error.required">
           Required!</span>
        <span class="error" ng-show="myForm.input.$error.month">
           Not a valid month!</span>
-       <tt>value = {{value | date: "yyyy-MM"}}</tt><br/>
+       <tt>value = {{example.value | date: "yyyy-MM"}}</tt><br/>
        <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
        <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
        <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -19168,9 +19166,9 @@ var inputType = {
      </form>
    </file>
    <file name="protractor.js" type="protractor">
-      var value = element(by.binding('value | date: "yyyy-MM"'));
+      var value = element(by.binding('example.value | date: "yyyy-MM"'));
       var valid = element(by.binding('myForm.input.$valid'));
-      var input = element(by.model('value'));
+      var input = element(by.model('example.value'));
 
       // currently protractor/webdriver does not support
       // sending keys to all known HTML5 input controls
@@ -19246,17 +19244,19 @@ var inputType = {
          <script>
            angular.module('numberExample', [])
              .controller('ExampleController', ['$scope', function($scope) {
-               $scope.value = 12;
+               $scope.example = {
+                 value: 12
+               };
              }]);
          </script>
          <form name="myForm" ng-controller="ExampleController">
-           Number: <input type="number" name="input" ng-model="value"
+           Number: <input type="number" name="input" ng-model="example.value"
                           min="0" max="99" required>
            <span class="error" ng-show="myForm.input.$error.required">
              Required!</span>
            <span class="error" ng-show="myForm.input.$error.number">
              Not valid number!</span>
-           <tt>value = {{value}}</tt><br/>
+           <tt>value = {{example.value}}</tt><br/>
            <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
            <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
            <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -19264,9 +19264,9 @@ var inputType = {
           </form>
         </file>
         <file name="protractor.js" type="protractor">
-          var value = element(by.binding('value'));
+          var value = element(by.binding('example.value'));
           var valid = element(by.binding('myForm.input.$valid'));
-          var input = element(by.model('value'));
+          var input = element(by.model('example.value'));
 
           it('should initialize to model', function() {
             expect(value.getText()).toContain('12');
@@ -19334,16 +19334,18 @@ var inputType = {
          <script>
            angular.module('urlExample', [])
              .controller('ExampleController', ['$scope', function($scope) {
-               $scope.text = 'http://google.com';
+               $scope.url = {
+                 text: 'http://google.com'
+               };
              }]);
          </script>
          <form name="myForm" ng-controller="ExampleController">
-           URL: <input type="url" name="input" ng-model="text" required>
+           URL: <input type="url" name="input" ng-model="url.text" required>
            <span class="error" ng-show="myForm.input.$error.required">
              Required!</span>
            <span class="error" ng-show="myForm.input.$error.url">
              Not valid url!</span>
-           <tt>text = {{text}}</tt><br/>
+           <tt>text = {{url.text}}</tt><br/>
            <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
            <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
            <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -19352,9 +19354,9 @@ var inputType = {
           </form>
         </file>
         <file name="protractor.js" type="protractor">
-          var text = element(by.binding('text'));
+          var text = element(by.binding('url.text'));
           var valid = element(by.binding('myForm.input.$valid'));
-          var input = element(by.model('text'));
+          var input = element(by.model('url.text'));
 
           it('should initialize to model', function() {
             expect(text.getText()).toContain('http://google.com');
@@ -19423,16 +19425,18 @@ var inputType = {
          <script>
            angular.module('emailExample', [])
              .controller('ExampleController', ['$scope', function($scope) {
-               $scope.text = 'me@example.com';
+               $scope.email = {
+                 text: 'me@example.com'
+               };
              }]);
          </script>
            <form name="myForm" ng-controller="ExampleController">
-             Email: <input type="email" name="input" ng-model="text" required>
+             Email: <input type="email" name="input" ng-model="email.text" required>
              <span class="error" ng-show="myForm.input.$error.required">
                Required!</span>
              <span class="error" ng-show="myForm.input.$error.email">
                Not valid email!</span>
-             <tt>text = {{text}}</tt><br/>
+             <tt>text = {{email.text}}</tt><br/>
              <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
              <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
              <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
@@ -19441,9 +19445,9 @@ var inputType = {
            </form>
          </file>
         <file name="protractor.js" type="protractor">
-          var text = element(by.binding('text'));
+          var text = element(by.binding('email.text'));
           var valid = element(by.binding('myForm.input.$valid'));
-          var input = element(by.model('text'));
+          var input = element(by.model('email.text'));
 
           it('should initialize to model', function() {
             expect(text.getText()).toContain('me@example.com');
@@ -19490,7 +19494,9 @@ var inputType = {
          <script>
            angular.module('radioExample', [])
              .controller('ExampleController', ['$scope', function($scope) {
-               $scope.color = 'blue';
+               $scope.color = {
+                 name: 'blue'
+               };
                $scope.specialValue = {
                  "id": "12345",
                  "value": "green"
@@ -19498,20 +19504,20 @@ var inputType = {
              }]);
          </script>
          <form name="myForm" ng-controller="ExampleController">
-           <input type="radio" ng-model="color" value="red">  Red <br/>
-           <input type="radio" ng-model="color" ng-value="specialValue"> Green <br/>
-           <input type="radio" ng-model="color" value="blue"> Blue <br/>
-           <tt>color = {{color | json}}</tt><br/>
+           <input type="radio" ng-model="color.name" value="red">  Red <br/>
+           <input type="radio" ng-model="color.name" ng-value="specialValue"> Green <br/>
+           <input type="radio" ng-model="color.name" value="blue"> Blue <br/>
+           <tt>color = {{color.name | json}}</tt><br/>
           </form>
           Note that `ng-value="specialValue"` sets radio item's value to be the value of `$scope.specialValue`.
         </file>
         <file name="protractor.js" type="protractor">
           it('should change state', function() {
-            var color = element(by.binding('color'));
+            var color = element(by.binding('color.name'));
 
             expect(color.getText()).toContain('blue');
 
-            element.all(by.model('color')).get(0).click();
+            element.all(by.model('color.name')).get(0).click();
 
             expect(color.getText()).toContain('red');
           });
@@ -19541,28 +19547,30 @@ var inputType = {
          <script>
            angular.module('checkboxExample', [])
              .controller('ExampleController', ['$scope', function($scope) {
-               $scope.value1 = true;
-               $scope.value2 = 'YES'
+               $scope.checkboxModel = {
+                value1 : true,
+                value2 : 'YES'
+              };
              }]);
          </script>
          <form name="myForm" ng-controller="ExampleController">
-           Value1: <input type="checkbox" ng-model="value1"> <br/>
-           Value2: <input type="checkbox" ng-model="value2"
+           Value1: <input type="checkbox" ng-model="checkboxModel.value1"> <br/>
+           Value2: <input type="checkbox" ng-model="checkboxModel.value2"
                           ng-true-value="'YES'" ng-false-value="'NO'"> <br/>
-           <tt>value1 = {{value1}}</tt><br/>
-           <tt>value2 = {{value2}}</tt><br/>
+           <tt>value1 = {{checkboxModel.value1}}</tt><br/>
+           <tt>value2 = {{checkboxModel.value2}}</tt><br/>
           </form>
         </file>
         <file name="protractor.js" type="protractor">
           it('should change state', function() {
-            var value1 = element(by.binding('value1'));
-            var value2 = element(by.binding('value2'));
+            var value1 = element(by.binding('checkboxModel.value1'));
+            var value2 = element(by.binding('checkboxModel.value2'));
 
             expect(value1.getText()).toContain('true');
             expect(value2.getText()).toContain('YES');
 
-            element(by.model('value1')).click();
-            element(by.model('value2')).click();
+            element(by.model('checkboxModel.value1')).click();
+            element(by.model('checkboxModel.value2')).click();
 
             expect(value1.getText()).toContain('false');
             expect(value2.getText()).toContain('NO');
@@ -20159,1344 +20167,6 @@ var inputDirective = ['$browser', '$sniffer', '$filter', '$parse',
   };
 }];
 
-var VALID_CLASS = 'ng-valid',
-    INVALID_CLASS = 'ng-invalid',
-    PRISTINE_CLASS = 'ng-pristine',
-    DIRTY_CLASS = 'ng-dirty',
-    UNTOUCHED_CLASS = 'ng-untouched',
-    TOUCHED_CLASS = 'ng-touched',
-    PENDING_CLASS = 'ng-pending';
-
-/**
- * @ngdoc type
- * @name ngModel.NgModelController
- *
- * @property {string} $viewValue Actual string value in the view.
- * @property {*} $modelValue The value in the model that the control is bound to.
- * @property {Array.<Function>} $parsers Array of functions to execute, as a pipeline, whenever
-       the control reads value from the DOM. The functions are called in array order, each passing
-       its return value through to the next. The last return value is forwarded to the
-       {@link ngModel.NgModelController#$validators `$validators`} collection.
-
-Parsers are used to sanitize / convert the {@link ngModel.NgModelController#$viewValue
-`$viewValue`}.
-
-Returning `undefined` from a parser means a parse error occurred. In that case,
-no {@link ngModel.NgModelController#$validators `$validators`} will run and the `ngModel`
-will be set to `undefined` unless {@link ngModelOptions `ngModelOptions.allowInvalid`}
-is set to `true`. The parse error is stored in `ngModel.$error.parse`.
-
- *
- * @property {Array.<Function>} $formatters Array of functions to execute, as a pipeline, whenever
-       the model value changes. The functions are called in reverse array order, each passing the value through to the
-       next. The last return value is used as the actual DOM value.
-       Used to format / convert values for display in the control.
- * ```js
- * function formatter(value) {
- *   if (value) {
- *     return value.toUpperCase();
- *   }
- * }
- * ngModel.$formatters.push(formatter);
- * ```
- *
- * @property {Object.<string, function>} $validators A collection of validators that are applied
- *      whenever the model value changes. The key value within the object refers to the name of the
- *      validator while the function refers to the validation operation. The validation operation is
- *      provided with the model value as an argument and must return a true or false value depending
- *      on the response of that validation.
- *
- * ```js
- * ngModel.$validators.validCharacters = function(modelValue, viewValue) {
- *   var value = modelValue || viewValue;
- *   return /[0-9]+/.test(value) &&
- *          /[a-z]+/.test(value) &&
- *          /[A-Z]+/.test(value) &&
- *          /\W+/.test(value);
- * };
- * ```
- *
- * @property {Object.<string, function>} $asyncValidators A collection of validations that are expected to
- *      perform an asynchronous validation (e.g. a HTTP request). The validation function that is provided
- *      is expected to return a promise when it is run during the model validation process. Once the promise
- *      is delivered then the validation status will be set to true when fulfilled and false when rejected.
- *      When the asynchronous validators are triggered, each of the validators will run in parallel and the model
- *      value will only be updated once all validators have been fulfilled. As long as an asynchronous validator
- *      is unfulfilled, its key will be added to the controllers `$pending` property. Also, all asynchronous validators
- *      will only run once all synchronous validators have passed.
- *
- * Please note that if $http is used then it is important that the server returns a success HTTP response code
- * in order to fulfill the validation and a status level of `4xx` in order to reject the validation.
- *
- * ```js
- * ngModel.$asyncValidators.uniqueUsername = function(modelValue, viewValue) {
- *   var value = modelValue || viewValue;
- *
- *   // Lookup user by username
- *   return $http.get('/api/users/' + value).
- *      then(function resolved() {
- *        //username exists, this means validation fails
- *        return $q.reject('exists');
- *      }, function rejected() {
- *        //username does not exist, therefore this validation passes
- *        return true;
- *      });
- * };
- * ```
- *
- * @property {Array.<Function>} $viewChangeListeners Array of functions to execute whenever the
- *     view value has changed. It is called with no arguments, and its return value is ignored.
- *     This can be used in place of additional $watches against the model value.
- *
- * @property {Object} $error An object hash with all failing validator ids as keys.
- * @property {Object} $pending An object hash with all pending validator ids as keys.
- *
- * @property {boolean} $untouched True if control has not lost focus yet.
- * @property {boolean} $touched True if control has lost focus.
- * @property {boolean} $pristine True if user has not interacted with the control yet.
- * @property {boolean} $dirty True if user has already interacted with the control.
- * @property {boolean} $valid True if there is no error.
- * @property {boolean} $invalid True if at least one error on the control.
- * @property {string} $name The name attribute of the control.
- *
- * @description
- *
- * `NgModelController` provides API for the {@link ngModel `ngModel`} directive.
- * The controller contains services for data-binding, validation, CSS updates, and value formatting
- * and parsing. It purposefully does not contain any logic which deals with DOM rendering or
- * listening to DOM events.
- * Such DOM related logic should be provided by other directives which make use of
- * `NgModelController` for data-binding to control elements.
- * Angular provides this DOM logic for most {@link input `input`} elements.
- * At the end of this page you can find a {@link ngModel.NgModelController#custom-control-example
- * custom control example} that uses `ngModelController` to bind to `contenteditable` elements.
- *
- * @example
- * ### Custom Control Example
- * This example shows how to use `NgModelController` with a custom control to achieve
- * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
- * collaborate together to achieve the desired result.
- *
- * Note that `contenteditable` is an HTML5 attribute, which tells the browser to let the element
- * contents be edited in place by the user.  This will not work on older browsers.
- *
- * We are using the {@link ng.service:$sce $sce} service here and include the {@link ngSanitize $sanitize}
- * module to automatically remove "bad" content like inline event listener (e.g. `<span onclick="...">`).
- * However, as we are using `$sce` the model can still decide to provide unsafe content if it marks
- * that content using the `$sce` service.
- *
- * <example name="NgModelController" module="customControl" deps="angular-sanitize.js">
-    <file name="style.css">
-      [contenteditable] {
-        border: 1px solid black;
-        background-color: white;
-        min-height: 20px;
-      }
-
-      .ng-invalid {
-        border: 1px solid red;
-      }
-
-    </file>
-    <file name="script.js">
-      angular.module('customControl', ['ngSanitize']).
-        directive('contenteditable', ['$sce', function($sce) {
-          return {
-            restrict: 'A', // only activate on element attribute
-            require: '?ngModel', // get a hold of NgModelController
-            link: function(scope, element, attrs, ngModel) {
-              if (!ngModel) return; // do nothing if no ng-model
-
-              // Specify how UI should be updated
-              ngModel.$render = function() {
-                element.html($sce.getTrustedHtml(ngModel.$viewValue || ''));
-              };
-
-              // Listen for change events to enable binding
-              element.on('blur keyup change', function() {
-                scope.$evalAsync(read);
-              });
-              read(); // initialize
-
-              // Write data to the model
-              function read() {
-                var html = element.html();
-                // When we clear the content editable the browser leaves a <br> behind
-                // If strip-br attribute is provided then we strip this out
-                if ( attrs.stripBr && html == '<br>' ) {
-                  html = '';
-                }
-                ngModel.$setViewValue(html);
-              }
-            }
-          };
-        }]);
-    </file>
-    <file name="index.html">
-      <form name="myForm">
-       <div contenteditable
-            name="myWidget" ng-model="userContent"
-            strip-br="true"
-            required>Change me!</div>
-        <span ng-show="myForm.myWidget.$error.required">Required!</span>
-       <hr>
-       <textarea ng-model="userContent"></textarea>
-      </form>
-    </file>
-    <file name="protractor.js" type="protractor">
-    it('should data-bind and become invalid', function() {
-      if (browser.params.browser == 'safari' || browser.params.browser == 'firefox') {
-        // SafariDriver can't handle contenteditable
-        // and Firefox driver can't clear contenteditables very well
-        return;
-      }
-      var contentEditable = element(by.css('[contenteditable]'));
-      var content = 'Change me!';
-
-      expect(contentEditable.getText()).toEqual(content);
-
-      contentEditable.clear();
-      contentEditable.sendKeys(protractor.Key.BACK_SPACE);
-      expect(contentEditable.getText()).toEqual('');
-      expect(contentEditable.getAttribute('class')).toMatch(/ng-invalid-required/);
-    });
-    </file>
- * </example>
- *
- *
- */
-var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$parse', '$animate', '$timeout', '$rootScope', '$q', '$interpolate',
-    function($scope, $exceptionHandler, $attr, $element, $parse, $animate, $timeout, $rootScope, $q, $interpolate) {
-  this.$viewValue = Number.NaN;
-  this.$modelValue = Number.NaN;
-  this.$$rawModelValue = undefined; // stores the parsed modelValue / model set from scope regardless of validity.
-  this.$validators = {};
-  this.$asyncValidators = {};
-  this.$parsers = [];
-  this.$formatters = [];
-  this.$viewChangeListeners = [];
-  this.$untouched = true;
-  this.$touched = false;
-  this.$pristine = true;
-  this.$dirty = false;
-  this.$valid = true;
-  this.$invalid = false;
-  this.$error = {}; // keep invalid keys here
-  this.$$success = {}; // keep valid keys here
-  this.$pending = undefined; // keep pending keys here
-  this.$name = $interpolate($attr.name || '', false)($scope);
-
-
-  var parsedNgModel = $parse($attr.ngModel),
-      parsedNgModelAssign = parsedNgModel.assign,
-      ngModelGet = parsedNgModel,
-      ngModelSet = parsedNgModelAssign,
-      pendingDebounce = null,
-      ctrl = this;
-
-  this.$$setOptions = function(options) {
-    ctrl.$options = options;
-    if (options && options.getterSetter) {
-      var invokeModelGetter = $parse($attr.ngModel + '()'),
-          invokeModelSetter = $parse($attr.ngModel + '($$$p)');
-
-      ngModelGet = function($scope) {
-        var modelValue = parsedNgModel($scope);
-        if (isFunction(modelValue)) {
-          modelValue = invokeModelGetter($scope);
-        }
-        return modelValue;
-      };
-      ngModelSet = function($scope, newValue) {
-        if (isFunction(parsedNgModel($scope))) {
-          invokeModelSetter($scope, {$$$p: ctrl.$modelValue});
-        } else {
-          parsedNgModelAssign($scope, ctrl.$modelValue);
-        }
-      };
-    } else if (!parsedNgModel.assign) {
-      throw $ngModelMinErr('nonassign', "Expression '{0}' is non-assignable. Element: {1}",
-          $attr.ngModel, startingTag($element));
-    }
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$render
-   *
-   * @description
-   * Called when the view needs to be updated. It is expected that the user of the ng-model
-   * directive will implement this method.
-   *
-   * The `$render()` method is invoked in the following situations:
-   *
-   * * `$rollbackViewValue()` is called.  If we are rolling back the view value to the last
-   *   committed value then `$render()` is called to update the input control.
-   * * The value referenced by `ng-model` is changed programmatically and both the `$modelValue` and
-   *   the `$viewValue` are different to last time.
-   *
-   * Since `ng-model` does not do a deep watch, `$render()` is only invoked if the values of
-   * `$modelValue` and `$viewValue` are actually different to their previous value. If `$modelValue`
-   * or `$viewValue` are objects (rather than a string or number) then `$render()` will not be
-   * invoked if you only change a property on the objects.
-   */
-  this.$render = noop;
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$isEmpty
-   *
-   * @description
-   * This is called when we need to determine if the value of an input is empty.
-   *
-   * For instance, the required directive does this to work out if the input has data or not.
-   *
-   * The default `$isEmpty` function checks whether the value is `undefined`, `''`, `null` or `NaN`.
-   *
-   * You can override this for input directives whose concept of being empty is different to the
-   * default. The `checkboxInputType` directive does this because in its case a value of `false`
-   * implies empty.
-   *
-   * @param {*} value The value of the input to check for emptiness.
-   * @returns {boolean} True if `value` is "empty".
-   */
-  this.$isEmpty = function(value) {
-    return isUndefined(value) || value === '' || value === null || value !== value;
-  };
-
-  var parentForm = $element.inheritedData('$formController') || nullFormCtrl,
-      currentValidationRunId = 0;
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$setValidity
-   *
-   * @description
-   * Change the validity state, and notify the form.
-   *
-   * This method can be called within $parsers/$formatters or a custom validation implementation.
-   * However, in most cases it should be sufficient to use the `ngModel.$validators` and
-   * `ngModel.$asyncValidators` collections which will call `$setValidity` automatically.
-   *
-   * @param {string} validationErrorKey Name of the validator. The `validationErrorKey` will be assigned
-   *        to either `$error[validationErrorKey]` or `$pending[validationErrorKey]`
-   *        (for unfulfilled `$asyncValidators`), so that it is available for data-binding.
-   *        The `validationErrorKey` should be in camelCase and will get converted into dash-case
-   *        for class name. Example: `myError` will result in `ng-valid-my-error` and `ng-invalid-my-error`
-   *        class and can be bound to as  `{{someForm.someControl.$error.myError}}` .
-   * @param {boolean} isValid Whether the current state is valid (true), invalid (false), pending (undefined),
-   *                          or skipped (null). Pending is used for unfulfilled `$asyncValidators`.
-   *                          Skipped is used by Angular when validators do not run because of parse errors and
-   *                          when `$asyncValidators` do not run because any of the `$validators` failed.
-   */
-  addSetValidityMethod({
-    ctrl: this,
-    $element: $element,
-    set: function(object, property) {
-      object[property] = true;
-    },
-    unset: function(object, property) {
-      delete object[property];
-    },
-    parentForm: parentForm,
-    $animate: $animate
-  });
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$setPristine
-   *
-   * @description
-   * Sets the control to its pristine state.
-   *
-   * This method can be called to remove the `ng-dirty` class and set the control to its pristine
-   * state (`ng-pristine` class). A model is considered to be pristine when the control
-   * has not been changed from when first compiled.
-   */
-  this.$setPristine = function() {
-    ctrl.$dirty = false;
-    ctrl.$pristine = true;
-    $animate.removeClass($element, DIRTY_CLASS);
-    $animate.addClass($element, PRISTINE_CLASS);
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$setDirty
-   *
-   * @description
-   * Sets the control to its dirty state.
-   *
-   * This method can be called to remove the `ng-pristine` class and set the control to its dirty
-   * state (`ng-dirty` class). A model is considered to be dirty when the control has been changed
-   * from when first compiled.
-   */
-  this.$setDirty = function() {
-    ctrl.$dirty = true;
-    ctrl.$pristine = false;
-    $animate.removeClass($element, PRISTINE_CLASS);
-    $animate.addClass($element, DIRTY_CLASS);
-    parentForm.$setDirty();
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$setUntouched
-   *
-   * @description
-   * Sets the control to its untouched state.
-   *
-   * This method can be called to remove the `ng-touched` class and set the control to its
-   * untouched state (`ng-untouched` class). Upon compilation, a model is set as untouched
-   * by default, however this function can be used to restore that state if the model has
-   * already been touched by the user.
-   */
-  this.$setUntouched = function() {
-    ctrl.$touched = false;
-    ctrl.$untouched = true;
-    $animate.setClass($element, UNTOUCHED_CLASS, TOUCHED_CLASS);
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$setTouched
-   *
-   * @description
-   * Sets the control to its touched state.
-   *
-   * This method can be called to remove the `ng-untouched` class and set the control to its
-   * touched state (`ng-touched` class). A model is considered to be touched when the user has
-   * first focused the control element and then shifted focus away from the control (blur event).
-   */
-  this.$setTouched = function() {
-    ctrl.$touched = true;
-    ctrl.$untouched = false;
-    $animate.setClass($element, TOUCHED_CLASS, UNTOUCHED_CLASS);
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$rollbackViewValue
-   *
-   * @description
-   * Cancel an update and reset the input element's value to prevent an update to the `$modelValue`,
-   * which may be caused by a pending debounced event or because the input is waiting for a some
-   * future event.
-   *
-   * If you have an input that uses `ng-model-options` to set up debounced events or events such
-   * as blur you can have a situation where there is a period when the `$viewValue`
-   * is out of synch with the ngModel's `$modelValue`.
-   *
-   * In this case, you can run into difficulties if you try to update the ngModel's `$modelValue`
-   * programmatically before these debounced/future events have resolved/occurred, because Angular's
-   * dirty checking mechanism is not able to tell whether the model has actually changed or not.
-   *
-   * The `$rollbackViewValue()` method should be called before programmatically changing the model of an
-   * input which may have such events pending. This is important in order to make sure that the
-   * input field will be updated with the new model value and any pending operations are cancelled.
-   *
-   * <example name="ng-model-cancel-update" module="cancel-update-example">
-   *   <file name="app.js">
-   *     angular.module('cancel-update-example', [])
-   *
-   *     .controller('CancelUpdateController', ['$scope', function($scope) {
-   *       $scope.resetWithCancel = function(e) {
-   *         if (e.keyCode == 27) {
-   *           $scope.myForm.myInput1.$rollbackViewValue();
-   *           $scope.myValue = '';
-   *         }
-   *       };
-   *       $scope.resetWithoutCancel = function(e) {
-   *         if (e.keyCode == 27) {
-   *           $scope.myValue = '';
-   *         }
-   *       };
-   *     }]);
-   *   </file>
-   *   <file name="index.html">
-   *     <div ng-controller="CancelUpdateController">
-   *       <p>Try typing something in each input.  See that the model only updates when you
-   *          blur off the input.
-   *        </p>
-   *        <p>Now see what happens if you start typing then press the Escape key</p>
-   *
-   *       <form name="myForm" ng-model-options="{ updateOn: 'blur' }">
-   *         <p>With $rollbackViewValue()</p>
-   *         <input name="myInput1" ng-model="myValue" ng-keydown="resetWithCancel($event)"><br/>
-   *         myValue: "{{ myValue }}"
-   *
-   *         <p>Without $rollbackViewValue()</p>
-   *         <input name="myInput2" ng-model="myValue" ng-keydown="resetWithoutCancel($event)"><br/>
-   *         myValue: "{{ myValue }}"
-   *       </form>
-   *     </div>
-   *   </file>
-   * </example>
-   */
-  this.$rollbackViewValue = function() {
-    $timeout.cancel(pendingDebounce);
-    ctrl.$viewValue = ctrl.$$lastCommittedViewValue;
-    ctrl.$render();
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$validate
-   *
-   * @description
-   * Runs each of the registered validators (first synchronous validators and then
-   * asynchronous validators).
-   * If the validity changes to invalid, the model will be set to `undefined`,
-   * unless {@link ngModelOptions `ngModelOptions.allowInvalid`} is `true`.
-   * If the validity changes to valid, it will set the model to the last available valid
-   * modelValue, i.e. either the last parsed value or the last value set from the scope.
-   */
-  this.$validate = function() {
-    // ignore $validate before model is initialized
-    if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
-      return;
-    }
-
-    var viewValue = ctrl.$$lastCommittedViewValue;
-    // Note: we use the $$rawModelValue as $modelValue might have been
-    // set to undefined during a view -> model update that found validation
-    // errors. We can't parse the view here, since that could change
-    // the model although neither viewValue nor the model on the scope changed
-    var modelValue = ctrl.$$rawModelValue;
-
-    // Check if the there's a parse error, so we don't unset it accidentially
-    var parserName = ctrl.$$parserName || 'parse';
-    var parserValid = ctrl.$error[parserName] ? false : undefined;
-
-    var prevValid = ctrl.$valid;
-    var prevModelValue = ctrl.$modelValue;
-
-    var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
-
-    ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
-      // If there was no change in validity, don't update the model
-      // This prevents changing an invalid modelValue to undefined
-      if (!allowInvalid && prevValid !== allValid) {
-        // Note: Don't check ctrl.$valid here, as we could have
-        // external validators (e.g. calculated on the server),
-        // that just call $setValidity and need the model value
-        // to calculate their validity.
-        ctrl.$modelValue = allValid ? modelValue : undefined;
-
-        if (ctrl.$modelValue !== prevModelValue) {
-          ctrl.$$writeModelToScope();
-        }
-      }
-    });
-
-  };
-
-  this.$$runValidators = function(parseValid, modelValue, viewValue, doneCallback) {
-    currentValidationRunId++;
-    var localValidationRunId = currentValidationRunId;
-
-    // check parser error
-    if (!processParseErrors(parseValid)) {
-      validationDone(false);
-      return;
-    }
-    if (!processSyncValidators()) {
-      validationDone(false);
-      return;
-    }
-    processAsyncValidators();
-
-    function processParseErrors(parseValid) {
-      var errorKey = ctrl.$$parserName || 'parse';
-      if (parseValid === undefined) {
-        setValidity(errorKey, null);
-      } else {
-        setValidity(errorKey, parseValid);
-        if (!parseValid) {
-          forEach(ctrl.$validators, function(v, name) {
-            setValidity(name, null);
-          });
-          forEach(ctrl.$asyncValidators, function(v, name) {
-            setValidity(name, null);
-          });
-          return false;
-        }
-      }
-      return true;
-    }
-
-    function processSyncValidators() {
-      var syncValidatorsValid = true;
-      forEach(ctrl.$validators, function(validator, name) {
-        var result = validator(modelValue, viewValue);
-        syncValidatorsValid = syncValidatorsValid && result;
-        setValidity(name, result);
-      });
-      if (!syncValidatorsValid) {
-        forEach(ctrl.$asyncValidators, function(v, name) {
-          setValidity(name, null);
-        });
-        return false;
-      }
-      return true;
-    }
-
-    function processAsyncValidators() {
-      var validatorPromises = [];
-      var allValid = true;
-      forEach(ctrl.$asyncValidators, function(validator, name) {
-        var promise = validator(modelValue, viewValue);
-        if (!isPromiseLike(promise)) {
-          throw $ngModelMinErr("$asyncValidators",
-            "Expected asynchronous validator to return a promise but got '{0}' instead.", promise);
-        }
-        setValidity(name, undefined);
-        validatorPromises.push(promise.then(function() {
-          setValidity(name, true);
-        }, function(error) {
-          allValid = false;
-          setValidity(name, false);
-        }));
-      });
-      if (!validatorPromises.length) {
-        validationDone(true);
-      } else {
-        $q.all(validatorPromises).then(function() {
-          validationDone(allValid);
-        }, noop);
-      }
-    }
-
-    function setValidity(name, isValid) {
-      if (localValidationRunId === currentValidationRunId) {
-        ctrl.$setValidity(name, isValid);
-      }
-    }
-
-    function validationDone(allValid) {
-      if (localValidationRunId === currentValidationRunId) {
-
-        doneCallback(allValid);
-      }
-    }
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$commitViewValue
-   *
-   * @description
-   * Commit a pending update to the `$modelValue`.
-   *
-   * Updates may be pending by a debounced event or because the input is waiting for a some future
-   * event defined in `ng-model-options`. this method is rarely needed as `NgModelController`
-   * usually handles calling this in response to input events.
-   */
-  this.$commitViewValue = function() {
-    var viewValue = ctrl.$viewValue;
-
-    $timeout.cancel(pendingDebounce);
-
-    // If the view value has not changed then we should just exit, except in the case where there is
-    // a native validator on the element. In this case the validation state may have changed even though
-    // the viewValue has stayed empty.
-    if (ctrl.$$lastCommittedViewValue === viewValue && (viewValue !== '' || !ctrl.$$hasNativeValidators)) {
-      return;
-    }
-    ctrl.$$lastCommittedViewValue = viewValue;
-
-    // change to dirty
-    if (ctrl.$pristine) {
-      this.$setDirty();
-    }
-    this.$$parseAndValidate();
-  };
-
-  this.$$parseAndValidate = function() {
-    var viewValue = ctrl.$$lastCommittedViewValue;
-    var modelValue = viewValue;
-    var parserValid = isUndefined(modelValue) ? undefined : true;
-
-    if (parserValid) {
-      for (var i = 0; i < ctrl.$parsers.length; i++) {
-        modelValue = ctrl.$parsers[i](modelValue);
-        if (isUndefined(modelValue)) {
-          parserValid = false;
-          break;
-        }
-      }
-    }
-    if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
-      // ctrl.$modelValue has not been touched yet...
-      ctrl.$modelValue = ngModelGet($scope);
-    }
-    var prevModelValue = ctrl.$modelValue;
-    var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
-    ctrl.$$rawModelValue = modelValue;
-
-    if (allowInvalid) {
-      ctrl.$modelValue = modelValue;
-      writeToModelIfNeeded();
-    }
-
-    // Pass the $$lastCommittedViewValue here, because the cached viewValue might be out of date.
-    // This can happen if e.g. $setViewValue is called from inside a parser
-    ctrl.$$runValidators(parserValid, modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
-      if (!allowInvalid) {
-        // Note: Don't check ctrl.$valid here, as we could have
-        // external validators (e.g. calculated on the server),
-        // that just call $setValidity and need the model value
-        // to calculate their validity.
-        ctrl.$modelValue = allValid ? modelValue : undefined;
-        writeToModelIfNeeded();
-      }
-    });
-
-    function writeToModelIfNeeded() {
-      if (ctrl.$modelValue !== prevModelValue) {
-        ctrl.$$writeModelToScope();
-      }
-    }
-  };
-
-  this.$$writeModelToScope = function() {
-    ngModelSet($scope, ctrl.$modelValue);
-    forEach(ctrl.$viewChangeListeners, function(listener) {
-      try {
-        listener();
-      } catch (e) {
-        $exceptionHandler(e);
-      }
-    });
-  };
-
-  /**
-   * @ngdoc method
-   * @name ngModel.NgModelController#$setViewValue
-   *
-   * @description
-   * Update the view value.
-   *
-   * This method should be called when an input directive want to change the view value; typically,
-   * this is done from within a DOM event handler.
-   *
-   * For example {@link ng.directive:input input} calls it when the value of the input changes and
-   * {@link ng.directive:select select} calls it when an option is selected.
-   *
-   * If the new `value` is an object (rather than a string or a number), we should make a copy of the
-   * object before passing it to `$setViewValue`.  This is because `ngModel` does not perform a deep
-   * watch of objects, it only looks for a change of identity. If you only change the property of
-   * the object then ngModel will not realise that the object has changed and will not invoke the
-   * `$parsers` and `$validators` pipelines.
-   *
-   * For this reason, you should not change properties of the copy once it has been passed to
-   * `$setViewValue`. Otherwise you may cause the model value on the scope to change incorrectly.
-   *
-   * When this method is called, the new `value` will be staged for committing through the `$parsers`
-   * and `$validators` pipelines. If there are no special {@link ngModelOptions} specified then the staged
-   * value sent directly for processing, finally to be applied to `$modelValue` and then the
-   * **expression** specified in the `ng-model` attribute.
-   *
-   * Lastly, all the registered change listeners, in the `$viewChangeListeners` list, are called.
-   *
-   * In case the {@link ng.directive:ngModelOptions ngModelOptions} directive is used with `updateOn`
-   * and the `default` trigger is not listed, all those actions will remain pending until one of the
-   * `updateOn` events is triggered on the DOM element.
-   * All these actions will be debounced if the {@link ng.directive:ngModelOptions ngModelOptions}
-   * directive is used with a custom debounce for this particular event.
-   *
-   * Note that calling this function does not trigger a `$digest`.
-   *
-   * @param {string} value Value from the view.
-   * @param {string} trigger Event that triggered the update.
-   */
-  this.$setViewValue = function(value, trigger) {
-    ctrl.$viewValue = value;
-    if (!ctrl.$options || ctrl.$options.updateOnDefault) {
-      ctrl.$$debounceViewValueCommit(trigger);
-    }
-  };
-
-  this.$$debounceViewValueCommit = function(trigger) {
-    var debounceDelay = 0,
-        options = ctrl.$options,
-        debounce;
-
-    if (options && isDefined(options.debounce)) {
-      debounce = options.debounce;
-      if (isNumber(debounce)) {
-        debounceDelay = debounce;
-      } else if (isNumber(debounce[trigger])) {
-        debounceDelay = debounce[trigger];
-      } else if (isNumber(debounce['default'])) {
-        debounceDelay = debounce['default'];
-      }
-    }
-
-    $timeout.cancel(pendingDebounce);
-    if (debounceDelay) {
-      pendingDebounce = $timeout(function() {
-        ctrl.$commitViewValue();
-      }, debounceDelay);
-    } else if ($rootScope.$$phase) {
-      ctrl.$commitViewValue();
-    } else {
-      $scope.$apply(function() {
-        ctrl.$commitViewValue();
-      });
-    }
-  };
-
-  // model -> value
-  // Note: we cannot use a normal scope.$watch as we want to detect the following:
-  // 1. scope value is 'a'
-  // 2. user enters 'b'
-  // 3. ng-change kicks in and reverts scope value to 'a'
-  //    -> scope value did not change since the last digest as
-  //       ng-change executes in apply phase
-  // 4. view should be changed back to 'a'
-  $scope.$watch(function ngModelWatch() {
-    var modelValue = ngModelGet($scope);
-
-    // if scope model value and ngModel value are out of sync
-    // TODO(perf): why not move this to the action fn?
-    if (modelValue !== ctrl.$modelValue) {
-      ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
-
-      var formatters = ctrl.$formatters,
-          idx = formatters.length;
-
-      var viewValue = modelValue;
-      while (idx--) {
-        viewValue = formatters[idx](viewValue);
-      }
-      if (ctrl.$viewValue !== viewValue) {
-        ctrl.$viewValue = ctrl.$$lastCommittedViewValue = viewValue;
-        ctrl.$render();
-
-        ctrl.$$runValidators(undefined, modelValue, viewValue, noop);
-      }
-    }
-
-    return modelValue;
-  });
-}];
-
-
-/**
- * @ngdoc directive
- * @name ngModel
- *
- * @element input
- * @priority 1
- *
- * @description
- * The `ngModel` directive binds an `input`,`select`, `textarea` (or custom form control) to a
- * property on the scope using {@link ngModel.NgModelController NgModelController},
- * which is created and exposed by this directive.
- *
- * `ngModel` is responsible for:
- *
- * - Binding the view into the model, which other directives such as `input`, `textarea` or `select`
- *   require.
- * - Providing validation behavior (i.e. required, number, email, url).
- * - Keeping the state of the control (valid/invalid, dirty/pristine, touched/untouched, validation errors).
- * - Setting related css classes on the element (`ng-valid`, `ng-invalid`, `ng-dirty`, `ng-pristine`, `ng-touched`, `ng-untouched`) including animations.
- * - Registering the control with its parent {@link ng.directive:form form}.
- *
- * Note: `ngModel` will try to bind to the property given by evaluating the expression on the
- * current scope. If the property doesn't already exist on this scope, it will be created
- * implicitly and added to the scope.
- *
- * For best practices on using `ngModel`, see:
- *
- *  - [Understanding Scopes](https://github.com/angular/angular.js/wiki/Understanding-Scopes)
- *
- * For basic examples, how to use `ngModel`, see:
- *
- *  - {@link ng.directive:input input}
- *    - {@link input[text] text}
- *    - {@link input[checkbox] checkbox}
- *    - {@link input[radio] radio}
- *    - {@link input[number] number}
- *    - {@link input[email] email}
- *    - {@link input[url] url}
- *    - {@link input[date] date}
- *    - {@link input[datetime-local] datetime-local}
- *    - {@link input[time] time}
- *    - {@link input[month] month}
- *    - {@link input[week] week}
- *  - {@link ng.directive:select select}
- *  - {@link ng.directive:textarea textarea}
- *
- * # CSS classes
- * The following CSS classes are added and removed on the associated input/select/textarea element
- * depending on the validity of the model.
- *
- *  - `ng-valid`: the model is valid
- *  - `ng-invalid`: the model is invalid
- *  - `ng-valid-[key]`: for each valid key added by `$setValidity`
- *  - `ng-invalid-[key]`: for each invalid key added by `$setValidity`
- *  - `ng-pristine`: the control hasn't been interacted with yet
- *  - `ng-dirty`: the control has been interacted with
- *  - `ng-touched`: the control has been blurred
- *  - `ng-untouched`: the control hasn't been blurred
- *  - `ng-pending`: any `$asyncValidators` are unfulfilled
- *
- * Keep in mind that ngAnimate can detect each of these classes when added and removed.
- *
- * ## Animation Hooks
- *
- * Animations within models are triggered when any of the associated CSS classes are added and removed
- * on the input element which is attached to the model. These classes are: `.ng-pristine`, `.ng-dirty`,
- * `.ng-invalid` and `.ng-valid` as well as any other validations that are performed on the model itself.
- * The animations that are triggered within ngModel are similar to how they work in ngClass and
- * animations can be hooked into using CSS transitions, keyframes as well as JS animations.
- *
- * The following example shows a simple way to utilize CSS transitions to style an input element
- * that has been rendered as invalid after it has been validated:
- *
- * <pre>
- * //be sure to include ngAnimate as a module to hook into more
- * //advanced animations
- * .my-input {
- *   transition:0.5s linear all;
- *   background: white;
- * }
- * .my-input.ng-invalid {
- *   background: red;
- *   color:white;
- * }
- * </pre>
- *
- * @example
- * <example deps="angular-animate.js" animations="true" fixBase="true" module="inputExample">
-     <file name="index.html">
-       <script>
-        angular.module('inputExample', [])
-          .controller('ExampleController', ['$scope', function($scope) {
-            $scope.val = '1';
-          }]);
-       </script>
-       <style>
-         .my-input {
-           -webkit-transition:all linear 0.5s;
-           transition:all linear 0.5s;
-           background: transparent;
-         }
-         .my-input.ng-invalid {
-           color:white;
-           background: red;
-         }
-       </style>
-       Update input to see transitions when valid/invalid.
-       Integer is a valid value.
-       <form name="testForm" ng-controller="ExampleController">
-         <input ng-model="val" ng-pattern="/^\d+$/" name="anim" class="my-input" />
-       </form>
-     </file>
- * </example>
- *
- * ## Binding to a getter/setter
- *
- * Sometimes it's helpful to bind `ngModel` to a getter/setter function.  A getter/setter is a
- * function that returns a representation of the model when called with zero arguments, and sets
- * the internal state of a model when called with an argument. It's sometimes useful to use this
- * for models that have an internal representation that's different than what the model exposes
- * to the view.
- *
- * <div class="alert alert-success">
- * **Best Practice:** It's best to keep getters fast because Angular is likely to call them more
- * frequently than other parts of your code.
- * </div>
- *
- * You use this behavior by adding `ng-model-options="{ getterSetter: true }"` to an element that
- * has `ng-model` attached to it. You can also add `ng-model-options="{ getterSetter: true }"` to
- * a `<form>`, which will enable this behavior for all `<input>`s within it. See
- * {@link ng.directive:ngModelOptions `ngModelOptions`} for more.
- *
- * The following example shows how to use `ngModel` with a getter/setter:
- *
- * @example
- * <example name="ngModel-getter-setter" module="getterSetterExample">
-     <file name="index.html">
-       <div ng-controller="ExampleController">
-         <form name="userForm">
-           Name:
-           <input type="text" name="userName"
-                  ng-model="user.name"
-                  ng-model-options="{ getterSetter: true }" />
-         </form>
-         <pre>user.name = <span ng-bind="user.name()"></span></pre>
-       </div>
-     </file>
-     <file name="app.js">
-       angular.module('getterSetterExample', [])
-         .controller('ExampleController', ['$scope', function($scope) {
-           var _name = 'Brian';
-           $scope.user = {
-             name: function(newName) {
-               if (angular.isDefined(newName)) {
-                 _name = newName;
-               }
-               return _name;
-             }
-           };
-         }]);
-     </file>
- * </example>
- */
-var ngModelDirective = ['$rootScope', function($rootScope) {
-  return {
-    restrict: 'A',
-    require: ['ngModel', '^?form', '^?ngModelOptions'],
-    controller: NgModelController,
-    // Prelink needs to run before any input directive
-    // so that we can set the NgModelOptions in NgModelController
-    // before anyone else uses it.
-    priority: 1,
-    compile: function ngModelCompile(element) {
-      // Setup initial state of the control
-      element.addClass(PRISTINE_CLASS).addClass(UNTOUCHED_CLASS).addClass(VALID_CLASS);
-
-      return {
-        pre: function ngModelPreLink(scope, element, attr, ctrls) {
-          var modelCtrl = ctrls[0],
-              formCtrl = ctrls[1] || nullFormCtrl;
-
-          modelCtrl.$$setOptions(ctrls[2] && ctrls[2].$options);
-
-          // notify others, especially parent forms
-          formCtrl.$addControl(modelCtrl);
-
-          attr.$observe('name', function(newValue) {
-            if (modelCtrl.$name !== newValue) {
-              formCtrl.$$renameControl(modelCtrl, newValue);
-            }
-          });
-
-          scope.$on('$destroy', function() {
-            formCtrl.$removeControl(modelCtrl);
-          });
-        },
-        post: function ngModelPostLink(scope, element, attr, ctrls) {
-          var modelCtrl = ctrls[0];
-          if (modelCtrl.$options && modelCtrl.$options.updateOn) {
-            element.on(modelCtrl.$options.updateOn, function(ev) {
-              modelCtrl.$$debounceViewValueCommit(ev && ev.type);
-            });
-          }
-
-          element.on('blur', function(ev) {
-            if (modelCtrl.$touched) return;
-
-            if ($rootScope.$$phase) {
-              scope.$evalAsync(modelCtrl.$setTouched);
-            } else {
-              scope.$apply(modelCtrl.$setTouched);
-            }
-          });
-        }
-      };
-    }
-  };
-}];
-
-
-/**
- * @ngdoc directive
- * @name ngChange
- *
- * @description
- * Evaluate the given expression when the user changes the input.
- * The expression is evaluated immediately, unlike the JavaScript onchange event
- * which only triggers at the end of a change (usually, when the user leaves the
- * form element or presses the return key).
- *
- * The `ngChange` expression is only evaluated when a change in the input value causes
- * a new value to be committed to the model.
- *
- * It will not be evaluated:
- * * if the value returned from the `$parsers` transformation pipeline has not changed
- * * if the input has continued to be invalid since the model will stay `null`
- * * if the model is changed programmatically and not by a change to the input value
- *
- *
- * Note, this directive requires `ngModel` to be present.
- *
- * @element input
- * @param {expression} ngChange {@link guide/expression Expression} to evaluate upon change
- * in input value.
- *
- * @example
- * <example name="ngChange-directive" module="changeExample">
- *   <file name="index.html">
- *     <script>
- *       angular.module('changeExample', [])
- *         .controller('ExampleController', ['$scope', function($scope) {
- *           $scope.counter = 0;
- *           $scope.change = function() {
- *             $scope.counter++;
- *           };
- *         }]);
- *     </script>
- *     <div ng-controller="ExampleController">
- *       <input type="checkbox" ng-model="confirmed" ng-change="change()" id="ng-change-example1" />
- *       <input type="checkbox" ng-model="confirmed" id="ng-change-example2" />
- *       <label for="ng-change-example2">Confirmed</label><br />
- *       <tt>debug = {{confirmed}}</tt><br/>
- *       <tt>counter = {{counter}}</tt><br/>
- *     </div>
- *   </file>
- *   <file name="protractor.js" type="protractor">
- *     var counter = element(by.binding('counter'));
- *     var debug = element(by.binding('confirmed'));
- *
- *     it('should evaluate the expression if changing from view', function() {
- *       expect(counter.getText()).toContain('0');
- *
- *       element(by.id('ng-change-example1')).click();
- *
- *       expect(counter.getText()).toContain('1');
- *       expect(debug.getText()).toContain('true');
- *     });
- *
- *     it('should not evaluate the expression if changing from model', function() {
- *       element(by.id('ng-change-example2')).click();
-
- *       expect(counter.getText()).toContain('0');
- *       expect(debug.getText()).toContain('true');
- *     });
- *   </file>
- * </example>
- */
-var ngChangeDirective = valueFn({
-  restrict: 'A',
-  require: 'ngModel',
-  link: function(scope, element, attr, ctrl) {
-    ctrl.$viewChangeListeners.push(function() {
-      scope.$eval(attr.ngChange);
-    });
-  }
-});
-
-
-var requiredDirective = function() {
-  return {
-    restrict: 'A',
-    require: '?ngModel',
-    link: function(scope, elm, attr, ctrl) {
-      if (!ctrl) return;
-      attr.required = true; // force truthy in case we are on non input element
-
-      ctrl.$validators.required = function(modelValue, viewValue) {
-        return !attr.required || !ctrl.$isEmpty(viewValue);
-      };
-
-      attr.$observe('required', function() {
-        ctrl.$validate();
-      });
-    }
-  };
-};
-
-
-var patternDirective = function() {
-  return {
-    restrict: 'A',
-    require: '?ngModel',
-    link: function(scope, elm, attr, ctrl) {
-      if (!ctrl) return;
-
-      var regexp, patternExp = attr.ngPattern || attr.pattern;
-      attr.$observe('pattern', function(regex) {
-        if (isString(regex) && regex.length > 0) {
-          regex = new RegExp('^' + regex + '$');
-        }
-
-        if (regex && !regex.test) {
-          throw minErr('ngPattern')('noregexp',
-            'Expected {0} to be a RegExp but was {1}. Element: {2}', patternExp,
-            regex, startingTag(elm));
-        }
-
-        regexp = regex || undefined;
-        ctrl.$validate();
-      });
-
-      ctrl.$validators.pattern = function(value) {
-        return ctrl.$isEmpty(value) || isUndefined(regexp) || regexp.test(value);
-      };
-    }
-  };
-};
-
-
-var maxlengthDirective = function() {
-  return {
-    restrict: 'A',
-    require: '?ngModel',
-    link: function(scope, elm, attr, ctrl) {
-      if (!ctrl) return;
-
-      var maxlength = -1;
-      attr.$observe('maxlength', function(value) {
-        var intVal = int(value);
-        maxlength = isNaN(intVal) ? -1 : intVal;
-        ctrl.$validate();
-      });
-      ctrl.$validators.maxlength = function(modelValue, viewValue) {
-        return (maxlength < 0) || ctrl.$isEmpty(modelValue) || (viewValue.length <= maxlength);
-      };
-    }
-  };
-};
-
-var minlengthDirective = function() {
-  return {
-    restrict: 'A',
-    require: '?ngModel',
-    link: function(scope, elm, attr, ctrl) {
-      if (!ctrl) return;
-
-      var minlength = 0;
-      attr.$observe('minlength', function(value) {
-        minlength = int(value) || 0;
-        ctrl.$validate();
-      });
-      ctrl.$validators.minlength = function(modelValue, viewValue) {
-        return ctrl.$isEmpty(viewValue) || viewValue.length >= minlength;
-      };
-    }
-  };
-};
-
-
-/**
- * @ngdoc directive
- * @name ngList
- *
- * @description
- * Text input that converts between a delimited string and an array of strings. The default
- * delimiter is a comma followed by a space - equivalent to `ng-list=", "`. You can specify a custom
- * delimiter as the value of the `ngList` attribute - for example, `ng-list=" | "`.
- *
- * The behaviour of the directive is affected by the use of the `ngTrim` attribute.
- * * If `ngTrim` is set to `"false"` then whitespace around both the separator and each
- *   list item is respected. This implies that the user of the directive is responsible for
- *   dealing with whitespace but also allows you to use whitespace as a delimiter, such as a
- *   tab or newline character.
- * * Otherwise whitespace around the delimiter is ignored when splitting (although it is respected
- *   when joining the list items back together) and whitespace around each list item is stripped
- *   before it is added to the model.
- *
- * ### Example with Validation
- *
- * <example name="ngList-directive" module="listExample">
- *   <file name="app.js">
- *      angular.module('listExample', [])
- *        .controller('ExampleController', ['$scope', function($scope) {
- *          $scope.names = ['morpheus', 'neo', 'trinity'];
- *        }]);
- *   </file>
- *   <file name="index.html">
- *    <form name="myForm" ng-controller="ExampleController">
- *      List: <input name="namesInput" ng-model="names" ng-list required>
- *      <span class="error" ng-show="myForm.namesInput.$error.required">
- *        Required!</span>
- *      <br>
- *      <tt>names = {{names}}</tt><br/>
- *      <tt>myForm.namesInput.$valid = {{myForm.namesInput.$valid}}</tt><br/>
- *      <tt>myForm.namesInput.$error = {{myForm.namesInput.$error}}</tt><br/>
- *      <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
- *      <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
- *     </form>
- *   </file>
- *   <file name="protractor.js" type="protractor">
- *     var listInput = element(by.model('names'));
- *     var names = element(by.exactBinding('names'));
- *     var valid = element(by.binding('myForm.namesInput.$valid'));
- *     var error = element(by.css('span.error'));
- *
- *     it('should initialize to model', function() {
- *       expect(names.getText()).toContain('["morpheus","neo","trinity"]');
- *       expect(valid.getText()).toContain('true');
- *       expect(error.getCssValue('display')).toBe('none');
- *     });
- *
- *     it('should be invalid if empty', function() {
- *       listInput.clear();
- *       listInput.sendKeys('');
- *
- *       expect(names.getText()).toContain('');
- *       expect(valid.getText()).toContain('false');
- *       expect(error.getCssValue('display')).not.toBe('none');
- *     });
- *   </file>
- * </example>
- *
- * ### Example - splitting on whitespace
- * <example name="ngList-directive-newlines">
- *   <file name="index.html">
- *    <textarea ng-model="list" ng-list="&#10;" ng-trim="false"></textarea>
- *    <pre>{{ list | json }}</pre>
- *   </file>
- *   <file name="protractor.js" type="protractor">
- *     it("should split the text by newlines", function() {
- *       var listInput = element(by.model('list'));
- *       var output = element(by.binding('list | json'));
- *       listInput.sendKeys('abc\ndef\nghi');
- *       expect(output.getText()).toContain('[\n  "abc",\n  "def",\n  "ghi"\n]');
- *     });
- *   </file>
- * </example>
- *
- * @element input
- * @param {string=} ngList optional delimiter that should be used to split the value.
- */
-var ngListDirective = function() {
-  return {
-    restrict: 'A',
-    priority: 100,
-    require: 'ngModel',
-    link: function(scope, element, attr, ctrl) {
-      // We want to control whitespace trimming so we use this convoluted approach
-      // to access the ngList attribute, which doesn't pre-trim the attribute
-      var ngList = element.attr(attr.$attr.ngList) || ', ';
-      var trimValues = attr.ngTrim !== 'false';
-      var separator = trimValues ? trim(ngList) : ngList;
-
-      var parse = function(viewValue) {
-        // If the viewValue is invalid (say required but empty) it will be `undefined`
-        if (isUndefined(viewValue)) return;
-
-        var list = [];
-
-        if (viewValue) {
-          forEach(viewValue.split(separator), function(value) {
-            if (value) list.push(trimValues ? trim(value) : value);
-          });
-        }
-
-        return list;
-      };
-
-      ctrl.$parsers.push(parse);
-      ctrl.$formatters.push(function(value) {
-        if (isArray(value)) {
-          return value.join(ngList);
-        }
-
-        return undefined;
-      });
-
-      // Override the standard $isEmpty because an empty array means the input is empty.
-      ctrl.$isEmpty = function(value) {
-        return !value || !value.length;
-      };
-    }
-  };
-};
 
 
 var CONSTANT_VALUE_REGEXP = /^(true|false|\d+)$/;
@@ -21576,281 +20246,6 @@ var ngValueDirective = function() {
     }
   };
 };
-
-/**
- * @ngdoc directive
- * @name ngModelOptions
- *
- * @description
- * Allows tuning how model updates are done. Using `ngModelOptions` you can specify a custom list of
- * events that will trigger a model update and/or a debouncing delay so that the actual update only
- * takes place when a timer expires; this timer will be reset after another change takes place.
- *
- * Given the nature of `ngModelOptions`, the value displayed inside input fields in the view might
- * be different than the value in the actual model. This means that if you update the model you
- * should also invoke {@link ngModel.NgModelController `$rollbackViewValue`} on the relevant input field in
- * order to make sure it is synchronized with the model and that any debounced action is canceled.
- *
- * The easiest way to reference the control's {@link ngModel.NgModelController `$rollbackViewValue`}
- * method is by making sure the input is placed inside a form that has a `name` attribute. This is
- * important because `form` controllers are published to the related scope under the name in their
- * `name` attribute.
- *
- * Any pending changes will take place immediately when an enclosing form is submitted via the
- * `submit` event. Note that `ngClick` events will occur before the model is updated. Use `ngSubmit`
- * to have access to the updated model.
- *
- * `ngModelOptions` has an effect on the element it's declared on and its descendants.
- *
- * @param {Object} ngModelOptions options to apply to the current model. Valid keys are:
- *   - `updateOn`: string specifying which event should the input be bound to. You can set several
- *     events using an space delimited list. There is a special event called `default` that
- *     matches the default events belonging of the control.
- *   - `debounce`: integer value which contains the debounce model update value in milliseconds. A
- *     value of 0 triggers an immediate update. If an object is supplied instead, you can specify a
- *     custom value for each event. For example:
- *     `ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"`
- *   - `allowInvalid`: boolean value which indicates that the model can be set with values that did
- *     not validate correctly instead of the default behavior of setting the model to undefined.
- *   - `getterSetter`: boolean value which determines whether or not to treat functions bound to
-       `ngModel` as getters/setters.
- *   - `timezone`: Defines the timezone to be used to read/write the `Date` instance in the model for
- *     `<input type="date">`, `<input type="time">`, ... . Right now, the only supported value is `'UTC'`,
- *     otherwise the default timezone of the browser will be used.
- *
- * @example
-
-  The following example shows how to override immediate updates. Changes on the inputs within the
-  form will update the model only when the control loses focus (blur event). If `escape` key is
-  pressed while the input field is focused, the value is reset to the value in the current model.
-
-  <example name="ngModelOptions-directive-blur" module="optionsExample">
-    <file name="index.html">
-      <div ng-controller="ExampleController">
-        <form name="userForm">
-          Name:
-          <input type="text" name="userName"
-                 ng-model="user.name"
-                 ng-model-options="{ updateOn: 'blur' }"
-                 ng-keyup="cancel($event)" /><br />
-
-          Other data:
-          <input type="text" ng-model="user.data" /><br />
-        </form>
-        <pre>user.name = <span ng-bind="user.name"></span></pre>
-      </div>
-    </file>
-    <file name="app.js">
-      angular.module('optionsExample', [])
-        .controller('ExampleController', ['$scope', function($scope) {
-          $scope.user = { name: 'say', data: '' };
-
-          $scope.cancel = function(e) {
-            if (e.keyCode == 27) {
-              $scope.userForm.userName.$rollbackViewValue();
-            }
-          };
-        }]);
-    </file>
-    <file name="protractor.js" type="protractor">
-      var model = element(by.binding('user.name'));
-      var input = element(by.model('user.name'));
-      var other = element(by.model('user.data'));
-
-      it('should allow custom events', function() {
-        input.sendKeys(' hello');
-        input.click();
-        expect(model.getText()).toEqual('say');
-        other.click();
-        expect(model.getText()).toEqual('say hello');
-      });
-
-      it('should $rollbackViewValue when model changes', function() {
-        input.sendKeys(' hello');
-        expect(input.getAttribute('value')).toEqual('say hello');
-        input.sendKeys(protractor.Key.ESCAPE);
-        expect(input.getAttribute('value')).toEqual('say');
-        other.click();
-        expect(model.getText()).toEqual('say');
-      });
-    </file>
-  </example>
-
-  This one shows how to debounce model changes. Model will be updated only 1 sec after last change.
-  If the `Clear` button is pressed, any debounced action is canceled and the value becomes empty.
-
-  <example name="ngModelOptions-directive-debounce" module="optionsExample">
-    <file name="index.html">
-      <div ng-controller="ExampleController">
-        <form name="userForm">
-          Name:
-          <input type="text" name="userName"
-                 ng-model="user.name"
-                 ng-model-options="{ debounce: 1000 }" />
-          <button ng-click="userForm.userName.$rollbackViewValue(); user.name=''">Clear</button><br />
-        </form>
-        <pre>user.name = <span ng-bind="user.name"></span></pre>
-      </div>
-    </file>
-    <file name="app.js">
-      angular.module('optionsExample', [])
-        .controller('ExampleController', ['$scope', function($scope) {
-          $scope.user = { name: 'say' };
-        }]);
-    </file>
-  </example>
-
-  This one shows how to bind to getter/setters:
-
-  <example name="ngModelOptions-directive-getter-setter" module="getterSetterExample">
-    <file name="index.html">
-      <div ng-controller="ExampleController">
-        <form name="userForm">
-          Name:
-          <input type="text" name="userName"
-                 ng-model="user.name"
-                 ng-model-options="{ getterSetter: true }" />
-        </form>
-        <pre>user.name = <span ng-bind="user.name()"></span></pre>
-      </div>
-    </file>
-    <file name="app.js">
-      angular.module('getterSetterExample', [])
-        .controller('ExampleController', ['$scope', function($scope) {
-          var _name = 'Brian';
-          $scope.user = {
-            name: function(newName) {
-              return angular.isDefined(newName) ? (_name = newName) : _name;
-            }
-          };
-        }]);
-    </file>
-  </example>
- */
-var ngModelOptionsDirective = function() {
-  return {
-    restrict: 'A',
-    controller: ['$scope', '$attrs', function($scope, $attrs) {
-      var that = this;
-      this.$options = $scope.$eval($attrs.ngModelOptions);
-      // Allow adding/overriding bound events
-      if (this.$options.updateOn !== undefined) {
-        this.$options.updateOnDefault = false;
-        // extract "default" pseudo-event from list of events that can trigger a model update
-        this.$options.updateOn = trim(this.$options.updateOn.replace(DEFAULT_REGEXP, function() {
-          that.$options.updateOnDefault = true;
-          return ' ';
-        }));
-      } else {
-        this.$options.updateOnDefault = true;
-      }
-    }]
-  };
-};
-
-// helper methods
-function addSetValidityMethod(context) {
-  var ctrl = context.ctrl,
-      $element = context.$element,
-      classCache = {},
-      set = context.set,
-      unset = context.unset,
-      parentForm = context.parentForm,
-      $animate = context.$animate;
-
-  classCache[INVALID_CLASS] = !(classCache[VALID_CLASS] = $element.hasClass(VALID_CLASS));
-
-  ctrl.$setValidity = setValidity;
-
-  function setValidity(validationErrorKey, state, options) {
-    if (state === undefined) {
-      createAndSet('$pending', validationErrorKey, options);
-    } else {
-      unsetAndCleanup('$pending', validationErrorKey, options);
-    }
-    if (!isBoolean(state)) {
-      unset(ctrl.$error, validationErrorKey, options);
-      unset(ctrl.$$success, validationErrorKey, options);
-    } else {
-      if (state) {
-        unset(ctrl.$error, validationErrorKey, options);
-        set(ctrl.$$success, validationErrorKey, options);
-      } else {
-        set(ctrl.$error, validationErrorKey, options);
-        unset(ctrl.$$success, validationErrorKey, options);
-      }
-    }
-    if (ctrl.$pending) {
-      cachedToggleClass(PENDING_CLASS, true);
-      ctrl.$valid = ctrl.$invalid = undefined;
-      toggleValidationCss('', null);
-    } else {
-      cachedToggleClass(PENDING_CLASS, false);
-      ctrl.$valid = isObjectEmpty(ctrl.$error);
-      ctrl.$invalid = !ctrl.$valid;
-      toggleValidationCss('', ctrl.$valid);
-    }
-
-    // re-read the state as the set/unset methods could have
-    // combined state in ctrl.$error[validationError] (used for forms),
-    // where setting/unsetting only increments/decrements the value,
-    // and does not replace it.
-    var combinedState;
-    if (ctrl.$pending && ctrl.$pending[validationErrorKey]) {
-      combinedState = undefined;
-    } else if (ctrl.$error[validationErrorKey]) {
-      combinedState = false;
-    } else if (ctrl.$$success[validationErrorKey]) {
-      combinedState = true;
-    } else {
-      combinedState = null;
-    }
-    toggleValidationCss(validationErrorKey, combinedState);
-    parentForm.$setValidity(validationErrorKey, combinedState, ctrl);
-  }
-
-  function createAndSet(name, value, options) {
-    if (!ctrl[name]) {
-      ctrl[name] = {};
-    }
-    set(ctrl[name], value, options);
-  }
-
-  function unsetAndCleanup(name, value, options) {
-    if (ctrl[name]) {
-      unset(ctrl[name], value, options);
-    }
-    if (isObjectEmpty(ctrl[name])) {
-      ctrl[name] = undefined;
-    }
-  }
-
-  function cachedToggleClass(className, switchValue) {
-    if (switchValue && !classCache[className]) {
-      $animate.addClass($element, className);
-      classCache[className] = true;
-    } else if (!switchValue && classCache[className]) {
-      $animate.removeClass($element, className);
-      classCache[className] = false;
-    }
-  }
-
-  function toggleValidationCss(validationErrorKey, isValid) {
-    validationErrorKey = validationErrorKey ? '-' + snake_case(validationErrorKey, '-') : '';
-
-    cachedToggleClass(VALID_CLASS + validationErrorKey, isValid === true);
-    cachedToggleClass(INVALID_CLASS + validationErrorKey, isValid === false);
-  }
-}
-
-function isObjectEmpty(obj) {
-  if (obj) {
-    for (var prop in obj) {
-      return false;
-    }
-  }
-  return true;
-}
 
 /**
  * @ngdoc directive
@@ -22058,6 +20453,83 @@ var ngBindHtmlDirective = ['$sce', '$parse', '$compile', function($sce, $parse, 
   };
 }];
 
+/**
+ * @ngdoc directive
+ * @name ngChange
+ *
+ * @description
+ * Evaluate the given expression when the user changes the input.
+ * The expression is evaluated immediately, unlike the JavaScript onchange event
+ * which only triggers at the end of a change (usually, when the user leaves the
+ * form element or presses the return key).
+ *
+ * The `ngChange` expression is only evaluated when a change in the input value causes
+ * a new value to be committed to the model.
+ *
+ * It will not be evaluated:
+ * * if the value returned from the `$parsers` transformation pipeline has not changed
+ * * if the input has continued to be invalid since the model will stay `null`
+ * * if the model is changed programmatically and not by a change to the input value
+ *
+ *
+ * Note, this directive requires `ngModel` to be present.
+ *
+ * @element input
+ * @param {expression} ngChange {@link guide/expression Expression} to evaluate upon change
+ * in input value.
+ *
+ * @example
+ * <example name="ngChange-directive" module="changeExample">
+ *   <file name="index.html">
+ *     <script>
+ *       angular.module('changeExample', [])
+ *         .controller('ExampleController', ['$scope', function($scope) {
+ *           $scope.counter = 0;
+ *           $scope.change = function() {
+ *             $scope.counter++;
+ *           };
+ *         }]);
+ *     </script>
+ *     <div ng-controller="ExampleController">
+ *       <input type="checkbox" ng-model="confirmed" ng-change="change()" id="ng-change-example1" />
+ *       <input type="checkbox" ng-model="confirmed" id="ng-change-example2" />
+ *       <label for="ng-change-example2">Confirmed</label><br />
+ *       <tt>debug = {{confirmed}}</tt><br/>
+ *       <tt>counter = {{counter}}</tt><br/>
+ *     </div>
+ *   </file>
+ *   <file name="protractor.js" type="protractor">
+ *     var counter = element(by.binding('counter'));
+ *     var debug = element(by.binding('confirmed'));
+ *
+ *     it('should evaluate the expression if changing from view', function() {
+ *       expect(counter.getText()).toContain('0');
+ *
+ *       element(by.id('ng-change-example1')).click();
+ *
+ *       expect(counter.getText()).toContain('1');
+ *       expect(debug.getText()).toContain('true');
+ *     });
+ *
+ *     it('should not evaluate the expression if changing from model', function() {
+ *       element(by.id('ng-change-example2')).click();
+
+ *       expect(counter.getText()).toContain('0');
+ *       expect(debug.getText()).toContain('true');
+ *     });
+ *   </file>
+ * </example>
+ */
+var ngChangeDirective = valueFn({
+  restrict: 'A',
+  require: 'ngModel',
+  link: function(scope, element, attr, ctrl) {
+    ctrl.$viewChangeListeners.push(function() {
+      scope.$eval(attr.ngChange);
+    });
+  }
+});
+
 function classDirective(name, selector) {
   name = 'ngClass' + name;
   return ['$animate', function($animate) {
@@ -22199,8 +20671,9 @@ function classDirective(name, selector) {
  * new classes are added.
  *
  * @animations
- * add - happens just before the class is applied to the element
- * remove - happens just before the class is removed from the element
+ * **add** - happens just before the class is applied to the elements
+ *
+ * **remove** - happens just before the class is removed from the element
  *
  * @element ANY
  * @param {expression} ngClass {@link guide/expression Expression} to eval. The result
@@ -23542,7 +22015,7 @@ var ngIfDirective = ['$animate', function($animate) {
        <select ng-model="template" ng-options="t.name for t in templates">
         <option value="">(blank)</option>
        </select>
-       url of the template: <tt>{{template.url}}</tt>
+       url of the template: <code>{{template.url}}</code>
        <hr/>
        <div class="slide-animate-container">
          <div class="slide-animate" ng-include="template.url"></div>
@@ -23666,7 +22139,7 @@ var ngIfDirective = ['$animate', function($animate) {
  * @name ngInclude#$includeContentError
  * @eventType emit on the scope ngInclude was declared in
  * @description
- * Emitted when a template HTTP request yields an erronous response (status < 200 || status > 299)
+ * Emitted when a template HTTP request yields an erroneous response (status < 200 || status > 299)
  *
  * @param {Object} angularEvent Synthetic event object.
  * @param {String} src URL of content to load.
@@ -23806,7 +22279,7 @@ var ngIncludeFillContentDirective = ['$compile',
  * **Note**: If you have assignment in `ngInit` along with {@link ng.$filter `$filter`}, make
  * sure you have parenthesis for correct precedence:
  * <pre class="prettyprint">
- *   <div ng-init="test1 = (data | orderBy:'name')"></div>
+ * `<div ng-init="test1 = (data | orderBy:'name')"></div>`
  * </pre>
  * </div>
  *
@@ -23853,6 +22326,1466 @@ var ngInitDirective = ngDirective({
     };
   }
 });
+
+/**
+ * @ngdoc directive
+ * @name ngList
+ *
+ * @description
+ * Text input that converts between a delimited string and an array of strings. The default
+ * delimiter is a comma followed by a space - equivalent to `ng-list=", "`. You can specify a custom
+ * delimiter as the value of the `ngList` attribute - for example, `ng-list=" | "`.
+ *
+ * The behaviour of the directive is affected by the use of the `ngTrim` attribute.
+ * * If `ngTrim` is set to `"false"` then whitespace around both the separator and each
+ *   list item is respected. This implies that the user of the directive is responsible for
+ *   dealing with whitespace but also allows you to use whitespace as a delimiter, such as a
+ *   tab or newline character.
+ * * Otherwise whitespace around the delimiter is ignored when splitting (although it is respected
+ *   when joining the list items back together) and whitespace around each list item is stripped
+ *   before it is added to the model.
+ *
+ * ### Example with Validation
+ *
+ * <example name="ngList-directive" module="listExample">
+ *   <file name="app.js">
+ *      angular.module('listExample', [])
+ *        .controller('ExampleController', ['$scope', function($scope) {
+ *          $scope.names = ['morpheus', 'neo', 'trinity'];
+ *        }]);
+ *   </file>
+ *   <file name="index.html">
+ *    <form name="myForm" ng-controller="ExampleController">
+ *      List: <input name="namesInput" ng-model="names" ng-list required>
+ *      <span class="error" ng-show="myForm.namesInput.$error.required">
+ *        Required!</span>
+ *      <br>
+ *      <tt>names = {{names}}</tt><br/>
+ *      <tt>myForm.namesInput.$valid = {{myForm.namesInput.$valid}}</tt><br/>
+ *      <tt>myForm.namesInput.$error = {{myForm.namesInput.$error}}</tt><br/>
+ *      <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
+ *      <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
+ *     </form>
+ *   </file>
+ *   <file name="protractor.js" type="protractor">
+ *     var listInput = element(by.model('names'));
+ *     var names = element(by.exactBinding('names'));
+ *     var valid = element(by.binding('myForm.namesInput.$valid'));
+ *     var error = element(by.css('span.error'));
+ *
+ *     it('should initialize to model', function() {
+ *       expect(names.getText()).toContain('["morpheus","neo","trinity"]');
+ *       expect(valid.getText()).toContain('true');
+ *       expect(error.getCssValue('display')).toBe('none');
+ *     });
+ *
+ *     it('should be invalid if empty', function() {
+ *       listInput.clear();
+ *       listInput.sendKeys('');
+ *
+ *       expect(names.getText()).toContain('');
+ *       expect(valid.getText()).toContain('false');
+ *       expect(error.getCssValue('display')).not.toBe('none');
+ *     });
+ *   </file>
+ * </example>
+ *
+ * ### Example - splitting on whitespace
+ * <example name="ngList-directive-newlines">
+ *   <file name="index.html">
+ *    <textarea ng-model="list" ng-list="&#10;" ng-trim="false"></textarea>
+ *    <pre>{{ list | json }}</pre>
+ *   </file>
+ *   <file name="protractor.js" type="protractor">
+ *     it("should split the text by newlines", function() {
+ *       var listInput = element(by.model('list'));
+ *       var output = element(by.binding('list | json'));
+ *       listInput.sendKeys('abc\ndef\nghi');
+ *       expect(output.getText()).toContain('[\n  "abc",\n  "def",\n  "ghi"\n]');
+ *     });
+ *   </file>
+ * </example>
+ *
+ * @element input
+ * @param {string=} ngList optional delimiter that should be used to split the value.
+ */
+var ngListDirective = function() {
+  return {
+    restrict: 'A',
+    priority: 100,
+    require: 'ngModel',
+    link: function(scope, element, attr, ctrl) {
+      // We want to control whitespace trimming so we use this convoluted approach
+      // to access the ngList attribute, which doesn't pre-trim the attribute
+      var ngList = element.attr(attr.$attr.ngList) || ', ';
+      var trimValues = attr.ngTrim !== 'false';
+      var separator = trimValues ? trim(ngList) : ngList;
+
+      var parse = function(viewValue) {
+        // If the viewValue is invalid (say required but empty) it will be `undefined`
+        if (isUndefined(viewValue)) return;
+
+        var list = [];
+
+        if (viewValue) {
+          forEach(viewValue.split(separator), function(value) {
+            if (value) list.push(trimValues ? trim(value) : value);
+          });
+        }
+
+        return list;
+      };
+
+      ctrl.$parsers.push(parse);
+      ctrl.$formatters.push(function(value) {
+        if (isArray(value)) {
+          return value.join(ngList);
+        }
+
+        return undefined;
+      });
+
+      // Override the standard $isEmpty because an empty array means the input is empty.
+      ctrl.$isEmpty = function(value) {
+        return !value || !value.length;
+      };
+    }
+  };
+};
+
+/* global VALID_CLASS: true,
+  INVALID_CLASS: true,
+  PRISTINE_CLASS: true,
+  DIRTY_CLASS: true,
+  UNTOUCHED_CLASS: true,
+  TOUCHED_CLASS: true,
+*/
+
+var VALID_CLASS = 'ng-valid',
+    INVALID_CLASS = 'ng-invalid',
+    PRISTINE_CLASS = 'ng-pristine',
+    DIRTY_CLASS = 'ng-dirty',
+    UNTOUCHED_CLASS = 'ng-untouched',
+    TOUCHED_CLASS = 'ng-touched',
+    PENDING_CLASS = 'ng-pending';
+
+
+var $ngModelMinErr = new minErr('ngModel');
+
+/**
+ * @ngdoc type
+ * @name ngModel.NgModelController
+ *
+ * @property {string} $viewValue Actual string value in the view.
+ * @property {*} $modelValue The value in the model that the control is bound to.
+ * @property {Array.<Function>} $parsers Array of functions to execute, as a pipeline, whenever
+       the control reads value from the DOM. The functions are called in array order, each passing
+       its return value through to the next. The last return value is forwarded to the
+       {@link ngModel.NgModelController#$validators `$validators`} collection.
+
+Parsers are used to sanitize / convert the {@link ngModel.NgModelController#$viewValue
+`$viewValue`}.
+
+Returning `undefined` from a parser means a parse error occurred. In that case,
+no {@link ngModel.NgModelController#$validators `$validators`} will run and the `ngModel`
+will be set to `undefined` unless {@link ngModelOptions `ngModelOptions.allowInvalid`}
+is set to `true`. The parse error is stored in `ngModel.$error.parse`.
+
+ *
+ * @property {Array.<Function>} $formatters Array of functions to execute, as a pipeline, whenever
+       the model value changes. The functions are called in reverse array order, each passing the value through to the
+       next. The last return value is used as the actual DOM value.
+       Used to format / convert values for display in the control.
+ * ```js
+ * function formatter(value) {
+ *   if (value) {
+ *     return value.toUpperCase();
+ *   }
+ * }
+ * ngModel.$formatters.push(formatter);
+ * ```
+ *
+ * @property {Object.<string, function>} $validators A collection of validators that are applied
+ *      whenever the model value changes. The key value within the object refers to the name of the
+ *      validator while the function refers to the validation operation. The validation operation is
+ *      provided with the model value as an argument and must return a true or false value depending
+ *      on the response of that validation.
+ *
+ * ```js
+ * ngModel.$validators.validCharacters = function(modelValue, viewValue) {
+ *   var value = modelValue || viewValue;
+ *   return /[0-9]+/.test(value) &&
+ *          /[a-z]+/.test(value) &&
+ *          /[A-Z]+/.test(value) &&
+ *          /\W+/.test(value);
+ * };
+ * ```
+ *
+ * @property {Object.<string, function>} $asyncValidators A collection of validations that are expected to
+ *      perform an asynchronous validation (e.g. a HTTP request). The validation function that is provided
+ *      is expected to return a promise when it is run during the model validation process. Once the promise
+ *      is delivered then the validation status will be set to true when fulfilled and false when rejected.
+ *      When the asynchronous validators are triggered, each of the validators will run in parallel and the model
+ *      value will only be updated once all validators have been fulfilled. As long as an asynchronous validator
+ *      is unfulfilled, its key will be added to the controllers `$pending` property. Also, all asynchronous validators
+ *      will only run once all synchronous validators have passed.
+ *
+ * Please note that if $http is used then it is important that the server returns a success HTTP response code
+ * in order to fulfill the validation and a status level of `4xx` in order to reject the validation.
+ *
+ * ```js
+ * ngModel.$asyncValidators.uniqueUsername = function(modelValue, viewValue) {
+ *   var value = modelValue || viewValue;
+ *
+ *   // Lookup user by username
+ *   return $http.get('/api/users/' + value).
+ *      then(function resolved() {
+ *        //username exists, this means validation fails
+ *        return $q.reject('exists');
+ *      }, function rejected() {
+ *        //username does not exist, therefore this validation passes
+ *        return true;
+ *      });
+ * };
+ * ```
+ *
+ * @property {Array.<Function>} $viewChangeListeners Array of functions to execute whenever the
+ *     view value has changed. It is called with no arguments, and its return value is ignored.
+ *     This can be used in place of additional $watches against the model value.
+ *
+ * @property {Object} $error An object hash with all failing validator ids as keys.
+ * @property {Object} $pending An object hash with all pending validator ids as keys.
+ *
+ * @property {boolean} $untouched True if control has not lost focus yet.
+ * @property {boolean} $touched True if control has lost focus.
+ * @property {boolean} $pristine True if user has not interacted with the control yet.
+ * @property {boolean} $dirty True if user has already interacted with the control.
+ * @property {boolean} $valid True if there is no error.
+ * @property {boolean} $invalid True if at least one error on the control.
+ * @property {string} $name The name attribute of the control.
+ *
+ * @description
+ *
+ * `NgModelController` provides API for the {@link ngModel `ngModel`} directive.
+ * The controller contains services for data-binding, validation, CSS updates, and value formatting
+ * and parsing. It purposefully does not contain any logic which deals with DOM rendering or
+ * listening to DOM events.
+ * Such DOM related logic should be provided by other directives which make use of
+ * `NgModelController` for data-binding to control elements.
+ * Angular provides this DOM logic for most {@link input `input`} elements.
+ * At the end of this page you can find a {@link ngModel.NgModelController#custom-control-example
+ * custom control example} that uses `ngModelController` to bind to `contenteditable` elements.
+ *
+ * @example
+ * ### Custom Control Example
+ * This example shows how to use `NgModelController` with a custom control to achieve
+ * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
+ * collaborate together to achieve the desired result.
+ *
+ * Note that `contenteditable` is an HTML5 attribute, which tells the browser to let the element
+ * contents be edited in place by the user.  This will not work on older browsers.
+ *
+ * We are using the {@link ng.service:$sce $sce} service here and include the {@link ngSanitize $sanitize}
+ * module to automatically remove "bad" content like inline event listener (e.g. `<span onclick="...">`).
+ * However, as we are using `$sce` the model can still decide to provide unsafe content if it marks
+ * that content using the `$sce` service.
+ *
+ * <example name="NgModelController" module="customControl" deps="angular-sanitize.js">
+    <file name="style.css">
+      [contenteditable] {
+        border: 1px solid black;
+        background-color: white;
+        min-height: 20px;
+      }
+
+      .ng-invalid {
+        border: 1px solid red;
+      }
+
+    </file>
+    <file name="script.js">
+      angular.module('customControl', ['ngSanitize']).
+        directive('contenteditable', ['$sce', function($sce) {
+          return {
+            restrict: 'A', // only activate on element attribute
+            require: '?ngModel', // get a hold of NgModelController
+            link: function(scope, element, attrs, ngModel) {
+              if (!ngModel) return; // do nothing if no ng-model
+
+              // Specify how UI should be updated
+              ngModel.$render = function() {
+                element.html($sce.getTrustedHtml(ngModel.$viewValue || ''));
+              };
+
+              // Listen for change events to enable binding
+              element.on('blur keyup change', function() {
+                scope.$evalAsync(read);
+              });
+              read(); // initialize
+
+              // Write data to the model
+              function read() {
+                var html = element.html();
+                // When we clear the content editable the browser leaves a <br> behind
+                // If strip-br attribute is provided then we strip this out
+                if ( attrs.stripBr && html == '<br>' ) {
+                  html = '';
+                }
+                ngModel.$setViewValue(html);
+              }
+            }
+          };
+        }]);
+    </file>
+    <file name="index.html">
+      <form name="myForm">
+       <div contenteditable
+            name="myWidget" ng-model="userContent"
+            strip-br="true"
+            required>Change me!</div>
+        <span ng-show="myForm.myWidget.$error.required">Required!</span>
+       <hr>
+       <textarea ng-model="userContent"></textarea>
+      </form>
+    </file>
+    <file name="protractor.js" type="protractor">
+    it('should data-bind and become invalid', function() {
+      if (browser.params.browser == 'safari' || browser.params.browser == 'firefox') {
+        // SafariDriver can't handle contenteditable
+        // and Firefox driver can't clear contenteditables very well
+        return;
+      }
+      var contentEditable = element(by.css('[contenteditable]'));
+      var content = 'Change me!';
+
+      expect(contentEditable.getText()).toEqual(content);
+
+      contentEditable.clear();
+      contentEditable.sendKeys(protractor.Key.BACK_SPACE);
+      expect(contentEditable.getText()).toEqual('');
+      expect(contentEditable.getAttribute('class')).toMatch(/ng-invalid-required/);
+    });
+    </file>
+ * </example>
+ *
+ *
+ */
+var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$parse', '$animate', '$timeout', '$rootScope', '$q', '$interpolate',
+    function($scope, $exceptionHandler, $attr, $element, $parse, $animate, $timeout, $rootScope, $q, $interpolate) {
+  this.$viewValue = Number.NaN;
+  this.$modelValue = Number.NaN;
+  this.$$rawModelValue = undefined; // stores the parsed modelValue / model set from scope regardless of validity.
+  this.$validators = {};
+  this.$asyncValidators = {};
+  this.$parsers = [];
+  this.$formatters = [];
+  this.$viewChangeListeners = [];
+  this.$untouched = true;
+  this.$touched = false;
+  this.$pristine = true;
+  this.$dirty = false;
+  this.$valid = true;
+  this.$invalid = false;
+  this.$error = {}; // keep invalid keys here
+  this.$$success = {}; // keep valid keys here
+  this.$pending = undefined; // keep pending keys here
+  this.$name = $interpolate($attr.name || '', false)($scope);
+
+
+  var parsedNgModel = $parse($attr.ngModel),
+      parsedNgModelAssign = parsedNgModel.assign,
+      ngModelGet = parsedNgModel,
+      ngModelSet = parsedNgModelAssign,
+      pendingDebounce = null,
+      ctrl = this;
+
+  this.$$setOptions = function(options) {
+    ctrl.$options = options;
+    if (options && options.getterSetter) {
+      var invokeModelGetter = $parse($attr.ngModel + '()'),
+          invokeModelSetter = $parse($attr.ngModel + '($$$p)');
+
+      ngModelGet = function($scope) {
+        var modelValue = parsedNgModel($scope);
+        if (isFunction(modelValue)) {
+          modelValue = invokeModelGetter($scope);
+        }
+        return modelValue;
+      };
+      ngModelSet = function($scope, newValue) {
+        if (isFunction(parsedNgModel($scope))) {
+          invokeModelSetter($scope, {$$$p: ctrl.$modelValue});
+        } else {
+          parsedNgModelAssign($scope, ctrl.$modelValue);
+        }
+      };
+    } else if (!parsedNgModel.assign) {
+      throw $ngModelMinErr('nonassign', "Expression '{0}' is non-assignable. Element: {1}",
+          $attr.ngModel, startingTag($element));
+    }
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$render
+   *
+   * @description
+   * Called when the view needs to be updated. It is expected that the user of the ng-model
+   * directive will implement this method.
+   *
+   * The `$render()` method is invoked in the following situations:
+   *
+   * * `$rollbackViewValue()` is called.  If we are rolling back the view value to the last
+   *   committed value then `$render()` is called to update the input control.
+   * * The value referenced by `ng-model` is changed programmatically and both the `$modelValue` and
+   *   the `$viewValue` are different to last time.
+   *
+   * Since `ng-model` does not do a deep watch, `$render()` is only invoked if the values of
+   * `$modelValue` and `$viewValue` are actually different to their previous value. If `$modelValue`
+   * or `$viewValue` are objects (rather than a string or number) then `$render()` will not be
+   * invoked if you only change a property on the objects.
+   */
+  this.$render = noop;
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$isEmpty
+   *
+   * @description
+   * This is called when we need to determine if the value of an input is empty.
+   *
+   * For instance, the required directive does this to work out if the input has data or not.
+   *
+   * The default `$isEmpty` function checks whether the value is `undefined`, `''`, `null` or `NaN`.
+   *
+   * You can override this for input directives whose concept of being empty is different to the
+   * default. The `checkboxInputType` directive does this because in its case a value of `false`
+   * implies empty.
+   *
+   * @param {*} value The value of the input to check for emptiness.
+   * @returns {boolean} True if `value` is "empty".
+   */
+  this.$isEmpty = function(value) {
+    return isUndefined(value) || value === '' || value === null || value !== value;
+  };
+
+  var parentForm = $element.inheritedData('$formController') || nullFormCtrl,
+      currentValidationRunId = 0;
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$setValidity
+   *
+   * @description
+   * Change the validity state, and notify the form.
+   *
+   * This method can be called within $parsers/$formatters or a custom validation implementation.
+   * However, in most cases it should be sufficient to use the `ngModel.$validators` and
+   * `ngModel.$asyncValidators` collections which will call `$setValidity` automatically.
+   *
+   * @param {string} validationErrorKey Name of the validator. The `validationErrorKey` will be assigned
+   *        to either `$error[validationErrorKey]` or `$pending[validationErrorKey]`
+   *        (for unfulfilled `$asyncValidators`), so that it is available for data-binding.
+   *        The `validationErrorKey` should be in camelCase and will get converted into dash-case
+   *        for class name. Example: `myError` will result in `ng-valid-my-error` and `ng-invalid-my-error`
+   *        class and can be bound to as  `{{someForm.someControl.$error.myError}}` .
+   * @param {boolean} isValid Whether the current state is valid (true), invalid (false), pending (undefined),
+   *                          or skipped (null). Pending is used for unfulfilled `$asyncValidators`.
+   *                          Skipped is used by Angular when validators do not run because of parse errors and
+   *                          when `$asyncValidators` do not run because any of the `$validators` failed.
+   */
+  addSetValidityMethod({
+    ctrl: this,
+    $element: $element,
+    set: function(object, property) {
+      object[property] = true;
+    },
+    unset: function(object, property) {
+      delete object[property];
+    },
+    parentForm: parentForm,
+    $animate: $animate
+  });
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$setPristine
+   *
+   * @description
+   * Sets the control to its pristine state.
+   *
+   * This method can be called to remove the `ng-dirty` class and set the control to its pristine
+   * state (`ng-pristine` class). A model is considered to be pristine when the control
+   * has not been changed from when first compiled.
+   */
+  this.$setPristine = function() {
+    ctrl.$dirty = false;
+    ctrl.$pristine = true;
+    $animate.removeClass($element, DIRTY_CLASS);
+    $animate.addClass($element, PRISTINE_CLASS);
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$setDirty
+   *
+   * @description
+   * Sets the control to its dirty state.
+   *
+   * This method can be called to remove the `ng-pristine` class and set the control to its dirty
+   * state (`ng-dirty` class). A model is considered to be dirty when the control has been changed
+   * from when first compiled.
+   */
+  this.$setDirty = function() {
+    ctrl.$dirty = true;
+    ctrl.$pristine = false;
+    $animate.removeClass($element, PRISTINE_CLASS);
+    $animate.addClass($element, DIRTY_CLASS);
+    parentForm.$setDirty();
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$setUntouched
+   *
+   * @description
+   * Sets the control to its untouched state.
+   *
+   * This method can be called to remove the `ng-touched` class and set the control to its
+   * untouched state (`ng-untouched` class). Upon compilation, a model is set as untouched
+   * by default, however this function can be used to restore that state if the model has
+   * already been touched by the user.
+   */
+  this.$setUntouched = function() {
+    ctrl.$touched = false;
+    ctrl.$untouched = true;
+    $animate.setClass($element, UNTOUCHED_CLASS, TOUCHED_CLASS);
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$setTouched
+   *
+   * @description
+   * Sets the control to its touched state.
+   *
+   * This method can be called to remove the `ng-untouched` class and set the control to its
+   * touched state (`ng-touched` class). A model is considered to be touched when the user has
+   * first focused the control element and then shifted focus away from the control (blur event).
+   */
+  this.$setTouched = function() {
+    ctrl.$touched = true;
+    ctrl.$untouched = false;
+    $animate.setClass($element, TOUCHED_CLASS, UNTOUCHED_CLASS);
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$rollbackViewValue
+   *
+   * @description
+   * Cancel an update and reset the input element's value to prevent an update to the `$modelValue`,
+   * which may be caused by a pending debounced event or because the input is waiting for a some
+   * future event.
+   *
+   * If you have an input that uses `ng-model-options` to set up debounced events or events such
+   * as blur you can have a situation where there is a period when the `$viewValue`
+   * is out of synch with the ngModel's `$modelValue`.
+   *
+   * In this case, you can run into difficulties if you try to update the ngModel's `$modelValue`
+   * programmatically before these debounced/future events have resolved/occurred, because Angular's
+   * dirty checking mechanism is not able to tell whether the model has actually changed or not.
+   *
+   * The `$rollbackViewValue()` method should be called before programmatically changing the model of an
+   * input which may have such events pending. This is important in order to make sure that the
+   * input field will be updated with the new model value and any pending operations are cancelled.
+   *
+   * <example name="ng-model-cancel-update" module="cancel-update-example">
+   *   <file name="app.js">
+   *     angular.module('cancel-update-example', [])
+   *
+   *     .controller('CancelUpdateController', ['$scope', function($scope) {
+   *       $scope.resetWithCancel = function(e) {
+   *         if (e.keyCode == 27) {
+   *           $scope.myForm.myInput1.$rollbackViewValue();
+   *           $scope.myValue = '';
+   *         }
+   *       };
+   *       $scope.resetWithoutCancel = function(e) {
+   *         if (e.keyCode == 27) {
+   *           $scope.myValue = '';
+   *         }
+   *       };
+   *     }]);
+   *   </file>
+   *   <file name="index.html">
+   *     <div ng-controller="CancelUpdateController">
+   *       <p>Try typing something in each input.  See that the model only updates when you
+   *          blur off the input.
+   *        </p>
+   *        <p>Now see what happens if you start typing then press the Escape key</p>
+   *
+   *       <form name="myForm" ng-model-options="{ updateOn: 'blur' }">
+   *         <p>With $rollbackViewValue()</p>
+   *         <input name="myInput1" ng-model="myValue" ng-keydown="resetWithCancel($event)"><br/>
+   *         myValue: "{{ myValue }}"
+   *
+   *         <p>Without $rollbackViewValue()</p>
+   *         <input name="myInput2" ng-model="myValue" ng-keydown="resetWithoutCancel($event)"><br/>
+   *         myValue: "{{ myValue }}"
+   *       </form>
+   *     </div>
+   *   </file>
+   * </example>
+   */
+  this.$rollbackViewValue = function() {
+    $timeout.cancel(pendingDebounce);
+    ctrl.$viewValue = ctrl.$$lastCommittedViewValue;
+    ctrl.$render();
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$validate
+   *
+   * @description
+   * Runs each of the registered validators (first synchronous validators and then
+   * asynchronous validators).
+   * If the validity changes to invalid, the model will be set to `undefined`,
+   * unless {@link ngModelOptions `ngModelOptions.allowInvalid`} is `true`.
+   * If the validity changes to valid, it will set the model to the last available valid
+   * modelValue, i.e. either the last parsed value or the last value set from the scope.
+   */
+  this.$validate = function() {
+    // ignore $validate before model is initialized
+    if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
+      return;
+    }
+
+    var viewValue = ctrl.$$lastCommittedViewValue;
+    // Note: we use the $$rawModelValue as $modelValue might have been
+    // set to undefined during a view -> model update that found validation
+    // errors. We can't parse the view here, since that could change
+    // the model although neither viewValue nor the model on the scope changed
+    var modelValue = ctrl.$$rawModelValue;
+
+    // Check if the there's a parse error, so we don't unset it accidentially
+    var parserName = ctrl.$$parserName || 'parse';
+    var parserValid = ctrl.$error[parserName] ? false : undefined;
+
+    var prevValid = ctrl.$valid;
+    var prevModelValue = ctrl.$modelValue;
+
+    var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
+
+    ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
+      // If there was no change in validity, don't update the model
+      // This prevents changing an invalid modelValue to undefined
+      if (!allowInvalid && prevValid !== allValid) {
+        // Note: Don't check ctrl.$valid here, as we could have
+        // external validators (e.g. calculated on the server),
+        // that just call $setValidity and need the model value
+        // to calculate their validity.
+        ctrl.$modelValue = allValid ? modelValue : undefined;
+
+        if (ctrl.$modelValue !== prevModelValue) {
+          ctrl.$$writeModelToScope();
+        }
+      }
+    });
+
+  };
+
+  this.$$runValidators = function(parseValid, modelValue, viewValue, doneCallback) {
+    currentValidationRunId++;
+    var localValidationRunId = currentValidationRunId;
+
+    // check parser error
+    if (!processParseErrors(parseValid)) {
+      validationDone(false);
+      return;
+    }
+    if (!processSyncValidators()) {
+      validationDone(false);
+      return;
+    }
+    processAsyncValidators();
+
+    function processParseErrors(parseValid) {
+      var errorKey = ctrl.$$parserName || 'parse';
+      if (parseValid === undefined) {
+        setValidity(errorKey, null);
+      } else {
+        setValidity(errorKey, parseValid);
+        if (!parseValid) {
+          forEach(ctrl.$validators, function(v, name) {
+            setValidity(name, null);
+          });
+          forEach(ctrl.$asyncValidators, function(v, name) {
+            setValidity(name, null);
+          });
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function processSyncValidators() {
+      var syncValidatorsValid = true;
+      forEach(ctrl.$validators, function(validator, name) {
+        var result = validator(modelValue, viewValue);
+        syncValidatorsValid = syncValidatorsValid && result;
+        setValidity(name, result);
+      });
+      if (!syncValidatorsValid) {
+        forEach(ctrl.$asyncValidators, function(v, name) {
+          setValidity(name, null);
+        });
+        return false;
+      }
+      return true;
+    }
+
+    function processAsyncValidators() {
+      var validatorPromises = [];
+      var allValid = true;
+      forEach(ctrl.$asyncValidators, function(validator, name) {
+        var promise = validator(modelValue, viewValue);
+        if (!isPromiseLike(promise)) {
+          throw $ngModelMinErr("$asyncValidators",
+            "Expected asynchronous validator to return a promise but got '{0}' instead.", promise);
+        }
+        setValidity(name, undefined);
+        validatorPromises.push(promise.then(function() {
+          setValidity(name, true);
+        }, function(error) {
+          allValid = false;
+          setValidity(name, false);
+        }));
+      });
+      if (!validatorPromises.length) {
+        validationDone(true);
+      } else {
+        $q.all(validatorPromises).then(function() {
+          validationDone(allValid);
+        }, noop);
+      }
+    }
+
+    function setValidity(name, isValid) {
+      if (localValidationRunId === currentValidationRunId) {
+        ctrl.$setValidity(name, isValid);
+      }
+    }
+
+    function validationDone(allValid) {
+      if (localValidationRunId === currentValidationRunId) {
+
+        doneCallback(allValid);
+      }
+    }
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$commitViewValue
+   *
+   * @description
+   * Commit a pending update to the `$modelValue`.
+   *
+   * Updates may be pending by a debounced event or because the input is waiting for a some future
+   * event defined in `ng-model-options`. this method is rarely needed as `NgModelController`
+   * usually handles calling this in response to input events.
+   */
+  this.$commitViewValue = function() {
+    var viewValue = ctrl.$viewValue;
+
+    $timeout.cancel(pendingDebounce);
+
+    // If the view value has not changed then we should just exit, except in the case where there is
+    // a native validator on the element. In this case the validation state may have changed even though
+    // the viewValue has stayed empty.
+    if (ctrl.$$lastCommittedViewValue === viewValue && (viewValue !== '' || !ctrl.$$hasNativeValidators)) {
+      return;
+    }
+    ctrl.$$lastCommittedViewValue = viewValue;
+
+    // change to dirty
+    if (ctrl.$pristine) {
+      this.$setDirty();
+    }
+    this.$$parseAndValidate();
+  };
+
+  this.$$parseAndValidate = function() {
+    var viewValue = ctrl.$$lastCommittedViewValue;
+    var modelValue = viewValue;
+    var parserValid = isUndefined(modelValue) ? undefined : true;
+
+    if (parserValid) {
+      for (var i = 0; i < ctrl.$parsers.length; i++) {
+        modelValue = ctrl.$parsers[i](modelValue);
+        if (isUndefined(modelValue)) {
+          parserValid = false;
+          break;
+        }
+      }
+    }
+    if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
+      // ctrl.$modelValue has not been touched yet...
+      ctrl.$modelValue = ngModelGet($scope);
+    }
+    var prevModelValue = ctrl.$modelValue;
+    var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
+    ctrl.$$rawModelValue = modelValue;
+
+    if (allowInvalid) {
+      ctrl.$modelValue = modelValue;
+      writeToModelIfNeeded();
+    }
+
+    // Pass the $$lastCommittedViewValue here, because the cached viewValue might be out of date.
+    // This can happen if e.g. $setViewValue is called from inside a parser
+    ctrl.$$runValidators(parserValid, modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
+      if (!allowInvalid) {
+        // Note: Don't check ctrl.$valid here, as we could have
+        // external validators (e.g. calculated on the server),
+        // that just call $setValidity and need the model value
+        // to calculate their validity.
+        ctrl.$modelValue = allValid ? modelValue : undefined;
+        writeToModelIfNeeded();
+      }
+    });
+
+    function writeToModelIfNeeded() {
+      if (ctrl.$modelValue !== prevModelValue) {
+        ctrl.$$writeModelToScope();
+      }
+    }
+  };
+
+  this.$$writeModelToScope = function() {
+    ngModelSet($scope, ctrl.$modelValue);
+    forEach(ctrl.$viewChangeListeners, function(listener) {
+      try {
+        listener();
+      } catch (e) {
+        $exceptionHandler(e);
+      }
+    });
+  };
+
+  /**
+   * @ngdoc method
+   * @name ngModel.NgModelController#$setViewValue
+   *
+   * @description
+   * Update the view value.
+   *
+   * This method should be called when an input directive want to change the view value; typically,
+   * this is done from within a DOM event handler.
+   *
+   * For example {@link ng.directive:input input} calls it when the value of the input changes and
+   * {@link ng.directive:select select} calls it when an option is selected.
+   *
+   * If the new `value` is an object (rather than a string or a number), we should make a copy of the
+   * object before passing it to `$setViewValue`.  This is because `ngModel` does not perform a deep
+   * watch of objects, it only looks for a change of identity. If you only change the property of
+   * the object then ngModel will not realise that the object has changed and will not invoke the
+   * `$parsers` and `$validators` pipelines.
+   *
+   * For this reason, you should not change properties of the copy once it has been passed to
+   * `$setViewValue`. Otherwise you may cause the model value on the scope to change incorrectly.
+   *
+   * When this method is called, the new `value` will be staged for committing through the `$parsers`
+   * and `$validators` pipelines. If there are no special {@link ngModelOptions} specified then the staged
+   * value sent directly for processing, finally to be applied to `$modelValue` and then the
+   * **expression** specified in the `ng-model` attribute.
+   *
+   * Lastly, all the registered change listeners, in the `$viewChangeListeners` list, are called.
+   *
+   * In case the {@link ng.directive:ngModelOptions ngModelOptions} directive is used with `updateOn`
+   * and the `default` trigger is not listed, all those actions will remain pending until one of the
+   * `updateOn` events is triggered on the DOM element.
+   * All these actions will be debounced if the {@link ng.directive:ngModelOptions ngModelOptions}
+   * directive is used with a custom debounce for this particular event.
+   *
+   * Note that calling this function does not trigger a `$digest`.
+   *
+   * @param {string} value Value from the view.
+   * @param {string} trigger Event that triggered the update.
+   */
+  this.$setViewValue = function(value, trigger) {
+    ctrl.$viewValue = value;
+    if (!ctrl.$options || ctrl.$options.updateOnDefault) {
+      ctrl.$$debounceViewValueCommit(trigger);
+    }
+  };
+
+  this.$$debounceViewValueCommit = function(trigger) {
+    var debounceDelay = 0,
+        options = ctrl.$options,
+        debounce;
+
+    if (options && isDefined(options.debounce)) {
+      debounce = options.debounce;
+      if (isNumber(debounce)) {
+        debounceDelay = debounce;
+      } else if (isNumber(debounce[trigger])) {
+        debounceDelay = debounce[trigger];
+      } else if (isNumber(debounce['default'])) {
+        debounceDelay = debounce['default'];
+      }
+    }
+
+    $timeout.cancel(pendingDebounce);
+    if (debounceDelay) {
+      pendingDebounce = $timeout(function() {
+        ctrl.$commitViewValue();
+      }, debounceDelay);
+    } else if ($rootScope.$$phase) {
+      ctrl.$commitViewValue();
+    } else {
+      $scope.$apply(function() {
+        ctrl.$commitViewValue();
+      });
+    }
+  };
+
+  // model -> value
+  // Note: we cannot use a normal scope.$watch as we want to detect the following:
+  // 1. scope value is 'a'
+  // 2. user enters 'b'
+  // 3. ng-change kicks in and reverts scope value to 'a'
+  //    -> scope value did not change since the last digest as
+  //       ng-change executes in apply phase
+  // 4. view should be changed back to 'a'
+  $scope.$watch(function ngModelWatch() {
+    var modelValue = ngModelGet($scope);
+
+    // if scope model value and ngModel value are out of sync
+    // TODO(perf): why not move this to the action fn?
+    if (modelValue !== ctrl.$modelValue) {
+      ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
+
+      var formatters = ctrl.$formatters,
+          idx = formatters.length;
+
+      var viewValue = modelValue;
+      while (idx--) {
+        viewValue = formatters[idx](viewValue);
+      }
+      if (ctrl.$viewValue !== viewValue) {
+        ctrl.$viewValue = ctrl.$$lastCommittedViewValue = viewValue;
+        ctrl.$render();
+
+        ctrl.$$runValidators(undefined, modelValue, viewValue, noop);
+      }
+    }
+
+    return modelValue;
+  });
+}];
+
+
+/**
+ * @ngdoc directive
+ * @name ngModel
+ *
+ * @element input
+ * @priority 1
+ *
+ * @description
+ * The `ngModel` directive binds an `input`,`select`, `textarea` (or custom form control) to a
+ * property on the scope using {@link ngModel.NgModelController NgModelController},
+ * which is created and exposed by this directive.
+ *
+ * `ngModel` is responsible for:
+ *
+ * - Binding the view into the model, which other directives such as `input`, `textarea` or `select`
+ *   require.
+ * - Providing validation behavior (i.e. required, number, email, url).
+ * - Keeping the state of the control (valid/invalid, dirty/pristine, touched/untouched, validation errors).
+ * - Setting related css classes on the element (`ng-valid`, `ng-invalid`, `ng-dirty`, `ng-pristine`, `ng-touched`, `ng-untouched`) including animations.
+ * - Registering the control with its parent {@link ng.directive:form form}.
+ *
+ * Note: `ngModel` will try to bind to the property given by evaluating the expression on the
+ * current scope. If the property doesn't already exist on this scope, it will be created
+ * implicitly and added to the scope.
+ *
+ * For best practices on using `ngModel`, see:
+ *
+ *  - [Understanding Scopes](https://github.com/angular/angular.js/wiki/Understanding-Scopes)
+ *
+ * For basic examples, how to use `ngModel`, see:
+ *
+ *  - {@link ng.directive:input input}
+ *    - {@link input[text] text}
+ *    - {@link input[checkbox] checkbox}
+ *    - {@link input[radio] radio}
+ *    - {@link input[number] number}
+ *    - {@link input[email] email}
+ *    - {@link input[url] url}
+ *    - {@link input[date] date}
+ *    - {@link input[datetime-local] datetime-local}
+ *    - {@link input[time] time}
+ *    - {@link input[month] month}
+ *    - {@link input[week] week}
+ *  - {@link ng.directive:select select}
+ *  - {@link ng.directive:textarea textarea}
+ *
+ * # CSS classes
+ * The following CSS classes are added and removed on the associated input/select/textarea element
+ * depending on the validity of the model.
+ *
+ *  - `ng-valid`: the model is valid
+ *  - `ng-invalid`: the model is invalid
+ *  - `ng-valid-[key]`: for each valid key added by `$setValidity`
+ *  - `ng-invalid-[key]`: for each invalid key added by `$setValidity`
+ *  - `ng-pristine`: the control hasn't been interacted with yet
+ *  - `ng-dirty`: the control has been interacted with
+ *  - `ng-touched`: the control has been blurred
+ *  - `ng-untouched`: the control hasn't been blurred
+ *  - `ng-pending`: any `$asyncValidators` are unfulfilled
+ *
+ * Keep in mind that ngAnimate can detect each of these classes when added and removed.
+ *
+ * ## Animation Hooks
+ *
+ * Animations within models are triggered when any of the associated CSS classes are added and removed
+ * on the input element which is attached to the model. These classes are: `.ng-pristine`, `.ng-dirty`,
+ * `.ng-invalid` and `.ng-valid` as well as any other validations that are performed on the model itself.
+ * The animations that are triggered within ngModel are similar to how they work in ngClass and
+ * animations can be hooked into using CSS transitions, keyframes as well as JS animations.
+ *
+ * The following example shows a simple way to utilize CSS transitions to style an input element
+ * that has been rendered as invalid after it has been validated:
+ *
+ * <pre>
+ * //be sure to include ngAnimate as a module to hook into more
+ * //advanced animations
+ * .my-input {
+ *   transition:0.5s linear all;
+ *   background: white;
+ * }
+ * .my-input.ng-invalid {
+ *   background: red;
+ *   color:white;
+ * }
+ * </pre>
+ *
+ * @example
+ * <example deps="angular-animate.js" animations="true" fixBase="true" module="inputExample">
+     <file name="index.html">
+       <script>
+        angular.module('inputExample', [])
+          .controller('ExampleController', ['$scope', function($scope) {
+            $scope.val = '1';
+          }]);
+       </script>
+       <style>
+         .my-input {
+           -webkit-transition:all linear 0.5s;
+           transition:all linear 0.5s;
+           background: transparent;
+         }
+         .my-input.ng-invalid {
+           color:white;
+           background: red;
+         }
+       </style>
+       Update input to see transitions when valid/invalid.
+       Integer is a valid value.
+       <form name="testForm" ng-controller="ExampleController">
+         <input ng-model="val" ng-pattern="/^\d+$/" name="anim" class="my-input" />
+       </form>
+     </file>
+ * </example>
+ *
+ * ## Binding to a getter/setter
+ *
+ * Sometimes it's helpful to bind `ngModel` to a getter/setter function.  A getter/setter is a
+ * function that returns a representation of the model when called with zero arguments, and sets
+ * the internal state of a model when called with an argument. It's sometimes useful to use this
+ * for models that have an internal representation that's different than what the model exposes
+ * to the view.
+ *
+ * <div class="alert alert-success">
+ * **Best Practice:** It's best to keep getters fast because Angular is likely to call them more
+ * frequently than other parts of your code.
+ * </div>
+ *
+ * You use this behavior by adding `ng-model-options="{ getterSetter: true }"` to an element that
+ * has `ng-model` attached to it. You can also add `ng-model-options="{ getterSetter: true }"` to
+ * a `<form>`, which will enable this behavior for all `<input>`s within it. See
+ * {@link ng.directive:ngModelOptions `ngModelOptions`} for more.
+ *
+ * The following example shows how to use `ngModel` with a getter/setter:
+ *
+ * @example
+ * <example name="ngModel-getter-setter" module="getterSetterExample">
+     <file name="index.html">
+       <div ng-controller="ExampleController">
+         <form name="userForm">
+           Name:
+           <input type="text" name="userName"
+                  ng-model="user.name"
+                  ng-model-options="{ getterSetter: true }" />
+         </form>
+         <pre>user.name = <span ng-bind="user.name()"></span></pre>
+       </div>
+     </file>
+     <file name="app.js">
+       angular.module('getterSetterExample', [])
+         .controller('ExampleController', ['$scope', function($scope) {
+           var _name = 'Brian';
+           $scope.user = {
+             name: function(newName) {
+               if (angular.isDefined(newName)) {
+                 _name = newName;
+               }
+               return _name;
+             }
+           };
+         }]);
+     </file>
+ * </example>
+ */
+var ngModelDirective = ['$rootScope', function($rootScope) {
+  return {
+    restrict: 'A',
+    require: ['ngModel', '^?form', '^?ngModelOptions'],
+    controller: NgModelController,
+    // Prelink needs to run before any input directive
+    // so that we can set the NgModelOptions in NgModelController
+    // before anyone else uses it.
+    priority: 1,
+    compile: function ngModelCompile(element) {
+      // Setup initial state of the control
+      element.addClass(PRISTINE_CLASS).addClass(UNTOUCHED_CLASS).addClass(VALID_CLASS);
+
+      return {
+        pre: function ngModelPreLink(scope, element, attr, ctrls) {
+          var modelCtrl = ctrls[0],
+              formCtrl = ctrls[1] || nullFormCtrl;
+
+          modelCtrl.$$setOptions(ctrls[2] && ctrls[2].$options);
+
+          // notify others, especially parent forms
+          formCtrl.$addControl(modelCtrl);
+
+          attr.$observe('name', function(newValue) {
+            if (modelCtrl.$name !== newValue) {
+              formCtrl.$$renameControl(modelCtrl, newValue);
+            }
+          });
+
+          scope.$on('$destroy', function() {
+            formCtrl.$removeControl(modelCtrl);
+          });
+        },
+        post: function ngModelPostLink(scope, element, attr, ctrls) {
+          var modelCtrl = ctrls[0];
+          if (modelCtrl.$options && modelCtrl.$options.updateOn) {
+            element.on(modelCtrl.$options.updateOn, function(ev) {
+              modelCtrl.$$debounceViewValueCommit(ev && ev.type);
+            });
+          }
+
+          element.on('blur', function(ev) {
+            if (modelCtrl.$touched) return;
+
+            if ($rootScope.$$phase) {
+              scope.$evalAsync(modelCtrl.$setTouched);
+            } else {
+              scope.$apply(modelCtrl.$setTouched);
+            }
+          });
+        }
+      };
+    }
+  };
+}];
+
+var DEFAULT_REGEXP = /(\s+|^)default(\s+|$)/;
+
+/**
+ * @ngdoc directive
+ * @name ngModelOptions
+ *
+ * @description
+ * Allows tuning how model updates are done. Using `ngModelOptions` you can specify a custom list of
+ * events that will trigger a model update and/or a debouncing delay so that the actual update only
+ * takes place when a timer expires; this timer will be reset after another change takes place.
+ *
+ * Given the nature of `ngModelOptions`, the value displayed inside input fields in the view might
+ * be different than the value in the actual model. This means that if you update the model you
+ * should also invoke {@link ngModel.NgModelController `$rollbackViewValue`} on the relevant input field in
+ * order to make sure it is synchronized with the model and that any debounced action is canceled.
+ *
+ * The easiest way to reference the control's {@link ngModel.NgModelController `$rollbackViewValue`}
+ * method is by making sure the input is placed inside a form that has a `name` attribute. This is
+ * important because `form` controllers are published to the related scope under the name in their
+ * `name` attribute.
+ *
+ * Any pending changes will take place immediately when an enclosing form is submitted via the
+ * `submit` event. Note that `ngClick` events will occur before the model is updated. Use `ngSubmit`
+ * to have access to the updated model.
+ *
+ * `ngModelOptions` has an effect on the element it's declared on and its descendants.
+ *
+ * @param {Object} ngModelOptions options to apply to the current model. Valid keys are:
+ *   - `updateOn`: string specifying which event should the input be bound to. You can set several
+ *     events using an space delimited list. There is a special event called `default` that
+ *     matches the default events belonging of the control.
+ *   - `debounce`: integer value which contains the debounce model update value in milliseconds. A
+ *     value of 0 triggers an immediate update. If an object is supplied instead, you can specify a
+ *     custom value for each event. For example:
+ *     `ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"`
+ *   - `allowInvalid`: boolean value which indicates that the model can be set with values that did
+ *     not validate correctly instead of the default behavior of setting the model to undefined.
+ *   - `getterSetter`: boolean value which determines whether or not to treat functions bound to
+       `ngModel` as getters/setters.
+ *   - `timezone`: Defines the timezone to be used to read/write the `Date` instance in the model for
+ *     `<input type="date">`, `<input type="time">`, ... . Right now, the only supported value is `'UTC'`,
+ *     otherwise the default timezone of the browser will be used.
+ *
+ * @example
+
+  The following example shows how to override immediate updates. Changes on the inputs within the
+  form will update the model only when the control loses focus (blur event). If `escape` key is
+  pressed while the input field is focused, the value is reset to the value in the current model.
+
+  <example name="ngModelOptions-directive-blur" module="optionsExample">
+    <file name="index.html">
+      <div ng-controller="ExampleController">
+        <form name="userForm">
+          Name:
+          <input type="text" name="userName"
+                 ng-model="user.name"
+                 ng-model-options="{ updateOn: 'blur' }"
+                 ng-keyup="cancel($event)" /><br />
+
+          Other data:
+          <input type="text" ng-model="user.data" /><br />
+        </form>
+        <pre>user.name = <span ng-bind="user.name"></span></pre>
+      </div>
+    </file>
+    <file name="app.js">
+      angular.module('optionsExample', [])
+        .controller('ExampleController', ['$scope', function($scope) {
+          $scope.user = { name: 'say', data: '' };
+
+          $scope.cancel = function(e) {
+            if (e.keyCode == 27) {
+              $scope.userForm.userName.$rollbackViewValue();
+            }
+          };
+        }]);
+    </file>
+    <file name="protractor.js" type="protractor">
+      var model = element(by.binding('user.name'));
+      var input = element(by.model('user.name'));
+      var other = element(by.model('user.data'));
+
+      it('should allow custom events', function() {
+        input.sendKeys(' hello');
+        input.click();
+        expect(model.getText()).toEqual('say');
+        other.click();
+        expect(model.getText()).toEqual('say hello');
+      });
+
+      it('should $rollbackViewValue when model changes', function() {
+        input.sendKeys(' hello');
+        expect(input.getAttribute('value')).toEqual('say hello');
+        input.sendKeys(protractor.Key.ESCAPE);
+        expect(input.getAttribute('value')).toEqual('say');
+        other.click();
+        expect(model.getText()).toEqual('say');
+      });
+    </file>
+  </example>
+
+  This one shows how to debounce model changes. Model will be updated only 1 sec after last change.
+  If the `Clear` button is pressed, any debounced action is canceled and the value becomes empty.
+
+  <example name="ngModelOptions-directive-debounce" module="optionsExample">
+    <file name="index.html">
+      <div ng-controller="ExampleController">
+        <form name="userForm">
+          Name:
+          <input type="text" name="userName"
+                 ng-model="user.name"
+                 ng-model-options="{ debounce: 1000 }" />
+          <button ng-click="userForm.userName.$rollbackViewValue(); user.name=''">Clear</button><br />
+        </form>
+        <pre>user.name = <span ng-bind="user.name"></span></pre>
+      </div>
+    </file>
+    <file name="app.js">
+      angular.module('optionsExample', [])
+        .controller('ExampleController', ['$scope', function($scope) {
+          $scope.user = { name: 'say' };
+        }]);
+    </file>
+  </example>
+
+  This one shows how to bind to getter/setters:
+
+  <example name="ngModelOptions-directive-getter-setter" module="getterSetterExample">
+    <file name="index.html">
+      <div ng-controller="ExampleController">
+        <form name="userForm">
+          Name:
+          <input type="text" name="userName"
+                 ng-model="user.name"
+                 ng-model-options="{ getterSetter: true }" />
+        </form>
+        <pre>user.name = <span ng-bind="user.name()"></span></pre>
+      </div>
+    </file>
+    <file name="app.js">
+      angular.module('getterSetterExample', [])
+        .controller('ExampleController', ['$scope', function($scope) {
+          var _name = 'Brian';
+          $scope.user = {
+            name: function(newName) {
+              return angular.isDefined(newName) ? (_name = newName) : _name;
+            }
+          };
+        }]);
+    </file>
+  </example>
+ */
+var ngModelOptionsDirective = function() {
+  return {
+    restrict: 'A',
+    controller: ['$scope', '$attrs', function($scope, $attrs) {
+      var that = this;
+      this.$options = $scope.$eval($attrs.ngModelOptions);
+      // Allow adding/overriding bound events
+      if (this.$options.updateOn !== undefined) {
+        this.$options.updateOnDefault = false;
+        // extract "default" pseudo-event from list of events that can trigger a model update
+        this.$options.updateOn = trim(this.$options.updateOn.replace(DEFAULT_REGEXP, function() {
+          that.$options.updateOnDefault = true;
+          return ' ';
+        }));
+      } else {
+        this.$options.updateOnDefault = true;
+      }
+    }]
+  };
+};
+
+
+
+// helper methods
+function addSetValidityMethod(context) {
+  var ctrl = context.ctrl,
+      $element = context.$element,
+      classCache = {},
+      set = context.set,
+      unset = context.unset,
+      parentForm = context.parentForm,
+      $animate = context.$animate;
+
+  classCache[INVALID_CLASS] = !(classCache[VALID_CLASS] = $element.hasClass(VALID_CLASS));
+
+  ctrl.$setValidity = setValidity;
+
+  function setValidity(validationErrorKey, state, controller) {
+    if (state === undefined) {
+      createAndSet('$pending', validationErrorKey, controller);
+    } else {
+      unsetAndCleanup('$pending', validationErrorKey, controller);
+    }
+    if (!isBoolean(state)) {
+      unset(ctrl.$error, validationErrorKey, controller);
+      unset(ctrl.$$success, validationErrorKey, controller);
+    } else {
+      if (state) {
+        unset(ctrl.$error, validationErrorKey, controller);
+        set(ctrl.$$success, validationErrorKey, controller);
+      } else {
+        set(ctrl.$error, validationErrorKey, controller);
+        unset(ctrl.$$success, validationErrorKey, controller);
+      }
+    }
+    if (ctrl.$pending) {
+      cachedToggleClass(PENDING_CLASS, true);
+      ctrl.$valid = ctrl.$invalid = undefined;
+      toggleValidationCss('', null);
+    } else {
+      cachedToggleClass(PENDING_CLASS, false);
+      ctrl.$valid = isObjectEmpty(ctrl.$error);
+      ctrl.$invalid = !ctrl.$valid;
+      toggleValidationCss('', ctrl.$valid);
+    }
+
+    // re-read the state as the set/unset methods could have
+    // combined state in ctrl.$error[validationError] (used for forms),
+    // where setting/unsetting only increments/decrements the value,
+    // and does not replace it.
+    var combinedState;
+    if (ctrl.$pending && ctrl.$pending[validationErrorKey]) {
+      combinedState = undefined;
+    } else if (ctrl.$error[validationErrorKey]) {
+      combinedState = false;
+    } else if (ctrl.$$success[validationErrorKey]) {
+      combinedState = true;
+    } else {
+      combinedState = null;
+    }
+
+    toggleValidationCss(validationErrorKey, combinedState);
+    parentForm.$setValidity(validationErrorKey, combinedState, ctrl);
+  }
+
+  function createAndSet(name, value, controller) {
+    if (!ctrl[name]) {
+      ctrl[name] = {};
+    }
+    set(ctrl[name], value, controller);
+  }
+
+  function unsetAndCleanup(name, value, controller) {
+    if (ctrl[name]) {
+      unset(ctrl[name], value, controller);
+    }
+    if (isObjectEmpty(ctrl[name])) {
+      ctrl[name] = undefined;
+    }
+  }
+
+  function cachedToggleClass(className, switchValue) {
+    if (switchValue && !classCache[className]) {
+      $animate.addClass($element, className);
+      classCache[className] = true;
+    } else if (!switchValue && classCache[className]) {
+      $animate.removeClass($element, className);
+      classCache[className] = false;
+    }
+  }
+
+  function toggleValidationCss(validationErrorKey, isValid) {
+    validationErrorKey = validationErrorKey ? '-' + snake_case(validationErrorKey, '-') : '';
+
+    cachedToggleClass(VALID_CLASS + validationErrorKey, isValid === true);
+    cachedToggleClass(INVALID_CLASS + validationErrorKey, isValid === false);
+  }
+}
+
+function isObjectEmpty(obj) {
+  if (obj) {
+    for (var prop in obj) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /**
  * @ngdoc directive
@@ -24139,6 +24072,29 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  * Creating aliases for these properties is possible with {@link ng.directive:ngInit `ngInit`}.
  * This may be useful when, for instance, nesting ngRepeats.
  *
+ * # Iterating over object properties
+ *
+ * It is possible to get `ngRepeat` to iterate over the properties of an object using the following
+ * syntax:
+ *
+ * ```js
+ * <div ng-repeat="(key, value) in myObj"> ... </div>
+ * ```
+ *
+ * You need to be aware that the JavaScript specification does not define what order
+ * it will return the keys for an object. In order to have a guaranteed deterministic order
+ * for the keys, Angular versions up to and including 1.3 **sort the keys alphabetically**.
+ *
+ * If this is not desired, the recommended workaround is to convert your object into an array
+ * that is sorted into the order that you prefer before providing it to `ngRepeat`.  You could
+ * do this with a filter such as [toArrayFilter](http://ngmodules.org/modules/angular-toArrayFilter)
+ * or implement a `$watch` on the object yourself.
+ *
+ * In version 1.4 we will remove the sorting, since it seems that browsers generally follow the
+ * strategy of providing keys in the order in which they were defined, although there are exceptions
+ * when keys are deleted and reinstated.
+ *
+ *
  * # Special repeat start and end points
  * To repeat a series of elements instead of just one parent element, ngRepeat (as well as other ng directives) supports extending
  * the range of the repeater by defining explicit start and end points by using **ng-repeat-start** and **ng-repeat-end** respectively.
@@ -24383,7 +24339,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
       var keyIdentifier = match[2];
 
       if (aliasAs && (!/^[$a-zA-Z_][$a-zA-Z0-9_]*$/.test(aliasAs) ||
-          /^(null|undefined|this|\$index|\$first|\$middle|\$last|\$even|\$odd|\$parent)$/.test(aliasAs))) {
+          /^(null|undefined|this|\$index|\$first|\$middle|\$last|\$even|\$odd|\$parent|\$root|\$id)$/.test(aliasAs))) {
         throw ngRepeatMinErr('badident', "alias '{0}' is invalid --- must be a valid JS identifier which is not a reserved name.",
           aliasAs);
       }
@@ -24936,12 +24892,12 @@ var ngHideDirective = ['$animate', function($animate) {
    </example>
  */
 var ngStyleDirective = ngDirective(function(scope, element, attr) {
-  scope.$watch(attr.ngStyle, function ngStyleWatchAction(newStyles, oldStyles) {
+  scope.$watchCollection(attr.ngStyle, function ngStyleWatchAction(newStyles, oldStyles) {
     if (oldStyles && (newStyles !== oldStyles)) {
       forEach(oldStyles, function(val, style) { element.css(style, '');});
     }
     if (newStyles) element.css(newStyles);
-  }, true);
+  });
 });
 
 /**
@@ -26049,6 +26005,96 @@ var styleDirective = valueFn({
   terminal: false
 });
 
+var requiredDirective = function() {
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    link: function(scope, elm, attr, ctrl) {
+      if (!ctrl) return;
+      attr.required = true; // force truthy in case we are on non input element
+
+      ctrl.$validators.required = function(modelValue, viewValue) {
+        return !attr.required || !ctrl.$isEmpty(viewValue);
+      };
+
+      attr.$observe('required', function() {
+        ctrl.$validate();
+      });
+    }
+  };
+};
+
+
+var patternDirective = function() {
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    link: function(scope, elm, attr, ctrl) {
+      if (!ctrl) return;
+
+      var regexp, patternExp = attr.ngPattern || attr.pattern;
+      attr.$observe('pattern', function(regex) {
+        if (isString(regex) && regex.length > 0) {
+          regex = new RegExp('^' + regex + '$');
+        }
+
+        if (regex && !regex.test) {
+          throw minErr('ngPattern')('noregexp',
+            'Expected {0} to be a RegExp but was {1}. Element: {2}', patternExp,
+            regex, startingTag(elm));
+        }
+
+        regexp = regex || undefined;
+        ctrl.$validate();
+      });
+
+      ctrl.$validators.pattern = function(value) {
+        return ctrl.$isEmpty(value) || isUndefined(regexp) || regexp.test(value);
+      };
+    }
+  };
+};
+
+
+var maxlengthDirective = function() {
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    link: function(scope, elm, attr, ctrl) {
+      if (!ctrl) return;
+
+      var maxlength = -1;
+      attr.$observe('maxlength', function(value) {
+        var intVal = int(value);
+        maxlength = isNaN(intVal) ? -1 : intVal;
+        ctrl.$validate();
+      });
+      ctrl.$validators.maxlength = function(modelValue, viewValue) {
+        return (maxlength < 0) || ctrl.$isEmpty(modelValue) || (viewValue.length <= maxlength);
+      };
+    }
+  };
+};
+
+var minlengthDirective = function() {
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    link: function(scope, elm, attr, ctrl) {
+      if (!ctrl) return;
+
+      var minlength = 0;
+      attr.$observe('minlength', function(value) {
+        minlength = int(value) || 0;
+        ctrl.$validate();
+      });
+      ctrl.$validators.minlength = function(modelValue, viewValue) {
+        return ctrl.$isEmpty(viewValue) || viewValue.length >= minlength;
+      };
+    }
+  };
+};
+
   if (window.angular.bootstrap) {
     //AngularJS is already loaded, so we can return here...
     console.log('WARNING: Tried to load angular more than once.');
@@ -26069,7 +26115,7 @@ var styleDirective = valueFn({
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.8
+ * @license AngularJS v1.3.11
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -27945,7 +27991,7 @@ angular.module('ngAnimate', ['ng'])
           return;
         }
 
-        if (!staggerTime && styles) {
+        if (!staggerTime && styles && Object.keys(styles).length > 0) {
           if (!timings.transitionDuration) {
             element.css('transition', timings.animationDuration + 's linear all');
             appliedStyles.push('transition');
@@ -28209,7 +28255,7 @@ angular.module('ngAnimate', ['ng'])
 
 /**
  * angular-strap
- * @version v2.1.4 - 2014-11-26
+ * @version v2.1.6 - 2015-01-11
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -28859,7 +28905,8 @@ angular.module('mgcrea.ngStrap.collapse', [])
       animation: 'am-collapse',
       disallowToggle: false,
       activeClass: 'in',
-      startCollapsed: false
+      startCollapsed: false,
+      allowMultiple: false
     };
 
     var controller = this.controller = function($scope, $element, $attrs) {
@@ -28867,7 +28914,7 @@ angular.module('mgcrea.ngStrap.collapse', [])
 
       // Attributes options
       self.$options = angular.copy(defaults);
-      angular.forEach(['animation', 'disallowToggle', 'activeClass', 'startCollapsed'], function (key) {
+      angular.forEach(['animation', 'disallowToggle', 'activeClass', 'startCollapsed', 'allowMultiple'], function (key) {
         if(angular.isDefined($attrs[key])) self.$options[key] = $attrs[key];
       });
 
@@ -28883,17 +28930,92 @@ angular.module('mgcrea.ngStrap.collapse', [])
         self.$targets.push(element);
       };
 
-      self.$targets.$active = !self.$options.startCollapsed ? 0 : -1;
-      self.$setActive = $scope.$setActive = function(value) {
-        if(!self.$options.disallowToggle) {
-          self.$targets.$active = self.$targets.$active === value ? -1 : value;
-        } else {
-          self.$targets.$active = value;
+      self.$unregisterToggle = function(element) {
+        var index = self.$toggles.indexOf(element);
+        // remove toggle from $toggles array
+        self.$toggles.splice(index, 1);
+      };
+      self.$unregisterTarget = function(element) {
+        var index = self.$targets.indexOf(element);
+
+        // remove element from $targets array
+        self.$targets.splice(index, 1);
+
+        if (self.$options.allowMultiple) {
+          // remove target index from $active array values
+          deactivateItem(element);
         }
+
+        // fix active item indexes
+        fixActiveItemIndexes(index);
+
         self.$viewChangeListeners.forEach(function(fn) {
           fn();
         });
       };
+
+      // use array to store all the currently open panels
+      self.$targets.$active = !self.$options.startCollapsed ? [0] : [];
+      self.$setActive = $scope.$setActive = function(value) {
+        if(angular.isArray(value)) {
+          self.$targets.$active = angular.copy(value);
+        }
+        else if(!self.$options.disallowToggle) {
+          // toogle element active status
+          isActive(value) ? deactivateItem(value) : activateItem(value);
+        } else {
+          activateItem(value);
+        }
+
+        self.$viewChangeListeners.forEach(function(fn) {
+          fn();
+        });
+      };
+
+      self.$activeIndexes = function() {
+        return self.$options.allowMultiple ? self.$targets.$active :
+          self.$targets.$active.length === 1 ? self.$targets.$active[0] : -1;
+      };
+
+      function fixActiveItemIndexes(index) {
+        // item with index was removed, so we
+        // need to adjust other items index values
+        var activeIndexes = self.$targets.$active;
+        for(var i = 0; i < activeIndexes.length; i++) {
+          if (index < activeIndexes[i]) {
+            activeIndexes[i] = activeIndexes[i] - 1;
+          }
+
+          // the last item is active, so we need to
+          // adjust its index
+          if (activeIndexes[i] === self.$targets.length) {
+            activeIndexes[i] = self.$targets.length - 1;
+          }
+        }
+      }
+
+      function isActive(value) {
+        var activeItems = self.$targets.$active;
+        return activeItems.indexOf(value) === -1 ? false : true;
+      }
+
+      function deactivateItem(value) {
+        var index = self.$targets.$active.indexOf(value);
+        if (index !== -1) {
+          self.$targets.$active.splice(index, 1);
+        }
+      }
+
+      function activateItem(value) {
+        if (!self.$options.allowMultiple) {
+          // remove current selected item
+          self.$targets.$active.splice(0, 1);
+        }
+
+        if (self.$targets.$active.indexOf(value) === -1) {
+          self.$targets.$active.push(value);
+        }
+      }
 
     };
 
@@ -28922,14 +29044,30 @@ angular.module('mgcrea.ngStrap.collapse', [])
 
           // Update the modelValue following
           bsCollapseCtrl.$viewChangeListeners.push(function() {
-            ngModelCtrl.$setViewValue(bsCollapseCtrl.$targets.$active);
+            ngModelCtrl.$setViewValue(bsCollapseCtrl.$activeIndexes());
           });
 
           // modelValue -> $formatters -> viewValue
           ngModelCtrl.$formatters.push(function(modelValue) {
             // console.warn('$formatter("%s"): modelValue=%o (%o)', element.attr('ng-model'), modelValue, typeof modelValue);
-            if (bsCollapseCtrl.$targets.$active !== modelValue * 1) {
-              bsCollapseCtrl.$setActive(modelValue * 1);
+            if (angular.isArray(modelValue)) {
+              // model value is an array, so just replace
+              // the active items directly
+              bsCollapseCtrl.$setActive(modelValue);
+            }
+            else {
+              var activeIndexes = bsCollapseCtrl.$activeIndexes();
+
+              if (angular.isArray(activeIndexes)) {
+                // we have an array of selected indexes
+                if (activeIndexes.indexOf(modelValue * 1) === -1) {
+                  // item with modelValue index is not active
+                  bsCollapseCtrl.$setActive(modelValue * 1);
+                }
+              }
+              else if (activeIndexes !== modelValue * 1) {
+                bsCollapseCtrl.$setActive(modelValue * 1);
+              }
             }
             return modelValue;
           });
@@ -28955,6 +29093,12 @@ angular.module('mgcrea.ngStrap.collapse', [])
 
         // Push pane to parent bsCollapse controller
         bsCollapseCtrl.$registerToggle(element);
+
+        // remove toggle from collapse controller when toggle is destroyed
+        scope.$on('$destroy', function() {
+          bsCollapseCtrl.$unregisterToggle(element);
+        });
+
         element.on('click', function() {
           var index = attrs.bsCollapseToggle || bsCollapseCtrl.$toggles.indexOf(element);
           bsCollapseCtrl.$setActive(index * 1);
@@ -28987,10 +29131,25 @@ angular.module('mgcrea.ngStrap.collapse', [])
         // Push pane to parent bsCollapse controller
         bsCollapseCtrl.$registerTarget(element);
 
+        // remove pane target from collapse controller when target is destroyed
+        scope.$on('$destroy', function() {
+          bsCollapseCtrl.$unregisterTarget(element);
+        });
+
         function render() {
           var index = bsCollapseCtrl.$targets.indexOf(element);
-          var active = bsCollapseCtrl.$targets.$active;
-          $animate[index === active ? 'addClass' : 'removeClass'](element, bsCollapseCtrl.$options.activeClass);
+          var active = bsCollapseCtrl.$activeIndexes();
+          var action = 'removeClass';
+          if (angular.isArray(active)) {
+            if (active.indexOf(index) !== -1) {
+              action = 'addClass';
+            }
+          }
+          else if (index === active) {
+            action = 'addClass';
+          }
+
+          $animate[action](element, bsCollapseCtrl.$options.activeClass);
         }
 
         bsCollapseCtrl.$viewChangeListeners.push(function() {
@@ -29149,7 +29308,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
           var steps = $picker.steps;
           // set targetDate to first day of month to avoid problems with
           // date values rollover. This assumes the viewDate does not
-          // depend on the day of the month 
+          // depend on the day of the month
           var targetDate = new Date(Date.UTC(viewDate.year + ((steps.year || 0) * value), viewDate.month + ((steps.month || 0) * value), 1));
           angular.extend(viewDate, {year: targetDate.getUTCFullYear(), month: targetDate.getUTCMonth(), date: targetDate.getUTCDate()});
           $datepicker.$build();
@@ -29224,9 +29383,11 @@ angular.module('mgcrea.ngStrap.datepicker', [
         var _show = $datepicker.show;
         $datepicker.show = function() {
           _show();
-          // use timeout to hookup the events to prevent 
-          // event bubbling from being processed imediately. 
+          // use timeout to hookup the events to prevent
+          // event bubbling from being processed imediately.
           $timeout(function() {
+            // if $datepicker is no longer showing, don't setup events
+            if(!$datepicker.$isShown) return;
             $datepicker.$element.on(isTouch ? 'touchstart' : 'mousedown', $datepicker.$onMouseDown);
             if(options.keyboard) {
               element.on('keydown', $datepicker.$onKeyDown);
@@ -29267,7 +29428,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
 
         // Directive options
         var options = {scope: scope, controller: controller};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'autoclose', 'dateType', 'dateFormat', 'modelDateFormat', 'dayFormat', 'strictFormat', 'startWeek', 'startDate', 'useNative', 'lang', 'startView', 'minView', 'iconLeft', 'iconRight', 'daysOfWeekDisabled'], function(key) {
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'autoclose', 'dateType', 'dateFormat', 'modelDateFormat', 'dayFormat', 'strictFormat', 'startWeek', 'startDate', 'useNative', 'lang', 'startView', 'minView', 'iconLeft', 'iconRight', 'daysOfWeekDisabled', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -29289,7 +29450,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
         var formatDate = function(date, format) {
           return $dateFormatter.formatDate(date, format, lang);
         };
-    
+
         var dateParser = $dateParser({format: options.dateFormat, lang: lang, strict: options.strictFormat});
 
         // Observe attributes for changes
@@ -29346,15 +29507,15 @@ angular.module('mgcrea.ngStrap.datepicker', [
           if(!viewValue) {
             controller.$setValidity('date', true);
             // BREAKING CHANGE:
-            // return null (not undefined) when input value is empty, so angularjs 1.3 
+            // return null (not undefined) when input value is empty, so angularjs 1.3
             // ngModelController can go ahead and run validators, like ngRequired
             return null;
           }
           var parsedDate = dateParser.parse(viewValue, controller.$dateValue);
           if(!parsedDate || isNaN(parsedDate.getTime())) {
             controller.$setValidity('date', false);
-            // return undefined, causes ngModelController to 
-            // invalidate model value 
+            // return undefined, causes ngModelController to
+            // invalidate model value
             return;
           } else {
             validateAgainstMinMaxDate(parsedDate);
@@ -29363,6 +29524,8 @@ angular.module('mgcrea.ngStrap.datepicker', [
             return formatDate(parsedDate, options.modelDateFormat || options.dateFormat);
           } else if(options.dateType === 'number') {
             return controller.$dateValue.getTime();
+          } else if(options.dateType === 'unix') {
+            return controller.$dateValue.getTime() / 1000;
           } else if(options.dateType === 'iso') {
             return controller.$dateValue.toISOString();
           } else {
@@ -29380,6 +29543,8 @@ angular.module('mgcrea.ngStrap.datepicker', [
             date = modelValue;
           } else if(options.dateType === 'string') {
             date = dateParser.parse(modelValue, null, options.modelDateFormat);
+          } else if(options.dateType === 'unix') {
+            date = new Date(modelValue * 1000);
           } else {
             date = new Date(modelValue);
           }
@@ -29691,8 +29856,8 @@ angular.module('mgcrea.ngStrap.dropdown', ['mgcrea.ngStrap.tooltip'])
         var show = $dropdown.show;
         $dropdown.show = function() {
           show();
-          // use timeout to hookup the events to prevent 
-          // event bubbling from being processed imediately. 
+          // use timeout to hookup the events to prevent
+          // event bubbling from being processed imediately.
           $timeout(function() {
             options.keyboard && $dropdown.$element.on('keydown', $dropdown.$onKeyDown);
             bodyEl.on('click', onBodyClick);
@@ -29741,7 +29906,7 @@ angular.module('mgcrea.ngStrap.dropdown', ['mgcrea.ngStrap.tooltip'])
 
         // Directive options
         var options = {scope: scope};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template'], function(key) {
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -29831,7 +29996,7 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', [])
 
 .provider('$dateParser', ["$localeProvider", function($localeProvider) {
 
-  // define a custom ParseDate object to use instead of native Date 
+  // define a custom ParseDate object to use instead of native Date
   // to avoid date values wrapping when setting date component values
   function ParseDate() {
     this.year = 1970;
@@ -29880,7 +30045,7 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', [])
     for (var i=0; i<len; i++) {
       if (array[i].toLowerCase() === str) { return i; }
     }
-    return -1; // Return -1 per the "Array.indexOf()" method.    
+    return -1; // Return -1 per the "Array.indexOf()" method.
   }
 
   var defaults = this.defaults = {
@@ -29971,7 +30136,14 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', [])
           formatSetMap[i] && formatSetMap[i].call(date, matches[i+1]);
         }
         // convert back to native Date object
-        return date.toDate();
+        var newDate = date.toDate();
+
+        // check new native Date object for day values overflow
+        if (parseInt(date.day, 10) !== newDate.getDate()) {
+          return false;
+        }
+
+        return newDate;
       };
 
       $dateParser.getDateForAttribute = function(key, value) {
@@ -30004,7 +30176,7 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', [])
           time = new Date(parseInt(value, 10)).setFullYear(1970, 0, 1);
         } else if (angular.isString(value) && 0 === value.length) { // Reset time
           time = key === 'minTime' ? -Infinity : +Infinity;
-        } else { 
+        } else {
           time = $dateParser.parse(value, new Date(1970, 0, 1, 0));
         }
 
@@ -30452,6 +30624,11 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
           options.container = 'body';
         }
 
+        // store $id to identify the triggering element in events
+        // give priority to options.id, otherwise, try to use
+        // element id if defined
+        $modal.$id = options.id || options.element && options.element.attr('id') || '';
+
         // Support scope as string options
         forEach(['title', 'content'], function(key) {
           if(options[key]) scope[key] = $sce.trustAsHtml(options[key]);
@@ -30473,6 +30650,8 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
             $modal.toggle();
           });
         };
+        // Publish isShown as a protected var on scope
+        $modal.$isShown = scope.$isShown = false;
 
         // Support contentTemplate option
         if(options.contentTemplate) {
@@ -30528,7 +30707,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
         };
 
         $modal.show = function() {
-          if(scope.$isShown) return;
+          if($modal.$isShown) return;
 
           if(scope.$emit(options.prefixEvent + '.show.before', $modal).defaultPrevented) {
             return;
@@ -30587,6 +30766,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
           if(options.backdrop) {
             modalElement.on('click', hideOnBackdropClick);
             backdropElement.on('click', hideOnBackdropClick);
+            backdropElement.on('wheel', preventEventDefault);
           }
           if(options.keyboard) {
             modalElement.on('keyup', $modal.$onKeyUp);
@@ -30598,7 +30778,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
         }
 
         $modal.hide = function() {
-          if(!scope.$isShown) return;
+          if(!$modal.$isShown) return;
 
           if(scope.$emit(options.prefixEvent + '.hide.before', $modal).defaultPrevented) {
             return;
@@ -30618,6 +30798,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
           if(options.backdrop) {
             modalElement.off('click', hideOnBackdropClick);
             backdropElement.off('click', hideOnBackdropClick);
+            backdropElement.off('wheel', preventEventDefault);
           }
           if(options.keyboard) {
             modalElement.off('keyup', $modal.$onKeyUp);
@@ -30634,7 +30815,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
 
         $modal.toggle = function() {
 
-          scope.$isShown ? $modal.hide() : $modal.show();
+          $modal.$isShown ? $modal.hide() : $modal.show();
 
         };
 
@@ -30646,7 +30827,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
 
         $modal.$onKeyUp = function(evt) {
 
-          if (evt.which === 27 && scope.$isShown) {
+          if (evt.which === 27 && $modal.$isShown) {
             $modal.hide();
             evt.stopPropagation();
           }
@@ -30658,6 +30839,10 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
         function hideOnBackdropClick(evt) {
           if(evt.target !== evt.currentTarget) return;
           options.backdrop === 'static' ? $modal.focus() : $modal.hide();
+        }
+
+        function preventEventDefault(evt) {
+          evt.preventDefault();
         }
 
         return $modal;
@@ -30702,7 +30887,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
 
         // Directive options
         var options = {scope: scope, element: element, show: false};
-        angular.forEach(['template', 'contentTemplate', 'placement', 'backdrop', 'keyboard', 'html', 'container', 'animation'], function(key) {
+        angular.forEach(['template', 'contentTemplate', 'placement', 'backdrop', 'keyboard', 'html', 'container', 'animation', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -30862,7 +31047,7 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
 
         // Directive options
         var options = {scope: scope};
-        angular.forEach(['template', 'contentTemplate', 'placement', 'container', 'target', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'customClass', 'autoClose'], function(key) {
+        angular.forEach(['template', 'contentTemplate', 'placement', 'container', 'target', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'customClass', 'autoClose', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -30910,260 +31095,6 @@ angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip'])
 
   }]);
 
-// Source: scrollspy.js
-angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', 'mgcrea.ngStrap.helpers.dimensions'])
-
-  .provider('$scrollspy', function() {
-
-    // Pool of registered spies
-    var spies = this.$$spies = {};
-
-    var defaults = this.defaults = {
-      debounce: 150,
-      throttle: 100,
-      offset: 100
-    };
-
-    this.$get = ["$window", "$document", "$rootScope", "dimensions", "debounce", "throttle", function($window, $document, $rootScope, dimensions, debounce, throttle) {
-
-      var windowEl = angular.element($window);
-      var docEl = angular.element($document.prop('documentElement'));
-      var bodyEl = angular.element($window.document.body);
-
-      // Helper functions
-
-      function nodeName(element, name) {
-        return element[0].nodeName && element[0].nodeName.toLowerCase() === name.toLowerCase();
-      }
-
-      function ScrollSpyFactory(config) {
-
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-        if(!options.element) options.element = bodyEl;
-        var isWindowSpy = nodeName(options.element, 'body');
-        var scrollEl = isWindowSpy ? windowEl : options.element;
-        var scrollId = isWindowSpy ? 'window' : options.id;
-
-        // Use existing spy
-        if(spies[scrollId]) {
-          spies[scrollId].$$count++;
-          return spies[scrollId];
-        }
-
-        var $scrollspy = {};
-
-        // Private vars
-        var unbindViewContentLoaded, unbindIncludeContentLoaded;
-        var trackedElements = $scrollspy.$trackedElements = [];
-        var sortedElements = [];
-        var activeTarget;
-        var debouncedCheckPosition;
-        var throttledCheckPosition;
-        var debouncedCheckOffsets;
-        var viewportHeight;
-        var scrollTop;
-
-        $scrollspy.init = function() {
-
-          // Setup internal ref counter
-          this.$$count = 1;
-
-          // Bind events
-          debouncedCheckPosition = debounce(this.checkPosition, options.debounce);
-          throttledCheckPosition = throttle(this.checkPosition, options.throttle);
-          scrollEl.on('click', this.checkPositionWithEventLoop);
-          windowEl.on('resize', debouncedCheckPosition);
-          scrollEl.on('scroll', throttledCheckPosition);
-
-          debouncedCheckOffsets = debounce(this.checkOffsets, options.debounce);
-          unbindViewContentLoaded = $rootScope.$on('$viewContentLoaded', debouncedCheckOffsets);
-          unbindIncludeContentLoaded = $rootScope.$on('$includeContentLoaded', debouncedCheckOffsets);
-          debouncedCheckOffsets();
-
-          // Register spy for reuse
-          if(scrollId) {
-            spies[scrollId] = $scrollspy;
-          }
-
-        };
-
-        $scrollspy.destroy = function() {
-
-          // Check internal ref counter
-          this.$$count--;
-          if(this.$$count > 0) {
-            return;
-          }
-
-          // Unbind events
-          scrollEl.off('click', this.checkPositionWithEventLoop);
-          windowEl.off('resize', debouncedCheckPosition);
-          scrollEl.off('scroll', debouncedCheckPosition);
-          unbindViewContentLoaded();
-          unbindIncludeContentLoaded();
-          if (scrollId) {
-            delete spies[scrollId];
-          }
-        };
-
-        $scrollspy.checkPosition = function() {
-
-          // Not ready yet
-          if(!sortedElements.length) return;
-
-          // Calculate the scroll position
-          scrollTop = (isWindowSpy ? $window.pageYOffset : scrollEl.prop('scrollTop')) || 0;
-
-          // Calculate the viewport height for use by the components
-          viewportHeight = Math.max($window.innerHeight, docEl.prop('clientHeight'));
-
-          // Activate first element if scroll is smaller
-          if(scrollTop < sortedElements[0].offsetTop && activeTarget !== sortedElements[0].target) {
-            return $scrollspy.$activateElement(sortedElements[0]);
-          }
-
-          // Activate proper element
-          for (var i = sortedElements.length; i--;) {
-            if(angular.isUndefined(sortedElements[i].offsetTop) || sortedElements[i].offsetTop === null) continue;
-            if(activeTarget === sortedElements[i].target) continue;
-            if(scrollTop < sortedElements[i].offsetTop) continue;
-            if(sortedElements[i + 1] && scrollTop > sortedElements[i + 1].offsetTop) continue;
-            return $scrollspy.$activateElement(sortedElements[i]);
-          }
-
-        };
-
-        $scrollspy.checkPositionWithEventLoop = function() {
-          // IE 9 throws an error if we use 'this' instead of '$scrollspy'
-          // in this setTimeout call
-          setTimeout($scrollspy.checkPosition, 1);
-        };
-
-        // Protected methods
-
-        $scrollspy.$activateElement = function(element) {
-          if(activeTarget) {
-            var activeElement = $scrollspy.$getTrackedElement(activeTarget);
-            if(activeElement) {
-              activeElement.source.removeClass('active');
-              if(nodeName(activeElement.source, 'li') && nodeName(activeElement.source.parent().parent(), 'li')) {
-                activeElement.source.parent().parent().removeClass('active');
-              }
-            }
-          }
-          activeTarget = element.target;
-          element.source.addClass('active');
-          if(nodeName(element.source, 'li') && nodeName(element.source.parent().parent(), 'li')) {
-            element.source.parent().parent().addClass('active');
-          }
-        };
-
-        $scrollspy.$getTrackedElement = function(target) {
-          return trackedElements.filter(function(obj) {
-            return obj.target === target;
-          })[0];
-        };
-
-        // Track offsets behavior
-
-        $scrollspy.checkOffsets = function() {
-
-          angular.forEach(trackedElements, function(trackedElement) {
-            var targetElement = document.querySelector(trackedElement.target);
-            trackedElement.offsetTop = targetElement ? dimensions.offset(targetElement).top : null;
-            if(options.offset && trackedElement.offsetTop !== null) trackedElement.offsetTop -= options.offset * 1;
-          });
-
-          sortedElements = trackedElements
-          .filter(function(el) {
-            return el.offsetTop !== null;
-          })
-          .sort(function(a, b) {
-            return a.offsetTop - b.offsetTop;
-          });
-
-          debouncedCheckPosition();
-
-        };
-
-        $scrollspy.trackElement = function(target, source) {
-          trackedElements.push({target: target, source: source});
-        };
-
-        $scrollspy.untrackElement = function(target, source) {
-          var toDelete;
-          for (var i = trackedElements.length; i--;) {
-            if(trackedElements[i].target === target && trackedElements[i].source === source) {
-              toDelete = i;
-              break;
-            }
-          }
-          trackedElements = trackedElements.splice(toDelete, 1);
-        };
-
-        $scrollspy.activate = function(i) {
-          trackedElements[i].addClass('active');
-        };
-
-        // Initialize plugin
-
-        $scrollspy.init();
-        return $scrollspy;
-
-      }
-
-      return ScrollSpyFactory;
-
-    }];
-
-  })
-
-  .directive('bsScrollspy', ["$rootScope", "debounce", "dimensions", "$scrollspy", function($rootScope, debounce, dimensions, $scrollspy) {
-
-    return {
-      restrict: 'EAC',
-      link: function postLink(scope, element, attr) {
-
-        var options = {scope: scope};
-        angular.forEach(['offset', 'target'], function(key) {
-          if(angular.isDefined(attr[key])) options[key] = attr[key];
-        });
-
-        var scrollspy = $scrollspy(options);
-        scrollspy.trackElement(options.target, element);
-
-        scope.$on('$destroy', function() {
-          if (scrollspy) {
-            scrollspy.untrackElement(options.target, element);
-            scrollspy.destroy();
-          }
-          options = null;
-          scrollspy = null;
-        });
-
-      }
-    };
-
-  }])
-
-
-  .directive('bsScrollspyList', ["$rootScope", "debounce", "dimensions", "$scrollspy", function($rootScope, debounce, dimensions, $scrollspy) {
-
-    return {
-      restrict: 'A',
-      compile: function postLink(element, attr) {
-        var children = element[0].querySelectorAll('li > a[href]');
-        angular.forEach(children, function(child) {
-          var childEl = angular.element(child);
-          childEl.parent().attr('bs-scrollspy', '').attr('data-target', childEl.attr('href'));
-        });
-      }
-
-    };
-
-  }]);
-
 // Source: select.js
 angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStrap.helpers.parseOptions'])
 
@@ -31185,6 +31116,8 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
       sort: true,
       caretHtml: '&nbsp;<span class="caret"></span>',
       placeholder: 'Choose among the following...',
+      allText: 'All',
+      noneText: 'None',
       maxLength: 3,
       maxLengthHtml: 'selected',
       iconCheckmark: 'glyphicon glyphicon-ok'
@@ -31211,6 +31144,8 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
         scope.$isMultiple = options.multiple;
         scope.$showAllNoneButtons = options.allNoneButtons && options.multiple;
         scope.$iconCheckmark = options.iconCheckmark;
+        scope.$allText = options.allText;
+        scope.$noneText = options.noneText;
 
         scope.$activate = function(index) {
           scope.$$postDigest(function() {
@@ -31281,7 +31216,7 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
             }
           });
           // Emit event
-          scope.$emit(options.prefixEvent + '.select', value, index);
+          scope.$emit(options.prefixEvent + '.select', value, index, $select);
         };
 
         // Protected methods
@@ -31403,7 +31338,7 @@ angular.module('mgcrea.ngStrap.select', ['mgcrea.ngStrap.tooltip', 'mgcrea.ngStr
 
         // Directive options
         var options = {scope: scope, placeholder: defaults.placeholder};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'placeholder', 'multiple', 'allNoneButtons', 'maxLength', 'maxLengthHtml'], function(key) {
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'placeholder', 'multiple', 'allNoneButtons', 'maxLength', 'maxLengthHtml', 'allText', 'noneText', 'iconCheckmark', 'autoClose', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -31653,6 +31588,260 @@ angular.module('mgcrea.ngStrap.tab', [])
         render();
 
       }
+    };
+
+  }]);
+
+// Source: scrollspy.js
+angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', 'mgcrea.ngStrap.helpers.dimensions'])
+
+  .provider('$scrollspy', function() {
+
+    // Pool of registered spies
+    var spies = this.$$spies = {};
+
+    var defaults = this.defaults = {
+      debounce: 150,
+      throttle: 100,
+      offset: 100
+    };
+
+    this.$get = ["$window", "$document", "$rootScope", "dimensions", "debounce", "throttle", function($window, $document, $rootScope, dimensions, debounce, throttle) {
+
+      var windowEl = angular.element($window);
+      var docEl = angular.element($document.prop('documentElement'));
+      var bodyEl = angular.element($window.document.body);
+
+      // Helper functions
+
+      function nodeName(element, name) {
+        return element[0].nodeName && element[0].nodeName.toLowerCase() === name.toLowerCase();
+      }
+
+      function ScrollSpyFactory(config) {
+
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+        if(!options.element) options.element = bodyEl;
+        var isWindowSpy = nodeName(options.element, 'body');
+        var scrollEl = isWindowSpy ? windowEl : options.element;
+        var scrollId = isWindowSpy ? 'window' : options.id;
+
+        // Use existing spy
+        if(spies[scrollId]) {
+          spies[scrollId].$$count++;
+          return spies[scrollId];
+        }
+
+        var $scrollspy = {};
+
+        // Private vars
+        var unbindViewContentLoaded, unbindIncludeContentLoaded;
+        var trackedElements = $scrollspy.$trackedElements = [];
+        var sortedElements = [];
+        var activeTarget;
+        var debouncedCheckPosition;
+        var throttledCheckPosition;
+        var debouncedCheckOffsets;
+        var viewportHeight;
+        var scrollTop;
+
+        $scrollspy.init = function() {
+
+          // Setup internal ref counter
+          this.$$count = 1;
+
+          // Bind events
+          debouncedCheckPosition = debounce(this.checkPosition, options.debounce);
+          throttledCheckPosition = throttle(this.checkPosition, options.throttle);
+          scrollEl.on('click', this.checkPositionWithEventLoop);
+          windowEl.on('resize', debouncedCheckPosition);
+          scrollEl.on('scroll', throttledCheckPosition);
+
+          debouncedCheckOffsets = debounce(this.checkOffsets, options.debounce);
+          unbindViewContentLoaded = $rootScope.$on('$viewContentLoaded', debouncedCheckOffsets);
+          unbindIncludeContentLoaded = $rootScope.$on('$includeContentLoaded', debouncedCheckOffsets);
+          debouncedCheckOffsets();
+
+          // Register spy for reuse
+          if(scrollId) {
+            spies[scrollId] = $scrollspy;
+          }
+
+        };
+
+        $scrollspy.destroy = function() {
+
+          // Check internal ref counter
+          this.$$count--;
+          if(this.$$count > 0) {
+            return;
+          }
+
+          // Unbind events
+          scrollEl.off('click', this.checkPositionWithEventLoop);
+          windowEl.off('resize', debouncedCheckPosition);
+          scrollEl.off('scroll', throttledCheckPosition);
+          unbindViewContentLoaded();
+          unbindIncludeContentLoaded();
+          if (scrollId) {
+            delete spies[scrollId];
+          }
+        };
+
+        $scrollspy.checkPosition = function() {
+
+          // Not ready yet
+          if(!sortedElements.length) return;
+
+          // Calculate the scroll position
+          scrollTop = (isWindowSpy ? $window.pageYOffset : scrollEl.prop('scrollTop')) || 0;
+
+          // Calculate the viewport height for use by the components
+          viewportHeight = Math.max($window.innerHeight, docEl.prop('clientHeight'));
+
+          // Activate first element if scroll is smaller
+          if(scrollTop < sortedElements[0].offsetTop && activeTarget !== sortedElements[0].target) {
+            return $scrollspy.$activateElement(sortedElements[0]);
+          }
+
+          // Activate proper element
+          for (var i = sortedElements.length; i--;) {
+            if(angular.isUndefined(sortedElements[i].offsetTop) || sortedElements[i].offsetTop === null) continue;
+            if(activeTarget === sortedElements[i].target) continue;
+            if(scrollTop < sortedElements[i].offsetTop) continue;
+            if(sortedElements[i + 1] && scrollTop > sortedElements[i + 1].offsetTop) continue;
+            return $scrollspy.$activateElement(sortedElements[i]);
+          }
+
+        };
+
+        $scrollspy.checkPositionWithEventLoop = function() {
+          // IE 9 throws an error if we use 'this' instead of '$scrollspy'
+          // in this setTimeout call
+          setTimeout($scrollspy.checkPosition, 1);
+        };
+
+        // Protected methods
+
+        $scrollspy.$activateElement = function(element) {
+          if(activeTarget) {
+            var activeElement = $scrollspy.$getTrackedElement(activeTarget);
+            if(activeElement) {
+              activeElement.source.removeClass('active');
+              if(nodeName(activeElement.source, 'li') && nodeName(activeElement.source.parent().parent(), 'li')) {
+                activeElement.source.parent().parent().removeClass('active');
+              }
+            }
+          }
+          activeTarget = element.target;
+          element.source.addClass('active');
+          if(nodeName(element.source, 'li') && nodeName(element.source.parent().parent(), 'li')) {
+            element.source.parent().parent().addClass('active');
+          }
+        };
+
+        $scrollspy.$getTrackedElement = function(target) {
+          return trackedElements.filter(function(obj) {
+            return obj.target === target;
+          })[0];
+        };
+
+        // Track offsets behavior
+
+        $scrollspy.checkOffsets = function() {
+
+          angular.forEach(trackedElements, function(trackedElement) {
+            var targetElement = document.querySelector(trackedElement.target);
+            trackedElement.offsetTop = targetElement ? dimensions.offset(targetElement).top : null;
+            if(options.offset && trackedElement.offsetTop !== null) trackedElement.offsetTop -= options.offset * 1;
+          });
+
+          sortedElements = trackedElements
+          .filter(function(el) {
+            return el.offsetTop !== null;
+          })
+          .sort(function(a, b) {
+            return a.offsetTop - b.offsetTop;
+          });
+
+          debouncedCheckPosition();
+
+        };
+
+        $scrollspy.trackElement = function(target, source) {
+          trackedElements.push({target: target, source: source});
+        };
+
+        $scrollspy.untrackElement = function(target, source) {
+          var toDelete;
+          for (var i = trackedElements.length; i--;) {
+            if(trackedElements[i].target === target && trackedElements[i].source === source) {
+              toDelete = i;
+              break;
+            }
+          }
+          trackedElements = trackedElements.splice(toDelete, 1);
+        };
+
+        $scrollspy.activate = function(i) {
+          trackedElements[i].addClass('active');
+        };
+
+        // Initialize plugin
+
+        $scrollspy.init();
+        return $scrollspy;
+
+      }
+
+      return ScrollSpyFactory;
+
+    }];
+
+  })
+
+  .directive('bsScrollspy', ["$rootScope", "debounce", "dimensions", "$scrollspy", function($rootScope, debounce, dimensions, $scrollspy) {
+
+    return {
+      restrict: 'EAC',
+      link: function postLink(scope, element, attr) {
+
+        var options = {scope: scope};
+        angular.forEach(['offset', 'target'], function(key) {
+          if(angular.isDefined(attr[key])) options[key] = attr[key];
+        });
+
+        var scrollspy = $scrollspy(options);
+        scrollspy.trackElement(options.target, element);
+
+        scope.$on('$destroy', function() {
+          if (scrollspy) {
+            scrollspy.untrackElement(options.target, element);
+            scrollspy.destroy();
+          }
+          options = null;
+          scrollspy = null;
+        });
+
+      }
+    };
+
+  }])
+
+
+  .directive('bsScrollspyList', ["$rootScope", "debounce", "dimensions", "$scrollspy", function($rootScope, debounce, dimensions, $scrollspy) {
+
+    return {
+      restrict: 'A',
+      compile: function postLink(element, attr) {
+        var children = element[0].querySelectorAll('li > a[href]');
+        angular.forEach(children, function(child) {
+          var childEl = angular.element(child);
+          childEl.parent().attr('bs-scrollspy', '').attr('data-target', childEl.attr('href'));
+        });
+      }
+
     };
 
   }]);
@@ -31959,8 +32148,8 @@ angular.module('mgcrea.ngStrap.timepicker', [
         var _show = $timepicker.show;
         $timepicker.show = function() {
           _show();
-          // use timeout to hookup the events to prevent 
-          // event bubbling from being processed imediately. 
+          // use timeout to hookup the events to prevent
+          // event bubbling from being processed imediately.
           $timeout(function() {
             $timepicker.$element.on(isTouch ? 'touchstart' : 'mousedown', $timepicker.$onMouseDown);
             if(options.keyboard) {
@@ -32004,7 +32193,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
 
         // Directive options
         var options = {scope: scope, controller: controller};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'autoclose', 'timeType', 'timeFormat', 'modelTimeFormat', 'useNative', 'hourStep', 'minuteStep', 'length', 'arrowBehavior', 'iconUp', 'iconDown'], function(key) {
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'autoclose', 'timeType', 'timeFormat', 'modelTimeFormat', 'useNative', 'hourStep', 'minuteStep', 'length', 'arrowBehavior', 'iconUp', 'iconDown', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -32065,7 +32254,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
           // Null values should correctly reset the model value & validity
           if(!viewValue) {
             // BREAKING CHANGE:
-            // return null (not undefined) when input value is empty, so angularjs 1.3 
+            // return null (not undefined) when input value is empty, so angularjs 1.3
             // ngModelController can go ahead and run validators, like ngRequired
             controller.$setValidity('date', true);
             return null;
@@ -32073,8 +32262,8 @@ angular.module('mgcrea.ngStrap.timepicker', [
           var parsedTime = angular.isDate(viewValue) ? viewValue : dateParser.parse(viewValue, controller.$dateValue);
           if(!parsedTime || isNaN(parsedTime.getTime())) {
             controller.$setValidity('date', false);
-            // return undefined, causes ngModelController to 
-            // invalidate model value 
+            // return undefined, causes ngModelController to
+            // invalidate model value
             return;
           } else {
             validateAgainstMinMaxTime(parsedTime);
@@ -32083,6 +32272,8 @@ angular.module('mgcrea.ngStrap.timepicker', [
             return formatDate(parsedTime, options.modelTimeFormat || options.timeFormat);
           } else if(options.timeType === 'number') {
             return controller.$dateValue.getTime();
+          } else if(options.timeType === 'unix') {
+            return controller.$dateValue.getTime() / 1000;
           } else if(options.timeType === 'iso') {
             return controller.$dateValue.toISOString();
           } else {
@@ -32100,6 +32291,8 @@ angular.module('mgcrea.ngStrap.timepicker', [
             date = modelValue;
           } else if(options.timeType === 'string') {
             date = dateParser.parse(modelValue, null, options.modelTimeFormat);
+          } else if(options.timeType === 'unix') {
+            date = new Date(modelValue * 1000);
           } else {
             date = new Date(modelValue);
           }
@@ -32178,6 +32371,11 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
           options.delay = split.length > 1 ? {show: split[0], hide: split[1]} : split[0];
         }
 
+        // store $id to identify the triggering element in events
+        // give priority to options.id, otherwise, try to use
+        // element id if defined
+        $tooltip.$id = options.id || element.attr('id') || '';
+
         // Support scope as string options
         if(options.title) {
           scope.title = $sce.trustAsHtml(options.title);
@@ -32204,6 +32402,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
             $tooltip.toggle();
           });
         };
+        // Publish isShown as a protected var on scope
         $tooltip.$isShown = scope.$isShown = false;
 
         // Private vars
@@ -32303,7 +32502,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
         };
 
         $tooltip.show = function() {
-          if (!options.bsEnabled) return;
+          if (!options.bsEnabled || $tooltip.$isShown) return;
 
           scope.$emit(options.prefixEvent + '.show.before', $tooltip);
           var parent, after;
@@ -32328,7 +32527,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
           // Set the initial positioning.  Make the tooltip invisible
           // so IE doesn't try to focus on it off screen.
-          tipElement.css({top: '-9999px', left: '-9999px', display: 'block', visibility: 'hidden'}).addClass(options.placement);
+          tipElement.css({top: '-9999px', left: '-9999px', display: 'block', visibility: 'hidden'});
 
           // Options: animation
           if(options.animation) tipElement.addClass(options.animation);
@@ -32385,6 +32584,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
         };
 
         var _blur;
+        var _tipToHide;
         $tooltip.hide = function(blur) {
 
           if(!$tooltip.$isShown) return;
@@ -32392,6 +32592,10 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
           // store blur value for leaveAnimateCallback to use
           _blur = blur;
+
+          // store current tipElement reference to use
+          // in leaveAnimateCallback
+          _tipToHide = tipElement;
 
           // Support v1.3+ $animate
           // https://github.com/angular/angular.js/commit/bf0f5502b1bbfddc5cdd2f138efd9188b8c652a9
@@ -32413,13 +32617,18 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         function leaveAnimateCallback() {
           scope.$emit(options.prefixEvent + '.hide', $tooltip);
-          // Allow to blur the input when hidden, like when pressing enter key
-          if(_blur && options.trigger === 'focus') {
-            return element[0].blur();
-          }
 
-          // clean up child scopes
-          destroyTipElement();
+          // check if current tipElement still references
+          // the same element when hide was called
+          if (tipElement === _tipToHide) {
+            // Allow to blur the input when hidden, like when pressing enter key
+            if(_blur && options.trigger === 'focus') {
+              return element[0].blur();
+            }
+
+            // clean up child scopes
+            destroyTipElement();
+          }
         }
 
         $tooltip.toggle = function() {
@@ -32439,21 +32648,57 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
         $tooltip.$applyPlacement = function() {
           if(!tipElement) return;
 
-          // Get the position of the tooltip element.
-          var elementPosition = getPosition();
+          // Determine if we're doing an auto or normal placement
+          var placement = options.placement,
+              autoToken = /\s?auto?\s?/i,
+              autoPlace  = autoToken.test(placement);
 
-          // Get the height and width of the tooltip so we can center it.
-          var tipWidth = tipElement.prop('offsetWidth'),
+          if (autoPlace) {
+            placement = placement.replace(autoToken, '') || defaults.placement;
+          }
+
+          // Need to add the position class before we get
+          // the offsets
+          tipElement.addClass(options.placement);
+
+          // Get the position of the target element
+          // and the height and width of the tooltip so we can center it.
+          var elementPosition = getPosition(),
+              tipWidth = tipElement.prop('offsetWidth'),
               tipHeight = tipElement.prop('offsetHeight');
 
+          // If we're auto placing, we need to check the positioning
+          if (autoPlace) {
+            var originalPlacement = placement;
+            var container = options.container ? angular.element(document.querySelector(options.container)) : element.parent();
+            var containerPosition = getPosition(container);
+
+            // Determine if the vertical placement
+            if (originalPlacement.indexOf('bottom') >= 0 && elementPosition.bottom + tipHeight > containerPosition.bottom) {
+              placement = originalPlacement.replace('bottom', 'top');
+            } else if (originalPlacement.indexOf('top') >= 0 && elementPosition.top - tipHeight < containerPosition.top) {
+              placement = originalPlacement.replace('top', 'bottom');
+            }
+
+            // Determine the horizontal placement
+            // The exotic placements of left and right are opposite of the standard placements.  Their arrows are put on the left/right
+            // and flow in the opposite direction of their placement.
+            if ((originalPlacement === 'right' || originalPlacement === 'bottom-left' || originalPlacement === 'top-left') &&
+                elementPosition.right + tipWidth > containerPosition.width) {
+
+              placement = originalPlacement === 'right' ? 'left' : placement.replace('left', 'right');
+            } else if ((originalPlacement === 'left' || originalPlacement === 'bottom-right' || originalPlacement === 'top-right') &&
+                elementPosition.left - tipWidth < containerPosition.left) {
+
+              placement = originalPlacement === 'left' ? 'right' : placement.replace('right', 'left');
+            }
+
+            tipElement.removeClass(originalPlacement).addClass(placement);
+          }
+
           // Get the tooltip's top and left coordinates to center it with this directive.
-          var tipPosition = getCalculatedOffset(options.placement, elementPosition, tipWidth, tipHeight);
-
-          // Now set the calculated positioning.
-          tipPosition.top += 'px';
-          tipPosition.left += 'px';
-          tipElement.css(tipPosition);
-
+          var tipPosition = getCalculatedOffset(placement, elementPosition, tipWidth, tipHeight);
+          applyPlacementCss(tipPosition.top, tipPosition.left);
         };
 
         $tooltip.$onKeyUp = function(evt) {
@@ -32550,12 +32795,25 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         // Private methods
 
-        function getPosition() {
-          if(options.container === 'body') {
-            return dimensions.offset(options.target[0] || element[0]);
-          } else {
-            return dimensions.position(options.target[0] || element[0]);
+        function getPosition($element) {
+          $element = $element || (options.target || element);
+
+          var el = $element[0];
+
+          var elRect = el.getBoundingClientRect();
+          if (elRect.width === null) {
+            // width and height are missing in IE8, so compute them manually; see https://github.com/twbs/bootstrap/issues/14093
+            elRect = angular.extend({}, elRect, { width: elRect.right - elRect.left, height: elRect.bottom - elRect.top });
           }
+
+          var elPos;
+          if (options.container === 'body') {
+            elPos = dimensions.offset(el);
+          } else {
+            elPos = dimensions.position(el);
+          }
+
+          return angular.extend({}, elRect, elPos);
         }
 
         function getCalculatedOffset(placement, position, actualWidth, actualHeight) {
@@ -32613,6 +32871,10 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
           }
 
           return offset;
+        }
+
+        function applyPlacementCss(top, left) {
+          tipElement.css({ top: top + 'px', left: left + 'px' });
         }
 
         function destroyTipElement() {
@@ -32682,7 +32944,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions'])
 
         // Directive options
         var options = {scope: scope};
-        angular.forEach(['template', 'contentTemplate', 'placement', 'container', 'target', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'type', 'customClass'], function(key) {
+        angular.forEach(['template', 'contentTemplate', 'placement', 'container', 'target', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'backdropAnimation', 'type', 'customClass', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -32825,7 +33087,7 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
           scope.$resetMatches();
           if(parentScope) parentScope.$digest();
           // Emit event
-          scope.$emit(options.prefixEvent + '.select', value, index);
+          scope.$emit(options.prefixEvent + '.select', value, index, $typeahead);
         };
 
         // Protected methods
@@ -32921,7 +33183,7 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
 
         // Directive options
         var options = {scope: scope};
-        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'filter', 'limit', 'minLength', 'watchOptions', 'selectMode', 'comparator'], function(key) {
+        angular.forEach(['placement', 'container', 'delay', 'trigger', 'keyboard', 'html', 'animation', 'template', 'filter', 'limit', 'minLength', 'watchOptions', 'selectMode', 'comparator', 'id'], function(key) {
           if(angular.isDefined(attr[key])) options[key] = attr[key];
         });
 
@@ -33008,7 +33270,7 @@ angular.module('mgcrea.ngStrap.typeahead', ['mgcrea.ngStrap.tooltip', 'mgcrea.ng
 
 /**
  * angular-strap
- * @version v2.1.4 - 2014-11-26
+ * @version v2.1.6 - 2015-01-11
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -33061,7 +33323,7 @@ angular.module('mgcrea.ngStrap.popover').run(['$templateCache', function($templa
 // Source: select.tpl.js
 angular.module('mgcrea.ngStrap.select').run(['$templateCache', function($templateCache) {
 
-  $templateCache.put('select/select.tpl.html', '<ul tabindex="-1" class="select dropdown-menu" ng-show="$isVisible()" role="select"><li ng-if="$showAllNoneButtons"><div class="btn-group" style="margin-bottom: 5px; margin-left: 5px"><button class="btn btn-default btn-xs" ng-click="$selectAll()">All</button> <button class="btn btn-default btn-xs" ng-click="$selectNone()">None</button></div></li><li role="presentation" ng-repeat="match in $matches" ng-class="{active: $isActive($index)}"><a style="cursor: default" role="menuitem" tabindex="-1" ng-click="$select($index, $event)"><i class="{{$iconCheckmark}} pull-right" ng-if="$isMultiple && $isActive($index)"></i> <span ng-bind="match.label"></span></a></li></ul>');
+  $templateCache.put('select/select.tpl.html', '<ul tabindex="-1" class="select dropdown-menu" ng-show="$isVisible()" role="select"><li ng-if="$showAllNoneButtons"><div class="btn-group" style="margin-bottom: 5px; margin-left: 5px"><button type="button" class="btn btn-default btn-xs" ng-click="$selectAll()">{{$allText}}</button> <button type="button" class="btn btn-default btn-xs" ng-click="$selectNone()">{{$noneText}}</button></div></li><li role="presentation" ng-repeat="match in $matches" ng-class="{active: $isActive($index)}"><a style="cursor: default" role="menuitem" tabindex="-1" ng-click="$select($index, $event)"><i class="{{$iconCheckmark}} pull-right" ng-if="$isMultiple && $isActive($index)"></i> <span ng-bind="match.label"></span></a></li></ul>');
 
 }]);
 
@@ -34722,7 +34984,7 @@ angular.module("ang-drag-drop",[])
 })();
 
 //! moment.js
-//! version : 2.8.4
+//! version : 2.9.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -34733,9 +34995,9 @@ angular.module("ang-drag-drop",[])
     ************************************/
 
     var moment,
-        VERSION = '2.8.4',
+        VERSION = '2.9.0',
         // the global-scope this is NOT the global object in Node.js
-        globalScope = typeof global !== 'undefined' ? global : this,
+        globalScope = (typeof global !== 'undefined' && (typeof window === 'undefined' || window === global.window)) ? global : this,
         oldGlobalMoment,
         round = Math.round,
         hasOwnProperty = Object.prototype.hasOwnProperty,
@@ -34812,7 +35074,7 @@ angular.module("ang-drag-drop",[])
             ['HH', /(T| )\d\d/]
         ],
 
-        // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-15', '30']
+        // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-', '15', '30']
         parseTimezoneChunker = /([\+\-]|\d\d)/gi,
 
         // getter and setter names
@@ -34972,7 +35234,7 @@ angular.module("ang-drag-drop",[])
                 return leftZeroFill(this.milliseconds(), 3);
             },
             Z    : function () {
-                var a = -this.zone(),
+                var a = this.utcOffset(),
                     b = '+';
                 if (a < 0) {
                     a = -a;
@@ -34981,7 +35243,7 @@ angular.module("ang-drag-drop",[])
                 return b + leftZeroFill(toInt(a / 60), 2) + ':' + leftZeroFill(toInt(a) % 60, 2);
             },
             ZZ   : function () {
-                var a = -this.zone(),
+                var a = this.utcOffset(),
                     b = '+';
                 if (a < 0) {
                     a = -a;
@@ -35008,7 +35270,9 @@ angular.module("ang-drag-drop",[])
 
         deprecations = {},
 
-        lists = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'];
+        lists = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'],
+
+        updateInProgress = false;
 
     // Pick the first defined of two or three arguments. dfl comes from
     // default.
@@ -35077,6 +35341,26 @@ angular.module("ang-drag-drop",[])
         };
     }
 
+    function monthDiff(a, b) {
+        // difference in months
+        var wholeMonthDiff = ((b.year() - a.year()) * 12) + (b.month() - a.month()),
+            // b is in (anchor - 1 month, anchor + 1 month)
+            anchor = a.clone().add(wholeMonthDiff, 'months'),
+            anchor2, adjust;
+
+        if (b - anchor < 0) {
+            anchor2 = a.clone().add(wholeMonthDiff - 1, 'months');
+            // linear across the month
+            adjust = (b - anchor) / (anchor - anchor2);
+        } else {
+            anchor2 = a.clone().add(wholeMonthDiff + 1, 'months');
+            // linear across the month
+            adjust = (b - anchor) / (anchor2 - anchor);
+        }
+
+        return -(wholeMonthDiff + adjust);
+    }
+
     while (ordinalizeTokens.length) {
         i = ordinalizeTokens.pop();
         formatTokenFunctions[i + 'o'] = ordinalizeToken(formatTokenFunctions[i], i);
@@ -35087,6 +35371,31 @@ angular.module("ang-drag-drop",[])
     }
     formatTokenFunctions.DDDD = padToken(formatTokenFunctions.DDD, 3);
 
+
+    function meridiemFixWrap(locale, hour, meridiem) {
+        var isPm;
+
+        if (meridiem == null) {
+            // nothing to do
+            return hour;
+        }
+        if (locale.meridiemHour != null) {
+            return locale.meridiemHour(hour, meridiem);
+        } else if (locale.isPM != null) {
+            // Fallback
+            isPm = locale.isPM(meridiem);
+            if (isPm && hour < 12) {
+                hour += 12;
+            }
+            if (!isPm && hour === 12) {
+                hour = 0;
+            }
+            return hour;
+        } else {
+            // thie is not supposed to happen
+            return hour;
+        }
+    }
 
     /************************************
         Constructors
@@ -35102,6 +35411,13 @@ angular.module("ang-drag-drop",[])
         }
         copyConfig(this, config);
         this._d = new Date(+config._d);
+        // Prevent infinite loop in case updateOffset creates new moment
+        // objects.
+        if (updateInProgress === false) {
+            updateInProgress = true;
+            moment.updateOffset(this);
+            updateInProgress = false;
+        }
     }
 
     // Duration Constructor
@@ -35505,7 +35821,8 @@ angular.module("ang-drag-drop",[])
         return locales[name];
     }
 
-    // Return a moment from input, that is local/utc/zone equivalent to model.
+    // Return a moment from input, that is local/utc/utcOffset equivalent to
+    // model.
     function makeAs(input, model) {
         var res, diff;
         if (model._isUTC) {
@@ -35654,6 +35971,7 @@ angular.module("ang-drag-drop",[])
             }
         },
 
+
         _calendar : {
             sameDay : '[Today at] LT',
             nextDay : '[Tomorrow at] LT',
@@ -35716,6 +36034,14 @@ angular.module("ang-drag-drop",[])
         _week : {
             dow : 0, // Sunday is the first day of the week.
             doy : 6  // The week that contains Jan 1st is the first week of the year.
+        },
+
+        firstDayOfWeek : function () {
+            return this._week.dow;
+        },
+
+        firstDayOfYear : function () {
+            return this._week.doy;
         },
 
         _invalidDate: 'Invalid date',
@@ -35884,14 +36210,14 @@ angular.module("ang-drag-drop",[])
         }
     }
 
-    function timezoneMinutesFromString(string) {
+    function utcOffsetFromString(string) {
         string = string || '';
         var possibleTzMatches = (string.match(parseTokenTimezone) || []),
             tzChunk = possibleTzMatches[possibleTzMatches.length - 1] || [],
             parts = (tzChunk + '').match(parseTimezoneChunker) || ['-', 0, 0],
             minutes = +(parts[1] * 60) + toInt(parts[2]);
 
-        return parts[0] === '+' ? -minutes : minutes;
+        return parts[0] === '+' ? minutes : -minutes;
     }
 
     // function to convert string input to date
@@ -35955,7 +36281,8 @@ angular.module("ang-drag-drop",[])
         // AM / PM
         case 'a' : // fall through to A
         case 'A' :
-            config._isPm = config._locale.isPM(input);
+            config._meridiem = input;
+            // config._isPm = config._locale.isPM(input);
             break;
         // HOUR
         case 'h' : // fall through to hh
@@ -35995,7 +36322,7 @@ angular.module("ang-drag-drop",[])
         case 'Z' : // fall through to ZZ
         case 'ZZ' :
             config._useUTC = true;
-            config._tzm = timezoneMinutesFromString(input);
+            config._tzm = utcOffsetFromString(input);
             break;
         // WEEKDAY - human
         case 'dd':
@@ -36133,10 +36460,10 @@ angular.module("ang-drag-drop",[])
         }
 
         config._d = (config._useUTC ? makeUTCDate : makeDate).apply(null, input);
-        // Apply timezone offset from input. The actual zone can be changed
+        // Apply timezone offset from input. The actual utcOffset can be changed
         // with parseZone.
         if (config._tzm != null) {
-            config._d.setUTCMinutes(config._d.getUTCMinutes() + config._tzm);
+            config._d.setUTCMinutes(config._d.getUTCMinutes() - config._tzm);
         }
 
         if (config._nextDay) {
@@ -36232,14 +36559,9 @@ angular.module("ang-drag-drop",[])
         if (config._pf.bigHour === true && config._a[HOUR] <= 12) {
             config._pf.bigHour = undefined;
         }
-        // handle am pm
-        if (config._isPm && config._a[HOUR] < 12) {
-            config._a[HOUR] += 12;
-        }
-        // if is 12 am, change hours to 0
-        if (config._isPm === false && config._a[HOUR] === 12) {
-            config._a[HOUR] = 0;
-        }
+        // handle meridiem
+        config._a[HOUR] = meridiemFixWrap(config._locale, config._a[HOUR],
+                config._meridiem);
         dateFromConfig(config);
         checkOverflow(config);
     }
@@ -36681,6 +37003,8 @@ angular.module("ang-drag-drop",[])
                 s: parseIso(match[7]),
                 w: parseIso(match[8])
             };
+        } else if (duration == null) {// checks for null or undefined
+            duration = {};
         } else if (typeof duration === 'object' &&
                 ('from' in duration || 'to' in duration)) {
             diffRes = momentsDifference(moment(duration.from), moment(duration.to));
@@ -36845,6 +37169,8 @@ angular.module("ang-drag-drop",[])
         return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
     };
 
+    moment.isDate = isDate;
+
     /************************************
         Moment Prototype
     ************************************/
@@ -36857,7 +37183,7 @@ angular.module("ang-drag-drop",[])
         },
 
         valueOf : function () {
-            return +this._d + ((this._offset || 0) * 60000);
+            return +this._d - ((this._offset || 0) * 60000);
         },
 
         unix : function () {
@@ -36920,16 +37246,16 @@ angular.module("ang-drag-drop",[])
         },
 
         utc : function (keepLocalTime) {
-            return this.zone(0, keepLocalTime);
+            return this.utcOffset(0, keepLocalTime);
         },
 
         local : function (keepLocalTime) {
             if (this._isUTC) {
-                this.zone(0, keepLocalTime);
+                this.utcOffset(0, keepLocalTime);
                 this._isUTC = false;
 
                 if (keepLocalTime) {
-                    this.add(this._dateTzOffset(), 'm');
+                    this.subtract(this._dateUtcOffset(), 'm');
                 }
             }
             return this;
@@ -36946,29 +37272,20 @@ angular.module("ang-drag-drop",[])
 
         diff : function (input, units, asFloat) {
             var that = makeAs(input, this),
-                zoneDiff = (this.zone() - that.zone()) * 6e4,
-                diff, output, daysAdjust;
+                zoneDiff = (that.utcOffset() - this.utcOffset()) * 6e4,
+                anchor, diff, output, daysAdjust;
 
             units = normalizeUnits(units);
 
-            if (units === 'year' || units === 'month') {
-                // average number of days in the months in the given dates
-                diff = (this.daysInMonth() + that.daysInMonth()) * 432e5; // 24 * 60 * 60 * 1000 / 2
-                // difference in months
-                output = ((this.year() - that.year()) * 12) + (this.month() - that.month());
-                // adjust by taking difference in days, average number of days
-                // and dst in the given months.
-                daysAdjust = (this - moment(this).startOf('month')) -
-                    (that - moment(that).startOf('month'));
-                // same as above but with zones, to negate all dst
-                daysAdjust -= ((this.zone() - moment(this).startOf('month').zone()) -
-                        (that.zone() - moment(that).startOf('month').zone())) * 6e4;
-                output += daysAdjust / diff;
-                if (units === 'year') {
+            if (units === 'year' || units === 'month' || units === 'quarter') {
+                output = monthDiff(this, that);
+                if (units === 'quarter') {
+                    output = output / 3;
+                } else if (units === 'year') {
                     output = output / 12;
                 }
             } else {
-                diff = (this - that);
+                diff = this - that;
                 output = units === 'second' ? diff / 1e3 : // 1000
                     units === 'minute' ? diff / 6e4 : // 1000 * 60
                     units === 'hour' ? diff / 36e5 : // 1000 * 60 * 60
@@ -36989,7 +37306,8 @@ angular.module("ang-drag-drop",[])
 
         calendar : function (time) {
             // We want to compare the start of today, vs this.
-            // Getting start-of-today depends on whether we're zone'd or not.
+            // Getting start-of-today depends on whether we're locat/utc/offset
+            // or not.
             var now = time || moment(),
                 sod = makeAs(now, this).startOf('day'),
                 diff = this.diff(sod, 'days', true),
@@ -37007,8 +37325,8 @@ angular.module("ang-drag-drop",[])
         },
 
         isDST : function () {
-            return (this.zone() < this.clone().month(0).zone() ||
-                this.zone() < this.clone().month(5).zone());
+            return (this.utcOffset() > this.clone().month(0).utcOffset() ||
+                this.utcOffset() > this.clone().month(5).utcOffset());
         },
 
         day : function (input) {
@@ -37098,6 +37416,10 @@ angular.module("ang-drag-drop",[])
             }
         },
 
+        isBetween: function (from, to, units) {
+            return this.isAfter(from, units) && this.isBefore(to, units);
+        },
+
         isSame: function (input, units) {
             var inputMs;
             units = normalizeUnits(units || 'millisecond');
@@ -37126,9 +37448,27 @@ angular.module("ang-drag-drop",[])
                 }
         ),
 
+        zone : deprecate(
+                'moment().zone is deprecated, use moment().utcOffset instead. ' +
+                'https://github.com/moment/moment/issues/1779',
+                function (input, keepLocalTime) {
+                    if (input != null) {
+                        if (typeof input !== 'string') {
+                            input = -input;
+                        }
+
+                        this.utcOffset(input, keepLocalTime);
+
+                        return this;
+                    } else {
+                        return -this.utcOffset();
+                    }
+                }
+        ),
+
         // keepLocalTime = true means only change the timezone, without
-        // affecting the local hour. So 5:31:26 +0300 --[zone(2, true)]-->
-        // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist int zone
+        // affecting the local hour. So 5:31:26 +0300 --[utcOffset(2, true)]-->
+        // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist with offset
         // +0200, so we adjust the time as needed, to be valid.
         //
         // Keeping the time actually adds/subtracts (one hour)
@@ -37136,38 +37476,51 @@ angular.module("ang-drag-drop",[])
         // a second time. In case it wants us to change the offset again
         // _changeInProgress == true case, then we have to adjust, because
         // there is no such time in the given timezone.
-        zone : function (input, keepLocalTime) {
+        utcOffset : function (input, keepLocalTime) {
             var offset = this._offset || 0,
                 localAdjust;
             if (input != null) {
                 if (typeof input === 'string') {
-                    input = timezoneMinutesFromString(input);
+                    input = utcOffsetFromString(input);
                 }
                 if (Math.abs(input) < 16) {
                     input = input * 60;
                 }
                 if (!this._isUTC && keepLocalTime) {
-                    localAdjust = this._dateTzOffset();
+                    localAdjust = this._dateUtcOffset();
                 }
                 this._offset = input;
                 this._isUTC = true;
                 if (localAdjust != null) {
-                    this.subtract(localAdjust, 'm');
+                    this.add(localAdjust, 'm');
                 }
                 if (offset !== input) {
                     if (!keepLocalTime || this._changeInProgress) {
                         addOrSubtractDurationFromMoment(this,
-                                moment.duration(offset - input, 'm'), 1, false);
+                                moment.duration(input - offset, 'm'), 1, false);
                     } else if (!this._changeInProgress) {
                         this._changeInProgress = true;
                         moment.updateOffset(this, true);
                         this._changeInProgress = null;
                     }
                 }
+
+                return this;
             } else {
-                return this._isUTC ? offset : this._dateTzOffset();
+                return this._isUTC ? offset : this._dateUtcOffset();
             }
-            return this;
+        },
+
+        isLocal : function () {
+            return !this._isUTC;
+        },
+
+        isUtcOffset : function () {
+            return this._isUTC;
+        },
+
+        isUtc : function () {
+            return this._isUTC && this._offset === 0;
         },
 
         zoneAbbr : function () {
@@ -37180,9 +37533,9 @@ angular.module("ang-drag-drop",[])
 
         parseZone : function () {
             if (this._tzm) {
-                this.zone(this._tzm);
+                this.utcOffset(this._tzm);
             } else if (typeof this._i === 'string') {
-                this.zone(this._i);
+                this.utcOffset(utcOffsetFromString(this._i));
             }
             return this;
         },
@@ -37192,10 +37545,10 @@ angular.module("ang-drag-drop",[])
                 input = 0;
             }
             else {
-                input = moment(input).zone();
+                input = moment(input).utcOffset();
             }
 
-            return (this.zone() - input) % 60 === 0;
+            return (this.utcOffset() - input) % 60 === 0;
         },
 
         daysInMonth : function () {
@@ -37258,9 +37611,17 @@ angular.module("ang-drag-drop",[])
         },
 
         set : function (units, value) {
-            units = normalizeUnits(units);
-            if (typeof this[units] === 'function') {
-                this[units](value);
+            var unit;
+            if (typeof units === 'object') {
+                for (unit in units) {
+                    this.set(unit, units[unit]);
+                }
+            }
+            else {
+                units = normalizeUnits(units);
+                if (typeof this[units] === 'function') {
+                    this[units](value);
+                }
             }
             return this;
         },
@@ -37297,11 +37658,12 @@ angular.module("ang-drag-drop",[])
             return this._locale;
         },
 
-        _dateTzOffset : function () {
+        _dateUtcOffset : function () {
             // On Firefox.24 Date#getTimezoneOffset returns a floating point.
             // https://github.com/moment/moment/pull/1871
-            return Math.round(this._d.getTimezoneOffset() / 15) * 15;
+            return -Math.round(this._d.getTimezoneOffset() / 15) * 15;
         }
+
     });
 
     function rawMonthSetter(mom, value) {
@@ -37369,6 +37731,9 @@ angular.module("ang-drag-drop",[])
 
     // add aliased format methods
     moment.fn.toJSON = moment.fn.toISOString;
+
+    // alias isUtc for dev-friendliness
+    moment.fn.isUTC = moment.fn.isUtc;
 
     /************************************
         Duration Prototype
@@ -37557,6 +37922,10 @@ angular.module("ang-drag-drop",[])
 
         localeData : function () {
             return this._locale;
+        },
+
+        toJSON : function () {
+            return this.toISOString();
         }
     });
 
@@ -37644,7 +38013,7 @@ angular.module("ang-drag-drop",[])
     if (hasModule) {
         module.exports = moment;
     } else if (typeof define === 'function' && define.amd) {
-        define('moment', function (require, exports, module) {
+        define(function (require, exports, module) {
             if (module.config && module.config() && module.config().noGlobal === true) {
                 // release the global variable
                 globalScope.moment = oldGlobalMoment;
@@ -37658,9 +38027,10 @@ angular.module("ang-drag-drop",[])
     }
 }).call(this);
 
-/* angular-moment.js / v0.8.3 / (c) 2013, 2014 Uri Shaked / MIT Licence */
+/* angular-moment.js / v0.9.0 / (c) 2013, 2014, 2015 Uri Shaked / MIT Licence */
 
-'format global'; /* global define */
+'format global';
+/* global define */
 'deps angular';
 'deps moment';
 
@@ -37721,7 +38091,20 @@ angular.module("ang-drag-drop",[])
 				 * default and saves you from specifying a format in every
 				 * element. Overridden by element attr. Null by default.
 				 */
-				format: null
+				format: null,
+
+				/**
+				 * @ngdoc property
+				 * @name angularMoment.config.angularMomentConfig#statefulFilters
+				 * @propertyOf angularMoment.config:angularMomentConfig
+				 * @returns {boolean} Whether angular-moment filters should be stateless (or not)
+				 *
+				 * @description
+				 * Specifies whether the filters included with angular-moment are stateful.
+				 * Stateful filters will automatically re-evaluate whenever you change the timezone
+				 * or language settings, but may negatively impact performance. true by default.
+				 */
+				statefulFilters: true
 			})
 
 		/**
@@ -37770,7 +38153,7 @@ angular.module("ang-drag-drop",[])
 				 * @name angularMoment.config.amTimeAgoConfig#format
 				 * @propertyOf angularMoment.config:amTimeAgoConfig
 				 * @returns {string} The format of the date to be displayed in the title of the element. If null,
-				 * 		the directive set the title of the element.
+				 *        the directive set the title of the element.
 				 *
 				 * @description
 				 * Specify the format of the date when displayed. null by default.
@@ -37918,7 +38301,6 @@ angular.module("ang-drag-drop",[])
 		 * @module angularMoment
 		 */
 			.service('amMoment', ['moment', '$rootScope', '$log', 'angularMomentConfig', function (moment, $rootScope, $log, angularMomentConfig) {
-				var that = this;
 				/**
 				 * @ngdoc property
 				 * @name angularMoment:amMoment#preprocessors
@@ -37942,32 +38324,15 @@ angular.module("ang-drag-drop",[])
 				 * Changes the locale for moment.js and updates all the am-time-ago directive instances
 				 * with the new locale. Also broadcasts a `amMoment:localeChanged` event on $rootScope.
 				 *
-				 * @param {string} locale 2-letter language code (e.g. en, es, ru, etc.)
+				 * @param {string} locale Locale code (e.g. en, es, ru, pt-br, etc.)
 				 */
 				this.changeLocale = function (locale) {
-					var result = (moment.locale||moment.lang)(locale);
+					var result = moment.locale(locale);
 					if (angular.isDefined(locale)) {
 						$rootScope.$broadcast('amMoment:localeChanged');
 
-						// The following event is deprecated and will be removed in an upcoming
-						// major release.
-						$rootScope.$broadcast('amMoment:languageChange');
 					}
 					return result;
-				};
-
-				/**
-				 * @ngdoc function
-				 * @name angularMoment.service.amMoment#changeLanguage
-				 * @methodOf angularMoment.service.amMoment
-				 * @deprecated Please use changeLocale() instead.
-				 *
-				 * @description
-				 * Deprecated. Please use changeLocale() instead.
-				 */
-				this.changeLanguage = function (lang) {
-					$log.warn('angular-moment: Usage of amMoment.changeLanguage() is deprecated. Please use changeLocale()');
-					return that.changeLocale(lang);
 				};
 
 				/**
@@ -38032,8 +38397,8 @@ angular.module("ang-drag-drop",[])
 		 * @name angularMoment.filter:amCalendar
 		 * @module angularMoment
 		 */
-			.filter('amCalendar', ['moment', 'amMoment', function (moment, amMoment) {
-				return function (value, preprocess) {
+			.filter('amCalendar', ['moment', 'amMoment', 'angularMomentConfig', function (moment, amMoment, angularMomentConfig) {
+				function amCalendarFilter(value, preprocess) {
 					if (typeof value === 'undefined' || value === null) {
 						return '';
 					}
@@ -38045,7 +38410,13 @@ angular.module("ang-drag-drop",[])
 					}
 
 					return amMoment.applyTimezone(date).calendar();
-				};
+				}
+
+				// Since AngularJS 1.3, filters have to explicitly define being stateful
+				// (this is no longer the default).
+				amCalendarFilter.$stateful = angularMomentConfig.statefulFilters;
+
+				return amCalendarFilter;
 			}])
 
 		/**
@@ -38054,8 +38425,8 @@ angular.module("ang-drag-drop",[])
 		 * @module angularMoment
 		 * @function
 		 */
-			.filter('amDateFormat', ['moment', 'amMoment', function (moment, amMoment) {
-				return function (value, format, preprocess) {
+			.filter('amDateFormat', ['moment', 'amMoment', 'angularMomentConfig', function (moment, amMoment, angularMomentConfig) {
+				function amDateFormatFilter(value, format, preprocess) {
 					if (typeof value === 'undefined' || value === null) {
 						return '';
 					}
@@ -38067,7 +38438,11 @@ angular.module("ang-drag-drop",[])
 					}
 
 					return amMoment.applyTimezone(date).format(format);
-				};
+				}
+
+				amDateFormatFilter.$stateful = angularMomentConfig.statefulFilters;
+
+				return amDateFormatFilter;
 			}])
 
 		/**
@@ -38076,14 +38451,18 @@ angular.module("ang-drag-drop",[])
 		 * @module angularMoment
 		 * @function
 		 */
-			.filter('amDurationFormat', ['moment', function (moment) {
-				return function (value, format, suffix) {
+			.filter('amDurationFormat', ['moment', 'angularMomentConfig', function (moment, angularMomentConfig) {
+				function amDurationFormatFilter(value, format, suffix) {
 					if (typeof value === 'undefined' || value === null) {
 						return '';
 					}
 
 					return moment.duration(value, format).humanize(suffix);
-				};
+				}
+
+				amDurationFormatFilter.$stateful = angularMomentConfig.statefulFilters;
+
+				return amDurationFormatFilter;
 			}])
 
 		/**
@@ -38092,21 +38471,25 @@ angular.module("ang-drag-drop",[])
 		 * @module angularMoment
 		 * @function
 		 */
-			.filter('amTimeAgo', ['moment', 'amMoment', function (moment, amMoment) {
-					return function (value, preprocess, suffix) {
-						if (typeof value === 'undefined' || value === null) {
-							return '';
-						}
+			.filter('amTimeAgo', ['moment', 'amMoment', 'angularMomentConfig', function (moment, amMoment, angularMomentConfig) {
+				function amTimeAgoFilter(value, preprocess, suffix) {
+					if (typeof value === 'undefined' || value === null) {
+						return '';
+					}
 
-						value = amMoment.preprocessDate(value, preprocess);
-						var date = moment(value);
-						if (!date.isValid()) {
-							return '';
-						}
+					value = amMoment.preprocessDate(value, preprocess);
+					var date = moment(value);
+					if (!date.isValid()) {
+						return '';
+					}
 
-						return amMoment.applyTimezone(date).fromNow(suffix);
-					};
-				}]);
+					return amMoment.applyTimezone(date).fromNow(suffix);
+				}
+
+				amTimeAgoFilter.$stateful = angularMomentConfig.statefulFilters;
+
+				return amTimeAgoFilter;
+			}]);
 	}
 
 	if (typeof define === 'function' && define.amd) {
@@ -43666,10 +44049,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
-
+                                        var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
+                                        ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
                                         var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
+                                        ganttBody.css('pointer-events', '');
+
                                         var rows = ganttCtrl.gantt.rowsManager.rows;
                                         var targetRow;
                                         for (var i= 0, l=rows.length; i<l; i++) {
