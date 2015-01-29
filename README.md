@@ -1,7 +1,8 @@
 # angular-gantt 
-[![npm version](http://img.shields.io/npm/v/angular-gantt.svg)](https://npmjs.org/package/angular-gantt) 
-[![build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg)](https://travis-ci.org/angular-gantt/angular-gantt)
-[![Coverage Status](https://img.shields.io/coveralls/angular-gantt/angular-gantt.svg)](https://coveralls.io/r/angular-gantt/angular-gantt)
+[![npm version](http://img.shields.io/npm/v/angular-gantt.svg?style=flat)](https://npmjs.org/package/angular-gantt) 
+[![Build status](http://img.shields.io/travis/angular-gantt/angular-gantt.svg?style=flat)](https://travis-ci.org/angular-gantt/angular-gantt)
+[![Coverage Status](https://img.shields.io/coveralls/angular-gantt/angular-gantt.svg?style=flat)](https://coveralls.io/r/angular-gantt/angular-gantt)
+[![Documentation](https://readthedocs.org/projects/angular-gantt/badge/?style=flat)](https://angular-gantt.readthedocs.org)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/angular-gantt/angular-gantt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Gantt chart component for AngularJS
