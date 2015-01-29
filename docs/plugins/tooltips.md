@@ -32,6 +32,17 @@ Display tooltips when moving mouse over a task.
     
     default: `MMM DD, HH:mm`
 
+- ### content
+
+    Content of the tooltip
+
+    default:
+    
+        '{{task.model.name}}</br>' +
+        '<small>' +
+        '{{task.isMilestone() === true && getFromLabel() || getFromLabel() + \' - \' + getToLabel()}}' +
+        '</small>'
+
 - ### template
 
     Template to use for tooltip element.

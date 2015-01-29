@@ -4,9 +4,6 @@
      ng-class="isRightAligned ? 'gantt-task-infoArrowR' : 'gantt-task-infoArrow'"
      ng-style="{top: taskRect.top + 'px', marginTop: -elementHeight - 8 + 'px'}">
     <div class="gantt-task-info-content">
-        {{task.model.name}}</br>
-        <small>
-            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + ' - ' + getToLabel())}}
-        </small>
+        <div gantt-bind-compile-html="pluginScope.content"></div>
     </div>
 </div>

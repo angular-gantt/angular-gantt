@@ -9,6 +9,7 @@
  * Main module of the application.
  */
 angular.module('angularGanttDemoApp', [
+    'ngSanitize',
     'gantt', // angular-gantt.
     'gantt.sortable',
     'gantt.movable',

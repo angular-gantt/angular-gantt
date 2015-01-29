@@ -2,6 +2,10 @@
 
 Display a tree hierarchy of labels on the side.
 
+## Dependency
+
+[angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree)
+
 ## Usage
 
     angular.module('myApp', ['gantt', 'gantt.tree']);
