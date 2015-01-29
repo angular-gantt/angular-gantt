@@ -209,6 +209,8 @@
         
             <li><a href="#i-have-an-issue-with-date-calendar-andor-timezone">I have an issue with date, calendar and/or timezone ?</a></li>
         
+            <li><a href="#how-can-i-set-first-day-of-week-and-first-week-of-year">How can i set first day of week and first week of year ?</a></li>
+        
     
     </ul>
 </div></div>
@@ -244,6 +246,17 @@
 <p>angular-gantt use <a href="https://github.com/urish/angular-moment">angular-moment</a>, an angularJS wrapper for <a href="http://momentjs.com/">momentJS</a>. 
 For any features related to date, like date formats, week numbering, custom calendars and timezone support, please
 review those projects documentations.</p>
+</li>
+<li>
+<h3 id="how-can-i-set-first-day-of-week-and-first-week-of-year">How can i set first day of week and first week of year ?</h3>
+<p>Using <a href="http://momentjs.com/">momentJS</a> API.</p>
+<pre><code>moment.locale('en', {
+  week : {
+    dow : 1, // Monday is the first day of the week.
+    doy : 4 // The week that contains Jan 4th is the first week of the year.
+  }
+});
+</code></pre>
 </li>
 </ul>
 </div>

@@ -216,9 +216,9 @@
 <!-- -->
 
 <pre><code>$scope.registerApi = function(api) {
-  api.core.on.ready() {
+  api.core.on.ready($scope, function () {
     // Call API methods and register events.
-  }
+  });
 }
 </code></pre>
 <p>API Object contains features, like <code>api.core</code>, <code>api.data</code>, <code>api.rows</code> or <code>api.columns</code>.</p>
