@@ -58,7 +58,7 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
 
     Template of the content of each row. It can contain HTML and will be automatically compiled.
 
-    It can be modified for a specific row using [Row model](data.md) `content` property.
+    It can be modified for a specific row using [Row model](../configuration/data.md) `content` property.
 
     default: `{{row.model.name}}`
 
