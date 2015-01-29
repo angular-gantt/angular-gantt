@@ -25,6 +25,8 @@
                 filterRowComparator: '=?',
                 viewScale: '=?',
                 columnWidth: '=?',
+                expandToFit: '=?',
+                shrinkToFit: '=?',
                 showSide: '=?',
                 allowSideResizing: '=?',
                 fromDate: '=?',

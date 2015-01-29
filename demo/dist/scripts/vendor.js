@@ -38153,6 +38153,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filterRowComparator: '=?',
                 viewScale: '=?',
                 columnWidth: '=?',
+                expandToFit: '=?',
+                shrinkToFit: '=?',
                 showSide: '=?',
                 allowSideResizing: '=?',
                 fromDate: '=?',
@@ -39737,14 +39739,27 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         ColumnsManager.prototype.updateColumnsWidths = function(columns) {
             var columnWidth = this.gantt.options.value('columnWidth');
-            var autoFitWidthEnabled = columnWidth === undefined;
-            if (autoFitWidthEnabled) {
+            var expandToFit = this.gantt.options.value('expandToFit');
+            var shrinkToFit = this.gantt.options.value('shrinkToFit');
+
+            if (columnWidth === undefined || expandToFit || shrinkToFit) {
                 var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
                 var borderWidth = this.gantt.scroll.getBordersWidth();
                 var newWidth = scrollWidth - (borderWidth !== undefined ? this.gantt.scroll.getBordersWidth() : 0);
-                updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+
+                var lastColumn = this.gantt.columnsManager.getLastColumn(false);
+                var currentWidth = lastColumn.left + lastColumn.width;
+
+                if (expandToFit && currentWidth < newWidth ||
+                    shrinkToFit && currentWidth > newWidth ||
+                    columnWidth === undefined
+                ) {
+                    updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+                    return true;
+                }
+
             }
-            return autoFitWidthEnabled;
+            return false;
         };
 
         ColumnsManager.prototype.getColumnsWidth = function() {

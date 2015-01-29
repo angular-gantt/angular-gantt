@@ -61,7 +61,11 @@
     The width of each column in `px`. This allows you add logic like `column-width="viewScale == 'day' ?  50 : 20"` to 
     have wider columns for days than for other column scales.
     
-    If `undefined`, gantt will adjust columns width to fill available space.
+    If `undefined`, gantt will always fit available width.
+
+- ### expand-to-fit, shrink-to-fit
+
+    Ensure that gantt is expanded/shrinked to fit the available width, even if `column-width` value is defined.
 
 - ### column-magnet
 
