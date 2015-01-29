@@ -59,3 +59,7 @@
     min-height: inherit;
     line-height: inherit;
 }
+
+.gantt-side-content-tree .gantt-tree-handle-button {
+    pointer-events: auto;
+}
