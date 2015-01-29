@@ -148,7 +148,7 @@
 
     <!-- Task content template -->
     <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">
-        <div class="gantt-task-content"><span>{{task.model.name}}</span></div>
+        <div class="gantt-task-content"><span gantt-bind-compile-html="getTaskContent()"/></div>
     </script>
 
 

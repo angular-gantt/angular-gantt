@@ -3,6 +3,10 @@
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
         $scope.rootRows = [];
 
+        $scope.getHeader = function() {
+            return $scope.pluginScope.header;
+        };
+
         var hierarchy = new Hierarchy();
 
         var isVisible = function(row) {
@@ -93,6 +97,10 @@
             return row._collapsed;
         };
 
+        $scope.getHeaderContent = function() {
+            return $scope.pluginScope.headerContent;
+        };
+
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
         $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
 
@@ -127,6 +135,17 @@
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
+
+        $scope.getValue = function() {
+            return $scope.row.model.name;
+        };
+
+        $scope.getRowContent = function() {
+            if ($scope.row.model.content !== undefined) {
+                return $scope.row.model.content;
+            }
+            return $scope.pluginScope.content;
+        };
 
         $scope.$watch('collapsed', function(newValue) {
             if ($scope.$modelValue._collapsed !== newValue) {

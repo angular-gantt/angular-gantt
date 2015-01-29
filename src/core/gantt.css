@@ -36,7 +36,7 @@
     overflow: hidden;
 }
 
-.gantt-row-label span {
+.gantt-row-label span.gantt-label-text {
     box-sizing:border-box;
     display: inline-block;
     text-align: center;
@@ -45,7 +45,7 @@
     text-overflow: clip;
 }
 
-.gantt-row-label span {
+.gantt-row-label span.gantt-label-text {
     padding-left: 12px;
     padding-right: 12px;
 }

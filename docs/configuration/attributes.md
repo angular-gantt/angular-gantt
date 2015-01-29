@@ -326,6 +326,14 @@
     
     default: `expand`
 
+- ### task-content
+
+    Content used to display each task. It can contain HTML and will be automatically compiled.
+    
+    It can be modified for a specific task using [Task model](data.md) `content` property
+
+    default: `{{task.model.name}}`
+
 - ### template
 
     Custom Gantt HTML template. If you want to customize the default Gantt HTML template, copy the content of

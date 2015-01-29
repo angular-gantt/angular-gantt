@@ -34,7 +34,7 @@ Display tooltips when moving mouse over a task.
 
 - ### content
 
-    Content of the tooltip
+    Content of the tooltip. It can contain HTML and will be automatically compiled.
 
     default:
     

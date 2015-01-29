@@ -54,6 +54,20 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
 
     default: `Name`
 
+- #### content
+
+    Template of the content of each row. It can contain HTML and will be automatically compiled.
+
+    It can be modified for a specific row using [Row model](data.md) `content` property.
+
+    default: `{{row.model.name}}`
+
+- #### header-content
+
+    Template of the content of header. It can contain HTML and will be automatically compiled.
+
+    default: `{{getHeader()}}`
+
 ## API
 
 ### Methods

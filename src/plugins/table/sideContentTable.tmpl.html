@@ -1,22 +1,22 @@
-<div class="gantt-side-content-table" ng-controller="TableController">
+<div class="gantt-side-content-table">
 
-    <div class="gantt-table-column {{getClass(this, column)}}" ng-repeat="column in pluginScope.columns">
+    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">
 
         <div class="gantt-table-header">
             <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">
                 <div class="gantt-row-height gantt-row-label gantt-table-header-row" ng-class="{'gantt-table-header-row-last': $last}">
-                    <span>{{$last ? getHeader(this, column) : ""}}</span>
+                    <span ng-if="$last" class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>
                 </div>
             </div>
         </div>
 
         <div class="gantt-table-content" ng-style="getMaxHeightCss()">
             <div gantt-vertical-scroll-receiver>
-                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id" ng-controller="TableColumnRowController">
                     <div gantt-row-label class="gantt-row-label gantt-row-height" ng-class="row.model.classes" ng-style="{'height': row.model.height}">
                         <div class="gantt-valign-container">
                             <div class="gantt-valign-content">
-                                <span>{{getValue(this, column)}}</span>
+                                <span class="gantt-label-text" gantt-bind-compile-html="getRowContent()"></span>
                             </div>
                         </div>
                     </div>

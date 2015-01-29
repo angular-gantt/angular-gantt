@@ -13,7 +13,7 @@
     "json3": "~3.3.1",
     "es5-shim": "~3.1.0",
     "angular-strap": "~2.1.0",
-    "font-awesome": "~4.2.0",
+    "font-awesome": "~4.3.0",
     "angular-native-dragdrop": "https://github.com/ganarajpr/angular-dragdrop.git#master",
     "angular-ui-tree": "~2.1.5",
     "angular-gantt": "~1.0.0"

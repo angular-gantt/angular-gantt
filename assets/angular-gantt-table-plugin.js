@@ -19,6 +19,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 columns: '=?',
                 headers: '=?',
                 classes: '=?',
+                contents: '=?',
+                headerContents: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
             },
@@ -42,6 +44,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headers === undefined) {
                     scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.contents === undefined) {
+                    scope.contents = {};
+                }
+
+                if (scope.headerContents === undefined) {
+                    scope.headerContents = {};
                 }
 
                 if (scope.classes === undefined) {
@@ -99,26 +109,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt.table').controller('TableController', ['$scope', function($scope) {
-        $scope.getValue = function(scope, column) {
-            var value = scope.$eval(column, scope.row);
-
-            var formatter = $scope.pluginScope.formatters[column];
-            if (formatter !== undefined) {
-                value = formatter(value, column, scope.row);
-            }
-
-            return value;
-        };
-
-        $scope.getHeader = function(scope, column) {
-            var header = $scope.pluginScope.headers[column];
+    angular.module('gantt.table').controller('TableColumnController', ['$scope', function($scope) {
+        $scope.getHeader = function() {
+            var header = $scope.pluginScope.headers[$scope.column];
             if (header !== undefined) {
                 return header;
             }
-            var headerFormatter;
             if ($scope.pluginScope.headerFormatter !== undefined) {
-                header = headerFormatter(column);
+                header = $scope.pluginScope.headerFormatter($scope.column);
             }
             if (header !== undefined) {
                 return header;
@@ -126,8 +124,47 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return header;
         };
 
-        $scope.getClass = function(scope, column) {
-            return $scope.pluginScope.classes[column];
+        $scope.getHeaderContent = function() {
+            var headerContent = $scope.pluginScope.headerContents[$scope.column];
+            if (headerContent === undefined) {
+                return '{{getHeader()}}';
+            }
+            return headerContent;
+        };
+
+        $scope.getClass = function() {
+            return $scope.pluginScope.classes[$scope.column];
+        };
+    }]);
+}());
+
+
+(function() {
+    'use strict';
+    angular.module('gantt.table').controller('TableColumnRowController', ['$scope', function($scope) {
+        $scope.getValue = function() {
+            var value = $scope.$eval($scope.column, $scope.row);
+
+            var formatter = $scope.pluginScope.formatters[$scope.column];
+            if (formatter !== undefined) {
+                value = formatter(value, $scope.column, $scope.row);
+            }
+
+            return value;
+        };
+
+        $scope.getRowContent = function() {
+            var content;
+            if ($scope.column === 'model.name') {
+                content = $scope.row.model.content;
+            }
+            if (content === undefined) {
+                content = $scope.pluginScope.contents[$scope.column];
+            }
+            if (content === undefined) {
+                return '{{getValue()}}';
+            }
+            return content;
         };
     }]);
 }());

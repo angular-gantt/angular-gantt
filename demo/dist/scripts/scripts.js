@@ -9,7 +9,6 @@
  * Main module of the application.
  */
 angular.module('angularGanttDemoApp', [
-    'ngSanitize',
     'gantt', // angular-gantt.
     'gantt.sortable',
     'gantt.movable',
@@ -58,6 +57,12 @@ angular.module('angularGanttDemoApp')
                 'to': function(to) {
                     return to !== undefined ? to.format('lll') : undefined;
                 }
+            },
+            treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+            columnsHeaderContents: {
+                'model.name': '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+                'from': '<i class="fa fa-calendar"></i> {{getHeader()}}',
+                'to': '<i class="fa fa-calendar"></i> {{getHeader()}}'
             },
             autoExpand: 'none',
             taskOutOfRange: 'truncate',
@@ -487,14 +492,14 @@ angular.module('angularGanttDemoApp')
                                 progress: {percent: 100, color: '#3C8CF8'}}
                         ]},
                         {name: 'Create concept', tasks: [
-                            {name: 'Create concept', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
+                            {name: 'Create concept', content: '<i class="fa fa-cog"></i>{{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
                                 progress: 100}
                         ]},
                         {name: 'Finalize concept', tasks: [
                             {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                                 progress: 100}
                         ]},
-                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4']},
+                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '<i class="fa fa-file-code-o"></i> {{row.model.name}}'},
                         {name: 'Sprint 1', tooltips: false, tasks: [
                             {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
                                 progress: 25}
@@ -508,7 +513,7 @@ angular.module('angularGanttDemoApp')
                         {name: 'Sprint 4', tasks: [
                             {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
                         ]},
-                        {name: 'Hosting'},
+                        {name: 'Hosting', content: '<i class="fa fa-server"></i> {{row.model.name}}'},
                         {name: 'Setup', tasks: [
                             {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
                         ]},

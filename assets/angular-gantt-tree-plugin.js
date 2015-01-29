@@ -16,7 +16,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                header: '=?'
+                header: '=?',
+                content: '=?',
+                headerContent: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -34,6 +36,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.header === undefined) {
                     scope.header = 'Name';
+                }
+
+                if (scope.content === undefined) {
+                    scope.content = '{{row.model.name}}';
+                }
+
+                if (scope.headerContent === undefined) {
+                    scope.headerContent = '{{getHeader()}}';
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -81,6 +91,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
         $scope.rootRows = [];
+
+        $scope.getHeader = function() {
+            return $scope.pluginScope.header;
+        };
 
         var hierarchy = new Hierarchy();
 
@@ -172,6 +186,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return row._collapsed;
         };
 
+        $scope.getHeaderContent = function() {
+            return $scope.pluginScope.headerContent;
+        };
+
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
         $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
 
@@ -206,6 +224,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
+
+        $scope.getValue = function() {
+            return $scope.row.model.name;
+        };
+
+        $scope.getRowContent = function() {
+            if ($scope.row.model.content !== undefined) {
+                return $scope.row.model.content;
+            }
+            return $scope.pluginScope.content;
+        };
 
         $scope.$watch('collapsed', function(newValue) {
             if ($scope.$modelValue._collapsed !== newValue) {

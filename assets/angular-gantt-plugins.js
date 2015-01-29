@@ -931,6 +931,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 columns: '=?',
                 headers: '=?',
                 classes: '=?',
+                contents: '=?',
+                headerContents: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
             },
@@ -954,6 +956,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headers === undefined) {
                     scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.contents === undefined) {
+                    scope.contents = {};
+                }
+
+                if (scope.headerContents === undefined) {
+                    scope.headerContents = {};
                 }
 
                 if (scope.classes === undefined) {
@@ -1059,7 +1069,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                header: '=?'
+                header: '=?',
+                content: '=?',
+                headerContent: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -1077,6 +1089,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.header === undefined) {
                     scope.header = 'Name';
+                }
+
+                if (scope.content === undefined) {
+                    scope.content = '{{row.model.name}}';
+                }
+
+                if (scope.headerContent === undefined) {
+                    scope.headerContent = '{{getHeader()}}';
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -1483,26 +1503,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt.table').controller('TableController', ['$scope', function($scope) {
-        $scope.getValue = function(scope, column) {
-            var value = scope.$eval(column, scope.row);
-
-            var formatter = $scope.pluginScope.formatters[column];
-            if (formatter !== undefined) {
-                value = formatter(value, column, scope.row);
-            }
-
-            return value;
-        };
-
-        $scope.getHeader = function(scope, column) {
-            var header = $scope.pluginScope.headers[column];
+    angular.module('gantt.table').controller('TableColumnController', ['$scope', function($scope) {
+        $scope.getHeader = function() {
+            var header = $scope.pluginScope.headers[$scope.column];
             if (header !== undefined) {
                 return header;
             }
-            var headerFormatter;
             if ($scope.pluginScope.headerFormatter !== undefined) {
-                header = headerFormatter(column);
+                header = $scope.pluginScope.headerFormatter($scope.column);
             }
             if (header !== undefined) {
                 return header;
@@ -1510,8 +1518,47 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return header;
         };
 
-        $scope.getClass = function(scope, column) {
-            return $scope.pluginScope.classes[column];
+        $scope.getHeaderContent = function() {
+            var headerContent = $scope.pluginScope.headerContents[$scope.column];
+            if (headerContent === undefined) {
+                return '{{getHeader()}}';
+            }
+            return headerContent;
+        };
+
+        $scope.getClass = function() {
+            return $scope.pluginScope.classes[$scope.column];
+        };
+    }]);
+}());
+
+
+(function() {
+    'use strict';
+    angular.module('gantt.table').controller('TableColumnRowController', ['$scope', function($scope) {
+        $scope.getValue = function() {
+            var value = $scope.$eval($scope.column, $scope.row);
+
+            var formatter = $scope.pluginScope.formatters[$scope.column];
+            if (formatter !== undefined) {
+                value = formatter(value, $scope.column, $scope.row);
+            }
+
+            return value;
+        };
+
+        $scope.getRowContent = function() {
+            var content;
+            if ($scope.column === 'model.name') {
+                content = $scope.row.model.content;
+            }
+            if (content === undefined) {
+                content = $scope.pluginScope.contents[$scope.column];
+            }
+            if (content === undefined) {
+                return '{{getValue()}}';
+            }
+            return content;
         };
     }]);
 }());
@@ -1751,6 +1798,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
         $scope.rootRows = [];
 
+        $scope.getHeader = function() {
+            return $scope.pluginScope.header;
+        };
+
         var hierarchy = new Hierarchy();
 
         var isVisible = function(row) {
@@ -1841,6 +1892,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return row._collapsed;
         };
 
+        $scope.getHeaderContent = function() {
+            return $scope.pluginScope.headerContent;
+        };
+
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
         $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
 
@@ -1875,6 +1930,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
+
+        $scope.getValue = function() {
+            return $scope.row.model.name;
+        };
+
+        $scope.getRowContent = function() {
+            if ($scope.row.model.content !== undefined) {
+                return $scope.row.model.content;
+            }
+            return $scope.pluginScope.content;
+        };
 
         $scope.$watch('collapsed', function(newValue) {
             if ($scope.$modelValue._collapsed !== newValue) {
@@ -1969,7 +2035,7 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '                 class="gantt-row-label gantt-row-height"\n' +
         '                 ng-class="row.model.classes"\n' +
         '                 ng-style="{\'height\': row.model.height}">\n' +
-        '                <span>{{row.model.name}}</span>\n' +
+        '                <span class="gantt-label-text">{{row.model.name}}</span>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '    </div>\n' +
@@ -1979,7 +2045,7 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '<div class="gantt-labels-header">\n' +
         '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '            <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span class="gantt-label-text">{{$last ? pluginScope.header : ""}}</span></div>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
@@ -2010,25 +2076,25 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 
 angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
-        '<div class="gantt-side-content-table" ng-controller="TableController">\n' +
+        '<div class="gantt-side-content-table">\n' +
         '\n' +
-        '    <div class="gantt-table-column {{getClass(this, column)}}" ng-repeat="column in pluginScope.columns">\n' +
+        '    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">\n' +
         '\n' +
         '        <div class="gantt-table-header">\n' +
         '            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
         '                <div class="gantt-row-height gantt-row-label gantt-table-header-row" ng-class="{\'gantt-table-header-row-last\': $last}">\n' +
-        '                    <span>{{$last ? getHeader(this, column) : ""}}</span>\n' +
+        '                    <span ng-if="$last" class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '\n' +
         '        <div class="gantt-table-content" ng-style="getMaxHeightCss()">\n' +
         '            <div gantt-vertical-scroll-receiver>\n' +
-        '                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id" ng-controller="TableColumnRowController">\n' +
         '                    <div gantt-row-label class="gantt-row-label gantt-row-height" ng-class="row.model.classes" ng-style="{\'height\': row.model.height}">\n' +
         '                        <div class="gantt-valign-container">\n' +
         '                            <div class="gantt-valign-content">\n' +
-        '                                <span>{{getValue(this, column)}}</span>\n' +
+        '                                <span class="gantt-label-text" gantt-bind-compile-html="getRowContent()"></span>\n' +
         '                            </div>\n' +
         '                        </div>\n' +
         '                    </div>\n' +
@@ -2057,7 +2123,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 angular.module('gantt.tree.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/tree/sideContentTree.tmpl.html',
-        '<div class="gantt-side-content-tree">\n' +
+        '<div class="gantt-side-content-tree" ng-controller="GanttTreeController">\n' +
         '    <gantt-tree-header>\n' +
         '    </gantt-tree-header>\n' +
         '    <gantt-tree-body>\n' +
@@ -2066,7 +2132,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
     $templateCache.put('plugins/tree/treeBody.tmpl.html',
         '<div class="gantt-tree-body" ng-style="getLabelsCss()">\n' +
-        '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
+        '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div class="gantt-row-label-background">\n' +
         '            <div class="gantt-row-label gantt-row-height"\n' +
         '                 ng-class="row.model.classes"\n' +
@@ -2102,7 +2168,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span class="gantt-tree-text">{{row.model.name}}</span>\n' +
+        '            <span class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
@@ -2116,7 +2182,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '<div class="gantt-tree-header">\n' +
         '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span ng-if="$last" class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +

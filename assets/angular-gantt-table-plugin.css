@@ -1,4 +1,4 @@
-.gantt-table-header-row span {
+.gantt-table-header-row span.gantt-label-text {
     font-weight: bold;
     white-space: nowrap;
     display: inline-block;

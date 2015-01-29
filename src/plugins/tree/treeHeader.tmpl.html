@@ -1,7 +1,7 @@
 <div class="gantt-tree-header">
     <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">
         <div ng-repeat="header in gantt.columnsManager.headers">
-            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{'gantt-tree-header-row-last': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>
+            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{'gantt-tree-header-row-last': $last}"><span ng-if="$last" class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>
         </div>
     </div>
 </div>

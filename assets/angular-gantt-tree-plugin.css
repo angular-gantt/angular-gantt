@@ -22,7 +22,7 @@
     position: relative;
 }
 
-.gantt-tree-body .gantt-row-label span.gantt-tree-text {
+.gantt-tree-body .gantt-row-label span.gantt-label-text {
     padding-left: 0;
 }
 
@@ -39,7 +39,7 @@
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-tree-header-row span {
+.gantt-tree-header-row span.gantt-label-text {
     display: inline-block;
     padding-top: 0.5em;
     font-weight: bold;

@@ -35,7 +35,7 @@ Display a table on the side with fully customizable columns count and data.
     
 - #### formatters
 
-    Associative object formatters definitions for values. 
+    Associative object to customize formatter for each cell. 
     Key is the column expression defined in `columns` attribute, and value is a formatter function `formatter(value, column, row)`
     returning formatted value.
     It can be used if some columns requires special formatters. If a formatter is undefined for the column, it will use then formatter 
@@ -51,18 +51,34 @@ Display a table on the side with fully customizable columns count and data.
 
 - #### headers
 
-    Associative object headers definitions for headers. Key is the column expression defined in `columns` attribute,
+    Associative object to customize header for each column. Key is the column expression defined in `columns` attribute,
     and value is the header to display.
     
     ex: `{'model.name': 'Label'}`
 
+- #### contents
+
+    Associative object to customize values content. Key is the column expression defined in `columns` attribute,
+    and value is the content to display for each column row. Content can contain HTML and will be automatically 
+    compiled. Default content is `{{getValue()}}`.
+
+    ex: `{'model.name': '<span class="glyphicon glyphicon-asterisk"></span> {{getValue()}}'}`
+
+- #### header-contents
+
+    Associative object to customize header content. Key is the column expression defined in `columns` attribute,
+    and value is the content to display for each column row. Content can contain HTML and will be automatically 
+    compiled. Default content is `{{getHeader()}}`.
+
+    ex: `{'model.name': '<span class="glyphicon glyphicon-asterisk"></span> {{getHeader()}}'}`
+
 - #### classes
 
-    Associative object CSS classes for headers. Key is the column expression defined in `columns` attribute,
+    Associative object to customize CSS classes. Key is the column expression defined in `columns` attribute,
     and value is the class name to apply to column.
     
     ex: `{'model.name': 'gantt-column-name'}`
 
-- #### headerFormatter
+- #### header-formatter
 
     Formatter function `formatter(column)` use to format each header. The function returns formatted header value.

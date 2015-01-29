@@ -35,6 +35,7 @@
                 currentDate: '=?',
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
+                taskContent: '=?',
                 maxHeight: '=?',
                 headers: '=?',
                 headersFormats: '=?',

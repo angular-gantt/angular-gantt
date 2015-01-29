@@ -32,6 +32,12 @@ angular.module('angularGanttDemoApp')
                     return to !== undefined ? to.format('lll') : undefined;
                 }
             },
+            treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+            columnsHeaderContents: {
+                'model.name': '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+                'from': '<i class="fa fa-calendar"></i> {{getHeader()}}',
+                'to': '<i class="fa fa-calendar"></i> {{getHeader()}}'
+            },
             autoExpand: 'none',
             taskOutOfRange: 'truncate',
             fromDate: undefined,

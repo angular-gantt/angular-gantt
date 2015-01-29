@@ -138,7 +138,7 @@
     border-radius: 2px;
 }
 
-.gantt-table-header-row span {
+.gantt-table-header-row span.gantt-label-text {
     font-weight: bold;
     white-space: nowrap;
     display: inline-block;
@@ -233,7 +233,7 @@ div.gantt-table-content {
     position: relative;
 }
 
-.gantt-tree-body .gantt-row-label span.gantt-tree-text {
+.gantt-tree-body .gantt-row-label span.gantt-label-text {
     padding-left: 0;
 }
 
@@ -250,7 +250,7 @@ div.gantt-table-content {
     border-bottom: 1px solid #dddddd;
 }
 
-.gantt-tree-header-row span {
+.gantt-tree-header-row span.gantt-label-text {
     display: inline-block;
     padding-top: 0.5em;
     font-weight: bold;

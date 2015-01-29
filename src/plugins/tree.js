@@ -9,7 +9,9 @@
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                header: '=?'
+                header: '=?',
+                content: '=?',
+                headerContent: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -27,6 +29,14 @@
 
                 if (scope.header === undefined) {
                     scope.header = 'Name';
+                }
+
+                if (scope.content === undefined) {
+                    scope.content = '{{row.model.name}}';
+                }
+
+                if (scope.headerContent === undefined) {
+                    scope.headerContent = '{{getHeader()}}';
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {

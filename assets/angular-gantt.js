@@ -42,6 +42,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 currentDate: '=?',
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
+                taskContent: '=?',
                 maxHeight: '=?',
                 headers: '=?',
                 headersFormats: '=?',
@@ -1899,6 +1900,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'currentDateValue': moment,
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
+                    'taskContent': '{{task.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
@@ -4584,6 +4586,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.task.$element = $element;
             $scope.task.$scope = $scope;
 
+            $scope.getTaskContent = function() {
+                if ($scope.task.model.content !== undefined) {
+                    return $scope.task.model.content;
+                }
+                return $scope.task.rowsManager.gantt.options.value('taskContent');
+            };
+
             $scope.simplifyMoment = function(d) {
                 return moment.isMoment(d) ? d.unix() : d;
             };
@@ -5109,7 +5118,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
-        '        <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
+        '        <div class="gantt-task-content"><span gantt-bind-compile-html="getTaskContent()"/></div>\n' +
         '    </script>\n' +
         '\n' +
         '\n' +

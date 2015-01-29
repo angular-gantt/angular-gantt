@@ -15,6 +15,7 @@ and modification made to `angular-gantt` will be applied to `data`.
       height: "..." // Height of the row (Optional).
       color: "..." , // Color of the task in HEX format (Optional).
       classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+      content: "...", // Content used in labels (Optional).
       tasks: [] // Array containing <Task> tasks to add in this row.
     }
 
@@ -29,6 +30,7 @@ and modification made to `angular-gantt` will be applied to `data`.
       classes: <Array|String> // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
       priority: <Number> // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
       data: <Any> // Custom object. Use this to attach your own data (Optional).
+      content: "...", // Content used in labels (Optional).
     }
 
 ## CSS Selectors

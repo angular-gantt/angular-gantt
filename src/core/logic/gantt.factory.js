@@ -23,6 +23,7 @@
                     'currentDateValue': moment,
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
+                    'taskContent': '{{task.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
