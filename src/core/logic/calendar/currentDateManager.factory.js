@@ -8,7 +8,7 @@
 
             this.date = undefined;
             this.position = undefined;
-            this.currentDateColumn = undefined;
+            this.currentDateColumnElement = undefined;
 
             this.gantt.$scope.simplifyMoment = function(d) {
                 return moment.isMoment(d) ? d.unix() : d;
@@ -23,20 +23,23 @@
 
         GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
             this.date = currentDate;
-            if (this.currentDateColumn !== undefined) {
-                if (this.currentDateColumn.$element !== undefined) {
-                    this.currentDateColumn.$element.removeClass('gantt-foreground-col-current-date');
-                }
-                delete this.currentDateColumn;
-            }
+            var oldElement = this.currentDateColumnElement;
+            var newElement;
 
-            if (this.date !== undefined) {
+            if (this.date !== undefined && this.gantt.options.value('currentDate') === 'column') {
                 var column = this.gantt.columnsManager.getColumnByDate(this.date, true);
-                if (column !== undefined) {
-                    this.currentDateColumn = column;
-                    if (this.gantt.options.value('currentDate') === 'column' && this.currentDateColumn.$element !== undefined) {
-                        this.currentDateColumn.$element.addClass('gantt-foreground-col-current-date');
-                    }
+                if (column !== undefined && column.$element !== undefined) {
+                    newElement = column.$element;
+                }
+            }
+            this.currentDateColumnElement = newElement;
+
+            if (oldElement !== newElement) {
+                if (oldElement !== undefined) {
+                    oldElement.removeClass('gantt-foreground-col-current-date');
+                }
+                if (newElement !== undefined) {
+                    newElement.addClass('gantt-foreground-col-current-date');
                 }
             }
 
