@@ -232,6 +232,10 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
     Get the actual width of the columns.
 
+- **api.columns.getColumnsWidthToFit()**
+
+    Get the width of the columns that would fit the gantt available width.
+
 - **api.columns.refresh()**
   
     Refresh columns and current date. It will also apply filters, and may be required if you use 

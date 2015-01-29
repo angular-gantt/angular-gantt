@@ -243,6 +243,13 @@
                 }
             };
 
+            Gantt.prototype.getBodyAvailableWidth = function() {
+                var scrollWidth = this.getWidth() - this.side.getWidth();
+                var borderWidth = this.scroll.getBordersWidth();
+                var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
+                return availableWidth;
+            };
+
             // Returns the position inside the Gantt calculated by the given date
             Gantt.prototype.getPositionByDate = function(date, disableExpand) {
                 if (date === undefined) {

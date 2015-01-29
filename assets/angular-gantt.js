@@ -1424,6 +1424,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
+            this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
 
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
@@ -1628,9 +1629,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var shrinkToFit = this.gantt.options.value('shrinkToFit');
 
             if (columnWidth === undefined || expandToFit || shrinkToFit) {
-                var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
-                var borderWidth = this.gantt.scroll.getBordersWidth();
-                var newWidth = scrollWidth - (borderWidth !== undefined ? this.gantt.scroll.getBordersWidth() : 0);
+                var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
                 var currentWidth = lastColumn.left + lastColumn.width;
@@ -1657,6 +1656,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             }
             return columnWidth;
+        };
+
+        ColumnsManager.prototype.getColumnsWidthToFit = function() {
+            return this.gantt.getBodyAvailableWidth() / this.columns.length;
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
@@ -2126,6 +2129,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 } else {
                     return undefined;
                 }
+            };
+
+            Gantt.prototype.getBodyAvailableWidth = function() {
+                var scrollWidth = this.getWidth() - this.side.getWidth();
+                var borderWidth = this.scroll.getBordersWidth();
+                var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
+                return availableWidth;
             };
 
             // Returns the position inside the Gantt calculated by the given date
