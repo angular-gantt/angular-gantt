@@ -24,13 +24,13 @@
         $scope.gantt.api.tasks.on.change($scope, function(task) {
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
-                    $scope.$apply(function() {
+                    $scope.$evalAsync(function() {
                         updateTaskGroup();
                     });
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
-                        $scope.$apply(function() {
+                        $scope.$evalAsync(function() {
                             updateTaskGroup();
                         });
                     }
