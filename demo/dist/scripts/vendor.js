@@ -42248,15 +42248,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Task.prototype.getBackgroundElement = function() {
             if (this.$element !== undefined) {
                 var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
-                backgroundElement = angular.element(backgroundElement);
+                if (backgroundElement !== undefined) {
+                    backgroundElement = angular.element(backgroundElement);
+                }
                 return backgroundElement;
             }
         };
 
         Task.prototype.getContentElement = function() {
             if (this.$element !== undefined) {
-                var contentElement = this.$element[0].querySelector('.gantt-task-content-container');
-                contentElement = angular.element(contentElement);
+                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                if (contentElement !== undefined) {
+                    contentElement = angular.element(contentElement);
+                }
                 return contentElement;
             }
         };
@@ -42264,7 +42268,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Task.prototype.getForegroundElement = function() {
             if (this.$element !== undefined) {
                 var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
-                foregroundElement = angular.element(foregroundElement);
+                if (foregroundElement !== undefined) {
+                    foregroundElement = angular.element(foregroundElement);
+                }
                 return foregroundElement;
             }
         };
@@ -44330,7 +44336,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
-        '        <div class="gantt-task-content"><span gantt-bind-compile-html="getTaskContent()"/></div>\n' +
+        '        <div class="gantt-task-content" unselectable="on"><span unselectable="on" gantt-bind-compile-html="getTaskContent()"/></div>\n' +
         '    </script>\n' +
         '\n' +
         '\n' +
@@ -44736,7 +44742,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             var foregroundElement = taskScope.task.getForegroundElement();
 
-                            foregroundElement.on(_pressEvents, function(evt) {
+                            // IE<11 doesn't support `pointer-events: none`
+                            // So task content element must be added to support moving properly.
+                            var contentElement = taskScope.task.getContentElement();
+
+                            var onPressEvents = function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
@@ -44763,9 +44773,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     }
                                     taskScope.$digest();
                                 }
-                            });
+                            };
+                            foregroundElement.on(_pressEvents, onPressEvents);
+                            contentElement.on(_pressEvents, onPressEvents);
 
-                            foregroundElement.on('mousemove', function(evt) {
+                            var onMousemove = function (evt) {
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
@@ -44784,11 +44796,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
                                         foregroundElement.css('cursor', getCursor(mode));
+                                        contentElement.css('cursor', getCursor(mode));
                                     } else {
                                         foregroundElement.css('cursor', '');
+                                        contentElement.css('cursor', '');
                                     }
                                 }
-                            });
+                            };
+                            foregroundElement.on('mousemove', onMousemove);
+                            contentElement.on('mousemove', onMousemove);
 
                             var handleMove = function(evt) {
                                 if (taskScope.task.isMoving && !taskScope.destroyed) {

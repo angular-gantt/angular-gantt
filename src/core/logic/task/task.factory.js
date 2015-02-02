@@ -89,15 +89,19 @@
         Task.prototype.getBackgroundElement = function() {
             if (this.$element !== undefined) {
                 var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
-                backgroundElement = angular.element(backgroundElement);
+                if (backgroundElement !== undefined) {
+                    backgroundElement = angular.element(backgroundElement);
+                }
                 return backgroundElement;
             }
         };
 
         Task.prototype.getContentElement = function() {
             if (this.$element !== undefined) {
-                var contentElement = this.$element[0].querySelector('.gantt-task-content-container');
-                contentElement = angular.element(contentElement);
+                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                if (contentElement !== undefined) {
+                    contentElement = angular.element(contentElement);
+                }
                 return contentElement;
             }
         };
@@ -105,7 +109,9 @@
         Task.prototype.getForegroundElement = function() {
             if (this.$element !== undefined) {
                 var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
-                foregroundElement = angular.element(foregroundElement);
+                if (foregroundElement !== undefined) {
+                    foregroundElement = angular.element(foregroundElement);
+                }
                 return foregroundElement;
             }
         };
