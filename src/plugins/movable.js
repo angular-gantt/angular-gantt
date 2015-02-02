@@ -1,7 +1,7 @@
 (function(){
     'use strict';
-    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
-        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
             return {
                 restrict: 'E',
@@ -144,7 +144,7 @@
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
                                         var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
                                         ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
-                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
+                                        var targetRowElement = dom.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
                                         ganttBody.css('pointer-events', '');

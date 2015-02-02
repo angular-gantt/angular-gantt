@@ -42996,7 +42996,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt').service('ganttUtils', ['$document', function($document) {
+    angular.module('gantt').service('ganttUtils', [function() {
         return {
             createBoundedWrapper: function(object, method) {
                 return function() {
@@ -43013,69 +43013,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }
                 return defaultValue;
-            },
-            elementFromPoint: function(x, y) {
-                return $document[0].elementFromPoint(x, y);
-            },
-            elementsFromPoint: function(x, y, depth) {
-                var elements = [], previousPointerEvents = [], cDepth = 0, current, i, l, d;
-
-                // get all elements via elementFromPoint, and remove them from hit-testing in order
-                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null &&
-                    (depth === undefined || cDepth < depth)) {
-
-                    // push the element and its current style
-                    elements.push(current);
-                    previousPointerEvents.push({
-                        value: current.style.getPropertyValue('pointer-events'),
-                        priority: current.style.getPropertyPriority('pointer-events')
-                    });
-
-                    // add "pointer-events: none", to get to the underlying element
-                    current.style.setProperty('pointer-events', 'none', 'important');
-
-                    cDepth++;
-                }
-
-                // restore the previous pointer-events values
-                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
-                    d = previousPointerEvents[i];
-                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
-                }
-
-                return elements;
-            },
-            findElementFromPoint: function(x, y, checkFunction) {
-                var elements = [], previousPointerEvents = [], cDepth = 0, current, found, i, l, d;
-
-                // get all elements via elementFromPoint, and remove them from hit-testing in order
-                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
-
-                    // push the element and its current style
-                    elements.push(current);
-                    previousPointerEvents.push({
-                        value: current.style.getPropertyValue('pointer-events'),
-                        priority: current.style.getPropertyPriority('pointer-events')
-                    });
-
-                    // add "pointer-events: none", to get to the underlying element
-                    current.style.setProperty('pointer-events', 'none', 'important');
-
-                    cDepth++;
-
-                    if (checkFunction(current)) {
-                        found = current;
-                        break;
-                    }
-                }
-
-                // restore the previous pointer-events values
-                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
-                    d = previousPointerEvents[i];
-                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
-                }
-
-                return found;
             },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
@@ -43959,6 +43896,78 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
+(function() {
+    'use strict';
+    angular.module('gantt').service('ganttDom', ['$document', function($document) {
+        return {
+            elementFromPoint: function(x, y) {
+                return $document[0].elementFromPoint(x, y);
+            },
+            elementsFromPoint: function(x, y, depth) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null &&
+                (depth === undefined || cDepth < depth)) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('visibility'),
+                        priority: current.style.getPropertyPriority('visibility')
+                    });
+
+                    // add "pointer-events: none", to get to the underlying element
+                    current.style.setProperty('visibility', 'hidden', 'important');
+
+                    cDepth++;
+                }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
+                }
+
+                return elements;
+            },
+            findElementFromPoint: function(x, y, checkFunction) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, found, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('visibility'),
+                        priority: current.style.getPropertyPriority('visibility')
+                    });
+
+                    // add "visibility: hidden", to get to the underlying element.
+                    // Would be better with pointer-events: none, but IE<11 doesn't support this.
+                    current.style.setProperty('visibility', 'hidden', 'important');
+
+                    cDepth++;
+
+                    if (checkFunction(current)) {
+                        found = current;
+                        break;
+                    }
+                }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
+                }
+
+                return found;
+            }
+        };
+    }]);
+}());
+
 (function(){
     'use strict';
     angular.module('gantt').service('ganttEnableNgAnimate', ['$injector', function($injector) {
@@ -44671,8 +44680,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
-        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
             return {
                 restrict: 'E',
@@ -44815,7 +44824,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
                                         var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
                                         ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
-                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
+                                        var targetRowElement = dom.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
                                         ganttBody.css('pointer-events', '');
