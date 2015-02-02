@@ -63,6 +63,18 @@ Display a table on the side with fully customizable columns count and data.
     compiled. Default content is `{{getValue()}}`.
 
     ex: `{'model.name': '<span class="glyphicon glyphicon-asterisk"></span> {{getValue()}}'}`
+    
+    Contents object can also be be defined for a specific `Row` object using an object property named `columnContents`
+    
+        {
+          ...
+          // Inside Row object
+          'columnContents': {
+            'model.name': '...',
+            'from': '...',
+            'to': '...',
+          }
+        }
 
 - #### header-contents
 

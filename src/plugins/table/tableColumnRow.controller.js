@@ -14,7 +14,10 @@
 
         $scope.getRowContent = function() {
             var content;
-            if ($scope.column === 'model.name') {
+            if ($scope.row.model.columnContents) {
+                content = $scope.row.model.columnContents[$scope.column];
+            }
+            if (content === undefined && $scope.column === 'model.name') {
                 content = $scope.row.model.content;
             }
             if (content === undefined) {
