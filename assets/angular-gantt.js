@@ -3035,15 +3035,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Task.prototype.getBackgroundElement = function() {
             if (this.$element !== undefined) {
                 var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
-                backgroundElement = angular.element(backgroundElement);
+                if (backgroundElement !== undefined) {
+                    backgroundElement = angular.element(backgroundElement);
+                }
                 return backgroundElement;
             }
         };
 
         Task.prototype.getContentElement = function() {
             if (this.$element !== undefined) {
-                var contentElement = this.$element[0].querySelector('.gantt-task-content-container');
-                contentElement = angular.element(contentElement);
+                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                if (contentElement !== undefined) {
+                    contentElement = angular.element(contentElement);
+                }
                 return contentElement;
             }
         };
@@ -3051,7 +3055,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Task.prototype.getForegroundElement = function() {
             if (this.$element !== undefined) {
                 var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
-                foregroundElement = angular.element(foregroundElement);
+                if (foregroundElement !== undefined) {
+                    foregroundElement = angular.element(foregroundElement);
+                }
                 return foregroundElement;
             }
         };
@@ -5093,7 +5099,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
-        '        <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
+        '        <div class="gantt-task-content" unselectable="on"><span unselectable="on">{{task.model.name}}</span></div>\n' +
         '    </script>\n' +
         '\n' +
         '\n' +
