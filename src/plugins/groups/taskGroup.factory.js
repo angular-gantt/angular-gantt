@@ -13,6 +13,7 @@
             self.tasks = [];
             self.overviewTasks = [];
             self.groupedTasks = [];
+            self.promotedTasks = [];
 
             var groupRowGroups = self.row.model.groups;
             if (typeof(groupRowGroups) === 'boolean') {
@@ -51,6 +52,8 @@
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
                             clone.updatePosAndSize();
+                        } else if(taskDisplay === 'promote'){
+                            self.promotedTasks.push(clone);
                         } else {
                             self.groupedTasks.push(clone);
                         }
