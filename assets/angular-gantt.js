@@ -2628,6 +2628,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerEvent('rows', 'filter');
 
+			this.gantt.api.registerEvent('rows', 'viewUpdate');
+
             this.updateVisibleObjects();
         };
 
@@ -2871,6 +2873,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (raiseEvent) {
                 this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
             }
+
+			//dispatch event for limit row plugins
+			this.gantt.api.rows.raise.viewUpdate();
         };
 
         RowsManager.prototype.removeCustomRowFilter = function(filterFunction) {
