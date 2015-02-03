@@ -13,6 +13,7 @@ describe('Unit: Gantt', function() {
         module('gantt.table');
         module('gantt.tree');
         module('gantt.groups');
+		module('gantt.row.limit');
     });
 
     var Gantt;
@@ -273,6 +274,7 @@ describe('Unit: Gantt', function() {
             '<gantt-sortable></gantt-sortable>' +
             '<gantt-movable></gantt-movable>' +
             '<gantt-draw-task></gantt-draw-task>' +
+			'<gantt-row-limit></gantt-row-limit>' +
             '</div>')($scope);
 
             $scope.$digest();
@@ -296,6 +298,7 @@ describe('Unit: Gantt', function() {
             '<gantt-sortable></gantt-sortable>' +
             '<gantt-movable></gantt-movable>' +
             '<gantt-draw-task></gantt-draw-task>' +
+			'<gantt-row-limit></gantt-row-limit>' +
             '</div>')($scope);
             $scope.$digest();
             $timeout.flush();
