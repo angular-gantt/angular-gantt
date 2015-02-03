@@ -1,6 +1,6 @@
 (function(){
 	'use strict';
-    angular.module('gantt.row.limit', ['gantt']).directive('ganttRowLimit', ['$timeout', 'GanttRow', '$window', function($timeout, GanttRow, $window) {
+    angular.module('gantt.row.limit', ['gantt']).directive('ganttRowLimit', ['$timeout', 'GanttRow',function($timeout, GanttRow) {
         return {
             restrict: 'E',
             require: ['^gantt', '^ganttScrollManager'],
@@ -128,7 +128,7 @@
                 
                 api.rows.on.viewUpdate(scope, function(){
                 	limitRow(false, copyVisibleRow());
-                })
+                });
                 
                 api.scroll.on.scroll(scope, limitRow);
             }
