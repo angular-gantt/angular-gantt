@@ -225,6 +225,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.$parent.childrenRows = newValue;
         });
 
+        $scope.isCollapseDisabled = function(){
+            return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
+        };
+
         $scope.getValue = function() {
             return $scope.row.model.name;
         };
