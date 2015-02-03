@@ -22,7 +22,7 @@
     pointer-events: auto;
 }
 
-.gantt a {
+.gantt a, .gantt input {
     pointer-events: auto;
 }
 
