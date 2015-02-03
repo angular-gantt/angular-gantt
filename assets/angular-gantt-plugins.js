@@ -2014,7 +2014,6 @@ angular.module('gantt.bounds.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
-
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
