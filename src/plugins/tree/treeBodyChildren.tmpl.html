@@ -1,5 +1,4 @@
-<div gantt-row-label
-     ng-controller="GanttTreeNodeController"
+<div ng-controller="GanttTreeNodeController"
      class="gantt-row-label gantt-row-height"
      ng-class="row.model.classes"
      ng-style="{'height': row.model.height}">
@@ -14,7 +13,7 @@
                 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed,
                 'gantt-tree-collapsed': collapsed, 'gantt-tree-expanded': !collapsed}"></span>
             </a>
-            <span class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>
+            <span gantt-row-label class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>
         </div>
     </div>
 </div>
