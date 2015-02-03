@@ -10,20 +10,16 @@
             link:function(scope, element, attrs, controllers) {
                 var api = controllers[0].gantt.api;
                 var ready = false;
-                var premise = undefined;
-                var ganttScrollable = undefined;
+                var premise, ganttScrollable, previousScrollStart, previousScrollStop;
                 var backUpVisibleRow = [];
-                var previousScrollStart = undefined;
-                var previousScrollStop = undefined;
                 
                 var visibleRow = [];
-                
-                var beforeRow1Model = {id : '___ilisa_gantt_before_row01', task:[],
+                var beforeRow1Model = {id : '____gantt_before_row01', task:[],
                 		height:0};
-                var beforeRow2Model = {id : '___ilisa_gantt_before_row02',
+                var beforeRow2Model = {id : '____gantt_before_row02',
                 		task:[],
                 		height:0};
-                var afterRowModel = {id : '___ilisa_gantt_after_row',
+                var afterRowModel = {id : '____gantt_after_row',
                 		task:[],
                 		height:0};
                 
@@ -86,22 +82,7 @@
 	        			var beforeHeight = 0;
 	        			var visibleHeight = 0;
 	        			var lastInvisibleIndex = -1;
-	        			
-	        			for(var i = 0; i < backUpVisibleRow.length; i++){
-	        				var elementHeight = backUpVisibleRow[i].model.height;
-	        				totalHeight += elementHeight;
-	        				if(totalHeight < scrollStart){
-	        					beforeHeight = totalHeight;
-	        					lastInvisibleIndex = i;
-	        				}
-	        				else{
-	        					if(totalHeight - elementHeight < scrollStop){
-	        						api.gantt.rowsManager.visibleRows.push(backUpVisibleRow[i]);
-	        						visibleHeight += elementHeight;
-	        					}
-	        				}
-	        			}
-	        			
+
 	        			if(lastInvisibleIndex !== -1){
 	        				api.gantt.rowsManager.visibleRows.unshift(beforeRow1);
 	        				if(lastInvisibleIndex % 2 !== 0){
@@ -136,7 +117,7 @@
                 };
                 
                 api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement){
-	                if(directiveName === "ganttScrollable"){
+	                if(directiveName === 'ganttScrollable'){
 	        			ganttScrollable = directiveElement;
 	        			directiveElement.bind('resize', function(){
 	        				limitRow(false);
