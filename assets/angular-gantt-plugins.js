@@ -2026,7 +2026,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span class="gantt-tree-text">{{row.model.name}}</span>\n' +
+        '            <span gantt-row-label class="gantt-tree-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
