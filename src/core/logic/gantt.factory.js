@@ -35,6 +35,7 @@
                 this.api.registerEvent('core', 'ready');
                 this.api.registerEvent('core', 'rendered');
 
+                this.api.registerEvent('directives', 'controller');
                 this.api.registerEvent('directives', 'preLink');
                 this.api.registerEvent('directives', 'postLink');
                 this.api.registerEvent('directives', 'new');

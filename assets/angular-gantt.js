@@ -1903,6 +1903,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.api.registerEvent('core', 'ready');
                 this.api.registerEvent('core', 'rendered');
 
+                this.api.registerEvent('directives', 'controller');
                 this.api.registerEvent('directives', 'preLink');
                 this.api.registerEvent('directives', 'postLink');
                 this.api.registerEvent('directives', 'new');
@@ -4651,6 +4652,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             },
                             post: function postLink(scope, iElement, iAttrs, controller) {
                                 scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+
                             }
                         };
                     },
@@ -4661,9 +4663,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             controllerFunction($scope, $element, $attrs, controller);
                         }
 
-                        $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
+                        $scope.gantt.api.directives.raise.controller(directiveName, $scope, $element, $attrs, controller);
                         $scope.$on('$destroy', function() {
                             $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
+                        });
+
+                        $scope.$evalAsync(function() {
+                            $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
                         });
                     }]
                 };

@@ -77,6 +77,10 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
     A directive instance controller will be created. It can be used to register
     [DOM Event Listener](customize.md#dom-event-listener) (`click`, `dblclick`, ...) on any directive.
 
+- **api.directives.on.controller(directiveName, scope, iElement, iAttrs, controller)**
+
+    A directive instance is in controller phase.
+
 - **api.directives.on.preLink(directiveName, scope, iElement, iAttrs, controller)**
 
     A directive instance is in preLink phase.

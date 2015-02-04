@@ -39,6 +39,7 @@
                             },
                             post: function postLink(scope, iElement, iAttrs, controller) {
                                 scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+
                             }
                         };
                     },
@@ -49,9 +50,13 @@
                             controllerFunction($scope, $element, $attrs, controller);
                         }
 
-                        $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
+                        $scope.gantt.api.directives.raise.controller(directiveName, $scope, $element, $attrs, controller);
                         $scope.$on('$destroy', function() {
                             $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
+                        });
+
+                        $scope.$evalAsync(function() {
+                            $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
                         });
                     }]
                 };
