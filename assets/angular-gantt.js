@@ -2988,6 +2988,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return !this.model.to || this.model.from - this.model.to === 0;
         };
 
+        Task.prototype.isOutOfRange = function() {
+            var firstColumn = this.rowsManager.gantt.columnsManager.getFirstColumn();
+            var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+
+            return (firstColumn === undefined || this.model.to < firstColumn.date ||
+                    lastColumn === undefined || this.model.from > lastColumn.endDate);
+        };
+
         // Updates the pos and size of the task according to the from - to date
         Task.prototype.updatePosAndSize = function() {
             var oldModelLeft = this.modelLeft;
@@ -2995,13 +3003,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var oldTruncatedRight = this.truncatedRight;
             var oldTruncatedLeft = this.truncatedLeft;
 
-            this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-            this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+            if (!this.isMoving && this.isOutOfRange()) {
+                this.modelLeft = undefined;
+                this.modelWidth = undefined;
+            } else {
+                this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+            }
 
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+            if (this.modelLeft === undefined || this.modelWidth === undefined ||
+                this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
