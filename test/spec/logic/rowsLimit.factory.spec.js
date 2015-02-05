@@ -1,29 +1,19 @@
 'use strict';
 describe('Unit: Gantt', function() {
-    // Load the module with MainController
-    beforeEach(function(){
-        module('gantt');
-        module('gantt.labels');
-        module('gantt.sortable');
-        module('gantt.movable');
-        module('gantt.drawtask');
-        module('gantt.tooltips');
-        module('gantt.bounds');
-        module('gantt.progress');
-        module('gantt.table');
-        module('gantt.tree');
-        module('gantt.groups');
-        module('gantt.row.limit');
-    });
+	beforeEach(function(){
+		module('gantt');
+		module('gantt.row.limit');
+	});
 
-    var Gantt;
-    var moment;
-    var $controller;
+	var Gantt;
+	var moment;
+	var $controller;
     var $rootScope;
     var $compile;
     var $timeout;
+	var $document;
 
-    var mockData = [
+	var mockData = [
         // Order is optional. If not specified it will be assigned automatically
         {
             'name': 'Milestones', 'height': '3em', classes: 'gantt-row-milestone', 'color': '#45607D', 'tasks': [
@@ -64,7 +54,7 @@ describe('Unit: Gantt', function() {
         ], 'data': 'Can contain any custom data or object'
         },
         {
-            'name': 'Status meetings', 'tasks': [
+            'name': 'Status meetings', 'height': '20px','tasks': [
             {
                 'name': 'Demo',
                 'color': '#9FC5F8',
@@ -98,7 +88,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Kickoff', 'tasks': [
+            'name': 'Kickoff', 'height': '20px', 'tasks': [
             {
                 'name': 'Day 1',
                 'color': '#9FC5F8',
@@ -123,7 +113,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Create concept', 'tasks': [
+            'name': 'Create concept', 'height': '20px', 'tasks': [
             {
                 'name': 'Create concept',
                 'color': '#F1C232',
@@ -136,7 +126,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Finalize concept', 'tasks': [
+            'name': 'Finalize concept', 'height': '20px', 'tasks': [
             {
                 'name': 'Finalize concept',
                 'color': '#F1C232',
@@ -147,7 +137,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Sprint 1', 'tasks': [
+            'name': 'Sprint 1', 'height': '20px', 'tasks': [
             {
                 'name': 'Product list view',
                 'color': '#F1C232',
@@ -158,7 +148,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Sprint 2', 'tasks': [
+            'name': 'Sprint 2', 'height': '20px', 'tasks': [
             {
                 'name': 'Order basket',
                 'color': '#F1C232',
@@ -168,7 +158,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Sprint 3', 'tasks': [
+            'name': 'Sprint 3', 'height': '20px', 'tasks': [
             {
                 'name': 'Checkout',
                 'color': '#F1C232',
@@ -178,7 +168,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Sprint 4', 'tasks': [
+            'name': 'Sprint 4', 'height': '20px', 'tasks': [
             {
                 'name': 'Login&Singup and admin view',
                 'color': '#F1C232',
@@ -188,7 +178,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Setup server', 'tasks': [
+            'name': 'Setup server', 'height': '20px', 'tasks': [
             {
                 'name': 'HW',
                 'color': '#F1C232',
@@ -198,7 +188,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Config server', 'tasks': [
+            'name': 'Config server', 'height': '20px', 'tasks': [
             {
                 'name': 'SW / DNS/ Backups',
                 'color': '#F1C232',
@@ -208,7 +198,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Deployment', 'tasks': [
+            'name': 'Deployment', 'height': '20px', 'tasks': [
             {
                 'name': 'Depl. & Final testing',
                 'color': '#F1C232',
@@ -219,7 +209,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Workshop', 'tasks': [
+            'name': 'Workshop', 'height': '20px', 'tasks': [
             {
                 'name': 'On-side education',
                 'color': '#F1C232',
@@ -229,7 +219,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Content', 'tasks': [
+            'name': 'Content', 'height': '20px', 'tasks': [
             {
                 'name': 'Supervise content creation',
                 'color': '#F1C232',
@@ -239,7 +229,7 @@ describe('Unit: Gantt', function() {
         ]
         },
         {
-            'name': 'Documentation', 'tasks': [
+            'name': 'Documentation', 'height': '20px', 'tasks': [
             {
                 'name': 'Technical/User documentation',
                 'color': '#F1C232',
@@ -250,61 +240,34 @@ describe('Unit: Gantt', function() {
         }
     ];
 
-    beforeEach(inject(['$controller', '$rootScope', '$compile', '$timeout', 'Gantt', 'moment', function(_$controller_, _$rootScope_, _$compile_, _$timeout_, _Gantt_, _moment_) {
+    beforeEach(inject(['$controller', '$rootScope', '$compile', '$timeout','$document', 'Gantt', 'moment', function(_$controller_, _$rootScope_, _$compile_, _$timeout_, _$document_ , _Gantt_, _moment_) {
         Gantt = _Gantt_;
         moment = _moment_;
         $controller = _$controller_;
         $rootScope = _$rootScope_;
         $compile = _$compile_;
         $timeout = _$timeout_;
+        $document = _$document_;
     }]));
 
-    it('Can load every plugins',
-        function() {
-            var $scope = $rootScope.$new();
 
-            $compile('<div gantt api="api">' +
-            '<gantt-labels></gantt-labels>' +
-            '<gantt-tree></gantt-tree>' +
-            '<gantt-table></gantt-table>' +
-            '<gantt-groups></gantt-groups>' +
-            '<gantt-tooltips></gantt-tooltips>' +
-            '<gantt-bounds></gantt-bounds>' +
-            '<gantt-progress></gantt-progress>' +
-            '<gantt-sortable></gantt-sortable>' +
-            '<gantt-movable></gantt-movable>' +
-            '<gantt-draw-task></gantt-draw-task>' +
-            '<gantt-row-limit></gantt-row-limit>' +
-            '</div>')($scope);
 
-            $scope.$digest();
-            $timeout.flush();
-        }
-    );
+	it('check on top no before row', function(){
 
-    it('Destroy scope properly',
-        function() {
-            var $scope = $rootScope.$new();
+		var $scope = $rootScope.$new();
 
-            $scope.data = angular.copy(mockData);
-            $compile('<div gantt api="api">' +
-            '<gantt-labels></gantt-labels>' +
-            '<gantt-tree></gantt-tree>' +
-            '<gantt-table></gantt-table>' +
-            '<gantt-groups></gantt-groups>' +
-            '<gantt-tooltips></gantt-tooltips>' +
-            '<gantt-bounds></gantt-bounds>' +
-            '<gantt-progress></gantt-progress>' +
-            '<gantt-sortable></gantt-sortable>' +
-            '<gantt-movable></gantt-movable>' +
-            '<gantt-draw-task></gantt-draw-task>' +
-            '<gantt-row-limit></gantt-row-limit>' +
-            '</div>')($scope);
-            $scope.$digest();
-            $timeout.flush();
+        $scope.data = angular.copy(mockData);
+		$scope.api = function(api){
+			
+			api.rows.on.viewUpdate($scope, function(){
+				expect(api.gantt.rowsManager.visibleRows.length).toEqual(15);
+			});
+		};
 
-            $scope.$destroy();
-        }
-    );
-
+		$compile('<div gantt api="api" data="data" max-height="120">'+
+			'<angular-gantt-row-limit></angular-gantt-row-limit>' +
+			'</div>')($scope);
+        $scope.$digest();
+        $timeout.flush();
+	});
 });

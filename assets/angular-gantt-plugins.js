@@ -807,7 +807,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
 	'use strict';
-    angular.module('gantt.row.limit', ['gantt']).directive('ganttRowLimit', ['$timeout', 'GanttRow', '$window', function($timeout, GanttRow, $window) {
+    angular.module('gantt.row.limit', ['gantt']).directive('ganttRowLimit', ['$timeout', 'GanttRow',function($timeout, GanttRow) {
         return {
             restrict: 'E',
             require: ['^gantt', '^ganttScrollManager'],
@@ -817,20 +817,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link:function(scope, element, attrs, controllers) {
                 var api = controllers[0].gantt.api;
                 var ready = false;
-                var premise = undefined;
-                var ganttScrollable = undefined;
+                var premise, ganttScrollable, previousScrollStart, previousScrollStop;
                 var backUpVisibleRow = [];
-                var previousScrollStart = undefined;
-                var previousScrollStop = undefined;
                 
                 var visibleRow = [];
-                
-                var beforeRow1Model = {id : '___ilisa_gantt_before_row01', task:[],
+                var beforeRow1Model = {id : '____gantt_before_row01', task:[],
                 		height:0};
-                var beforeRow2Model = {id : '___ilisa_gantt_before_row02',
+                var beforeRow2Model = {id : '____gantt_before_row02',
                 		task:[],
                 		height:0};
-                var afterRowModel = {id : '___ilisa_gantt_after_row',
+                var afterRowModel = {id : '____gantt_after_row',
                 		task:[],
                 		height:0};
                 
@@ -893,22 +889,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 	        			var beforeHeight = 0;
 	        			var visibleHeight = 0;
 	        			var lastInvisibleIndex = -1;
-	        			
-	        			for(var i = 0; i < backUpVisibleRow.length; i++){
-	        				var elementHeight = backUpVisibleRow[i].model.height;
-	        				totalHeight += elementHeight;
-	        				if(totalHeight < scrollStart){
-	        					beforeHeight = totalHeight;
-	        					lastInvisibleIndex = i;
-	        				}
-	        				else{
-	        					if(totalHeight - elementHeight < scrollStop){
-	        						api.gantt.rowsManager.visibleRows.push(backUpVisibleRow[i]);
-	        						visibleHeight += elementHeight;
-	        					}
-	        				}
-	        			}
-	        			
+
 	        			if(lastInvisibleIndex !== -1){
 	        				api.gantt.rowsManager.visibleRows.unshift(beforeRow1);
 	        				if(lastInvisibleIndex % 2 !== 0){
@@ -943,7 +924,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 };
                 
                 api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement){
-	                if(directiveName === "ganttScrollable"){
+	                if(directiveName === 'ganttScrollable'){
 	        			ganttScrollable = directiveElement;
 	        			directiveElement.bind('resize', function(){
 	        				limitRow(false);
@@ -954,7 +935,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 
                 api.rows.on.viewUpdate(scope, function(){
                 	limitRow(false, copyVisibleRow());
-                })
+                });
                 
                 api.scroll.on.scroll(scope, limitRow);
             }
