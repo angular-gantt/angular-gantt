@@ -253,21 +253,20 @@ describe('Unit: Gantt', function() {
 
 
 	it('check on top no before row', function(){
-
 		var $scope = $rootScope.$new();
 
         $scope.data = angular.copy(mockData);
+		$scope.enabled = true;
 		$scope.api = function(api){
-			
-			api.rows.on.viewUpdate($scope, function(){
-				expect(api.gantt.rowsManager.visibleRows.length).toEqual(15);
+			api.core.on.ready($scope, function(){
+				expect(api.gantt.rowsManager.visibleRows.length).toEqual(0);
+				
 			});
 		};
-
-		$compile('<div gantt api="api" data="data" max-height="120">'+
-			'<angular-gantt-row-limit></angular-gantt-row-limit>' +
+		$compile('<div gantt api="api" data="data">'+
+			'<gantt-row-limit enabled="enabled"></gantt-row-limit>' +
 			'</div>')($scope);
         $scope.$digest();
-        $timeout.flush();
+		$timeout.flush();
 	});
 });

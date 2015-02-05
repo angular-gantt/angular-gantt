@@ -816,6 +816,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             },
             link:function(scope, element, attrs, controllers) {
                 var api = controllers[0].gantt.api;
+
                 var ready = false;
                 var premise, ganttScrollable, previousScrollStart, previousScrollStop;
                 var backUpVisibleRow = [];
@@ -937,6 +938,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 	limitRow(false, copyVisibleRow());
                 });
                 
+				
+
                 api.scroll.on.scroll(scope, limitRow);
             }
         };
