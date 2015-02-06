@@ -4,10 +4,10 @@
      ng-style="{'height': row.model.height}">
     <div class="gantt-valign-container">
         <div class="gantt-valign-content">
-            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag
+            <a ng-disabled="isCollapseDisabled()" data-nodrag
                class="gantt-tree-handle-button btn btn-xs"
                ng-class="{'gantt-tree-collapsed': collapsed, 'gantt-tree-expanded': !collapsed}"
-               ng-click="toggle()"><span
+               ng-click="!isCollapseDisabled() && toggle()"><span
                 class="gantt-tree-handle glyphicon glyphicon-chevron-down"
                 ng-class="{
                 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed,
