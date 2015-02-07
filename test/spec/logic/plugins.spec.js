@@ -149,7 +149,7 @@ describe('Plugins', function() {
     });
 
     var checkLabels = function(data, ganttElement, contentNotSupported) {
-        var rowLabelsElements = ganttElement.find('span.gantt-label-text');
+        var rowLabelsElements = ganttElement.find('.gantt-row-label .gantt-label-text');
         expect(rowLabelsElements.length).toBe(data.length);
 
         angular.forEach(rowLabelsElements, function(rowLabelElement, i) {

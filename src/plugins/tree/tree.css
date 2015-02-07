@@ -10,11 +10,6 @@
 .gantt-tree-body .gantt-row-label a.gantt-tree-handle-button {
     padding: 0;
     position: relative;
-    top: -0.50em;
-}
-
-.gantt-tree-body .gantt-row-label a.gantt-tree-handle-button.gantt-tree-expanded {
-    top: -0.40em;
 }
 
 .gantt-tree-body .gantt-row-label span.gantt-tree-handle {

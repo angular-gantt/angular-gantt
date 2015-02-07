@@ -48,7 +48,8 @@
     overflow: hidden;
 }
 
-.gantt-row-label span.gantt-label-text {
+.gantt-row-label span.gantt-label-text
+.gantt-header-label span.gantt-label-text {
     box-sizing:border-box;
     display: inline-block;
     text-align: center;
@@ -57,12 +58,13 @@
     text-overflow: clip;
 }
 
-.gantt-row-label span.gantt-label-text {
+.gantt-row-label span.gantt-label-text,
+.gantt-header-label span.gantt-label-text {
     padding-left: 12px;
     padding-right: 12px;
 }
 
-.gantt-row-label {
+.gantt-row-label, .gantt-header-label {
     overflow: hidden;
     white-space: nowrap;
 }

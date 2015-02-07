@@ -4,8 +4,8 @@
 
         <div class="gantt-table-header">
             <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">
-                <div class="gantt-row-height gantt-table-header-row" ng-class="{'gantt-table-header-row-last': $last}">
-                    <span ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/>
+                <div class="gantt-row-height gantt-table-header-row" ng-class="{'gantt-table-header-row-last': $last, 'gantt-header-label': $last}">
+                    <span class="gantt-label-text" ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/>
                 </div>
             </div>
         </div>
