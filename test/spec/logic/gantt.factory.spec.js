@@ -3,7 +3,6 @@ describe('Gantt', function() {
     // Load the module with MainController
     beforeEach(function() {
         module('gantt');
-        module('gantt.labels');
     });
 
     var Gantt;
@@ -247,17 +246,6 @@ describe('Gantt', function() {
         }
     );
 
-    it('should load with from-date and to-date',
-        function() {
-            var $scope = $rootScope.$new();
-
-            $scope.data = angular.copy(mockData);
-            $compile('<div gantt data="data" from-date="fromDate" to-date="toDate"><gantt-table></gantt-table></div>')($scope);
-            $scope.$digest();
-            $timeout.flush();
-        }
-    );
-
     it('should destroy scope properly',
         function() {
             var $scope = $rootScope.$new();
@@ -270,4 +258,67 @@ describe('Gantt', function() {
             $scope.$destroy();
         }
     );
+
+    describe('from-date/to-date', function() {
+        var $scope;
+        var ganttElement;
+        var ganttApi;
+        beforeEach(function() {
+            $scope = $rootScope.$new();
+
+            $scope.data = angular.copy(mockData);
+            $scope.fromDate = undefined;
+            $scope.toDate = undefined;
+
+            $scope.api = function(api) {
+                ganttApi = api;
+            };
+
+            ganttElement = $compile('<div gantt data="data" api="api" from-date="fromDate" to-date="toDate"><gantt-table></gantt-table></div>')($scope);
+            $scope.$digest();
+            $timeout.flush();
+        });
+
+        it('should support native date',
+            function() {
+                $scope.fromDate = new Date(2013,1,1);
+                $scope.toDate = new Date(2014,1,1);
+
+                $scope.$digest();
+            }
+        );
+
+        it('should support null and undefined date',
+            function() {
+                $scope.fromDate = null;
+                $scope.toDate = null;
+
+                $scope.$digest();
+
+                $scope.fromDate = undefined;
+                $scope.toDate = undefined;
+
+                $scope.$digest();
+            }
+        );
+
+        it('should support moment',
+            function() {
+                $scope.fromDate = moment(new Date(2013,1,1));
+                $scope.toDate = moment(new Date(2014,1,1));
+
+                $scope.$digest();
+            }
+        );
+
+        it('should support invalid moment',
+            function() {
+                $scope.fromDate = moment(null);
+                $scope.toDate = moment(null);
+
+                $scope.$digest();
+            }
+        );
+
+    });
 });

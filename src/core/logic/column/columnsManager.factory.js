@@ -115,14 +115,14 @@
                 to = this.gantt.options.value('toDate');
             }
 
-            if (!from) {
+            if (!from || (moment.isMoment(from) && !from.isValid())) {
                 from = this.gantt.rowsManager.getDefaultFrom();
                 if (!from) {
                     return false;
                 }
             }
 
-            if (!to) {
+            if (!to || (moment.isMoment(to) && !to.isValid())) {
                 to = this.gantt.rowsManager.getDefaultTo();
                 if (!to) {
                     return false;

@@ -66,7 +66,7 @@ angular.module('angularGanttDemoApp')
             },
             autoExpand: 'none',
             taskOutOfRange: 'truncate',
-            fromDate: undefined,
+            fromDate: moment(null),
             toDate: undefined,
             allowSideResizing: true,
             labelsEnabled: true,
