@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').filter('ganttTaskLimit', [function() {
+    angular.module('gantt').filter('ganttTaskLimit', ['moment', function(moment) {
         // Returns only the tasks which are visible on the screen
         // Use the task width and position to decide if a task is still visible
 
@@ -12,11 +12,11 @@
             var toDate = gantt.options.value('toDate');
 
             if (firstColumn !== undefined && lastColumn !== undefined) {
-                if (fromDate === undefined) {
+                if (!fromDate || (moment.isMoment(fromDate) && !fromDate.isValid())) {
                     fromDate = firstColumn.date;
                 }
 
-                if (toDate === undefined) {
+                if (!toDate || (moment.isMoment(toDate) && !toDate.isValid())) {
                     toDate = lastColumn.endDate;
                 }
 
