@@ -1,5 +1,5 @@
 'use strict';
-describe('Unit: GanttOptions', function() {
+describe('Options', function() {
     // Load the module with MainController
     beforeEach(function(){
         module('gantt');
@@ -17,7 +17,7 @@ describe('Unit: GanttOptions', function() {
         $compile = _$compile_;
     }]));
 
-    it('Returns undefined for a non existing option value',
+    it('should return undefined for a non existing option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -29,7 +29,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns the value for a existing option value (non-boolean)',
+    it('should return the value for a existing option value (non-boolean)',
         function() {
             var $scope = $rootScope.$new();
 
@@ -42,7 +42,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns the default value for a non existing option value (non-boolean)',
+    it('should return the default value for a non existing option value (non-boolean)',
         function() {
             var $scope = $rootScope.$new();
 
@@ -56,7 +56,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns false for a existing non-truthy option value',
+    it('should return false for a existing non-truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -69,7 +69,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns true for a existing truthy option value',
+    it('should return true for a existing truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -82,7 +82,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns false as default value for a non existing non-truthy option value',
+    it('should return false as default value for a non existing non-truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -96,7 +96,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns true as default value for a non existing truthy option value',
+    it('should return true as default value for a non existing truthy option value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -110,7 +110,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns false for a non-truthy option value which has a default value',
+    it('should return false for a non-truthy option value which has a default value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -125,7 +125,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Returns true for a truthy boolean option value which has a default value',
+    it('should return true for a truthy boolean option value which has a default value',
         function() {
             var $scope = $rootScope.$new();
 
@@ -140,7 +140,7 @@ describe('Unit: GanttOptions', function() {
         }
     );
 
-    it('Set a option value to the specified value',
+    it('should set an option value to the specified value',
         function() {
             var $scope = $rootScope.$new();
 

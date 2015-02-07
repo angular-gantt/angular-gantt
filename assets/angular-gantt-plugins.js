@@ -2071,7 +2071,7 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '<div class="gantt-labels-header">\n' +
         '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span class="gantt-label-text">{{$last ? pluginScope.header : ""}}</span></div>\n' +
+        '            <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
@@ -2108,8 +2108,8 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '\n' +
         '        <div class="gantt-table-header">\n' +
         '            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '                <div class="gantt-row-height gantt-row-label gantt-table-header-row" ng-class="{\'gantt-table-header-row-last\': $last}">\n' +
-        '                    <span ng-if="$last" class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
+        '                <div class="gantt-row-height gantt-table-header-row" ng-class="{\'gantt-table-header-row-last\': $last}">\n' +
+        '                    <span ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -2207,7 +2207,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '<div class="gantt-tree-header">\n' +
         '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
         '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span ng-if="$last" class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
+        '            <div class="gantt-row-height gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +

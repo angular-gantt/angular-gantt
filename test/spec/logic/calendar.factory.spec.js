@@ -1,5 +1,5 @@
 'use strict';
-describe('Unit: Calendar', function() {
+describe('Calendar', function() {
     // Load the module with MainController
     beforeEach(module('gantt'));
 
@@ -19,7 +19,7 @@ describe('Unit: Calendar', function() {
         moment = _moment_;
     }]));
 
-    it('register and use default timeFrames',
+    it('should register and use default timeFrames',
         function() {
             var cal = new Calendar();
 
@@ -54,7 +54,7 @@ describe('Unit: Calendar', function() {
             expectTimeFrameToEqual(timeFrames[1], cal.timeFrames.noon);
         });
 
-    it('use right timeFrames using dateFrame',
+    it('should use right timeFrames with given dateFrame',
         function() {
             var cal = new Calendar();
 
@@ -115,7 +115,7 @@ describe('Unit: Calendar', function() {
             expectTimeFrameToEqual(defaultTimeFrames[1], cal.timeFrames.noon);
         });
 
-    it('solves timeFrames conflict',
+    it('should solve timeFrames conflict',
         function() {
             var cal = new Calendar();
 
@@ -173,7 +173,7 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[4].working).toBeFalsy();
         });
 
-    it('solves single open non-working timeFrame ',
+    it('should solve single open non-working timeFrame ',
         function() {
             var cal = new Calendar();
 
@@ -192,7 +192,7 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[0].working).toBeFalsy();
         });
 
-    it('solves timeFrame for small timePeriod',
+    it('should solve timeFrame for small timePeriod',
         function() {
             var cal = new Calendar();
 
@@ -229,7 +229,7 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[0].classes).toBe('noon-css');
         });
 
-    it('solve to a working timeFrame when nothing is registered',
+    it('should solve to a working timeFrame when nothing is registered',
         function() {
             var cal = new Calendar();
             var timeFrames = cal.getTimeFrames(moment());
@@ -240,7 +240,7 @@ describe('Unit: Calendar', function() {
             expect(timeFrames[0].working).toBeTruthy();
         });
 
-    it('solves timeFrames using dateFrames',
+    it('should solve timeFrames using dateFrames',
         function() {
             var cal = new Calendar();
 

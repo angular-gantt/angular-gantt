@@ -1,5 +1,5 @@
 'use strict';
-describe('Unit: Columns', function() {
+describe('Columns', function() {
     // Load the module with MainController
     beforeEach(function(){
         module('gantt');
@@ -88,7 +88,7 @@ describe('Unit: Columns', function() {
         $timeout = _$timeout_;
     }]));
 
-    it('First and last columns are at right position',
+    it('should have first and last columns to right position',
         function() {
             var width = 350;
 
@@ -146,7 +146,7 @@ describe('Unit: Columns', function() {
         }
     }
 
-    it('Computes valid dates from range positions',
+    it('should compute valid dates from range positions',
         function() {
             var width = 350;
 
@@ -196,7 +196,7 @@ describe('Unit: Columns', function() {
         }
     );
 
-    it('Computes valid dates from previous positions',
+    it('should compute valid dates from previous positions',
         function() {
             var width = 350;
 
@@ -246,7 +246,7 @@ describe('Unit: Columns', function() {
         }
     );
 
-    it('Computes valid dates from next positions',
+    it('should compute valid dates from next positions',
         function() {
             var width = 350;
 
