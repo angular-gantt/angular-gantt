@@ -3070,7 +3070,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
-                    this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
             }
         };
@@ -3896,7 +3895,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').filter('ganttTaskLimit', [function() {
+    angular.module('gantt').filter('ganttTaskLimit', ['moment', function(moment) {
         // Returns only the tasks which are visible on the screen
         // Use the task width and position to decide if a task is still visible
 
@@ -3908,11 +3907,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var toDate = gantt.options.value('toDate');
 
             if (firstColumn !== undefined && lastColumn !== undefined) {
-                if (fromDate === undefined) {
+                if (!fromDate || (moment.isMoment(fromDate) && !fromDate.isValid())) {
                     fromDate = firstColumn.date;
                 }
 
-                if (toDate === undefined) {
+                if (!toDate || (moment.isMoment(toDate) && !toDate.isValid())) {
                     toDate = lastColumn.endDate;
                 }
 

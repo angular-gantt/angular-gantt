@@ -80,6 +80,46 @@ describe('Gantt', function() {
         ]}
     ];
 
+    var checkData = function(data, ganttElement) {
+        var tasks = [];
+        angular.forEach(data, function(row) {
+            if (row.tasks) {
+                tasks = tasks.concat(row.tasks);
+            }
+        });
+
+        var rowElements = ganttElement.find('div.gantt-body-rows div.gantt-row');
+        var taskElements = ganttElement.find('div.gantt-task');
+
+        expect(rowElements.length).toBe(data.length);
+        expect(taskElements.length).toBe(tasks.length);
+
+        angular.forEach(rowElements, function(rowElement, i) {
+            rowElement = angular.element(rowElement);
+
+            var rowTaskElements = rowElement.find('div.gantt-task, div.gantt-task-milestone');
+            var rowModel = data[i];
+
+            angular.forEach(rowTaskElements, function(rowTaskElement, j) {
+                rowTaskElement = angular.element(rowTaskElement);
+
+                var taskModel = rowModel.tasks[j];
+                var taskText = rowTaskElement.find('.gantt-task-content').text();
+                expect(taskText).toEqual(taskModel.name);
+
+                if (taskModel.classes) {
+                    var taskClasses = taskModel.classes;
+                    if (!angular.isArray(taskClasses)) {
+                        taskClasses = [taskClasses];
+                    }
+                    angular.forEach(taskClasses, function(taskClass) {
+                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
+                    });
+                }
+            });
+        });
+    };
+
     beforeEach(inject(['$controller', '$rootScope', '$compile', '$timeout', 'Gantt', 'moment', function(_$controller_, _$rootScope_, _$compile_, _$timeout_, _Gantt_, _moment_) {
         Gantt = _Gantt_;
         moment = _moment_;
@@ -122,50 +162,10 @@ describe('Gantt', function() {
         }
     );
 
-    var checkData = function(data, ganttElement) {
-        var tasks = [];
-        angular.forEach(data, function(row) {
-            if (row.tasks) {
-                tasks = tasks.concat(row.tasks);
-            }
-        });
-
-        var rowElements = ganttElement.find('div.gantt-body-rows div.gantt-row');
-        var taskElements = ganttElement.find('div.gantt-task, div.gantt-task-milestone');
-
-        expect(rowElements.length).toBe(data.length);
-        expect(taskElements.length).toBe(tasks.length);
-
-        angular.forEach(rowElements, function(rowElement, i) {
-            rowElement = angular.element(rowElement);
-
-            var rowTaskElements = rowElement.find('div.gantt-task, div.gantt-task-milestone');
-            var rowModel = data[i];
-
-            angular.forEach(rowTaskElements, function(rowTaskElement, j) {
-                rowTaskElement = angular.element(rowTaskElement);
-
-                var taskModel = rowModel.tasks[j];
-                var taskText = rowTaskElement.find('.gantt-task-content').text();
-                expect(taskText).toEqual(taskModel.name);
-
-                if (taskModel.classes) {
-                    var taskClasses = taskModel.classes;
-                    if (!angular.isArray(taskClasses)) {
-                        taskClasses = [taskClasses];
-                    }
-                    angular.forEach(taskClasses, function(taskClass) {
-                        expect(rowTaskElement.hasClass(taskClass)).toBeTruthy();
-                    });
-                }
-            });
-        });
-    };
-
     it('should load with no data',
         function() {
             var $scope = $rootScope.$new();
-            var ganttElement = $compile('<div gantt data="data"></div>')($scope);
+            var ganttElement = $compile('<div gantt></div>')($scope);
             $scope.$digest();
             $timeout.flush();
             checkData([], ganttElement);
@@ -285,20 +285,19 @@ describe('Gantt', function() {
                 $scope.toDate = new Date(2014,1,1);
 
                 $scope.$digest();
+
+                checkData($scope.data, ganttElement);
             }
         );
 
-        it('should support null and undefined date',
+        it('should support null date',
             function() {
                 $scope.fromDate = null;
                 $scope.toDate = null;
 
                 $scope.$digest();
 
-                $scope.fromDate = undefined;
-                $scope.toDate = undefined;
-
-                $scope.$digest();
+                checkData($scope.data, ganttElement);
             }
         );
 
@@ -308,6 +307,8 @@ describe('Gantt', function() {
                 $scope.toDate = moment(new Date(2014,1,1));
 
                 $scope.$digest();
+
+                checkData($scope.data, ganttElement);
             }
         );
 
@@ -317,6 +318,8 @@ describe('Gantt', function() {
                 $scope.toDate = moment(null);
 
                 $scope.$digest();
+
+                checkData($scope.data, ganttElement);
             }
         );
 

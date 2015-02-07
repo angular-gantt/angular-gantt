@@ -95,7 +95,6 @@
                     }
 
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
-                    this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
             }
         };
