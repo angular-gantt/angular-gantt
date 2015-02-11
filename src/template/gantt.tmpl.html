@@ -9,7 +9,7 @@
         </div>
     </gantt-side>
     <gantt-scrollable-header>
-        <gantt-header>
+        <gantt-header gantt-element-height-listener="$parent.ganttHeaderHeight">
             <gantt-header-columns>
                 <div ng-repeat="header in gantt.columnsManager.visibleHeaders track by $index">
                     <div class="gantt-header-row" ng-class="{'gantt-header-row-last': $last, 'gantt-header-row-first': $first}">
@@ -64,7 +64,7 @@
 
     <!-- Side template -->
     <script type="text/ng-template" id="template/ganttSide.tmpl.html">
-        <div ng-transclude class="gantt-side"></div>
+        <div ng-transclude class="gantt-side" style="width: auto;"></div>
     </script>
 
     <!-- Side content template-->
@@ -179,12 +179,8 @@
     <!-- Side background template -->
     <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">
         <div class="gantt-side-background">
-            <div class="gantt-side-background-header">
-                <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">
-                    <div ng-repeat="header in gantt.columnsManager.headers">
-                        <div class="gantt-row-height" ng-class="{'gantt-labels-header-row': $last, 'gantt-labels-header-row-last': $last}"></div>
-                    </div>
-                </div>
+            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + 'px'}">
+                <div class="gantt-header-row gantt-side-header-row"></div>
             </div>
             <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">
                 <div gantt-vertical-scroll-receiver>

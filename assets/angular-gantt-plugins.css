@@ -92,7 +92,6 @@
 
     height: 2em;
     white-space: nowrap;
-    border-top: 1px solid #dddddd;
     overflow: hidden;
 }
 
@@ -136,6 +135,17 @@
     bottom: 0px;
     height: 6px;
     border-radius: 2px;
+}
+
+.gantt-table-header {
+    overflow: hidden;
+    position: relative;
+}
+
+.gantt-table-header-row {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 .gantt-table-header-row span.gantt-label-text {
@@ -234,15 +244,21 @@ div.gantt-table-content {
 
 .gantt-tree-header {
     overflow: hidden;
+    position: relative;
 }
 
 .gantt-tree-body {
     overflow: hidden;
 }
 
-.gantt-tree-header-row-last {
-    border-top: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
+.gantt-tree-header-row {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.gantt-tree-row {
+
 }
 
 .gantt-tree-header-row span.gantt-label-text {

@@ -23,15 +23,21 @@
 
 .gantt-tree-header {
     overflow: hidden;
+    position: relative;
 }
 
 .gantt-tree-body {
     overflow: hidden;
 }
 
-.gantt-tree-header-row-last {
-    border-top: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
+.gantt-tree-header-row {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.gantt-tree-row {
+
 }
 
 .gantt-tree-header-row span.gantt-label-text {

@@ -2,11 +2,9 @@
 
     <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">
 
-        <div class="gantt-table-header">
-            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">
-                <div class="gantt-row-height gantt-table-header-row" ng-class="{'gantt-table-header-row-last': $last, 'gantt-header-label': $last}">
-                    <span class="gantt-label-text" ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/>
-                </div>
+        <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + 'px'}">
+            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">
+                <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>
             </div>
         </div>
 

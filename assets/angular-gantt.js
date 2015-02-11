@@ -4291,6 +4291,37 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+    angular.module('gantt').directive('ganttElementHeightListener', [function() {
+        return {
+            restrict: 'A',
+            controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+                var scopeVariable = $attrs.ganttElementHeightListener;
+                if (scopeVariable === '') {
+                    scopeVariable = 'ganttElementHeight';
+                }
+
+                var effectiveScope = $scope;
+
+                while(scopeVariable.indexOf('$parent.') === 0) {
+                    scopeVariable = scopeVariable.substring('$parent.'.length);
+                    effectiveScope = effectiveScope.$parent;
+                }
+
+                effectiveScope.$watch(function() {
+                    return $element[0].offsetHeight;
+                }, function(newValue) {
+                    if (newValue > 0) {
+                        effectiveScope[scopeVariable] = newValue;
+                    }
+                });
+            }]
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
     angular.module('gantt').directive('ganttElementWidthListener', [function() {
         return {
             restrict: 'A',
@@ -5031,7 +5062,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        </div>\n' +
         '    </gantt-side>\n' +
         '    <gantt-scrollable-header>\n' +
-        '        <gantt-header>\n' +
+        '        <gantt-header gantt-element-height-listener="$parent.ganttHeaderHeight">\n' +
         '            <gantt-header-columns>\n' +
         '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders track by $index">\n' +
         '                    <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
@@ -5086,7 +5117,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Side template -->\n' +
         '    <script type="text/ng-template" id="template/ganttSide.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-side"></div>\n' +
+        '        <div ng-transclude class="gantt-side" style="width: auto;"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Side content template-->\n' +
@@ -5201,12 +5232,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Side background template -->\n' +
         '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
         '        <div class="gantt-side-background">\n' +
-        '            <div class="gantt-side-background-header">\n' +
-        '                <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
-        '                    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '                        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"></div>\n' +
-        '                    </div>\n' +
-        '                </div>\n' +
+        '            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
+        '                <div class="gantt-header-row gantt-side-header-row"></div>\n' +
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +

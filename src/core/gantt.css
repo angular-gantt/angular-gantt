@@ -163,9 +163,21 @@
     border-right: none;
 }
 
-.gantt-labels-header-row {
+.gantt-side-background-header {
+    position: relative
+}
+
+.gantt-side-header-row {
+    position: absolute;
+
+    bottom: 0;
+    width: 100%;
+
     padding-left: 12px;
     padding-right: 12px;
+
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
 
     overflow: hidden;
     white-space: nowrap;

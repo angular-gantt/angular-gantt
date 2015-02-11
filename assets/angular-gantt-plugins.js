@@ -2096,6 +2096,10 @@ angular.module('gantt.progress.templates', []).run(['$templateCache', function($
         '');
 }]);
 
+angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
@@ -2106,11 +2110,9 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '\n' +
         '    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">\n' +
         '\n' +
-        '        <div class="gantt-table-header">\n' +
-        '            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '                <div class="gantt-row-height gantt-table-header-row" ng-class="{\'gantt-table-header-row-last\': $last, \'gantt-header-label\': $last}">\n' +
-        '                    <span class="gantt-label-text" ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/>\n' +
-        '                </div>\n' +
+        '        <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + \'px\'}">\n' +
+        '            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
+        '                <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '\n' +
@@ -2204,12 +2206,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '</ol>\n' +
         '');
     $templateCache.put('plugins/tree/treeHeader.tmpl.html',
-        '<div class="gantt-tree-header">\n' +
-        '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
-        '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last, \'gantt-header-label\': $last}"><span class="gantt-label-text" ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
+        '<div class="gantt-tree-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
+        '    <div class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '</div>\n' +
         '');
 }]);

@@ -1,3 +1,14 @@
+.gantt-table-header {
+    overflow: hidden;
+    position: relative;
+}
+
+.gantt-table-header-row {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
 .gantt-table-header-row span.gantt-label-text {
     font-weight: bold;
     white-space: nowrap;

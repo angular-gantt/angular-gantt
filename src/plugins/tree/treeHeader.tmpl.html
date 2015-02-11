@@ -1,7 +1,3 @@
-<div class="gantt-tree-header">
-    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">
-        <div ng-repeat="header in gantt.columnsManager.headers">
-            <div class="gantt-row-height gantt-tree-header-row" ng-class="{'gantt-tree-header-row-last': $last, 'gantt-header-label': $last}"><span class="gantt-label-text" ng-if="$last" gantt-bind-compile-html="getHeaderContent()"/></div>
-        </div>
-    </div>
+<div class="gantt-tree-header" ng-style="{height: $parent.ganttHeaderHeight + 'px'}">
+    <div class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>
 </div>
