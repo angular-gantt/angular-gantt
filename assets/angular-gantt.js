@@ -5175,7 +5175,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Timespan template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
-        '        <div class="gantt-timespan" ng-class="timespan.classes">\n' +
+        '        <div class="gantt-timespan" ng-class="timespan.model.classes">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
