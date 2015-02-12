@@ -27,6 +27,7 @@ pages:
 - [plugins/tooltips.md, Plugins, Tooltips]
 - [plugins/bounds.md, Plugins, Bounds]
 - [plugins/progress.md, Plugins, Progress]
+- [plugins/resizeSensor.md, Plugins, Resize Sensor]
 - [sources.md, Sources]
 - [contribute.md, Contribute]
 - [faq.md, FAQ]

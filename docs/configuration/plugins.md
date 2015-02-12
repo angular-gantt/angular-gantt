@@ -23,9 +23,13 @@ files, where `xxxxxx` plugin is the name of the plugin.
 
 ## Supported plugins
 
-- ### [Labels](../plugins/labels.md)
+- ### [Table](../plugins/table.md)
 
-    Display row labels on the side.
+    Display row labels in multiple columns on the side.
+
+- ### [Tree](../plugins/tree.md)
+
+    Display a tree hierarchy for rows.
 
 - ### [Sortable](../plugins/sortable.md)
 
@@ -50,3 +54,11 @@ files, where `xxxxxx` plugin is the name of the plugin.
 - ### [Tooltips](../plugins/tooltips.md)
 
     Display tooltips when moving mouse over a task.
+
+- ### [Resize Sensor](../plugins/resizeSensor.md)
+
+    Use [CSS-Element-Queries Polyfill](https://github.com/marcj/css-element-queries) to support dynamic resizing.
+
+- ### [Labels](../plugins/labels.md) **DEPRECATED**
+
+    Display row labels on the side. (Use [Table](../plugins/table.md) plugin instead)
