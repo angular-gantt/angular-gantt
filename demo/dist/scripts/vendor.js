@@ -43461,9 +43461,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.children = function(row) {
                 var children = idToChildren[row.model.id];
-                if (children === undefined) {
-                    children = nameToChildren[row.model.name];
-                }
                 return children;
             };
 
@@ -43484,9 +43481,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.parent = function(row) {
                 var parent = idToParent[row.model.id];
-                if (parent === undefined) {
-                    parent = nameToParent[row.model.name];
-                }
                 return parent;
             };
 
