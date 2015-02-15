@@ -248,6 +248,8 @@
                 var scrollWidth = this.getWidth() - this.side.getWidth();
                 var borderWidth = this.scroll.getBordersWidth();
                 var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
+                // Remove 1 pixel because of rounding issue in some cases.
+                availableWidth = availableWidth - 1;
                 return availableWidth;
             };
 

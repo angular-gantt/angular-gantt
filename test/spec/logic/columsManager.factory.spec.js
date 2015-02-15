@@ -110,7 +110,7 @@ describe('Columns', function() {
 
             expect(firstColumn).toBe(firstColumm2);
 
-            var lastColumn = columnsManager.getColumnByPosition(width);
+            var lastColumn = columnsManager.getColumnByPosition(width - 1);
             var lastColumn2 = columnsManager.getLastColumn();
 
             expect(lastColumn).toBe(lastColumn2);
@@ -185,7 +185,7 @@ describe('Columns', function() {
             toDate.startOf(timeUnit).add(1, timeUnit);
 
             var ganttStartDate = gantt.getDateByPosition(0);
-            var ganttEndDate = gantt.getDateByPosition(width);
+            var ganttEndDate = gantt.getDateByPosition(width - 1);
 
             expect(ganttStartDate.isSame(fromDate)).toBeTruthy();
             expect(ganttEndDate.isSame(toDate)).toBeTruthy();
@@ -235,7 +235,7 @@ describe('Columns', function() {
             toDate.startOf(timeUnit).add(1, timeUnit);
 
             var ganttStartDate = gantt.getDateByPosition(0);
-            var ganttEndDate = gantt.getDateByPosition(width);
+            var ganttEndDate = gantt.getDateByPosition(width - 1);
 
             expect(ganttStartDate.isSame(fromDate)).toBeTruthy();
             expect(ganttEndDate.isSame(toDate)).toBeTruthy();
@@ -285,7 +285,7 @@ describe('Columns', function() {
             toDate.startOf(timeUnit).add(1, timeUnit);
 
             var ganttStartDate = gantt.getDateByPosition(0);
-            var ganttEndDate = gantt.getDateByPosition(width);
+            var ganttEndDate = gantt.getDateByPosition(width - 1);
 
             expect(ganttStartDate.isSame(fromDate)).toBeTruthy();
             expect(ganttEndDate.isSame(toDate)).toBeTruthy();
