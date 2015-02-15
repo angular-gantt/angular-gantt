@@ -93,12 +93,16 @@
     Precision of the column when holding down SHIFT key.
 
     If undefined, it will use 0.25 viewScale.
-    
+
 - ### time-frames-magnet
 
     Make timeFrame borders snap. Columns magnet must be enabled too.
     
     default: `true`
+
+- ### daily
+
+    Fill up view of tasks by rounding their `from`/`to` date to the start/end of day.
 
 - ### data
 

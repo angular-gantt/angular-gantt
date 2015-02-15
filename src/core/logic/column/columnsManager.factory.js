@@ -39,7 +39,7 @@
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
+            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], function(newValues, oldValues) {
                 if (newValues !== oldValues && self.gantt.rendered) {
                     self.updateColumnsMeta();
                 }

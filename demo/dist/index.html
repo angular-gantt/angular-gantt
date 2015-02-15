@@ -106,6 +106,7 @@
                                                     <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-magnet"></i> Magnet</label><br>
                                                         <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.columnMagnet" ng-options="m for m in ['column', '1 second', '1 minute', '5 minutes', '15 minutes', '1 hour', '1 day', '5 days']" bs-select></button>
+                                                        <button type="button" class="btn btn-default" ng-model="options.daily" bs-checkbox>Daily</button>
                                                         <button type="button" class="btn btn-default" ng-model="options.timeFramesMagnet" bs-checkbox>TimeFrames</button>
                                                     </div>
 
@@ -200,6 +201,7 @@
                                                data="data"
                                                timespans="timespans"
                                                show-side="options.labelsEnabled"
+                                               daily="options.daily"
                                                filter-task="{'name': options.filterTask}"
                                                filter-row="{'name': options.filterRow}"
                                                sort-mode="options.sortMode"

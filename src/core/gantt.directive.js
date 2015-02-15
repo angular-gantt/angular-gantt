@@ -33,6 +33,7 @@
                 toDate: '=?',
                 currentDateValue: '=?',
                 currentDate: '=?',
+                daily: '=?',
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
                 taskContent: '=?',

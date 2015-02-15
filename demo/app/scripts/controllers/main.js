@@ -17,6 +17,7 @@ angular.module('angularGanttDemoApp')
             scale: 'day',
             sortMode: undefined,
             sideMode: 'TreeTable',
+            daily: false,
             maxHeight: false,
             width: false,
             zoom: 1,

@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    angular.module('gantt').factory('GanttTask', [function() {
+    angular.module('gantt').factory('GanttTask', ['moment', function(moment) {
         var Task = function(row, model) {
             this.rowsManager = row.rowsManager;
             this.row = row;
@@ -23,8 +23,8 @@
 
         // Updates the pos and size of the task according to the from - to date
         Task.prototype.updatePosAndSize = function() {
-            var oldModelLeft = this.modelLeft;
-            var oldModelWidth = this.modelWidth;
+            var oldViewLeft = this.left;
+            var oldViewWidth = this.width;
             var oldTruncatedRight = this.truncatedRight;
             var oldTruncatedLeft = this.truncatedLeft;
 
@@ -39,29 +39,37 @@
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.modelLeft === undefined || this.modelWidth === undefined ||
-                this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+            var modelLeft = this.modelLeft;
+            var modelWidth = this.modelWidth;
+
+            if (this.rowsManager.gantt.options.value('daily')) {
+                modelLeft = this.rowsManager.gantt.getPositionByDate(moment(this.model.from).startOf('day'));
+                modelWidth = this.rowsManager.gantt.getPositionByDate(moment(this.model.to).endOf('day')) - modelLeft;
+            }
+
+            if (modelLeft === undefined || modelWidth === undefined ||
+                modelLeft + modelWidth < 0 || modelLeft > maxModelLeft) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
-                if (this.modelLeft < 0) {
+                this.left = Math.min(Math.max(modelLeft, 0), this.rowsManager.gantt.width);
+                if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                    if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                         this.truncatedRight = true;
                         this.width = this.rowsManager.gantt.width;
                     } else {
                         this.truncatedRight = false;
-                        this.width = this.modelWidth + this.modelLeft;
+                        this.width = modelWidth + modelLeft;
                     }
-                } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                     this.truncatedRight = true;
                     this.truncatedLeft = false;
-                    this.width = this.rowsManager.gantt.width - this.modelLeft;
+                    this.width = this.rowsManager.gantt.width - modelLeft;
                 } else {
                     this.truncatedLeft = false;
                     this.truncatedRight = false;
-                    this.width = this.modelWidth;
+                    this.width = modelWidth;
                 }
 
                 if (this.width < 0) {
@@ -72,8 +80,8 @@
 
             this.updateView();
             if (!this.rowsManager.gantt.isRefreshingColumns &&
-                (oldModelLeft !== this.modelLeft ||
-                oldModelWidth !== this.modelWidth ||
+                (oldViewLeft !== this.left ||
+                oldViewWidth !== this.width ||
                 oldTruncatedRight !== this.truncatedRight ||
                 oldTruncatedLeft !== this.truncatedLeft)) {
                 this.rowsManager.gantt.api.tasks.raise.viewChange(this);
