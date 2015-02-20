@@ -80,9 +80,13 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
 
     Check if a row is collapsed.
 
-- **api.tree.setCollapsed(rowId, boolean)**
+- **api.tree.collapse(rowId)**
 
-    Collapse or expand a row.
+    Collapse a row.
+
+- **api.tree.expand(rowId)**
+
+    Expand a row.
     
 - **api.tree.collapseAll()**
     

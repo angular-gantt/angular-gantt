@@ -97,7 +97,7 @@
             return row._collapsed;
         };
 
-        var setRowCollapsed = function(rowId, value) {
+        var expandRow = function(rowId) {
             var row;
             if (typeof rowId === 'string') {
                 row = $scope.gantt.rowsManager.rowsMap[rowId];
@@ -109,10 +109,26 @@
             }
 
             var rowScope = $scope.nodeScopes[row.model.id];
-            if (rowScope.collapsed !== value) {
+            if (rowScope.collapsed) {
                 rowScope.toggle();
             }
+        };
 
+        var collapseRow = function(rowId) {
+            var row;
+            if (typeof rowId === 'string') {
+                row = $scope.gantt.rowsManager.rowsMap[rowId];
+            } else {
+                row = rowId;
+            }
+            if (row === undefined) {
+                return;
+            }
+
+            var rowScope = $scope.nodeScopes[row.model.id];
+            if (!rowScope.collapsed) {
+                rowScope.toggle();
+            }
         };
 
         $scope.getHeaderContent = function() {
@@ -121,7 +137,8 @@
 
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
         $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
-        $scope.gantt.api.registerMethod('tree', 'setCollapsed', setRowCollapsed, this);
+        $scope.gantt.api.registerMethod('tree', 'expand', expandRow, this);
+        $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
 
