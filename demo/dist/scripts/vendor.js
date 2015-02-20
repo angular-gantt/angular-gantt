@@ -46925,12 +46925,31 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return row._collapsed;
         };
 
+        var setRowCollapsed = function(rowId, value) {
+            var row;
+            if (typeof rowId === 'string') {
+                row = $scope.gantt.rowsManager.rowsMap[rowId];
+            } else {
+                row = rowId;
+            }
+            if (row === undefined) {
+                return;
+            }
+
+            var rowScope = $scope.nodeScopes[row.model.id];
+            if (rowScope.collapsed !== value) {
+                rowScope.toggle();
+            }
+
+        };
+
         $scope.getHeaderContent = function() {
             return $scope.pluginScope.headerContent;
         };
 
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
         $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
+        $scope.gantt.api.registerMethod('tree', 'setCollapsed', setRowCollapsed, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
 
@@ -46948,6 +46967,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.parent = function(row) {
             return hierarchy.parent(row);
         };
+
+        $scope.nodeScopes = {};
     }]).controller('GanttUiTreeController', ['$scope', function($scope) {
         var collapseAll = function() {
             $scope.collapseAll();
@@ -46960,6 +46981,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.registerMethod('tree', 'collapseAll', collapseAll, $scope);
         $scope.gantt.api.registerMethod('tree', 'expandAll', expandAll, $scope);
     }]).controller('GanttTreeNodeController', ['$scope', function($scope) {
+        $scope.$parent.nodeScopes[$scope.row.model.id] = $scope;
+        $scope.$on('$destroy', function() {
+            delete $scope.$parent.nodeScopes[$scope.row.model.id];
+        });
+
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
