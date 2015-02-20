@@ -31,7 +31,9 @@
                     });
                 }
 
+                var rendered = false;
                 api.core.on.rendered(scope, function() {
+                    rendered = true;
                     if (sensor !== undefined) {
                         sensor.detach();
                     }
@@ -43,12 +45,14 @@
 
                 var sensor;
                 scope.$watch('enabled', function(newValue) {
-                    if (newValue && sensor === undefined) {
-                        ElementQueries.update();
-                        sensor = buildSensor();
-                    } else if (!newValue && sensor !== undefined) {
-                        sensor.detach();
-                        sensor = undefined;
+                    if (rendered) {
+                        if (newValue && sensor === undefined) {
+                            ElementQueries.update();
+                            sensor = buildSensor();
+                        } else if (!newValue && sensor !== undefined) {
+                            sensor.detach();
+                            sensor = undefined;
+                        }
                     }
                 });
             }
