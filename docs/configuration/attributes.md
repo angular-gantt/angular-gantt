@@ -306,9 +306,14 @@
 
 - ### show-side
 
-    Show the side section. Make sure that a side section plugin (e.g. [Labels](../plugins/labels.md)) is activated otherwise the side section is not shown.
+    Show the side section. Make sure that a side section plugin (e.g. [Tree](../plugins/tree.md) or [Table](../plugins/table.md)) 
+    is activated otherwise the side section is not shown.
         
     default: `true`
+
+- ### side-width
+
+    Width of the side section.
 
 - ### sort-mode
 
