@@ -3391,7 +3391,9 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
 
             var enableMoveMode = function(mode, x, evt) {
                 // Raise task move start event
-                if (!$scope.task.isMoving) {
+                if ($scope.task.isMoving) {
+                    taskHasBeenChanged = true;
+                } else {
                     if (mode === 'M') {
                         $scope.$emit(GANTT_EVENTS.TASK_MOVE_BEGIN, Events.buildTaskEventData(evt, $element, $scope.task, $scope.gantt));
                     } else {
@@ -3400,7 +3402,6 @@ gantt.directive('ganttTask', ['$window', '$document', '$timeout', '$filter', 'ga
                 }
 
                 // Init task move
-                taskHasBeenChanged = false;
                 $scope.task.moveMode = mode;
                 $scope.task.isMoving = true;
                 moveStartX = x;
