@@ -45,6 +45,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 taskOutOfRange: '=?',
                 taskContent: '=?',
                 maxHeight: '=?',
+                sideWidth: '=?',
                 headers: '=?',
                 headersFormats: '=?',
                 timeFrames: '=?',
