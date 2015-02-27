@@ -72,7 +72,7 @@ Display a table on the side with fully customizable columns count and data.
           'columnContents': {
             'model.name': '...',
             'from': '...',
-            'to': '...',
+            'to': '...'
           }
         }
 
