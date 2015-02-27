@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.11
+ * @license AngularJS v1.3.13
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.11/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.13/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -381,8 +381,7 @@ function nextUid() {
 function setHashKey(obj, h) {
   if (h) {
     obj.$$hashKey = h;
-  }
-  else {
+  } else {
     delete obj.$$hashKey;
   }
 }
@@ -691,7 +690,7 @@ function isElement(node) {
 function makeMap(str) {
   var obj = {}, items = str.split(","), i;
   for (i = 0; i < items.length; i++)
-    obj[ items[i] ] = true;
+    obj[items[i]] = true;
   return obj;
 }
 
@@ -1472,8 +1471,12 @@ function bootstrap(element, modules, config) {
     forEach(extraModules, function(module) {
       modules.push(module);
     });
-    doBootstrap();
+    return doBootstrap();
   };
+
+  if (isFunction(angular.resumeDeferredBootstrap)) {
+    angular.resumeDeferredBootstrap();
+  }
 }
 
 /**
@@ -2118,11 +2121,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.11',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.13',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 11,
-  codeName: 'spiffy-manatee'
+  dot: 13,
+  codeName: 'meticulous-riffleshuffle'
 };
 
 
@@ -4157,7 +4160,7 @@ function createInjector(modulesToLoad, strictDi) {
       }
 
       var args = [],
-          $inject = annotate(fn, strictDi, serviceName),
+          $inject = createInjector.$$annotate(fn, strictDi, serviceName),
           length, i,
           key;
 
@@ -4196,7 +4199,7 @@ function createInjector(modulesToLoad, strictDi) {
       invoke: invoke,
       instantiate: instantiate,
       get: getService,
-      annotate: annotate,
+      annotate: createInjector.$$annotate,
       has: function(name) {
         return providerCache.hasOwnProperty(name + providerSuffix) || cache.hasOwnProperty(name);
       }
@@ -7870,8 +7873,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           afterTemplateChildLinkFn,
           beforeTemplateCompileNode = $compileNode[0],
           origAsyncDirective = directives.shift(),
-          // The fact that we have to copy and patch the directive seems wrong!
-          derivedSyncDirective = extend({}, origAsyncDirective, {
+          derivedSyncDirective = inherit(origAsyncDirective, {
             templateUrl: null, transclude: null, replace: null, $$originalDirective: origAsyncDirective
           }),
           templateUrl = (isFunction(origAsyncDirective.templateUrl))
@@ -8324,6 +8326,8 @@ function removeComments(jqNodes) {
   return jqNodes;
 }
 
+var $controllerMinErr = minErr('$controller');
+
 /**
  * @ngdoc provider
  * @name $controllerProvider
@@ -8411,7 +8415,12 @@ function $ControllerProvider() {
       }
 
       if (isString(expression)) {
-        match = expression.match(CNTRL_REG),
+        match = expression.match(CNTRL_REG);
+        if (!match) {
+          throw $controllerMinErr('ctrlfmt',
+            "Badly formed controller string '{0}'. " +
+            "Must match `__name__ as __id__` or `__name__`.", expression);
+        }
         constructor = match[1],
         identifier = identifier || match[3];
         expression = controllers.hasOwnProperty(constructor)
@@ -11362,7 +11371,7 @@ function $LocationProvider() {
 
 
     // rewrite hashbang url <> html5 url
-    if ($location.absUrl() != initialUrl) {
+    if (trimEmptyHash($location.absUrl()) != trimEmptyHash(initialUrl)) {
       $browser.url($location.absUrl(), true);
     }
 
@@ -12336,6 +12345,11 @@ Parser.prototype = {
             ? fn.apply(context, args)
             : fn(args[0], args[1], args[2], args[3], args[4]);
 
+      if (args) {
+        // Free-up the memory (arguments of the last function call).
+        args.length = 0;
+      }
+
       return ensureSafeObject(v, expressionText);
       };
   },
@@ -13207,8 +13221,7 @@ function qFactory(nextTick, exceptionHandler) {
           'qcycle',
           "Expected promise to be resolved with value other than itself '{0}'",
           val));
-      }
-      else {
+      } else {
         this.$$resolve(val);
       }
 
@@ -24551,10 +24564,11 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  *
  * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
- * class in CSS:
+ * class CSS. Note that the selector that needs to be used is actually `.ng-hide:not(.ng-hide-animate)` to cope
+ * with extra animation classes that can be added.
  *
  * ```css
- * .ng-hide {
+ * .ng-hide:not(.ng-hide-animate) {
  *   /&#42; this is just another form of hiding an element &#42;/
  *   display: block!important;
  *   position: absolute;
@@ -26070,7 +26084,7 @@ var maxlengthDirective = function() {
         ctrl.$validate();
       });
       ctrl.$validators.maxlength = function(modelValue, viewValue) {
-        return (maxlength < 0) || ctrl.$isEmpty(modelValue) || (viewValue.length <= maxlength);
+        return (maxlength < 0) || ctrl.$isEmpty(viewValue) || (viewValue.length <= maxlength);
       };
     }
   };
@@ -26115,7 +26129,7 @@ var minlengthDirective = function() {
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.11
+ * @license AngularJS v1.3.13
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -27449,8 +27463,7 @@ angular.module('ngAnimate', ['ng'])
           } else if (lastAnimation.event == 'setClass') {
             animationsToCancel.push(lastAnimation);
             cleanup(element, className);
-          }
-          else if (runningAnimations[className]) {
+          } else if (runningAnimations[className]) {
             var current = runningAnimations[className];
             if (current.event == animationEvent) {
               skipAnimation = true;
@@ -38503,7 +38516,7 @@ angular.module("ang-drag-drop",[])
 
 
 /*
-Project: angular-gantt v1.1.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.1.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -39975,14 +39988,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 to = this.gantt.options.value('toDate');
             }
 
-            if (!from) {
+            if (!from || (moment.isMoment(from) && !from.isValid())) {
                 from = this.gantt.rowsManager.getDefaultFrom();
                 if (!from) {
                     return false;
                 }
             }
 
-            if (!to) {
+            if (!to || (moment.isMoment(to) && !to.isValid())) {
                 to = this.gantt.rowsManager.getDefaultTo();
                 if (!to) {
                     return false;
@@ -40407,6 +40420,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.api.registerEvent('core', 'ready');
                 this.api.registerEvent('core', 'rendered');
 
+                this.api.registerEvent('directives', 'controller');
                 this.api.registerEvent('directives', 'preLink');
                 this.api.registerEvent('directives', 'postLink');
                 this.api.registerEvent('directives', 'new');
@@ -41463,6 +41477,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return !this.model.to || this.model.from - this.model.to === 0;
         };
 
+        Task.prototype.isOutOfRange = function() {
+            var firstColumn = this.rowsManager.gantt.columnsManager.getFirstColumn();
+            var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+
+            return (firstColumn === undefined || this.model.to < firstColumn.date ||
+                    lastColumn === undefined || this.model.from > lastColumn.endDate);
+        };
+
         // Updates the pos and size of the task according to the from - to date
         Task.prototype.updatePosAndSize = function() {
             var oldModelLeft = this.modelLeft;
@@ -41470,13 +41492,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var oldTruncatedRight = this.truncatedRight;
             var oldTruncatedLeft = this.truncatedLeft;
 
-            this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-            this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+            if (!this.isMoving && this.isOutOfRange()) {
+                this.modelLeft = undefined;
+                this.modelWidth = undefined;
+            } else {
+                this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+            }
 
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+            if (this.modelLeft === undefined || this.modelWidth === undefined ||
+                this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
@@ -41539,15 +41567,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Task.prototype.getBackgroundElement = function() {
             if (this.$element !== undefined) {
                 var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
-                backgroundElement = angular.element(backgroundElement);
+                if (backgroundElement !== undefined) {
+                    backgroundElement = angular.element(backgroundElement);
+                }
                 return backgroundElement;
             }
         };
 
         Task.prototype.getContentElement = function() {
             if (this.$element !== undefined) {
-                var contentElement = this.$element[0].querySelector('.gantt-task-content-container');
-                contentElement = angular.element(contentElement);
+                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                if (contentElement !== undefined) {
+                    contentElement = angular.element(contentElement);
+                }
                 return contentElement;
             }
         };
@@ -41555,7 +41587,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Task.prototype.getForegroundElement = function() {
             if (this.$element !== undefined) {
                 var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
-                foregroundElement = angular.element(foregroundElement);
+                if (foregroundElement !== undefined) {
+                    foregroundElement = angular.element(foregroundElement);
+                }
                 return foregroundElement;
             }
         };
@@ -42239,9 +42273,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.children = function(row) {
                 var children = idToChildren[row.model.id];
-                if (children === undefined) {
-                    children = nameToChildren[row.model.name];
-                }
                 return children;
             };
 
@@ -42262,9 +42293,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.parent = function(row) {
                 var parent = idToParent[row.model.id];
-                if (parent === undefined) {
-                    parent = nameToParent[row.model.name];
-                }
                 return parent;
             };
 
@@ -42287,7 +42315,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt').service('ganttUtils', ['$document', function($document) {
+    angular.module('gantt').service('ganttUtils', [function() {
         return {
             createBoundedWrapper: function(object, method) {
                 return function() {
@@ -42304,69 +42332,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }
                 return defaultValue;
-            },
-            elementFromPoint: function(x, y) {
-                return $document[0].elementFromPoint(x, y);
-            },
-            elementsFromPoint: function(x, y, depth) {
-                var elements = [], previousPointerEvents = [], cDepth = 0, current, i, l, d;
-
-                // get all elements via elementFromPoint, and remove them from hit-testing in order
-                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null &&
-                    (depth === undefined || cDepth < depth)) {
-
-                    // push the element and its current style
-                    elements.push(current);
-                    previousPointerEvents.push({
-                        value: current.style.getPropertyValue('pointer-events'),
-                        priority: current.style.getPropertyPriority('pointer-events')
-                    });
-
-                    // add "pointer-events: none", to get to the underlying element
-                    current.style.setProperty('pointer-events', 'none', 'important');
-
-                    cDepth++;
-                }
-
-                // restore the previous pointer-events values
-                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
-                    d = previousPointerEvents[i];
-                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
-                }
-
-                return elements;
-            },
-            findElementFromPoint: function(x, y, checkFunction) {
-                var elements = [], previousPointerEvents = [], cDepth = 0, current, found, i, l, d;
-
-                // get all elements via elementFromPoint, and remove them from hit-testing in order
-                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
-
-                    // push the element and its current style
-                    elements.push(current);
-                    previousPointerEvents.push({
-                        value: current.style.getPropertyValue('pointer-events'),
-                        priority: current.style.getPropertyPriority('pointer-events')
-                    });
-
-                    // add "pointer-events: none", to get to the underlying element
-                    current.style.setProperty('pointer-events', 'none', 'important');
-
-                    cDepth++;
-
-                    if (checkFunction(current)) {
-                        found = current;
-                        break;
-                    }
-                }
-
-                // restore the previous pointer-events values
-                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
-                    d = previousPointerEvents[i];
-                    elements[i].style.setProperty('pointer-events', d.value ? d.value : '', d.priority);
-                }
-
-                return found;
             },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
@@ -42422,17 +42387,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var firstColumn = gantt.columnsManager.getFirstColumn();
             var lastColumn = gantt.columnsManager.getLastColumn();
 
-            var fromDate = gantt.options.value('fromDate');
-            var toDate = gantt.options.value('toDate');
-
             if (firstColumn !== undefined && lastColumn !== undefined) {
-                if (fromDate === undefined) {
-                    fromDate = firstColumn.date;
-                }
-
-                if (toDate === undefined) {
-                    toDate = lastColumn.endDate;
-                }
+                var fromDate = firstColumn.date;
+                var toDate = lastColumn.endDate;
 
                 var res = [];
 
@@ -43212,6 +43169,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             },
                             post: function postLink(scope, iElement, iAttrs, controller) {
                                 scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+
                             }
                         };
                     },
@@ -43222,9 +43180,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             controllerFunction($scope, $element, $attrs, controller);
                         }
 
-                        $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
+                        $scope.gantt.api.directives.raise.controller(directiveName, $scope, $element, $attrs, controller);
                         $scope.$on('$destroy', function() {
                             $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
+                        });
+
+                        $scope.$evalAsync(function() {
+                            $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
                         });
                     }]
                 };
@@ -43240,6 +43202,78 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         return DirectiveBuilder;
+    }]);
+}());
+
+(function() {
+    'use strict';
+    angular.module('gantt').service('ganttDom', ['$document', function($document) {
+        return {
+            elementFromPoint: function(x, y) {
+                return $document[0].elementFromPoint(x, y);
+            },
+            elementsFromPoint: function(x, y, depth) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null &&
+                (depth === undefined || cDepth < depth)) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('visibility'),
+                        priority: current.style.getPropertyPriority('visibility')
+                    });
+
+                    // add "pointer-events: none", to get to the underlying element
+                    current.style.setProperty('visibility', 'hidden', 'important');
+
+                    cDepth++;
+                }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
+                }
+
+                return elements;
+            },
+            findElementFromPoint: function(x, y, checkFunction) {
+                var elements = [], previousPointerEvents = [], cDepth = 0, current, found, i, l, d;
+
+                // get all elements via elementFromPoint, and remove them from hit-testing in order
+                while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
+
+                    // push the element and its current style
+                    elements.push(current);
+                    previousPointerEvents.push({
+                        value: current.style.getPropertyValue('visibility'),
+                        priority: current.style.getPropertyPriority('visibility')
+                    });
+
+                    // add "visibility: hidden", to get to the underlying element.
+                    // Would be better with pointer-events: none, but IE<11 doesn't support this.
+                    current.style.setProperty('visibility', 'hidden', 'important');
+
+                    cDepth++;
+
+                    if (checkFunction(current)) {
+                        found = current;
+                        break;
+                    }
+                }
+
+                // restore the previous pointer-events values
+                for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                    d = previousPointerEvents[i];
+                    elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
+                }
+
+                return found;
+            }
+        };
     }]);
 }());
 
@@ -43562,7 +43596,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Timespan template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTimespan.tmpl.html">\n' +
-        '        <div class="gantt-timespan" ng-class="timespan.classes">\n' +
+        '        <div class="gantt-timespan" ng-class="timespan.model.classes">\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -43588,7 +43622,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
-        '        <div class="gantt-task-content"><span>{{task.model.name}}</span></div>\n' +
+        '        <div class="gantt-task-content" unselectable="on"><span unselectable="on">{{task.model.name}}</span></div>\n' +
         '    </script>\n' +
         '\n' +
         '\n' +
@@ -43648,7 +43682,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.1.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.1.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -43907,8 +43941,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
-        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
             return {
                 restrict: 'E',
@@ -43963,7 +43997,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             var foregroundElement = taskScope.task.getForegroundElement();
 
-                            foregroundElement.on(_pressEvents, function(evt) {
+                            // IE<11 doesn't support `pointer-events: none`
+                            // So task content element must be added to support moving properly.
+                            var contentElement = taskScope.task.getContentElement();
+
+                            var onPressEvents = function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
@@ -43990,9 +44028,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     }
                                     taskScope.$digest();
                                 }
-                            });
+                            };
+                            foregroundElement.on(_pressEvents, onPressEvents);
+                            contentElement.on(_pressEvents, onPressEvents);
 
-                            foregroundElement.on('mousemove', function(evt) {
+                            var onMousemove = function (evt) {
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
@@ -44011,11 +44051,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
                                         foregroundElement.css('cursor', getCursor(mode));
+                                        contentElement.css('cursor', getCursor(mode));
                                     } else {
                                         foregroundElement.css('cursor', '');
+                                        contentElement.css('cursor', '');
                                     }
                                 }
-                            });
+                            };
+                            foregroundElement.on('mousemove', onMousemove);
+                            contentElement.on('mousemove', onMousemove);
 
                             var handleMove = function(evt) {
                                 if (taskScope.task.isMoving && !taskScope.destroyed) {
@@ -44051,7 +44095,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
                                         var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
                                         ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
-                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
+                                        var targetRowElement = dom.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
                                         ganttBody.css('pointer-events', '');
@@ -44793,13 +44837,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.tasks.on.change($scope, function(task) {
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
-                    $scope.$apply(function() {
+                    $scope.$evalAsync(function() {
                         updateTaskGroup();
                     });
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
-                        $scope.$apply(function() {
+                        $scope.$evalAsync(function() {
                             updateTaskGroup();
                         });
                     }
@@ -45565,6 +45609,10 @@ angular.module('gantt.progress.templates', []).run(['$templateCache', function($
         '');
 }]);
 
+angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
@@ -45665,7 +45713,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span class="gantt-tree-text">{{row.model.name}}</span>\n' +
+        '            <span gantt-row-label class="gantt-tree-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
