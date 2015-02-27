@@ -38,6 +38,7 @@
                 taskOutOfRange: '=?',
                 taskContent: '=?',
                 maxHeight: '=?',
+                sideWidth: '=?',
                 headers: '=?',
                 headersFormats: '=?',
                 timeFrames: '=?',
