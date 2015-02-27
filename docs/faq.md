@@ -37,3 +37,11 @@
             doy : 4 // The week that contains Jan 4th is the first week of the year.
           }
         });
+
+- ### Is it possible to print the gantt ?
+
+    One way to print the gantt is to use a headless browser like [PhantomJS](http://www.phantomjs.org). We prepared a sample rasterize script file which can be used to print the gantt either as pdf or image.
+    
+    Usage: The sample script contains a small how-to. 
+    Download: [printing/phantomjs/rasterize.js](https://github.com/angular-gantt/angular-gantt/blob/master/printing/phantomjs/rasterize.js)
+
