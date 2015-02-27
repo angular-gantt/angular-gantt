@@ -43593,7 +43593,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').filter('ganttTaskLimit', ['moment', function(moment) {
+    angular.module('gantt').filter('ganttTaskLimit', [function() {
         // Returns only the tasks which are visible on the screen
         // Use the task width and position to decide if a task is still visible
 
@@ -43601,17 +43601,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var firstColumn = gantt.columnsManager.getFirstColumn();
             var lastColumn = gantt.columnsManager.getLastColumn();
 
-            var fromDate = gantt.options.value('fromDate');
-            var toDate = gantt.options.value('toDate');
-
             if (firstColumn !== undefined && lastColumn !== undefined) {
-                if (!fromDate || (moment.isMoment(fromDate) && !fromDate.isValid())) {
-                    fromDate = firstColumn.date;
-                }
-
-                if (!toDate || (moment.isMoment(toDate) && !toDate.isValid())) {
-                    toDate = lastColumn.endDate;
-                }
+                var fromDate = firstColumn.date;
+                var toDate = lastColumn.endDate;
 
                 var res = [];
 
