@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.1.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.1.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -258,8 +258,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
-        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
             return {
                 restrict: 'E',
@@ -314,7 +314,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             var foregroundElement = taskScope.task.getForegroundElement();
 
-                            foregroundElement.on(_pressEvents, function(evt) {
+                            // IE<11 doesn't support `pointer-events: none`
+                            // So task content element must be added to support moving properly.
+                            var contentElement = taskScope.task.getContentElement();
+
+                            var onPressEvents = function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
@@ -341,9 +345,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     }
                                     taskScope.$digest();
                                 }
-                            });
+                            };
+                            foregroundElement.on(_pressEvents, onPressEvents);
+                            contentElement.on(_pressEvents, onPressEvents);
 
-                            foregroundElement.on('mousemove', function(evt) {
+                            var onMousemove = function (evt) {
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
@@ -362,11 +368,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
                                         foregroundElement.css('cursor', getCursor(mode));
+                                        contentElement.css('cursor', getCursor(mode));
                                     } else {
                                         foregroundElement.css('cursor', '');
+                                        contentElement.css('cursor', '');
                                     }
                                 }
-                            });
+                            };
+                            foregroundElement.on('mousemove', onMousemove);
+                            contentElement.on('mousemove', onMousemove);
 
                             var handleMove = function(evt) {
                                 if (taskScope.task.isMoving && !taskScope.destroyed) {
@@ -402,7 +412,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
                                         var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
                                         ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
-                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
+                                        var targetRowElement = dom.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
                                         ganttBody.css('pointer-events', '');
@@ -1144,13 +1154,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.tasks.on.change($scope, function(task) {
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
-                    $scope.$apply(function() {
+                    $scope.$evalAsync(function() {
                         updateTaskGroup();
                     });
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
-                        $scope.$apply(function() {
+                        $scope.$evalAsync(function() {
                             updateTaskGroup();
                         });
                     }
@@ -1916,6 +1926,10 @@ angular.module('gantt.progress.templates', []).run(['$templateCache', function($
         '');
 }]);
 
+angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
@@ -2016,7 +2030,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span class="gantt-tree-text">{{row.model.name}}</span>\n' +
+        '            <span gantt-row-label class="gantt-tree-text">{{row.model.name}}</span>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +

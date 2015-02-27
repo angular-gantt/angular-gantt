@@ -18,7 +18,11 @@
     pointer-events: none;
 }
 
-.gantt-side-background, .gantt-body-background, .gantt-task {
+.gantt-side-background, .gantt-body-background, .gantt-task, .gantt-row {
+    pointer-events: auto;
+}
+
+.gantt a, .gantt input {
     pointer-events: auto;
 }
 
