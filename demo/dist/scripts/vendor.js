@@ -43715,6 +43715,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return getWidth();
                 }, function(newValue) {
                     $scope.targetElement.css('width', newValue + 'px');
+                    // Setting width again is required when min-width of max-width is set on targetElement.
+                    // This avoid going to a smaller or bigger value than targetElement capabilities.
+                    if ($scope.targetElement[0].offsetWidth > 0) {
+                        setWidth($scope.targetElement[0].offsetWidth);
+                    }
                 });
 
                 function setWidth(width) {

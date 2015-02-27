@@ -313,7 +313,8 @@
 
 - ### side-width
 
-    Width of the side section.
+    Width of the side section. You can also set using side `width`, `min-width` and `max-width` using 
+    `.gantt-side` CSS selector
 
 - ### sort-mode
 
