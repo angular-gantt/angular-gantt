@@ -6,14 +6,20 @@ Sample rasterize script file to print the gantt with PhantomJS 1.9.8
 Usage:
 1. Install PhantomJS (www.phantomjs.org)
 2. Put the gantt on a empty HTML page with no other elements.
-   Make sure the gantt column-width property is set to disable auto-width.
+   Make sure the gantt column-width property is set to disable the auto width behaviour.
    Take a look at the example call Plnkr (http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/) as reference.
-3. Run with: "phantomjs rasterize.js URL format(pdf|jpg|png) output [paperwidth*paperheight|paperformat[,orientation]] [fit(true|false)]"
+3. Run with: 
+   "phantomjs rasterize.js URL format(pdf|jpg|png) output [paperwidth*paperheight|paperformat[,orientation]] [fit(true|false)]"
+
+   All paper and fit options are only valid for PDF outputs. Paper width & height can be specified as in, mm, cm or px.
+
 
 Example calls:
 phantomjs rasterize.js http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/ pdf 'demo.pdf' a4,landscape true
 phantomjs rasterize.js http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/ pdf 'demo.pdf' 8.5in*11in
-phantomjs rasterize.js http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/ png 'dev/stdout'
+phantomjs rasterize.js http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/ pdf 'demo.pdf' 297mm*210mm
+phantomjs rasterize.js http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/ png 'demo.png'
+phantomjs rasterize.js http://run.plnkr.co/plunks/lrC5RFfeItMA5JCVMVWF/ jpg 'dev/stdout'
 
 Important:
 Currently there is a PDF bug in PhantomJS 2.0 and this script may not work with this version.
@@ -178,12 +184,13 @@ var setViewportSize = function() {
 
         var width = ganttSideElement.clientWidth + ganttInnerElement.clientWidth;
         var height = ganttElement.clientHeight;
+        var clippingHeight = ganttSideElement.clientHeight;
 
-        return [width, height];
+        return [width, height, clippingHeight];
     });
 
     page.viewportSize = { width: ganttDimensions[0]+20, height: ganttDimensions[1] };
-    page.clipRect = { width: ganttDimensions[0], height: ganttDimensions[1] };
+    page.clipRect = { width: ganttDimensions[0], height: ganttDimensions[2] };
 
     // Workaround: Make sure all columns are recalculated after viewport size changed
     page.evaluate(function() {
