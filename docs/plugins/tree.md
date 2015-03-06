@@ -99,6 +99,6 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
     
 ### Events
     
-- **api.core.on.collapsed(row, collapsed)**
+- **api.tree.on.collapsed(row, collapsed)**
 
     A row has collapsed or expanded
