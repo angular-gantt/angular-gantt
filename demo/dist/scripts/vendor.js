@@ -43619,6 +43619,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         // If the task can be drawn with gantt columns only.
                         if (task.model.to >= fromDate && task.model.from <= toDate) {
 
+                            if (task.left === undefined) {
+                                task.updatePosAndSize();
+                            }
+
                             // If task has a visible part on the screen
                             if (!scrollContainerWidth ||
                                 task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
