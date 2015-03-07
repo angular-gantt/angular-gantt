@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.1.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -7,8 +7,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
     'use strict';
-    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', '$window', '$document', '$timeout',
-        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, $window, $document, $timeout) {
+    angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
+        function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
             return {
                 restrict: 'E',
@@ -63,7 +63,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             var foregroundElement = taskScope.task.getForegroundElement();
 
-                            foregroundElement.on(_pressEvents, function(evt) {
+                            // IE<11 doesn't support `pointer-events: none`
+                            // So task content element must be added to support moving properly.
+                            var contentElement = taskScope.task.getContentElement();
+
+                            var onPressEvents = function(evt) {
                                 evt.preventDefault();
                                 if (_hasTouch) {
                                     evt = mouseOffset.getTouch(evt);
@@ -90,9 +94,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     }
                                     taskScope.$digest();
                                 }
-                            });
+                            };
+                            foregroundElement.on(_pressEvents, onPressEvents);
+                            contentElement.on(_pressEvents, onPressEvents);
 
-                            foregroundElement.on('mousemove', function(evt) {
+                            var onMousemove = function (evt) {
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
@@ -111,11 +117,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
                                         foregroundElement.css('cursor', getCursor(mode));
+                                        contentElement.css('cursor', getCursor(mode));
                                     } else {
                                         foregroundElement.css('cursor', '');
+                                        contentElement.css('cursor', '');
                                     }
                                 }
-                            });
+                            };
+                            foregroundElement.on('mousemove', onMousemove);
+                            contentElement.on('mousemove', onMousemove);
 
                             var handleMove = function(evt) {
                                 if (taskScope.task.isMoving && !taskScope.destroyed) {
@@ -149,10 +159,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
-
-                                        var targetRowElement = utils.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
+                                        var ganttBody = angular.element($document[0].querySelectorAll('.gantt-body'));
+                                        ganttBody.css('pointer-events', 'auto'); // pointer-events must be enabled for following to work.
+                                        var targetRowElement = dom.findElementFromPoint(rowCenterLeft, evt.clientY, function(element) {
                                             return angular.element(element).hasClass('gantt-row');
                                         });
+                                        ganttBody.css('pointer-events', '');
+
                                         var rows = ganttCtrl.gantt.rowsManager.rows;
                                         var targetRow;
                                         for (var i= 0, l=rows.length; i<l; i++) {
@@ -186,7 +199,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+
+                                        if (taskHasBeenChanged) {
+                                            taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                        }
                                         taskHasBeenChanged = true;
                                     }
                                 } else if (taskScope.task.moveMode === 'E') {
@@ -202,7 +218,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 } else {
                                     if (x > taskScope.task.left + taskScope.task.width) {
@@ -217,7 +236,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 }
 

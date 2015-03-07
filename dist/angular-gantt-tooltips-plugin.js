@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.1.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -13,7 +13,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?'
+                dateFormat: '=?',
+                content: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -30,6 +31,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
                 if (scope.dateFormat === undefined) {
                     scope.dateFormat = 'MMM DD, HH:mm';
+                }
+                if (scope.content === undefined) {
+                    scope.content = '{{task.model.name}}</br>'+
+                                    '<small>'+
+                                    '{{task.isMilestone() === true && getFromLabel() || getFromLabel() + \' - \' + getToLabel()}}'+
+                                    '</small>';
                 }
 
                 scope.api = api;
@@ -125,6 +132,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         mouseEnterX = e.clientX;
                         displayTooltip(true, false);
                     } else {
+                        // check if mouse goes outside the parent
+                        if(
+                            e.clientX < $scope.taskRect.left ||
+                            e.clientX > $scope.taskRect.right ||
+                            e.clientY > $scope.taskRect.bottom ||
+                            e.clientY < $scope.taskRect.top
+                        ) {
+                            displayTooltip(false, false);
+                        }
                         updateTooltip(e.clientX);
                     }
                 }, 5, false));

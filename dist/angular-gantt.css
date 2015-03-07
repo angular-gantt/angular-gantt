@@ -14,6 +14,18 @@
     zoom:1; /* For IE 6/7 (trigger hasLayout) */
 }
 
+.gantt-side-content, .gantt-body {
+    pointer-events: none;
+}
+
+.gantt-side-background, .gantt-body-background, .gantt-task, .gantt-row {
+    pointer-events: auto;
+}
+
+.gantt a, .gantt input {
+    pointer-events: auto;
+}
+
 .gantt-scrollable {
     overflow-x: auto;
 
@@ -36,7 +48,8 @@
     overflow: hidden;
 }
 
-.gantt-row-label span {
+.gantt-row-label span.gantt-label-text
+.gantt-header-label span.gantt-label-text {
     box-sizing:border-box;
     display: inline-block;
     text-align: center;
@@ -45,12 +58,13 @@
     text-overflow: clip;
 }
 
-.gantt-row-label span {
+.gantt-row-label span.gantt-label-text,
+.gantt-header-label span.gantt-label-text {
     padding-left: 12px;
     padding-right: 12px;
 }
 
-.gantt-row-label {
+.gantt-row-label, .gantt-header-label {
     overflow: hidden;
     white-space: nowrap;
 }
@@ -85,7 +99,6 @@
 }
 
 .gantt-side-content > div.side-element {
-    overflow: hidden;
     display: inline-block;
 }
 
@@ -150,9 +163,21 @@
     border-right: none;
 }
 
-.gantt-labels-header-row {
+.gantt-side-background-header {
+    position: relative
+}
+
+.gantt-side-header-row {
+    position: absolute;
+
+    bottom: 0;
+    width: 100%;
+
     padding-left: 12px;
     padding-right: 12px;
+
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
 
     overflow: hidden;
     white-space: nowrap;
@@ -290,6 +315,8 @@
 
     height: 100%;
     width: 100%;
+
+    z-index: 100;
 }
 
 .gantt-task-content {
