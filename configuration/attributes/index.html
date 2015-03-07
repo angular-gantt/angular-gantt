@@ -135,6 +135,10 @@
                             <a href="../../plugins/progress">Progress</a>
                         </li>
                     
+                        <li >
+                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                        </li>
+                    
                     </ul>
                 </li>
             
@@ -211,11 +215,15 @@
         
             <li><a href="#column-width">column-width</a></li>
         
+            <li><a href="#expand-to-fit-shrink-to-fit">expand-to-fit, shrink-to-fit</a></li>
+        
             <li><a href="#column-magnet">column-magnet</a></li>
         
             <li><a href="#shift-column-magnet">shift-column-magnet</a></li>
         
             <li><a href="#time-frames-magnet">time-frames-magnet</a></li>
+        
+            <li><a href="#daily">daily</a></li>
         
             <li><a href="#data">data</a></li>
         
@@ -245,9 +253,13 @@
         
             <li><a href="#show-side">show-side</a></li>
         
+            <li><a href="#side-width">side-width</a></li>
+        
             <li><a href="#sort-mode">sort-mode</a></li>
         
             <li><a href="#task-out-of-range">task-out-of-range</a></li>
+        
+            <li><a href="#task-content">task-content</a></li>
         
             <li><a href="#template">template</a></li>
         
@@ -319,7 +331,11 @@
 <h3 id="column-width">column-width</h3>
 <p>The width of each column in <code>px</code>. This allows you add logic like <code>column-width="viewScale == 'day' ?  50 : 20"</code> to 
 have wider columns for days than for other column scales.</p>
-<p>If <code>undefined</code>, gantt will adjust columns width to fill available space.</p>
+<p>If <code>undefined</code>, gantt will always fit available width.</p>
+</li>
+<li>
+<h3 id="expand-to-fit-shrink-to-fit">expand-to-fit, shrink-to-fit</h3>
+<p>Ensure that gantt is expanded/shrinked to fit the available width, even if <code>column-width</code> value is defined.</p>
 </li>
 <li>
 <h3 id="column-magnet">column-magnet</h3>
@@ -348,6 +364,10 @@ column borders. You can't defined a <code>column-magnet</code> value that covers
 <h3 id="time-frames-magnet">time-frames-magnet</h3>
 <p>Make timeFrame borders snap. Columns magnet must be enabled too.</p>
 <p>default: <code>true</code></p>
+</li>
+<li>
+<h3 id="daily">daily</h3>
+<p>Fill up view of tasks by rounding their <code>from</code>/<code>to</code> date to the start/end of day.</p>
 </li>
 <li>
 <h3 id="data">data</h3>
@@ -537,8 +557,14 @@ attributes. camelCased version of attributes must be used as key (<code>autoExpa
 </li>
 <li>
 <h3 id="show-side">show-side</h3>
-<p>Show the side section. Make sure that a side section plugin (e.g. <a href="../../plugins/labels">Labels</a>) is activated otherwise the side section is not shown.</p>
+<p>Show the side section. Make sure that a side section plugin (e.g. <a href="../../plugins/tree">Tree</a> or <a href="../../plugins/table">Table</a>) 
+is activated otherwise the side section is not shown.</p>
 <p>default: <code>true</code></p>
+</li>
+<li>
+<h3 id="side-width">side-width</h3>
+<p>Width of the side section. You can also set side <code>width</code>, <code>min-width</code> and <code>max-width</code> using 
+<code>.gantt-side</code> CSS selector.</p>
 </li>
 <li>
 <h3 id="sort-mode">sort-mode</h3>
@@ -559,6 +585,12 @@ attributes. camelCased version of attributes must be used as key (<code>autoExpa
 <li><code>truncate</code>: tasks will be truncated, or even totally hidden if they are not in rendering range at all.</li>
 </ul>
 <p>default: <code>expand</code></p>
+</li>
+<li>
+<h3 id="task-content">task-content</h3>
+<p>Content used to display each task. It can contain HTML and will be automatically compiled.</p>
+<p>It can be modified for a specific task using <a href="../data">Task model</a> <code>content</code> property</p>
+<p>default: <code>{{task.model.name}}</code></p>
 </li>
 <li>
 <h3 id="template">template</h3>

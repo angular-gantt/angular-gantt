@@ -135,6 +135,10 @@
                             <a href="../progress">Progress</a>
                         </li>
                     
+                        <li >
+                            <a href="../resizeSensor">Resize Sensor</a>
+                        </li>
+                    
                     </ul>
                 </li>
             
@@ -235,6 +239,16 @@
 <p>Format of the dates displayed in tooltip.</p>
 <p>See <a href="http://momentjs.com/docs/#/displaying/format/">momentJS#format()</a></p>
 <p>default: <code>MMM DD, HH:mm</code></p>
+</li>
+<li>
+<h3 id="content">content</h3>
+<p>Content of the tooltip. It can contain HTML and will be automatically compiled.</p>
+<p>default:</p>
+<pre><code>'{{task.model.name}}&lt;/br&gt;' +
+'&lt;small&gt;' +
+'{{task.isMilestone() === true &amp;&amp; getFromLabel() || getFromLabel() + \' - \' + getToLabel()}}' +
+'&lt;/small&gt;'
+</code></pre>
 </li>
 <li>
 <h3 id="template">template</h3>

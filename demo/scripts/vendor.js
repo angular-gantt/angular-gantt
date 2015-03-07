@@ -26135,6 +26135,688 @@ var minlengthDirective = function() {
  */
 (function(window, angular, undefined) {'use strict';
 
+var $sanitizeMinErr = angular.$$minErr('$sanitize');
+
+/**
+ * @ngdoc module
+ * @name ngSanitize
+ * @description
+ *
+ * # ngSanitize
+ *
+ * The `ngSanitize` module provides functionality to sanitize HTML.
+ *
+ *
+ * <div doc-module-components="ngSanitize"></div>
+ *
+ * See {@link ngSanitize.$sanitize `$sanitize`} for usage.
+ */
+
+/*
+ * HTML Parser By Misko Hevery (misko@hevery.com)
+ * based on:  HTML Parser By John Resig (ejohn.org)
+ * Original code by Erik Arvidsson, Mozilla Public License
+ * http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
+ *
+ * // Use like so:
+ * htmlParser(htmlString, {
+ *     start: function(tag, attrs, unary) {},
+ *     end: function(tag) {},
+ *     chars: function(text) {},
+ *     comment: function(text) {}
+ * });
+ *
+ */
+
+
+/**
+ * @ngdoc service
+ * @name $sanitize
+ * @kind function
+ *
+ * @description
+ *   The input is sanitized by parsing the HTML into tokens. All safe tokens (from a whitelist) are
+ *   then serialized back to properly escaped html string. This means that no unsafe input can make
+ *   it into the returned string, however, since our parser is more strict than a typical browser
+ *   parser, it's possible that some obscure input, which would be recognized as valid HTML by a
+ *   browser, won't make it through the sanitizer. The input may also contain SVG markup.
+ *   The whitelist is configured using the functions `aHrefSanitizationWhitelist` and
+ *   `imgSrcSanitizationWhitelist` of {@link ng.$compileProvider `$compileProvider`}.
+ *
+ * @param {string} html HTML input.
+ * @returns {string} Sanitized HTML.
+ *
+ * @example
+   <example module="sanitizeExample" deps="angular-sanitize.js">
+   <file name="index.html">
+     <script>
+         angular.module('sanitizeExample', ['ngSanitize'])
+           .controller('ExampleController', ['$scope', '$sce', function($scope, $sce) {
+             $scope.snippet =
+               '<p style="color:blue">an html\n' +
+               '<em onmouseover="this.textContent=\'PWN3D!\'">click here</em>\n' +
+               'snippet</p>';
+             $scope.deliberatelyTrustDangerousSnippet = function() {
+               return $sce.trustAsHtml($scope.snippet);
+             };
+           }]);
+     </script>
+     <div ng-controller="ExampleController">
+        Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+       <table>
+         <tr>
+           <td>Directive</td>
+           <td>How</td>
+           <td>Source</td>
+           <td>Rendered</td>
+         </tr>
+         <tr id="bind-html-with-sanitize">
+           <td>ng-bind-html</td>
+           <td>Automatically uses $sanitize</td>
+           <td><pre>&lt;div ng-bind-html="snippet"&gt;<br/>&lt;/div&gt;</pre></td>
+           <td><div ng-bind-html="snippet"></div></td>
+         </tr>
+         <tr id="bind-html-with-trust">
+           <td>ng-bind-html</td>
+           <td>Bypass $sanitize by explicitly trusting the dangerous value</td>
+           <td>
+           <pre>&lt;div ng-bind-html="deliberatelyTrustDangerousSnippet()"&gt;
+&lt;/div&gt;</pre>
+           </td>
+           <td><div ng-bind-html="deliberatelyTrustDangerousSnippet()"></div></td>
+         </tr>
+         <tr id="bind-default">
+           <td>ng-bind</td>
+           <td>Automatically escapes</td>
+           <td><pre>&lt;div ng-bind="snippet"&gt;<br/>&lt;/div&gt;</pre></td>
+           <td><div ng-bind="snippet"></div></td>
+         </tr>
+       </table>
+       </div>
+   </file>
+   <file name="protractor.js" type="protractor">
+     it('should sanitize the html snippet by default', function() {
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('<p>an html\n<em>click here</em>\nsnippet</p>');
+     });
+
+     it('should inline raw snippet if bound to a trusted value', function() {
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).
+         toBe("<p style=\"color:blue\">an html\n" +
+              "<em onmouseover=\"this.textContent='PWN3D!'\">click here</em>\n" +
+              "snippet</p>");
+     });
+
+     it('should escape snippet without any filter', function() {
+       expect(element(by.css('#bind-default div')).getInnerHtml()).
+         toBe("&lt;p style=\"color:blue\"&gt;an html\n" +
+              "&lt;em onmouseover=\"this.textContent='PWN3D!'\"&gt;click here&lt;/em&gt;\n" +
+              "snippet&lt;/p&gt;");
+     });
+
+     it('should update', function() {
+       element(by.model('snippet')).clear();
+       element(by.model('snippet')).sendKeys('new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('new <b>text</b>');
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).toBe(
+         'new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-default div')).getInnerHtml()).toBe(
+         "new &lt;b onclick=\"alert(1)\"&gt;text&lt;/b&gt;");
+     });
+   </file>
+   </example>
+ */
+function $SanitizeProvider() {
+  this.$get = ['$$sanitizeUri', function($$sanitizeUri) {
+    return function(html) {
+      var buf = [];
+      htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
+        return !/^unsafe/.test($$sanitizeUri(uri, isImage));
+      }));
+      return buf.join('');
+    };
+  }];
+}
+
+function sanitizeText(chars) {
+  var buf = [];
+  var writer = htmlSanitizeWriter(buf, angular.noop);
+  writer.chars(chars);
+  return buf.join('');
+}
+
+
+// Regular Expressions for parsing tags and attributes
+var START_TAG_REGEXP =
+       /^<((?:[a-zA-Z])[\w:-]*)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*(>?)/,
+  END_TAG_REGEXP = /^<\/\s*([\w:-]+)[^>]*>/,
+  ATTR_REGEXP = /([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g,
+  BEGIN_TAG_REGEXP = /^</,
+  BEGING_END_TAGE_REGEXP = /^<\//,
+  COMMENT_REGEXP = /<!--(.*?)-->/g,
+  DOCTYPE_REGEXP = /<!DOCTYPE([^>]*?)>/i,
+  CDATA_REGEXP = /<!\[CDATA\[(.*?)]]>/g,
+  SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+  // Match everything outside of normal chars and " (quote character)
+  NON_ALPHANUMERIC_REGEXP = /([^\#-~| |!])/g;
+
+
+// Good source of info about elements and attributes
+// http://dev.w3.org/html5/spec/Overview.html#semantics
+// http://simon.html5.org/html-elements
+
+// Safe Void Elements - HTML5
+// http://dev.w3.org/html5/spec/Overview.html#void-elements
+var voidElements = makeMap("area,br,col,hr,img,wbr");
+
+// Elements that you can, intentionally, leave open (and which close themselves)
+// http://dev.w3.org/html5/spec/Overview.html#optional-tags
+var optionalEndTagBlockElements = makeMap("colgroup,dd,dt,li,p,tbody,td,tfoot,th,thead,tr"),
+    optionalEndTagInlineElements = makeMap("rp,rt"),
+    optionalEndTagElements = angular.extend({},
+                                            optionalEndTagInlineElements,
+                                            optionalEndTagBlockElements);
+
+// Safe Block Elements - HTML5
+var blockElements = angular.extend({}, optionalEndTagBlockElements, makeMap("address,article," +
+        "aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5," +
+        "h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul"));
+
+// Inline Elements - HTML5
+var inlineElements = angular.extend({}, optionalEndTagInlineElements, makeMap("a,abbr,acronym,b," +
+        "bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s," +
+        "samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
+
+// SVG Elements
+// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Elements
+var svgElements = makeMap("animate,animateColor,animateMotion,animateTransform,circle,defs," +
+        "desc,ellipse,font-face,font-face-name,font-face-src,g,glyph,hkern,image,linearGradient," +
+        "line,marker,metadata,missing-glyph,mpath,path,polygon,polyline,radialGradient,rect,set," +
+        "stop,svg,switch,text,title,tspan,use");
+
+// Special Elements (can contain anything)
+var specialElements = makeMap("script,style");
+
+var validElements = angular.extend({},
+                                   voidElements,
+                                   blockElements,
+                                   inlineElements,
+                                   optionalEndTagElements,
+                                   svgElements);
+
+//Attributes that have href and hence need to be sanitized
+var uriAttrs = makeMap("background,cite,href,longdesc,src,usemap,xlink:href");
+
+var htmlAttrs = makeMap('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,' +
+    'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,' +
+    'ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,' +
+    'scope,scrolling,shape,size,span,start,summary,target,title,type,' +
+    'valign,value,vspace,width');
+
+// SVG attributes (without "id" and "name" attributes)
+// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Attributes
+var svgAttrs = makeMap('accent-height,accumulate,additive,alphabetic,arabic-form,ascent,' +
+    'attributeName,attributeType,baseProfile,bbox,begin,by,calcMode,cap-height,class,color,' +
+    'color-rendering,content,cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,' +
+    'font-size,font-stretch,font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,' +
+    'gradientUnits,hanging,height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,' +
+    'keySplines,keyTimes,lang,marker-end,marker-mid,marker-start,markerHeight,markerUnits,' +
+    'markerWidth,mathematical,max,min,offset,opacity,orient,origin,overline-position,' +
+    'overline-thickness,panose-1,path,pathLength,points,preserveAspectRatio,r,refX,refY,' +
+    'repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,' +
+    'stemv,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,stroke,' +
+    'stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,' +
+    'stroke-opacity,stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,' +
+    'underline-position,underline-thickness,unicode,unicode-range,units-per-em,values,version,' +
+    'viewBox,visibility,width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,' +
+    'xlink:show,xlink:title,xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,' +
+    'zoomAndPan');
+
+var validAttrs = angular.extend({},
+                                uriAttrs,
+                                svgAttrs,
+                                htmlAttrs);
+
+function makeMap(str) {
+  var obj = {}, items = str.split(','), i;
+  for (i = 0; i < items.length; i++) obj[items[i]] = true;
+  return obj;
+}
+
+
+/**
+ * @example
+ * htmlParser(htmlString, {
+ *     start: function(tag, attrs, unary) {},
+ *     end: function(tag) {},
+ *     chars: function(text) {},
+ *     comment: function(text) {}
+ * });
+ *
+ * @param {string} html string
+ * @param {object} handler
+ */
+function htmlParser(html, handler) {
+  if (typeof html !== 'string') {
+    if (html === null || typeof html === 'undefined') {
+      html = '';
+    } else {
+      html = '' + html;
+    }
+  }
+  var index, chars, match, stack = [], last = html, text;
+  stack.last = function() { return stack[stack.length - 1]; };
+
+  while (html) {
+    text = '';
+    chars = true;
+
+    // Make sure we're not in a script or style element
+    if (!stack.last() || !specialElements[stack.last()]) {
+
+      // Comment
+      if (html.indexOf("<!--") === 0) {
+        // comments containing -- are not allowed unless they terminate the comment
+        index = html.indexOf("--", 4);
+
+        if (index >= 0 && html.lastIndexOf("-->", index) === index) {
+          if (handler.comment) handler.comment(html.substring(4, index));
+          html = html.substring(index + 3);
+          chars = false;
+        }
+      // DOCTYPE
+      } else if (DOCTYPE_REGEXP.test(html)) {
+        match = html.match(DOCTYPE_REGEXP);
+
+        if (match) {
+          html = html.replace(match[0], '');
+          chars = false;
+        }
+      // end tag
+      } else if (BEGING_END_TAGE_REGEXP.test(html)) {
+        match = html.match(END_TAG_REGEXP);
+
+        if (match) {
+          html = html.substring(match[0].length);
+          match[0].replace(END_TAG_REGEXP, parseEndTag);
+          chars = false;
+        }
+
+      // start tag
+      } else if (BEGIN_TAG_REGEXP.test(html)) {
+        match = html.match(START_TAG_REGEXP);
+
+        if (match) {
+          // We only have a valid start-tag if there is a '>'.
+          if (match[4]) {
+            html = html.substring(match[0].length);
+            match[0].replace(START_TAG_REGEXP, parseStartTag);
+          }
+          chars = false;
+        } else {
+          // no ending tag found --- this piece should be encoded as an entity.
+          text += '<';
+          html = html.substring(1);
+        }
+      }
+
+      if (chars) {
+        index = html.indexOf("<");
+
+        text += index < 0 ? html : html.substring(0, index);
+        html = index < 0 ? "" : html.substring(index);
+
+        if (handler.chars) handler.chars(decodeEntities(text));
+      }
+
+    } else {
+      // IE versions 9 and 10 do not understand the regex '[^]', so using a workaround with [\W\w].
+      html = html.replace(new RegExp("([\\W\\w]*)<\\s*\\/\\s*" + stack.last() + "[^>]*>", 'i'),
+        function(all, text) {
+          text = text.replace(COMMENT_REGEXP, "$1").replace(CDATA_REGEXP, "$1");
+
+          if (handler.chars) handler.chars(decodeEntities(text));
+
+          return "";
+      });
+
+      parseEndTag("", stack.last());
+    }
+
+    if (html == last) {
+      throw $sanitizeMinErr('badparse', "The sanitizer was unable to parse the following block " +
+                                        "of html: {0}", html);
+    }
+    last = html;
+  }
+
+  // Clean up any remaining tags
+  parseEndTag();
+
+  function parseStartTag(tag, tagName, rest, unary) {
+    tagName = angular.lowercase(tagName);
+    if (blockElements[tagName]) {
+      while (stack.last() && inlineElements[stack.last()]) {
+        parseEndTag("", stack.last());
+      }
+    }
+
+    if (optionalEndTagElements[tagName] && stack.last() == tagName) {
+      parseEndTag("", tagName);
+    }
+
+    unary = voidElements[tagName] || !!unary;
+
+    if (!unary)
+      stack.push(tagName);
+
+    var attrs = {};
+
+    rest.replace(ATTR_REGEXP,
+      function(match, name, doubleQuotedValue, singleQuotedValue, unquotedValue) {
+        var value = doubleQuotedValue
+          || singleQuotedValue
+          || unquotedValue
+          || '';
+
+        attrs[name] = decodeEntities(value);
+    });
+    if (handler.start) handler.start(tagName, attrs, unary);
+  }
+
+  function parseEndTag(tag, tagName) {
+    var pos = 0, i;
+    tagName = angular.lowercase(tagName);
+    if (tagName)
+      // Find the closest opened tag of the same type
+      for (pos = stack.length - 1; pos >= 0; pos--)
+        if (stack[pos] == tagName)
+          break;
+
+    if (pos >= 0) {
+      // Close all the open elements, up the stack
+      for (i = stack.length - 1; i >= pos; i--)
+        if (handler.end) handler.end(stack[i]);
+
+      // Remove the open elements from the stack
+      stack.length = pos;
+    }
+  }
+}
+
+var hiddenPre=document.createElement("pre");
+var spaceRe = /^(\s*)([\s\S]*?)(\s*)$/;
+/**
+ * decodes all entities into regular string
+ * @param value
+ * @returns {string} A string with decoded entities.
+ */
+function decodeEntities(value) {
+  if (!value) { return ''; }
+
+  // Note: IE8 does not preserve spaces at the start/end of innerHTML
+  // so we must capture them and reattach them afterward
+  var parts = spaceRe.exec(value);
+  var spaceBefore = parts[1];
+  var spaceAfter = parts[3];
+  var content = parts[2];
+  if (content) {
+    hiddenPre.innerHTML=content.replace(/</g,"&lt;");
+    // innerText depends on styling as it doesn't display hidden elements.
+    // Therefore, it's better to use textContent not to cause unnecessary
+    // reflows. However, IE<9 don't support textContent so the innerText
+    // fallback is necessary.
+    content = 'textContent' in hiddenPre ?
+      hiddenPre.textContent : hiddenPre.innerText;
+  }
+  return spaceBefore + content + spaceAfter;
+}
+
+/**
+ * Escapes all potentially dangerous characters, so that the
+ * resulting string can be safely inserted into attribute or
+ * element text.
+ * @param value
+ * @returns {string} escaped text
+ */
+function encodeEntities(value) {
+  return value.
+    replace(/&/g, '&amp;').
+    replace(SURROGATE_PAIR_REGEXP, function(value) {
+      var hi = value.charCodeAt(0);
+      var low = value.charCodeAt(1);
+      return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';';
+    }).
+    replace(NON_ALPHANUMERIC_REGEXP, function(value) {
+      return '&#' + value.charCodeAt(0) + ';';
+    }).
+    replace(/</g, '&lt;').
+    replace(/>/g, '&gt;');
+}
+
+/**
+ * create an HTML/XML writer which writes to buffer
+ * @param {Array} buf use buf.jain('') to get out sanitized html string
+ * @returns {object} in the form of {
+ *     start: function(tag, attrs, unary) {},
+ *     end: function(tag) {},
+ *     chars: function(text) {},
+ *     comment: function(text) {}
+ * }
+ */
+function htmlSanitizeWriter(buf, uriValidator) {
+  var ignore = false;
+  var out = angular.bind(buf, buf.push);
+  return {
+    start: function(tag, attrs, unary) {
+      tag = angular.lowercase(tag);
+      if (!ignore && specialElements[tag]) {
+        ignore = tag;
+      }
+      if (!ignore && validElements[tag] === true) {
+        out('<');
+        out(tag);
+        angular.forEach(attrs, function(value, key) {
+          var lkey=angular.lowercase(key);
+          var isImage = (tag === 'img' && lkey === 'src') || (lkey === 'background');
+          if (validAttrs[lkey] === true &&
+            (uriAttrs[lkey] !== true || uriValidator(value, isImage))) {
+            out(' ');
+            out(key);
+            out('="');
+            out(encodeEntities(value));
+            out('"');
+          }
+        });
+        out(unary ? '/>' : '>');
+      }
+    },
+    end: function(tag) {
+        tag = angular.lowercase(tag);
+        if (!ignore && validElements[tag] === true) {
+          out('</');
+          out(tag);
+          out('>');
+        }
+        if (tag == ignore) {
+          ignore = false;
+        }
+      },
+    chars: function(chars) {
+        if (!ignore) {
+          out(encodeEntities(chars));
+        }
+      }
+  };
+}
+
+
+// define ngSanitize module and register $sanitize service
+angular.module('ngSanitize', []).provider('$sanitize', $SanitizeProvider);
+
+/* global sanitizeText: false */
+
+/**
+ * @ngdoc filter
+ * @name linky
+ * @kind function
+ *
+ * @description
+ * Finds links in text input and turns them into html links. Supports http/https/ftp/mailto and
+ * plain email address links.
+ *
+ * Requires the {@link ngSanitize `ngSanitize`} module to be installed.
+ *
+ * @param {string} text Input text.
+ * @param {string} target Window (_blank|_self|_parent|_top) or named frame to open links in.
+ * @returns {string} Html-linkified text.
+ *
+ * @usage
+   <span ng-bind-html="linky_expression | linky"></span>
+ *
+ * @example
+   <example module="linkyExample" deps="angular-sanitize.js">
+     <file name="index.html">
+       <script>
+         angular.module('linkyExample', ['ngSanitize'])
+           .controller('ExampleController', ['$scope', function($scope) {
+             $scope.snippet =
+               'Pretty text with some links:\n'+
+               'http://angularjs.org/,\n'+
+               'mailto:us@somewhere.org,\n'+
+               'another@somewhere.org,\n'+
+               'and one more: ftp://127.0.0.1/.';
+             $scope.snippetWithTarget = 'http://angularjs.org/';
+           }]);
+       </script>
+       <div ng-controller="ExampleController">
+       Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+       <table>
+         <tr>
+           <td>Filter</td>
+           <td>Source</td>
+           <td>Rendered</td>
+         </tr>
+         <tr id="linky-filter">
+           <td>linky filter</td>
+           <td>
+             <pre>&lt;div ng-bind-html="snippet | linky"&gt;<br>&lt;/div&gt;</pre>
+           </td>
+           <td>
+             <div ng-bind-html="snippet | linky"></div>
+           </td>
+         </tr>
+         <tr id="linky-target">
+          <td>linky target</td>
+          <td>
+            <pre>&lt;div ng-bind-html="snippetWithTarget | linky:'_blank'"&gt;<br>&lt;/div&gt;</pre>
+          </td>
+          <td>
+            <div ng-bind-html="snippetWithTarget | linky:'_blank'"></div>
+          </td>
+         </tr>
+         <tr id="escaped-html">
+           <td>no filter</td>
+           <td><pre>&lt;div ng-bind="snippet"&gt;<br>&lt;/div&gt;</pre></td>
+           <td><div ng-bind="snippet"></div></td>
+         </tr>
+       </table>
+     </file>
+     <file name="protractor.js" type="protractor">
+       it('should linkify the snippet with urls', function() {
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(4);
+       });
+
+       it('should not linkify snippet without the linky filter', function() {
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, mailto:us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#escaped-html a')).count()).toEqual(0);
+       });
+
+       it('should update', function() {
+         element(by.model('snippet')).clear();
+         element(by.model('snippet')).sendKeys('new http://link.');
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('new http://link.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(1);
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText())
+             .toBe('new http://link.');
+       });
+
+       it('should work with the target property', function() {
+        expect(element(by.id('linky-target')).
+            element(by.binding("snippetWithTarget | linky:'_blank'")).getText()).
+            toBe('http://angularjs.org/');
+        expect(element(by.css('#linky-target a')).getAttribute('target')).toEqual('_blank');
+       });
+     </file>
+   </example>
+ */
+angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
+  var LINKY_URL_REGEXP =
+        /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"”’]/,
+      MAILTO_REGEXP = /^mailto:/;
+
+  return function(text, target) {
+    if (!text) return text;
+    var match;
+    var raw = text;
+    var html = [];
+    var url;
+    var i;
+    while ((match = raw.match(LINKY_URL_REGEXP))) {
+      // We can not end in these as they are sometimes found at the end of the sentence
+      url = match[0];
+      // if we did not match ftp/http/www/mailto then assume mailto
+      if (!match[2] && !match[4]) {
+        url = (match[3] ? 'http://' : 'mailto:') + url;
+      }
+      i = match.index;
+      addText(raw.substr(0, i));
+      addLink(url, match[0].replace(MAILTO_REGEXP, ''));
+      raw = raw.substring(i + match[0].length);
+    }
+    addText(raw);
+    return $sanitize(html.join(''));
+
+    function addText(text) {
+      if (!text) {
+        return;
+      }
+      html.push(sanitizeText(text));
+    }
+
+    function addLink(url, text) {
+      html.push('<a ');
+      if (angular.isDefined(target)) {
+        html.push('target="',
+                  target,
+                  '" ');
+      }
+      html.push('href="',
+                url.replace(/"/g, '&quot;'),
+                '">');
+      addText(text);
+      html.push('</a>');
+    }
+  };
+}]);
+
+
+})(window, window.angular);
+
+/**
+ * @license AngularJS v1.3.13
+ * (c) 2010-2014 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+(function(window, angular, undefined) {'use strict';
+
 /* jshint maxlen: false */
 
 /**
@@ -38515,8 +39197,501 @@ angular.module("ang-drag-drop",[])
 })();
 
 
+/**
+ * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
+ * directory of this distribution and at
+ * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
+ */
+;
+(function() {
+    /**
+     *
+     * @type {Function}
+     * @constructor
+     */
+    var ElementQueries = this.ElementQueries = function() {
+
+        this.withTracking = false;
+        var elements = [];
+
+        /**
+         *
+         * @param element
+         * @returns {Number}
+         */
+        function getEmSize(element) {
+            if (!element) {
+                element = document.documentElement;
+            }
+            var fontSize = getComputedStyle(element, 'fontSize');
+            return parseFloat(fontSize) || 16;
+        }
+
+        /**
+         *
+         * @copyright https://github.com/Mr0grog/element-query/blob/master/LICENSE
+         *
+         * @param {HTMLElement} element
+         * @param {*} value
+         * @returns {*}
+         */
+        function convertToPx(element, value) {
+            var units = value.replace(/[0-9]*/, '');
+            value = parseFloat(value);
+            switch (units) {
+                case "px":
+                    return value;
+                case "em":
+                    return value * getEmSize(element);
+                case "rem":
+                    return value * getEmSize();
+                // Viewport units!
+                // According to http://quirksmode.org/mobile/tableViewport.html
+                // documentElement.clientWidth/Height gets us the most reliable info
+                case "vw":
+                    return value * document.documentElement.clientWidth / 100;
+                case "vh":
+                    return value * document.documentElement.clientHeight / 100;
+                case "vmin":
+                case "vmax":
+                    var vw = document.documentElement.clientWidth / 100;
+                    var vh = document.documentElement.clientHeight / 100;
+                    var chooser = Math[units === "vmin" ? "min" : "max"];
+                    return value * chooser(vw, vh);
+                default:
+                    return value;
+                // for now, not supporting physical units (since they are just a set number of px)
+                // or ex/ch (getting accurate measurements is hard)
+            }
+        }
+
+        /**
+         *
+         * @param {HTMLElement} element
+         * @constructor
+         */
+        function SetupInformation(element) {
+            this.element = element;
+            this.options = {};
+            var key, option, width = 0, height = 0, value, actualValue, attrValues, attrValue, attrName;
+
+            /**
+             * @param {Object} option {mode: 'min|max', property: 'width|height', value: '123px'}
+             */
+            this.addOption = function(option) {
+                var idx = [option.mode, option.property, option.value].join(',');
+                this.options[idx] = option;
+            };
+
+            var attributes = ['min-width', 'min-height', 'max-width', 'max-height'];
+
+            /**
+             * Extracts the computed width/height and sets to min/max- attribute.
+             */
+            this.call = function() {
+                // extract current dimensions
+                width = this.element.offsetWidth;
+                height = this.element.offsetHeight;
+
+                attrValues = {};
+
+                for (key in this.options) {
+                    if (!this.options.hasOwnProperty(key)){
+                        continue;
+                    }
+                    option = this.options[key];
+
+                    value = convertToPx(this.element, option.value);
+
+                    actualValue = option.property == 'width' ? width : height;
+                    attrName = option.mode + '-' + option.property;
+                    attrValue = '';
+
+                    if (option.mode == 'min' && actualValue >= value) {
+                        attrValue += option.value;
+                    }
+
+                    if (option.mode == 'max' && actualValue <= value) {
+                        attrValue += option.value;
+                    }
+
+                    if (!attrValues[attrName]) attrValues[attrName] = '';
+                    if (attrValue && -1 === (' '+attrValues[attrName]+' ').indexOf(' ' + attrValue + ' ')) {
+                        attrValues[attrName] += ' ' + attrValue;
+                    }
+                }
+
+                for (var k in attributes) {
+                    if (attrValues[attributes[k]]) {
+                        this.element.setAttribute(attributes[k], attrValues[attributes[k]].substr(1));
+                    } else {
+                        this.element.removeAttribute(attributes[k]);
+                    }
+                }
+            };
+        }
+
+        /**
+         * @param {HTMLElement} element
+         * @param {Object}      options
+         */
+        function setupElement(element, options) {
+            if (element.elementQueriesSetupInformation) {
+                element.elementQueriesSetupInformation.addOption(options);
+            } else {
+                element.elementQueriesSetupInformation = new SetupInformation(element);
+                element.elementQueriesSetupInformation.addOption(options);
+                element.elementQueriesSensor = new ResizeSensor(element, function() {
+                    element.elementQueriesSetupInformation.call();
+                });
+            }
+            element.elementQueriesSetupInformation.call();
+
+            if (this.withTracking) {
+                elements.push(element);
+            }
+        }
+
+        /**
+         * @param {String} selector
+         * @param {String} mode min|max
+         * @param {String} property width|height
+         * @param {String} value
+         */
+        function queueQuery(selector, mode, property, value) {
+            var query;
+            if (document.querySelectorAll) query = document.querySelectorAll.bind(document);
+            if (!query && 'undefined' !== typeof $$) query = $$;
+            if (!query && 'undefined' !== typeof jQuery) query = jQuery;
+
+            if (!query) {
+                throw 'No document.querySelectorAll, jQuery or Mootools\'s $$ found.';
+            }
+
+            var elements = query(selector);
+            for (var i = 0, j = elements.length; i < j; i++) {
+                setupElement(elements[i], {
+                    mode: mode,
+                    property: property,
+                    value: value
+                });
+            }
+        }
+
+        var regex = /,?([^,\n]*)\[[\s\t]*(min|max)-(width|height)[\s\t]*[~$\^]?=[\s\t]*"([^"]*)"[\s\t]*]([^\n\s\{]*)/mgi;
+
+        /**
+         * @param {String} css
+         */
+        function extractQuery(css) {
+            var match;
+            css = css.replace(/'/g, '"');
+            while (null !== (match = regex.exec(css))) {
+                if (5 < match.length) {
+                    queueQuery(match[1] || match[5], match[2], match[3], match[4]);
+                }
+            }
+        }
+
+        /**
+         * @param {CssRule[]|String} rules
+         */
+        function readRules(rules) {
+            var selector = '';
+            if (!rules) {
+                return;
+            }
+            if ('string' === typeof rules) {
+                rules = rules.toLowerCase();
+                if (-1 !== rules.indexOf('min-width') || -1 !== rules.indexOf('max-width')) {
+                    extractQuery(rules);
+                }
+            } else {
+                for (var i = 0, j = rules.length; i < j; i++) {
+                    if (1 === rules[i].type) {
+                        selector = rules[i].selectorText || rules[i].cssText;
+                        if (-1 !== selector.indexOf('min-height') || -1 !== selector.indexOf('max-height')) {
+                            extractQuery(selector);
+                        }else if(-1 !== selector.indexOf('min-width') || -1 !== selector.indexOf('max-width')) {
+                            extractQuery(selector);
+                        }
+                    } else if (4 === rules[i].type) {
+                        readRules(rules[i].cssRules || rules[i].rules);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Searches all css rules and setups the event listener to all elements with element query rules..
+         *
+         * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
+         *                               (no garbage collection possible if you don not call .detach() first)
+         */
+        this.init = function(withTracking) {
+            this.withTracking = withTracking;
+            for (var i = 0, j = document.styleSheets.length; i < j; i++) {
+                readRules(document.styleSheets[i].cssText || document.styleSheets[i].cssRules || document.styleSheets[i].rules);
+            }
+        };
+
+        /**
+         *
+         * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
+         *                               (no garbage collection possible if you don not call .detach() first)
+         */
+        this.update = function(withTracking) {
+            this.withTracking = withTracking;
+            this.init();
+        };
+
+        this.detach = function() {
+            if (!this.withTracking) {
+                throw 'withTracking is not enabled. We can not detach elements since we don not store it.' +
+                'Use ElementQueries.withTracking = true; before domready.';
+            }
+
+            var element;
+            while (element = elements.pop()) {
+                ElementQueries.detach(element);
+            }
+
+            elements = [];
+        };
+    };
+
+    /**
+     *
+     * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
+     *                               (no garbage collection possible if you don not call .detach() first)
+     */
+    ElementQueries.update = function(withTracking) {
+        ElementQueries.instance.update(withTracking);
+    };
+
+    /**
+     * Removes all sensor and elementquery information from the element.
+     *
+     * @param {HTMLElement} element
+     */
+    ElementQueries.detach = function(element) {
+        if (element.elementQueriesSetupInformation) {
+            element.elementQueriesSensor.detach();
+            delete element.elementQueriesSetupInformation;
+            delete element.elementQueriesSensor;
+            console.log('detached');
+        } else {
+            console.log('detached already', element);
+        }
+    };
+
+    ElementQueries.withTracking = false;
+
+    ElementQueries.init = function() {
+        if (!ElementQueries.instance) {
+            ElementQueries.instance = new ElementQueries();
+        }
+
+        ElementQueries.instance.init(ElementQueries.withTracking);
+    };
+
+    var domLoaded = function (callback) {
+        /* Internet Explorer */
+        /*@cc_on
+        @if (@_win32 || @_win64)
+            document.write('<script id="ieScriptLoad" defer src="//:"><\/script>');
+            document.getElementById('ieScriptLoad').onreadystatechange = function() {
+                if (this.readyState == 'complete') {
+                    callback();
+                }
+            };
+        @end @*/
+        /* Mozilla, Chrome, Opera */
+        if (document.addEventListener) {
+            document.addEventListener('DOMContentLoaded', callback, false);
+        }
+        /* Safari, iCab, Konqueror */
+        if (/KHTML|WebKit|iCab/i.test(navigator.userAgent)) {
+            var DOMLoadTimer = setInterval(function () {
+                if (/loaded|complete/i.test(document.readyState)) {
+                    callback();
+                    clearInterval(DOMLoadTimer);
+                }
+            }, 10);
+        }
+        /* Other web browsers */
+        window.onload = callback;
+    };
+
+    if (window.addEventListener) {
+        window.addEventListener('load', ElementQueries.init, false);
+    } else {
+        window.attachEvent('onload', ElementQueries.init);
+    }
+    domLoaded(ElementQueries.init);
+
+})();
+
+/**
+ * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
+ * directory of this distribution and at
+ * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
+ */
+;
+(function() {
+
+    /**
+     * Class for dimension change detection.
+     *
+     * @param {Element|Element[]|Elements|jQuery} element
+     * @param {Function} callback
+     *
+     * @constructor
+     */
+    this.ResizeSensor = function(element, callback) {
+        /**
+         *
+         * @constructor
+         */
+        function EventQueue() {
+            this.q = [];
+            this.add = function(ev) {
+                this.q.push(ev);
+            };
+
+            var i, j;
+            this.call = function() {
+                for (i = 0, j = this.q.length; i < j; i++) {
+                    this.q[i].call();
+                }
+            };
+        }
+
+        /**
+         * @param {HTMLElement} element
+         * @param {String}      prop
+         * @returns {String|Number}
+         */
+        function getComputedStyle(element, prop) {
+            if (element.currentStyle) {
+                return element.currentStyle[prop];
+            } else if (window.getComputedStyle) {
+                return window.getComputedStyle(element, null).getPropertyValue(prop);
+            } else {
+                return element.style[prop];
+            }
+        }
+
+        /**
+         *
+         * @param {HTMLElement} element
+         * @param {Function}    resized
+         */
+        function attachResizeEvent(element, resized) {
+            if (!element.resizedAttached) {
+                element.resizedAttached = new EventQueue();
+                element.resizedAttached.add(resized);
+            } else if (element.resizedAttached) {
+                element.resizedAttached.add(resized);
+                return;
+            }
+
+            element.resizeSensor = document.createElement('div');
+            element.resizeSensor.className = 'resize-sensor';
+            var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
+            var styleChild = 'position: absolute; left: 0; top: 0;';
+
+            element.resizeSensor.style.cssText = style;
+            element.resizeSensor.innerHTML =
+                '<div class="resize-sensor-expand" style="' + style + '">' +
+                    '<div style="' + styleChild + '"></div>' +
+                '</div>' +
+                '<div class="resize-sensor-shrink" style="' + style + '">' +
+                    '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' +
+                '</div>';
+            element.appendChild(element.resizeSensor);
+
+            if (!{fixed: 1, absolute: 1}[getComputedStyle(element, 'position')]) {
+                element.style.position = 'relative';
+            }
+
+            var expand = element.resizeSensor.childNodes[0];
+            var expandChild = expand.childNodes[0];
+            var shrink = element.resizeSensor.childNodes[1];
+            var shrinkChild = shrink.childNodes[0];
+
+            var lastWidth, lastHeight;
+
+            var reset = function() {
+                expandChild.style.width = expand.offsetWidth + 10 + 'px';
+                expandChild.style.height = expand.offsetHeight + 10 + 'px';
+                expand.scrollLeft = expand.scrollWidth;
+                expand.scrollTop = expand.scrollHeight;
+                shrink.scrollLeft = shrink.scrollWidth;
+                shrink.scrollTop = shrink.scrollHeight;
+                lastWidth = element.offsetWidth;
+                lastHeight = element.offsetHeight;
+            };
+
+            reset();
+
+            var changed = function() {
+                if (element.resizedAttached) {
+                    element.resizedAttached.call();
+                }
+            };
+
+            var addEvent = function(el, name, cb) {
+                if (el.attachEvent) {
+                    el.attachEvent('on' + name, cb);
+                } else {
+                    el.addEventListener(name, cb);
+                }
+            };
+
+            addEvent(expand, 'scroll', function() {
+                if (element.offsetWidth > lastWidth || element.offsetHeight > lastHeight) {
+                    changed();
+                }
+                reset();
+            });
+
+            addEvent(shrink, 'scroll',function() {
+                if (element.offsetWidth < lastWidth || element.offsetHeight < lastHeight) {
+                    changed();
+                }
+                reset();
+            });
+        }
+
+        if ("[object Array]" === Object.prototype.toString.call(element)
+            || ('undefined' !== typeof jQuery && element instanceof jQuery) //jquery
+            || ('undefined' !== typeof Elements && element instanceof Elements) //mootools
+            ) {
+            var i = 0, j = element.length;
+            for (; i < j; i++) {
+                attachResizeEvent(element[i], callback);
+            }
+        } else {
+            attachResizeEvent(element, callback);
+        }
+
+        this.detach = function() {
+            ResizeSensor.detach(element);
+        };
+    };
+
+    this.ResizeSensor.detach = function(element) {
+        if (element.resizeSensor) {
+            element.removeChild(element.resizeSensor);
+            delete element.resizeSensor;
+            delete element.resizedAttached;
+        }
+    };
+
+})();
 /*
-Project: angular-gantt v1.1.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -38549,15 +39724,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filterRowComparator: '=?',
                 viewScale: '=?',
                 columnWidth: '=?',
+                expandToFit: '=?',
+                shrinkToFit: '=?',
                 showSide: '=?',
                 allowSideResizing: '=?',
                 fromDate: '=?',
                 toDate: '=?',
                 currentDateValue: '=?',
                 currentDate: '=?',
+                daily: '=?',
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
+                taskContent: '=?',
                 maxHeight: '=?',
+                sideWidth: '=?',
                 headers: '=?',
                 headersFormats: '=?',
                 timeFrames: '=?',
@@ -39914,7 +41094,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             });
 
-            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight'], function(newValues, oldValues) {
+            this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], function(newValues, oldValues) {
                 if (newValues !== oldValues && self.gantt.rendered) {
                     self.updateColumnsMeta();
                 }
@@ -39937,6 +41117,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
             this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
+            this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
+            this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
 
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
@@ -40137,14 +41319,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         ColumnsManager.prototype.updateColumnsWidths = function(columns) {
             var columnWidth = this.gantt.options.value('columnWidth');
-            var autoFitWidthEnabled = columnWidth === undefined;
-            if (autoFitWidthEnabled) {
-                var scrollWidth = this.gantt.getWidth() - this.gantt.side.getWidth();
-                var borderWidth = this.gantt.scroll.getBordersWidth();
-                var newWidth = scrollWidth - (borderWidth !== undefined ? this.gantt.scroll.getBordersWidth() : 0);
-                updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+            var expandToFit = this.gantt.options.value('expandToFit');
+            var shrinkToFit = this.gantt.options.value('shrinkToFit');
+
+            if (columnWidth === undefined || expandToFit || shrinkToFit) {
+                var newWidth = this.gantt.getBodyAvailableWidth();
+
+                var lastColumn = this.gantt.columnsManager.getLastColumn(false);
+                var currentWidth = lastColumn.left + lastColumn.width;
+
+                if (expandToFit && currentWidth < newWidth ||
+                    shrinkToFit && currentWidth > newWidth ||
+                    columnWidth === undefined
+                ) {
+                    updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+                    return true;
+                }
+
             }
-            return autoFitWidthEnabled;
+            return false;
         };
 
         ColumnsManager.prototype.getColumnsWidth = function() {
@@ -40157,6 +41350,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             }
             return columnWidth;
+        };
+
+        ColumnsManager.prototype.getColumnsWidthToFit = function() {
+            return this.gantt.getBodyAvailableWidth() / this.columns.length;
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
@@ -40408,6 +41605,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'currentDateValue': moment,
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
+                    'taskContent': '{{task.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
@@ -40626,6 +41824,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 } else {
                     return undefined;
                 }
+            };
+
+            Gantt.prototype.getBodyAvailableWidth = function() {
+                var scrollWidth = this.getWidth() - this.side.getWidth();
+                var borderWidth = this.scroll.getBordersWidth();
+                var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
+                // Remove 1 pixel because of rounding issue in some cases.
+                availableWidth = availableWidth - 1;
+                return availableWidth;
             };
 
             // Returns the position inside the Gantt calculated by the given date
@@ -41464,7 +42671,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt').factory('GanttTask', [function() {
+    angular.module('gantt').factory('GanttTask', ['moment', function(moment) {
         var Task = function(row, model) {
             this.rowsManager = row.rowsManager;
             this.row = row;
@@ -41487,8 +42694,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         // Updates the pos and size of the task according to the from - to date
         Task.prototype.updatePosAndSize = function() {
-            var oldModelLeft = this.modelLeft;
-            var oldModelWidth = this.modelWidth;
+            var oldViewLeft = this.left;
+            var oldViewWidth = this.width;
             var oldTruncatedRight = this.truncatedRight;
             var oldTruncatedLeft = this.truncatedLeft;
 
@@ -41503,29 +42710,37 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.modelLeft === undefined || this.modelWidth === undefined ||
-                this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+            var modelLeft = this.modelLeft;
+            var modelWidth = this.modelWidth;
+
+            if (this.rowsManager.gantt.options.value('daily')) {
+                modelLeft = this.rowsManager.gantt.getPositionByDate(moment(this.model.from).startOf('day'));
+                modelWidth = this.rowsManager.gantt.getPositionByDate(moment(this.model.to).endOf('day')) - modelLeft;
+            }
+
+            if (modelLeft === undefined || modelWidth === undefined ||
+                modelLeft + modelWidth < 0 || modelLeft > maxModelLeft) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(this.modelLeft, 0), this.rowsManager.gantt.width);
-                if (this.modelLeft < 0) {
+                this.left = Math.min(Math.max(modelLeft, 0), this.rowsManager.gantt.width);
+                if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                    if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                         this.truncatedRight = true;
                         this.width = this.rowsManager.gantt.width;
                     } else {
                         this.truncatedRight = false;
-                        this.width = this.modelWidth + this.modelLeft;
+                        this.width = modelWidth + modelLeft;
                     }
-                } else if (this.modelWidth + this.modelLeft > this.rowsManager.gantt.width) {
+                } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                     this.truncatedRight = true;
                     this.truncatedLeft = false;
-                    this.width = this.rowsManager.gantt.width - this.modelLeft;
+                    this.width = this.rowsManager.gantt.width - modelLeft;
                 } else {
                     this.truncatedLeft = false;
                     this.truncatedRight = false;
-                    this.width = this.modelWidth;
+                    this.width = modelWidth;
                 }
 
                 if (this.width < 0) {
@@ -41536,8 +42751,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.updateView();
             if (!this.rowsManager.gantt.isRefreshingColumns &&
-                (oldModelLeft !== this.modelLeft ||
-                oldModelWidth !== this.modelWidth ||
+                (oldViewLeft !== this.left ||
+                oldViewWidth !== this.width ||
                 oldTruncatedRight !== this.truncatedRight ||
                 oldTruncatedLeft !== this.truncatedLeft)) {
                 this.rowsManager.gantt.api.tasks.raise.viewChange(this);
@@ -41559,7 +42774,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
-                    this.$element.toggleClass('gantt-task', !this.isMilestone());
                 }
             }
         };
@@ -42405,6 +43619,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         // If the task can be drawn with gantt columns only.
                         if (task.model.to >= fromDate && task.model.from <= toDate) {
 
+                            if (task.left === undefined) {
+                                task.updatePosAndSize();
+                            }
+
                             // If task has a visible part on the screen
                             if (!scrollContainerWidth ||
                                 task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth ||
@@ -42501,6 +43719,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return getWidth();
                 }, function(newValue) {
                     $scope.targetElement.css('width', newValue + 'px');
+                    // Setting width again is required when min-width of max-width is set on targetElement.
+                    // This avoid going to a smaller or bigger value than targetElement capabilities.
+                    if ($scope.targetElement[0].offsetWidth > 0) {
+                        setWidth($scope.targetElement[0].offsetWidth);
+                    }
                 });
 
                 function setWidth(width) {
@@ -42762,6 +43985,37 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
     });
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttElementHeightListener', [function() {
+        return {
+            restrict: 'A',
+            controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+                var scopeVariable = $attrs.ganttElementHeightListener;
+                if (scopeVariable === '') {
+                    scopeVariable = 'ganttElementHeight';
+                }
+
+                var effectiveScope = $scope;
+
+                while(scopeVariable.indexOf('$parent.') === 0) {
+                    scopeVariable = scopeVariable.substring('$parent.'.length);
+                    effectiveScope = effectiveScope.$parent;
+                }
+
+                effectiveScope.$watch(function() {
+                    return $element[0].offsetHeight;
+                }, function(newValue) {
+                    if (newValue > 0) {
+                        effectiveScope[scopeVariable] = newValue;
+                    }
+                });
+            }]
+        };
+    }]);
 }());
 
 
@@ -43037,6 +44291,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.task.$element = $element;
             $scope.task.$scope = $scope;
 
+            $scope.getTaskContent = function() {
+                if ($scope.task.model.content !== undefined) {
+                    return $scope.task.model.content;
+                }
+                return $scope.task.rowsManager.gantt.options.value('taskContent');
+            };
+
             $scope.simplifyMoment = function(d) {
                 return moment.isMoment(d) ? d.unix() : d;
             };
@@ -43299,6 +44560,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+(function() {
+    'use strict';
+    angular.module('gantt').directive('ganttBindCompileHtml', ['$compile', function($compile) {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                scope.$watch(function() {
+                    return scope.$eval(attrs.ganttBindCompileHtml);
+                }, function(value) {
+                    element.html(value);
+                    $compile(element.contents())(scope);
+                });
+            }
+        };
+    }]);
+}());
+
 (function(){
     'use strict';
     angular.module('gantt').service('ganttLayout', ['$document', function($document) {
@@ -43483,7 +44761,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '        </div>\n' +
         '    </gantt-side>\n' +
         '    <gantt-scrollable-header>\n' +
-        '        <gantt-header>\n' +
+        '        <gantt-header gantt-element-height-listener="$parent.ganttHeaderHeight">\n' +
         '            <gantt-header-columns>\n' +
         '                <div ng-repeat="header in gantt.columnsManager.visibleHeaders track by $index">\n' +
         '                    <div class="gantt-header-row" ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}">\n' +
@@ -43538,7 +44816,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Side template -->\n' +
         '    <script type="text/ng-template" id="template/ganttSide.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-side"></div>\n' +
+        '        <div ng-transclude class="gantt-side" style="width: auto;"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Side content template-->\n' +
@@ -43622,7 +44900,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Task content template -->\n' +
         '    <script type="text/ng-template" id="template/ganttTaskContent.tmpl.html">\n' +
-        '        <div class="gantt-task-content" unselectable="on"><span unselectable="on">{{task.model.name}}</span></div>\n' +
+        '        <div class="gantt-task-content" unselectable="on"><span unselectable="on" gantt-bind-compile-html="getTaskContent()"/></div>\n' +
         '    </script>\n' +
         '\n' +
         '\n' +
@@ -43653,12 +44931,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <!-- Side background template -->\n' +
         '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
         '        <div class="gantt-side-background">\n' +
-        '            <div class="gantt-side-background-header">\n' +
-        '                <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
-        '                    <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '                        <div class="gantt-row-height" ng-class="{\'gantt-labels-header-row\': $last, \'gantt-labels-header-row-last\': $last}"></div>\n' +
-        '                    </div>\n' +
-        '                </div>\n' +
+        '            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
+        '                <div class="gantt-header-row gantt-side-header-row"></div>\n' +
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
@@ -43682,7 +44956,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.1.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -43746,12 +45020,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['ganttMouseOffset', 'moment', function(mouseOffset, moment) {
+    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['$document', 'ganttMouseOffset', 'moment', function(document, mouseOffset, moment) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
+                moveThreshold: '=?',
                 taskModelFactory: '=taskFactory'
             },
             link: function(scope, element, attrs, ganttCtrl) {
@@ -43761,25 +45036,55 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.enabled = true;
                 }
 
+                if (scope.moveThreshold === undefined) {
+                    scope.moveThreshold = 0;
+                }
+
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
+                        var addNewTask = function(x) {
+                            var startDate = api.core.getDateByPosition(x, true);
+                            var endDate = moment(startDate);
+
+                            var taskModel = scope.taskModelFactory();
+                            taskModel.from = startDate;
+                            taskModel.to = endDate;
+
+                            var task = directiveScope.row.addTask(taskModel);
+                            task.isResizing = true;
+                            task.updatePosAndSize();
+                            directiveScope.row.updateVisibleTasks();
+
+                            directiveScope.row.$scope.$digest();
+                        };
+
+                        var deferDrawing = function(startX) {
+                            var moveTrigger = function(evt) {
+                                var currentX = mouseOffset.getOffset(evt).x;
+
+                                if (Math.abs(startX - currentX) >= scope.moveThreshold) {
+                                    element.off('mousemove', moveTrigger);
+                                    addNewTask(startX);
+                                }
+                            };
+
+                            element.on('mousemove', moveTrigger);
+                            document.one('mouseup', function() {
+                                element.off('mousemove', moveTrigger);
+                            });
+                        };
+
                         var drawHandler = function(evt) {
                             var evtTarget = (evt.target ? evt.target : evt.srcElement);
                             var enabled = angular.isFunction(scope.enabled) ? scope.enabled(evt): scope.enabled;
                             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
-                                var startDate = api.core.getDateByPosition(mouseOffset.getOffset(evt).x);
-                                var endDate = moment(startDate);
+                                var x = mouseOffset.getOffset(evt).x;
 
-                                var taskModel = scope.taskModelFactory();
-                                taskModel.from = startDate;
-                                taskModel.to = endDate;
-
-                                var task = directiveScope.row.addTask(taskModel);
-                                task.isResizing = true;
-                                task.updatePosAndSize();
-                                directiveScope.row.updateVisibleTasks();
-
-                                directiveScope.row.$scope.$digest();
+                                if (scope.moveThreshold === 0) {
+                                    addNewTask(x, x);
+                                } else {
+                                    deferDrawing(x);
+                                }
                             }
                         };
 
@@ -44133,7 +45438,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                         taskScope.task.moveTo(x, true);
                                         taskScope.$digest();
-                                        taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+
+                                        if (taskHasBeenChanged) {
+                                            taskScope.row.rowsManager.gantt.api.tasks.raise.move(taskScope.task);
+                                        }
                                         taskHasBeenChanged = true;
                                     }
                                 } else if (taskScope.task.moveMode === 'E') {
@@ -44149,7 +45457,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                     taskScope.task.setTo(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 } else {
                                     if (x > taskScope.task.left + taskScope.task.width) {
@@ -44164,7 +45475,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                     taskScope.task.setFrom(x, true);
                                     taskScope.$digest();
-                                    taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+
+                                    if (taskHasBeenChanged) {
+                                        taskScope.row.rowsManager.gantt.api.tasks.raise.resize(taskScope.task);
+                                    }
                                     taskHasBeenChanged = true;
                                 }
 
@@ -44449,6 +45763,69 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 
 (function(){
+    /* global ResizeSensor: false */
+    /* global ElementQueries: false */
+    'use strict';
+    angular.module('gantt.resizeSensor', ['gantt']).directive('ganttResizeSensor', [function() {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.progress) === 'object') {
+                    for (var option in scope.options.progress) {
+                        scope[option] = scope.options[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                function buildSensor() {
+                    var ganttElement = element.parent().parent().parent()[0].querySelectorAll('div.gantt')[0];
+                    return new ResizeSensor(ganttElement, function() {
+                        ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
+                        ganttCtrl.gantt.$scope.$apply();
+                    });
+                }
+
+                var rendered = false;
+                api.core.on.rendered(scope, function() {
+                    rendered = true;
+                    if (sensor !== undefined) {
+                        sensor.detach();
+                    }
+                    if (scope.enabled) {
+                        ElementQueries.update();
+                        sensor = buildSensor();
+                    }
+                });
+
+                var sensor;
+                scope.$watch('enabled', function(newValue) {
+                    if (rendered) {
+                        if (newValue && sensor === undefined) {
+                            ElementQueries.update();
+                            sensor = buildSensor();
+                        } else if (!newValue && sensor !== undefined) {
+                            sensor.detach();
+                            sensor = undefined;
+                        }
+                    }
+                });
+            }
+        };
+    }]);
+}());
+
+
+(function(){
     'use strict';
 
     var moduleName = 'gantt.sortable';
@@ -44586,6 +45963,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 columns: '=?',
                 headers: '=?',
+                classes: '=?',
+                contents: '=?',
+                headerContents: '=?',
                 formatters: '=?',
                 headerFormatter: '=?'
             },
@@ -44609,6 +45989,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headers === undefined) {
                     scope.headers = {'model.name': 'Name'};
+                }
+
+                if (scope.contents === undefined) {
+                    scope.contents = {};
+                }
+
+                if (scope.headerContents === undefined) {
+                    scope.headerContents = {};
+                }
+
+                if (scope.classes === undefined) {
+                    scope.classes = {};
                 }
 
                 if (scope.formatters === undefined) {
@@ -44645,7 +46037,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                dateFormat: '=?'
+                dateFormat: '=?',
+                content: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -44662,6 +46055,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
                 if (scope.dateFormat === undefined) {
                     scope.dateFormat = 'MMM DD, HH:mm';
+                }
+                if (scope.content === undefined) {
+                    scope.content = '{{task.model.name}}</br>'+
+                                    '<small>'+
+                                    '{{task.isMilestone() === true && getFromLabel() || getFromLabel() + \' - \' + getToLabel()}}'+
+                                    '</small>';
                 }
 
                 scope.api = api;
@@ -44703,7 +46102,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                header: '=?'
+                header: '=?',
+                content: '=?',
+                headerContent: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -44721,6 +46122,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.header === undefined) {
                     scope.header = 'Name';
+                }
+
+                if (scope.content === undefined) {
+                    scope.content = '{{row.model.name}}';
+                }
+
+                if (scope.headerContent === undefined) {
+                    scope.headerContent = '{{getHeader()}}';
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -44890,6 +46299,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             self.tasks = [];
             self.overviewTasks = [];
             self.groupedTasks = [];
+            self.promotedTasks = [];
 
             var groupRowGroups = self.row.model.groups;
             if (typeof(groupRowGroups) === 'boolean') {
@@ -44928,6 +46338,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
                             clone.updatePosAndSize();
+                        } else if(taskDisplay === 'promote'){
+                            self.promotedTasks.push(clone);
                         } else {
                             self.groupedTasks.push(clone);
                         }
@@ -45127,31 +46539,65 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt.table').controller('TableController', ['$scope', function($scope) {
-        $scope.getValue = function(scope, column) {
-            var value = scope.$eval(column, scope.row);
-
-            var formatter = $scope.pluginScope.formatters[column];
-            if (formatter !== undefined) {
-                value = formatter(value, column, scope.row);
-            }
-
-            return value;
-        };
-
-        $scope.getHeader = function(scope, column) {
-            var header = $scope.pluginScope.headers[column];
+    angular.module('gantt.table').controller('TableColumnController', ['$scope', function($scope) {
+        $scope.getHeader = function() {
+            var header = $scope.pluginScope.headers[$scope.column];
             if (header !== undefined) {
                 return header;
             }
-            var headerFormatter;
             if ($scope.pluginScope.headerFormatter !== undefined) {
-                header = headerFormatter(column);
+                header = $scope.pluginScope.headerFormatter($scope.column);
             }
             if (header !== undefined) {
                 return header;
             }
             return header;
+        };
+
+        $scope.getHeaderContent = function() {
+            var headerContent = $scope.pluginScope.headerContents[$scope.column];
+            if (headerContent === undefined) {
+                return '{{getHeader()}}';
+            }
+            return headerContent;
+        };
+
+        $scope.getClass = function() {
+            return $scope.pluginScope.classes[$scope.column];
+        };
+    }]);
+}());
+
+
+(function() {
+    'use strict';
+    angular.module('gantt.table').controller('TableColumnRowController', ['$scope', function($scope) {
+        $scope.getValue = function() {
+            var value = $scope.$eval($scope.column, $scope.row);
+
+            var formatter = $scope.pluginScope.formatters[$scope.column];
+            if (formatter !== undefined) {
+                value = formatter(value, $scope.column, $scope.row);
+            }
+
+            return value;
+        };
+
+        $scope.getRowContent = function() {
+            var content;
+            if ($scope.row.model.columnContents) {
+                content = $scope.row.model.columnContents[$scope.column];
+            }
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.model.content;
+            }
+            if (content === undefined) {
+                content = $scope.pluginScope.contents[$scope.column];
+            }
+            if (content === undefined) {
+                return '{{getValue()}}';
+            }
+            return content;
         };
     }]);
 }());
@@ -45391,6 +46837,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
         $scope.rootRows = [];
 
+        $scope.getHeader = function() {
+            return $scope.pluginScope.header;
+        };
+
         var hierarchy = new Hierarchy();
 
         var isVisible = function(row) {
@@ -45448,7 +46898,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             return sortedRows;
         };
-
         $scope.gantt.api.rows.addRowSorter(sortRowsFunction);
         $scope.gantt.api.rows.addRowFilter(filterRowsFunction);
 
@@ -45466,7 +46915,66 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
+        var isRowCollapsed = function(rowId) {
+            var row;
+            if (typeof rowId === 'string') {
+                row = $scope.gantt.rowsManager.rowsMap[rowId];
+            } else {
+                row = rowId;
+            }
+            if (row === undefined) {
+                return undefined;
+            }
+            if (row._collapsed === undefined) {
+                return false;
+            }
+            return row._collapsed;
+        };
+
+        var expandRow = function(rowId) {
+            var row;
+            if (typeof rowId === 'string') {
+                row = $scope.gantt.rowsManager.rowsMap[rowId];
+            } else {
+                row = rowId;
+            }
+            if (row === undefined) {
+                return;
+            }
+
+            var rowScope = $scope.nodeScopes[row.model.id];
+            if (rowScope.collapsed) {
+                rowScope.toggle();
+            }
+        };
+
+        var collapseRow = function(rowId) {
+            var row;
+            if (typeof rowId === 'string') {
+                row = $scope.gantt.rowsManager.rowsMap[rowId];
+            } else {
+                row = rowId;
+            }
+            if (row === undefined) {
+                return;
+            }
+
+            var rowScope = $scope.nodeScopes[row.model.id];
+            if (!rowScope.collapsed) {
+                rowScope.toggle();
+            }
+        };
+
+        $scope.getHeaderContent = function() {
+            return $scope.pluginScope.headerContent;
+        };
+
         $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
+        $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
+        $scope.gantt.api.registerMethod('tree', 'expand', expandRow, this);
+        $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
+
+        $scope.gantt.api.registerEvent('tree', 'collapsed');
 
         $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
             refresh();
@@ -45482,14 +46990,53 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.parent = function(row) {
             return hierarchy.parent(row);
         };
+
+        $scope.nodeScopes = {};
+    }]).controller('GanttUiTreeController', ['$scope', function($scope) {
+        var collapseAll = function() {
+            $scope.collapseAll();
+        };
+
+        var expandAll = function() {
+            $scope.expandAll();
+        };
+
+        $scope.gantt.api.registerMethod('tree', 'collapseAll', collapseAll, $scope);
+        $scope.gantt.api.registerMethod('tree', 'expandAll', expandAll, $scope);
     }]).controller('GanttTreeNodeController', ['$scope', function($scope) {
+        $scope.$parent.nodeScopes[$scope.row.model.id] = $scope;
+        $scope.$on('$destroy', function() {
+            delete $scope.$parent.nodeScopes[$scope.row.model.id];
+        });
+
         $scope.$watch('children(row)', function(newValue) {
             $scope.$parent.childrenRows = newValue;
         });
 
+        $scope.isCollapseDisabled = function(){
+            return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
+        };
+
+        $scope.getValue = function() {
+            return $scope.row.model.name;
+        };
+
+        $scope.getRowContent = function() {
+            if ($scope.row.model.content !== undefined) {
+                return $scope.row.model.content;
+            }
+            return $scope.pluginScope.content;
+        };
+
         $scope.$watch('collapsed', function(newValue) {
-            $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
-            $scope.gantt.api.rows.refresh();
+            if ($scope.$modelValue._collapsed !== newValue) {
+                var oldValue = $scope.$modelValue._collapsed;
+                $scope.$modelValue._collapsed = newValue; // $modelValue contains the Row object
+                if (oldValue !== undefined && newValue !== oldValue) {
+                    $scope.gantt.api.tree.raise.collapsed($scope, $scope.$modelValue, newValue);
+                    $scope.gantt.api.rows.refresh();
+                }
+            }
         });
     }]);
 }());
@@ -45544,6 +47091,9 @@ angular.module('gantt.groups.templates', []).run(['$templateCache', function($te
         '    <div class="gantt-task-group-overview" ng-show="taskGroup.overviewTasks.length > 0">\n' +
         '        <gantt-task-overview ng-repeat="task in taskGroup.overviewTasks"></gantt-task-overview>\n' +
         '    </div>\n' +
+        '    <div class="gantt-task-group-promote" ng-show="taskGroup.row._collapsed && taskGroup.promotedTasks.length > 0">\n' +
+        '        <gantt-task ng-repeat="task in taskGroup.promotedTasks"></gantt-task>\n' +
+        '    </div>\n' +
         '    <div class="gantt-task-group"\n' +
         '         ng-show="taskGroup.groupedTasks.length > 0"\n' +
         '         ng-style="{\'left\': taskGroup.left + \'px\', \'width\': taskGroup.width + \'px\'}">\n' +
@@ -45574,7 +47124,7 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '                 class="gantt-row-label gantt-row-height"\n' +
         '                 ng-class="row.model.classes"\n' +
         '                 ng-style="{\'height\': row.model.height}">\n' +
-        '                <span>{{row.model.name}}</span>\n' +
+        '                <span class="gantt-label-text">{{row.model.name}}</span>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '    </div>\n' +
@@ -45619,25 +47169,23 @@ angular.module('gantt.sortable.templates', []).run(['$templateCache', function($
 
 angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
-        '<div class="gantt-side-content-table" ng-controller="TableController">\n' +
+        '<div class="gantt-side-content-table">\n' +
         '\n' +
-        '    <div class="gantt-table-column" ng-repeat="column in pluginScope.columns">\n' +
+        '    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">\n' +
         '\n' +
-        '        <div class="gantt-table-header">\n' +
-        '            <div class="gantt-table-row" ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '                <div class="gantt-row-height gantt-row-label gantt-table-header-row" ng-class="{\'gantt-table-header-row-last\': $last}">\n' +
-        '                    <span>{{$last ? getHeader(this, column) : ""}}</span>\n' +
-        '                </div>\n' +
+        '        <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + \'px\'}">\n' +
+        '            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
+        '                <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '            </div>\n' +
         '        </div>\n' +
         '\n' +
         '        <div class="gantt-table-content" ng-style="getMaxHeightCss()">\n' +
         '            <div gantt-vertical-scroll-receiver>\n' +
-        '                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
+        '                <div class="gantt-table-row" ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id" ng-controller="TableColumnRowController">\n' +
         '                    <div gantt-row-label class="gantt-row-label gantt-row-height" ng-class="row.model.classes" ng-style="{\'height\': row.model.height}">\n' +
         '                        <div class="gantt-valign-container">\n' +
         '                            <div class="gantt-valign-content">\n' +
-        '                                <span>{{getValue(this, column)}}</span>\n' +
+        '                                <span class="gantt-label-text" gantt-bind-compile-html="getRowContent()"></span>\n' +
         '                            </div>\n' +
         '                        </div>\n' +
         '                    </div>\n' +
@@ -45658,10 +47206,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
         '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
         '    <div class="gantt-task-info-content">\n' +
-        '        {{task.model.name}}</br>\n' +
-        '        <small>\n' +
-        '            {{task.isMilestone() === true && (getFromLabel()) || (getFromLabel() + \' - \' + getToLabel())}}\n' +
-        '        </small>\n' +
+        '        <div gantt-bind-compile-html="pluginScope.content"></div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');
@@ -45669,7 +47214,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
 
 angular.module('gantt.tree.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/tree/sideContentTree.tmpl.html',
-        '<div class="gantt-side-content-tree">\n' +
+        '<div class="gantt-side-content-tree" ng-controller="GanttTreeController">\n' +
         '    <gantt-tree-header>\n' +
         '    </gantt-tree-header>\n' +
         '    <gantt-tree-body>\n' +
@@ -45678,7 +47223,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
     $templateCache.put('plugins/tree/treeBody.tmpl.html',
         '<div class="gantt-tree-body" ng-style="getLabelsCss()">\n' +
-        '    <div gantt-vertical-scroll-receiver ng-controller="GanttTreeController">\n' +
+        '    <div gantt-vertical-scroll-receiver>\n' +
         '        <div class="gantt-row-label-background">\n' +
         '            <div class="gantt-row-label gantt-row-height"\n' +
         '                 ng-class="row.model.classes"\n' +
@@ -45687,7 +47232,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                &nbsp;\n' +
         '            </div>\n' +
         '        </div>\n' +
-        '        <div ui-tree data-drag-enabled="false" data-empty-place-holder-enabled="false">\n' +
+        '        <div ui-tree ng-controller="GanttUiTreeController" data-drag-enabled="false" data-empty-place-holder-enabled="false">\n' +
         '            <ol class="gantt-tree-root" ui-tree-nodes ng-model="rootRows">\n' +
         '                <li ng-repeat="row in rootRows" ui-tree-node\n' +
         '                    ng-include="\'plugins/tree/treeBodyChildren.tmpl.html\'">\n' +
@@ -45704,16 +47249,16 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="gantt-valign-container">\n' +
         '        <div class="gantt-valign-content">\n' +
-        '            <a ng-disabled="!childrenRows || childrenRows.length === 0" data-nodrag\n' +
+        '            <a ng-disabled="isCollapseDisabled()" data-nodrag\n' +
         '               class="gantt-tree-handle-button btn btn-xs"\n' +
         '               ng-class="{\'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"\n' +
-        '               ng-click="toggle()"><span\n' +
+        '               ng-click="!isCollapseDisabled() && toggle()"><span\n' +
         '                class="gantt-tree-handle glyphicon glyphicon-chevron-down"\n' +
         '                ng-class="{\n' +
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span gantt-row-label class="gantt-tree-text">{{row.model.name}}</span>\n' +
+        '            <span gantt-row-label class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
@@ -45724,12 +47269,8 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '</ol>\n' +
         '');
     $templateCache.put('plugins/tree/treeHeader.tmpl.html',
-        '<div class="gantt-tree-header">\n' +
-        '    <div ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0">\n' +
-        '        <div ng-repeat="header in gantt.columnsManager.headers">\n' +
-        '            <div class="gantt-row-height gantt-row-label gantt-tree-header-row" ng-class="{\'gantt-tree-header-row-last\': $last}"><span>{{$last ? pluginScope.header : ""}}</span></div>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
+        '<div class="gantt-tree-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
+        '    <div class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '</div>\n' +
         '');
 }]);

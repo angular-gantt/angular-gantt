@@ -135,6 +135,10 @@
                             <a href="../../plugins/progress">Progress</a>
                         </li>
                     
+                        <li >
+                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                        </li>
+                    
                     </ul>
                 </li>
             
@@ -224,6 +228,7 @@ and modification made to <code>angular-gantt</code> will be applied to <code>dat
   height: "..." // Height of the row (Optional).
   color: "..." , // Color of the task in HEX format (Optional).
   classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+  content: "...", // Content used in labels (Optional).
   tasks: [] // Array containing &lt;Task&gt; tasks to add in this row.
 }
 </code></pre>
@@ -237,6 +242,7 @@ and modification made to <code>angular-gantt</code> will be applied to <code>dat
   classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
   priority: &lt;Number&gt; // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
   data: &lt;Any&gt; // Custom object. Use this to attach your own data (Optional).
+  content: "...", // Content used in labels (Optional).
 }
 </code></pre>
 <h2 id="css-selectors">CSS Selectors</h2>

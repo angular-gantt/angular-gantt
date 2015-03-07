@@ -135,6 +135,10 @@
                             <a href="../progress">Progress</a>
                         </li>
                     
+                        <li >
+                            <a href="../resizeSensor">Resize Sensor</a>
+                        </li>
+                    
                     </ul>
                 </li>
             
@@ -199,6 +203,8 @@
     
         <li class="main active"><a href="#tree">Tree</a></li>
         
+            <li><a href="#dependency">Dependency</a></li>
+        
             <li><a href="#usage">Usage</a></li>
         
             <li><a href="#model">Model</a></li>
@@ -214,6 +220,8 @@
 
 <h1 id="tree">Tree</h1>
 <p>Display a tree hierarchy of labels on the side.</p>
+<h2 id="dependency">Dependency</h2>
+<p><a href="https://github.com/angular-ui-tree/angular-ui-tree">angular-ui-tree</a></p>
 <h2 id="usage">Usage</h2>
 <pre><code>angular.module('myApp', ['gantt', 'gantt.tree']);
 </code></pre>
@@ -256,6 +264,17 @@ can be used to define the hierarchy.</p>
 <p>Column header for the labels.</p>
 <p>default: <code>Name</code></p>
 </li>
+<li>
+<h4 id="content">content</h4>
+<p>Template of the content of each row. It can contain HTML and will be automatically compiled.</p>
+<p>It can be modified for a specific row using <a href="../../configuration/data">Row model</a> <code>content</code> property.</p>
+<p>default: <code>{{row.model.name}}</code></p>
+</li>
+<li>
+<h4 id="header-content">header-content</h4>
+<p>Template of the content of header. It can contain HTML and will be automatically compiled.</p>
+<p>default: <code>{{getHeader()}}</code></p>
+</li>
 </ul>
 <h2 id="api">API</h2>
 <h3 id="methods">Methods</h3>
@@ -263,6 +282,33 @@ can be used to define the hierarchy.</p>
 <li>
 <p><strong>api.tree.refresh()</strong></p>
 <p>Refresh hierarchy of rows based on model.</p>
+</li>
+<li>
+<p><strong>api.tree.isCollapsed(rowId)</strong></p>
+<p>Check if a row is collapsed.</p>
+</li>
+<li>
+<p><strong>api.tree.collapse(rowId)</strong></p>
+<p>Collapse a row.</p>
+</li>
+<li>
+<p><strong>api.tree.expand(rowId)</strong></p>
+<p>Expand a row.</p>
+</li>
+<li>
+<p><strong>api.tree.collapseAll()</strong></p>
+<p>Collapse all rows.</p>
+</li>
+<li>
+<p><strong>api.tree.expandAll()</strong></p>
+<p>Expand all rows.</p>
+</li>
+</ul>
+<h3 id="events">Events</h3>
+<ul>
+<li>
+<p><strong>api.tree.on.collapsed(row, collapsed)</strong></p>
+<p>A row has collapsed or expanded</p>
 </li>
 </ul>
 </div>

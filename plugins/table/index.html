@@ -135,6 +135,10 @@
                             <a href="../progress">Progress</a>
                         </li>
                     
+                        <li >
+                            <a href="../resizeSensor">Resize Sensor</a>
+                        </li>
+                    
                     </ul>
                 </li>
             
@@ -239,7 +243,7 @@
 </li>
 <li>
 <h4 id="formatters">formatters</h4>
-<p>Associative object formatters definitions for values. 
+<p>Associative object to customize formatter for each cell. 
 Key is the column expression defined in <code>columns</code> attribute, and value is a formatter function <code>formatter(value, column, row)</code>
 returning formatted value.
 It can be used if some columns requires special formatters. If a formatter is undefined for the column, it will use then formatter 
@@ -255,12 +259,43 @@ defined in <code>formatter</code> attribute</p>
 </li>
 <li>
 <h4 id="headers">headers</h4>
-<p>Associative object headers definitions for headers. Key is the column expression defined in <code>columns</code> attribute,
-and value is the header to display, or a function <code>formatter(column)</code> returning the formatted header value.</p>
+<p>Associative object to customize header for each column. Key is the column expression defined in <code>columns</code> attribute,
+and value is the header to display.</p>
 <p>ex: <code>{'model.name': 'Label'}</code></p>
 </li>
 <li>
-<h4 id="headerformatter">headerFormatter</h4>
+<h4 id="contents">contents</h4>
+<p>Associative object to customize values content. Key is the column expression defined in <code>columns</code> attribute,
+and value is the content to display for each column row. Content can contain HTML and will be automatically 
+compiled. Default content is <code>{{getValue()}}</code>.</p>
+<p>ex: <code>{'model.name': '&lt;span class="glyphicon glyphicon-asterisk"&gt;&lt;/span&gt; {{getValue()}}'}</code></p>
+<p>Contents object can also be be defined for a specific <code>Row</code> object using an object property named <code>columnContents</code></p>
+<pre><code>{
+  ...
+  // Inside Row object
+  'columnContents': {
+    'model.name': '...',
+    'from': '...',
+    'to': '...'
+  }
+}
+</code></pre>
+</li>
+<li>
+<h4 id="header-contents">header-contents</h4>
+<p>Associative object to customize header content. Key is the column expression defined in <code>columns</code> attribute,
+and value is the content to display for each column row. Content can contain HTML and will be automatically 
+compiled. Default content is <code>{{getHeader()}}</code>.</p>
+<p>ex: <code>{'model.name': '&lt;span class="glyphicon glyphicon-asterisk"&gt;&lt;/span&gt; {{getHeader()}}'}</code></p>
+</li>
+<li>
+<h4 id="classes">classes</h4>
+<p>Associative object to customize CSS classes. Key is the column expression defined in <code>columns</code> attribute,
+and value is the class name to apply to column.</p>
+<p>ex: <code>{'model.name': 'gantt-column-name'}</code></p>
+</li>
+<li>
+<h4 id="header-formatter">header-formatter</h4>
 <p>Formatter function <code>formatter(column)</code> use to format each header. The function returns formatted header value.</p>
 </li>
 </ul>

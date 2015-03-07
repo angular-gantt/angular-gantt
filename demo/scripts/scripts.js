@@ -19,6 +19,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.table',
     'gantt.tree',
     'gantt.groups',
+    'gantt.resizeSensor',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
     $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
@@ -43,11 +44,14 @@ angular.module('angularGanttDemoApp')
             scale: 'day',
             sortMode: undefined,
             sideMode: 'TreeTable',
+            daily: false,
             maxHeight: false,
             width: false,
+            zoom: 1,
             columns: ['model.name', 'from', 'to'],
             treeTableColumns: ['from', 'to'],
             columnsHeaders: {'model.name' : 'Name', 'from': 'From', 'to': 'To'},
+            columnsClasses: {'model.name' : 'gantt-column-name', 'from': 'gantt-column-from', 'to': 'gantt-column-to'},
             columnsFormatters: {
                 'from': function(from) {
                     return from !== undefined ? from.format('lll') : undefined;
@@ -56,9 +60,15 @@ angular.module('angularGanttDemoApp')
                     return to !== undefined ? to.format('lll') : undefined;
                 }
             },
+            treeHeaderContent: '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+            columnsHeaderContents: {
+                'model.name': '<i class="fa fa-align-justify"></i> {{getHeader()}}',
+                'from': '<i class="fa fa-calendar"></i> {{getHeader()}}',
+                'to': '<i class="fa fa-calendar"></i> {{getHeader()}}'
+            },
             autoExpand: 'none',
             taskOutOfRange: 'truncate',
-            fromDate: undefined,
+            fromDate: moment(null),
             toDate: undefined,
             allowSideResizing: true,
             labelsEnabled: true,
@@ -234,6 +244,14 @@ angular.module('angularGanttDemoApp')
             }
         };
 
+        $scope.expandAll = function() {
+          $scope.api.tree.expandAll();
+        };
+
+        $scope.collapseAll = function() {
+            $scope.api.tree.collapseAll();
+        };
+
         $scope.$watch('options.sideMode', function(newValue, oldValue) {
             if (newValue !== oldValue) {
                 $scope.api.side.setWidth(undefined);
@@ -250,28 +268,28 @@ angular.module('angularGanttDemoApp')
             return true;
         };
 
-        $scope.getColumnWidth = function(widthEnabled, scale) {
+        $scope.getColumnWidth = function(widthEnabled, scale, zoom) {
             if (!widthEnabled && $scope.canAutoWidth(scale)) {
                 return undefined;
             }
 
             if (scale.match(/.*?week.*?/)) {
-                return 150;
+                return 150 * zoom;
             }
 
             if (scale.match(/.*?month.*?/)) {
-                return 300;
+                return 300 * zoom;
             }
 
             if (scale.match(/.*?quarter.*?/)) {
-                return 500;
+                return 500 * zoom;
             }
 
             if (scale.match(/.*?year.*?/)) {
-                return 800;
+                return 800 * zoom;
             }
 
-            return 40;
+            return 40 * zoom;
         };
 
         // Reload data action
@@ -476,14 +494,14 @@ angular.module('angularGanttDemoApp')
                                 progress: {percent: 100, color: '#3C8CF8'}}
                         ]},
                         {name: 'Create concept', tasks: [
-                            {name: 'Create concept', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
+                            {name: 'Create concept', content: '<i class="fa fa-cog"></i>{{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
                                 progress: 100}
                         ]},
                         {name: 'Finalize concept', tasks: [
                             {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                                 progress: 100}
                         ]},
-                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4']},
+                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '<i class="fa fa-file-code-o"></i> {{row.model.name}}'},
                         {name: 'Sprint 1', tooltips: false, tasks: [
                             {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
                                 progress: 25}
@@ -497,7 +515,7 @@ angular.module('angularGanttDemoApp')
                         {name: 'Sprint 4', tasks: [
                             {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
                         ]},
-                        {name: 'Hosting'},
+                        {name: 'Hosting', content: '<i class="fa fa-server"></i> {{row.model.name}}'},
                         {name: 'Setup', tasks: [
                             {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
                         ]},
@@ -524,9 +542,9 @@ angular.module('angularGanttDemoApp')
                         {
                             from: new Date(2013, 9, 21, 8, 0, 0),
                             to: new Date(2013, 9, 25, 15, 0, 0),
-                            name: 'Sprint 1 Timespan',
+                            name: 'Sprint 1 Timespan'
                             //priority: undefined,
-                            classes: ['timeSpanLOL'] //Set custom classes names to apply to the timespan.
+                            //classes: [],
                             //data: undefined
                         }
                     ];
