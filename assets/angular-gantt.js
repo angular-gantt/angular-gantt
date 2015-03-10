@@ -4033,12 +4033,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 $scope.$watch(function() {
                     return getWidth();
-                }, function(newValue) {
-                    $scope.targetElement.css('width', newValue + 'px');
-                    // Setting width again is required when min-width of max-width is set on targetElement.
-                    // This avoid going to a smaller or bigger value than targetElement capabilities.
-                    if ($scope.targetElement[0].offsetWidth > 0) {
-                        setWidth($scope.targetElement[0].offsetWidth);
+                }, function(newValue, oldValue) {
+                    if (newValue !== oldValue) {
+                        $scope.targetElement.css('width', newValue + 'px');
+                        // Setting width again is required when min-width of max-width is set on targetElement.
+                        // This avoid going to a smaller or bigger value than targetElement capabilities.
+                        // Call of 'offsetWidth' is slow. Behaviour needs to be improved.
+                        if ($scope.targetElement[0].offsetWidth > 0) {
+                            setWidth($scope.targetElement[0].offsetWidth);
+                        }
                     }
                 });
 
