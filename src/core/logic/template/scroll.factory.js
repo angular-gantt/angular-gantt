@@ -15,7 +15,15 @@
         };
 
         Scroll.prototype.getScrollLeft = function() {
-            return this.$element === undefined ? undefined : this.$element[0].scrollLeft;
+            if (this.$element === undefined) {
+                return undefined;
+            } else {
+                if (this.cachedScrollLeft === undefined) {
+                    this.cachedScrollLeft = this.$element[0].scrollLeft;
+                }
+
+                return this.cachedScrollLeft;
+            }
         };
 
         Scroll.prototype.getScrollWidth = function() {

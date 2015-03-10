@@ -65,25 +65,28 @@
 
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
+                var currentScrollLeft = el.scrollLeft;
                 var direction;
                 var date;
 
-                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
+                $scope.gantt.scroll.cachedScrollLeft = currentScrollLeft;
+                $scope.gantt.columnsManager.updateVisibleColumns();
+                $scope.gantt.rowsManager.updateVisibleTasks();
+
+                if (currentScrollLeft < lastScrollLeft && currentScrollLeft === 0) {
                     direction = 'left';
                     date = $scope.gantt.columnsManager.from;
-                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                } else if (currentScrollLeft > lastScrollLeft && el.offsetWidth + currentScrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
                     date = $scope.gantt.columnsManager.to;
                 }
 
-                lastScrollLeft = el.scrollLeft;
-                $scope.gantt.columnsManager.updateVisibleColumns();
-                $scope.gantt.rowsManager.updateVisibleTasks();
+                lastScrollLeft = currentScrollLeft;
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
                 } else {
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
+                    $scope.gantt.api.scroll.raise.scroll(currentScrollLeft);
                 }
             }, 5));
 
