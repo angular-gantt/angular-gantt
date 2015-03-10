@@ -398,28 +398,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         TimeFrame.prototype.updateView = function() {
             if (this.$element) {
+                var cssStyles = {};
+
                 if (this.left !== undefined) {
-                    this.$element.css('left', this.left + 'px');
+                    cssStyles.left = this.left + 'px';
                 } else {
-                    this.$element.css('left', '');
+                    cssStyles.left = '';
                 }
                 if (this.width !== undefined) {
-                    this.$element.css('width', this.width + 'px');
+                    cssStyles.width = this.width + 'px';
                 } else {
-                    this.$element.css('width', '');
+                    cssStyles.width = '';
                 }
 
                 if (this.color !== undefined) {
-                    this.$element.css('background-color', this.color);
+                    cssStyles['background-color'] = this.color;
                 } else {
-                    this.$element.css('background-color', '');
+                    cssStyles['background-color'] = '';
                 }
+
+                this.$element.css(cssStyles);
 
                 var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
                 if (this.classes) {
                     classes = classes.concat(this.classes);
                 }
-                for (var i= 0, l=classes.length; i<l; i++) {
+                for (var i = 0, l = classes.length; i < l; i++) {
                     this.$element.toggleClass(classes[i], true);
                 }
             }
@@ -891,8 +895,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         Column.prototype.updateView = function() {
             if (this.$element) {
-                this.$element.css('left', this.left + 'px');
-                this.$element.css('width', this.width + 'px');
+                this.$element.css({'left': this.left + 'px', 'width': this.width + 'px'});
 
                 for (var i = 0, l = this.timeFrames.length; i < l; i++) {
                     this.timeFrames[i].updateView();
@@ -3072,10 +3075,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css('display', '');
-
-                    this.$element.css('left', this.left + 'px');
-                    this.$element.css('width', this.width + 'px');
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);

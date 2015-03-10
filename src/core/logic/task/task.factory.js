@@ -93,10 +93,7 @@
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css('display', '');
-
-                    this.$element.css('left', this.left + 'px');
-                    this.$element.css('width', this.width + 'px');
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);

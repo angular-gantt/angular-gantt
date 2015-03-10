@@ -26,8 +26,7 @@
 
         Column.prototype.updateView = function() {
             if (this.$element) {
-                this.$element.css('left', this.left + 'px');
-                this.$element.css('width', this.width + 'px');
+                this.$element.css({'left': this.left + 'px', 'width': this.width + 'px'});
 
                 for (var i = 0, l = this.timeFrames.length; i < l; i++) {
                     this.timeFrames[i].updateView();
