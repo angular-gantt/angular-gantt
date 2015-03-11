@@ -1,6 +1,6 @@
 {
-  "name": "angular-gantt",
-  "version": "1.2.0",
+  "name": "cti-angular-gantt",
+  "version": "0.0.1",
   "description": "Gantt chart component for AngularJS",
   "author": "Marco Schweighauser",
   "contributors": [
@@ -12,7 +12,9 @@
     "url": "https://github.com/angular-gantt/angular-gantt.git"
   },
   "homepage": "http://www.angular-gantt.com",
-  "bugs": "https://github.com/angular-gantt/angular-gantt/issues",
+  "bugs": {
+    "url": "https://github.com/angular-gantt/angular-gantt/issues"
+  },
   "keywords": [
     "gantt",
     "chart",
@@ -45,5 +47,12 @@
     "karma-jasmine": "^0.3.5",
     "karma-mocha-reporter": "^0.3.1",
     "karma-phantomjs-launcher": "^0.1.4"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
