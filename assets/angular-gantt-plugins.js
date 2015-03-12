@@ -341,6 +341,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
 
                             var taskHasBeenChanged = false;
+                            var taskHasBeenMovedFromAnotherRow = false;
                             var scrollInterval;
 
                             var foregroundElement = taskScope.task.getForegroundElement();
@@ -525,7 +526,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskHasBeenChanged = true;
                                 }
 
-                                if (!oldTaskHasBeenChanged && taskHasBeenChanged) {
+                                if (!oldTaskHasBeenChanged && taskHasBeenChanged && !taskHasBeenMovedFromAnotherRow) {
                                     var backgroundElement = taskScope.task.getBackgroundElement();
                                     if (taskScope.task.moveMode === 'M') {
                                         backgroundElement.addClass('gantt-task-moving');
@@ -640,8 +641,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
                                 }
 
-                                // Init mouse start variables (if tasks was not move from another row)
-                                if (!taskScope.task.isMoving && !taskScope.task.isResizing) {
+                                // Init mouse start variables
+                                if (!taskHasBeenMovedFromAnotherRow) {
                                     moveStartX = x;
                                     mouseStartOffsetX = x - taskScope.task.modelLeft;
                                 }
@@ -697,6 +698,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.$apply();
                                 }
 
+                                taskHasBeenMovedFromAnotherRow = false;
                                 taskScope.task.isMoving = false;
                                 taskScope.task.active = false;
 
@@ -732,11 +734,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             });
 
                             if (taskScope.task.isResizing) {
+                                taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
                                 delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
                                 // In case the task has been moved to another row a new controller is is created by angular.
                                 // Enable the move mode again if this was the case.
+                                taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('M', taskScope.task.mouseOffsetX);
                             }
                         }
