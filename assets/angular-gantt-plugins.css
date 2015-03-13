@@ -137,6 +137,14 @@
     border-radius: 2px;
 }
 
+.gantt-row-label.on-dragging {
+    background-color : #999999 !important;
+}
+
+.gantt-row-label.on-drag-hover {
+    border: 1px solid #999999;
+}
+
 .gantt-table-header {
     overflow: hidden;
     position: relative;
