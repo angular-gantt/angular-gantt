@@ -1638,7 +1638,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn.left + lastColumn.width;
+                var currentWidth = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
 
                 if (expandToFit && currentWidth < newWidth ||
                     shrinkToFit && currentWidth > newWidth ||

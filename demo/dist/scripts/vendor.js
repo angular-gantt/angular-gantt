@@ -41161,6 +41161,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
 
+            this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
         };
@@ -41367,7 +41368,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn.left + lastColumn.width;
+                var currentWidth = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
 
                 if (expandToFit && currentWidth < newWidth ||
                     shrinkToFit && currentWidth > newWidth ||
@@ -41697,17 +41698,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var oldTimeFrames = oldValues[0];
                         var oldDateFrames = oldValues[1];
 
+                        var framesChanged = false;
+
                         if (!angular.equals(timeFrames, oldTimeFrames)) {
                             self.calendar.clearTimeFrames();
                             self.calendar.registerTimeFrames(timeFrames);
+                            framesChanged = true;
                         }
 
                         if (!angular.equals(dateFrames, oldDateFrames)) {
                             self.calendar.clearDateFrames();
                             self.calendar.registerDateFrames(dateFrames);
+                            framesChanged = true;
                         }
 
-                        self.columnsManager.generateColumns();
+                        if (framesChanged) {
+                            self.columnsManager.generateColumns();
+                        }
                     }
                 });
 
