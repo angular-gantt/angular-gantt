@@ -1968,17 +1968,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var oldTimeFrames = oldValues[0];
                         var oldDateFrames = oldValues[1];
 
+                        var framesChanged = false;
+
                         if (!angular.equals(timeFrames, oldTimeFrames)) {
                             self.calendar.clearTimeFrames();
                             self.calendar.registerTimeFrames(timeFrames);
+                            framesChanged = true;
                         }
 
                         if (!angular.equals(dateFrames, oldDateFrames)) {
                             self.calendar.clearDateFrames();
                             self.calendar.registerDateFrames(dateFrames);
+                            framesChanged = true;
                         }
 
-                        self.columnsManager.generateColumns();
+                        if (framesChanged) {
+                            self.columnsManager.generateColumns();
+                        }
                     }
                 });
 
