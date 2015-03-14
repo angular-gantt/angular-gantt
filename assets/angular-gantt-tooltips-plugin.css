@@ -15,10 +15,12 @@
     white-space: nowrap;
 }
 
-.gantt-task-infoArrow:before, .gantt-task-infoArrowR:before {
+.gantt-task-infoArrow:before,
+.gantt-task-infoArrowR:before {
     position: absolute;
     top: 100%;
-    width: 0px; height: 0px;
+    width: 0px;
+    height: 0px;
     border-top: 8px solid rgba(0, 0, 0, 0.1);
     border-right: 8px solid transparent;
     border-left: 8px solid transparent;
@@ -33,10 +35,12 @@
     right: 10px;
 }
 
-.gantt-task-infoArrow:after, .gantt-task-infoArrowR:after {
+.gantt-task-infoArrow:after,
+.gantt-task-infoArrowR:after {
     position: absolute;
     top: 100%;
-    width: 0px; height: 0px;
+    width: 0px;
+    height: 0px;
     border-top: 7px solid #ffffff;
     border-right: 7px solid transparent;
     border-left: 7px solid transparent;

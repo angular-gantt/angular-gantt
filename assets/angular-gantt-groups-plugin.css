@@ -10,7 +10,8 @@
     margin: auto;
 }
 
-.gantt-task-group-left-main, .gantt-task-group-right-main {
+.gantt-task-group-left-main,
+.gantt-task-group-right-main {
     position: absolute;
 
     width: 12px;
@@ -30,7 +31,8 @@
     right: -6px;
 }
 
-.gantt-task-group-left-symbol, .gantt-task-group-right-symbol {
+.gantt-task-group-left-symbol,
+.gantt-task-group-right-symbol {
     position: absolute;
 
     width: 0;
@@ -55,9 +57,8 @@
 .gantt-task-overview {
     height: 40%;
     top: 40%;
-
     -webkit-filter: grayscale(0.6);
-            filter: grayscale(0.6);
+    filter: grayscale(0.6);
 }
 
 .gantt-task-overview .gantt-task-content {
