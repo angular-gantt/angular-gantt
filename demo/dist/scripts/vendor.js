@@ -34248,7 +34248,6 @@ angular.module("ang-drag-drop",[])
                         fn(scope, {$event: e, $channel: dropChannel});
                     });
 
-                    e.dataTransfer.dropEffect = e.shiftKey ? 'copy' : 'move';
                     return false;
                 }
 
@@ -34264,7 +34263,7 @@ angular.module("ang-drag-drop",[])
 
                     if (dragging == 0) {
                         scope.$evalAsync(function () {
-                            customDragEnterEvent(scope, {$event: e});
+                            customDragLeaveEvent(scope, {$event: e, $channel: dropChannel});
                         });
                         element.removeClass(dragHoverClass);
                     }
@@ -34283,6 +34282,13 @@ angular.module("ang-drag-drop",[])
                     if (e.stopPropagation) {
                         e.stopPropagation();
                     }
+
+                    if (dragging === 0) {
+                        scope.$evalAsync(function () {
+                            customDragEnterEvent(scope, {$event: e, $channel: dropChannel});
+                        });
+                        element.addClass(dragHoverClass);
+                    }
                     dragging++;
 
                     var fn = $parse(attr.uiOnDragEnter);
@@ -34291,10 +34297,6 @@ angular.module("ang-drag-drop",[])
                     });
 
                     $rootScope.$broadcast("ANGULAR_HOVER", dragChannel);
-                    scope.$evalAsync(function () {
-                        customDragLeaveEvent(scope, {$event: e});
-                    });
-                    element.addClass(dragHoverClass);
                 }
 
                 function onDrop(e) {
@@ -34307,6 +34309,16 @@ angular.module("ang-drag-drop",[])
 
                     var sendData = e.dataTransfer.getData("dataToSend");
                     sendData = angular.fromJson(sendData);
+
+                    // Chrome doesn't set dropEffect, so we have to work it out ourselves
+                    if (e.dataTransfer.dropEffect === 'none') {
+                      if (e.dataTransfer.effectAllowed === 'copy' || 
+                          e.dataTransfer.effectAllowed === 'move') {
+                        e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed;
+                      } else if (e.dataTransfer.effectAllowed === 'copyMove') {
+                        e.dataTransfer.dropEffect = e.ctrlKey ? "copy" : "move";
+                      }
+                    }
 
                     var fn = $parse(attr.uiOnDrop);
                     scope.$evalAsync(function () {
