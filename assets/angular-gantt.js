@@ -5113,6 +5113,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
         '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
+        '            <div ng-if="gantt.columnsManager.visibleColumns == 0" style="background-color: #808080"></div>\n' +
         '            <gantt-body-rows>\n' +
         '                <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
@@ -5134,7 +5135,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width > 0 ? gantt.width +\'px\' : undefined}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
@@ -5261,7 +5262,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
         '        <div class="gantt-side-background">\n' +
         '            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '                <div class="gantt-header-row gantt-side-header-row"></div>\n' +
+        '                <div ng-show="$parent.ganttHeaderHeight" class="gantt-header-row gantt-side-header-row"></div>\n' +
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
