@@ -257,6 +257,8 @@
         
             <li><a href="#sort-mode">sort-mode</a></li>
         
+            <li><a href="#row-content">row-content</a></li>
+        
             <li><a href="#task-out-of-range">task-out-of-range</a></li>
         
             <li><a href="#task-content">task-content</a></li>
@@ -578,6 +580,14 @@ is activated otherwise the side section is not shown.</p>
 <p>Prepend a <code>-</code> in front to sort descending. E.g. <code>-from</code></p>
 </li>
 <li>
+<h3 id="row-content">row-content</h3>
+<p>Content used to display each row. It can contain HTML and will be automatically compiled and linked against Row
+object scope. Main user scope is available with <code>scope</code>.</p>
+<p>It can be modified for a specific row using <a href="../data">Row model</a> <code>content</code> property</p>
+<p>default: <code>{{row.model.name}}</code></p>
+<p>example: <code>&lt;i class="fa fa-align-justify" ng-click="scope.handleRowIconClick(row.model)"&gt;&lt;/i&gt; {{row.model.name}}</code></p>
+</li>
+<li>
 <h3 id="task-out-of-range">task-out-of-range</h3>
 <p>Behavior when tasks are defined out of the Gantt rendering range (see <code>from-date</code> and <code>to-date</code>).</p>
 <ul>
@@ -588,9 +598,11 @@ is activated otherwise the side section is not shown.</p>
 </li>
 <li>
 <h3 id="task-content">task-content</h3>
-<p>Content used to display each task. It can contain HTML and will be automatically compiled.</p>
+<p>Content used to display each task. It can contain HTML and will be automatically compiled and linked against Task
+object scope. Main user scope is available with <code>scope</code>.</p>
 <p>It can be modified for a specific task using <a href="../data">Task model</a> <code>content</code> property</p>
 <p>default: <code>{{task.model.name}}</code></p>
+<p>example: <code>&lt;i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"&gt;&lt;/i&gt; {{task.model.name}}</code></p>
 </li>
 <li>
 <h3 id="template">template</h3>

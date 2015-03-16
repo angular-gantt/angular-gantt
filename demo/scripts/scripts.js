@@ -70,6 +70,8 @@ angular.module('angularGanttDemoApp')
             taskOutOfRange: 'truncate',
             fromDate: moment(null),
             toDate: undefined,
+            rowContent: '<i class="fa fa-align-justify"></i> {{row.model.name}}',
+            taskContent : '<i class="fa fa-tasks"></i> {{task.model.name}}',
             allowSideResizing: true,
             labelsEnabled: true,
             currentDate: 'line',
@@ -172,27 +174,6 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
 
-                    api.data.on.change($scope, function() {
-                        $scope.live.row = $scope.data[5];
-
-                        if (dataToRemove === undefined) {
-                            dataToRemove = [
-                                {'id': $scope.data[2].id}, // Remove Kickoff row
-                                {
-                                    'id': $scope.data[0].id, 'tasks': [
-                                    {'id': $scope.data[0].tasks[0].id},
-                                    {'id': $scope.data[0].tasks[3].id}
-                                ]
-                                }, // Remove some Milestones
-                                {
-                                    'id': $scope.data[6].id, 'tasks': [
-                                    {'id': $scope.data[6].tasks[0].id}
-                                ]
-                                } // Remove order basket from Sprint 2
-                            ];
-                        }
-                    });
-
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
                     $scope.load();
@@ -242,6 +223,14 @@ angular.module('angularGanttDemoApp')
                     objectModel = new ObjectModel(api);
                 });
             }
+        };
+
+        $scope.handleTaskIconClick = function(taskModel) {
+            alert('Icon from ' + taskModel.name + ' task has been clicked.');
+        };
+
+        $scope.handleRowIconClick = function(rowModel) {
+            alert('Icon from ' + rowModel.name + ' row has been clicked.');
         };
 
         $scope.expandAll = function() {
@@ -494,14 +483,14 @@ angular.module('angularGanttDemoApp')
                                 progress: {percent: 100, color: '#3C8CF8'}}
                         ]},
                         {name: 'Create concept', tasks: [
-                            {name: 'Create concept', content: '<i class="fa fa-cog"></i>{{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
+                            {name: 'Create concept', content: '<i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"></i> {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
                                 progress: 100}
                         ]},
                         {name: 'Finalize concept', tasks: [
                             {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                                 progress: 100}
                         ]},
-                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '<i class="fa fa-file-code-o"></i> {{row.model.name}}'},
+                        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '<i class="fa fa-file-code-o" ng-click="scope.handleRowIconClick(row.model)"></i> {{row.model.name}}'},
                         {name: 'Sprint 1', tooltips: false, tasks: [
                             {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
                                 progress: 25}
@@ -515,7 +504,7 @@ angular.module('angularGanttDemoApp')
                         {name: 'Sprint 4', tasks: [
                             {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
                         ]},
-                        {name: 'Hosting', content: '<i class="fa fa-server"></i> {{row.model.name}}'},
+                        {name: 'Hosting'},
                         {name: 'Setup', tasks: [
                             {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
                         ]},
