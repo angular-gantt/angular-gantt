@@ -164,11 +164,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
             }
-            if ($scope.pluginScope.content !== undefined) {
-                return $scope.pluginScope.content;
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.rowsManager.gantt.options.value('rowContent');
             }
-            if ($scope.column === 'model.name') {
-                return $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined && $scope.pluginScope.content !== undefined) {
+                content = $scope.pluginScope.content;
             }
             if (content === undefined) {
                 return '{{getValue()}}';
