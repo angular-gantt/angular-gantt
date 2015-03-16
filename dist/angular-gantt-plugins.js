@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -341,6 +341,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
 
                             var taskHasBeenChanged = false;
+                            var taskHasBeenMovedFromAnotherRow = false;
                             var scrollInterval;
 
                             var foregroundElement = taskScope.task.getForegroundElement();
@@ -525,7 +526,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskHasBeenChanged = true;
                                 }
 
-                                if (!oldTaskHasBeenChanged && taskHasBeenChanged) {
+                                if (!oldTaskHasBeenChanged && taskHasBeenChanged && !taskHasBeenMovedFromAnotherRow) {
                                     var backgroundElement = taskScope.task.getBackgroundElement();
                                     if (taskScope.task.moveMode === 'M') {
                                         backgroundElement.addClass('gantt-task-moving');
@@ -640,8 +641,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
                                 }
 
-                                // Init mouse start variables (if tasks was not move from another row)
-                                if (!taskScope.task.isMoving && !taskScope.task.isResizing) {
+                                // Init mouse start variables
+                                if (!taskHasBeenMovedFromAnotherRow) {
                                     moveStartX = x;
                                     mouseStartOffsetX = x - taskScope.task.modelLeft;
                                 }
@@ -697,6 +698,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.$apply();
                                 }
 
+                                taskHasBeenMovedFromAnotherRow = false;
                                 taskScope.task.isMoving = false;
                                 taskScope.task.active = false;
 
@@ -732,11 +734,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             });
 
                             if (taskScope.task.isResizing) {
+                                taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
                                 delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
                                 // In case the task has been moved to another row a new controller is is created by angular.
                                 // Enable the move mode again if this was the case.
+                                taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('M', taskScope.task.mouseOffsetX);
                             }
                         }
@@ -1165,10 +1169,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.header === undefined) {
                     scope.header = 'Name';
-                }
-
-                if (scope.content === undefined) {
-                    scope.content = '{{row.model.name}}';
                 }
 
                 if (scope.headerContent === undefined) {
@@ -1637,6 +1637,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
             }
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            }
+            if (content === undefined && $scope.pluginScope.content !== undefined) {
+                content = $scope.pluginScope.content;
+            }
             if (content === undefined) {
                 return '{{getValue()}}';
             }
@@ -1724,16 +1730,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
+
+                $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
+                $scope.task.getContentElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.getForegroundElement().bind('mouseleave', function() {
+                $scope.task.getContentElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
@@ -2068,7 +2075,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.row.model.content !== undefined) {
                 return $scope.row.model.content;
             }
-            return $scope.pluginScope.content;
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+
+            var content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined) {
+                content = '{{row.model.name}}';
+            }
+            return content;
         };
 
         $scope.$watch('collapsed', function(newValue) {
@@ -2217,7 +2232,7 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">\n' +
         '\n' +
         '        <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + \'px\'}">\n' +
-        '            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
+        '            <div ng-show="ganttHeaderHeight" class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
         '                <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -2313,7 +2328,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
     $templateCache.put('plugins/tree/treeHeader.tmpl.html',
         '<div class="gantt-tree-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '    <div class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
+        '    <div ng-if="$parent.ganttHeaderHeight" class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '</div>\n' +
         '');
 }]);

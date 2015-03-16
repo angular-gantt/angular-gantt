@@ -31,10 +31,6 @@
                     scope.header = 'Name';
                 }
 
-                if (scope.content === undefined) {
-                    scope.content = '{{row.model.name}}';
-                }
-
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
                 }

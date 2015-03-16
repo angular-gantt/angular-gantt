@@ -34205,7 +34205,7 @@ angular.module("ang-drag-drop",[])
 				            });
 			            }
 
-			            e.dataTransfer.setData("dataToSend", sendData);
+			            e.dataTransfer.setData("text", sendData);
 			            currentData = angular.fromJson(sendData);
 			            e.dataTransfer.effectAllowed = "copyMove";
 			            $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
@@ -34248,7 +34248,6 @@ angular.module("ang-drag-drop",[])
                         fn(scope, {$event: e, $channel: dropChannel});
                     });
 
-                    e.dataTransfer.dropEffect = e.shiftKey ? 'copy' : 'move';
                     return false;
                 }
 
@@ -34264,7 +34263,7 @@ angular.module("ang-drag-drop",[])
 
                     if (dragging == 0) {
                         scope.$evalAsync(function () {
-                            customDragEnterEvent(scope, {$event: e});
+                            customDragLeaveEvent(scope, {$event: e, $channel: dropChannel});
                         });
                         element.removeClass(dragHoverClass);
                     }
@@ -34283,6 +34282,13 @@ angular.module("ang-drag-drop",[])
                     if (e.stopPropagation) {
                         e.stopPropagation();
                     }
+
+                    if (dragging === 0) {
+                        scope.$evalAsync(function () {
+                            customDragEnterEvent(scope, {$event: e, $channel: dropChannel});
+                        });
+                        element.addClass(dragHoverClass);
+                    }
                     dragging++;
 
                     var fn = $parse(attr.uiOnDragEnter);
@@ -34291,10 +34297,6 @@ angular.module("ang-drag-drop",[])
                     });
 
                     $rootScope.$broadcast("ANGULAR_HOVER", dragChannel);
-                    scope.$evalAsync(function () {
-                        customDragLeaveEvent(scope, {$event: e});
-                    });
-                    element.addClass(dragHoverClass);
                 }
 
                 function onDrop(e) {
@@ -34305,8 +34307,18 @@ angular.module("ang-drag-drop",[])
                         e.stopPropagation(); // Necessary. Allows us to drop.
                     }
 
-                    var sendData = e.dataTransfer.getData("dataToSend");
+                    var sendData = e.dataTransfer.getData("text");
                     sendData = angular.fromJson(sendData);
+
+                    // Chrome doesn't set dropEffect, so we have to work it out ourselves
+                    if (e.dataTransfer.dropEffect === 'none') {
+                      if (e.dataTransfer.effectAllowed === 'copy' || 
+                          e.dataTransfer.effectAllowed === 'move') {
+                        e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed;
+                      } else if (e.dataTransfer.effectAllowed === 'copyMove') {
+                        e.dataTransfer.dropEffect = e.ctrlKey ? "copy" : "move";
+                      }
+                    }
 
                     var fn = $parse(attr.uiOnDrop);
                     scope.$evalAsync(function () {
@@ -39729,7 +39741,7 @@ angular.module("ang-drag-drop",[])
 
 })();
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -39774,6 +39786,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
                 taskContent: '=?',
+                rowContent: '=?',
                 maxHeight: '=?',
                 sideWidth: '=?',
                 headers: '=?',
@@ -41648,6 +41661,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
                     'taskContent': '{{task.model.name}}',
+                    'rowContent': '{{row.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
@@ -44624,7 +44638,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt').directive('ganttBindCompileHtml', ['$compile', function($compile) {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            require: '^gantt',
+            link: function(scope, element, attrs, ganttCtrl) {
+                scope.scope = ganttCtrl.gantt.$scope.$parent;
                 scope.$watch(function() {
                     return scope.$eval(attrs.ganttBindCompileHtml);
                 }, function(value) {
@@ -44843,6 +44859,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
         '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
+        '            <div ng-if="gantt.columnsManager.visibleColumns == 0" style="background-color: #808080"></div>\n' +
         '            <gantt-body-rows>\n' +
         '                <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
@@ -44864,7 +44881,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width > 0 ? gantt.width +\'px\' : undefined}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
@@ -44941,8 +44958,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div class="gantt-task" ng-class="task.model.classes">\n' +
         '            <gantt-task-background></gantt-task-background>\n' +
-        '            <gantt-task-content></gantt-task-content>\n' +
         '            <gantt-task-foreground></gantt-task-foreground>\n' +
+        '            <gantt-task-content></gantt-task-content>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -44991,7 +45008,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
         '        <div class="gantt-side-background">\n' +
         '            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '                <div class="gantt-header-row gantt-side-header-row"></div>\n' +
+        '                <div ng-show="$parent.ganttHeaderHeight" class="gantt-header-row gantt-side-header-row"></div>\n' +
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
@@ -45015,7 +45032,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -46187,10 +46204,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.header = 'Name';
                 }
 
-                if (scope.content === undefined) {
-                    scope.content = '{{row.model.name}}';
-                }
-
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
                 }
@@ -46657,6 +46670,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
             }
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            }
+            if (content === undefined && $scope.pluginScope.content !== undefined) {
+                content = $scope.pluginScope.content;
+            }
             if (content === undefined) {
                 return '{{getValue()}}';
             }
@@ -46744,16 +46763,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
+
+                $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
+                $scope.task.getContentElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.getForegroundElement().bind('mouseleave', function() {
+                $scope.task.getContentElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
@@ -47088,7 +47108,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.row.model.content !== undefined) {
                 return $scope.row.model.content;
             }
-            return $scope.pluginScope.content;
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+
+            var content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined) {
+                content = '{{row.model.name}}';
+            }
+            return content;
         };
 
         $scope.$watch('collapsed', function(newValue) {
@@ -47237,7 +47265,7 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">\n' +
         '\n' +
         '        <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + \'px\'}">\n' +
-        '            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
+        '            <div ng-show="ganttHeaderHeight" class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
         '                <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -47333,7 +47361,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
     $templateCache.put('plugins/tree/treeHeader.tmpl.html',
         '<div class="gantt-tree-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '    <div class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
+        '    <div ng-if="$parent.ganttHeaderHeight" class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '</div>\n' +
         '');
 }]);

@@ -147,6 +147,14 @@
                                                     </div>
 
                                                     <div class="form-group text-center">
+                                                        <label class="control-label"><i class="fa fa-code"></i> Content</label><br>
+                                                        <div class="btn-group" bs-checkbox-group>
+                                                            <button type="button" class="btn btn-default" ng-model="options.rowContentEnabled" bs-checkbox>Rows</button>
+                                                            <button type="button" class="btn btn-default" ng-model="options.taskContentEnabled" bs-checkbox>Tasks</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group text-center">
                                                         <label class="control-label"><i class="fa fa-calendar"></i> <i class="fa fa-arrows-h"></i> <i class="fa fa-calendar"></i> Date range</label><br>
                                                         <div class="form-group">
                                                             <input type="text" class="form-control" ng-model="options.fromDate" max-date="{{options.toDate}}" start-date="{{options.currentDateValue.toString()}}" start-week="1" placeholder="From" bs-datepicker>
@@ -212,6 +220,8 @@
                                                from-date = "options.fromDate"
                                                to-date = "options.toDate"
                                                allow-side-resizing = "options.allowSideResizing"
+                                               task-content = "options.taskContentEnabled ? options.taskContent : undefined"
+                                               row-content = "options.rowContentEnabled ? options.rowContent : undefined"
                                                current-date="options.currentDate"
                                                current-date-value="options.currentDateValue"
                                                headers="options.width && options.shortHeaders || options.longHeaders"

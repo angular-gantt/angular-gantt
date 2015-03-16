@@ -23,6 +23,12 @@
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
             }
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            }
+            if (content === undefined && $scope.pluginScope.content !== undefined) {
+                content = $scope.pluginScope.content;
+            }
             if (content === undefined) {
                 return '{{getValue()}}';
             }

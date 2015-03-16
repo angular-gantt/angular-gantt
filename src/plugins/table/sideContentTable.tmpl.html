@@ -3,7 +3,7 @@
     <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">
 
         <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + 'px'}">
-            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">
+            <div ng-show="ganttHeaderHeight" class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">
                 <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>
             </div>
         </div>

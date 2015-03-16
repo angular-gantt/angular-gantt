@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -44,6 +44,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
                 taskContent: '=?',
+                rowContent: '=?',
                 maxHeight: '=?',
                 sideWidth: '=?',
                 headers: '=?',
@@ -398,28 +399,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         TimeFrame.prototype.updateView = function() {
             if (this.$element) {
+                var cssStyles = {};
+
                 if (this.left !== undefined) {
-                    this.$element.css('left', this.left + 'px');
+                    cssStyles.left = this.left + 'px';
                 } else {
-                    this.$element.css('left', '');
+                    cssStyles.left = '';
                 }
                 if (this.width !== undefined) {
-                    this.$element.css('width', this.width + 'px');
+                    cssStyles.width = this.width + 'px';
                 } else {
-                    this.$element.css('width', '');
+                    cssStyles.width = '';
                 }
 
                 if (this.color !== undefined) {
-                    this.$element.css('background-color', this.color);
+                    cssStyles['background-color'] = this.color;
                 } else {
-                    this.$element.css('background-color', '');
+                    cssStyles['background-color'] = '';
                 }
+
+                this.$element.css(cssStyles);
 
                 var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
                 if (this.classes) {
                     classes = classes.concat(this.classes);
                 }
-                for (var i= 0, l=classes.length; i<l; i++) {
+                for (var i = 0, l = classes.length; i < l; i++) {
                     this.$element.toggleClass(classes[i], true);
                 }
             }
@@ -891,8 +896,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         Column.prototype.updateView = function() {
             if (this.$element) {
-                this.$element.css('left', this.left + 'px');
-                this.$element.css('width', this.width + 'px');
+                this.$element.css({'left': this.left + 'px', 'width': this.width + 'px'});
 
                 for (var i = 0, l = this.timeFrames.length; i < l; i++) {
                     this.timeFrames[i].updateView();
@@ -1428,6 +1432,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
 
+            this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
         };
@@ -1634,7 +1639,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn.left + lastColumn.width;
+                var currentWidth = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
 
                 if (expandToFit && currentWidth < newWidth ||
                     shrinkToFit && currentWidth > newWidth ||
@@ -1914,6 +1919,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
                     'taskContent': '{{task.model.name}}',
+                    'rowContent': '{{row.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
@@ -1964,17 +1970,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var oldTimeFrames = oldValues[0];
                         var oldDateFrames = oldValues[1];
 
+                        var framesChanged = false;
+
                         if (!angular.equals(timeFrames, oldTimeFrames)) {
                             self.calendar.clearTimeFrames();
                             self.calendar.registerTimeFrames(timeFrames);
+                            framesChanged = true;
                         }
 
                         if (!angular.equals(dateFrames, oldDateFrames)) {
                             self.calendar.clearDateFrames();
                             self.calendar.registerDateFrames(dateFrames);
+                            framesChanged = true;
                         }
 
-                        self.columnsManager.generateColumns();
+                        if (framesChanged) {
+                            self.columnsManager.generateColumns();
+                        }
                     }
                 });
 
@@ -3072,10 +3084,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css('display', '');
-
-                    this.$element.css('left', this.left + 'px');
-                    this.$element.css('width', this.width + 'px');
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
@@ -3264,7 +3273,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Scroll.prototype.getScrollLeft = function() {
-            return this.$element === undefined ? undefined : this.$element[0].scrollLeft;
+            if (this.$element === undefined) {
+                return undefined;
+            } else {
+                if (this.cachedScrollLeft === undefined) {
+                    this.cachedScrollLeft = this.$element[0].scrollLeft;
+                }
+
+                return this.cachedScrollLeft;
+            }
         };
 
         Scroll.prototype.getScrollWidth = function() {
@@ -4025,12 +4042,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 $scope.$watch(function() {
                     return getWidth();
-                }, function(newValue) {
-                    $scope.targetElement.css('width', newValue + 'px');
-                    // Setting width again is required when min-width of max-width is set on targetElement.
-                    // This avoid going to a smaller or bigger value than targetElement capabilities.
-                    if ($scope.targetElement[0].offsetWidth > 0) {
-                        setWidth($scope.targetElement[0].offsetWidth);
+                }, function(newValue, oldValue) {
+                    if (newValue !== oldValue) {
+                        $scope.targetElement.css('width', newValue + 'px');
+                        // Setting width again is required when min-width of max-width is set on targetElement.
+                        // This avoid going to a smaller or bigger value than targetElement capabilities.
+                        // Call of 'offsetWidth' is slow. Behaviour needs to be improved.
+                        if ($scope.targetElement[0].offsetWidth > 0) {
+                            setWidth($scope.targetElement[0].offsetWidth);
+                        }
                     }
                 });
 
@@ -4231,25 +4251,28 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
+                var currentScrollLeft = el.scrollLeft;
                 var direction;
                 var date;
 
-                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
+                $scope.gantt.scroll.cachedScrollLeft = currentScrollLeft;
+                $scope.gantt.columnsManager.updateVisibleColumns();
+                $scope.gantt.rowsManager.updateVisibleTasks();
+
+                if (currentScrollLeft < lastScrollLeft && currentScrollLeft === 0) {
                     direction = 'left';
                     date = $scope.gantt.columnsManager.from;
-                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                } else if (currentScrollLeft > lastScrollLeft && el.offsetWidth + currentScrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
                     date = $scope.gantt.columnsManager.to;
                 }
 
-                lastScrollLeft = el.scrollLeft;
-                $scope.gantt.columnsManager.updateVisibleColumns();
-                $scope.gantt.rowsManager.updateVisibleTasks();
+                lastScrollLeft = currentScrollLeft;
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
                 } else {
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
+                    $scope.gantt.api.scroll.raise.scroll(currentScrollLeft);
                 }
             }, 5));
 
@@ -4873,7 +4896,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt').directive('ganttBindCompileHtml', ['$compile', function($compile) {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            require: '^gantt',
+            link: function(scope, element, attrs, ganttCtrl) {
+                scope.scope = ganttCtrl.gantt.$scope.$parent;
                 scope.$watch(function() {
                     return scope.$eval(attrs.ganttBindCompileHtml);
                 }, function(value) {
@@ -5092,6 +5117,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
         '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
+        '            <div ng-if="gantt.columnsManager.visibleColumns == 0" style="background-color: #808080"></div>\n' +
         '            <gantt-body-rows>\n' +
         '                <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
@@ -5113,7 +5139,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width > 0 ? gantt.width +\'px\' : undefined}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
@@ -5190,8 +5216,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div class="gantt-task" ng-class="task.model.classes">\n' +
         '            <gantt-task-background></gantt-task-background>\n' +
-        '            <gantt-task-content></gantt-task-content>\n' +
         '            <gantt-task-foreground></gantt-task-foreground>\n' +
+        '            <gantt-task-content></gantt-task-content>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -5240,7 +5266,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
         '        <div class="gantt-side-background">\n' +
         '            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '                <div class="gantt-header-row gantt-side-header-row"></div>\n' +
+        '                <div ng-show="$parent.ganttHeaderHeight" class="gantt-header-row gantt-side-header-row"></div>\n' +
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +

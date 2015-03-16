@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -163,6 +163,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
+            }
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            }
+            if (content === undefined && $scope.pluginScope.content !== undefined) {
+                content = $scope.pluginScope.content;
             }
             if (content === undefined) {
                 return '{{getValue()}}';

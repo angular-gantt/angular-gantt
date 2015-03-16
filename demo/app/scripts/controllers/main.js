@@ -43,6 +43,8 @@ angular.module('angularGanttDemoApp')
             taskOutOfRange: 'truncate',
             fromDate: moment(null),
             toDate: undefined,
+            rowContent: '<i class="fa fa-align-justify"></i> {{row.model.name}}',
+            taskContent : '<i class="fa fa-tasks"></i> {{task.model.name}}',
             allowSideResizing: true,
             labelsEnabled: true,
             currentDate: 'line',
@@ -145,27 +147,6 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
 
-                    api.data.on.change($scope, function() {
-                        $scope.live.row = $scope.data[5];
-
-                        if (dataToRemove === undefined) {
-                            dataToRemove = [
-                                {'id': $scope.data[2].id}, // Remove Kickoff row
-                                {
-                                    'id': $scope.data[0].id, 'tasks': [
-                                    {'id': $scope.data[0].tasks[0].id},
-                                    {'id': $scope.data[0].tasks[3].id}
-                                ]
-                                }, // Remove some Milestones
-                                {
-                                    'id': $scope.data[6].id, 'tasks': [
-                                    {'id': $scope.data[6].tasks[0].id}
-                                ]
-                                } // Remove order basket from Sprint 2
-                            ];
-                        }
-                    });
-
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
                     $scope.load();
@@ -215,6 +196,14 @@ angular.module('angularGanttDemoApp')
                     objectModel = new ObjectModel(api);
                 });
             }
+        };
+
+        $scope.handleTaskIconClick = function(taskModel) {
+            alert('Icon from ' + taskModel.name + ' task has been clicked.');
+        };
+
+        $scope.handleRowIconClick = function(rowModel) {
+            alert('Icon from ' + rowModel.name + ' row has been clicked.');
         };
 
         $scope.expandAll = function() {

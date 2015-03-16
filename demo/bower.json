@@ -1,6 +1,6 @@
 {
   "name": "angular-gantt-demo",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "homepage": "https://github.com/angular-gantt-demo/angular-gantt",
   "authors": [
     "Marco Schweighauser",
@@ -14,7 +14,7 @@
     "es5-shim": "~3.1.0",
     "angular-strap": "~2.1.0",
     "font-awesome": "~4.3.0",
-    "angular-native-dragdrop": "https://github.com/ganarajpr/angular-dragdrop.git#master",
+    "angular-native-dragdrop": ">=1.0.7",
     "angular-ui-tree": "<2.2.0",
     "angular-gantt": "~1.1.0"
   },

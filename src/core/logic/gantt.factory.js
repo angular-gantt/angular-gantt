@@ -24,6 +24,7 @@
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
                     'taskContent': '{{task.model.name}}',
+                    'rowContent': '{{row.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
