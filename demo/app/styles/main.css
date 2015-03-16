@@ -60,3 +60,7 @@ textarea.live-row {
     font-size: 0.9em;
     color: #333;
 }
+
+.gantt-column-from {
+    width: 500px;
+}

@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -144,6 +144,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         updateTooltip(e.clientX);
                     }
                 }, 5, false));
+
 
                 $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
