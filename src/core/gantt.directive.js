@@ -37,6 +37,7 @@
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
                 taskContent: '=?',
+                rowContent: '=?',
                 maxHeight: '=?',
                 sideWidth: '=?',
                 headers: '=?',

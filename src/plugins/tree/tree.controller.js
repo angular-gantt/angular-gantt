@@ -191,7 +191,15 @@
             if ($scope.row.model.content !== undefined) {
                 return $scope.row.model.content;
             }
-            return $scope.pluginScope.content;
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+
+            var content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined) {
+                content = '{{row.model.name}}';
+            }
+            return content;
         };
 
         $scope.$watch('collapsed', function(newValue) {

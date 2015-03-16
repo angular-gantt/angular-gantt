@@ -70,6 +70,8 @@ angular.module('angularGanttDemoApp')
             taskOutOfRange: 'truncate',
             fromDate: moment(null),
             toDate: undefined,
+            rowContent: '<i class="fa fa-align-justify"></i> {{row.model.name}}',
+            taskContent : '<i class="fa fa-tasks"></i> {{task.model.name}}',
             allowSideResizing: true,
             labelsEnabled: true,
             currentDate: 'line',

@@ -48,7 +48,7 @@ describe('Plugins', function() {
                 progress: {percent: 100, color: '#3C8CF8'}}
         ]},
         {name: 'Create concept', tasks: [
-            {name: 'Create concept', content: '<i class="fa fa-cog"></i>{{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
+            {name: 'Create concept', content: '<i class="fa fa-cog"></i> {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
                 progress: 100}
         ]},
         {name: 'Finalize concept', tasks: [
@@ -156,13 +156,13 @@ describe('Plugins', function() {
             rowLabelElement = angular.element(rowLabelElement);
 
             var rowModel = data[i];
-            var rowText = rowLabelElement.text();
+            var rowText = rowLabelElement.text().trim();
             if (contentNotSupported || rowModel.content === undefined) {
                 expect(rowText).toEqual(rowModel.name);
             } else {
                 var rowHtmlModel = rowModel.content;
                 rowHtmlModel = rowHtmlModel.replace('{{row.model.name}}', rowModel.name);
-                var expectedRowText = rowHtmlModel.replace(/<(?:.|\n)*?>/gm, ''); // Strip HTML
+                var expectedRowText = rowHtmlModel.replace(/<(?:.|\n)*?>/gm, '').trim(); // Strip HTML
                 expect(rowText).toEqual(expectedRowText);
             }
 

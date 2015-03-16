@@ -327,6 +327,17 @@
   
     Prepend a `-` in front to sort descending. E.g. `-from`
 
+- ### row-content
+
+    Content used to display each row. It can contain HTML and will be automatically compiled and linked against Row
+    object scope. Main user scope is available with `scope`.
+    
+    It can be modified for a specific row using [Row model](data.md) `content` property
+
+    default: `{{row.model.name}}`
+    
+    example: ``<i class="fa fa-align-justify" ng-click="scope.handleRowIconClick(row.model)"></i> {{row.model.name}}``
+
 - ### task-out-of-range
 
     Behavior when tasks are defined out of the Gantt rendering range (see `from-date` and `to-date`).

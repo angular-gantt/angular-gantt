@@ -1171,10 +1171,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.header = 'Name';
                 }
 
-                if (scope.content === undefined) {
-                    scope.content = '{{row.model.name}}';
-                }
-
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
                 }
@@ -1641,6 +1637,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
             }
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+            if ($scope.column === 'model.name') {
+                return $scope.row.rowsManager.gantt.options.value('rowContent');
+            }
             if (content === undefined) {
                 return '{{getValue()}}';
             }
@@ -2072,7 +2074,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.row.model.content !== undefined) {
                 return $scope.row.model.content;
             }
-            return $scope.pluginScope.content;
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+
+            var content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined) {
+                content = '{{row.model.name}}';
+            }
+            return content;
         };
 
         $scope.$watch('collapsed', function(newValue) {
