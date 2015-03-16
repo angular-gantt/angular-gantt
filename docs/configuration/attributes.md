@@ -338,11 +338,14 @@
 
 - ### task-content
 
-    Content used to display each task. It can contain HTML and will be automatically compiled.
+    Content used to display each task. It can contain HTML and will be automatically compiled and linked against Task
+    object scope. Main user scope is available with `scope`.
     
     It can be modified for a specific task using [Task model](data.md) `content` property
 
     default: `{{task.model.name}}`
+    
+    example: ``<i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"></i> {{task.model.name}}``
 
 - ### template
 

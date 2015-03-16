@@ -44636,7 +44636,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt').directive('ganttBindCompileHtml', ['$compile', function($compile) {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            require: '^gantt',
+            link: function(scope, element, attrs, ganttCtrl) {
+                scope.scope = ganttCtrl.gantt.$scope.$parent;
                 scope.$watch(function() {
                     return scope.$eval(attrs.ganttBindCompileHtml);
                 }, function(value) {
@@ -44954,8 +44956,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div class="gantt-task" ng-class="task.model.classes">\n' +
         '            <gantt-task-background></gantt-task-background>\n' +
-        '            <gantt-task-content></gantt-task-content>\n' +
         '            <gantt-task-foreground></gantt-task-foreground>\n' +
+        '            <gantt-task-content></gantt-task-content>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +

@@ -196,6 +196,14 @@ angular.module('angularGanttDemoApp')
             }
         };
 
+        $scope.handleTaskIconClick = function(taskModel) {
+            alert('Icon from ' + taskModel.name + ' task has been clicked.');
+        };
+
+        $scope.handleRowIconClick = function(rowModel) {
+            alert('Icon from ' + rowModel.name + ' row has been clicked.');
+        };
+
         $scope.expandAll = function() {
           $scope.api.tree.expandAll();
         };
