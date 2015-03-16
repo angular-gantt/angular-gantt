@@ -145,16 +145,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
+                $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
+                $scope.task.getContentElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.getForegroundElement().bind('mouseleave', function() {
+                $scope.task.getContentElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
