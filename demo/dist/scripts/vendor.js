@@ -46200,7 +46200,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 header: '=?',
                 content: '=?',
                 headerContent: '=?',
-                keepParentOnFilterRow: '=?'
+                keepAncestorOnFilterRow: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -46224,8 +46224,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.headerContent = '{{getHeader()}}';
                 }
 
-                if (scope.keepParentOnFilterRow === undefined) {
-                    scope.keepParentOnFilterRow = false;
+                if (scope.keepAncestorOnFilterRow === undefined) {
+                    scope.keepAncestorOnFilterRow = false;
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -46946,7 +46946,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         var hierarchy = new Hierarchy();
 
-        $scope.pluginScope.$watch('keepParentOnFilterRow', function(value) {
+        $scope.pluginScope.$watch('keepAncestorOnFilterRow', function(value) {
             if (value) {
                 var filterImpl = function(sortedRows, filterRow, filterRowComparator) {
                     hierarchy.refresh(sortedRows);
@@ -46961,7 +46961,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
 
-                    var filterRowKeepParent = function(row) {
+                    var filterRowKeepAncestor = function(row) {
                         if (filteredLeaves.indexOf(row) > -1) {
                             return true;
                         }
@@ -46977,7 +46977,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         return false;
                     };
 
-                    return $filter('filter')(sortedRows, filterRowKeepParent, filterRowComparator);
+                    return $filter('filter')(sortedRows, filterRowKeepAncestor, filterRowComparator);
                 };
                 $scope.gantt.rowsManager.setFilterImpl(filterImpl);
             } else {
