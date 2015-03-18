@@ -39741,7 +39741,7 @@ angular.module("ang-drag-drop",[])
 
 })();
 /*
-Project: angular-gantt v1.2.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -45032,7 +45032,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -46763,16 +46763,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
+
+                $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
+                $scope.task.getContentElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.getForegroundElement().bind('mouseleave', function() {
+                $scope.task.getContentElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
