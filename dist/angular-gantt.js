@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -1535,7 +1535,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var columnsWidthChanged = this.updateColumnsWidths([this.previousColumns, this.columns, this.nextColumns, this.headers]);
+            var columnsWidthChanged = this.updateColumnsWidths(this.columns,  this.headers, this.previousColumns, this.nextColumns);
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
@@ -1618,19 +1618,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return columns[0] === undefined ? columns[1]: columns[0];
         };
 
-        var updateColumnsWidthImpl = function(newWidth, originalWidth, columnsArray) {
-            if (angular.isArray(columnsArray)) {
-                if (columnsArray.length > 0 && angular.isArray(columnsArray[0])) {
-                    angular.forEach(columnsArray, function(columns) {
-                        updateColumnsWidthImpl(newWidth, originalWidth, columns);
-                    });
-                    return;
-                }
-            }
-            layout.setColumnsWidth(newWidth, originalWidth, columnsArray);
-        };
-
-        ColumnsManager.prototype.updateColumnsWidths = function(columns) {
+        ColumnsManager.prototype.updateColumnsWidths = function(columns,  headers, previousColumns, nextColumns) {
             var columnWidth = this.gantt.options.value('columnWidth');
             var expandToFit = this.gantt.options.value('expandToFit');
             var shrinkToFit = this.gantt.options.value('shrinkToFit');
@@ -1639,13 +1627,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
+                var currentWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width: 0;
+
+                var widthFactor = newWidth / currentWidth;
 
                 if (expandToFit && currentWidth < newWidth ||
                     shrinkToFit && currentWidth > newWidth ||
                     columnWidth === undefined
                 ) {
-                    updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+                    layout.setColumnsWidthFactor(columns, widthFactor);
+                    angular.forEach(headers, function(header) {
+                        layout.setColumnsWidthFactor(header, widthFactor);
+                    });
+                    // previous and next columns will be generated again on need.
+                    previousColumns.splice(0, this.previousColumns.length);
+                    nextColumns.splice(0, this.nextColumns.length);
                     return true;
                 }
 
@@ -2585,6 +2581,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
+            this._defaultFilterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+            };
+            this.filterImpl = this._defaultFilterImpl;
+
             this.customRowSorters = [];
             this.customRowFilters = [];
 
@@ -2629,6 +2630,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
             this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+
+            this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
@@ -2875,7 +2878,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
-                this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
+                this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
             } else {
                 this.filteredRows = this.sortedRows.slice(0);
             }
@@ -2906,6 +2909,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filteredRows = filterFunction(filteredRows);
             });
             return filteredRows;
+        };
+
+        RowsManager.prototype.setFilterImpl = function(filterImpl) {
+            if (!filterImpl) {
+                this.filterImpl = this._defaultFilterImpl;
+            } else {
+                this.filterImpl = filterImpl;
+            }
         };
 
         RowsManager.prototype.updateVisibleTasks = function() {
@@ -3086,7 +3097,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 } else {
                     this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
-                    if (this.model.priority > 0) {
+                    if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
 
@@ -4982,21 +4993,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 return (h1 - h2);
             },
-            setColumnsWidth: function(width, originalWidth, columns) {
-                if (width && originalWidth && columns) {
 
-                    var widthFactor = Math.abs(width / originalWidth);
-
-                    angular.forEach(columns, function(column) {
-                        column.left = widthFactor * column.originalSize.left;
-                        column.width = widthFactor * column.originalSize.width;
-
-                        angular.forEach(column.timeFrames, function(timeFrame) {
-                            timeFrame.left = widthFactor * timeFrame.originalSize.left;
-                            timeFrame.width = widthFactor * timeFrame.originalSize.width;
-                        });
-                    });
+            setColumnsWidthFactor: function(columns, widthFactor, originalLeftOffset) {
+                if (!columns) {
+                    return;
                 }
+
+                if (!originalLeftOffset) {
+                    originalLeftOffset = 0;
+                }
+
+                angular.forEach(columns, function(column) {
+                    column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
+                    column.width = widthFactor * column.originalSize.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                    });
+                });
             }
         };
     }]);

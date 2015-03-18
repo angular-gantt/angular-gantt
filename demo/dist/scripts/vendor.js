@@ -39741,7 +39741,7 @@ angular.module("ang-drag-drop",[])
 
 })();
 /*
-Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -45047,7 +45047,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
