@@ -2585,6 +2585,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
+            this._defaultFilterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+            };
+            this.filterImpl = this._defaultFilterImpl;
+
             this.customRowSorters = [];
             this.customRowFilters = [];
 
@@ -2629,6 +2634,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
             this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+
+            this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
@@ -2875,7 +2882,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
-                this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
+                this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
             } else {
                 this.filteredRows = this.sortedRows.slice(0);
             }
@@ -2906,6 +2913,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filteredRows = filterFunction(filteredRows);
             });
             return filteredRows;
+        };
+
+        RowsManager.prototype.setFilterImpl = function(filterImpl) {
+            if (!filterImpl) {
+                this.filterImpl = this._defaultFilterImpl;
+            } else {
+                this.filterImpl = filterImpl;
+            }
         };
 
         RowsManager.prototype.updateVisibleTasks = function() {

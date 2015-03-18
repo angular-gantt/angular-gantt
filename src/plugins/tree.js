@@ -11,7 +11,8 @@
                 enabled: '=?',
                 header: '=?',
                 content: '=?',
-                headerContent: '=?'
+                headerContent: '=?',
+                keepAncestorOnFilterRow: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -33,6 +34,10 @@
 
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
+                }
+
+                if (scope.keepAncestorOnFilterRow === undefined) {
+                    scope.keepAncestorOnFilterRow = false;
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {

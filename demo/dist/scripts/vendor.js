@@ -42327,6 +42327,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
+            this._defaultFilterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+            };
+            this.filterImpl = this._defaultFilterImpl;
+
             this.customRowSorters = [];
             this.customRowFilters = [];
 
@@ -42371,6 +42376,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
             this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+
+            this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
@@ -42617,7 +42624,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
-                this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
+                this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
             } else {
                 this.filteredRows = this.sortedRows.slice(0);
             }
@@ -42648,6 +42655,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filteredRows = filterFunction(filteredRows);
             });
             return filteredRows;
+        };
+
+        RowsManager.prototype.setFilterImpl = function(filterImpl) {
+            if (!filterImpl) {
+                this.filterImpl = this._defaultFilterImpl;
+            } else {
+                this.filterImpl = filterImpl;
+            }
         };
 
         RowsManager.prototype.updateVisibleTasks = function() {
@@ -46184,7 +46199,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 header: '=?',
                 content: '=?',
-                headerContent: '=?'
+                headerContent: '=?',
+                keepParentOnFilterRow: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -46206,6 +46222,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
+                }
+
+                if (scope.keepParentOnFilterRow === undefined) {
+                    scope.keepParentOnFilterRow = false;
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -46917,7 +46937,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
+    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
 
         $scope.getHeader = function() {
@@ -46925,6 +46945,45 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         var hierarchy = new Hierarchy();
+
+        $scope.pluginScope.$watch('keepParentOnFilterRow', function(value) {
+            if (value) {
+                var filterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                    hierarchy.refresh(sortedRows);
+
+                    var leaves = [];
+                    angular.forEach(sortedRows, function(row) {
+                       var children = hierarchy.children(row);
+                       if (!children || children.length === 0) {
+                           leaves.push(row);
+                       }
+                    });
+
+                    var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
+
+                    var filterRowKeepParent = function(row) {
+                        if (filteredLeaves.indexOf(row) > -1) {
+                            return true;
+                        }
+
+                        var descendants = hierarchy.descendants(row);
+
+                        for (var i=0; i < descendants.length; i++) {
+                            if (filteredLeaves.indexOf(descendants[i]) > -1) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    };
+
+                    return $filter('filter')(sortedRows, filterRowKeepParent, filterRowComparator);
+                };
+                $scope.gantt.rowsManager.setFilterImpl(filterImpl);
+            } else {
+                $scope.gantt.rowsManager.setFilterImpl(false);
+            }
+        });
 
         var isVisible = function(row) {
             var parentRow = $scope.parent(row);
@@ -47048,6 +47107,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
+        var getHierarchy = function() {
+            return hierarchy;
+        };
+
         $scope.getHeaderContent = function() {
             return $scope.pluginScope.headerContent;
         };
@@ -47058,6 +47121,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
+
+        $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
 
         $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
             refresh();

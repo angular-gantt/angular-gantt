@@ -233,7 +233,8 @@
                                                api="options.api"
                                                column-magnet="options.columnMagnet">
                                             <gantt-tree enabled="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'"
-                                                        header-content="options.treeHeaderContent">
+                                                        header-content="options.treeHeaderContent"
+                                                        keep-parent-on-filter-row="true">
                                             </gantt-tree>
                                             <gantt-table enabled="options.sideMode === 'Table' || options.sideMode === 'TreeTable'"
                                                          columns="options.sideMode === 'TreeTable' ? options.treeTableColumns : options.columns"

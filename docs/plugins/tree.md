@@ -68,6 +68,13 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
 
     default: `{{getHeader()}}`
 
+- #### keep-ancestor-on-filter-row
+
+    If true, ancestor will be keeped in the gantt when any of its descendant remains after the 
+    [filter-row](../configuration/attributes.md#) filter process.
+
+    default: `false`
+
 ## API
 
 ### Methods
@@ -79,6 +86,15 @@ Take care to define a non-recursive hierarchy model, and check that a row is att
 - **api.tree.isCollapsed(rowId)**
 
     Check if a row is collapsed.
+
+- **api.tree.getHierarchy()**
+
+    Get a Hierarchy object. Hierarchy object contains functions to retrieve hierarchical structure from loaded model. 
+
+    `children(row)`, `descendants(row)` and `ancestors(row)` returns a list of [Row model](../configuration/data.md) 
+    object.
+    
+    `parent(row)` returns a [Row model](../configuration/data.md) object.
 
 - **api.tree.collapse(rowId)**
 
