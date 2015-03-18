@@ -260,24 +260,25 @@
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width: 0;
+                if (lastColumn !== undefined) {
+                    var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
 
-                var widthFactor = newWidth / currentWidth;
+                    if (expandToFit && currentWidth < newWidth ||
+                        shrinkToFit && currentWidth > newWidth ||
+                        columnWidth === undefined
+                    ) {
+                        var widthFactor = newWidth / currentWidth;
 
-                if (expandToFit && currentWidth < newWidth ||
-                    shrinkToFit && currentWidth > newWidth ||
-                    columnWidth === undefined
-                ) {
-                    layout.setColumnsWidthFactor(columns, widthFactor);
-                    angular.forEach(headers, function(header) {
-                        layout.setColumnsWidthFactor(header, widthFactor);
-                    });
-                    // previous and next columns will be generated again on need.
-                    previousColumns.splice(0, this.previousColumns.length);
-                    nextColumns.splice(0, this.nextColumns.length);
-                    return true;
+                        layout.setColumnsWidthFactor(columns, widthFactor);
+                        angular.forEach(headers, function(header) {
+                            layout.setColumnsWidthFactor(header, widthFactor);
+                        });
+                        // previous and next columns will be generated again on need.
+                        previousColumns.splice(0, this.previousColumns.length);
+                        nextColumns.splice(0, this.nextColumns.length);
+                        return true;
+                    }
                 }
-
             }
             return false;
         };
