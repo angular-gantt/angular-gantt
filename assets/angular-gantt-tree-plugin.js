@@ -313,7 +313,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         });
 
         $scope.$watch('children(row)', function(newValue) {
-            $scope.$parent.childrenRows = newValue;
+            if (newValue) {
+                // Children rows may have been filtered out
+                // So we need to filter the raw hierarchy before displaying children in tree.
+                var visibleRows = $scope.row.rowsManager.visibleRows;
+
+                var filteredChildrenRows = [];
+                for (var i=0; i < newValue.length; i++) {
+                    var childRow = newValue[i];
+                    if (visibleRows.indexOf(childRow) > -1) {
+                        filteredChildrenRows.push(childRow);
+                    }
+                }
+
+                $scope.$parent.childrenRows = filteredChildrenRows;
+            } else {
+                $scope.$parent.childrenRows = newValue;
+            }
         });
 
         $scope.isCollapseDisabled = function(){
