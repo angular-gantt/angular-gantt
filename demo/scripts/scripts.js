@@ -234,7 +234,7 @@ angular.module('angularGanttDemoApp')
         };
 
         $scope.expandAll = function() {
-          $scope.api.tree.expandAll();
+            $scope.api.tree.expandAll();
         };
 
         $scope.collapseAll = function() {

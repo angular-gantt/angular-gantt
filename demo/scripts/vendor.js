@@ -39741,7 +39741,7 @@ angular.module("ang-drag-drop",[])
 
 })();
 /*
-Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -41277,7 +41277,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var columnsWidthChanged = this.updateColumnsWidths([this.previousColumns, this.columns, this.nextColumns, this.headers]);
+            var columnsWidthChanged = this.updateColumnsWidths(this.columns,  this.headers, this.previousColumns, this.nextColumns);
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
@@ -41360,19 +41360,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return columns[0] === undefined ? columns[1]: columns[0];
         };
 
-        var updateColumnsWidthImpl = function(newWidth, originalWidth, columnsArray) {
-            if (angular.isArray(columnsArray)) {
-                if (columnsArray.length > 0 && angular.isArray(columnsArray[0])) {
-                    angular.forEach(columnsArray, function(columns) {
-                        updateColumnsWidthImpl(newWidth, originalWidth, columns);
-                    });
-                    return;
-                }
-            }
-            layout.setColumnsWidth(newWidth, originalWidth, columnsArray);
-        };
-
-        ColumnsManager.prototype.updateColumnsWidths = function(columns) {
+        ColumnsManager.prototype.updateColumnsWidths = function(columns,  headers, previousColumns, nextColumns) {
             var columnWidth = this.gantt.options.value('columnWidth');
             var expandToFit = this.gantt.options.value('expandToFit');
             var shrinkToFit = this.gantt.options.value('shrinkToFit');
@@ -41381,13 +41369,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn !== undefined ? lastColumn.left + lastColumn.width: 0;
+                var currentWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width: 0;
+
+                var widthFactor = newWidth / currentWidth;
 
                 if (expandToFit && currentWidth < newWidth ||
                     shrinkToFit && currentWidth > newWidth ||
                     columnWidth === undefined
                 ) {
-                    updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+                    layout.setColumnsWidthFactor(columns, widthFactor);
+                    angular.forEach(headers, function(header) {
+                        layout.setColumnsWidthFactor(header, widthFactor);
+                    });
+                    // previous and next columns will be generated again on need.
+                    previousColumns.splice(0, this.previousColumns.length);
+                    nextColumns.splice(0, this.nextColumns.length);
                     return true;
                 }
 
@@ -42327,6 +42323,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
+            this._defaultFilterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+            };
+            this.filterImpl = this._defaultFilterImpl;
+
             this.customRowSorters = [];
             this.customRowFilters = [];
 
@@ -42371,6 +42372,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
             this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+
+            this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
@@ -42617,7 +42620,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
-                this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
+                this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
             } else {
                 this.filteredRows = this.sortedRows.slice(0);
             }
@@ -42648,6 +42651,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filteredRows = filterFunction(filteredRows);
             });
             return filteredRows;
+        };
+
+        RowsManager.prototype.setFilterImpl = function(filterImpl) {
+            if (!filterImpl) {
+                this.filterImpl = this._defaultFilterImpl;
+            } else {
+                this.filterImpl = filterImpl;
+            }
         };
 
         RowsManager.prototype.updateVisibleTasks = function() {
@@ -42828,7 +42839,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 } else {
                     this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
-                    if (this.model.priority > 0) {
+                    if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
 
@@ -44724,21 +44735,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 return (h1 - h2);
             },
-            setColumnsWidth: function(width, originalWidth, columns) {
-                if (width && originalWidth && columns) {
 
-                    var widthFactor = Math.abs(width / originalWidth);
-
-                    angular.forEach(columns, function(column) {
-                        column.left = widthFactor * column.originalSize.left;
-                        column.width = widthFactor * column.originalSize.width;
-
-                        angular.forEach(column.timeFrames, function(timeFrame) {
-                            timeFrame.left = widthFactor * timeFrame.originalSize.left;
-                            timeFrame.width = widthFactor * timeFrame.originalSize.width;
-                        });
-                    });
+            setColumnsWidthFactor: function(columns, widthFactor, originalLeftOffset) {
+                if (!columns) {
+                    return;
                 }
+
+                if (!originalLeftOffset) {
+                    originalLeftOffset = 0;
+                }
+
+                angular.forEach(columns, function(column) {
+                    column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
+                    column.width = widthFactor * column.originalSize.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                    });
+                });
             }
         };
     }]);
@@ -45032,7 +45047,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -46184,7 +46199,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 header: '=?',
                 content: '=?',
-                headerContent: '=?'
+                headerContent: '=?',
+                keepAncestorOnFilterRow: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -46206,6 +46222,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
+                }
+
+                if (scope.keepAncestorOnFilterRow === undefined) {
+                    scope.keepAncestorOnFilterRow = false;
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -46917,7 +46937,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
+    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
 
         $scope.getHeader = function() {
@@ -46925,6 +46945,47 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         var hierarchy = new Hierarchy();
+
+        $scope.pluginScope.$watchGroup(['keepAncestorOnFilterRow', 'enabled'], function(value) {
+            var keepAncestor = value[0] && value[1];
+
+            if (keepAncestor) {
+                var filterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                    hierarchy.refresh(sortedRows);
+
+                    var leaves = [];
+                    angular.forEach(sortedRows, function(row) {
+                       var children = hierarchy.children(row);
+                       if (!children || children.length === 0) {
+                           leaves.push(row);
+                       }
+                    });
+
+                    var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
+
+                    var filterRowKeepAncestor = function(row) {
+                        if (filteredLeaves.indexOf(row) > -1) {
+                            return true;
+                        }
+
+                        var descendants = hierarchy.descendants(row);
+
+                        for (var i=0; i < descendants.length; i++) {
+                            if (filteredLeaves.indexOf(descendants[i]) > -1) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    };
+
+                    return $filter('filter')(sortedRows, filterRowKeepAncestor, filterRowComparator);
+                };
+                $scope.gantt.rowsManager.setFilterImpl(filterImpl);
+            } else {
+                $scope.gantt.rowsManager.setFilterImpl(false);
+            }
+        });
 
         var isVisible = function(row) {
             var parentRow = $scope.parent(row);
@@ -47048,6 +47109,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
+        var getHierarchy = function() {
+            return hierarchy;
+        };
+
         $scope.getHeaderContent = function() {
             return $scope.pluginScope.headerContent;
         };
@@ -47058,6 +47123,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
+
+        $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
 
         $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
             refresh();
@@ -47093,7 +47160,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         });
 
         $scope.$watch('children(row)', function(newValue) {
-            $scope.$parent.childrenRows = newValue;
+            if (newValue) {
+                // Children rows may have been filtered out
+                // So we need to filter the raw hierarchy before displaying children in tree.
+                var visibleRows = $scope.row.rowsManager.visibleRows;
+
+                var filteredChildrenRows = [];
+                for (var i=0; i < newValue.length; i++) {
+                    var childRow = newValue[i];
+                    if (visibleRows.indexOf(childRow) > -1) {
+                        filteredChildrenRows.push(childRow);
+                    }
+                }
+
+                $scope.$parent.childrenRows = filteredChildrenRows;
+            } else {
+                $scope.$parent.childrenRows = newValue;
+            }
         });
 
         $scope.isCollapseDisabled = function(){
