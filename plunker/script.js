@@ -1,16 +1,21 @@
 var app = angular.module('plnkrGanttMaster',
     ['gantt',
-        'gantt.sortable',
-        'gantt.movable',
-        'gantt.drawtask',
-        'gantt.tooltips',
-        'gantt.bounds',
-        'gantt.progress'
+    'gantt.sortable',
+    'gantt.movable',
+    'gantt.drawtask',
+    'gantt.tooltips',
+    'gantt.bounds',
+    'gantt.progress',
+    'gantt.table',
+    'gantt.tree',
+    'gantt.groups',
+    'gantt.resizeSensor'
     ]);
 
 app.controller('Ctrl', ['$scope', function ($scope) {
     $scope.data = [
-        {name: 'Milestones', height: '3em', sortable: {enabled: false}, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
+        // Order is optional. If not specified it will be assigned automatically
+        {name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
             // Dates can be specified as string, timestamp or javascript date object. The data attribute can be used to attach a custom object
             {name: 'Kickoff', color: '#93C47D', from: '2013-10-07T09:00:00', to: '2013-10-07T10:00:00', data: 'Can contain any custom data or object'},
             {name: 'Concept approval', color: '#93C47D', from: new Date(2013, 9, 18, 18, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0), est: new Date(2013, 9, 16, 7, 0, 0), lct: new Date(2013, 9, 19, 0, 0, 0)},
@@ -27,7 +32,7 @@ app.controller('Ctrl', ['$scope', function ($scope) {
         ]},
         {name: 'Kickoff', movable: {allowResizing: false}, tasks: [
             {name: 'Day 1', color: '#9FC5F8', from: new Date(2013, 9, 7, 9, 0, 0), to: new Date(2013, 9, 7, 17, 0, 0),
-                progress: {percent: 100, color: '#3C8CF8'}, movable: {enabled: false}},
+                progress: {percent: 100, color: '#3C8CF8'}, movable: false},
             {name: 'Day 2', color: '#9FC5F8', from: new Date(2013, 9, 8, 9, 0, 0), to: new Date(2013, 9, 8, 17, 0, 0),
                 progress: {percent: 100, color: '#3C8CF8'}},
             {name: 'Day 3', color: '#9FC5F8', from: new Date(2013, 9, 9, 8, 30, 0), to: new Date(2013, 9, 9, 12, 0, 0),
@@ -41,7 +46,8 @@ app.controller('Ctrl', ['$scope', function ($scope) {
             {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                 progress: 100}
         ]},
-        {name: 'Sprint 1', tooltips: {enabled: false}, tasks: [
+        {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4']},
+        {name: 'Sprint 1', tooltips: false, tasks: [
             {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
                 progress: 25}
         ]},
@@ -54,13 +60,15 @@ app.controller('Ctrl', ['$scope', function ($scope) {
         {name: 'Sprint 4', tasks: [
             {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
         ]},
-        {name: 'Setup server', tasks: [
+        {name: 'Hosting'},
+        {name: 'Setup', tasks: [
             {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
         ]},
-        {name: 'Config server', tasks: [
+        {name: 'Config', tasks: [
             {name: 'SW / DNS/ Backups', color: '#F1C232', from: new Date(2013, 10, 18, 12, 0, 0), to: new Date(2013, 10, 21, 18, 0, 0)}
         ]},
-        {name: 'Deployment', tasks: [
+        {name: 'Server', parent: 'Hosting', children: ['Setup', 'Config']},
+        {name: 'Deployment', parent: 'Hosting', tasks: [
             {name: 'Depl. & Final testing', color: '#F1C232', from: new Date(2013, 10, 21, 8, 0, 0), to: new Date(2013, 10, 22, 12, 0, 0), 'classes': 'gantt-task-deployment'}
         ]},
         {name: 'Workshop', tasks: [
