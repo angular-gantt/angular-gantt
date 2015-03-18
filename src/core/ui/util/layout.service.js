@@ -70,21 +70,25 @@
 
                 return (h1 - h2);
             },
-            setColumnsWidth: function(width, originalWidth, columns) {
-                if (width && originalWidth && columns) {
 
-                    var widthFactor = Math.abs(width / originalWidth);
-
-                    angular.forEach(columns, function(column) {
-                        column.left = widthFactor * column.originalSize.left;
-                        column.width = widthFactor * column.originalSize.width;
-
-                        angular.forEach(column.timeFrames, function(timeFrame) {
-                            timeFrame.left = widthFactor * timeFrame.originalSize.left;
-                            timeFrame.width = widthFactor * timeFrame.originalSize.width;
-                        });
-                    });
+            setColumnsWidthFactor: function(columns, widthFactor, originalLeftOffset) {
+                if (!columns) {
+                    return;
                 }
+
+                if (!originalLeftOffset) {
+                    originalLeftOffset = 0;
+                }
+
+                angular.forEach(columns, function(column) {
+                    column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
+                    column.width = widthFactor * column.originalSize.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                    });
+                });
             }
         };
     }]);
