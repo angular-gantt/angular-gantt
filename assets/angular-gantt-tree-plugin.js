@@ -99,8 +99,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         var hierarchy = new Hierarchy();
 
-        $scope.pluginScope.$watch('keepAncestorOnFilterRow', function(value) {
-            if (value) {
+        $scope.pluginScope.$watchGroup(['keepAncestorOnFilterRow', 'enabled'], function(value) {
+            var keepAncestor = value[0] && value[1];
+
+            if (keepAncestor) {
                 var filterImpl = function(sortedRows, filterRow, filterRowComparator) {
                     hierarchy.refresh(sortedRows);
 
