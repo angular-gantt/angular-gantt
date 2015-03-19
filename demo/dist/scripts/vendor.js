@@ -39831,9 +39831,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 // This file is adapted from Angular UI ngGrid project
 // MIT License
-// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.12/src/js/core/factories/GridApi.js
+// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.20/src/js/core/factories/GridApi.js
 (function() {
     'use strict';
+
     angular.module('gantt')
         .factory('GanttApi', ['$q', '$rootScope', 'ganttUtils',
             function($q, $rootScope, utils) {
@@ -39841,7 +39842,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @ngdoc function
                  * @name gantt.class:GanttApi
                  * @description GanttApi provides the ability to register public methods events inside the gantt and allow
-                 * for other components to use the api via featureName.methodName and featureName.on.eventName(function(args){}
+                 * for other components to use the api via featureName.raise.methodName and featureName.on.eventName(function(args){}.
                  * @param {object} gantt gantt that owns api
                  */
                 var GanttApi = function GanttApi(gantt) {
@@ -39898,7 +39899,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     //reregister all the listeners
                     foundListeners.forEach(function(l) {
-                        l.dereg = registerEventWithAngular(l.scope, l.eventId, l.handler, self.gantt);
+                        l.dereg = registerEventWithAngular(l.eventId, l.handler, self.gantt, l._this);
                     });
 
                 };
@@ -39907,7 +39908,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @ngdoc function
                  * @name registerEvent
                  * @methodOf gantt.class:GanttApi
-                 * @description Registers a new event for the given feature
+                 * @description Registers a new event for the given feature.  The event will get a
+                 * .raise and .on prepended to it
+                 * <br>
+                 * .raise.eventName() - takes no arguments
+                 * <br/>
+                 * <br/>
+                 * .on.eventName(scope, callBackFn, _this)
+                 * <br/>
+                 * scope - a scope reference to add a deregister call to the scopes .$on('destroy')
+                 * <br/>
+                 * callBackFn - The function to call
+                 * <br/>
+                 * _this - optional this context variable for callbackFn. If omitted, gantt.api will be used for the context
+                 * <br/>
+                 * .on.eventName returns a dereg funtion that will remove the listener.  It's not necessary to use it as the listener
+                 * will be removed when the scope is destroyed.
                  * @param {string} featureName name of the feature that raises the event
                  * @param {string} eventName  name of the event
                  */
@@ -39925,34 +39941,45 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
 
+                    // Creating raise event method featureName.raise.eventName
                     feature.raise[eventName] = function() {
-                        $rootScope.$broadcast.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+                        $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
                     };
 
-                    feature.on[eventName] = function(scope, handler) {
-                        var dereg = registerEventWithAngular(scope, eventId, handler, self.gantt);
+                    // Creating on event method featureName.oneventName
+                    feature.on[eventName] = function(scope, handler, _this) {
+                        var deregAngularOn = registerEventWithAngular(eventId, handler, self.gantt, _this);
 
                         //track our listener so we can turn off and on
-                        var listener = {handler: handler, dereg: dereg, eventId: eventId, scope: scope};
+                        var listener = {
+                            handler: handler,
+                            dereg: deregAngularOn,
+                            eventId: eventId,
+                            scope: scope,
+                            _this: _this
+                        };
                         self.listeners.push(listener);
 
+                        var removeListener = function() {
+                            listener.dereg();
+                            var index = self.listeners.indexOf(listener);
+                            self.listeners.splice(index, 1);
+                        };
+
                         //destroy tracking when scope is destroyed
-                        //wanted to remove the listener from the array but angular does
-                        //strange things in scope.$destroy so I could not access the listener array
                         scope.$on('$destroy', function() {
-                            listener.dereg = null;
-                            listener.handler = null;
-                            listener.eventId = null;
-                            listener.scope = null;
+                            removeListener();
                         });
+
+                        return removeListener;
                     };
                 };
 
-                function registerEventWithAngular(scope, eventId, handler, gantt) {
-                    return scope.$on(eventId, function() {
+                function registerEventWithAngular(eventId, handler, gantt, _this) {
+                    return $rootScope.$on(eventId, function() {
                         var args = Array.prototype.slice.call(arguments);
                         args.splice(0, 1); //remove evt argument
-                        handler.apply(gantt.api, args);
+                        handler.apply(_this ? _this : gantt.api, args);
                     });
                 }
 
@@ -39999,16 +40026,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @param {string} featureName name of the feature
                  * @param {string} methodName  name of the method
                  * @param {object} callBackFn function to execute
-                 * @param {object} thisArg binds callBackFn 'this' to thisArg.  Defaults to ganttApi.gantt
+                 * @param {object} _this binds callBackFn 'this' to _this.  Defaults to ganttApi.gantt
                  */
-                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, thisArg) {
+                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, _this) {
                     if (!this[featureName]) {
                         this[featureName] = {};
                     }
 
                     var feature = this[featureName];
 
-                    feature[methodName] = utils.createBoundedWrapper(thisArg || this.gantt, callBackFn);
+                    feature[methodName] = utils.createBoundedWrapper(_this || this.gantt, callBackFn);
                 };
 
                 /**
@@ -40024,9 +40051,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  *          methodNameTwo:function(args){}
                  *        }
                  * @param {object} eventObjectMap map of feature/event names
-                 * @param {object} thisArg binds this to thisArg for all functions.  Defaults to GanttApi.gantt
+                 * @param {object} _this binds this to _this for all functions.  Defaults to ganttApi.gantt
                  */
-                GanttApi.prototype.registerMethodsFromObject = function(methodMap, thisArg) {
+                GanttApi.prototype.registerMethodsFromObject = function(methodMap, _this) {
                     var self = this;
                     var features = [];
                     angular.forEach(methodMap, function(featProp, featPropName) {
@@ -40039,7 +40066,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     features.forEach(function(feature) {
                         feature.methods.forEach(function(method) {
-                            self.registerMethod(feature.name, method.name, method.fn, thisArg);
+                            self.registerMethod(feature.name, method.name, method.fn, _this);
                         });
                     });
 
