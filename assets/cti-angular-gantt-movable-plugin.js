@@ -1,3 +1,10 @@
+/*
+Project: cti-angular-gantt v0.0.1 - Gantt chart component for AngularJS
+Authors: Marco Schweighauser, Rémi Alvergnat
+License: MIT
+Homepage: http://www.angular-gantt.com
+Github: https://github.com/angular-gantt/angular-gantt.git
+*/
 (function(){
     'use strict';
     angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
@@ -456,3 +463,23 @@
         }]);
 }());
 
+
+(function(){
+    'use strict';
+    angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
+        return {
+            initialize: function(options) {
+
+                options.enabled = options.enabled !== undefined ? !!options.enabled : true;
+                options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
+                options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
+                options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
+
+                return options;
+            }
+        };
+    }]);
+}());
+
+
+//# sourceMappingURL=cti-angular-gantt-movable-plugin.js.map
