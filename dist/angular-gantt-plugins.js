@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.4 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -2115,7 +2115,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (newValue) {
                 // Children rows may have been filtered out
                 // So we need to filter the raw hierarchy before displaying children in tree.
-                var visibleRows = $scope.row.rowsManager.visibleRows;
+                var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
                 for (var i=0; i < newValue.length; i++) {
