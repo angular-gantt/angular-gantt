@@ -226,7 +226,7 @@
             if (newValue) {
                 // Children rows may have been filtered out
                 // So we need to filter the raw hierarchy before displaying children in tree.
-                var visibleRows = $scope.row.rowsManager.visibleRows;
+                var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
                 for (var i=0; i < newValue.length; i++) {
