@@ -4,7 +4,7 @@ Display a tree hierarchy of labels on the side.
 
 ## Dependency
 
-[angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree)
+[angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree) 2.1.5 (2.2 is banned)
 
 ## Usage
 

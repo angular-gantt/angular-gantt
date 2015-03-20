@@ -14,9 +14,9 @@
     "es5-shim": "~3.1.0",
     "angular-strap": "~2.1.0",
     "font-awesome": "~4.3.0",
-    "angular-native-dragdrop": ">=1.0.7",
+    "angular-native-dragdrop": "~1.1.0",
     "angular-ui-tree": "<2.2.0",
-    "angular-gantt": "~1.1.0"
+    "angular-gantt": ">=1.2"
   },
   "devDependencies": {
     "angular-mocks": "~1.3"
