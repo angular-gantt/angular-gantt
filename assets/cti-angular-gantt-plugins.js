@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v1.0.0 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v1.1.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -299,7 +299,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     enabled: '=?',
                     allowMoving: '=?',
                     allowResizing: '=?',
-                    allowRowSwitching: '=?'
+                    allowRowSwitching: '=?',
+                    allowChangeRowGroup: '=?'
                 },
                 link: function(scope, element, attrs, ganttCtrl) {
                     var api = ganttCtrl.gantt.api;
@@ -458,7 +459,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                             }
                                         }
 
-                                        var allowChangeRowGroup = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowChangeRowGroup);
+                                        var allowChangeRowGroup = utils.firstProperty([taskMovable, rowMovable], 'allowChangeRowGroup', scope.allowChangeRowGroup);
 
                                         var sourceRow = taskScope.task.row;
                                         if (targetRow !== undefined && sourceRow !== targetRow && targetRow.model.parent === sourceRow.model.parent && allowChangeRowGroup) {

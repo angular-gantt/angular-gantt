@@ -10,7 +10,8 @@
                     enabled: '=?',
                     allowMoving: '=?',
                     allowResizing: '=?',
-                    allowRowSwitching: '=?'
+                    allowRowSwitching: '=?',
+                    allowChangeRowGroup: '=?'
                 },
                 link: function(scope, element, attrs, ganttCtrl) {
                     var api = ganttCtrl.gantt.api;
@@ -169,7 +170,7 @@
                                             }
                                         }
 
-                                        var allowChangeRowGroup = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowChangeRowGroup);
+                                        var allowChangeRowGroup = utils.firstProperty([taskMovable, rowMovable], 'allowChangeRowGroup', scope.allowChangeRowGroup);
 
                                         var sourceRow = taskScope.task.row;
                                         if (targetRow !== undefined && sourceRow !== targetRow && targetRow.model.parent === sourceRow.model.parent && allowChangeRowGroup) {
