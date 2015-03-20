@@ -15,7 +15,9 @@
    
     Plugins may require additional dependencies:
    
-    - [angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.0.7 ([Sortable](plugins/sortable.md))
+    - [angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.1.0 ([Sortable](plugins/sortable.md))
+    - [angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree) 2.1.5 (2.2 is banned) ([Tree](plugins/tree.md))
+    - [css-element-queries](https://github.com/marcj/css-element-queries) master ([ResizeSensor](plugins/resizeSensor.md))
 
 - ### Which browser is supported ?
 
@@ -40,7 +42,8 @@
 
 - ### Is it possible to print the gantt ?
 
-    One way to print the gantt is to use a headless browser like [PhantomJS](http://www.phantomjs.org). We prepared a sample rasterize script file which can be used to print the gantt either as pdf or image.
+    One way to print the gantt is to use a headless browser like [PhantomJS](http://www.phantomjs.org). We prepared a 
+    sample rasterize script file which can be used to print the gantt either as pdf or image.
     
     Usage: The sample script contains a small how-to. 
     Download: [printing/phantomjs/rasterize.js](https://github.com/angular-gantt/angular-gantt/blob/master/printing/phantomjs/rasterize.js)

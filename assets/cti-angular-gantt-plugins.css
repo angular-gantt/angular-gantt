@@ -1,6 +1,6 @@
 .gantt-task-bounds {
-    height:125%;
-    top:-12.5%;
+    height: 125%;
+    top: -12.5%;
     position: absolute;
     z-index: 99;
     border: 1px dashed;
@@ -10,6 +10,7 @@
 .gantt-task-bounds-in {
     border-color: #2E4F2E;
 }
+
 .gantt-task-bounds-out {
     border-color: #FF6347;
 }
@@ -26,7 +27,8 @@
     margin: auto;
 }
 
-.gantt-task-group-left-main, .gantt-task-group-right-main {
+.gantt-task-group-left-main,
+.gantt-task-group-right-main {
     position: absolute;
 
     width: 12px;
@@ -46,7 +48,8 @@
     right: -6px;
 }
 
-.gantt-task-group-left-symbol, .gantt-task-group-right-symbol {
+.gantt-task-group-left-symbol,
+.gantt-task-group-right-symbol {
     position: absolute;
 
     width: 0;
@@ -71,9 +74,8 @@
 .gantt-task-overview {
     height: 40%;
     top: 40%;
-
     -webkit-filter: grayscale(0.6);
-            filter: grayscale(0.6);
+    filter: grayscale(0.6);
 }
 
 .gantt-task-overview .gantt-task-content {
@@ -84,20 +86,17 @@
     overflow: hidden;
 }
 
-.gantt-labels-header-row  {
-    box-sizing:border-box;
-
+.gantt-labels-header-row {
+    box-sizing: border-box;
     padding-left: 12px;
     padding-right: 12px;
-
     height: 2em;
     white-space: nowrap;
     overflow: hidden;
 }
 
 .gantt-labels-header-row span {
-    box-sizing:border-box;
-
+    box-sizing: border-box;
     display: inline-block;
     height: 2em;
     text-align: center;
@@ -120,13 +119,10 @@
 
 .gantt-task-moving, .gantt-task-resizing {
     z-index: 750 !important;
-
     opacity: 0.6;
     filter: alpha(opacity=60);
-
     -webkit-filter: grayscale(0.7);
-
-            filter: grayscale(0.7);
+    filter: grayscale(0.7);
 }
 
 .gantt-task-progress {
@@ -135,6 +131,14 @@
     bottom: 0px;
     height: 6px;
     border-radius: 2px;
+}
+
+.gantt-row-label.on-dragging {
+    background-color: #999999 !important;
+}
+
+.gantt-row-label.on-drag-hover {
+    border: 1px solid #999999;
 }
 
 .gantt-table-header {
@@ -183,10 +187,12 @@ div.gantt-table-content {
     white-space: nowrap;
 }
 
-.gantt-task-infoArrow:before, .gantt-task-infoArrowR:before {
+.gantt-task-infoArrow:before,
+.gantt-task-infoArrowR:before {
     position: absolute;
     top: 100%;
-    width: 0px; height: 0px;
+    width: 0px;
+    height: 0px;
     border-top: 8px solid rgba(0, 0, 0, 0.1);
     border-right: 8px solid transparent;
     border-left: 8px solid transparent;
@@ -201,10 +207,12 @@ div.gantt-table-content {
     right: 10px;
 }
 
-.gantt-task-infoArrow:after, .gantt-task-infoArrowR:after {
+.gantt-task-infoArrow:after,
+.gantt-task-infoArrowR:after {
     position: absolute;
     top: 100%;
-    width: 0px; height: 0px;
+    width: 0px;
+    height: 0px;
     border-top: 7px solid #ffffff;
     border-right: 7px solid transparent;
     border-left: 7px solid transparent;

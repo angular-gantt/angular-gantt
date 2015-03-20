@@ -298,6 +298,16 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
         $scope.$on('$destroy', function() {
           api.rows.removeRowFilter(filter);
         };
+        
+- **api.rows.setFilterImpl(func)**
+
+    Register a function to use for filtering.
+    
+    The default filtering function is based on AngularJS [$filter('filter')](https://docs.angularjs.org/api/ng/filter/filter).
+
+        function(sortedRows, filterRow, filterRowComparator) {
+          return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+        };
 
 #### timeframes
 

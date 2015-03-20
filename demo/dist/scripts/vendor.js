@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.13
+ * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.13/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.15/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -546,6 +546,12 @@ function isString(value) {return typeof value === 'string';}
  * @description
  * Determines if a reference is a `Number`.
  *
+ * This includes the "special" numbers `NaN`, `+Infinity` and `-Infinity`.
+ *
+ * If you wish to exclude these then you can use the native
+ * [`isFinite'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite)
+ * method.
+ *
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
@@ -914,10 +920,11 @@ function equals(o1, o2) {
       } else if (isDate(o1)) {
         if (!isDate(o2)) return false;
         return equals(o1.getTime(), o2.getTime());
-      } else if (isRegExp(o1) && isRegExp(o2)) {
-        return o1.toString() == o2.toString();
+      } else if (isRegExp(o1)) {
+        return isRegExp(o2) ? o1.toString() == o2.toString() : false;
       } else {
-        if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) || isArray(o2)) return false;
+        if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) ||
+          isArray(o2) || isDate(o2) || isRegExp(o2)) return false;
         keySet = {};
         for (key in o1) {
           if (key.charAt(0) === '$' || isFunction(o1[key])) continue;
@@ -2121,11 +2128,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.13',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.15',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 13,
-  codeName: 'meticulous-riffleshuffle'
+  dot: 15,
+  codeName: 'locality-filtration'
 };
 
 
@@ -2261,6 +2268,17 @@ function publishExternalAPI(angular) {
     }
   ]);
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *     Any commits to this file should be reviewed with security in mind.  *
+ *   Changes to this file can potentially create security vulnerabilities. *
+ *          An approval from 2 Core members with history of modifying      *
+ *                         this file is required.                          *
+ *                                                                         *
+ *  Does the change somehow allow for arbitrary javascript to be executed? *
+ *    Or allows for someone to change the prototype of built-in objects?   *
+ *     Or gives undesired access to variables likes document or window?    *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* global JQLitePrototype: true,
   addEventListenerFn: true,
@@ -4685,6 +4703,7 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @return {Promise} the animation callback promise
        */
       leave: function(element, options) {
+        applyStyles(element, options);
         element.remove();
         return asyncPromise();
       },
@@ -5089,11 +5108,19 @@ function Browser(window, document, $log, $sniffer) {
     fireUrlChange();
   }
 
+  function getCurrentState() {
+    try {
+      return history.state;
+    } catch (e) {
+      // MSIE can reportedly throw when there is no state (UNCONFIRMED).
+    }
+  }
+
   // This variable should be used *only* inside the cacheState function.
   var lastCachedState = null;
   function cacheState() {
     // This should be the only place in $browser where `history.state` is read.
-    cachedState = window.history.state;
+    cachedState = getCurrentState();
     cachedState = isUndefined(cachedState) ? null : cachedState;
 
     // Prevent callbacks fo fire twice if both hashchange & popstate were fired.
@@ -5690,7 +5717,7 @@ function $CacheFactoryProvider() {
  * the document, but it must be a descendent of the {@link ng.$rootElement $rootElement} (IE,
  * element with ng-app attribute), otherwise the template will be ignored.
  *
- * Adding via the $templateCache service:
+ * Adding via the `$templateCache` service:
  *
  * ```js
  * var myApp = angular.module('myApp', []);
@@ -5717,6 +5744,17 @@ function $TemplateCacheProvider() {
     return $cacheFactory('templates');
   }];
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *     Any commits to this file should be reviewed with security in mind.  *
+ *   Changes to this file can potentially create security vulnerabilities. *
+ *          An approval from 2 Core members with history of modifying      *
+ *                         this file is required.                          *
+ *                                                                         *
+ *  Does the change somehow allow for arbitrary javascript to be executed? *
+ *    Or allows for someone to change the prototype of built-in objects?   *
+ *     Or gives undesired access to variables likes document or window?    *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* ! VARIABLE/FUNCTION NAMING CONVENTIONS THAT APPLY TO THIS FILE!
  *
@@ -5929,7 +5967,8 @@ function $TemplateCacheProvider() {
  * Require another directive and inject its controller as the fourth argument to the linking function. The
  * `require` takes a string name (or array of strings) of the directive(s) to pass in. If an array is used, the
  * injected argument will be an array in corresponding order. If no such directive can be
- * found, or if the directive does not have a controller, then an error is raised. The name can be prefixed with:
+ * found, or if the directive does not have a controller, then an error is raised (unless no link function
+ * is specified, in which case error checking is skipped). The name can be prefixed with:
  *
  * * (no prefix) - Locate the required controller on the current element. Throw an error if not found.
  * * `?` - Attempt to locate the required controller or pass `null` to the `link` fn if not found.
@@ -10479,7 +10518,15 @@ function $LocaleProvider() {
         mediumDate: 'MMM d, y',
         shortDate: 'M/d/yy',
         mediumTime: 'h:mm:ss a',
-        shortTime: 'h:mm a'
+        shortTime: 'h:mm a',
+        ERANAMES: [
+          "Before Christ",
+          "Anno Domini"
+        ],
+        ERAS: [
+          "BC",
+          "AD"
+        ]
       },
 
       pluralCat: function(num) {
@@ -11487,6 +11534,7 @@ function $LocationProvider() {
          <button ng-click="$log.warn(message)">warn</button>
          <button ng-click="$log.info(message)">info</button>
          <button ng-click="$log.error(message)">error</button>
+         <button ng-click="$log.debug(message)">debug</button>
        </div>
      </file>
    </example>
@@ -11616,6 +11664,17 @@ function $LogProvider() {
     }
   }];
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *     Any commits to this file should be reviewed with security in mind.  *
+ *   Changes to this file can potentially create security vulnerabilities. *
+ *          An approval from 2 Core members with history of modifying      *
+ *                         this file is required.                          *
+ *                                                                         *
+ *  Does the change somehow allow for arbitrary javascript to be executed? *
+ *    Or allows for someone to change the prototype of built-in objects?   *
+ *     Or gives undesired access to variables likes document or window?    *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 var $parseMinErr = minErr('$parse');
 
@@ -13552,8 +13611,26 @@ function $RootScopeProvider() {
     return TTL;
   };
 
+  function createChildScopeClass(parent) {
+    function ChildScope() {
+      this.$$watchers = this.$$nextSibling =
+          this.$$childHead = this.$$childTail = null;
+      this.$$listeners = {};
+      this.$$listenerCount = {};
+      this.$$watchersCount = 0;
+      this.$id = nextUid();
+      this.$$ChildScope = null;
+    }
+    ChildScope.prototype = parent;
+    return ChildScope;
+  }
+
   this.$get = ['$injector', '$exceptionHandler', '$parse', '$browser',
       function($injector, $exceptionHandler, $parse, $browser) {
+
+    function destroyChildScope($event) {
+        $event.currentScope.$$destroyed = true;
+    }
 
     /**
      * @ngdoc type
@@ -13677,15 +13754,7 @@ function $RootScopeProvider() {
           // Only create a child scope class if somebody asks for one,
           // but cache it to allow the VM to optimize lookups.
           if (!this.$$ChildScope) {
-            this.$$ChildScope = function ChildScope() {
-              this.$$watchers = this.$$nextSibling =
-                  this.$$childHead = this.$$childTail = null;
-              this.$$listeners = {};
-              this.$$listenerCount = {};
-              this.$id = nextUid();
-              this.$$ChildScope = null;
-            };
-            this.$$ChildScope.prototype = this;
+            this.$$ChildScope = createChildScopeClass(this);
           }
           child = new this.$$ChildScope();
         }
@@ -13703,13 +13772,9 @@ function $RootScopeProvider() {
         // prototypically. In all other cases, this property needs to be set
         // when the parent scope is destroyed.
         // The listener needs to be added after the parent is set
-        if (isolate || parent != this) child.$on('$destroy', destroyChild);
+        if (isolate || parent != this) child.$on('$destroy', destroyChildScope);
 
         return child;
-
-        function destroyChild() {
-          child.$$destroyed = true;
-        }
       },
 
       /**
@@ -14869,6 +14934,17 @@ function $$SanitizeUriProvider() {
     };
   };
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *     Any commits to this file should be reviewed with security in mind.  *
+ *   Changes to this file can potentially create security vulnerabilities. *
+ *          An approval from 2 Core members with history of modifying      *
+ *                         this file is required.                          *
+ *                                                                         *
+ *  Does the change somehow allow for arbitrary javascript to be executed? *
+ *    Or allows for someone to change the prototype of built-in objects?   *
+ *     Or gives undesired access to variables likes document or window?    *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 var $sceMinErr = minErr('$sce');
 
@@ -16045,7 +16121,7 @@ function $TemplateRequestProvider() {
       };
 
       return $http.get(tpl, httpOptions)
-        .finally(function() {
+        ['finally'](function() {
           handleRequestFn.totalPendingRequests--;
         })
         .then(function(response) {
@@ -16741,8 +16817,8 @@ function createPredicateFn(expression, comparator, matchAgainstAnyProp) {
 }
 
 function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatchWholeObject) {
-  var actualType = typeof actual;
-  var expectedType = typeof expected;
+  var actualType = (actual !== null) ? typeof actual : 'null';
+  var expectedType = (expected !== null) ? typeof expected : 'null';
 
   if ((expectedType === 'string') && (expected.charAt(0) === '!')) {
     return !deepCompare(actual, expected.substring(1), comparator, matchAgainstAnyProp);
@@ -16767,7 +16843,7 @@ function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatc
       } else if (expectedType === 'object') {
         for (key in expected) {
           var expectedVal = expected[key];
-          if (isFunction(expectedVal)) {
+          if (isFunction(expectedVal) || isUndefined(expectedVal)) {
             continue;
           }
 
@@ -17081,6 +17157,14 @@ function ampmGetter(date, formats) {
   return date.getHours() < 12 ? formats.AMPMS[0] : formats.AMPMS[1];
 }
 
+function eraGetter(date, formats) {
+  return date.getFullYear() <= 0 ? formats.ERAS[0] : formats.ERAS[1];
+}
+
+function longEraGetter(date, formats) {
+  return date.getFullYear() <= 0 ? formats.ERANAMES[0] : formats.ERANAMES[1];
+}
+
 var DATE_FORMATS = {
   yyyy: dateGetter('FullYear', 4),
     yy: dateGetter('FullYear', 2, 0, true),
@@ -17107,10 +17191,14 @@ var DATE_FORMATS = {
      a: ampmGetter,
      Z: timeZoneGetter,
     ww: weekGetter(2),
-     w: weekGetter(1)
+     w: weekGetter(1),
+     G: eraGetter,
+     GG: eraGetter,
+     GGG: eraGetter,
+     GGGG: longEraGetter
 };
 
-var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|w+))(.*)/,
+var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|G+|w+))(.*)/,
     NUMBER_STRING = /^\-?\d+$/;
 
 /**
@@ -17147,6 +17235,8 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d
  *   * `'Z'`: 4 digit (+sign) representation of the timezone offset (-1200-+1200)
  *   * `'ww'`: Week of year, padded (00-53). Week 01 is the week with the first Thursday of the year
  *   * `'w'`: Week of year (0-53). Week 1 is the week with the first Thursday of the year
+ *   * `'G'`, `'GG'`, `'GGG'`: The abbreviated form of the era string (e.g. 'AD')
+ *   * `'GGGG'`: The long form of the era string (e.g. 'Anno Domini')
  *
  *   `format` string can also be one of the following predefined
  *   {@link guide/i18n localizable formats}:
@@ -17480,6 +17570,43 @@ function limitToFilter() {
  * @param {boolean=} reverse Reverse the order of the array.
  * @returns {Array} Sorted copy of the source array.
  *
+ *
+ * @example
+ * The example below demonstrates a simple ngRepeat, where the data is sorted
+ * by age in descending order (predicate is set to `'-age'`).
+ * `reverse` is not set, which means it defaults to `false`.
+   <example module="orderByExample">
+     <file name="index.html">
+       <script>
+         angular.module('orderByExample', [])
+           .controller('ExampleController', ['$scope', function($scope) {
+             $scope.friends =
+                 [{name:'John', phone:'555-1212', age:10},
+                  {name:'Mary', phone:'555-9876', age:19},
+                  {name:'Mike', phone:'555-4321', age:21},
+                  {name:'Adam', phone:'555-5678', age:35},
+                  {name:'Julie', phone:'555-8765', age:29}];
+           }]);
+       </script>
+       <div ng-controller="ExampleController">
+         <table class="friend">
+           <tr>
+             <th>Name</th>
+             <th>Phone Number</th>
+             <th>Age</th>
+           </tr>
+           <tr ng-repeat="friend in friends | orderBy:'-age'">
+             <td>{{friend.name}}</td>
+             <td>{{friend.phone}}</td>
+             <td>{{friend.age}}</td>
+           </tr>
+         </table>
+       </div>
+     </file>
+   </example>
+ *
+ * The predicate and reverse parameters can be controlled dynamically through scope properties,
+ * as shown in the next example.
  * @example
    <example module="orderByExample">
      <file name="index.html">
@@ -17854,20 +17981,24 @@ var htmlAnchorDirective = valueFn({
  *
  * @description
  *
- * We shouldn't do this, because it will make the button enabled on Chrome/Firefox but not on IE8 and older IEs:
+ * This directive sets the `disabled` attribute on the element if the
+ * {@link guide/expression expression} inside `ngDisabled` evaluates to truthy.
+ *
+ * A special directive is necessary because we cannot use interpolation inside the `disabled`
+ * attribute.  The following example would make the button enabled on Chrome/Firefox
+ * but not on older IEs:
+ *
  * ```html
- * <div ng-init="scope = { isDisabled: false }">
- *  <button disabled="{{scope.isDisabled}}">Disabled</button>
+ * <!-- See below for an example of ng-disabled being used correctly -->
+ * <div ng-init="isDisabled = false">
+ *  <button disabled="{{isDisabled}}">Disabled</button>
  * </div>
  * ```
  *
- * The HTML specification does not require browsers to preserve the values of boolean attributes
- * such as disabled. (Their presence means true and their absence means false.)
+ * This is because the HTML specification does not require browsers to preserve the values of
+ * boolean attributes such as `disabled` (Their presence means true and their absence means false.)
  * If we put an Angular interpolation expression into such an attribute then the
  * binding information would be lost when the browser removes the attribute.
- * The `ngDisabled` directive solves this problem for the `disabled` attribute.
- * This complementary directive is not removed by the browser and so provides
- * a permanent reliable place to store the binding information.
  *
  * @example
     <example>
@@ -17886,7 +18017,7 @@ var htmlAnchorDirective = valueFn({
  *
  * @element INPUT
  * @param {expression} ngDisabled If the {@link guide/expression expression} is truthy,
- *     then special attribute "disabled" will be set on the element
+ *     then the `disabled` attribute will be set on the element
  */
 
 
@@ -18434,7 +18565,7 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
  *
  * # Alias: {@link ng.directive:ngForm `ngForm`}
  *
- * In Angular forms can be nested. This means that the outer form is valid when all of the child
+ * In Angular, forms can be nested. This means that the outer form is valid when all of the child
  * forms are valid as well. However, browsers do not allow nesting of `<form>` elements, so
  * Angular provides the {@link ng.directive:ngForm `ngForm`} directive which behaves identically to
  * `<form>` but can be nested.  This allows you to have nested forms, which is very useful when
@@ -18572,9 +18703,11 @@ var formDirectiveFactory = function(isNgForm) {
       name: 'form',
       restrict: isNgForm ? 'EAC' : 'E',
       controller: FormController,
-      compile: function ngFormCompile(formElement) {
+      compile: function ngFormCompile(formElement, attr) {
         // Setup initial state of the control
         formElement.addClass(PRISTINE_CLASS).addClass(VALID_CLASS);
+
+        var nameAttr = attr.name ? 'name' : (isNgForm && attr.ngForm ? 'ngForm' : false);
 
         return {
           pre: function ngFormPreLink(scope, formElement, attr, controller) {
@@ -18606,23 +18739,21 @@ var formDirectiveFactory = function(isNgForm) {
               });
             }
 
-            var parentFormCtrl = controller.$$parentForm,
-                alias = controller.$name;
+            var parentFormCtrl = controller.$$parentForm;
 
-            if (alias) {
-              setter(scope, null, alias, controller, alias);
-              attr.$observe(attr.name ? 'name' : 'ngForm', function(newValue) {
-                if (alias === newValue) return;
-                setter(scope, null, alias, undefined, alias);
-                alias = newValue;
-                setter(scope, null, alias, controller, alias);
-                parentFormCtrl.$$renameControl(controller, alias);
+            if (nameAttr) {
+              setter(scope, null, controller.$name, controller, controller.$name);
+              attr.$observe(nameAttr, function(newValue) {
+                if (controller.$name === newValue) return;
+                setter(scope, null, controller.$name, undefined, controller.$name);
+                parentFormCtrl.$$renameControl(controller, newValue);
+                setter(scope, null, controller.$name, controller, controller.$name);
               });
             }
             formElement.on('$destroy', function() {
               parentFormCtrl.$removeControl(controller);
-              if (alias) {
-                setter(scope, null, alias, undefined, alias);
+              if (nameAttr) {
+                setter(scope, null, attr[nameAttr], undefined, controller.$name);
               }
               extend(controller, nullFormCtrl); //stop propagating child destruction handlers upwards
             });
@@ -19888,7 +20019,7 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     return value;
   });
 
-  if (attr.min || attr.ngMin) {
+  if (isDefined(attr.min) || attr.ngMin) {
     var minVal;
     ctrl.$validators.min = function(value) {
       return ctrl.$isEmpty(value) || isUndefined(minVal) || value >= minVal;
@@ -19904,7 +20035,7 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     });
   }
 
-  if (attr.max || attr.ngMax) {
+  if (isDefined(attr.max) || attr.ngMax) {
     var maxVal;
     ctrl.$validators.max = function(value) {
       return ctrl.$isEmpty(value) || isUndefined(maxVal) || value <= maxVal;
@@ -22595,8 +22726,8 @@ is set to `true`. The parse error is stored in `ngModel.$error.parse`.
  * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
  * collaborate together to achieve the desired result.
  *
- * Note that `contenteditable` is an HTML5 attribute, which tells the browser to let the element
- * contents be edited in place by the user.  This will not work on older browsers.
+ * `contenteditable` is an HTML5 attribute, which tells the browser to let the element
+ * contents be edited in place by the user.
  *
  * We are using the {@link ng.service:$sce $sce} service here and include the {@link ngSanitize $sanitize}
  * module to automatically remove "bad" content like inline event listener (e.g. `<span onclick="...">`).
@@ -22710,6 +22841,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
       ngModelGet = parsedNgModel,
       ngModelSet = parsedNgModelAssign,
       pendingDebounce = null,
+      parserValid,
       ctrl = this;
 
   this.$$setOptions = function(options) {
@@ -22982,16 +23114,12 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     // the model although neither viewValue nor the model on the scope changed
     var modelValue = ctrl.$$rawModelValue;
 
-    // Check if the there's a parse error, so we don't unset it accidentially
-    var parserName = ctrl.$$parserName || 'parse';
-    var parserValid = ctrl.$error[parserName] ? false : undefined;
-
     var prevValid = ctrl.$valid;
     var prevModelValue = ctrl.$modelValue;
 
     var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
 
-    ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
+    ctrl.$$runValidators(modelValue, viewValue, function(allValid) {
       // If there was no change in validity, don't update the model
       // This prevents changing an invalid modelValue to undefined
       if (!allowInvalid && prevValid !== allValid) {
@@ -23009,12 +23137,12 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
   };
 
-  this.$$runValidators = function(parseValid, modelValue, viewValue, doneCallback) {
+  this.$$runValidators = function(modelValue, viewValue, doneCallback) {
     currentValidationRunId++;
     var localValidationRunId = currentValidationRunId;
 
     // check parser error
-    if (!processParseErrors(parseValid)) {
+    if (!processParseErrors()) {
       validationDone(false);
       return;
     }
@@ -23024,21 +23152,22 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     }
     processAsyncValidators();
 
-    function processParseErrors(parseValid) {
+    function processParseErrors() {
       var errorKey = ctrl.$$parserName || 'parse';
-      if (parseValid === undefined) {
+      if (parserValid === undefined) {
         setValidity(errorKey, null);
       } else {
-        setValidity(errorKey, parseValid);
-        if (!parseValid) {
+        if (!parserValid) {
           forEach(ctrl.$validators, function(v, name) {
             setValidity(name, null);
           });
           forEach(ctrl.$asyncValidators, function(v, name) {
             setValidity(name, null);
           });
-          return false;
         }
+        // Set the parse error last, to prevent unsetting it, should a $validators key == parserName
+        setValidity(errorKey, parserValid);
+        return parserValid;
       }
       return true;
     }
@@ -23133,7 +23262,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
   this.$$parseAndValidate = function() {
     var viewValue = ctrl.$$lastCommittedViewValue;
     var modelValue = viewValue;
-    var parserValid = isUndefined(modelValue) ? undefined : true;
+    parserValid = isUndefined(modelValue) ? undefined : true;
 
     if (parserValid) {
       for (var i = 0; i < ctrl.$parsers.length; i++) {
@@ -23159,7 +23288,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
     // Pass the $$lastCommittedViewValue here, because the cached viewValue might be out of date.
     // This can happen if e.g. $setViewValue is called from inside a parser
-    ctrl.$$runValidators(parserValid, modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
+    ctrl.$$runValidators(modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
       if (!allowInvalid) {
         // Note: Don't check ctrl.$valid here, as we could have
         // external validators (e.g. calculated on the server),
@@ -23280,6 +23409,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     // TODO(perf): why not move this to the action fn?
     if (modelValue !== ctrl.$modelValue) {
       ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
+      parserValid = undefined;
 
       var formatters = ctrl.$formatters,
           idx = formatters.length;
@@ -23292,7 +23422,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
         ctrl.$viewValue = ctrl.$$lastCommittedViewValue = viewValue;
         ctrl.$render();
 
-        ctrl.$$runValidators(undefined, modelValue, viewValue, noop);
+        ctrl.$$runValidators(modelValue, viewValue, noop);
       }
     }
 
@@ -24108,6 +24238,55 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  * when keys are deleted and reinstated.
  *
  *
+ * # Tracking and Duplicates
+ *
+ * When the contents of the collection change, `ngRepeat` makes the corresponding changes to the DOM:
+ *
+ * * When an item is added, a new instance of the template is added to the DOM.
+ * * When an item is removed, its template instance is removed from the DOM.
+ * * When items are reordered, their respective templates are reordered in the DOM.
+ *
+ * By default, `ngRepeat` does not allow duplicate items in arrays. This is because when
+ * there are duplicates, it is not possible to maintain a one-to-one mapping between collection
+ * items and DOM elements.
+ *
+ * If you do need to repeat duplicate items, you can substitute the default tracking behavior
+ * with your own using the `track by` expression.
+ *
+ * For example, you may track items by the index of each item in the collection, using the
+ * special scope property `$index`:
+ * ```html
+ *    <div ng-repeat="n in [42, 42, 43, 43] track by $index">
+ *      {{n}}
+ *    </div>
+ * ```
+ *
+ * You may use arbitrary expressions in `track by`, including references to custom functions
+ * on the scope:
+ * ```html
+ *    <div ng-repeat="n in [42, 42, 43, 43] track by myTrackingFunction(n)">
+ *      {{n}}
+ *    </div>
+ * ```
+ *
+ * If you are working with objects that have an identifier property, you can track
+ * by the identifier instead of the whole object. Should you reload your data later, `ngRepeat`
+ * will not have to rebuild the DOM elements for items it has already rendered, even if the
+ * JavaScript objects in the collection have been substituted for new ones:
+ * ```html
+ *    <div ng-repeat="model in collection track by model.id">
+ *      {{model.name}}
+ *    </div>
+ * ```
+ *
+ * When no `track by` expression is provided, it is equivalent to tracking by the built-in
+ * `$id` function, which tracks items by their identity:
+ * ```html
+ *    <div ng-repeat="obj in collection track by $id(obj)">
+ *      {{obj.prop}}
+ *    </div>
+ * ```
+ *
  * # Special repeat start and end points
  * To repeat a series of elements instead of just one parent element, ngRepeat (as well as other ng directives) supports extending
  * the range of the repeater by defining explicit start and end points by using **ng-repeat-start** and **ng-repeat-end** respectively.
@@ -24175,12 +24354,12 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  *
  *     For example: `(name, age) in {'adam':10, 'amalie':12}`.
  *
- *   * `variable in expression track by tracking_expression` – You can also provide an optional tracking function
- *     which can be used to associate the objects in the collection with the DOM elements. If no tracking function
- *     is specified the ng-repeat associates elements by identity in the collection. It is an error to have
- *     more than one tracking function to resolve to the same key. (This would mean that two distinct objects are
- *     mapped to the same DOM element, which is not possible.)  Filters should be applied to the expression,
- *     before specifying a tracking expression.
+ *   * `variable in expression track by tracking_expression` – You can also provide an optional tracking expression
+ *     which can be used to associate the objects in the collection with the DOM elements. If no tracking expression
+ *     is specified, ng-repeat associates elements by identity. It is an error to have
+ *     more than one tracking expression value resolve to the same key. (This would mean that two distinct objects are
+ *     mapped to the same DOM element, which is not possible.)  If filters are used in the expression, they should be
+ *     applied before the tracking expression.
  *
  *     For example: `item in items` is equivalent to `item in items track by $id(item)`. This implies that the DOM elements
  *     will be associated by item identity in the array.
@@ -26129,11 +26308,22 @@ var minlengthDirective = function() {
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.13
+ * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window, angular, undefined) {'use strict';
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *     Any commits to this file should be reviewed with security in mind.  *
+ *   Changes to this file can potentially create security vulnerabilities. *
+ *          An approval from 2 Core members with history of modifying      *
+ *                         this file is required.                          *
+ *                                                                         *
+ *  Does the change somehow allow for arbitrary javascript to be executed? *
+ *    Or allows for someone to change the prototype of built-in objects?   *
+ *     Or gives undesired access to variables likes document or window?    *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 var $sanitizeMinErr = angular.$$minErr('$sanitize');
 
@@ -26546,7 +26736,6 @@ function htmlParser(html, handler) {
 }
 
 var hiddenPre=document.createElement("pre");
-var spaceRe = /^(\s*)([\s\S]*?)(\s*)$/;
 /**
  * decodes all entities into regular string
  * @param value
@@ -26555,22 +26744,10 @@ var spaceRe = /^(\s*)([\s\S]*?)(\s*)$/;
 function decodeEntities(value) {
   if (!value) { return ''; }
 
-  // Note: IE8 does not preserve spaces at the start/end of innerHTML
-  // so we must capture them and reattach them afterward
-  var parts = spaceRe.exec(value);
-  var spaceBefore = parts[1];
-  var spaceAfter = parts[3];
-  var content = parts[2];
-  if (content) {
-    hiddenPre.innerHTML=content.replace(/</g,"&lt;");
-    // innerText depends on styling as it doesn't display hidden elements.
-    // Therefore, it's better to use textContent not to cause unnecessary
-    // reflows. However, IE<9 don't support textContent so the innerText
-    // fallback is necessary.
-    content = 'textContent' in hiddenPre ?
-      hiddenPre.textContent : hiddenPre.innerText;
-  }
-  return spaceBefore + content + spaceAfter;
+  hiddenPre.innerHTML = value.replace(/</g,"&lt;");
+  // innerText depends on styling as it doesn't display hidden elements.
+  // Therefore, it's better to use textContent not to cause unnecessary reflows.
+  return hiddenPre.textContent;
 }
 
 /**
@@ -26811,7 +26988,7 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 })(window, window.angular);
 
 /**
- * @license AngularJS v1.3.13
+ * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -34053,330 +34230,321 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
 })(window, document);
 
-/**
- * Created with IntelliJ IDEA.
- * User: Ganaraj.Pr
- * Date: 11/10/13
- * Time: 11:27
- * To change this template use File | Settings | File Templates.
- */
+(function(angular) {
+    'use strict';
 
-(function(angular){
+    function isDnDsSupported() {
+        return 'ondrag' in document.createElement('a');
+    }
 
-function isDnDsSupported(){
-    return 'ondrag' in document.createElement("a");
-}
+    if (!isDnDsSupported()) {
+        angular.module('ang-drag-drop', []);
+        return;
+    }
 
-if(!isDnDsSupported()){
-    angular.module("ang-drag-drop", []);
-    return;
-}
+    if (window.jQuery && (-1 === window.jQuery.event.props.indexOf('dataTransfer'))) {
+        window.jQuery.event.props.push('dataTransfer');
+    }
 
-if (window.jQuery && (-1 == window.jQuery.event.props.indexOf("dataTransfer"))) {
-    window.jQuery.event.props.push("dataTransfer");
-}
+    var module = angular.module('ang-drag-drop', []);
 
-var currentData;
+    module.directive('uiDraggable', ['$parse', '$rootScope', '$dragImage', function($parse, $rootScope, $dragImage) {
+        return function(scope, element, attrs) {
+            var isDragHandleUsed = false,
+                dragHandleClass,
+                draggingClass = attrs.draggingClass || 'on-dragging',
+                dragTarget;
 
-angular.module("ang-drag-drop",[])
-    .directive("uiDraggable", [
-        '$parse',
-        '$rootScope',
-        '$dragImage',
-        function ($parse, $rootScope, $dragImage) {
-            return function (scope, element, attrs) {
-                var isDragHandleUsed = false,
-                    dragHandleClass,
-                    draggingClass = attrs.draggingClass || "on-dragging",
-                    dragTarget;
+            element.attr('draggable', false);
 
-                element.attr("draggable", false);
-
-                attrs.$observe("uiDraggable", function (newValue) {
-                    if(newValue){
-                        element.attr("draggable", newValue);
-                    }
-                    else{
-                        element.removeAttr("draggable");
-                    }
-
-                });
-
-                if (angular.isString(attrs.dragHandleClass)) {
-                    isDragHandleUsed = true;
-                    dragHandleClass = attrs.dragHandleClass.trim() || "drag-handle";
-
-                    element.bind("mousedown", function (e) {
-                        dragTarget = e.target;
-                    });
+            scope.$watch(attrs.uiDraggable, function(newValue) {
+                if (newValue) {
+                    element.attr('draggable', newValue);
+                    element.bind('dragend', dragendHandler);
+                    element.bind('dragstart', dragstartHandler);
+                }
+                else {
+                    element.removeAttr('draggable');
+                    element.unbind('dragend', dragendHandler);
+                    element.unbind('dragstart', dragstartHandler);
                 }
 
-                function dragendHandler(e) {
-                    setTimeout(function() {
-                      element.unbind('$destroy', dragendHandler);
-                    }, 0);
-                    var sendChannel = attrs.dragChannel || "defaultchannel";
-                    $rootScope.$broadcast("ANGULAR_DRAG_END", sendChannel);
-                    if (e.dataTransfer && e.dataTransfer.dropEffect !== "none") {
-                        if (attrs.onDropSuccess) {
-                            var fn = $parse(attrs.onDropSuccess);
-                            scope.$evalAsync(function () {
-                                fn(scope, {$event: e});
+            });
+
+            if (angular.isString(attrs.dragHandleClass)) {
+                isDragHandleUsed = true;
+                dragHandleClass = attrs.dragHandleClass.trim() || 'drag-handle';
+
+                element.bind('mousedown', function(e) {
+                    dragTarget = e.target;
+                });
+            }
+
+            function dragendHandler(e) {
+                setTimeout(function() {
+                    element.unbind('$destroy', dragendHandler);
+                }, 0);
+                var sendChannel = attrs.dragChannel || 'defaultchannel';
+                $rootScope.$broadcast('ANGULAR_DRAG_END', e, sendChannel);
+                if (e.dataTransfer && e.dataTransfer.dropEffect !== 'none') {
+                    if (attrs.onDropSuccess) {
+                        var onDropSuccessFn = $parse(attrs.onDropSuccess);
+                        scope.$evalAsync(function() {
+                            onDropSuccessFn(scope, {$event: e});
+                        });
+                    } else {
+                        if (attrs.onDropFailure) {
+                            var onDropFailureFn = $parse(attrs.onDropFailure);
+                            scope.$evalAsync(function() {
+                                onDropFailureFn(scope, {$event: e});
                             });
-                        } else {
-                            if (attrs.onDropFailure) {
-                                var fn = $parse(attrs.onDropFailure);
-                                scope.$evalAsync(function () {
-                                    fn(scope, {$event: e});
-                                });
-                            }
                         }
                     }
-                    element.removeClass(draggingClass);
                 }
+                element.removeClass(draggingClass);
+            }
 
-	            function dragstartHandler(e) {
-		            var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
+            function dragstartHandler(e) {
+                var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
 
-		            if (isDragAllowed) {
-			            var sendChannel = attrs.dragChannel || "defaultchannel";
-			            var dragData = "";
-			            if (attrs.drag) {
-				            dragData = scope.$eval(attrs.drag);
-			            }
-			            var sendData = angular.toJson({ data: dragData, channel: sendChannel });
-			            var dragImage = attrs.dragImage || null;
-
-			            element.addClass(draggingClass);
-			            element.bind('$destroy', dragendHandler);
-
-			            if (dragImage) {
-				            var dragImageFn = $parse(attrs.dragImage);
-				            scope.$apply(function() {
-					            var dragImageParameters = dragImageFn(scope, {$event: e});
-					            if (dragImageParameters) {
-						            if (angular.isString(dragImageParameters)) {
-							            dragImageParameters = $dragImage.generate(dragImageParameters);
-						            }
-						            if (dragImageParameters.image) {
-							            var xOffset = dragImageParameters.xOffset || 0,
-							                yOffset = dragImageParameters.yOffset || 0;
-							            e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
-						            }
-					            }
-				            });
-			            }
-
-			            e.dataTransfer.setData("dataToSend", sendData);
-			            currentData = angular.fromJson(sendData);
-			            e.dataTransfer.effectAllowed = "copyMove";
-			            $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
-		            }
-		            else {
-			            e.preventDefault();
-		            }
-	            }
-
-                element.bind("dragend", dragendHandler);
-
-                element.bind("dragstart", dragstartHandler);
-            };
-        }
-    ])
-    .directive("uiOnDrop", [
-        '$parse',
-        '$rootScope',
-        function ($parse, $rootScope) {
-            return function (scope, element, attr) {
-                var dragging = 0; //Ref. http://stackoverflow.com/a/10906204
-                var dropChannel = attr.dropChannel || "defaultchannel" ;
-                var dragChannel = "";
-                var dragEnterClass = attr.dragEnterClass || "on-drag-enter";
-                var dragHoverClass = attr.dragHoverClass || "on-drag-hover";
-                var customDragEnterEvent = $parse(attr.onDragEnter);
-                var customDragLeaveEvent = $parse(attr.onDragLeave);
-
-                function onDragOver(e) {
-                    if (e.preventDefault) {
-                        e.preventDefault(); // Necessary. Allows us to drop.
+                if (isDragAllowed) {
+                    var sendChannel = attrs.dragChannel || 'defaultchannel';
+                    var dragData = '';
+                    if (attrs.drag) {
+                        dragData = scope.$eval(attrs.drag);
                     }
 
-                    if (e.stopPropagation) {
-                        e.stopPropagation();
-                    }
+                    var dragImage = attrs.dragImage || null;
 
-                    var fn = $parse(attr.uiOnDragOver);
-                    scope.$evalAsync(function () {
-                        fn(scope, {$event: e, $channel: dropChannel});
-                    });
+                    element.addClass(draggingClass);
+                    element.bind('$destroy', dragendHandler);
 
-                    e.dataTransfer.dropEffect = e.shiftKey ? 'copy' : 'move';
-                    return false;
-                }
-
-                function onDragLeave(e) {
-                    if (e.preventDefault) {
-                        e.preventDefault();
-                    }
-
-                    if (e.stopPropagation) {
-                        e.stopPropagation();
-                    }
-                    dragging--;
-
-                    if (dragging == 0) {
-                        scope.$evalAsync(function () {
-                            customDragEnterEvent(scope, {$event: e});
+                    if (dragImage) {
+                        var dragImageFn = $parse(attrs.dragImage);
+                        scope.$apply(function() {
+                            var dragImageParameters = dragImageFn(scope, {$event: e});
+                            if (dragImageParameters) {
+                                if (angular.isString(dragImageParameters)) {
+                                    dragImageParameters = $dragImage.generate(dragImageParameters);
+                                }
+                                if (dragImageParameters.image) {
+                                    var xOffset = dragImageParameters.xOffset || 0,
+                                        yOffset = dragImageParameters.yOffset || 0;
+                                    e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
+                                }
+                            }
                         });
-                        element.removeClass(dragHoverClass);
                     }
 
-                    var fn = $parse(attr.uiOnDragLeave);
-                    scope.$evalAsync(function () {
-                        fn(scope, {$event: e, $channel: dropChannel});
-                    });
+                    var transferDataObject = {data: dragData, channel: sendChannel}
+                    var transferDataText = angular.toJson(transferDataObject);
+
+                    e.dataTransfer.setData('text', transferDataText);
+                    e.dataTransfer.effectAllowed = 'copyMove';
+
+                    $rootScope.$broadcast('ANGULAR_DRAG_START', e, sendChannel, transferDataObject);
+                }
+                else {
+                    e.preventDefault();
+                }
+            }
+        };
+    }
+    ]);
+
+    module.directive('uiOnDrop', ['$parse', '$rootScope', function($parse, $rootScope) {
+        return function(scope, element, attr) {
+            var dragging = 0; //Ref. http://stackoverflow.com/a/10906204
+            var dropChannel = attr.dropChannel || 'defaultchannel';
+            var dragChannel = '';
+            var dragEnterClass = attr.dragEnterClass || 'on-drag-enter';
+            var dragHoverClass = attr.dragHoverClass || 'on-drag-hover';
+            var customDragEnterEvent = $parse(attr.onDragEnter);
+            var customDragLeaveEvent = $parse(attr.onDragLeave);
+
+            function onDragOver(e) {
+                if (e.preventDefault) {
+                    e.preventDefault(); // Necessary. Allows us to drop.
                 }
 
-                function onDragEnter(e) {
-                    if (e.preventDefault) {
-                        e.preventDefault();
-                    }
-
-                    if (e.stopPropagation) {
-                        e.stopPropagation();
-                    }
-                    dragging++;
-
-                    var fn = $parse(attr.uiOnDragEnter);
-                    scope.$evalAsync(function () {
-                        fn(scope, {$event: e, $channel: dropChannel});
-                    });
-
-                    $rootScope.$broadcast("ANGULAR_HOVER", dragChannel);
-                    scope.$evalAsync(function () {
-                        customDragLeaveEvent(scope, {$event: e});
-                    });
-                    element.addClass(dragHoverClass);
+                if (e.stopPropagation) {
+                    e.stopPropagation();
                 }
 
-                function onDrop(e) {
-                    if (e.preventDefault) {
-                        e.preventDefault(); // Necessary. Allows us to drop.
-                    }
-                    if (e.stopPropagation) {
-                        e.stopPropagation(); // Necessary. Allows us to drop.
-                    }
+                var uiOnDragOverFn = $parse(attr.uiOnDragOver);
+                scope.$evalAsync(function() {
+                    uiOnDragOverFn(scope, {$event: e, $channel: dropChannel});
+                });
 
-                    var sendData = e.dataTransfer.getData("dataToSend");
-                    sendData = angular.fromJson(sendData);
+                return false;
+            }
 
-                    var fn = $parse(attr.uiOnDrop);
-                    scope.$evalAsync(function () {
-                        fn(scope, {$data: sendData.data, $event: e, $channel: sendData.channel});
+            function onDragLeave(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+                dragging--;
+
+                if (dragging === 0) {
+                    scope.$evalAsync(function() {
+                        customDragLeaveEvent(scope, {$event: e, $channel: dropChannel});
+                    });
+                    element.addClass(dragEnterClass);
+                    element.removeClass(dragHoverClass);
+                }
+
+                var uiOnDragLeaveFn = $parse(attr.uiOnDragLeave);
+                scope.$evalAsync(function() {
+                    uiOnDragLeaveFn(scope, {$event: e, $channel: dropChannel});
+                });
+            }
+
+            function onDragEnter(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+
+                if (dragging === 0) {
+                    scope.$evalAsync(function() {
+                        customDragEnterEvent(scope, {$event: e, $channel: dropChannel});
                     });
                     element.removeClass(dragEnterClass);
-                    dragging = 0;
+                    element.addClass(dragHoverClass);
+                }
+                dragging++;
+
+                var uiOnDragEnterFn = $parse(attr.uiOnDragEnter);
+                scope.$evalAsync(function() {
+                    uiOnDragEnterFn(scope, {$event: e, $channel: dropChannel});
+                });
+
+                $rootScope.$broadcast('ANGULAR_HOVER', dragChannel);
+            }
+
+            function onDrop(e) {
+                if (e.preventDefault) {
+                    e.preventDefault(); // Necessary. Allows us to drop.
+                }
+                if (e.stopPropagation) {
+                    e.stopPropagation(); // Necessary. Allows us to drop.
                 }
 
-                function isDragChannelAccepted(dragChannel, dropChannel) {
-                    if (dropChannel === "*") {
-                        return true;
+                var sendData = e.dataTransfer.getData('text');
+                sendData = angular.fromJson(sendData);
+
+                // Chrome doesn't set dropEffect, so we have to work it out ourselves
+                if (e.dataTransfer.dropEffect === 'none') {
+                    if (e.dataTransfer.effectAllowed === 'copy' ||
+                        e.dataTransfer.effectAllowed === 'move') {
+                        e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed;
+                    } else if (e.dataTransfer.effectAllowed === 'copyMove') {
+                        e.dataTransfer.dropEffect = e.ctrlKey ? 'copy' : 'move';
                     }
-
-                    var channelMatchPattern = new RegExp("(\\s|[,])+(" + dragChannel + ")(\\s|[,])+", "i");
-
-                    return channelMatchPattern.test("," + dropChannel + ",");
                 }
 
-                function preventNativeDnD(e) {
-                    if (e.preventDefault) {
-                        e.preventDefault();
-                    }
-                    if (e.stopPropagation) {
-                        e.stopPropagation();
-                    }
-                    e.dataTransfer.dropEffect = "none";
-                    return false;
+                var uiOnDropFn = $parse(attr.uiOnDrop);
+                scope.$evalAsync(function() {
+                    uiOnDropFn(scope, {$data: sendData.data, $event: e, $channel: sendData.channel});
+                });
+                element.removeClass(dragEnterClass);
+                dragging = 0;
+            }
+
+            function isDragChannelAccepted(dragChannel, dropChannel) {
+                if (dropChannel === '*') {
+                    return true;
                 }
 
-			var deregisterDragStart = $rootScope.$on("ANGULAR_DRAG_START", function (event, channel) {
-                    dragChannel = channel;
-                    if (isDragChannelAccepted(channel, dropChannel)) {
-                        if (attr.dropValidate) {
-                            var validateFn = $parse(attr.dropValidate);
-                            var valid = validateFn(scope, {$data: currentData.data, $channel: currentData.channel});
-                            if (!valid) {
-                                element.bind("dragover", preventNativeDnD);
-                                element.bind("dragenter", preventNativeDnD);
-                                element.bind("dragleave", preventNativeDnD);
-                                element.bind("drop", preventNativeDnD);
-								return;
-                            }
-                        }
+                var channelMatchPattern = new RegExp('(\\s|[,])+(' + dragChannel + ')(\\s|[,])+', 'i');
 
-                        element.bind("dragover", onDragOver);
-                        element.bind("dragenter", onDragEnter);
-                        element.bind("dragleave", onDragLeave);
+                return channelMatchPattern.test(',' + dropChannel + ',');
+            }
 
-                        element.bind("drop", onDrop);
-                        element.addClass(dragEnterClass);
-                    }
-					else {
-					    element.bind("dragover", preventNativeDnD);
-					    element.bind("dragenter", preventNativeDnD);
-					    element.bind("dragleave", preventNativeDnD);
-					    element.bind("drop", preventNativeDnD);
-					}
+            function preventNativeDnD(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+                e.dataTransfer.dropEffect = 'none';
+                return false;
+            }
 
-                });
+            var deregisterDragStart = $rootScope.$on('ANGULAR_DRAG_START', function(_, e, channel, transferDataObject) {
+                dragChannel = channel;
 
+                var valid = true;
 
+                if (!isDragChannelAccepted(channel, dropChannel)) {
+                    valid = false;
+                }
 
-                var deregisterDragEnd = $rootScope.$on("ANGULAR_DRAG_END", function (e, channel) {
-                    dragChannel = "";
-                    if (isDragChannelAccepted(channel, dropChannel)) {
+                if (valid && attr.dropValidate) {
+                    var validateFn = $parse(attr.dropValidate);
+                    valid = validateFn(scope, {$drop: {scope: scope, element:element}, $event:e, $data: transferDataObject.data, $channel: transferDataObject.channel});
+                }
 
-                        element.unbind("dragover", onDragOver);
-                        element.unbind("dragenter", onDragEnter);
-                        element.unbind("dragleave", onDragLeave);
+                if (valid) {
+                    element.bind('dragover', onDragOver);
+                    element.bind('dragenter', onDragEnter);
+                    element.bind('dragleave', onDragLeave);
+                    element.bind('drop', onDrop);
 
-                        element.unbind("drop", onDrop);
-                        element.removeClass(dragHoverClass);
-                        element.removeClass(dragEnterClass);
-                    }
+                    element.addClass(dragEnterClass);
+                } else {
+                    element.bind('dragover', preventNativeDnD);
+                    element.bind('dragenter', preventNativeDnD);
+                    element.bind('dragleave', preventNativeDnD);
+                    element.bind('drop', preventNativeDnD);
 
-					element.unbind("dragover", preventNativeDnD);
-					element.unbind("dragenter", preventNativeDnD);
-					element.unbind("dragleave", preventNativeDnD);
-					element.unbind("drop", preventNativeDnD);
-                });
+                    element.removeClass(dragEnterClass);
+                }
+
+            });
 
 
-                var deregisterDragHover = $rootScope.$on("ANGULAR_HOVER", function (e, channel) {
-                    if (isDragChannelAccepted(channel, dropChannel)) {
-                      element.removeClass(dragHoverClass);
-                    }
-                });
+            var deregisterDragEnd = $rootScope.$on('ANGULAR_DRAG_END', function(_, e, channel) {
+                element.unbind('dragover', onDragOver);
+                element.unbind('dragenter', onDragEnter);
+                element.unbind('dragleave', onDragLeave);
+
+                element.unbind('drop', onDrop);
+                element.removeClass(dragHoverClass);
+                element.removeClass(dragEnterClass);
+
+                element.unbind('dragover', preventNativeDnD);
+                element.unbind('dragenter', preventNativeDnD);
+                element.unbind('dragleave', preventNativeDnD);
+                element.unbind('drop', preventNativeDnD);
+            });
+
+            scope.$on('$destroy', function() {
+                deregisterDragStart();
+                deregisterDragEnd();
+            });
 
 
-                scope.$on('$destroy', function () {
-                    deregisterDragStart();
-                    deregisterDragEnd();
-                    deregisterDragHover();
-                });
+            attr.$observe('dropChannel', function(value) {
+                if (value) {
+                    dropChannel = value;
+                }
+            });
 
 
-                attr.$observe('dropChannel', function (value) {
-                    if (value) {
-                        dropChannel = value;
-                    }
-                });
+        };
+    }
+    ]);
 
-
-            };
-        }
-    ])
-    .constant("$dragImageConfig", {
+    module.constant('$dragImageConfig', {
         height: 20,
         width: 200,
         padding: 10,
@@ -34385,51 +34553,50 @@ angular.module("ang-drag-drop",[])
         backgroundColor: '#93a1a1',
         xOffset: 0,
         yOffset: 0
-    })
-    .service("$dragImage", [
-        '$dragImageConfig',
-        function (defaultConfig) {
-            var ELLIPSIS = '…';
+    });
 
-            function fitString(canvas, text, config) {
-                var width = canvas.measureText(text).width;
-                if (width < config.width) {
-                    return text;
-                }
-                while (width + config.padding > config.width) {
-                    text = text.substring(0, text.length - 1);
-                    width = canvas.measureText(text + ELLIPSIS).width;
-                }
-                return text + ELLIPSIS;
-            };
+    module.service('$dragImage', ['$dragImageConfig', function(defaultConfig) {
+        var ELLIPSIS = '…';
 
-            this.generate = function (text, options) {
-                var config = angular.extend({}, defaultConfig, options || {});
-                var el = document.createElement('canvas');
-
-                el.height = config.height;
-                el.width = config.width;
-
-                var canvas = el.getContext('2d');
-
-                canvas.fillStyle = config.backgroundColor;
-                canvas.fillRect(0, 0, config.width, config.height);
-                canvas.font = config.font;
-                canvas.fillStyle = config.fontColor;
-
-                var title = fitString(canvas, text, config);
-                canvas.fillText(title, 4, config.padding + 4);
-
-                var image = new Image();
-                image.src = el.toDataURL();
-
-                return {
-                    image: image,
-                    xOffset: config.xOffset,
-                    yOffset: config.yOffset
-                };
+        function fitString(canvas, text, config) {
+            var width = canvas.measureText(text).width;
+            if (width < config.width) {
+                return text;
             }
+            while (width + config.padding > config.width) {
+                text = text.substring(0, text.length - 1);
+                width = canvas.measureText(text + ELLIPSIS).width;
+            }
+            return text + ELLIPSIS;
         }
+
+        this.generate = function(text, options) {
+            var config = angular.extend({}, defaultConfig, options || {});
+            var el = document.createElement('canvas');
+
+            el.height = config.height;
+            el.width = config.width;
+
+            var canvas = el.getContext('2d');
+
+            canvas.fillStyle = config.backgroundColor;
+            canvas.fillRect(0, 0, config.width, config.height);
+            canvas.font = config.font;
+            canvas.fillStyle = config.fontColor;
+
+            var title = fitString(canvas, text, config);
+            canvas.fillText(title, 4, config.padding + 4);
+
+            var image = new Image();
+            image.src = el.toDataURL();
+
+            return {
+                image: image,
+                xOffset: config.xOffset,
+                yOffset: config.yOffset
+            };
+        };
+    }
     ]);
 
 }(angular));
@@ -38722,7 +38889,7 @@ angular.module("ang-drag-drop",[])
     }
 }).call(this);
 
-/* angular-moment.js / v0.9.0 / (c) 2013, 2014, 2015 Uri Shaked / MIT Licence */
+/* angular-moment.js / v0.9.2 / (c) 2013, 2014, 2015 Uri Shaked / MIT Licence */
 
 'format global';
 /* global define */
@@ -39017,17 +39184,34 @@ angular.module("ang-drag-drop",[])
 				 *
 				 * @description
 				 * Changes the locale for moment.js and updates all the am-time-ago directive instances
-				 * with the new locale. Also broadcasts a `amMoment:localeChanged` event on $rootScope.
+				 * with the new locale. Also broadcasts an `amMoment:localeChanged` event on $rootScope.
 				 *
 				 * @param {string} locale Locale code (e.g. en, es, ru, pt-br, etc.)
+				 * @param {object} customization object of locale strings to override
 				 */
-				this.changeLocale = function (locale) {
-					var result = moment.locale(locale);
+				this.changeLocale = function (locale, customization) {
+					var result = moment.locale(locale, customization);
 					if (angular.isDefined(locale)) {
 						$rootScope.$broadcast('amMoment:localeChanged');
 
 					}
 					return result;
+				};
+
+				/**
+				 * @ngdoc function
+				 * @name angularMoment.service.amMoment#changeTimezone
+				 * @methodOf angularMoment.service.amMoment
+				 *
+				 * @description
+				 * Changes the default timezone for amCalendar, amDateFormat and amTimeAgo. Also broadcasts an
+				 * `amMoment:timezoneChanged` event on $rootScope.
+				 *
+				 * @param {string} timezone Timezone name (e.g. UTC)
+				 */
+				this.changeTimezone = function (timezone) {
+					angularMomentConfig.timezone = timezone;
+					$rootScope.$broadcast('amMoment:timezoneChanged');
 				};
 
 				/**
@@ -39116,6 +39300,42 @@ angular.module("ang-drag-drop",[])
 
 		/**
 		 * @ngdoc filter
+		 * @name angularMoment.filter:amDifference
+		 * @module angularMoment
+		 */
+			.filter('amDifference', ['moment', 'amMoment', 'angularMomentConfig', function (moment, amMoment, angularMomentConfig) {
+				function amDifferenceFilter(value, otherValue, unit, usePrecision, preprocessValue, preprocessOtherValue) {
+					if (typeof value === 'undefined' || value === null) {
+						return '';
+					}
+
+					value = amMoment.preprocessDate(value, preprocessValue);
+					var date = moment(value);
+					if (!date.isValid()) {
+						return '';
+					}
+
+					var date2;
+					if (typeof otherValue === 'undefined' || otherValue === null) {
+						date2 = moment();
+					} else {
+						otherValue = amMoment.preprocessDate(otherValue, preprocessOtherValue);
+						date2 = moment(otherValue);
+						if (!date2.isValid()) {
+							return '';
+						}
+					}
+
+					return amMoment.applyTimezone(date).diff(amMoment.applyTimezone(date2), unit, usePrecision);
+				}
+
+				amDifferenceFilter.$stateful = angularMomentConfig.statefulFilters;
+
+				return amDifferenceFilter;
+			}])
+
+		/**
+		 * @ngdoc filter
 		 * @name angularMoment.filter:amDateFormat
 		 * @module angularMoment
 		 * @function
@@ -39188,14 +39408,13 @@ angular.module("ang-drag-drop",[])
 	}
 
 	if (typeof define === 'function' && define.amd) {
-		define('angular-moment', ['angular', 'moment'], angularMoment);
+		define(['angular', 'moment'], angularMoment);
 	} else if (typeof module !== 'undefined' && module && module.exports) {
 		angularMoment(angular, require('moment'));
 	} else {
 		angularMoment(angular, window.moment);
 	}
 })();
-
 
 /**
  * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
@@ -39691,7 +39910,7 @@ angular.module("ang-drag-drop",[])
 
 })();
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -39736,6 +39955,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 autoExpand: '=?',
                 taskOutOfRange: '=?',
                 taskContent: '=?',
+                rowContent: '=?',
                 maxHeight: '=?',
                 sideWidth: '=?',
                 headers: '=?',
@@ -40090,28 +40310,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         TimeFrame.prototype.updateView = function() {
             if (this.$element) {
+                var cssStyles = {};
+
                 if (this.left !== undefined) {
-                    this.$element.css('left', this.left + 'px');
+                    cssStyles.left = this.left + 'px';
                 } else {
-                    this.$element.css('left', '');
+                    cssStyles.left = '';
                 }
                 if (this.width !== undefined) {
-                    this.$element.css('width', this.width + 'px');
+                    cssStyles.width = this.width + 'px';
                 } else {
-                    this.$element.css('width', '');
+                    cssStyles.width = '';
                 }
 
                 if (this.color !== undefined) {
-                    this.$element.css('background-color', this.color);
+                    cssStyles['background-color'] = this.color;
                 } else {
-                    this.$element.css('background-color', '');
+                    cssStyles['background-color'] = '';
                 }
+
+                this.$element.css(cssStyles);
 
                 var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
                 if (this.classes) {
                     classes = classes.concat(this.classes);
                 }
-                for (var i= 0, l=classes.length; i<l; i++) {
+                for (var i = 0, l = classes.length; i < l; i++) {
                     this.$element.toggleClass(classes[i], true);
                 }
             }
@@ -40583,8 +40807,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         Column.prototype.updateView = function() {
             if (this.$element) {
-                this.$element.css('left', this.left + 'px');
-                this.$element.css('width', this.width + 'px');
+                this.$element.css({'left': this.left + 'px', 'width': this.width + 'px'});
 
                 for (var i = 0, l = this.timeFrames.length; i < l; i++) {
                     this.timeFrames[i].updateView();
@@ -41120,6 +41343,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
 
+            this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
         };
@@ -41222,7 +41446,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var columnsWidthChanged = this.updateColumnsWidths([this.previousColumns, this.columns, this.nextColumns, this.headers]);
+            var columnsWidthChanged = this.updateColumnsWidths(this.columns,  this.headers, this.previousColumns, this.nextColumns);
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
@@ -41305,19 +41529,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return columns[0] === undefined ? columns[1]: columns[0];
         };
 
-        var updateColumnsWidthImpl = function(newWidth, originalWidth, columnsArray) {
-            if (angular.isArray(columnsArray)) {
-                if (columnsArray.length > 0 && angular.isArray(columnsArray[0])) {
-                    angular.forEach(columnsArray, function(columns) {
-                        updateColumnsWidthImpl(newWidth, originalWidth, columns);
-                    });
-                    return;
-                }
-            }
-            layout.setColumnsWidth(newWidth, originalWidth, columnsArray);
-        };
-
-        ColumnsManager.prototype.updateColumnsWidths = function(columns) {
+        ColumnsManager.prototype.updateColumnsWidths = function(columns,  headers, previousColumns, nextColumns) {
             var columnWidth = this.gantt.options.value('columnWidth');
             var expandToFit = this.gantt.options.value('expandToFit');
             var shrinkToFit = this.gantt.options.value('shrinkToFit');
@@ -41326,13 +41538,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn.left + lastColumn.width;
+                var currentWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width: 0;
+
+                var widthFactor = newWidth / currentWidth;
 
                 if (expandToFit && currentWidth < newWidth ||
                     shrinkToFit && currentWidth > newWidth ||
                     columnWidth === undefined
                 ) {
-                    updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
+                    layout.setColumnsWidthFactor(columns, widthFactor);
+                    angular.forEach(headers, function(header) {
+                        layout.setColumnsWidthFactor(header, widthFactor);
+                    });
+                    // previous and next columns will be generated again on need.
+                    previousColumns.splice(0, this.previousColumns.length);
+                    nextColumns.splice(0, this.nextColumns.length);
                     return true;
                 }
 
@@ -41606,6 +41826,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'autoExpand': 'none',
                     'taskOutOfRange': 'truncate',
                     'taskContent': '{{task.model.name}}',
+                    'rowContent': '{{row.model.name}}',
                     'maxHeight': 0,
                     'timeFrames': [],
                     'dateFrames': [],
@@ -41656,17 +41877,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var oldTimeFrames = oldValues[0];
                         var oldDateFrames = oldValues[1];
 
+                        var framesChanged = false;
+
                         if (!angular.equals(timeFrames, oldTimeFrames)) {
                             self.calendar.clearTimeFrames();
                             self.calendar.registerTimeFrames(timeFrames);
+                            framesChanged = true;
                         }
 
                         if (!angular.equals(dateFrames, oldDateFrames)) {
                             self.calendar.clearDateFrames();
                             self.calendar.registerDateFrames(dateFrames);
+                            framesChanged = true;
                         }
 
-                        self.columnsManager.generateColumns();
+                        if (framesChanged) {
+                            self.columnsManager.generateColumns();
+                        }
                     }
                 });
 
@@ -42265,6 +42492,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
             this.rowsTaskWatchers = [];
 
+            this._defaultFilterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+            };
+            this.filterImpl = this._defaultFilterImpl;
+
             this.customRowSorters = [];
             this.customRowFilters = [];
 
@@ -42309,6 +42541,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
             this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+
+            this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
 
             this.gantt.api.registerEvent('tasks', 'add');
             this.gantt.api.registerEvent('tasks', 'change');
@@ -42555,7 +42789,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
-                this.filteredRows = $filter('filter')(this.sortedRows, filterRow, filterRowComparator);
+                this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
             } else {
                 this.filteredRows = this.sortedRows.slice(0);
             }
@@ -42586,6 +42820,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 filteredRows = filterFunction(filteredRows);
             });
             return filteredRows;
+        };
+
+        RowsManager.prototype.setFilterImpl = function(filterImpl) {
+            if (!filterImpl) {
+                this.filterImpl = this._defaultFilterImpl;
+            } else {
+                this.filterImpl = filterImpl;
+            }
         };
 
         RowsManager.prototype.updateVisibleTasks = function() {
@@ -42764,12 +43006,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css('display', '');
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
-                    this.$element.css('left', this.left + 'px');
-                    this.$element.css('width', this.width + 'px');
-
-                    if (this.model.priority > 0) {
+                    if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
                     }
 
@@ -42956,7 +43195,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Scroll.prototype.getScrollLeft = function() {
-            return this.$element === undefined ? undefined : this.$element[0].scrollLeft;
+            if (this.$element === undefined) {
+                return undefined;
+            } else {
+                if (this.cachedScrollLeft === undefined) {
+                    this.cachedScrollLeft = this.$element[0].scrollLeft;
+                }
+
+                return this.cachedScrollLeft;
+            }
         };
 
         Scroll.prototype.getScrollWidth = function() {
@@ -43717,12 +43964,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 $scope.$watch(function() {
                     return getWidth();
-                }, function(newValue) {
-                    $scope.targetElement.css('width', newValue + 'px');
-                    // Setting width again is required when min-width of max-width is set on targetElement.
-                    // This avoid going to a smaller or bigger value than targetElement capabilities.
-                    if ($scope.targetElement[0].offsetWidth > 0) {
-                        setWidth($scope.targetElement[0].offsetWidth);
+                }, function(newValue, oldValue) {
+                    if (newValue !== oldValue) {
+                        $scope.targetElement.css('width', newValue + 'px');
+                        // Setting width again is required when min-width of max-width is set on targetElement.
+                        // This avoid going to a smaller or bigger value than targetElement capabilities.
+                        // Call of 'offsetWidth' is slow. Behaviour needs to be improved.
+                        if ($scope.targetElement[0].offsetWidth > 0) {
+                            setWidth($scope.targetElement[0].offsetWidth);
+                        }
                     }
                 });
 
@@ -43923,25 +44173,28 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             $element.bind('scroll', debounce(function() {
                 var el = $element[0];
+                var currentScrollLeft = el.scrollLeft;
                 var direction;
                 var date;
 
-                if (el.scrollLeft < lastScrollLeft && el.scrollLeft === 0) {
+                $scope.gantt.scroll.cachedScrollLeft = currentScrollLeft;
+                $scope.gantt.columnsManager.updateVisibleColumns();
+                $scope.gantt.rowsManager.updateVisibleTasks();
+
+                if (currentScrollLeft < lastScrollLeft && currentScrollLeft === 0) {
                     direction = 'left';
                     date = $scope.gantt.columnsManager.from;
-                } else if (el.scrollLeft > lastScrollLeft && el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
+                } else if (currentScrollLeft > lastScrollLeft && el.offsetWidth + currentScrollLeft >= el.scrollWidth - 1) {
                     direction = 'right';
                     date = $scope.gantt.columnsManager.to;
                 }
 
-                lastScrollLeft = el.scrollLeft;
-                $scope.gantt.columnsManager.updateVisibleColumns();
-                $scope.gantt.rowsManager.updateVisibleTasks();
+                lastScrollLeft = currentScrollLeft;
 
                 if (date !== undefined) {
                     autoExpandColumns(el, date, direction);
                 } else {
-                    $scope.gantt.api.scroll.raise.scroll(el.scrollLeft);
+                    $scope.gantt.api.scroll.raise.scroll(currentScrollLeft);
                 }
             }, 5));
 
@@ -44565,7 +44818,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt').directive('ganttBindCompileHtml', ['$compile', function($compile) {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            require: '^gantt',
+            link: function(scope, element, attrs, ganttCtrl) {
+                scope.scope = ganttCtrl.gantt.$scope.$parent;
                 scope.$watch(function() {
                     return scope.$eval(attrs.ganttBindCompileHtml);
                 }, function(value) {
@@ -44649,21 +44904,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 return (h1 - h2);
             },
-            setColumnsWidth: function(width, originalWidth, columns) {
-                if (width && originalWidth && columns) {
 
-                    var widthFactor = Math.abs(width / originalWidth);
-
-                    angular.forEach(columns, function(column) {
-                        column.left = widthFactor * column.originalSize.left;
-                        column.width = widthFactor * column.originalSize.width;
-
-                        angular.forEach(column.timeFrames, function(timeFrame) {
-                            timeFrame.left = widthFactor * timeFrame.originalSize.left;
-                            timeFrame.width = widthFactor * timeFrame.originalSize.width;
-                        });
-                    });
+            setColumnsWidthFactor: function(columns, widthFactor, originalLeftOffset) {
+                if (!columns) {
+                    return;
                 }
+
+                if (!originalLeftOffset) {
+                    originalLeftOffset = 0;
+                }
+
+                angular.forEach(columns, function(column) {
+                    column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
+                    column.width = widthFactor * column.originalSize.width;
+
+                    angular.forEach(column.timeFrames, function(timeFrame) {
+                        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                    });
+                });
             }
         };
     }]);
@@ -44784,6 +45043,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                    <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame>\n' +
         '                </gantt-column>\n' +
         '            </gantt-body-columns>\n' +
+        '            <div ng-if="gantt.columnsManager.visibleColumns == 0" style="background-color: #808080"></div>\n' +
         '            <gantt-body-rows>\n' +
         '                <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>\n' +
         '                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">\n' +
@@ -44805,7 +45065,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <!-- Body template -->\n' +
         '    <script type="text/ng-template" id="template/ganttBody.tmpl.html">\n' +
-        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width +\'px\'}"></div>\n' +
+        '        <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width > 0 ? gantt.width +\'px\' : undefined}"></div>\n' +
         '    </script>\n' +
         '\n' +
         '    <!-- Header template -->\n' +
@@ -44882,8 +45142,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttTask.tmpl.html">\n' +
         '        <div class="gantt-task" ng-class="task.model.classes">\n' +
         '            <gantt-task-background></gantt-task-background>\n' +
-        '            <gantt-task-content></gantt-task-content>\n' +
         '            <gantt-task-foreground></gantt-task-foreground>\n' +
+        '            <gantt-task-content></gantt-task-content>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -44932,7 +45192,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '    <script type="text/ng-template" id="template/ganttSideBackground.tmpl.html">\n' +
         '        <div class="gantt-side-background">\n' +
         '            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '                <div class="gantt-header-row gantt-side-header-row"></div>\n' +
+        '                <div ng-show="$parent.ganttHeaderHeight" class="gantt-header-row gantt-side-header-row"></div>\n' +
         '            </div>\n' +
         '            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n' +
         '                <div gantt-vertical-scroll-receiver>\n' +
@@ -44956,7 +45216,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -45298,6 +45558,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var ganttScrollElement = taskScope.row.rowsManager.gantt.scroll.$element;
 
                             var taskHasBeenChanged = false;
+                            var taskHasBeenMovedFromAnotherRow = false;
                             var scrollInterval;
 
                             var foregroundElement = taskScope.task.getForegroundElement();
@@ -45482,7 +45743,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskHasBeenChanged = true;
                                 }
 
-                                if (!oldTaskHasBeenChanged && taskHasBeenChanged) {
+                                if (!oldTaskHasBeenChanged && taskHasBeenChanged && !taskHasBeenMovedFromAnotherRow) {
                                     var backgroundElement = taskScope.task.getBackgroundElement();
                                     if (taskScope.task.moveMode === 'M') {
                                         backgroundElement.addClass('gantt-task-moving');
@@ -45597,8 +45858,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.task.model = angular.copy(taskScope.task.originalModel);
                                 }
 
-                                // Init mouse start variables (if tasks was not move from another row)
-                                if (!taskScope.task.isMoving && !taskScope.task.isResizing) {
+                                // Init mouse start variables
+                                if (!taskHasBeenMovedFromAnotherRow) {
                                     moveStartX = x;
                                     mouseStartOffsetX = x - taskScope.task.modelLeft;
                                 }
@@ -45654,6 +45915,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     taskScope.$apply();
                                 }
 
+                                taskHasBeenMovedFromAnotherRow = false;
                                 taskScope.task.isMoving = false;
                                 taskScope.task.active = false;
 
@@ -45689,11 +45951,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             });
 
                             if (taskScope.task.isResizing) {
+                                taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
                                 delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
                                 // In case the task has been moved to another row a new controller is is created by angular.
                                 // Enable the move mode again if this was the case.
+                                taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('M', taskScope.task.mouseOffsetX);
                             }
                         }
@@ -46104,7 +46368,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 header: '=?',
                 content: '=?',
-                headerContent: '=?'
+                headerContent: '=?',
+                keepAncestorOnFilterRow: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -46124,12 +46389,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.header = 'Name';
                 }
 
-                if (scope.content === undefined) {
-                    scope.content = '{{row.model.name}}';
-                }
-
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
+                }
+
+                if (scope.keepAncestorOnFilterRow === undefined) {
+                    scope.keepAncestorOnFilterRow = false;
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -46594,6 +46859,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (content === undefined) {
                 content = $scope.pluginScope.contents[$scope.column];
             }
+            if (content === undefined && $scope.column === 'model.name') {
+                content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            }
+            if (content === undefined && $scope.pluginScope.content !== undefined) {
+                content = $scope.pluginScope.content;
+            }
             if (content === undefined) {
                 return '{{getValue()}}';
             }
@@ -46681,16 +46952,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }, 5, false));
 
-                $scope.task.getForegroundElement().bind('mousemove', function(evt) {
+
+                $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
                 });
 
-                $scope.task.getForegroundElement().bind('mouseenter', function(evt) {
+                $scope.task.getContentElement().bind('mouseenter', function(evt) {
                     mouseEnterX = evt.clientX;
                     displayTooltip(true, true);
                 });
 
-                $scope.task.getForegroundElement().bind('mouseleave', function() {
+                $scope.task.getContentElement().bind('mouseleave', function() {
                     displayTooltip(false);
                 });
 
@@ -46834,7 +47106,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
+    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
 
         $scope.getHeader = function() {
@@ -46842,6 +47114,47 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         var hierarchy = new Hierarchy();
+
+        $scope.pluginScope.$watchGroup(['keepAncestorOnFilterRow', 'enabled'], function(value) {
+            var keepAncestor = value[0] && value[1];
+
+            if (keepAncestor) {
+                var filterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                    hierarchy.refresh(sortedRows);
+
+                    var leaves = [];
+                    angular.forEach(sortedRows, function(row) {
+                       var children = hierarchy.children(row);
+                       if (!children || children.length === 0) {
+                           leaves.push(row);
+                       }
+                    });
+
+                    var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
+
+                    var filterRowKeepAncestor = function(row) {
+                        if (filteredLeaves.indexOf(row) > -1) {
+                            return true;
+                        }
+
+                        var descendants = hierarchy.descendants(row);
+
+                        for (var i=0; i < descendants.length; i++) {
+                            if (filteredLeaves.indexOf(descendants[i]) > -1) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    };
+
+                    return $filter('filter')(sortedRows, filterRowKeepAncestor, filterRowComparator);
+                };
+                $scope.gantt.rowsManager.setFilterImpl(filterImpl);
+            } else {
+                $scope.gantt.rowsManager.setFilterImpl(false);
+            }
+        });
 
         var isVisible = function(row) {
             var parentRow = $scope.parent(row);
@@ -46965,6 +47278,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
+        var getHierarchy = function() {
+            return hierarchy;
+        };
+
         $scope.getHeaderContent = function() {
             return $scope.pluginScope.headerContent;
         };
@@ -46975,6 +47292,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
+
+        $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
 
         $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
             refresh();
@@ -47010,7 +47329,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         });
 
         $scope.$watch('children(row)', function(newValue) {
-            $scope.$parent.childrenRows = newValue;
+            if (newValue) {
+                // Children rows may have been filtered out
+                // So we need to filter the raw hierarchy before displaying children in tree.
+                var visibleRows = $scope.row.rowsManager.visibleRows;
+
+                var filteredChildrenRows = [];
+                for (var i=0; i < newValue.length; i++) {
+                    var childRow = newValue[i];
+                    if (visibleRows.indexOf(childRow) > -1) {
+                        filteredChildrenRows.push(childRow);
+                    }
+                }
+
+                $scope.$parent.childrenRows = filteredChildrenRows;
+            } else {
+                $scope.$parent.childrenRows = newValue;
+            }
         });
 
         $scope.isCollapseDisabled = function(){
@@ -47025,7 +47360,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.row.model.content !== undefined) {
                 return $scope.row.model.content;
             }
-            return $scope.pluginScope.content;
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+
+            var content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined) {
+                content = '{{row.model.name}}';
+            }
+            return content;
         };
 
         $scope.$watch('collapsed', function(newValue) {
@@ -47174,7 +47517,7 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '    <div class="gantt-table-column {{getClass()}}" ng-repeat="column in pluginScope.columns" ng-controller="TableColumnController">\n' +
         '\n' +
         '        <div class="gantt-table-header" ng-style="{height: ganttHeaderHeight + \'px\'}">\n' +
-        '            <div class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
+        '            <div ng-show="ganttHeaderHeight" class="gantt-row-label-header gantt-row-label gantt-table-row gantt-table-header-row">\n' +
         '                <span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -47270,7 +47613,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
     $templateCache.put('plugins/tree/treeHeader.tmpl.html',
         '<div class="gantt-tree-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n' +
-        '    <div class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
+        '    <div ng-if="$parent.ganttHeaderHeight" class="gantt-row-label gantt-row-label-header gantt-tree-row gantt-tree-header-row"><span class="gantt-label-text" gantt-bind-compile-html="getHeaderContent()"/></div>\n' +
         '</div>\n' +
         '');
 }]);

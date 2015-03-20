@@ -65,6 +65,7 @@
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
 
+            this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
         };
@@ -167,7 +168,7 @@
             var lastColumn = this.getLastColumn();
             this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
 
-            var columnsWidthChanged = this.updateColumnsWidths([this.previousColumns, this.columns, this.nextColumns, this.headers]);
+            var columnsWidthChanged = this.updateColumnsWidths(this.columns,  this.headers, this.previousColumns, this.nextColumns);
 
             this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
 
@@ -250,19 +251,7 @@
             return columns[0] === undefined ? columns[1]: columns[0];
         };
 
-        var updateColumnsWidthImpl = function(newWidth, originalWidth, columnsArray) {
-            if (angular.isArray(columnsArray)) {
-                if (columnsArray.length > 0 && angular.isArray(columnsArray[0])) {
-                    angular.forEach(columnsArray, function(columns) {
-                        updateColumnsWidthImpl(newWidth, originalWidth, columns);
-                    });
-                    return;
-                }
-            }
-            layout.setColumnsWidth(newWidth, originalWidth, columnsArray);
-        };
-
-        ColumnsManager.prototype.updateColumnsWidths = function(columns) {
+        ColumnsManager.prototype.updateColumnsWidths = function(columns,  headers, previousColumns, nextColumns) {
             var columnWidth = this.gantt.options.value('columnWidth');
             var expandToFit = this.gantt.options.value('expandToFit');
             var shrinkToFit = this.gantt.options.value('shrinkToFit');
@@ -271,16 +260,25 @@
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn.left + lastColumn.width;
+                if (lastColumn !== undefined) {
+                    var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
 
-                if (expandToFit && currentWidth < newWidth ||
-                    shrinkToFit && currentWidth > newWidth ||
-                    columnWidth === undefined
-                ) {
-                    updateColumnsWidthImpl(newWidth, this.gantt.originalWidth, columns);
-                    return true;
+                    if (expandToFit && currentWidth < newWidth ||
+                        shrinkToFit && currentWidth > newWidth ||
+                        columnWidth === undefined
+                    ) {
+                        var widthFactor = newWidth / currentWidth;
+
+                        layout.setColumnsWidthFactor(columns, widthFactor);
+                        angular.forEach(headers, function(header) {
+                            layout.setColumnsWidthFactor(header, widthFactor);
+                        });
+                        // previous and next columns will be generated again on need.
+                        previousColumns.splice(0, this.previousColumns.length);
+                        nextColumns.splice(0, this.nextColumns.length);
+                        return true;
+                    }
                 }
-
             }
             return false;
         };

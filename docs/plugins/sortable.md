@@ -4,8 +4,7 @@ Sort rows by drag & drop on rows label.
 
 ## Dependency
 
-[angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.0.7
-[Labels plugin](labels.md)
+[angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.1.0
 
 ## Usage
 

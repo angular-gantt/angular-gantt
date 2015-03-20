@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v1.1.0 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -18,7 +18,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 enabled: '=?',
                 header: '=?',
                 content: '=?',
-                headerContent: '=?'
+                headerContent: '=?',
+                keepAncestorOnFilterRow: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -38,12 +39,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.header = 'Name';
                 }
 
-                if (scope.content === undefined) {
-                    scope.content = '{{row.model.name}}';
-                }
-
                 if (scope.headerContent === undefined) {
                     scope.headerContent = '{{getHeader()}}';
+                }
+
+                if (scope.keepAncestorOnFilterRow === undefined) {
+                    scope.keepAncestorOnFilterRow = false;
                 }
 
                 api.directives.on.new(scope, function(directiveName, sideContentScope, sideContentElement) {
@@ -89,7 +90,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', 'GanttHierarchy', function($scope, Hierarchy) {
+    angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
 
         $scope.getHeader = function() {
@@ -97,6 +98,47 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         var hierarchy = new Hierarchy();
+
+        $scope.pluginScope.$watchGroup(['keepAncestorOnFilterRow', 'enabled'], function(value) {
+            var keepAncestor = value[0] && value[1];
+
+            if (keepAncestor) {
+                var filterImpl = function(sortedRows, filterRow, filterRowComparator) {
+                    hierarchy.refresh(sortedRows);
+
+                    var leaves = [];
+                    angular.forEach(sortedRows, function(row) {
+                       var children = hierarchy.children(row);
+                       if (!children || children.length === 0) {
+                           leaves.push(row);
+                       }
+                    });
+
+                    var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
+
+                    var filterRowKeepAncestor = function(row) {
+                        if (filteredLeaves.indexOf(row) > -1) {
+                            return true;
+                        }
+
+                        var descendants = hierarchy.descendants(row);
+
+                        for (var i=0; i < descendants.length; i++) {
+                            if (filteredLeaves.indexOf(descendants[i]) > -1) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    };
+
+                    return $filter('filter')(sortedRows, filterRowKeepAncestor, filterRowComparator);
+                };
+                $scope.gantt.rowsManager.setFilterImpl(filterImpl);
+            } else {
+                $scope.gantt.rowsManager.setFilterImpl(false);
+            }
+        });
 
         var isVisible = function(row) {
             var parentRow = $scope.parent(row);
@@ -220,6 +262,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
+        var getHierarchy = function() {
+            return hierarchy;
+        };
+
         $scope.getHeaderContent = function() {
             return $scope.pluginScope.headerContent;
         };
@@ -230,6 +276,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
+
+        $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
 
         $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
             refresh();
@@ -265,7 +313,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         });
 
         $scope.$watch('children(row)', function(newValue) {
-            $scope.$parent.childrenRows = newValue;
+            if (newValue) {
+                // Children rows may have been filtered out
+                // So we need to filter the raw hierarchy before displaying children in tree.
+                var visibleRows = $scope.row.rowsManager.filteredRows;
+
+                var filteredChildrenRows = [];
+                for (var i=0; i < newValue.length; i++) {
+                    var childRow = newValue[i];
+                    if (visibleRows.indexOf(childRow) > -1) {
+                        filteredChildrenRows.push(childRow);
+                    }
+                }
+
+                $scope.$parent.childrenRows = filteredChildrenRows;
+            } else {
+                $scope.$parent.childrenRows = newValue;
+            }
         });
 
         $scope.isCollapseDisabled = function(){
@@ -280,7 +344,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.row.model.content !== undefined) {
                 return $scope.row.model.content;
             }
-            return $scope.pluginScope.content;
+            if ($scope.pluginScope.content !== undefined) {
+                return $scope.pluginScope.content;
+            }
+
+            var content = $scope.row.rowsManager.gantt.options.value('rowContent');
+            if (content === undefined) {
+                content = '{{row.model.name}}';
+            }
+            return content;
         };
 
         $scope.$watch('collapsed', function(newValue) {
