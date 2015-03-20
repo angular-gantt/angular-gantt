@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v0.0.1 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v1.0.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -438,6 +438,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 if (taskScope.task.moveMode === 'M') {
                                     var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
+                               
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
@@ -456,6 +457,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                                 break;
                                             }
                                         }
+
+                                        var allowChangeRowGroup = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowChangeRowGroup);
 
                                         var sourceRow = taskScope.task.row;
                                         if (targetRow !== undefined && sourceRow !== targetRow && targetRow.model.parent === sourceRow.model.parent && allowChangeRowGroup) {

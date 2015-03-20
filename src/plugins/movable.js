@@ -149,6 +149,7 @@
 
                                 if (taskScope.task.moveMode === 'M') {
                                     var allowRowSwitching = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowRowSwitching);
+                               
                                     if (allowRowSwitching) {
                                         var scrollRect = ganttScrollElement[0].getBoundingClientRect();
                                         var rowCenterLeft = scrollRect.left + scrollRect.width / 2;
@@ -167,6 +168,8 @@
                                                 break;
                                             }
                                         }
+
+                                        var allowChangeRowGroup = utils.firstProperty([taskMovable, rowMovable], 'allowRowSwitching', scope.allowChangeRowGroup);
 
                                         var sourceRow = taskScope.task.row;
                                         if (targetRow !== undefined && sourceRow !== targetRow && targetRow.model.parent === sourceRow.model.parent && allowChangeRowGroup) {
