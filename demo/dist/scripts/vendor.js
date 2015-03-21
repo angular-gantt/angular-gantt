@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.15
+ * @license AngularJS v1.3.14
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -54,7 +54,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.15/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.14/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -546,12 +546,6 @@ function isString(value) {return typeof value === 'string';}
  * @description
  * Determines if a reference is a `Number`.
  *
- * This includes the "special" numbers `NaN`, `+Infinity` and `-Infinity`.
- *
- * If you wish to exclude these then you can use the native
- * [`isFinite'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite)
- * method.
- *
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
@@ -920,11 +914,10 @@ function equals(o1, o2) {
       } else if (isDate(o1)) {
         if (!isDate(o2)) return false;
         return equals(o1.getTime(), o2.getTime());
-      } else if (isRegExp(o1)) {
-        return isRegExp(o2) ? o1.toString() == o2.toString() : false;
+      } else if (isRegExp(o1) && isRegExp(o2)) {
+        return o1.toString() == o2.toString();
       } else {
-        if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) ||
-          isArray(o2) || isDate(o2) || isRegExp(o2)) return false;
+        if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) || isArray(o2)) return false;
         keySet = {};
         for (key in o1) {
           if (key.charAt(0) === '$' || isFunction(o1[key])) continue;
@@ -2128,11 +2121,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.15',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.14',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 15,
-  codeName: 'locality-filtration'
+  dot: 14,
+  codeName: 'instantaneous-browserification'
 };
 
 
@@ -2268,17 +2261,6 @@ function publishExternalAPI(angular) {
     }
   ]);
 }
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *     Any commits to this file should be reviewed with security in mind.  *
- *   Changes to this file can potentially create security vulnerabilities. *
- *          An approval from 2 Core members with history of modifying      *
- *                         this file is required.                          *
- *                                                                         *
- *  Does the change somehow allow for arbitrary javascript to be executed? *
- *    Or allows for someone to change the prototype of built-in objects?   *
- *     Or gives undesired access to variables likes document or window?    *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* global JQLitePrototype: true,
   addEventListenerFn: true,
@@ -4703,7 +4685,6 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @return {Promise} the animation callback promise
        */
       leave: function(element, options) {
-        applyStyles(element, options);
         element.remove();
         return asyncPromise();
       },
@@ -5108,19 +5089,11 @@ function Browser(window, document, $log, $sniffer) {
     fireUrlChange();
   }
 
-  function getCurrentState() {
-    try {
-      return history.state;
-    } catch (e) {
-      // MSIE can reportedly throw when there is no state (UNCONFIRMED).
-    }
-  }
-
   // This variable should be used *only* inside the cacheState function.
   var lastCachedState = null;
   function cacheState() {
     // This should be the only place in $browser where `history.state` is read.
-    cachedState = getCurrentState();
+    cachedState = window.history.state;
     cachedState = isUndefined(cachedState) ? null : cachedState;
 
     // Prevent callbacks fo fire twice if both hashchange & popstate were fired.
@@ -5717,7 +5690,7 @@ function $CacheFactoryProvider() {
  * the document, but it must be a descendent of the {@link ng.$rootElement $rootElement} (IE,
  * element with ng-app attribute), otherwise the template will be ignored.
  *
- * Adding via the `$templateCache` service:
+ * Adding via the $templateCache service:
  *
  * ```js
  * var myApp = angular.module('myApp', []);
@@ -5744,17 +5717,6 @@ function $TemplateCacheProvider() {
     return $cacheFactory('templates');
   }];
 }
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *     Any commits to this file should be reviewed with security in mind.  *
- *   Changes to this file can potentially create security vulnerabilities. *
- *          An approval from 2 Core members with history of modifying      *
- *                         this file is required.                          *
- *                                                                         *
- *  Does the change somehow allow for arbitrary javascript to be executed? *
- *    Or allows for someone to change the prototype of built-in objects?   *
- *     Or gives undesired access to variables likes document or window?    *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* ! VARIABLE/FUNCTION NAMING CONVENTIONS THAT APPLY TO THIS FILE!
  *
@@ -5967,8 +5929,7 @@ function $TemplateCacheProvider() {
  * Require another directive and inject its controller as the fourth argument to the linking function. The
  * `require` takes a string name (or array of strings) of the directive(s) to pass in. If an array is used, the
  * injected argument will be an array in corresponding order. If no such directive can be
- * found, or if the directive does not have a controller, then an error is raised (unless no link function
- * is specified, in which case error checking is skipped). The name can be prefixed with:
+ * found, or if the directive does not have a controller, then an error is raised. The name can be prefixed with:
  *
  * * (no prefix) - Locate the required controller on the current element. Throw an error if not found.
  * * `?` - Attempt to locate the required controller or pass `null` to the `link` fn if not found.
@@ -10518,15 +10479,7 @@ function $LocaleProvider() {
         mediumDate: 'MMM d, y',
         shortDate: 'M/d/yy',
         mediumTime: 'h:mm:ss a',
-        shortTime: 'h:mm a',
-        ERANAMES: [
-          "Before Christ",
-          "Anno Domini"
-        ],
-        ERAS: [
-          "BC",
-          "AD"
-        ]
+        shortTime: 'h:mm a'
       },
 
       pluralCat: function(num) {
@@ -11534,7 +11487,6 @@ function $LocationProvider() {
          <button ng-click="$log.warn(message)">warn</button>
          <button ng-click="$log.info(message)">info</button>
          <button ng-click="$log.error(message)">error</button>
-         <button ng-click="$log.debug(message)">debug</button>
        </div>
      </file>
    </example>
@@ -11664,17 +11616,6 @@ function $LogProvider() {
     }
   }];
 }
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *     Any commits to this file should be reviewed with security in mind.  *
- *   Changes to this file can potentially create security vulnerabilities. *
- *          An approval from 2 Core members with history of modifying      *
- *                         this file is required.                          *
- *                                                                         *
- *  Does the change somehow allow for arbitrary javascript to be executed? *
- *    Or allows for someone to change the prototype of built-in objects?   *
- *     Or gives undesired access to variables likes document or window?    *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 var $parseMinErr = minErr('$parse');
 
@@ -13611,26 +13552,8 @@ function $RootScopeProvider() {
     return TTL;
   };
 
-  function createChildScopeClass(parent) {
-    function ChildScope() {
-      this.$$watchers = this.$$nextSibling =
-          this.$$childHead = this.$$childTail = null;
-      this.$$listeners = {};
-      this.$$listenerCount = {};
-      this.$$watchersCount = 0;
-      this.$id = nextUid();
-      this.$$ChildScope = null;
-    }
-    ChildScope.prototype = parent;
-    return ChildScope;
-  }
-
   this.$get = ['$injector', '$exceptionHandler', '$parse', '$browser',
       function($injector, $exceptionHandler, $parse, $browser) {
-
-    function destroyChildScope($event) {
-        $event.currentScope.$$destroyed = true;
-    }
 
     /**
      * @ngdoc type
@@ -13754,7 +13677,15 @@ function $RootScopeProvider() {
           // Only create a child scope class if somebody asks for one,
           // but cache it to allow the VM to optimize lookups.
           if (!this.$$ChildScope) {
-            this.$$ChildScope = createChildScopeClass(this);
+            this.$$ChildScope = function ChildScope() {
+              this.$$watchers = this.$$nextSibling =
+                  this.$$childHead = this.$$childTail = null;
+              this.$$listeners = {};
+              this.$$listenerCount = {};
+              this.$id = nextUid();
+              this.$$ChildScope = null;
+            };
+            this.$$ChildScope.prototype = this;
           }
           child = new this.$$ChildScope();
         }
@@ -13772,9 +13703,13 @@ function $RootScopeProvider() {
         // prototypically. In all other cases, this property needs to be set
         // when the parent scope is destroyed.
         // The listener needs to be added after the parent is set
-        if (isolate || parent != this) child.$on('$destroy', destroyChildScope);
+        if (isolate || parent != this) child.$on('$destroy', destroyChild);
 
         return child;
+
+        function destroyChild() {
+          child.$$destroyed = true;
+        }
       },
 
       /**
@@ -14934,17 +14869,6 @@ function $$SanitizeUriProvider() {
     };
   };
 }
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *     Any commits to this file should be reviewed with security in mind.  *
- *   Changes to this file can potentially create security vulnerabilities. *
- *          An approval from 2 Core members with history of modifying      *
- *                         this file is required.                          *
- *                                                                         *
- *  Does the change somehow allow for arbitrary javascript to be executed? *
- *    Or allows for someone to change the prototype of built-in objects?   *
- *     Or gives undesired access to variables likes document or window?    *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 var $sceMinErr = minErr('$sce');
 
@@ -16121,7 +16045,7 @@ function $TemplateRequestProvider() {
       };
 
       return $http.get(tpl, httpOptions)
-        ['finally'](function() {
+        .finally(function() {
           handleRequestFn.totalPendingRequests--;
         })
         .then(function(response) {
@@ -16817,8 +16741,8 @@ function createPredicateFn(expression, comparator, matchAgainstAnyProp) {
 }
 
 function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatchWholeObject) {
-  var actualType = (actual !== null) ? typeof actual : 'null';
-  var expectedType = (expected !== null) ? typeof expected : 'null';
+  var actualType = typeof actual;
+  var expectedType = typeof expected;
 
   if ((expectedType === 'string') && (expected.charAt(0) === '!')) {
     return !deepCompare(actual, expected.substring(1), comparator, matchAgainstAnyProp);
@@ -16843,7 +16767,7 @@ function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatc
       } else if (expectedType === 'object') {
         for (key in expected) {
           var expectedVal = expected[key];
-          if (isFunction(expectedVal) || isUndefined(expectedVal)) {
+          if (isFunction(expectedVal)) {
             continue;
           }
 
@@ -17157,14 +17081,6 @@ function ampmGetter(date, formats) {
   return date.getHours() < 12 ? formats.AMPMS[0] : formats.AMPMS[1];
 }
 
-function eraGetter(date, formats) {
-  return date.getFullYear() <= 0 ? formats.ERAS[0] : formats.ERAS[1];
-}
-
-function longEraGetter(date, formats) {
-  return date.getFullYear() <= 0 ? formats.ERANAMES[0] : formats.ERANAMES[1];
-}
-
 var DATE_FORMATS = {
   yyyy: dateGetter('FullYear', 4),
     yy: dateGetter('FullYear', 2, 0, true),
@@ -17191,14 +17107,10 @@ var DATE_FORMATS = {
      a: ampmGetter,
      Z: timeZoneGetter,
     ww: weekGetter(2),
-     w: weekGetter(1),
-     G: eraGetter,
-     GG: eraGetter,
-     GGG: eraGetter,
-     GGGG: longEraGetter
+     w: weekGetter(1)
 };
 
-var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|G+|w+))(.*)/,
+var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|w+))(.*)/,
     NUMBER_STRING = /^\-?\d+$/;
 
 /**
@@ -17235,8 +17147,6 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|
  *   * `'Z'`: 4 digit (+sign) representation of the timezone offset (-1200-+1200)
  *   * `'ww'`: Week of year, padded (00-53). Week 01 is the week with the first Thursday of the year
  *   * `'w'`: Week of year (0-53). Week 1 is the week with the first Thursday of the year
- *   * `'G'`, `'GG'`, `'GGG'`: The abbreviated form of the era string (e.g. 'AD')
- *   * `'GGGG'`: The long form of the era string (e.g. 'Anno Domini')
  *
  *   `format` string can also be one of the following predefined
  *   {@link guide/i18n localizable formats}:
@@ -17570,43 +17480,6 @@ function limitToFilter() {
  * @param {boolean=} reverse Reverse the order of the array.
  * @returns {Array} Sorted copy of the source array.
  *
- *
- * @example
- * The example below demonstrates a simple ngRepeat, where the data is sorted
- * by age in descending order (predicate is set to `'-age'`).
- * `reverse` is not set, which means it defaults to `false`.
-   <example module="orderByExample">
-     <file name="index.html">
-       <script>
-         angular.module('orderByExample', [])
-           .controller('ExampleController', ['$scope', function($scope) {
-             $scope.friends =
-                 [{name:'John', phone:'555-1212', age:10},
-                  {name:'Mary', phone:'555-9876', age:19},
-                  {name:'Mike', phone:'555-4321', age:21},
-                  {name:'Adam', phone:'555-5678', age:35},
-                  {name:'Julie', phone:'555-8765', age:29}];
-           }]);
-       </script>
-       <div ng-controller="ExampleController">
-         <table class="friend">
-           <tr>
-             <th>Name</th>
-             <th>Phone Number</th>
-             <th>Age</th>
-           </tr>
-           <tr ng-repeat="friend in friends | orderBy:'-age'">
-             <td>{{friend.name}}</td>
-             <td>{{friend.phone}}</td>
-             <td>{{friend.age}}</td>
-           </tr>
-         </table>
-       </div>
-     </file>
-   </example>
- *
- * The predicate and reverse parameters can be controlled dynamically through scope properties,
- * as shown in the next example.
  * @example
    <example module="orderByExample">
      <file name="index.html">
@@ -17989,7 +17862,6 @@ var htmlAnchorDirective = valueFn({
  * but not on older IEs:
  *
  * ```html
- * <!-- See below for an example of ng-disabled being used correctly -->
  * <div ng-init="isDisabled = false">
  *  <button disabled="{{isDisabled}}">Disabled</button>
  * </div>
@@ -18565,7 +18437,7 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
  *
  * # Alias: {@link ng.directive:ngForm `ngForm`}
  *
- * In Angular, forms can be nested. This means that the outer form is valid when all of the child
+ * In Angular forms can be nested. This means that the outer form is valid when all of the child
  * forms are valid as well. However, browsers do not allow nesting of `<form>` elements, so
  * Angular provides the {@link ng.directive:ngForm `ngForm`} directive which behaves identically to
  * `<form>` but can be nested.  This allows you to have nested forms, which is very useful when
@@ -18703,11 +18575,9 @@ var formDirectiveFactory = function(isNgForm) {
       name: 'form',
       restrict: isNgForm ? 'EAC' : 'E',
       controller: FormController,
-      compile: function ngFormCompile(formElement, attr) {
+      compile: function ngFormCompile(formElement) {
         // Setup initial state of the control
         formElement.addClass(PRISTINE_CLASS).addClass(VALID_CLASS);
-
-        var nameAttr = attr.name ? 'name' : (isNgForm && attr.ngForm ? 'ngForm' : false);
 
         return {
           pre: function ngFormPreLink(scope, formElement, attr, controller) {
@@ -18739,21 +18609,23 @@ var formDirectiveFactory = function(isNgForm) {
               });
             }
 
-            var parentFormCtrl = controller.$$parentForm;
+            var parentFormCtrl = controller.$$parentForm,
+                alias = controller.$name;
 
-            if (nameAttr) {
-              setter(scope, null, controller.$name, controller, controller.$name);
-              attr.$observe(nameAttr, function(newValue) {
-                if (controller.$name === newValue) return;
-                setter(scope, null, controller.$name, undefined, controller.$name);
-                parentFormCtrl.$$renameControl(controller, newValue);
-                setter(scope, null, controller.$name, controller, controller.$name);
+            if (alias) {
+              setter(scope, null, alias, controller, alias);
+              attr.$observe(attr.name ? 'name' : 'ngForm', function(newValue) {
+                if (alias === newValue) return;
+                setter(scope, null, alias, undefined, alias);
+                alias = newValue;
+                setter(scope, null, alias, controller, alias);
+                parentFormCtrl.$$renameControl(controller, alias);
               });
             }
             formElement.on('$destroy', function() {
               parentFormCtrl.$removeControl(controller);
-              if (nameAttr) {
-                setter(scope, null, attr[nameAttr], undefined, controller.$name);
+              if (alias) {
+                setter(scope, null, alias, undefined, alias);
               }
               extend(controller, nullFormCtrl); //stop propagating child destruction handlers upwards
             });
@@ -22726,8 +22598,8 @@ is set to `true`. The parse error is stored in `ngModel.$error.parse`.
  * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
  * collaborate together to achieve the desired result.
  *
- * `contenteditable` is an HTML5 attribute, which tells the browser to let the element
- * contents be edited in place by the user.
+ * Note that `contenteditable` is an HTML5 attribute, which tells the browser to let the element
+ * contents be edited in place by the user.  This will not work on older browsers.
  *
  * We are using the {@link ng.service:$sce $sce} service here and include the {@link ngSanitize $sanitize}
  * module to automatically remove "bad" content like inline event listener (e.g. `<span onclick="...">`).
@@ -26308,22 +26180,11 @@ var minlengthDirective = function() {
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
 /**
- * @license AngularJS v1.3.15
+ * @license AngularJS v1.3.14
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window, angular, undefined) {'use strict';
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *     Any commits to this file should be reviewed with security in mind.  *
- *   Changes to this file can potentially create security vulnerabilities. *
- *          An approval from 2 Core members with history of modifying      *
- *                         this file is required.                          *
- *                                                                         *
- *  Does the change somehow allow for arbitrary javascript to be executed? *
- *    Or allows for someone to change the prototype of built-in objects?   *
- *     Or gives undesired access to variables likes document or window?    *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 var $sanitizeMinErr = angular.$$minErr('$sanitize');
 
@@ -26988,7 +26849,7 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 })(window, window.angular);
 
 /**
- * @license AngularJS v1.3.15
+ * @license AngularJS v1.3.14
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -34230,321 +34091,330 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
 })(window, document);
 
-(function(angular) {
-    'use strict';
+/**
+ * Created with IntelliJ IDEA.
+ * User: Ganaraj.Pr
+ * Date: 11/10/13
+ * Time: 11:27
+ * To change this template use File | Settings | File Templates.
+ */
 
-    function isDnDsSupported() {
-        return 'ondrag' in document.createElement('a');
-    }
+(function(angular){
 
-    if (!isDnDsSupported()) {
-        angular.module('ang-drag-drop', []);
-        return;
-    }
+function isDnDsSupported(){
+    return 'ondrag' in document.createElement("a");
+}
 
-    if (window.jQuery && (-1 === window.jQuery.event.props.indexOf('dataTransfer'))) {
-        window.jQuery.event.props.push('dataTransfer');
-    }
+if(!isDnDsSupported()){
+    angular.module("ang-drag-drop", []);
+    return;
+}
 
-    var module = angular.module('ang-drag-drop', []);
+if (window.jQuery && (-1 == window.jQuery.event.props.indexOf("dataTransfer"))) {
+    window.jQuery.event.props.push("dataTransfer");
+}
 
-    module.directive('uiDraggable', ['$parse', '$rootScope', '$dragImage', function($parse, $rootScope, $dragImage) {
-        return function(scope, element, attrs) {
-            var isDragHandleUsed = false,
-                dragHandleClass,
-                draggingClass = attrs.draggingClass || 'on-dragging',
-                dragTarget;
+var currentData;
 
-            element.attr('draggable', false);
+angular.module("ang-drag-drop",[])
+    .directive("uiDraggable", [
+        '$parse',
+        '$rootScope',
+        '$dragImage',
+        function ($parse, $rootScope, $dragImage) {
+            return function (scope, element, attrs) {
+                var isDragHandleUsed = false,
+                    dragHandleClass,
+                    draggingClass = attrs.draggingClass || "on-dragging",
+                    dragTarget;
 
-            scope.$watch(attrs.uiDraggable, function(newValue) {
-                if (newValue) {
-                    element.attr('draggable', newValue);
-                    element.bind('dragend', dragendHandler);
-                    element.bind('dragstart', dragstartHandler);
-                }
-                else {
-                    element.removeAttr('draggable');
-                    element.unbind('dragend', dragendHandler);
-                    element.unbind('dragstart', dragstartHandler);
-                }
+                element.attr("draggable", false);
 
-            });
+                attrs.$observe("uiDraggable", function (newValue) {
+                    if(newValue){
+                        element.attr("draggable", newValue);
+                    }
+                    else{
+                        element.removeAttr("draggable");
+                    }
 
-            if (angular.isString(attrs.dragHandleClass)) {
-                isDragHandleUsed = true;
-                dragHandleClass = attrs.dragHandleClass.trim() || 'drag-handle';
-
-                element.bind('mousedown', function(e) {
-                    dragTarget = e.target;
                 });
-            }
 
-            function dragendHandler(e) {
-                setTimeout(function() {
-                    element.unbind('$destroy', dragendHandler);
-                }, 0);
-                var sendChannel = attrs.dragChannel || 'defaultchannel';
-                $rootScope.$broadcast('ANGULAR_DRAG_END', e, sendChannel);
-                if (e.dataTransfer && e.dataTransfer.dropEffect !== 'none') {
-                    if (attrs.onDropSuccess) {
-                        var onDropSuccessFn = $parse(attrs.onDropSuccess);
-                        scope.$evalAsync(function() {
-                            onDropSuccessFn(scope, {$event: e});
-                        });
-                    } else {
-                        if (attrs.onDropFailure) {
-                            var onDropFailureFn = $parse(attrs.onDropFailure);
-                            scope.$evalAsync(function() {
-                                onDropFailureFn(scope, {$event: e});
+                if (angular.isString(attrs.dragHandleClass)) {
+                    isDragHandleUsed = true;
+                    dragHandleClass = attrs.dragHandleClass.trim() || "drag-handle";
+
+                    element.bind("mousedown", function (e) {
+                        dragTarget = e.target;
+                    });
+                }
+
+                function dragendHandler(e) {
+                    setTimeout(function() {
+                      element.unbind('$destroy', dragendHandler);
+                    }, 0);
+                    var sendChannel = attrs.dragChannel || "defaultchannel";
+                    $rootScope.$broadcast("ANGULAR_DRAG_END", sendChannel);
+                    if (e.dataTransfer && e.dataTransfer.dropEffect !== "none") {
+                        if (attrs.onDropSuccess) {
+                            var fn = $parse(attrs.onDropSuccess);
+                            scope.$evalAsync(function () {
+                                fn(scope, {$event: e});
                             });
+                        } else {
+                            if (attrs.onDropFailure) {
+                                var fn = $parse(attrs.onDropFailure);
+                                scope.$evalAsync(function () {
+                                    fn(scope, {$event: e});
+                                });
+                            }
                         }
                     }
+                    element.removeClass(draggingClass);
                 }
-                element.removeClass(draggingClass);
-            }
 
-            function dragstartHandler(e) {
-                var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
+	            function dragstartHandler(e) {
+		            var isDragAllowed = !isDragHandleUsed || dragTarget.classList.contains(dragHandleClass);
 
-                if (isDragAllowed) {
-                    var sendChannel = attrs.dragChannel || 'defaultchannel';
-                    var dragData = '';
-                    if (attrs.drag) {
-                        dragData = scope.$eval(attrs.drag);
+		            if (isDragAllowed) {
+			            var sendChannel = attrs.dragChannel || "defaultchannel";
+			            var dragData = "";
+			            if (attrs.drag) {
+				            dragData = scope.$eval(attrs.drag);
+			            }
+			            var sendData = angular.toJson({ data: dragData, channel: sendChannel });
+			            var dragImage = attrs.dragImage || null;
+
+			            element.addClass(draggingClass);
+			            element.bind('$destroy', dragendHandler);
+
+			            if (dragImage) {
+				            var dragImageFn = $parse(attrs.dragImage);
+				            scope.$apply(function() {
+					            var dragImageParameters = dragImageFn(scope, {$event: e});
+					            if (dragImageParameters) {
+						            if (angular.isString(dragImageParameters)) {
+							            dragImageParameters = $dragImage.generate(dragImageParameters);
+						            }
+						            if (dragImageParameters.image) {
+							            var xOffset = dragImageParameters.xOffset || 0,
+							                yOffset = dragImageParameters.yOffset || 0;
+							            e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
+						            }
+					            }
+				            });
+			            }
+
+			            e.dataTransfer.setData("dataToSend", sendData);
+			            currentData = angular.fromJson(sendData);
+			            e.dataTransfer.effectAllowed = "copyMove";
+			            $rootScope.$broadcast("ANGULAR_DRAG_START", sendChannel, currentData.data);
+		            }
+		            else {
+			            e.preventDefault();
+		            }
+	            }
+
+                element.bind("dragend", dragendHandler);
+
+                element.bind("dragstart", dragstartHandler);
+            };
+        }
+    ])
+    .directive("uiOnDrop", [
+        '$parse',
+        '$rootScope',
+        function ($parse, $rootScope) {
+            return function (scope, element, attr) {
+                var dragging = 0; //Ref. http://stackoverflow.com/a/10906204
+                var dropChannel = attr.dropChannel || "defaultchannel" ;
+                var dragChannel = "";
+                var dragEnterClass = attr.dragEnterClass || "on-drag-enter";
+                var dragHoverClass = attr.dragHoverClass || "on-drag-hover";
+                var customDragEnterEvent = $parse(attr.onDragEnter);
+                var customDragLeaveEvent = $parse(attr.onDragLeave);
+
+                function onDragOver(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
                     }
 
-                    var dragImage = attrs.dragImage || null;
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
 
-                    element.addClass(draggingClass);
-                    element.bind('$destroy', dragendHandler);
+                    var fn = $parse(attr.uiOnDragOver);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
+                    });
 
-                    if (dragImage) {
-                        var dragImageFn = $parse(attrs.dragImage);
-                        scope.$apply(function() {
-                            var dragImageParameters = dragImageFn(scope, {$event: e});
-                            if (dragImageParameters) {
-                                if (angular.isString(dragImageParameters)) {
-                                    dragImageParameters = $dragImage.generate(dragImageParameters);
-                                }
-                                if (dragImageParameters.image) {
-                                    var xOffset = dragImageParameters.xOffset || 0,
-                                        yOffset = dragImageParameters.yOffset || 0;
-                                    e.dataTransfer.setDragImage(dragImageParameters.image, xOffset, yOffset);
-                                }
-                            }
+                    e.dataTransfer.dropEffect = e.shiftKey ? 'copy' : 'move';
+                    return false;
+                }
+
+                function onDragLeave(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    dragging--;
+
+                    if (dragging == 0) {
+                        scope.$evalAsync(function () {
+                            customDragEnterEvent(scope, {$event: e});
                         });
+                        element.removeClass(dragHoverClass);
                     }
 
-                    var transferDataObject = {data: dragData, channel: sendChannel}
-                    var transferDataText = angular.toJson(transferDataObject);
-
-                    e.dataTransfer.setData('text', transferDataText);
-                    e.dataTransfer.effectAllowed = 'copyMove';
-
-                    $rootScope.$broadcast('ANGULAR_DRAG_START', e, sendChannel, transferDataObject);
-                }
-                else {
-                    e.preventDefault();
-                }
-            }
-        };
-    }
-    ]);
-
-    module.directive('uiOnDrop', ['$parse', '$rootScope', function($parse, $rootScope) {
-        return function(scope, element, attr) {
-            var dragging = 0; //Ref. http://stackoverflow.com/a/10906204
-            var dropChannel = attr.dropChannel || 'defaultchannel';
-            var dragChannel = '';
-            var dragEnterClass = attr.dragEnterClass || 'on-drag-enter';
-            var dragHoverClass = attr.dragHoverClass || 'on-drag-hover';
-            var customDragEnterEvent = $parse(attr.onDragEnter);
-            var customDragLeaveEvent = $parse(attr.onDragLeave);
-
-            function onDragOver(e) {
-                if (e.preventDefault) {
-                    e.preventDefault(); // Necessary. Allows us to drop.
-                }
-
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-
-                var uiOnDragOverFn = $parse(attr.uiOnDragOver);
-                scope.$evalAsync(function() {
-                    uiOnDragOverFn(scope, {$event: e, $channel: dropChannel});
-                });
-
-                return false;
-            }
-
-            function onDragLeave(e) {
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-                dragging--;
-
-                if (dragging === 0) {
-                    scope.$evalAsync(function() {
-                        customDragLeaveEvent(scope, {$event: e, $channel: dropChannel});
+                    var fn = $parse(attr.uiOnDragLeave);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
                     });
-                    element.addClass(dragEnterClass);
-                    element.removeClass(dragHoverClass);
                 }
 
-                var uiOnDragLeaveFn = $parse(attr.uiOnDragLeave);
-                scope.$evalAsync(function() {
-                    uiOnDragLeaveFn(scope, {$event: e, $channel: dropChannel});
-                });
-            }
+                function onDragEnter(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
 
-            function onDragEnter(e) {
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    dragging++;
 
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-
-                if (dragging === 0) {
-                    scope.$evalAsync(function() {
-                        customDragEnterEvent(scope, {$event: e, $channel: dropChannel});
+                    var fn = $parse(attr.uiOnDragEnter);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$event: e, $channel: dropChannel});
                     });
-                    element.removeClass(dragEnterClass);
+
+                    $rootScope.$broadcast("ANGULAR_HOVER", dragChannel);
+                    scope.$evalAsync(function () {
+                        customDragLeaveEvent(scope, {$event: e});
+                    });
                     element.addClass(dragHoverClass);
                 }
-                dragging++;
 
-                var uiOnDragEnterFn = $parse(attr.uiOnDragEnter);
-                scope.$evalAsync(function() {
-                    uiOnDragEnterFn(scope, {$event: e, $channel: dropChannel});
-                });
-
-                $rootScope.$broadcast('ANGULAR_HOVER', dragChannel);
-            }
-
-            function onDrop(e) {
-                if (e.preventDefault) {
-                    e.preventDefault(); // Necessary. Allows us to drop.
-                }
-                if (e.stopPropagation) {
-                    e.stopPropagation(); // Necessary. Allows us to drop.
-                }
-
-                var sendData = e.dataTransfer.getData('text');
-                sendData = angular.fromJson(sendData);
-
-                // Chrome doesn't set dropEffect, so we have to work it out ourselves
-                if (e.dataTransfer.dropEffect === 'none') {
-                    if (e.dataTransfer.effectAllowed === 'copy' ||
-                        e.dataTransfer.effectAllowed === 'move') {
-                        e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed;
-                    } else if (e.dataTransfer.effectAllowed === 'copyMove') {
-                        e.dataTransfer.dropEffect = e.ctrlKey ? 'copy' : 'move';
+                function onDrop(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
                     }
-                }
+                    if (e.stopPropagation) {
+                        e.stopPropagation(); // Necessary. Allows us to drop.
+                    }
 
-                var uiOnDropFn = $parse(attr.uiOnDrop);
-                scope.$evalAsync(function() {
-                    uiOnDropFn(scope, {$data: sendData.data, $event: e, $channel: sendData.channel});
-                });
-                element.removeClass(dragEnterClass);
-                dragging = 0;
-            }
+                    var sendData = e.dataTransfer.getData("dataToSend");
+                    sendData = angular.fromJson(sendData);
 
-            function isDragChannelAccepted(dragChannel, dropChannel) {
-                if (dropChannel === '*') {
-                    return true;
-                }
-
-                var channelMatchPattern = new RegExp('(\\s|[,])+(' + dragChannel + ')(\\s|[,])+', 'i');
-
-                return channelMatchPattern.test(',' + dropChannel + ',');
-            }
-
-            function preventNativeDnD(e) {
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-                e.dataTransfer.dropEffect = 'none';
-                return false;
-            }
-
-            var deregisterDragStart = $rootScope.$on('ANGULAR_DRAG_START', function(_, e, channel, transferDataObject) {
-                dragChannel = channel;
-
-                var valid = true;
-
-                if (!isDragChannelAccepted(channel, dropChannel)) {
-                    valid = false;
-                }
-
-                if (valid && attr.dropValidate) {
-                    var validateFn = $parse(attr.dropValidate);
-                    valid = validateFn(scope, {$drop: {scope: scope, element:element}, $event:e, $data: transferDataObject.data, $channel: transferDataObject.channel});
-                }
-
-                if (valid) {
-                    element.bind('dragover', onDragOver);
-                    element.bind('dragenter', onDragEnter);
-                    element.bind('dragleave', onDragLeave);
-                    element.bind('drop', onDrop);
-
-                    element.addClass(dragEnterClass);
-                } else {
-                    element.bind('dragover', preventNativeDnD);
-                    element.bind('dragenter', preventNativeDnD);
-                    element.bind('dragleave', preventNativeDnD);
-                    element.bind('drop', preventNativeDnD);
-
+                    var fn = $parse(attr.uiOnDrop);
+                    scope.$evalAsync(function () {
+                        fn(scope, {$data: sendData.data, $event: e, $channel: sendData.channel});
+                    });
                     element.removeClass(dragEnterClass);
+                    dragging = 0;
                 }
 
-            });
+                function isDragChannelAccepted(dragChannel, dropChannel) {
+                    if (dropChannel === "*") {
+                        return true;
+                    }
 
+                    var channelMatchPattern = new RegExp("(\\s|[,])+(" + dragChannel + ")(\\s|[,])+", "i");
 
-            var deregisterDragEnd = $rootScope.$on('ANGULAR_DRAG_END', function(_, e, channel) {
-                element.unbind('dragover', onDragOver);
-                element.unbind('dragenter', onDragEnter);
-                element.unbind('dragleave', onDragLeave);
-
-                element.unbind('drop', onDrop);
-                element.removeClass(dragHoverClass);
-                element.removeClass(dragEnterClass);
-
-                element.unbind('dragover', preventNativeDnD);
-                element.unbind('dragenter', preventNativeDnD);
-                element.unbind('dragleave', preventNativeDnD);
-                element.unbind('drop', preventNativeDnD);
-            });
-
-            scope.$on('$destroy', function() {
-                deregisterDragStart();
-                deregisterDragEnd();
-            });
-
-
-            attr.$observe('dropChannel', function(value) {
-                if (value) {
-                    dropChannel = value;
+                    return channelMatchPattern.test("," + dropChannel + ",");
                 }
-            });
+
+                function preventNativeDnD(e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    e.dataTransfer.dropEffect = "none";
+                    return false;
+                }
+
+			var deregisterDragStart = $rootScope.$on("ANGULAR_DRAG_START", function (event, channel) {
+                    dragChannel = channel;
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+                        if (attr.dropValidate) {
+                            var validateFn = $parse(attr.dropValidate);
+                            var valid = validateFn(scope, {$data: currentData.data, $channel: currentData.channel});
+                            if (!valid) {
+                                element.bind("dragover", preventNativeDnD);
+                                element.bind("dragenter", preventNativeDnD);
+                                element.bind("dragleave", preventNativeDnD);
+                                element.bind("drop", preventNativeDnD);
+								return;
+                            }
+                        }
+
+                        element.bind("dragover", onDragOver);
+                        element.bind("dragenter", onDragEnter);
+                        element.bind("dragleave", onDragLeave);
+
+                        element.bind("drop", onDrop);
+                        element.addClass(dragEnterClass);
+                    }
+					else {
+					    element.bind("dragover", preventNativeDnD);
+					    element.bind("dragenter", preventNativeDnD);
+					    element.bind("dragleave", preventNativeDnD);
+					    element.bind("drop", preventNativeDnD);
+					}
+
+                });
 
 
-        };
-    }
-    ]);
 
-    module.constant('$dragImageConfig', {
+                var deregisterDragEnd = $rootScope.$on("ANGULAR_DRAG_END", function (e, channel) {
+                    dragChannel = "";
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+
+                        element.unbind("dragover", onDragOver);
+                        element.unbind("dragenter", onDragEnter);
+                        element.unbind("dragleave", onDragLeave);
+
+                        element.unbind("drop", onDrop);
+                        element.removeClass(dragHoverClass);
+                        element.removeClass(dragEnterClass);
+                    }
+
+					element.unbind("dragover", preventNativeDnD);
+					element.unbind("dragenter", preventNativeDnD);
+					element.unbind("dragleave", preventNativeDnD);
+					element.unbind("drop", preventNativeDnD);
+                });
+
+
+                var deregisterDragHover = $rootScope.$on("ANGULAR_HOVER", function (e, channel) {
+                    if (isDragChannelAccepted(channel, dropChannel)) {
+                      element.removeClass(dragHoverClass);
+                    }
+                });
+
+
+                scope.$on('$destroy', function () {
+                    deregisterDragStart();
+                    deregisterDragEnd();
+                    deregisterDragHover();
+                });
+
+
+                attr.$observe('dropChannel', function (value) {
+                    if (value) {
+                        dropChannel = value;
+                    }
+                });
+
+
+            };
+        }
+    ])
+    .constant("$dragImageConfig", {
         height: 20,
         width: 200,
         padding: 10,
@@ -34553,50 +34423,51 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
         backgroundColor: '#93a1a1',
         xOffset: 0,
         yOffset: 0
-    });
+    })
+    .service("$dragImage", [
+        '$dragImageConfig',
+        function (defaultConfig) {
+            var ELLIPSIS = '…';
 
-    module.service('$dragImage', ['$dragImageConfig', function(defaultConfig) {
-        var ELLIPSIS = '…';
-
-        function fitString(canvas, text, config) {
-            var width = canvas.measureText(text).width;
-            if (width < config.width) {
-                return text;
-            }
-            while (width + config.padding > config.width) {
-                text = text.substring(0, text.length - 1);
-                width = canvas.measureText(text + ELLIPSIS).width;
-            }
-            return text + ELLIPSIS;
-        }
-
-        this.generate = function(text, options) {
-            var config = angular.extend({}, defaultConfig, options || {});
-            var el = document.createElement('canvas');
-
-            el.height = config.height;
-            el.width = config.width;
-
-            var canvas = el.getContext('2d');
-
-            canvas.fillStyle = config.backgroundColor;
-            canvas.fillRect(0, 0, config.width, config.height);
-            canvas.font = config.font;
-            canvas.fillStyle = config.fontColor;
-
-            var title = fitString(canvas, text, config);
-            canvas.fillText(title, 4, config.padding + 4);
-
-            var image = new Image();
-            image.src = el.toDataURL();
-
-            return {
-                image: image,
-                xOffset: config.xOffset,
-                yOffset: config.yOffset
+            function fitString(canvas, text, config) {
+                var width = canvas.measureText(text).width;
+                if (width < config.width) {
+                    return text;
+                }
+                while (width + config.padding > config.width) {
+                    text = text.substring(0, text.length - 1);
+                    width = canvas.measureText(text + ELLIPSIS).width;
+                }
+                return text + ELLIPSIS;
             };
-        };
-    }
+
+            this.generate = function (text, options) {
+                var config = angular.extend({}, defaultConfig, options || {});
+                var el = document.createElement('canvas');
+
+                el.height = config.height;
+                el.width = config.width;
+
+                var canvas = el.getContext('2d');
+
+                canvas.fillStyle = config.backgroundColor;
+                canvas.fillRect(0, 0, config.width, config.height);
+                canvas.font = config.font;
+                canvas.fillStyle = config.fontColor;
+
+                var title = fitString(canvas, text, config);
+                canvas.fillText(title, 4, config.padding + 4);
+
+                var image = new Image();
+                image.src = el.toDataURL();
+
+                return {
+                    image: image,
+                    xOffset: config.xOffset,
+                    yOffset: config.yOffset
+                };
+            }
+        }
     ]);
 
 }(angular));
@@ -38889,7 +38760,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
     }
 }).call(this);
 
-/* angular-moment.js / v0.9.2 / (c) 2013, 2014, 2015 Uri Shaked / MIT Licence */
+/* angular-moment.js / v0.9.0 / (c) 2013, 2014, 2015 Uri Shaked / MIT Licence */
 
 'format global';
 /* global define */
@@ -39184,34 +39055,17 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 				 *
 				 * @description
 				 * Changes the locale for moment.js and updates all the am-time-ago directive instances
-				 * with the new locale. Also broadcasts an `amMoment:localeChanged` event on $rootScope.
+				 * with the new locale. Also broadcasts a `amMoment:localeChanged` event on $rootScope.
 				 *
 				 * @param {string} locale Locale code (e.g. en, es, ru, pt-br, etc.)
-				 * @param {object} customization object of locale strings to override
 				 */
-				this.changeLocale = function (locale, customization) {
-					var result = moment.locale(locale, customization);
+				this.changeLocale = function (locale) {
+					var result = moment.locale(locale);
 					if (angular.isDefined(locale)) {
 						$rootScope.$broadcast('amMoment:localeChanged');
 
 					}
 					return result;
-				};
-
-				/**
-				 * @ngdoc function
-				 * @name angularMoment.service.amMoment#changeTimezone
-				 * @methodOf angularMoment.service.amMoment
-				 *
-				 * @description
-				 * Changes the default timezone for amCalendar, amDateFormat and amTimeAgo. Also broadcasts an
-				 * `amMoment:timezoneChanged` event on $rootScope.
-				 *
-				 * @param {string} timezone Timezone name (e.g. UTC)
-				 */
-				this.changeTimezone = function (timezone) {
-					angularMomentConfig.timezone = timezone;
-					$rootScope.$broadcast('amMoment:timezoneChanged');
 				};
 
 				/**
@@ -39300,42 +39154,6 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
 		/**
 		 * @ngdoc filter
-		 * @name angularMoment.filter:amDifference
-		 * @module angularMoment
-		 */
-			.filter('amDifference', ['moment', 'amMoment', 'angularMomentConfig', function (moment, amMoment, angularMomentConfig) {
-				function amDifferenceFilter(value, otherValue, unit, usePrecision, preprocessValue, preprocessOtherValue) {
-					if (typeof value === 'undefined' || value === null) {
-						return '';
-					}
-
-					value = amMoment.preprocessDate(value, preprocessValue);
-					var date = moment(value);
-					if (!date.isValid()) {
-						return '';
-					}
-
-					var date2;
-					if (typeof otherValue === 'undefined' || otherValue === null) {
-						date2 = moment();
-					} else {
-						otherValue = amMoment.preprocessDate(otherValue, preprocessOtherValue);
-						date2 = moment(otherValue);
-						if (!date2.isValid()) {
-							return '';
-						}
-					}
-
-					return amMoment.applyTimezone(date).diff(amMoment.applyTimezone(date2), unit, usePrecision);
-				}
-
-				amDifferenceFilter.$stateful = angularMomentConfig.statefulFilters;
-
-				return amDifferenceFilter;
-			}])
-
-		/**
-		 * @ngdoc filter
 		 * @name angularMoment.filter:amDateFormat
 		 * @module angularMoment
 		 * @function
@@ -39408,13 +39226,14 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 	}
 
 	if (typeof define === 'function' && define.amd) {
-		define(['angular', 'moment'], angularMoment);
+		define('angular-moment', ['angular', 'moment'], angularMoment);
 	} else if (typeof module !== 'undefined' && module && module.exports) {
 		angularMoment(angular, require('moment'));
 	} else {
 		angularMoment(angular, window.moment);
 	}
 })();
+
 
 /**
  * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
@@ -39910,7 +39729,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 
 })();
 /*
-Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.4 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -40000,9 +39819,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 // This file is adapted from Angular UI ngGrid project
 // MIT License
-// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.12/src/js/core/factories/GridApi.js
+// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.20/src/js/core/factories/GridApi.js
 (function() {
     'use strict';
+
     angular.module('gantt')
         .factory('GanttApi', ['$q', '$rootScope', 'ganttUtils',
             function($q, $rootScope, utils) {
@@ -40010,7 +39830,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @ngdoc function
                  * @name gantt.class:GanttApi
                  * @description GanttApi provides the ability to register public methods events inside the gantt and allow
-                 * for other components to use the api via featureName.methodName and featureName.on.eventName(function(args){}
+                 * for other components to use the api via featureName.raise.methodName and featureName.on.eventName(function(args){}.
                  * @param {object} gantt gantt that owns api
                  */
                 var GanttApi = function GanttApi(gantt) {
@@ -40067,7 +39887,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     //reregister all the listeners
                     foundListeners.forEach(function(l) {
-                        l.dereg = registerEventWithAngular(l.scope, l.eventId, l.handler, self.gantt);
+                        l.dereg = registerEventWithAngular(l.eventId, l.handler, self.gantt, l._this);
                     });
 
                 };
@@ -40076,7 +39896,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @ngdoc function
                  * @name registerEvent
                  * @methodOf gantt.class:GanttApi
-                 * @description Registers a new event for the given feature
+                 * @description Registers a new event for the given feature.  The event will get a
+                 * .raise and .on prepended to it
+                 * <br>
+                 * .raise.eventName() - takes no arguments
+                 * <br/>
+                 * <br/>
+                 * .on.eventName(scope, callBackFn, _this)
+                 * <br/>
+                 * scope - a scope reference to add a deregister call to the scopes .$on('destroy')
+                 * <br/>
+                 * callBackFn - The function to call
+                 * <br/>
+                 * _this - optional this context variable for callbackFn. If omitted, gantt.api will be used for the context
+                 * <br/>
+                 * .on.eventName returns a dereg funtion that will remove the listener.  It's not necessary to use it as the listener
+                 * will be removed when the scope is destroyed.
                  * @param {string} featureName name of the feature that raises the event
                  * @param {string} eventName  name of the event
                  */
@@ -40094,34 +39929,45 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
 
+                    // Creating raise event method featureName.raise.eventName
                     feature.raise[eventName] = function() {
-                        $rootScope.$broadcast.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+                        $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
                     };
 
-                    feature.on[eventName] = function(scope, handler) {
-                        var dereg = registerEventWithAngular(scope, eventId, handler, self.gantt);
+                    // Creating on event method featureName.oneventName
+                    feature.on[eventName] = function(scope, handler, _this) {
+                        var deregAngularOn = registerEventWithAngular(eventId, handler, self.gantt, _this);
 
                         //track our listener so we can turn off and on
-                        var listener = {handler: handler, dereg: dereg, eventId: eventId, scope: scope};
+                        var listener = {
+                            handler: handler,
+                            dereg: deregAngularOn,
+                            eventId: eventId,
+                            scope: scope,
+                            _this: _this
+                        };
                         self.listeners.push(listener);
 
+                        var removeListener = function() {
+                            listener.dereg();
+                            var index = self.listeners.indexOf(listener);
+                            self.listeners.splice(index, 1);
+                        };
+
                         //destroy tracking when scope is destroyed
-                        //wanted to remove the listener from the array but angular does
-                        //strange things in scope.$destroy so I could not access the listener array
                         scope.$on('$destroy', function() {
-                            listener.dereg = null;
-                            listener.handler = null;
-                            listener.eventId = null;
-                            listener.scope = null;
+                            removeListener();
                         });
+
+                        return removeListener;
                     };
                 };
 
-                function registerEventWithAngular(scope, eventId, handler, gantt) {
-                    return scope.$on(eventId, function() {
+                function registerEventWithAngular(eventId, handler, gantt, _this) {
+                    return $rootScope.$on(eventId, function() {
                         var args = Array.prototype.slice.call(arguments);
                         args.splice(0, 1); //remove evt argument
-                        handler.apply(gantt.api, args);
+                        handler.apply(_this ? _this : gantt.api, args);
                     });
                 }
 
@@ -40168,16 +40014,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @param {string} featureName name of the feature
                  * @param {string} methodName  name of the method
                  * @param {object} callBackFn function to execute
-                 * @param {object} thisArg binds callBackFn 'this' to thisArg.  Defaults to ganttApi.gantt
+                 * @param {object} _this binds callBackFn 'this' to _this.  Defaults to ganttApi.gantt
                  */
-                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, thisArg) {
+                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, _this) {
                     if (!this[featureName]) {
                         this[featureName] = {};
                     }
 
                     var feature = this[featureName];
 
-                    feature[methodName] = utils.createBoundedWrapper(thisArg || this.gantt, callBackFn);
+                    feature[methodName] = utils.createBoundedWrapper(_this || this.gantt, callBackFn);
                 };
 
                 /**
@@ -40193,9 +40039,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  *          methodNameTwo:function(args){}
                  *        }
                  * @param {object} eventObjectMap map of feature/event names
-                 * @param {object} thisArg binds this to thisArg for all functions.  Defaults to GanttApi.gantt
+                 * @param {object} _this binds this to _this for all functions.  Defaults to ganttApi.gantt
                  */
-                GanttApi.prototype.registerMethodsFromObject = function(methodMap, thisArg) {
+                GanttApi.prototype.registerMethodsFromObject = function(methodMap, _this) {
                     var self = this;
                     var features = [];
                     angular.forEach(methodMap, function(featProp, featPropName) {
@@ -40208,7 +40054,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     features.forEach(function(feature) {
                         feature.methods.forEach(function(method) {
-                            self.registerMethod(feature.name, method.name, method.fn, thisArg);
+                            self.registerMethod(feature.name, method.name, method.fn, _this);
                         });
                     });
 
@@ -41538,24 +41384,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width: 0;
+                if (lastColumn !== undefined) {
+                    var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
 
-                var widthFactor = newWidth / currentWidth;
+                    if (expandToFit && currentWidth < newWidth ||
+                        shrinkToFit && currentWidth > newWidth ||
+                        columnWidth === undefined
+                    ) {
+                        var widthFactor = newWidth / currentWidth;
 
-                if (expandToFit && currentWidth < newWidth ||
-                    shrinkToFit && currentWidth > newWidth ||
-                    columnWidth === undefined
-                ) {
-                    layout.setColumnsWidthFactor(columns, widthFactor);
-                    angular.forEach(headers, function(header) {
-                        layout.setColumnsWidthFactor(header, widthFactor);
-                    });
-                    // previous and next columns will be generated again on need.
-                    previousColumns.splice(0, this.previousColumns.length);
-                    nextColumns.splice(0, this.nextColumns.length);
-                    return true;
+                        layout.setColumnsWidthFactor(columns, widthFactor);
+                        angular.forEach(headers, function(header) {
+                            layout.setColumnsWidthFactor(header, widthFactor);
+                        });
+                        // previous and next columns will be generated again on need.
+                        previousColumns.splice(0, this.previousColumns.length);
+                        nextColumns.splice(0, this.nextColumns.length);
+                        return true;
+                    }
                 }
-
             }
             return false;
         };
@@ -45216,7 +45063,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.4 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -47332,7 +47179,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (newValue) {
                 // Children rows may have been filtered out
                 // So we need to filter the raw hierarchy before displaying children in tree.
-                var visibleRows = $scope.row.rowsManager.visibleRows;
+                var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
                 for (var i=0; i < newValue.length; i++) {

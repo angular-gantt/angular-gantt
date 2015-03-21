@@ -48,3 +48,9 @@
     Usage: The sample script contains a small how-to. 
     Download: [printing/phantomjs/rasterize.js](https://github.com/angular-gantt/angular-gantt/blob/master/printing/phantomjs/rasterize.js)
 
+- ### How can I get better performance ?
+
+    Make sure that only the absolutely necessary data is loaded into the Gantt. This can be done by loading data for a limited time period (e.g. 6 months) and using the scroll events to load more tasks when the user is scrolling to the end of the active date range.
+    Additionally different view modes like the `view-scale='year'` or the column width setting `column-width=undefined` do display a big amount of data at the same time. If this is not necessary then switching to a lower view scale or disabling the automatic column width calculation is recommended.
+    
+    When running in production we recommend to disable the Angular debug mode and to enable DI strict mode for an additional performance optimization. More about this can be found in the official AngularJS [documentation](https://code.angularjs.org/1.3.14/docs/guide/production).
