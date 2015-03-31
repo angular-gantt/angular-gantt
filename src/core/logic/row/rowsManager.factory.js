@@ -307,6 +307,7 @@
                 var filterRowComparator = this.gantt.options.value('filterRowComparator');
                 if (typeof(filterRowComparator) === 'function') {
 					//fix issue this.gantt is undefined
+					//
 					var gantt = this.gantt;
                     filterRowComparator = function(actual, expected) {
 						//fix actual.model is undefined
