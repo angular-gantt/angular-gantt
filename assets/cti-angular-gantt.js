@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.1 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -3123,7 +3123,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px',  'height': this.model.height,  'display': ''});
 
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
