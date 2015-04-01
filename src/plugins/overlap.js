@@ -20,7 +20,23 @@
                         // on every task change check for overlaps
                         scope.handleOverlaps(task);
                     });
+
+                    // if overlaps flag changes this will update the css class.
+                    api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                        if (directiveName === 'ganttTask') {
+                            taskScope.$watch('task.model.overlaps',function(newOverlapStatus,oldOverlapStatus){
+                                if (newOverlapStatus!==oldOverlapStatus){
+                                   if(newOverlapStatus){
+                                       taskElement.addClass('gantt-task-overlaps');
+                                   } else {
+                                       taskElement.removeClass('gantt-task-overlaps');
+                                   }
+                                }
+                            })
+                        }
+                    });
                 }
+
 
                 scope.handleOverlaps = function (changedTask) {
 
