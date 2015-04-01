@@ -50,6 +50,10 @@ files, where `xxxxxx` plugin is the name of the plugin.
 - ### [Bounds](../plugins/bounds.md)
 
     Display configured bounds when moving mouse over a task.
+    
+- ### [Overlap](../plugins/overlap.md)
+
+    Add a border with `gantt-task-overlaps` CSS class on tasks that overlaps.
 
 - ### [Tooltips](../plugins/tooltips.md)
 
