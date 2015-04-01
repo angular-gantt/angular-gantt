@@ -32,7 +32,7 @@
                                        taskElement.removeClass('gantt-task-overlaps');
                                    }
                                 }
-                            })
+                            });
                         }
                     });
                 }
