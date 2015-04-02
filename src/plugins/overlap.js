@@ -20,64 +20,68 @@
                         // on every task change check for overlaps
                         scope.handleOverlaps(task);
                     });
-
-                    // if overlaps flag changes this will update the css class.
-                    api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
-                        if (directiveName === 'ganttTask') {
-                            taskScope.$watch('task.model.overlaps',function(newOverlapStatus,oldOverlapStatus){
-                                if (newOverlapStatus!==oldOverlapStatus){
-                                   if(newOverlapStatus){
-                                       taskElement.addClass('gantt-task-overlaps');
-                                   } else {
-                                       taskElement.removeClass('gantt-task-overlaps');
-                                   }
-                                }
-                            });
-                        }
-                    });
                 }
 
+                var overlapsTasks = {};
 
                 scope.handleOverlaps = function (changedTask) {
-
                     // Get all the tasks in the row.
-                    var allTasks = changedTask.row.model.tasks;
+                    var allTasks = changedTask.row.tasks;
 
-                    // clear all overlaps flag.
-                    angular.forEach(allTasks,function(Task){
-                        Task.overlaps = false;
+                    var newOverlapsTasks = {};
+                    var removedOverlapsTasks = {};
+
+                    angular.forEach(allTasks, function(task) {
+                        removedOverlapsTasks[task.model.id] = task;
                     });
 
                     // set overlaps flag to each task that overlaps other task.
                     angular.forEach(allTasks,function(currentTask){
                         var currentStart,currentEnd;
-                        if (currentTask.from.isBefore(currentTask.to)){
-                            currentStart = currentTask.from;
-                            currentEnd = currentTask.to;
+                        if (currentTask.model.from.isBefore(currentTask.to)){
+                            currentStart = currentTask.model.from;
+                            currentEnd = currentTask.model.to;
                         } else {
-                            currentStart = currentTask.to;
-                            currentEnd = currentTask.from;
+                            currentStart = currentTask.model.to;
+                            currentEnd = currentTask.model.from;
                         }
                         var currentRange = moment().range(currentStart, currentEnd);
-                        angular.forEach(allTasks,function(Task){
-                            if (currentTask.id !== Task.id){
-                                var Start,End;
-                                if (Task.from.isBefore(Task.to)){
-                                    Start = Task.from;
-                                    End = Task.to;
+                        angular.forEach(allTasks,function(task){
+                            if (currentTask.model.id !== task.model.id){
+                                var start,end;
+                                if (task.model.from.isBefore(task.model.to)){
+                                    start = task.model.from;
+                                    end = task.model.to;
                                 } else {
-                                    Start = Task.to;
-                                    End = Task.from;
+                                    start = task.model.to;
+                                    end = task.model.from;
                                 }
-                                var Range = moment().range(Start, End);
-                                if (Range.overlaps(currentRange)){
-                                    Task.overlaps = currentTask.overlaps = true;
+                                var range = moment().range(start, end);
+                                if (range.overlaps(currentRange)){
+                                    if (!overlapsTasks.hasOwnProperty(task.model.id)) {
+                                        newOverlapsTasks[task.model.id] = task;
+                                    }
+                                    delete removedOverlapsTasks[task.model.id];
+                                    if (!overlapsTasks.hasOwnProperty(currentTask.model.id)) {
+                                        newOverlapsTasks[currentTask.model.id] = currentTask;
+                                    }
+                                    delete removedOverlapsTasks[currentTask.model.id];
                                 }
                             }
                         });
                     });
-                    // update view with the new model changes.
-                    scope.$apply();
+
+                    angular.forEach(removedOverlapsTasks, function(task) {
+                        task.$element.removeClass('gantt-task-overlaps');
+                        delete overlapsTasks[task.model.id];
+                    });
+
+                    angular.forEach(newOverlapsTasks, function(task) {
+                        task.$element.addClass('gantt-task-overlaps');
+                        overlapsTasks[task.model.id] = task;
+                    });
+
+                    overlapsTasks = newOverlapsTasks;
                 };
             }
         };

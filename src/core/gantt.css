@@ -39,10 +39,6 @@
     cursor: default;
 }
 
-.gantt-task-overlaps{
-    border: 2px solid orange;
-}
-
 .gantt-header {
     overflow: hidden;
 }
