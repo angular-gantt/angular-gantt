@@ -102,11 +102,49 @@
             this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
         };
 
+
         Row.prototype.updateTasksPosAndSize = function() {
-            for (var j = 0, k = this.tasks.length; j < k; j++) {
-                this.tasks[j].updatePosAndSize();
+
+           var maxColisionCount = 0;
+           
+           if (this.model.allowCollision){
+
+
+               var transitCollection = [];
+
+               if (this.tasks.length > 0){
+                this.tasks[0].top = 0;
+                transitCollection.push(this.tasks[0]);
             }
-        };
+            
+            
+            for (var i = 1; i < this.tasks.length; i++) {
+                var compareX = this.tasks[i].model;
+                var higherHeight = 0;
+                var colisionCount = 0;
+                for (var y = 0; y < i; y++) {
+
+                    var compareY = this.tasks[y].model;
+
+                    if (compareY.from <= compareX.to && compareY.to >= compareX.from){
+                        higherHeight = Math.max(higherHeight, this.tasks[y].top); 
+                        colisionCount ++;
+                    }
+                }
+                this.tasks[i].colisionPosition = colisionCount;   
+                maxColisionCount = Math.max(maxColisionCount, colisionCount); 
+            }
+        }
+        var topMultilply = 50/maxColisionCount;
+        for (var j = 0, k = this.tasks.length; j < k; j++) {
+
+         
+            this.tasks[j].height = 100 / (maxColisionCount)*12.5;
+            this.tasks[j].top = topMultilply*this.tasks[j].colisionPosition;
+            
+            this.tasks[j].updatePosAndSize();
+        }
+    };
 
         // Remove the specified task from the row
         Row.prototype.removeTask = function(taskId, viewOnly, silent) {

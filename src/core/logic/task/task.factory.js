@@ -36,6 +36,8 @@
                 this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
             }
 
+            
+
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
@@ -88,12 +90,12 @@
             }
         };
 
-        Task.prototype.updateView = function() {
+         Task.prototype.updateView = function() {
             if (this.$element) {
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px',  'height': this.model.height,  'display': ''});
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px',  'height': this.model.height + '%', 'top' : this.top + '%',  'display': '', 'margin' : this.model.margin});
 
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);

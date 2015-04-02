@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.2 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.4 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -2459,11 +2459,49 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
         };
 
+
         Row.prototype.updateTasksPosAndSize = function() {
-            for (var j = 0, k = this.tasks.length; j < k; j++) {
-                this.tasks[j].updatePosAndSize();
+
+           var maxColisionCount = 0;
+           
+           if (this.model.allowCollision){
+
+
+               var transitCollection = [];
+
+               if (this.tasks.length > 0){
+                this.tasks[0].top = 0;
+                transitCollection.push(this.tasks[0]);
             }
-        };
+            
+            
+            for (var i = 1; i < this.tasks.length; i++) {
+                var compareX = this.tasks[i].model;
+                var higherHeight = 0;
+                var colisionCount = 0;
+                for (var y = 0; y < i; y++) {
+
+                    var compareY = this.tasks[y].model;
+
+                    if (compareY.from <= compareX.to && compareY.to >= compareX.from){
+                        higherHeight = Math.max(higherHeight, this.tasks[y].top); 
+                        colisionCount ++;
+                    }
+                }
+                this.tasks[i].colisionPosition = colisionCount;   
+                maxColisionCount = Math.max(maxColisionCount, colisionCount); 
+            }
+        }
+        var topMultilply = 50/maxColisionCount;
+        for (var j = 0, k = this.tasks.length; j < k; j++) {
+
+         
+            this.tasks[j].height = 100 / (maxColisionCount)*12.5;
+            this.tasks[j].top = topMultilply*this.tasks[j].colisionPosition;
+            
+            this.tasks[j].updatePosAndSize();
+        }
+    };
 
         // Remove the specified task from the row
         Row.prototype.removeTask = function(taskId, viewOnly, silent) {
@@ -3066,6 +3104,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
             }
 
+            
+
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
@@ -3118,12 +3158,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
-        Task.prototype.updateView = function() {
+         Task.prototype.updateView = function() {
             if (this.$element) {
                 if (this.left === undefined || this.width === undefined) {
                     this.$element.css('display', 'none');
                 } else {
-                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px',  'height': this.model.height,  'display': ''});
+                    this.$element.css({'left': this.left + 'px', 'width': this.width + 'px',  'height': this.model.height + '%', 'top' : this.top + '%',  'display': '', 'margin' : this.model.margin});
 
                     if (this.model.priority > 0) {
                         this.$element.css('z-index', this.model.priority);
