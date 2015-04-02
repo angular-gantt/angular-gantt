@@ -295,4 +295,32 @@ describe('Columns', function() {
             }
         }
     );
+
+	it('should work with custom comparators',
+		function(){
+            var width = 350;
+
+            var $scope = $rootScope.$new();
+            $scope.ganttElementWidth = width;
+            $scope.data = angular.copy(mockData);
+            $scope.columnMagnet = undefined;
+
+			$scope.filterRow = {'name': 'Status meetings'};
+
+			$scope.filterRowComparator = function(actual , expected){
+				return expected === actual;
+			};
+
+			var $element = angular.element();
+            var gantt = new Gantt($scope, $element);
+
+            gantt.loadData($scope.data);
+            $scope.$digest();
+            gantt.initialized();
+
+			gantt.api.rows.refresh();
+
+			expect(gantt.rowsManager.filteredRows.length).toEqual(1);
+		}
+	);
 });
