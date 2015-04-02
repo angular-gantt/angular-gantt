@@ -30,11 +30,11 @@ module.exports = function(config) {
       'bower_components/angular-ui-tree/dist/angular-ui-tree.js',
       'bower_components/moment/moment.js',
       'bower_components/angular-moment/angular-moment.js',
-      'bower_components/css-element-queries/src/ElementQueries.js',
-      'bower_components/css-element-queries/src/ResizeSensor.js',
       'bower_components/angular-gantt/assets/angular-gantt.js',
       'bower_components/angular-gantt/assets/angular-gantt-plugins.js',
       'bower_components/moment-range/lib/moment-range.js',
+      'bower_components/css-element-queries/src/ElementQueries.js',
+      'bower_components/css-element-queries/src/ResizeSensor.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       'app/scripts/**/*.js',
