@@ -39416,501 +39416,8 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 	}
 })();
 
-/**
- * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
- * directory of this distribution and at
- * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
- */
-;
-(function() {
-    /**
-     *
-     * @type {Function}
-     * @constructor
-     */
-    var ElementQueries = this.ElementQueries = function() {
-
-        this.withTracking = false;
-        var elements = [];
-
-        /**
-         *
-         * @param element
-         * @returns {Number}
-         */
-        function getEmSize(element) {
-            if (!element) {
-                element = document.documentElement;
-            }
-            var fontSize = getComputedStyle(element, 'fontSize');
-            return parseFloat(fontSize) || 16;
-        }
-
-        /**
-         *
-         * @copyright https://github.com/Mr0grog/element-query/blob/master/LICENSE
-         *
-         * @param {HTMLElement} element
-         * @param {*} value
-         * @returns {*}
-         */
-        function convertToPx(element, value) {
-            var units = value.replace(/[0-9]*/, '');
-            value = parseFloat(value);
-            switch (units) {
-                case "px":
-                    return value;
-                case "em":
-                    return value * getEmSize(element);
-                case "rem":
-                    return value * getEmSize();
-                // Viewport units!
-                // According to http://quirksmode.org/mobile/tableViewport.html
-                // documentElement.clientWidth/Height gets us the most reliable info
-                case "vw":
-                    return value * document.documentElement.clientWidth / 100;
-                case "vh":
-                    return value * document.documentElement.clientHeight / 100;
-                case "vmin":
-                case "vmax":
-                    var vw = document.documentElement.clientWidth / 100;
-                    var vh = document.documentElement.clientHeight / 100;
-                    var chooser = Math[units === "vmin" ? "min" : "max"];
-                    return value * chooser(vw, vh);
-                default:
-                    return value;
-                // for now, not supporting physical units (since they are just a set number of px)
-                // or ex/ch (getting accurate measurements is hard)
-            }
-        }
-
-        /**
-         *
-         * @param {HTMLElement} element
-         * @constructor
-         */
-        function SetupInformation(element) {
-            this.element = element;
-            this.options = {};
-            var key, option, width = 0, height = 0, value, actualValue, attrValues, attrValue, attrName;
-
-            /**
-             * @param {Object} option {mode: 'min|max', property: 'width|height', value: '123px'}
-             */
-            this.addOption = function(option) {
-                var idx = [option.mode, option.property, option.value].join(',');
-                this.options[idx] = option;
-            };
-
-            var attributes = ['min-width', 'min-height', 'max-width', 'max-height'];
-
-            /**
-             * Extracts the computed width/height and sets to min/max- attribute.
-             */
-            this.call = function() {
-                // extract current dimensions
-                width = this.element.offsetWidth;
-                height = this.element.offsetHeight;
-
-                attrValues = {};
-
-                for (key in this.options) {
-                    if (!this.options.hasOwnProperty(key)){
-                        continue;
-                    }
-                    option = this.options[key];
-
-                    value = convertToPx(this.element, option.value);
-
-                    actualValue = option.property == 'width' ? width : height;
-                    attrName = option.mode + '-' + option.property;
-                    attrValue = '';
-
-                    if (option.mode == 'min' && actualValue >= value) {
-                        attrValue += option.value;
-                    }
-
-                    if (option.mode == 'max' && actualValue <= value) {
-                        attrValue += option.value;
-                    }
-
-                    if (!attrValues[attrName]) attrValues[attrName] = '';
-                    if (attrValue && -1 === (' '+attrValues[attrName]+' ').indexOf(' ' + attrValue + ' ')) {
-                        attrValues[attrName] += ' ' + attrValue;
-                    }
-                }
-
-                for (var k in attributes) {
-                    if (attrValues[attributes[k]]) {
-                        this.element.setAttribute(attributes[k], attrValues[attributes[k]].substr(1));
-                    } else {
-                        this.element.removeAttribute(attributes[k]);
-                    }
-                }
-            };
-        }
-
-        /**
-         * @param {HTMLElement} element
-         * @param {Object}      options
-         */
-        function setupElement(element, options) {
-            if (element.elementQueriesSetupInformation) {
-                element.elementQueriesSetupInformation.addOption(options);
-            } else {
-                element.elementQueriesSetupInformation = new SetupInformation(element);
-                element.elementQueriesSetupInformation.addOption(options);
-                element.elementQueriesSensor = new ResizeSensor(element, function() {
-                    element.elementQueriesSetupInformation.call();
-                });
-            }
-            element.elementQueriesSetupInformation.call();
-
-            if (this.withTracking) {
-                elements.push(element);
-            }
-        }
-
-        /**
-         * @param {String} selector
-         * @param {String} mode min|max
-         * @param {String} property width|height
-         * @param {String} value
-         */
-        function queueQuery(selector, mode, property, value) {
-            var query;
-            if (document.querySelectorAll) query = document.querySelectorAll.bind(document);
-            if (!query && 'undefined' !== typeof $$) query = $$;
-            if (!query && 'undefined' !== typeof jQuery) query = jQuery;
-
-            if (!query) {
-                throw 'No document.querySelectorAll, jQuery or Mootools\'s $$ found.';
-            }
-
-            var elements = query(selector);
-            for (var i = 0, j = elements.length; i < j; i++) {
-                setupElement(elements[i], {
-                    mode: mode,
-                    property: property,
-                    value: value
-                });
-            }
-        }
-
-        var regex = /,?([^,\n]*)\[[\s\t]*(min|max)-(width|height)[\s\t]*[~$\^]?=[\s\t]*"([^"]*)"[\s\t]*]([^\n\s\{]*)/mgi;
-
-        /**
-         * @param {String} css
-         */
-        function extractQuery(css) {
-            var match;
-            css = css.replace(/'/g, '"');
-            while (null !== (match = regex.exec(css))) {
-                if (5 < match.length) {
-                    queueQuery(match[1] || match[5], match[2], match[3], match[4]);
-                }
-            }
-        }
-
-        /**
-         * @param {CssRule[]|String} rules
-         */
-        function readRules(rules) {
-            var selector = '';
-            if (!rules) {
-                return;
-            }
-            if ('string' === typeof rules) {
-                rules = rules.toLowerCase();
-                if (-1 !== rules.indexOf('min-width') || -1 !== rules.indexOf('max-width')) {
-                    extractQuery(rules);
-                }
-            } else {
-                for (var i = 0, j = rules.length; i < j; i++) {
-                    if (1 === rules[i].type) {
-                        selector = rules[i].selectorText || rules[i].cssText;
-                        if (-1 !== selector.indexOf('min-height') || -1 !== selector.indexOf('max-height')) {
-                            extractQuery(selector);
-                        }else if(-1 !== selector.indexOf('min-width') || -1 !== selector.indexOf('max-width')) {
-                            extractQuery(selector);
-                        }
-                    } else if (4 === rules[i].type) {
-                        readRules(rules[i].cssRules || rules[i].rules);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Searches all css rules and setups the event listener to all elements with element query rules..
-         *
-         * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
-         *                               (no garbage collection possible if you don not call .detach() first)
-         */
-        this.init = function(withTracking) {
-            this.withTracking = withTracking;
-            for (var i = 0, j = document.styleSheets.length; i < j; i++) {
-                readRules(document.styleSheets[i].cssText || document.styleSheets[i].cssRules || document.styleSheets[i].rules);
-            }
-        };
-
-        /**
-         *
-         * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
-         *                               (no garbage collection possible if you don not call .detach() first)
-         */
-        this.update = function(withTracking) {
-            this.withTracking = withTracking;
-            this.init();
-        };
-
-        this.detach = function() {
-            if (!this.withTracking) {
-                throw 'withTracking is not enabled. We can not detach elements since we don not store it.' +
-                'Use ElementQueries.withTracking = true; before domready.';
-            }
-
-            var element;
-            while (element = elements.pop()) {
-                ElementQueries.detach(element);
-            }
-
-            elements = [];
-        };
-    };
-
-    /**
-     *
-     * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
-     *                               (no garbage collection possible if you don not call .detach() first)
-     */
-    ElementQueries.update = function(withTracking) {
-        ElementQueries.instance.update(withTracking);
-    };
-
-    /**
-     * Removes all sensor and elementquery information from the element.
-     *
-     * @param {HTMLElement} element
-     */
-    ElementQueries.detach = function(element) {
-        if (element.elementQueriesSetupInformation) {
-            element.elementQueriesSensor.detach();
-            delete element.elementQueriesSetupInformation;
-            delete element.elementQueriesSensor;
-            console.log('detached');
-        } else {
-            console.log('detached already', element);
-        }
-    };
-
-    ElementQueries.withTracking = false;
-
-    ElementQueries.init = function() {
-        if (!ElementQueries.instance) {
-            ElementQueries.instance = new ElementQueries();
-        }
-
-        ElementQueries.instance.init(ElementQueries.withTracking);
-    };
-
-    var domLoaded = function (callback) {
-        /* Internet Explorer */
-        /*@cc_on
-        @if (@_win32 || @_win64)
-            document.write('<script id="ieScriptLoad" defer src="//:"><\/script>');
-            document.getElementById('ieScriptLoad').onreadystatechange = function() {
-                if (this.readyState == 'complete') {
-                    callback();
-                }
-            };
-        @end @*/
-        /* Mozilla, Chrome, Opera */
-        if (document.addEventListener) {
-            document.addEventListener('DOMContentLoaded', callback, false);
-        }
-        /* Safari, iCab, Konqueror */
-        if (/KHTML|WebKit|iCab/i.test(navigator.userAgent)) {
-            var DOMLoadTimer = setInterval(function () {
-                if (/loaded|complete/i.test(document.readyState)) {
-                    callback();
-                    clearInterval(DOMLoadTimer);
-                }
-            }, 10);
-        }
-        /* Other web browsers */
-        window.onload = callback;
-    };
-
-    if (window.addEventListener) {
-        window.addEventListener('load', ElementQueries.init, false);
-    } else {
-        window.attachEvent('onload', ElementQueries.init);
-    }
-    domLoaded(ElementQueries.init);
-
-})();
-
-/**
- * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
- * directory of this distribution and at
- * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
- */
-;
-(function() {
-
-    /**
-     * Class for dimension change detection.
-     *
-     * @param {Element|Element[]|Elements|jQuery} element
-     * @param {Function} callback
-     *
-     * @constructor
-     */
-    this.ResizeSensor = function(element, callback) {
-        /**
-         *
-         * @constructor
-         */
-        function EventQueue() {
-            this.q = [];
-            this.add = function(ev) {
-                this.q.push(ev);
-            };
-
-            var i, j;
-            this.call = function() {
-                for (i = 0, j = this.q.length; i < j; i++) {
-                    this.q[i].call();
-                }
-            };
-        }
-
-        /**
-         * @param {HTMLElement} element
-         * @param {String}      prop
-         * @returns {String|Number}
-         */
-        function getComputedStyle(element, prop) {
-            if (element.currentStyle) {
-                return element.currentStyle[prop];
-            } else if (window.getComputedStyle) {
-                return window.getComputedStyle(element, null).getPropertyValue(prop);
-            } else {
-                return element.style[prop];
-            }
-        }
-
-        /**
-         *
-         * @param {HTMLElement} element
-         * @param {Function}    resized
-         */
-        function attachResizeEvent(element, resized) {
-            if (!element.resizedAttached) {
-                element.resizedAttached = new EventQueue();
-                element.resizedAttached.add(resized);
-            } else if (element.resizedAttached) {
-                element.resizedAttached.add(resized);
-                return;
-            }
-
-            element.resizeSensor = document.createElement('div');
-            element.resizeSensor.className = 'resize-sensor';
-            var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
-            var styleChild = 'position: absolute; left: 0; top: 0;';
-
-            element.resizeSensor.style.cssText = style;
-            element.resizeSensor.innerHTML =
-                '<div class="resize-sensor-expand" style="' + style + '">' +
-                    '<div style="' + styleChild + '"></div>' +
-                '</div>' +
-                '<div class="resize-sensor-shrink" style="' + style + '">' +
-                    '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' +
-                '</div>';
-            element.appendChild(element.resizeSensor);
-
-            if (!{fixed: 1, absolute: 1}[getComputedStyle(element, 'position')]) {
-                element.style.position = 'relative';
-            }
-
-            var expand = element.resizeSensor.childNodes[0];
-            var expandChild = expand.childNodes[0];
-            var shrink = element.resizeSensor.childNodes[1];
-            var shrinkChild = shrink.childNodes[0];
-
-            var lastWidth, lastHeight;
-
-            var reset = function() {
-                expandChild.style.width = expand.offsetWidth + 10 + 'px';
-                expandChild.style.height = expand.offsetHeight + 10 + 'px';
-                expand.scrollLeft = expand.scrollWidth;
-                expand.scrollTop = expand.scrollHeight;
-                shrink.scrollLeft = shrink.scrollWidth;
-                shrink.scrollTop = shrink.scrollHeight;
-                lastWidth = element.offsetWidth;
-                lastHeight = element.offsetHeight;
-            };
-
-            reset();
-
-            var changed = function() {
-                if (element.resizedAttached) {
-                    element.resizedAttached.call();
-                }
-            };
-
-            var addEvent = function(el, name, cb) {
-                if (el.attachEvent) {
-                    el.attachEvent('on' + name, cb);
-                } else {
-                    el.addEventListener(name, cb);
-                }
-            };
-
-            addEvent(expand, 'scroll', function() {
-                if (element.offsetWidth > lastWidth || element.offsetHeight > lastHeight) {
-                    changed();
-                }
-                reset();
-            });
-
-            addEvent(shrink, 'scroll',function() {
-                if (element.offsetWidth < lastWidth || element.offsetHeight < lastHeight) {
-                    changed();
-                }
-                reset();
-            });
-        }
-
-        if ("[object Array]" === Object.prototype.toString.call(element)
-            || ('undefined' !== typeof jQuery && element instanceof jQuery) //jquery
-            || ('undefined' !== typeof Elements && element instanceof Elements) //mootools
-            ) {
-            var i = 0, j = element.length;
-            for (; i < j; i++) {
-                attachResizeEvent(element[i], callback);
-            }
-        } else {
-            attachResizeEvent(element, callback);
-        }
-
-        this.detach = function() {
-            ResizeSensor.detach(element);
-        };
-    };
-
-    this.ResizeSensor.detach = function(element) {
-        if (element.resizeSensor) {
-            element.removeChild(element.resizeSensor);
-            delete element.resizeSensor;
-            delete element.resizedAttached;
-        }
-    };
-
-})();
 /*
-Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -40000,9 +39507,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 // This file is adapted from Angular UI ngGrid project
 // MIT License
-// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.12/src/js/core/factories/GridApi.js
+// https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.20/src/js/core/factories/GridApi.js
 (function() {
     'use strict';
+
     angular.module('gantt')
         .factory('GanttApi', ['$q', '$rootScope', 'ganttUtils',
             function($q, $rootScope, utils) {
@@ -40010,7 +39518,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @ngdoc function
                  * @name gantt.class:GanttApi
                  * @description GanttApi provides the ability to register public methods events inside the gantt and allow
-                 * for other components to use the api via featureName.methodName and featureName.on.eventName(function(args){}
+                 * for other components to use the api via featureName.raise.methodName and featureName.on.eventName(function(args){}.
                  * @param {object} gantt gantt that owns api
                  */
                 var GanttApi = function GanttApi(gantt) {
@@ -40067,7 +39575,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     //reregister all the listeners
                     foundListeners.forEach(function(l) {
-                        l.dereg = registerEventWithAngular(l.scope, l.eventId, l.handler, self.gantt);
+                        l.dereg = registerEventWithAngular(l.eventId, l.handler, self.gantt, l._this);
                     });
 
                 };
@@ -40076,7 +39584,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @ngdoc function
                  * @name registerEvent
                  * @methodOf gantt.class:GanttApi
-                 * @description Registers a new event for the given feature
+                 * @description Registers a new event for the given feature.  The event will get a
+                 * .raise and .on prepended to it
+                 * <br>
+                 * .raise.eventName() - takes no arguments
+                 * <br/>
+                 * <br/>
+                 * .on.eventName(scope, callBackFn, _this)
+                 * <br/>
+                 * scope - a scope reference to add a deregister call to the scopes .$on('destroy')
+                 * <br/>
+                 * callBackFn - The function to call
+                 * <br/>
+                 * _this - optional this context variable for callbackFn. If omitted, gantt.api will be used for the context
+                 * <br/>
+                 * .on.eventName returns a dereg funtion that will remove the listener.  It's not necessary to use it as the listener
+                 * will be removed when the scope is destroyed.
                  * @param {string} featureName name of the feature that raises the event
                  * @param {string} eventName  name of the event
                  */
@@ -40094,34 +39617,45 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
 
+                    // Creating raise event method featureName.raise.eventName
                     feature.raise[eventName] = function() {
-                        $rootScope.$broadcast.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+                        $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
                     };
 
-                    feature.on[eventName] = function(scope, handler) {
-                        var dereg = registerEventWithAngular(scope, eventId, handler, self.gantt);
+                    // Creating on event method featureName.oneventName
+                    feature.on[eventName] = function(scope, handler, _this) {
+                        var deregAngularOn = registerEventWithAngular(eventId, handler, self.gantt, _this);
 
                         //track our listener so we can turn off and on
-                        var listener = {handler: handler, dereg: dereg, eventId: eventId, scope: scope};
+                        var listener = {
+                            handler: handler,
+                            dereg: deregAngularOn,
+                            eventId: eventId,
+                            scope: scope,
+                            _this: _this
+                        };
                         self.listeners.push(listener);
 
+                        var removeListener = function() {
+                            listener.dereg();
+                            var index = self.listeners.indexOf(listener);
+                            self.listeners.splice(index, 1);
+                        };
+
                         //destroy tracking when scope is destroyed
-                        //wanted to remove the listener from the array but angular does
-                        //strange things in scope.$destroy so I could not access the listener array
                         scope.$on('$destroy', function() {
-                            listener.dereg = null;
-                            listener.handler = null;
-                            listener.eventId = null;
-                            listener.scope = null;
+                            removeListener();
                         });
+
+                        return removeListener;
                     };
                 };
 
-                function registerEventWithAngular(scope, eventId, handler, gantt) {
-                    return scope.$on(eventId, function() {
+                function registerEventWithAngular(eventId, handler, gantt, _this) {
+                    return $rootScope.$on(eventId, function() {
                         var args = Array.prototype.slice.call(arguments);
                         args.splice(0, 1); //remove evt argument
-                        handler.apply(gantt.api, args);
+                        handler.apply(_this ? _this : gantt.api, args);
                     });
                 }
 
@@ -40168,16 +39702,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  * @param {string} featureName name of the feature
                  * @param {string} methodName  name of the method
                  * @param {object} callBackFn function to execute
-                 * @param {object} thisArg binds callBackFn 'this' to thisArg.  Defaults to ganttApi.gantt
+                 * @param {object} _this binds callBackFn 'this' to _this.  Defaults to ganttApi.gantt
                  */
-                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, thisArg) {
+                GanttApi.prototype.registerMethod = function(featureName, methodName, callBackFn, _this) {
                     if (!this[featureName]) {
                         this[featureName] = {};
                     }
 
                     var feature = this[featureName];
 
-                    feature[methodName] = utils.createBoundedWrapper(thisArg || this.gantt, callBackFn);
+                    feature[methodName] = utils.createBoundedWrapper(_this || this.gantt, callBackFn);
                 };
 
                 /**
@@ -40193,9 +39727,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                  *          methodNameTwo:function(args){}
                  *        }
                  * @param {object} eventObjectMap map of feature/event names
-                 * @param {object} thisArg binds this to thisArg for all functions.  Defaults to GanttApi.gantt
+                 * @param {object} _this binds this to _this for all functions.  Defaults to ganttApi.gantt
                  */
-                GanttApi.prototype.registerMethodsFromObject = function(methodMap, thisArg) {
+                GanttApi.prototype.registerMethodsFromObject = function(methodMap, _this) {
                     var self = this;
                     var features = [];
                     angular.forEach(methodMap, function(featProp, featPropName) {
@@ -40208,7 +39742,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     features.forEach(function(feature) {
                         feature.methods.forEach(function(method) {
-                            self.registerMethod(feature.name, method.name, method.fn, thisArg);
+                            self.registerMethod(feature.name, method.name, method.fn, _this);
                         });
                     });
 
@@ -41538,24 +41072,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var newWidth = this.gantt.getBodyAvailableWidth();
 
                 var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-                var currentWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width: 0;
+                if (lastColumn !== undefined) {
+                    var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
 
-                var widthFactor = newWidth / currentWidth;
+                    if (expandToFit && currentWidth < newWidth ||
+                        shrinkToFit && currentWidth > newWidth ||
+                        columnWidth === undefined
+                    ) {
+                        var widthFactor = newWidth / currentWidth;
 
-                if (expandToFit && currentWidth < newWidth ||
-                    shrinkToFit && currentWidth > newWidth ||
-                    columnWidth === undefined
-                ) {
-                    layout.setColumnsWidthFactor(columns, widthFactor);
-                    angular.forEach(headers, function(header) {
-                        layout.setColumnsWidthFactor(header, widthFactor);
-                    });
-                    // previous and next columns will be generated again on need.
-                    previousColumns.splice(0, this.previousColumns.length);
-                    nextColumns.splice(0, this.nextColumns.length);
-                    return true;
+                        layout.setColumnsWidthFactor(columns, widthFactor);
+                        angular.forEach(headers, function(header) {
+                            layout.setColumnsWidthFactor(header, widthFactor);
+                        });
+                        // previous and next columns will be generated again on need.
+                        previousColumns.splice(0, this.previousColumns.length);
+                        nextColumns.splice(0, this.nextColumns.length);
+                        return true;
+                    }
                 }
-
             }
             return false;
         };
@@ -42784,8 +42319,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var filterRowComparator = this.gantt.options.value('filterRowComparator');
                 if (typeof(filterRowComparator) === 'function') {
+					//fix issue this.gantt is undefined
+					//
+					var gantt = this.gantt;
                     filterRowComparator = function(actual, expected) {
-                        return this.gantt.options.value('filterRowComparator')(actual.model, expected.model);
+						//fix actual.model is undefined
+                        return gantt.options.value('filterRowComparator')(actual, expected);
                     };
                 }
 
@@ -45216,7 +44755,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.3 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -45965,6 +45504,97 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
         }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.overlap', ['gantt', 'gantt.overlap.templates']).directive('ganttOverlap', ['moment',function(moment) {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?'
+                // Add other option attributes for this plugin
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                if (scope.enabled){
+                    api.tasks.on.change(scope, function (task) {
+                        // on every task change check for overlaps
+                        scope.handleOverlaps(task);
+                    });
+                }
+
+                var overlapsTasks = {};
+
+                scope.handleOverlaps = function (changedTask) {
+                    // Get all the tasks in the row.
+                    var allTasks = changedTask.row.tasks;
+
+                    var newOverlapsTasks = {};
+                    var removedOverlapsTasks = {};
+
+                    angular.forEach(allTasks, function(task) {
+                        removedOverlapsTasks[task.model.id] = task;
+                    });
+
+                    // set overlaps flag to each task that overlaps other task.
+                    angular.forEach(allTasks,function(currentTask){
+                        var currentStart,currentEnd;
+                        if (currentTask.model.from.isBefore(currentTask.to)){
+                            currentStart = currentTask.model.from;
+                            currentEnd = currentTask.model.to;
+                        } else {
+                            currentStart = currentTask.model.to;
+                            currentEnd = currentTask.model.from;
+                        }
+                        var currentRange = moment().range(currentStart, currentEnd);
+                        angular.forEach(allTasks,function(task){
+                            if (currentTask.model.id !== task.model.id){
+                                var start,end;
+                                if (task.model.from.isBefore(task.model.to)){
+                                    start = task.model.from;
+                                    end = task.model.to;
+                                } else {
+                                    start = task.model.to;
+                                    end = task.model.from;
+                                }
+                                var range = moment().range(start, end);
+                                if (range.overlaps(currentRange)){
+                                    if (!overlapsTasks.hasOwnProperty(task.model.id)) {
+                                        newOverlapsTasks[task.model.id] = task;
+                                    }
+                                    delete removedOverlapsTasks[task.model.id];
+                                    if (!overlapsTasks.hasOwnProperty(currentTask.model.id)) {
+                                        newOverlapsTasks[currentTask.model.id] = currentTask;
+                                    }
+                                    delete removedOverlapsTasks[currentTask.model.id];
+                                }
+                            }
+                        });
+                    });
+
+                    angular.forEach(removedOverlapsTasks, function(task) {
+                        task.$element.removeClass('gantt-task-overlaps');
+                        delete overlapsTasks[task.model.id];
+                    });
+
+                    angular.forEach(newOverlapsTasks, function(task) {
+                        task.$element.addClass('gantt-task-overlaps');
+                        overlapsTasks[task.model.id] = task;
+                    });
+
+                    overlapsTasks = newOverlapsTasks;
+                };
+            }
+        };
+    }]);
 }());
 
 
@@ -47332,7 +46962,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (newValue) {
                 // Children rows may have been filtered out
                 // So we need to filter the raw hierarchy before displaying children in tree.
-                var visibleRows = $scope.row.rowsManager.visibleRows;
+                var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
                 for (var i=0; i < newValue.length; i++) {
@@ -47496,6 +47126,10 @@ angular.module('gantt.movable.templates', []).run(['$templateCache', function($t
 
 }]);
 
+angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/progress/taskProgress.tmpl.html',
         '<div ng-cloak class="gantt-task-progress" ng-style="getCss()" ng-class="getClasses()"></div>\n' +
@@ -47619,3 +47253,841 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
 }]);
 
 //# sourceMappingURL=angular-gantt-plugins.js.map
+(function(root, factory) {
+    if(typeof exports === 'object') {
+        module.exports = factory(require('moment'));
+    }
+    else if(typeof define === 'function' && define.amd) {
+        define(['moment'], factory);
+    }
+    else {
+        root.moment = factory(root.moment);
+    }
+}(this, function(moment) {
+var DateRange, INTERVALS;
+
+INTERVALS = {
+  year: true,
+  month: true,
+  week: true,
+  day: true,
+  hour: true,
+  minute: true,
+  second: true
+};
+
+/**
+  * DateRange class to store ranges and query dates.
+  * @typedef {!Object}
+*
+*/
+
+
+DateRange = (function() {
+  /**
+    * DateRange instance.
+    *
+    * @param {(Moment|Date)} start Start of interval
+    * @param {(Moment|Date)} end   End of interval
+    *
+    * @constructor
+  *
+  */
+
+  function DateRange(start, end) {
+    this.start = moment(start);
+    this.end = moment(end);
+  }
+
+  /**
+    * Deep clone range
+    * @return {!DateRange}
+  *
+  */
+
+
+  DateRange.prototype.clone = function() {
+    return moment().range(this.start, this.end);
+  };
+
+  /**
+    * Determine if the current interval contains a given moment/date/range.
+    *
+    * @param {(Moment|Date|DateRange)} other Date to check
+    *
+    * @return {!boolean}
+  *
+  */
+
+
+  DateRange.prototype.contains = function(other) {
+    if (other instanceof DateRange) {
+      return this.start <= other.start && this.end >= other.end;
+    } else {
+      return (this.start <= other && other <= this.end);
+    }
+  };
+
+  /**
+    * @private
+  *
+  */
+
+
+  DateRange.prototype._by_string = function(interval, hollaback) {
+    var current, _results;
+    current = moment(this.start);
+    _results = [];
+    while (this.contains(current)) {
+      hollaback.call(this, current.clone());
+      _results.push(current.add(1, interval));
+    }
+    return _results;
+  };
+
+  /**
+    * @private
+  *
+  */
+
+
+  DateRange.prototype._by_range = function(range_interval, hollaback) {
+    var i, l, _i, _results;
+    l = Math.floor(this / range_interval);
+    if (l === Infinity) {
+      return this;
+    }
+    _results = [];
+    for (i = _i = 0; 0 <= l ? _i <= l : _i >= l; i = 0 <= l ? ++_i : --_i) {
+      _results.push(hollaback.call(this, moment(this.start.valueOf() + range_interval.valueOf() * i)));
+    }
+    return _results;
+  };
+
+  /**
+    * Determine if the current date range overlaps a given date range.
+    *
+    * @param {!DateRange} range Date range to check
+    *
+    * @return {!boolean}
+  *
+  */
+
+
+  DateRange.prototype.overlaps = function(range) {
+    return this.intersect(range) !== null;
+  };
+
+  /**
+    * Determine the intersecting periods from one or more date ranges.
+    *
+    * @param {!DateRange} other A date range to intersect with this one
+    *
+    * @return {!DateRange|null}
+  *
+  */
+
+
+  DateRange.prototype.intersect = function(other) {
+    var _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+    if (((this.start <= (_ref1 = other.start) && _ref1 < (_ref = this.end)) && _ref < other.end)) {
+      return new DateRange(other.start, this.end);
+    } else if (((other.start < (_ref3 = this.start) && _ref3 < (_ref2 = other.end)) && _ref2 <= this.end)) {
+      return new DateRange(this.start, other.end);
+    } else if (((other.start < (_ref5 = this.start) && _ref5 <= (_ref4 = this.end)) && _ref4 < other.end)) {
+      return this;
+    } else if (((this.start <= (_ref7 = other.start) && _ref7 <= (_ref6 = other.end)) && _ref6 <= this.end)) {
+      return other;
+    } else {
+      return null;
+    }
+    /**
+    * Merge date ranges if they intersect.
+    *
+    * @param {!DateRange} other A date range to add to this one
+    *
+    * @return {!DateRange|null}
+      *
+    */
+
+  };
+
+  DateRange.prototype.add = function(other) {
+    if (this.overlaps(other)) {
+      return new DateRange(moment.min(this.start, other.start), moment.max(this.end, other.end));
+    } else {
+      return null;
+    }
+  };
+
+  /**
+    * Subtract one range from another.
+    *
+    * @param {!DateRange} other A date range to substract from this one
+    *
+    * @return {!DateRange[]}
+  *
+  */
+
+
+  DateRange.prototype.subtract = function(other) {
+    var _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+    if (this.intersect(other) === null) {
+      return [this];
+    } else if (((other.start <= (_ref1 = this.start) && _ref1 < (_ref = this.end)) && _ref <= other.end)) {
+      return [];
+    } else if (((other.start <= (_ref3 = this.start) && _ref3 < (_ref2 = other.end)) && _ref2 < this.end)) {
+      return [new DateRange(other.end, this.end)];
+    } else if (((this.start < (_ref5 = other.start) && _ref5 < (_ref4 = this.end)) && _ref4 <= other.end)) {
+      return [new DateRange(this.start, other.start)];
+    } else if (((this.start < (_ref7 = other.start) && _ref7 < (_ref6 = other.end)) && _ref6 < this.end)) {
+      return [new DateRange(this.start, other.start), new DateRange(other.end, this.end)];
+    }
+  };
+
+  /**
+    * Iterate over the date range by a given date range, executing a function
+    * for each sub-range.
+    *
+    * @param {(!DateRange|String)} range     Date range to be used for iteration
+    *                                        or shorthand string (shorthands:
+    *                                        http://momentjs.com/docs/#/manipulating/add/)
+    * @param {!function(Moment)}   hollaback Function to execute for each sub-range
+    *
+    * @return {!boolean}
+  *
+  */
+
+
+  DateRange.prototype.by = function(range, hollaback) {
+    if (typeof range === 'string') {
+      this._by_string(range, hollaback);
+    } else {
+      this._by_range(range, hollaback);
+    }
+    return this;
+  };
+
+  /**
+    * Date range in milliseconds. Allows basic coercion math of date ranges.
+    *
+    * @return {!number}
+  *
+  */
+
+
+  DateRange.prototype.valueOf = function() {
+    return this.end - this.start;
+  };
+
+  /**
+    * Center date of the range.
+    * @return {!Moment}
+  *
+  */
+
+
+  DateRange.prototype.center = function() {
+    var center;
+    center = this.start + this.diff() / 2;
+    return moment(center);
+  };
+
+  /**
+    * Date range toDate
+    *
+    * @return {!Array}
+  *
+  */
+
+
+  DateRange.prototype.toDate = function() {
+    return [this.start.toDate(), this.end.toDate()];
+  };
+
+  /**
+    * Determine if this date range is the same as another.
+    *
+    * @param {!DateRange} other Another date range to compare to
+    *
+    * @return {!boolean}
+  *
+  */
+
+
+  DateRange.prototype.isSame = function(other) {
+    return this.start.isSame(other.start) && this.end.isSame(other.end);
+  };
+
+  /**
+    * The difference of the end vs start.
+    *
+    * @param {number} unit Unit of difference, if no unit is passed in
+    *                      milliseconds are returned. E.g.: `"days"`,
+    *                      `"months"`, etc...
+    *
+    * @return {!number}
+  *
+  */
+
+
+  DateRange.prototype.diff = function(unit) {
+    if (unit == null) {
+      unit = void 0;
+    }
+    return this.end.diff(this.start, unit);
+  };
+
+  return DateRange;
+
+})();
+
+/**
+  * Build a date range.
+  *
+  * @param {(Moment|Date)} start Start of range
+  * @param {(Moment|Date)} end   End of range
+  *
+  * @this {Moment}
+  *
+  * @return {!DateRange}
+*
+*/
+
+
+moment.range = function(start, end) {
+  if (start in INTERVALS) {
+    return new DateRange(moment(this).startOf(start), moment(this).endOf(start));
+  } else {
+    return new DateRange(start, end);
+  }
+};
+
+/**
+  * Expose constructor
+*
+*/
+
+
+moment.range.constructor = DateRange;
+
+/**
+  * @deprecated
+*
+*/
+
+
+moment.fn.range = moment.range;
+
+/**
+  * Check if the current moment is within a given date range.
+  *
+  * @param {!DateRange} range Date range to check
+  *
+  * @this {Moment}
+  *
+  * @return {!boolean}
+*
+*/
+
+
+moment.fn.within = function(range) {
+  return range.contains(this._d);
+};
+
+    return moment;
+}));
+
+/**
+ * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
+ * directory of this distribution and at
+ * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
+ */
+;
+(function() {
+    /**
+     *
+     * @type {Function}
+     * @constructor
+     */
+    var ElementQueries = this.ElementQueries = function() {
+
+        this.withTracking = false;
+        var elements = [];
+
+        /**
+         *
+         * @param element
+         * @returns {Number}
+         */
+        function getEmSize(element) {
+            if (!element) {
+                element = document.documentElement;
+            }
+            var fontSize = getComputedStyle(element, 'fontSize');
+            return parseFloat(fontSize) || 16;
+        }
+
+        /**
+         *
+         * @copyright https://github.com/Mr0grog/element-query/blob/master/LICENSE
+         *
+         * @param {HTMLElement} element
+         * @param {*} value
+         * @returns {*}
+         */
+        function convertToPx(element, value) {
+            var units = value.replace(/[0-9]*/, '');
+            value = parseFloat(value);
+            switch (units) {
+                case "px":
+                    return value;
+                case "em":
+                    return value * getEmSize(element);
+                case "rem":
+                    return value * getEmSize();
+                // Viewport units!
+                // According to http://quirksmode.org/mobile/tableViewport.html
+                // documentElement.clientWidth/Height gets us the most reliable info
+                case "vw":
+                    return value * document.documentElement.clientWidth / 100;
+                case "vh":
+                    return value * document.documentElement.clientHeight / 100;
+                case "vmin":
+                case "vmax":
+                    var vw = document.documentElement.clientWidth / 100;
+                    var vh = document.documentElement.clientHeight / 100;
+                    var chooser = Math[units === "vmin" ? "min" : "max"];
+                    return value * chooser(vw, vh);
+                default:
+                    return value;
+                // for now, not supporting physical units (since they are just a set number of px)
+                // or ex/ch (getting accurate measurements is hard)
+            }
+        }
+
+        /**
+         *
+         * @param {HTMLElement} element
+         * @constructor
+         */
+        function SetupInformation(element) {
+            this.element = element;
+            this.options = {};
+            var key, option, width = 0, height = 0, value, actualValue, attrValues, attrValue, attrName;
+
+            /**
+             * @param {Object} option {mode: 'min|max', property: 'width|height', value: '123px'}
+             */
+            this.addOption = function(option) {
+                var idx = [option.mode, option.property, option.value].join(',');
+                this.options[idx] = option;
+            };
+
+            var attributes = ['min-width', 'min-height', 'max-width', 'max-height'];
+
+            /**
+             * Extracts the computed width/height and sets to min/max- attribute.
+             */
+            this.call = function() {
+                // extract current dimensions
+                width = this.element.offsetWidth;
+                height = this.element.offsetHeight;
+
+                attrValues = {};
+
+                for (key in this.options) {
+                    if (!this.options.hasOwnProperty(key)){
+                        continue;
+                    }
+                    option = this.options[key];
+
+                    value = convertToPx(this.element, option.value);
+
+                    actualValue = option.property == 'width' ? width : height;
+                    attrName = option.mode + '-' + option.property;
+                    attrValue = '';
+
+                    if (option.mode == 'min' && actualValue >= value) {
+                        attrValue += option.value;
+                    }
+
+                    if (option.mode == 'max' && actualValue <= value) {
+                        attrValue += option.value;
+                    }
+
+                    if (!attrValues[attrName]) attrValues[attrName] = '';
+                    if (attrValue && -1 === (' '+attrValues[attrName]+' ').indexOf(' ' + attrValue + ' ')) {
+                        attrValues[attrName] += ' ' + attrValue;
+                    }
+                }
+
+                for (var k in attributes) {
+                    if (attrValues[attributes[k]]) {
+                        this.element.setAttribute(attributes[k], attrValues[attributes[k]].substr(1));
+                    } else {
+                        this.element.removeAttribute(attributes[k]);
+                    }
+                }
+            };
+        }
+
+        /**
+         * @param {HTMLElement} element
+         * @param {Object}      options
+         */
+        function setupElement(element, options) {
+            if (element.elementQueriesSetupInformation) {
+                element.elementQueriesSetupInformation.addOption(options);
+            } else {
+                element.elementQueriesSetupInformation = new SetupInformation(element);
+                element.elementQueriesSetupInformation.addOption(options);
+                element.elementQueriesSensor = new ResizeSensor(element, function() {
+                    element.elementQueriesSetupInformation.call();
+                });
+            }
+            element.elementQueriesSetupInformation.call();
+
+            if (this.withTracking) {
+                elements.push(element);
+            }
+        }
+
+        /**
+         * @param {String} selector
+         * @param {String} mode min|max
+         * @param {String} property width|height
+         * @param {String} value
+         */
+        function queueQuery(selector, mode, property, value) {
+            var query;
+            if (document.querySelectorAll) query = document.querySelectorAll.bind(document);
+            if (!query && 'undefined' !== typeof $$) query = $$;
+            if (!query && 'undefined' !== typeof jQuery) query = jQuery;
+
+            if (!query) {
+                throw 'No document.querySelectorAll, jQuery or Mootools\'s $$ found.';
+            }
+
+            var elements = query(selector);
+            for (var i = 0, j = elements.length; i < j; i++) {
+                setupElement(elements[i], {
+                    mode: mode,
+                    property: property,
+                    value: value
+                });
+            }
+        }
+
+        var regex = /,?([^,\n]*)\[[\s\t]*(min|max)-(width|height)[\s\t]*[~$\^]?=[\s\t]*"([^"]*)"[\s\t]*]([^\n\s\{]*)/mgi;
+
+        /**
+         * @param {String} css
+         */
+        function extractQuery(css) {
+            var match;
+            css = css.replace(/'/g, '"');
+            while (null !== (match = regex.exec(css))) {
+                if (5 < match.length) {
+                    queueQuery(match[1] || match[5], match[2], match[3], match[4]);
+                }
+            }
+        }
+
+        /**
+         * @param {CssRule[]|String} rules
+         */
+        function readRules(rules) {
+            var selector = '';
+            if (!rules) {
+                return;
+            }
+            if ('string' === typeof rules) {
+                rules = rules.toLowerCase();
+                if (-1 !== rules.indexOf('min-width') || -1 !== rules.indexOf('max-width')) {
+                    extractQuery(rules);
+                }
+            } else {
+                for (var i = 0, j = rules.length; i < j; i++) {
+                    if (1 === rules[i].type) {
+                        selector = rules[i].selectorText || rules[i].cssText;
+                        if (-1 !== selector.indexOf('min-height') || -1 !== selector.indexOf('max-height')) {
+                            extractQuery(selector);
+                        }else if(-1 !== selector.indexOf('min-width') || -1 !== selector.indexOf('max-width')) {
+                            extractQuery(selector);
+                        }
+                    } else if (4 === rules[i].type) {
+                        readRules(rules[i].cssRules || rules[i].rules);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Searches all css rules and setups the event listener to all elements with element query rules..
+         *
+         * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
+         *                               (no garbage collection possible if you don not call .detach() first)
+         */
+        this.init = function(withTracking) {
+            this.withTracking = withTracking;
+            for (var i = 0, j = document.styleSheets.length; i < j; i++) {
+                readRules(document.styleSheets[i].cssText || document.styleSheets[i].cssRules || document.styleSheets[i].rules);
+            }
+        };
+
+        /**
+         *
+         * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
+         *                               (no garbage collection possible if you don not call .detach() first)
+         */
+        this.update = function(withTracking) {
+            this.withTracking = withTracking;
+            this.init();
+        };
+
+        this.detach = function() {
+            if (!this.withTracking) {
+                throw 'withTracking is not enabled. We can not detach elements since we don not store it.' +
+                'Use ElementQueries.withTracking = true; before domready.';
+            }
+
+            var element;
+            while (element = elements.pop()) {
+                ElementQueries.detach(element);
+            }
+
+            elements = [];
+        };
+    };
+
+    /**
+     *
+     * @param {Boolean} withTracking allows and requires you to use detach, since we store internally all used elements
+     *                               (no garbage collection possible if you don not call .detach() first)
+     */
+    ElementQueries.update = function(withTracking) {
+        ElementQueries.instance.update(withTracking);
+    };
+
+    /**
+     * Removes all sensor and elementquery information from the element.
+     *
+     * @param {HTMLElement} element
+     */
+    ElementQueries.detach = function(element) {
+        if (element.elementQueriesSetupInformation) {
+            element.elementQueriesSensor.detach();
+            delete element.elementQueriesSetupInformation;
+            delete element.elementQueriesSensor;
+            console.log('detached');
+        } else {
+            console.log('detached already', element);
+        }
+    };
+
+    ElementQueries.withTracking = false;
+
+    ElementQueries.init = function() {
+        if (!ElementQueries.instance) {
+            ElementQueries.instance = new ElementQueries();
+        }
+
+        ElementQueries.instance.init(ElementQueries.withTracking);
+    };
+
+    var domLoaded = function (callback) {
+        /* Internet Explorer */
+        /*@cc_on
+        @if (@_win32 || @_win64)
+            document.write('<script id="ieScriptLoad" defer src="//:"><\/script>');
+            document.getElementById('ieScriptLoad').onreadystatechange = function() {
+                if (this.readyState == 'complete') {
+                    callback();
+                }
+            };
+        @end @*/
+        /* Mozilla, Chrome, Opera */
+        if (document.addEventListener) {
+            document.addEventListener('DOMContentLoaded', callback, false);
+        }
+        /* Safari, iCab, Konqueror */
+        if (/KHTML|WebKit|iCab/i.test(navigator.userAgent)) {
+            var DOMLoadTimer = setInterval(function () {
+                if (/loaded|complete/i.test(document.readyState)) {
+                    callback();
+                    clearInterval(DOMLoadTimer);
+                }
+            }, 10);
+        }
+        /* Other web browsers */
+        window.onload = callback;
+    };
+
+    if (window.addEventListener) {
+        window.addEventListener('load', ElementQueries.init, false);
+    } else {
+        window.attachEvent('onload', ElementQueries.init);
+    }
+    domLoaded(ElementQueries.init);
+
+})();
+
+/**
+ * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
+ * directory of this distribution and at
+ * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
+ */
+;
+(function() {
+
+    /**
+     * Class for dimension change detection.
+     *
+     * @param {Element|Element[]|Elements|jQuery} element
+     * @param {Function} callback
+     *
+     * @constructor
+     */
+    this.ResizeSensor = function(element, callback) {
+        /**
+         *
+         * @constructor
+         */
+        function EventQueue() {
+            this.q = [];
+            this.add = function(ev) {
+                this.q.push(ev);
+            };
+
+            var i, j;
+            this.call = function() {
+                for (i = 0, j = this.q.length; i < j; i++) {
+                    this.q[i].call();
+                }
+            };
+        }
+
+        /**
+         * @param {HTMLElement} element
+         * @param {String}      prop
+         * @returns {String|Number}
+         */
+        function getComputedStyle(element, prop) {
+            if (element.currentStyle) {
+                return element.currentStyle[prop];
+            } else if (window.getComputedStyle) {
+                return window.getComputedStyle(element, null).getPropertyValue(prop);
+            } else {
+                return element.style[prop];
+            }
+        }
+
+        /**
+         *
+         * @param {HTMLElement} element
+         * @param {Function}    resized
+         */
+        function attachResizeEvent(element, resized) {
+            if (!element.resizedAttached) {
+                element.resizedAttached = new EventQueue();
+                element.resizedAttached.add(resized);
+            } else if (element.resizedAttached) {
+                element.resizedAttached.add(resized);
+                return;
+            }
+
+            element.resizeSensor = document.createElement('div');
+            element.resizeSensor.className = 'resize-sensor';
+            var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
+            var styleChild = 'position: absolute; left: 0; top: 0;';
+
+            element.resizeSensor.style.cssText = style;
+            element.resizeSensor.innerHTML =
+                '<div class="resize-sensor-expand" style="' + style + '">' +
+                    '<div style="' + styleChild + '"></div>' +
+                '</div>' +
+                '<div class="resize-sensor-shrink" style="' + style + '">' +
+                    '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' +
+                '</div>';
+            element.appendChild(element.resizeSensor);
+
+            if (!{fixed: 1, absolute: 1}[getComputedStyle(element, 'position')]) {
+                element.style.position = 'relative';
+            }
+
+            var expand = element.resizeSensor.childNodes[0];
+            var expandChild = expand.childNodes[0];
+            var shrink = element.resizeSensor.childNodes[1];
+            var shrinkChild = shrink.childNodes[0];
+
+            var lastWidth, lastHeight;
+
+            var reset = function() {
+                expandChild.style.width = expand.offsetWidth + 10 + 'px';
+                expandChild.style.height = expand.offsetHeight + 10 + 'px';
+                expand.scrollLeft = expand.scrollWidth;
+                expand.scrollTop = expand.scrollHeight;
+                shrink.scrollLeft = shrink.scrollWidth;
+                shrink.scrollTop = shrink.scrollHeight;
+                lastWidth = element.offsetWidth;
+                lastHeight = element.offsetHeight;
+            };
+
+            reset();
+
+            var changed = function() {
+                if (element.resizedAttached) {
+                    element.resizedAttached.call();
+                }
+            };
+
+            var addEvent = function(el, name, cb) {
+                if (el.attachEvent) {
+                    el.attachEvent('on' + name, cb);
+                } else {
+                    el.addEventListener(name, cb);
+                }
+            };
+
+            addEvent(expand, 'scroll', function() {
+                if (element.offsetWidth > lastWidth || element.offsetHeight > lastHeight) {
+                    changed();
+                }
+                reset();
+            });
+
+            addEvent(shrink, 'scroll',function() {
+                if (element.offsetWidth < lastWidth || element.offsetHeight < lastHeight) {
+                    changed();
+                }
+                reset();
+            });
+        }
+
+        if ("[object Array]" === Object.prototype.toString.call(element)
+            || ('undefined' !== typeof jQuery && element instanceof jQuery) //jquery
+            || ('undefined' !== typeof Elements && element instanceof Elements) //mootools
+            ) {
+            var i = 0, j = element.length;
+            for (; i < j; i++) {
+                attachResizeEvent(element[i], callback);
+            }
+        } else {
+            attachResizeEvent(element, callback);
+        }
+
+        this.detach = function() {
+            ResizeSensor.detach(element);
+        };
+    };
+
+    this.ResizeSensor.detach = function(element) {
+        if (element.resizeSensor) {
+            element.removeChild(element.resizeSensor);
+            delete element.resizeSensor;
+            delete element.resizedAttached;
+        }
+    };
+
+})();

@@ -19,6 +19,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.table',
     'gantt.tree',
     'gantt.groups',
+    'gantt.overlap',
     'gantt.resizeSensor',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {

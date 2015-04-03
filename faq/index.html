@@ -136,6 +136,10 @@
                         </li>
                     
                         <li >
+                            <a href="../plugins/overlap">Overlap</a>
+                        </li>
+                    
+                        <li >
                             <a href="../plugins/resizeSensor">Resize Sensor</a>
                         </li>
                     
@@ -217,6 +221,8 @@
         
             <li><a href="#is-it-possible-to-print-the-gantt">Is it possible to print the gantt ?</a></li>
         
+            <li><a href="#how-can-i-get-better-performance">How can I get better performance ?</a></li>
+        
     
     </ul>
 </div></div>
@@ -272,6 +278,12 @@ review those projects documentations.</p>
 sample rasterize script file which can be used to print the gantt either as pdf or image.</p>
 <p>Usage: The sample script contains a small how-to. 
 Download: <a href="https://github.com/angular-gantt/angular-gantt/blob/master/printing/phantomjs/rasterize.js">printing/phantomjs/rasterize.js</a></p>
+</li>
+<li>
+<h3 id="how-can-i-get-better-performance">How can I get better performance ?</h3>
+<p>Make sure that only the absolutely necessary data is loaded into the Gantt. This can be done by loading data for a limited time period (e.g. 6 months) and using the scroll events to load more tasks when the user is scrolling to the end of the active date range.
+Additionally different view modes like the <code>view-scale='year'</code> or the column width setting <code>column-width=undefined</code> do display a big amount of data at the same time. If this is not necessary then switching to a lower view scale or disabling the automatic column width calculation is recommended.</p>
+<p>When running in production we recommend to disable the Angular debug mode and to enable DI strict mode for an additional performance optimization. More about this can be found in the official AngularJS <a href="https://code.angularjs.org/1.3.14/docs/guide/production">documentation</a>.</p>
 </li>
 </ul>
 </div>
