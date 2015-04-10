@@ -65,6 +65,7 @@
                     } else {
                         // check if mouse goes outside the parent
                         if(
+                            !$scope.taskRect ||
                             e.clientX < $scope.taskRect.left ||
                             e.clientX > $scope.taskRect.right ||
                             e.clientY > $scope.taskRect.bottom ||
