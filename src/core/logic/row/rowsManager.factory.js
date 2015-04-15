@@ -136,6 +136,8 @@
                     var taskModel = rowModel.tasks[i];
                     row.addTask(taskModel);
                 }
+
+                row.updateVisibleTasks();
             }
 
             if (isUpdate) {
@@ -160,6 +162,8 @@
                                 var toAdd = newTasks[i];
                                 row.addTask(toAdd);
                             }
+
+                            row.updateVisibleTasks();
                         }
                     }
                 });

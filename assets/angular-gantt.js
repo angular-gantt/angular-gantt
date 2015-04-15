@@ -2374,8 +2374,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Row.prototype.addTaskImpl = function(task, viewOnly) {
             this.tasksMap[task.model.id] = task;
             this.tasks.push(task);
-            this.filteredTasks.push(task);
-            this.visibleTasks.push(task);
 
             if (!viewOnly) {
                 if (this.model.tasks === undefined) {
@@ -2432,6 +2430,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.setFromToByTask(task);
 
             task.updatePosAndSize();
+            this.updateVisibleTasks();
 
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
@@ -2731,6 +2730,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var taskModel = rowModel.tasks[i];
                     row.addTask(taskModel);
                 }
+
+                row.updateVisibleTasks();
             }
 
             if (isUpdate) {
@@ -2755,6 +2756,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var toAdd = newTasks[i];
                                 row.addTask(toAdd);
                             }
+
+                            row.updateVisibleTasks();
                         }
                     }
                 });
