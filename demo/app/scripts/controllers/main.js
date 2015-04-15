@@ -147,6 +147,25 @@ angular.module('angularGanttDemoApp')
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
 
+                    api.data.on.change($scope, function(newData) {
+                        if (dataToRemove === undefined) {
+                            dataToRemove = [
+                                {'id': newData.data[2].id}, // Remove Kickoff row
+                                {
+                                    'id': newData.data[0].id, 'tasks': [
+                                    {'id': newData.data[0].tasks[0].id},
+                                    {'id': newData.data[0].tasks[3].id}
+                                ]
+                                }, // Remove some Milestones
+                                {
+                                    'id': newData.data[6].id, 'tasks': [
+                                    {'id': newData.data[6].tasks[0].id}
+                                ]
+                                } // Remove order basket from Sprint 2
+                            ];
+                        }
+                    });
+
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
                     $scope.load();
