@@ -41792,8 +41792,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Row.prototype.addTaskImpl = function(task, viewOnly) {
             this.tasksMap[task.model.id] = task;
             this.tasks.push(task);
-            this.filteredTasks.push(task);
-            this.visibleTasks.push(task);
 
             if (!viewOnly) {
                 if (this.model.tasks === undefined) {
@@ -41850,6 +41848,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.setFromToByTask(task);
 
             task.updatePosAndSize();
+            this.updateVisibleTasks();
 
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
@@ -42149,6 +42148,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var taskModel = rowModel.tasks[i];
                     row.addTask(taskModel);
                 }
+
+                row.updateVisibleTasks();
             }
 
             if (isUpdate) {
@@ -42173,6 +42174,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var toAdd = newTasks[i];
                                 row.addTask(toAdd);
                             }
+
+                            row.updateVisibleTasks();
                         }
                     }
                 });
@@ -46506,7 +46509,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt.tooltips').directive('ganttTooltip', ['$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($timeout, $compile, $document, $templateCache, debounce, smartEvent) {
+    angular.module('gantt.tooltips').directive('ganttTooltip', ['$log','$timeout', '$compile', '$document', '$templateCache', 'ganttDebounce', 'ganttSmartEvent', function($log, $timeout, $compile, $document, $templateCache, debounce, smartEvent) {
         // This tooltip displays more information about a task
 
         return {
@@ -46578,6 +46581,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         ) {
                             displayTooltip(false, false);
                         }
+
                         updateTooltip(e.clientX);
                     }
                 }, 5, false));
@@ -46639,7 +46643,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
-                    if (enabled && !visible && newValue) {
+                    if (enabled && !visible && mouseEnterX !== undefined && newValue) {
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
