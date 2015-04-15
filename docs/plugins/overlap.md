@@ -21,6 +21,6 @@ Add a border with `gantt-task-overlaps` CSS class on tasks that overlaps.
 
 - ### enabled
 
-    Enable moving and resizing of tasks. Can also be a function (`fn(event)`) which has one parameter for the event. Such a function can be used to only activate the moving when a certain mouse button is pressed or the task is in a certain condition.
+    Enables overlap detection functionality. Can also be a function (`fn(event)`) which has one parameter for the event. Such a function can be used to only activate the overlap detection when a certain mouse button is pressed or the task is in a certain condition.
     
     default: `true`
