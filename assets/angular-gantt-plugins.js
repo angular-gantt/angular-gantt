@@ -1482,21 +1482,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             });
 
+            self.from = undefined;
+            angular.forEach(self.tasks, function (task) {
+                if (self.from === undefined || task.model.from < self.from) {
+                    self.from = task.model.from;
+                }
+            });
+
+            self.to = undefined;
+            angular.forEach(self.tasks, function (task) {
+                if (self.to === undefined || task.model.to > self.to) {
+                    self.to = task.model.to;
+                }
+            });
+
             if (self.showGrouping) {
-                self.from = undefined;
-                angular.forEach(self.tasks, function (task) {
-                    if (self.from === undefined || task.model.from < self.from) {
-                        self.from = task.model.from;
-                    }
-                });
-
-                self.to = undefined;
-                angular.forEach(self.tasks, function (task) {
-                    if (self.to === undefined || task.model.to > self.to) {
-                        self.to = task.model.to;
-                    }
-                });
-
                 self.left = row.rowsManager.gantt.getPositionByDate(self.from);
                 self.width = row.rowsManager.gantt.getPositionByDate(self.to) - self.left;
             }
