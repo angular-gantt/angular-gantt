@@ -46196,8 +46196,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             self.tasks = [];
             self.overviewTasks = [];
-            self.groupedTasks = [];
             self.promotedTasks = [];
+            self.showGrouping = false;
 
             var groupRowGroups = self.row.model.groups;
             if (typeof(groupRowGroups) === 'boolean') {
@@ -46225,42 +46225,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             angular.forEach(self.descendants, function(descendant) {
                 angular.forEach(descendant.tasks, function(task) {
-                    if (getTaskDisplay(task) !== undefined) {
-                        self.tasks.push(task);
-                    }
-
                     var taskDisplay = getTaskDisplay(task);
                     if (taskDisplay !== undefined) {
+                        self.tasks.push(task);
                         var clone = new Task(self.row, task.model);
 
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
-                            clone.updatePosAndSize();
                         } else if(taskDisplay === 'promote'){
                             self.promotedTasks.push(clone);
                         } else {
-                            self.groupedTasks.push(clone);
+                            self.showGrouping = true;
                         }
                     }
                 });
             });
 
-            self.from = undefined;
-            angular.forEach(self.tasks, function(task) {
-                if (self.from === undefined || task.model.from < self.from) {
-                    self.from =  task.model.from;
-                }
-            });
+            if (self.showGrouping) {
+                self.from = undefined;
+                angular.forEach(self.tasks, function (task) {
+                    if (self.from === undefined || task.model.from < self.from) {
+                        self.from = task.model.from;
+                    }
+                });
 
-            self.to = undefined;
-            angular.forEach(self.tasks, function(task) {
-                if (self.to === undefined || task.model.to > self.to) {
-                    self.to = task.model.to;
-                }
-            });
+                self.to = undefined;
+                angular.forEach(self.tasks, function (task) {
+                    if (self.to === undefined || task.model.to > self.to) {
+                        self.to = task.model.to;
+                    }
+                });
 
-            self.left = row.rowsManager.gantt.getPositionByDate(self.from);
-            self.width = row.rowsManager.gantt.getPositionByDate(self.to) - self.left;
+                self.left = row.rowsManager.gantt.getPositionByDate(self.from);
+                self.width = row.rowsManager.gantt.getPositionByDate(self.to) - self.left;
+            }
         };
         return TaskGroup;
     }]);
@@ -46268,19 +46266,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttTaskOverview', ['GanttDirectiveBuilder', 'moment', function(Builder, moment) {
+    angular.module('gantt').directive('ganttTaskOverview', ['GanttDirectiveBuilder', function(Builder) {
         var builder = new Builder('ganttTaskOverview', 'plugins/groups/taskOverview.tmpl.html');
         builder.controller = function($scope, $element) {
             $scope.task.$element = $element;
             $scope.task.$scope = $scope;
-
-            $scope.simplifyMoment = function(d) {
-                return moment.isMoment(d) ? d.unix() : d;
-            };
-
-            $scope.$watchGroup(['simplifyMoment(task.model.from)', 'simplifyMoment(task.model.to)'], function() {
-                $scope.task.updatePosAndSize();
-            });
+            $scope.task.updatePosAndSize();
         };
         return builder.build();
     }]);
@@ -47066,14 +47057,14 @@ angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($
 angular.module('gantt.groups.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/groups/taskGroup.tmpl.html',
         '<div ng-controller="GanttGroupController">\n' +
-        '    <div class="gantt-task-group-overview" ng-show="taskGroup.overviewTasks.length > 0">\n' +
+        '    <div class="gantt-task-group-overview" ng-if="taskGroup.overviewTasks.length > 0">\n' +
         '        <gantt-task-overview ng-repeat="task in taskGroup.overviewTasks"></gantt-task-overview>\n' +
         '    </div>\n' +
-        '    <div class="gantt-task-group-promote" ng-show="taskGroup.row._collapsed && taskGroup.promotedTasks.length > 0">\n' +
+        '    <div class="gantt-task-group-promote" ng-if="taskGroup.row._collapsed && taskGroup.promotedTasks.length > 0">\n' +
         '        <gantt-task ng-repeat="task in taskGroup.promotedTasks"></gantt-task>\n' +
         '    </div>\n' +
         '    <div class="gantt-task-group"\n' +
-        '         ng-show="taskGroup.groupedTasks.length > 0"\n' +
+        '         ng-if="taskGroup.showGrouping"\n' +
         '         ng-style="{\'left\': taskGroup.left + \'px\', \'width\': taskGroup.width + \'px\'}">\n' +
         '        <div class="gantt-task-group-left-main"></div>\n' +
         '        <div class="gantt-task-group-right-main"></div>\n' +

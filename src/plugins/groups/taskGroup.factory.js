@@ -12,8 +12,8 @@
 
             self.tasks = [];
             self.overviewTasks = [];
-            self.groupedTasks = [];
             self.promotedTasks = [];
+            self.showGrouping = false;
 
             var groupRowGroups = self.row.model.groups;
             if (typeof(groupRowGroups) === 'boolean') {
@@ -41,42 +41,40 @@
 
             angular.forEach(self.descendants, function(descendant) {
                 angular.forEach(descendant.tasks, function(task) {
-                    if (getTaskDisplay(task) !== undefined) {
-                        self.tasks.push(task);
-                    }
-
                     var taskDisplay = getTaskDisplay(task);
                     if (taskDisplay !== undefined) {
+                        self.tasks.push(task);
                         var clone = new Task(self.row, task.model);
 
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
-                            clone.updatePosAndSize();
                         } else if(taskDisplay === 'promote'){
                             self.promotedTasks.push(clone);
                         } else {
-                            self.groupedTasks.push(clone);
+                            self.showGrouping = true;
                         }
                     }
                 });
             });
 
-            self.from = undefined;
-            angular.forEach(self.tasks, function(task) {
-                if (self.from === undefined || task.model.from < self.from) {
-                    self.from =  task.model.from;
-                }
-            });
+            if (self.showGrouping) {
+                self.from = undefined;
+                angular.forEach(self.tasks, function (task) {
+                    if (self.from === undefined || task.model.from < self.from) {
+                        self.from = task.model.from;
+                    }
+                });
 
-            self.to = undefined;
-            angular.forEach(self.tasks, function(task) {
-                if (self.to === undefined || task.model.to > self.to) {
-                    self.to = task.model.to;
-                }
-            });
+                self.to = undefined;
+                angular.forEach(self.tasks, function (task) {
+                    if (self.to === undefined || task.model.to > self.to) {
+                        self.to = task.model.to;
+                    }
+                });
 
-            self.left = row.rowsManager.gantt.getPositionByDate(self.from);
-            self.width = row.rowsManager.gantt.getPositionByDate(self.to) - self.left;
+                self.left = row.rowsManager.gantt.getPositionByDate(self.from);
+                self.width = row.rowsManager.gantt.getPositionByDate(self.to) - self.left;
+            }
         };
         return TaskGroup;
     }]);
