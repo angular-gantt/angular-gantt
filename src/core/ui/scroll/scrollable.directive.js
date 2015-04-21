@@ -5,9 +5,8 @@
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
             var lastScrollLeft;
+            var autoExpandTimer;
 
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
             var autoExpandColumns = function(el, date, direction) {
                 var autoExpand = $scope.gantt.options.value('autoExpand');
                 if (autoExpand !== 'both' && autoExpand !== true && autoExpand !== direction) {
@@ -44,23 +43,7 @@
                     $scope.toDate = to;
                 }
 
-                lastAutoExpand = Date.now();
                 $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
-                $timeout(function() {
-                    var nDirection, nDate;
-
-                    if (el.scrollLeft === 0) {
-                        nDirection = 'left';
-                        nDate = from;
-                    } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
-                        nDirection = 'right';
-                        nDate = to;
-                    }
-
-                    if (nDirection === direction) {
-                        autoExpandColumns(el, nDate, direction);
-                    }
-                }, autoExpandCoolDownPeriod);
             };
 
             $element.bind('scroll', debounce(function() {
@@ -84,7 +67,13 @@
                 lastScrollLeft = currentScrollLeft;
 
                 if (date !== undefined) {
-                    autoExpandColumns(el, date, direction);
+                    if (autoExpandTimer) {
+                        $timeout.cancel(autoExpandTimer);
+                    }
+
+                    autoExpandTimer = $timeout(function() {
+                        autoExpandColumns(el, date, direction);
+                    }, 300);
                 } else {
                     $scope.gantt.api.scroll.raise.scroll(currentScrollLeft);
                 }
