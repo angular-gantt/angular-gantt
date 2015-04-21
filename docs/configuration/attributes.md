@@ -155,7 +155,7 @@
       
     <!-- -->
     
-        <dif gantt headers="['month', 'week', 'day']"></div>
+        <div gantt headers="['month', 'week', 'day']"></div>
 
 - ### headers-formats
 
