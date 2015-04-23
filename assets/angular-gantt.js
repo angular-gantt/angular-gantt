@@ -4303,7 +4303,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 $scope.gantt.scroll.cachedScrollLeft = currentScrollLeft;
                 $scope.gantt.columnsManager.updateVisibleColumns();
-                $scope.gantt.rowsManager.updateVisibleTasks();
+                $scope.gantt.rowsManager.updateVisibleObjects();
 
                 if (currentScrollLeft < lastScrollLeft && currentScrollLeft === 0) {
                     direction = 'left';
