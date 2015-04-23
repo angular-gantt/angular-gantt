@@ -40876,6 +40876,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
+            this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
 
             this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
@@ -41229,6 +41230,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             }
             return format;
+        };
+
+        ColumnsManager.prototype.getDateRange = function(visibleOnly) {
+            var firstColumn, lastColumn;
+
+            if (visibleOnly) {
+                if (this.visibleColumns && this.visibleColumns.length > 0) {
+                    firstColumn = this.visibleColumns[0];
+                    lastColumn = this.visibleColumns[this.visibleColumns.length - 1];
+                }
+            } else {
+                firstColumn = this.getFirstColumn();
+                lastColumn = this.getLastColumn();
+            }
+
+            return firstColumn && lastColumn ? [firstColumn.date, lastColumn.endDate]: undefined;
         };
 
         return ColumnsManager;
@@ -45117,7 +45134,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
                                 var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled) {
-                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mouseButton.getButton(evt) === 1) {
                                         var bodyOffsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
@@ -45144,7 +45161,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
                                 var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled && !taskScope.task.isMoving) {
-                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
                                         foregroundElement.css('cursor', getCursor(mode));
