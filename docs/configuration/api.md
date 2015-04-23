@@ -240,6 +240,11 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
     Get the width of the columns that would fit the gantt available width.
 
+- **api.columns.getDateRange(visibleOnly)**
+
+    Get the column date range. If `visibleOnly=true` then only the current visible range will be returned.
+    Returns an array of two dates `[dateOfFirstColumn, endDateOfLastColumn]` or `undefined` if there are no columns.
+
 - **api.columns.refresh()**
   
     Refresh columns and current date. It will also apply filters, and may be required if you use 
