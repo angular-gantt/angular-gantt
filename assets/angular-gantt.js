@@ -2462,13 +2462,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
+                var filterInternalTaskComparator = undefined;
                 if (typeof(filterTaskComparator) === 'function') {
-                    filterTaskComparator = function(actual, expected) {
+                    filterInternalTaskComparator = function(actual, expected) {
                         return filterTaskComparator(actual.model, expected.model);
                     };
                 }
 
-                this.filteredTasks = $filter('filter')(this.tasks, filterTask, filterTaskComparator);
+                this.filteredTasks = $filter('filter')(this.tasks, filterTask, filterInternalTaskComparator === undefined ? filterTaskComparator : filterInternalTaskComparator);
             } else {
                 this.filteredTasks = this.tasks.slice(0);
             }
