@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "cti-angular-gantt",
   "version": "2.0.5",
+=======
+  "name": "angular-gantt",
+  "version": "1.2.5",
+>>>>>>> de924b353dcfceb50457f269c7b38ffa27fac7af
   "description": "Gantt chart component for AngularJS",
   "author": "Marco Schweighauser",
   "contributors": [

@@ -9,7 +9,8 @@ var app = angular.module('plnkrGanttMaster',
     'gantt.table',
     'gantt.tree',
     'gantt.groups',
-    'gantt.resizeSensor'
+    'gantt.resizeSensor',
+    'gantt.overlap'
     ]);
 
 app.controller('Ctrl', ['$scope', function ($scope) {

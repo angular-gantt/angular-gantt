@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.4 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -2901,8 +2901,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var filterRowComparator = this.gantt.options.value('filterRowComparator');
                 if (typeof(filterRowComparator) === 'function') {
+					//fix issue this.gantt is undefined
+					//
+					var gantt = this.gantt;
                     filterRowComparator = function(actual, expected) {
-                        return this.gantt.options.value('filterRowComparator')(actual.model, expected.model);
+						//fix actual.model is undefined
+                        return gantt.options.value('filterRowComparator')(actual, expected);
                     };
                 }
 

@@ -125,6 +125,10 @@
     filter: grayscale(0.7);
 }
 
+.gantt-task-overlaps{
+    border: 2px solid #e00000;
+}
+
 .gantt-task-progress {
     position: absolute;
     overflow: hidden;

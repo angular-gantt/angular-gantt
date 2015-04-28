@@ -17,8 +17,6 @@
         Row.prototype.addTaskImpl = function(task, viewOnly) {
             this.tasksMap[task.model.id] = task;
             this.tasks.push(task);
-            this.filteredTasks.push(task);
-            this.visibleTasks.push(task);
 
             if (!viewOnly) {
                 if (this.model.tasks === undefined) {
@@ -75,6 +73,7 @@
             this.setFromToByTask(task);
 
             task.updatePosAndSize();
+            this.updateVisibleTasks();
 
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);

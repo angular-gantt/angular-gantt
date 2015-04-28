@@ -1,6 +1,6 @@
 {
   "name": "angular-gantt-demo",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "homepage": "https://github.com/angular-gantt-demo/angular-gantt",
   "authors": [
     "Marco Schweighauser",
@@ -16,7 +16,9 @@
     "font-awesome": "~4.3.0",
     "angular-native-dragdrop": "~1.1.0",
     "angular-ui-tree": "<2.2.0",
-    "angular-gantt": ">=1.2"
+    "angular-gantt": ">=1.2",
+    "moment-range": "~1.0.7",
+    "css-element-queries": "master"
   },
   "devDependencies": {
     "angular-mocks": "~1.3"
