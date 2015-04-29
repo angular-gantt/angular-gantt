@@ -72,12 +72,16 @@
                     });
 
                     angular.forEach(removedOverlapsTasks, function(task) {
+                      if (task.$element){
                         task.$element.removeClass('gantt-task-overlaps');
+                      }
                         delete overlapsTasks[task.model.id];
                     });
 
                     angular.forEach(newOverlapsTasks, function(task) {
+                      if (task.$element){
                         task.$element.addClass('gantt-task-overlaps');
+                      }
                         overlapsTasks[task.model.id] = task;
                     });
 
