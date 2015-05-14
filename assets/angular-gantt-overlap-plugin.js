@@ -96,4 +96,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 //# sourceMappingURL=angular-gantt-overlap-plugin.js.map

@@ -92,4 +92,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 //# sourceMappingURL=angular-gantt-drawtask-plugin.js.map

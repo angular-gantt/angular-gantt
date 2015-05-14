@@ -130,4 +130,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
 //# sourceMappingURL=angular-gantt-sortable-plugin.js.map

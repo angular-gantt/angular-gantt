@@ -279,4 +279,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
+        '<div ng-cloak\n' +
+        '     class="gantt-task-info"\n' +
+        '     ng-show="displayed"\n' +
+        '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
+        '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
+        '    <div class="gantt-task-info-content">\n' +
+        '        <div gantt-bind-compile-html="pluginScope.content"></div>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+}]);
+
 //# sourceMappingURL=angular-gantt-tooltips-plugin.js.map

@@ -233,4 +233,34 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
+angular.module('gantt.groups.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/groups/taskGroup.tmpl.html',
+        '<div ng-controller="GanttGroupController">\n' +
+        '    <div class="gantt-task-group-overview" ng-if="taskGroup.overviewTasks.length > 0">\n' +
+        '        <gantt-task-overview ng-repeat="task in taskGroup.overviewTasks"></gantt-task-overview>\n' +
+        '    </div>\n' +
+        '    <div class="gantt-task-group-promote" ng-if="taskGroup.row._collapsed && taskGroup.promotedTasks.length > 0">\n' +
+        '        <gantt-task ng-repeat="task in taskGroup.promotedTasks"></gantt-task>\n' +
+        '    </div>\n' +
+        '    <div class="gantt-task-group"\n' +
+        '         ng-if="taskGroup.showGrouping"\n' +
+        '         ng-style="{\'left\': taskGroup.left + \'px\', \'width\': taskGroup.width + \'px\'}">\n' +
+        '        <div class="gantt-task-group-left-main"></div>\n' +
+        '        <div class="gantt-task-group-right-main"></div>\n' +
+        '        <div class="gantt-task-group-left-symbol"></div>\n' +
+        '        <div class="gantt-task-group-right-symbol"></div>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '\n' +
+        '');
+    $templateCache.put('plugins/groups/taskOverview.tmpl.html',
+        '<div class="gantt-task gantt-task-overview" ng-class="task.model.classes">\n' +
+        '    <gantt-task-background></gantt-task-background>\n' +
+        '    <gantt-task-content></gantt-task-content>\n' +
+        '    <gantt-task-foreground></gantt-task-foreground>\n' +
+        '</div>\n' +
+        '\n' +
+        '');
+}]);
+
 //# sourceMappingURL=angular-gantt-groups-plugin.js.map
