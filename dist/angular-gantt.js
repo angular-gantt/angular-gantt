@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -1458,6 +1458,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
+            this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
 
             this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
@@ -1811,6 +1812,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             }
             return format;
+        };
+
+        ColumnsManager.prototype.getDateRange = function(visibleOnly) {
+            var firstColumn, lastColumn;
+
+            if (visibleOnly) {
+                if (this.visibleColumns && this.visibleColumns.length > 0) {
+                    firstColumn = this.visibleColumns[0];
+                    lastColumn = this.visibleColumns[this.visibleColumns.length - 1];
+                }
+            } else {
+                firstColumn = this.getFirstColumn();
+                lastColumn = this.getLastColumn();
+            }
+
+            return firstColumn && lastColumn ? [firstColumn.date, lastColumn.endDate]: undefined;
         };
 
         return ColumnsManager;
@@ -2374,8 +2391,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Row.prototype.addTaskImpl = function(task, viewOnly) {
             this.tasksMap[task.model.id] = task;
             this.tasks.push(task);
-            this.filteredTasks.push(task);
-            this.visibleTasks.push(task);
 
             if (!viewOnly) {
                 if (this.model.tasks === undefined) {
@@ -2432,6 +2447,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.setFromToByTask(task);
 
             task.updatePosAndSize();
+            this.updateVisibleTasks();
 
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
@@ -2731,6 +2747,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var taskModel = rowModel.tasks[i];
                     row.addTask(taskModel);
                 }
+
+                row.updateVisibleTasks();
             }
 
             if (isUpdate) {
@@ -2755,6 +2773,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var toAdd = newTasks[i];
                                 row.addTask(toAdd);
                             }
+
+                            row.updateVisibleTasks();
                         }
                     }
                 });
@@ -4234,9 +4254,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         builder.controller = function($scope, $element) {
             $scope.gantt.scroll.$element = $element;
             var lastScrollLeft;
+            var autoExpandTimer;
 
-            var lastAutoExpand;
-            var autoExpandCoolDownPeriod = 500;
             var autoExpandColumns = function(el, date, direction) {
                 var autoExpand = $scope.gantt.options.value('autoExpand');
                 if (autoExpand !== 'both' && autoExpand !== true && autoExpand !== direction) {
@@ -4273,23 +4292,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $scope.toDate = to;
                 }
 
-                lastAutoExpand = Date.now();
                 $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
-                $timeout(function() {
-                    var nDirection, nDate;
-
-                    if (el.scrollLeft === 0) {
-                        nDirection = 'left';
-                        nDate = from;
-                    } else if (el.offsetWidth + el.scrollLeft >= el.scrollWidth - 1) {
-                        nDirection = 'right';
-                        nDate = to;
-                    }
-
-                    if (nDirection === direction) {
-                        autoExpandColumns(el, nDate, direction);
-                    }
-                }, autoExpandCoolDownPeriod);
             };
 
             $element.bind('scroll', debounce(function() {
@@ -4300,7 +4303,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 $scope.gantt.scroll.cachedScrollLeft = currentScrollLeft;
                 $scope.gantt.columnsManager.updateVisibleColumns();
-                $scope.gantt.rowsManager.updateVisibleTasks();
+                $scope.gantt.rowsManager.updateVisibleObjects();
 
                 if (currentScrollLeft < lastScrollLeft && currentScrollLeft === 0) {
                     direction = 'left';
@@ -4313,7 +4316,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 lastScrollLeft = currentScrollLeft;
 
                 if (date !== undefined) {
-                    autoExpandColumns(el, date, direction);
+                    if (autoExpandTimer) {
+                        $timeout.cancel(autoExpandTimer);
+                    }
+
+                    autoExpandTimer = $timeout(function() {
+                        autoExpandColumns(el, date, direction);
+                    }, 300);
                 } else {
                     $scope.gantt.api.scroll.raise.scroll(currentScrollLeft);
                 }

@@ -39417,7 +39417,7 @@ angular.module('mgcrea.ngStrap.typeahead').run(['$templateCache', function($temp
 })();
 
 /*
-Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -44764,7 +44764,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -45556,7 +45556,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // set overlaps flag to each task that overlaps other task.
                     angular.forEach(allTasks,function(currentTask){
                         var currentStart,currentEnd;
-                        if (currentTask.model.from.isBefore(currentTask.to)){
+                        if (currentTask.model.from.isBefore(currentTask.model.to)){
                             currentStart = currentTask.model.from;
                             currentEnd = currentTask.model.to;
                         } else {
@@ -45590,12 +45590,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     });
 
                     angular.forEach(removedOverlapsTasks, function(task) {
+                      if (task.$element){
                         task.$element.removeClass('gantt-task-overlaps');
+                      }
                         delete overlapsTasks[task.model.id];
                     });
 
                     angular.forEach(newOverlapsTasks, function(task) {
+                      if (task.$element){
                         task.$element.addClass('gantt-task-overlaps');
+                      }
                         overlapsTasks[task.model.id] = task;
                     });
 
