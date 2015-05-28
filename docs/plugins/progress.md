@@ -9,7 +9,7 @@ Display a visual indicator showing configured progress of tasks.
 <!-- -->
 
     <div gantt>
-        <gantt-progress enabled="..."><gantt-progress/>
+        <gantt-progress enabled="..."></gantt-progress>
     </div>
 
 <!-- -->

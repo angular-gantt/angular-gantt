@@ -9,7 +9,7 @@ Display tooltips when moving mouse over a task.
 <!-- -->
 
     <div gantt>
-        <gantt-tooltips enabled="..." date-format="..."><gantt-tooltips/>
+        <gantt-tooltips enabled="..." date-format="..."></gantt-tooltips>
     </div>
 
 <!-- -->

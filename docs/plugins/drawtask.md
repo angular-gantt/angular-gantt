@@ -11,7 +11,7 @@ Draw new tasks with the mouse.
     <div gantt>
         <gantt-draw-task enabled="true"
                        task-factory="drawTaskFactory">
-        <gantt-draw-task/>
+        </gantt-draw-task>
     </div>
  
 <!-- -->

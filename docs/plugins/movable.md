@@ -13,7 +13,7 @@ Move and resize tasks.
                        allow-moving="true" 
                        allow-resizing="true"
                        allow-row-switching="true">
-        <gantt-movable/>
+        </gantt-movable>
     </div>
 
 

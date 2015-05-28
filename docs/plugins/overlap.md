@@ -14,7 +14,7 @@ Add a border with `gantt-task-overlaps` CSS class on tasks that overlaps.
 
     <div gantt>
         <gantt-overlap enabled="true">
-        <gantt-overlap/>
+        </gantt-overlap>
     </div>
 
 ## Attributes
