@@ -122,6 +122,9 @@
             }
         };
 
+        $scope.gantt.api.rows.on.remove($scope, refresh);
+        $scope.gantt.api.rows.on.add($scope, refresh);
+
         var isRowCollapsed = function(rowId) {
             var row;
             if (typeof rowId === 'string') {
