@@ -45,11 +45,13 @@
                 }
 
                 var date = moment(from).startOf(viewScaleUnit);
-                if (reverse) {
-                    date.add(-viewScaleValue, viewScaleUnit);
-                }
                 var generatedCols = [];
                 var left = 0;
+
+                if (reverse) {
+                    date.add(-viewScaleValue, viewScaleUnit);
+                    left -= columnWidth;
+                }
 
                 while (true) {
                     if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {

@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.5 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -1290,11 +1290,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var date = moment(from).startOf(viewScaleUnit);
-                if (reverse) {
-                    date.add(-viewScaleValue, viewScaleUnit);
-                }
                 var generatedCols = [];
                 var left = 0;
+
+                if (reverse) {
+                    date.add(-viewScaleValue, viewScaleUnit);
+                    left -= columnWidth;
+                }
 
                 while (true) {
                     if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
@@ -2298,6 +2300,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var w = gantt.side.getWidth();
                     if (w > 0) {
                         gantt.options.set('sideWidth', w);
+                    } else {
+                         $timeout(renderedFunction);
                     }
                     gantt.api.core.raise.rendered(gantt.api);
                 };

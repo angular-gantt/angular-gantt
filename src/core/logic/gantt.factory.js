@@ -362,6 +362,8 @@
                     var w = gantt.side.getWidth();
                     if (w > 0) {
                         gantt.options.set('sideWidth', w);
+                    } else {
+                         $timeout(renderedFunction);
                     }
                     gantt.api.core.raise.rendered(gantt.api);
                 };
