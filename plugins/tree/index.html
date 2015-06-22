@@ -256,6 +256,7 @@ can be used to define the hierarchy.</p>
 ]
 </code></pre>
 <p>Take care to define a non-recursive hierarchy model, and check that a row is attached to a maximum of one parent.</p>
+<p>When removing a child from the data, be sure to break the link between parent and child. For instance, set `myrow.parent = '';` before removing the row from the data.</p>
 <h2 id="attributes">Attributes</h2>
 <ul>
 <li>
