@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.8 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.9 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -19,7 +19,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 scope.selectedTasks = [];
                 scope.transitSelectedTasks = [];
                 var api = ganttCtrl.gantt.api;
-                var elementScope;
                 scope.newMoveStarted = false;
                 scope.isMouseDown = false;
 
@@ -44,8 +43,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 api.directives.on.new(scope, function(directiveName, currentScope, element) {
                  if (directiveName === 'ganttBody') {
-                     elementScope = currentScope.$new();
-                     elementScope.pluginScope = scope;
+                     var bodyScope = currentScope.$new();
+                     bodyScope.pluginScope = scope;
 
                      var ifElement = $document[0].createElement('div');
 
@@ -75,13 +74,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     element.bind('mousedown', function(event) {
                         if (scope.enabled){
-                         elementScope.pluginScope.newMoveStarted = true;
-                         elementScope.pluginScope.isMouseDown = true;
+                         bodyScope.pluginScope.newMoveStarted = true;
+                         bodyScope.pluginScope.isMouseDown = true;
                          var parentRect = this.getBoundingClientRect();
                          var childRect = event.target.getBoundingClientRect();
                          x1 = childRect.left - parentRect.left + event.offsetX;
                          y1 = childRect.top - parentRect.top + event.offsetY;
-                         elementScope.pluginScope.dateLine = scope.api.core.getDateByPosition(x1);
+                         bodyScope.pluginScope.dateLine = scope.api.core.getDateByPosition(x1);
                          element.bind('touchmove mousemove', mouseMoveEventHandler);
                      }
                  });
@@ -89,15 +88,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     element.bind('mouseup', function() {
                      if (scope.enabled){
                         element.unbind('touchmove mousemove', mouseMoveEventHandler);
-                        elementScope.pluginScope.isMouseDown = false;
-                        elementScope.$apply();
+                        bodyScope.pluginScope.isMouseDown = false;
+                        bodyScope.$apply();
                     }
                 });
 
                     var mouseMoveEventHandler = function(event) {
-                        if (elementScope.pluginScope.newMoveStarted && elementScope.pluginScope.selectedTasks.length > 0){
-                            elementScope.pluginScope.newMoveStarted = false;
-                            elementScope.pluginScope.selectedTasks = [];
+                        if (bodyScope.pluginScope.newMoveStarted && bodyScope.pluginScope.selectedTasks.length > 0){
+                            bodyScope.pluginScope.newMoveStarted = false;
+                            bodyScope.pluginScope.selectedTasks = [];
                         }
                         y2 = event.target.getBoundingClientRect().top - this.getBoundingClientRect().top + event.offsetY;
 
@@ -109,37 +108,37 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 if (directiveName === 'ganttRow') {
-                    elementScope = currentScope.$new();
-                    elementScope.pluginScope = scope;
+                    var rowScope = currentScope.$new();
+                    rowScope.pluginScope = scope;
 
                     element.bind('mousemove', function() {
-                        if (elementScope.pluginScope.isMouseDown){
-                            var currentRowTasks = elementScope.row.visibleTasks;
+                        if (rowScope.pluginScope.isMouseDown){
+                            var currentRowTasks = rowScope.row.visibleTasks;
                             for (var i = 0; i < currentRowTasks.length; i++) {
-                                if (elementScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && elementScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
-                                    elementScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
+                                if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
+                                    rowScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
                                 }
                             }
-                            elementScope.$apply();
+                            rowScope.$apply();
                         }                    
                     });
 
 
               //       element.bind('mouseleave', function(event) {
-              //           if (elementScope.pluginScope.isMouseDown){
-              //               var currentRowTasks = elementScope.row.visibleTasks;
+              //           if (rowScope.pluginScope.isMouseDown){
+              //               var currentRowTasks = rowScope.row.visibleTasks;
 
               //               if (event.offsetY < 5){
               //                  for (var i = 0; i < currentRowTasks.length; i++) {
-              //                   var index = elementScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]);
-              //                   if (elementScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && index > -1){
-              //                     elementScope.pluginScope.selectedTasks.splice(index, 1);
+              //                   var index = rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]);
+              //                   if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && index > -1){
+              //                     rowScope.pluginScope.selectedTasks.splice(index, 1);
               //                 }
               //             };
               //         }
 
-              //         elementScope.$apply();
-              //         console.log(elementScope.pluginScope.selectedTasks.length);
+              //         rowScope.$apply();
+              //         console.log(rowScope.pluginScope.selectedTasks.length);
               //     }                    
               // });
 }
@@ -147,17 +146,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 if (directiveName === 'ganttTask') {
 
 
-    elementScope = currentScope.$new();
-    elementScope.pluginScope = scope;
+    var taskScope = currentScope.$new();
+    taskScope.pluginScope = scope;
 
     element.bind('click', function (){
      if (scope.enabled){
-        var index = elementScope.pluginScope.selectedTasks.indexOf(currentScope.task);
+        var index = taskScope.pluginScope.selectedTasks.indexOf(currentScope.task);
 
         if (index === -1){
-            elementScope.pluginScope.selectedTasks.push(currentScope.task);
+            taskScope.pluginScope.selectedTasks.push(currentScope.task);
         } else {
-            elementScope.pluginScope.selectedTasks.splice(index, 1);
+            taskScope.pluginScope.selectedTasks.splice(index, 1);
         }
     }
 });
