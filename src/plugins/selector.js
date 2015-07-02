@@ -12,6 +12,7 @@
                 scope.selectedTasks = [];
                 scope.transitSelectedTasks = [];
                 var api = ganttCtrl.gantt.api;
+                var elementScope;
                 scope.newMoveStarted = false;
                 scope.isMouseDown = false;
 
@@ -24,19 +25,19 @@
                   if (newValue !== oldValue) {
                     scope.enabled = newValue;
                 }
-            })
+            });
 
                 scope.api = api;
 
                 var getTasks = function (){
                     return scope.selectedTasks;
-                }
+                };
 
                 api.registerMethod('selector', 'getTasks', getTasks, scope);
 
                 api.directives.on.new(scope, function(directiveName, currentScope, element) {
                  if (directiveName === 'ganttBody') {
-                     var elementScope = currentScope.$new();
+                     elementScope = currentScope.$new();
                      elementScope.pluginScope = scope;
 
                      var ifElement = $document[0].createElement('div');
@@ -46,9 +47,9 @@
                      var compiled = $compile(ifElement)(scope);
                      element.append(compiled);
 
-                     var x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+                     var x1 = 0, y1 = 0, y2 = 0;
 
-                     function reCalc() {
+                     var reCalc = function () {
                           var lineDiv = element[0].querySelector('.selector-line');
 
                         if (lineDiv){
@@ -62,7 +63,7 @@
                             lineDiv.style.height = y4 - y3 + 'px';
                             lineDiv.style.position = 'absolute';
                         }
-                    }
+                    };
 
 
                     element.bind('mousedown', function(event) {
@@ -78,11 +79,10 @@
                      }
                  });
 
-                    element.bind('mouseup', function(event) {
+                    element.bind('mouseup', function() {
                      if (scope.enabled){
                         element.unbind('touchmove mousemove', mouseMoveEventHandler);
                         elementScope.pluginScope.isMouseDown = false;
-                        var date = scope.api.core.getDateByPosition(event.clientX);
                         elementScope.$apply();
                     }
                 });
@@ -102,19 +102,18 @@
                 }
 
                 if (directiveName === 'ganttRow') {
-                    var elementScope = currentScope.$new();
+                    elementScope = currentScope.$new();
                     elementScope.pluginScope = scope;
 
-                    element.bind('mousemove', function(event) {
+                    element.bind('mousemove', function() {
                         if (elementScope.pluginScope.isMouseDown){
                             var currentRowTasks = elementScope.row.visibleTasks;
                             for (var i = 0; i < currentRowTasks.length; i++) {
                                 if (elementScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && elementScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
                                     elementScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
                                 }
-                            };
+                            }
                             elementScope.$apply();
-                            console.log(elementScope.pluginScope.selectedTasks.length);
                         }                    
                     });
 
@@ -141,20 +140,20 @@
 if (directiveName === 'ganttTask') {
 
 
-    var elementScope = currentScope.$new();
+    elementScope = currentScope.$new();
     elementScope.pluginScope = scope;
 
-    element.bind('click', function (event){
+    element.bind('click', function (){
      if (scope.enabled){
         var index = elementScope.pluginScope.selectedTasks.indexOf(currentScope.task);
 
-        if (index == -1){
+        if (index === -1){
             elementScope.pluginScope.selectedTasks.push(currentScope.task);
         } else {
             elementScope.pluginScope.selectedTasks.splice(index, 1);
         }
     }
-})
+});
 
                  // var blabla = function (orderId) {
                  //    if ($rootScope.state == TaskPickModes.NORMAL_STATE){
