@@ -81,16 +81,14 @@
                 element.bind('mouseup', function() {
                  if (scope.enabled){
                     element.unbind('touchmove mousemove', mouseMoveEventHandler);
+                    bodyScope.pluginScope.newMoveStarted = false;
                     bodyScope.pluginScope.isMouseDown = false;
                     bodyScope.$apply();
                 }
             });
 
                 var mouseMoveEventHandler = function(event) {
-                    if (bodyScope.pluginScope.newMoveStarted && bodyScope.pluginScope.selectedTasks.length > 0){
-                        bodyScope.pluginScope.newMoveStarted = false;
-                        bodyScope.pluginScope.selectedTasks = [];
-                    }
+                    
                     y2 = event.target.getBoundingClientRect().top - this.getBoundingClientRect().top + event.offsetY;
 
                     reCalc();                 
@@ -104,56 +102,75 @@
                 var rowScope = currentScope.$new();
                 rowScope.pluginScope = scope;
 
-                element.bind('mouseenter', function() {
-                    if (rowScope.pluginScope.isMouseDown){
+                element.bind('mousemove', function() {
+                    if (rowScope.pluginScope.newMoveStarted && rowScope.pluginScope.isMouseDown){
+                        rowScope.pluginScope.newMoveStarted = false;
+                        rowScope.pluginScope.selectedTasks = [];
+                        var parentRect = this.getBoundingClientRect();
+                        var childRect = event.target.getBoundingClientRect();
+                        var x1 = childRect.left - parentRect.left + event.offsetX;
+                        var customDateLine = scope.api.core.getDateByPosition(x1);
+
                         var currentRowTasks = rowScope.row.visibleTasks;
                         for (var i = 0; i < currentRowTasks.length; i++) {
-                            if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
+                            if (customDateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
                                 rowScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
                             }
                         }
-                        rowScope.$apply();
-                    }                    
+                        rowScope.$apply();  
+                    }     
                 });
 
-
-                element.bind('mouseleave', function(event) {
-                    if (rowScope.pluginScope.isMouseDown){
-                        var currentRowTasks = rowScope.row.visibleTasks;
-
-                        if ((event.offsetY < 5 && y1 < y2) || (event.offsetY > event.currentTarget.scrollHeight -5 && y1 > y2)){
-                         for (var i = 0; i < currentRowTasks.length; i++) {
-                            var index = rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]);
-                            if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && index > -1){
-                              rowScope.pluginScope.selectedTasks.splice(index, 1);
-                          }
-                      }
-                  }
-
-                  rowScope.$apply();
-              }                    
-          });
+element.bind('mouseenter', function() {
+    if (rowScope.pluginScope.isMouseDown){
+        var currentRowTasks = rowScope.row.visibleTasks;
+        for (var i = 0; i < currentRowTasks.length; i++) {
+            if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
+                rowScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
             }
+        }
+        rowScope.$apply();
+    }                    
+});
 
-            if (directiveName === 'ganttTask') {
+
+element.bind('mouseleave', function(event) {
+    if (rowScope.pluginScope.isMouseDown){
+        var currentRowTasks = rowScope.row.visibleTasks;
+
+        if ((event.offsetY < 2 && y1 < y2) || (event.offsetY === event.currentTarget.scrollHeight && y1 > y2)){
+         for (var i = 0; i < currentRowTasks.length; i++) {
+            var index = rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]);
+            if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && index > -1){
+              rowScope.pluginScope.selectedTasks.splice(index, 1);
+          }
+      }
+  }
+
+  rowScope.$apply();
+}                    
+});
+}
+
+if (directiveName === 'ganttTask') {
 
 
-                var taskScope = currentScope.$new();
-                taskScope.pluginScope = scope;
+    var taskScope = currentScope.$new();
+    taskScope.pluginScope = scope;
 
-                element.bind('click', function (){
-                 if (scope.enabled){
-                    var index = taskScope.pluginScope.selectedTasks.indexOf(currentScope.task);
+    element.bind('click', function (){
+     if (scope.enabled){
+        var index = taskScope.pluginScope.selectedTasks.indexOf(currentScope.task);
 
-                    if (index === -1){
-                        taskScope.pluginScope.selectedTasks.push(currentScope.task);
-                    } else {
-                        taskScope.pluginScope.selectedTasks.splice(index, 1);
-                    }
-                }
-            });
-            }
-        });
+        if (index === -1){
+            taskScope.pluginScope.selectedTasks.push(currentScope.task);
+        } else {
+            taskScope.pluginScope.selectedTasks.splice(index, 1);
+        }
+    }
+});
+}
+});
 
 }
 };
