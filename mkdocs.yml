@@ -8,25 +8,27 @@ repo_url: https://github.com/angular-gantt/angular-gantt
 theme: spacelab
 
 pages:
-- [index.md, Home]
-- [get-started.md, Get Started]
-- [configuration/data.md, Configuration, Data]
-- [configuration/timespans.md, Configuration, Timespans]
-- [configuration/attributes.md, Configuration, Attributes]
-- [configuration/plugins.md, Configuration, Plugins]
-- [configuration/customize.md, Configuration, Customize]
-- [configuration/api.md, Configuration, API]
-- [configuration/write_plugin.md, Configuration, Write a Plugin]
-- [plugins/sortable.md, Plugins, Sortable]
-- [plugins/movable.md, Plugins, Movable]
-- [plugins/drawtask.md, Plugins, Draw Task]
-- [plugins/tooltips.md, Plugins, Tooltips]
-- [plugins/bounds.md, Plugins, Bounds]
-- [plugins/progress.md, Plugins, Progress]
-- [sources.md, Sources]
-- [contribute.md, Contribute]
-- [faq.md, FAQ]
-- [about.md, About]
+- Home: index.md
+- Get Started: get-started.md
+- Configuration:
+  - Data: configuration/data.md
+  - Timespans: configuration/timespans.md
+  - Attributes: configuration/attributes.md
+  - Plugins: configuration/plugins.md
+  - Customize: configuration/customize.md
+  - API: configuration/api.md
+  - Write a Plugin: configuration/write_plugin.md
+- Plugins:
+  - Sortable: plugins/sortable.md
+  - Movable: plugins/movable.md
+  - Draw Task: plugins/drawtask.md
+  - Tooltips: plugins/tooltips.md
+  - Bounds: plugins/bounds.md
+  - Progress: plugins/progress.md
+- Sources: sources.md
+- Contribute: contribute.md
+- FAQ: faq.md
+- About: about.md
 
 
 
