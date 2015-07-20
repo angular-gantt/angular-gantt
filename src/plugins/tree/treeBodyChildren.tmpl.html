@@ -4,7 +4,7 @@
      ng-style="{'height': row.model.height}">
     <div class="gantt-valign-container">
         <div class="gantt-valign-content">
-            <a ng-show="isCollapseDisabled()" data-nodrag
+            <a ng-show="!isCollapseDisabled()" data-nodrag
                class="gantt-tree-handle-button btn btn-xs"
                ng-class="{'gantt-tree-collapsed': collapsed, 'gantt-tree-expanded': !collapsed}"
                ng-click="!isCollapseDisabled() && toggle()"><span
