@@ -490,4 +490,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-//# sourceMappingURL=cti-angular-gantt-movable-plugin.js.map
+angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+//# sourceMappingURL=angular-gantt-movable-plugin.js.map

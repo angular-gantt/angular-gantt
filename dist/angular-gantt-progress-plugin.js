@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -128,5 +128,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
+
+angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/progress/taskProgress.tmpl.html',
+        '<div ng-cloak class="gantt-task-progress" ng-style="getCss()" ng-class="getClasses()"></div>\n' +
+        '');
+}]);
 
 //# sourceMappingURL=angular-gantt-progress-plugin.js.map

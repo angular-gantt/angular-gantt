@@ -128,4 +128,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-//# sourceMappingURL=cti-angular-gantt-bounds-plugin.js.map
+angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
+        '<div ng-cloak class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
+        '');
+}]);
+
+//# sourceMappingURL=angular-gantt-bounds-plugin.js.map

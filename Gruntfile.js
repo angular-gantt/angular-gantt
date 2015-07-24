@@ -269,7 +269,7 @@ module.exports = function(grunt) {
             dest: '.tmp/generated/plugins/' + plugin + '/html2js.js'
         };
         config.concat[plugin] = {
-            src: ['src/plugins/' + plugin + '.js', 'src/plugins/' + plugin + '/**/*.js'],
+            src: ['src/plugins/' + plugin + '.js', 'src/plugins/' + plugin + '/**/*.js', '.tmp/generated/plugins/' + plugin + '/*.js'],
             dest: 'assets/<%= pkg.name %>-' + plugin + '-plugin.js'
         };
         config.concatCss[plugin] = {

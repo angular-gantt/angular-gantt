@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.5 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.6 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -87,7 +87,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
                                 var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled) {
-                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mouseButton.getButton(evt) === 1) {
                                         var bodyOffsetX = mouseOffset.getOffsetForElement(ganttBodyElement[0], evt).x;
@@ -114,7 +114,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
                                 var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                                 if (enabled && !taskScope.task.isMoving) {
-                                    var taskOffsetX = mouseOffset.getOffset(evt).x;
+                                    var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
                                     if (mode !== '' && mode !== 'M') {
                                         foregroundElement.css('cursor', getCursor(mode));
@@ -486,5 +486,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
+
+angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
 
 //# sourceMappingURL=angular-gantt-movable-plugin.js.map

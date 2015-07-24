@@ -68,4 +68,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-//# sourceMappingURL=cti-angular-gantt-resizeSensor-plugin.js.map
+angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+//# sourceMappingURL=angular-gantt-resizeSensor-plugin.js.map
