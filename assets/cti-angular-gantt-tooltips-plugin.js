@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.13 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -293,4 +293,4 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '');
 }]);
 
-//# sourceMappingURL=angular-gantt-tooltips-plugin.js.map
+//# sourceMappingURL=cti-angular-gantt-tooltips-plugin.js.map

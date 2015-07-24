@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.13 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -439,7 +439,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '     ng-style="{\'height\': row.model.height}">\n' +
         '    <div class="gantt-valign-container">\n' +
         '        <div class="gantt-valign-content">\n' +
-        '            <a ng-disabled="isCollapseDisabled()" data-nodrag\n' +
+        '            <a ng-show="!isCollapseDisabled()" data-nodrag\n' +
         '               class="gantt-tree-handle-button btn btn-xs"\n' +
         '               ng-class="{\'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"\n' +
         '               ng-click="!isCollapseDisabled() && toggle()"><span\n' +
@@ -465,4 +465,4 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '');
 }]);
 
-//# sourceMappingURL=angular-gantt-tree-plugin.js.map
+//# sourceMappingURL=cti-angular-gantt-tree-plugin.js.map
