@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.14 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.15 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
