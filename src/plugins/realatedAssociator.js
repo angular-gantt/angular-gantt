@@ -40,7 +40,8 @@
                         bodyElement.prepend(canvas);  
                         var ctx = canvas.getContext("2d");
                         scope.$watchCollection('tasks', function(newArray, oldArray) {
-
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
                             if (newArray.length == 1 && newArray[0].orderPosition == 'single'){
                                 return;
                             } else if (newArray.length > 0) {
@@ -52,7 +53,7 @@
 
                                 var parentRect = bodyElement[0].getBoundingClientRect();
 
-                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                
 
                                 newArray.sort(function (a, b){
                                     if (a.from < b.from){
