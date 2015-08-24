@@ -1292,7 +1292,7 @@ angular.module('ang-drag-drop',[])
 
 (function(){
 	'use strict';
-	angular.module('gantt.associator', ['gantt']).directive('associator', ['$compile', '$document', function($compile, $document) {
+	angular.module('gantt.associator', ['gantt']).directive('ganttAssociator', ['$compile', '$document', function($compile, $document) {
 		return {
 			restrict: 'E',
 			require: '^gantt',
