@@ -1301,7 +1301,7 @@ angular.module('ang-drag-drop',[])
 				tasks: '=?'
 			},
 			link: function(scope, element, attrs, ganttCtrl) {
-				var api = ganttCtrl.gantt.api;
+				var api = ganttCtrl.gantt.api;	
 
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.bounds) === 'object') {
@@ -2892,6 +2892,10 @@ if (directiveName === 'ganttTask') {
     }]);
 }());
 
+
+angular.module('gantt.associator.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
 
 angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
     $templateCache.put('plugins/bounds/taskBounds.tmpl.html',

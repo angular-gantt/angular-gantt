@@ -1,6 +1,6 @@
 (function(){
 	'use strict';
-	angular.module('gantt.associator', ['gantt']).directive('associator', ['$compile', '$document', function($compile, $document) {
+	angular.module('gantt.associator', ['gantt']).directive('ganttAssociator', ['$compile', '$document', function($compile, $document) {
 		return {
 			restrict: 'E',
 			require: '^gantt',
@@ -9,7 +9,7 @@
 				tasks: '=?'
 			},
 			link: function(scope, element, attrs, ganttCtrl) {
-				var api = ganttCtrl.gantt.api;
+				var api = ganttCtrl.gantt.api;	
 
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.bounds) === 'object') {
