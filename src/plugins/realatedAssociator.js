@@ -11,7 +11,6 @@
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;  
                 var x1, y1;
-                var pointArray = [];
 
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.bounds) === 'object') {
@@ -38,11 +37,11 @@
                         canvas.style.zIndex = '100';
 
                         bodyElement.prepend(canvas);  
-                        var ctx = canvas.getContext("2d");
-                        scope.$watchCollection('tasks', function(newArray, oldArray) {
+                        var ctx = canvas.getContext('2d');
+                        scope.$watchCollection('tasks', function(newArray) {
                             ctx.clearRect(0, 0, canvas.width, canvas.height);
                             
-                            if (newArray.length == 1 && newArray[0].orderPosition == 'single'){
+                            if (newArray.length === 1 && newArray[0].orderPosition === 'single'){
                                 return;
                             } else if (newArray.length > 0) {
                                 canvas.style.width ='100%';
@@ -57,7 +56,7 @@
 
                                 newArray.sort(function (a, b){
                                     if (a.from < b.from){
-                                        return -1
+                                        return -1;
                                     } else if (a.from > b.from){
                                         return 1;
                                     } else {
@@ -74,32 +73,32 @@
                                     y1 = childRect.top - parentRect.top;
 
                                     
-                                    if (newArray[i].orderPosition == 'start'){
+                                    if (newArray[i].orderPosition === 'start'){
                                         ctx.moveTo(x1, y1);
-                                        if (newArray.length == 1){
+                                        if (newArray.length === 1){
                                             ctx.lineTo(parentRect.width, y1);
                                         }
-                                    } else if (newArray[i].orderPosition == 'end'){
-                                        if (newArray.length == 1){
+                                    } else if (newArray[i].orderPosition === 'end'){
+                                        if (newArray.length === 1){
                                             ctx.moveTo(0, y1);
                                         } 
                                         ctx.lineTo(x1, y1);
                                     } else {
-                                        if (newArray.length == 1){
+                                        if (newArray.length === 1){
                                             ctx.moveTo(0, y1);
                                             ctx.lineTo(x1, y1);
                                             ctx.lineTo(parentRect.width, y1);
-                                        } else if (i == 0){
+                                        } else if (i === 0){
                                             ctx.moveTo(0, y1);
                                             ctx.lineTo(x1, y1);
-                                        } else if (i == newArray.length){
+                                        } else if (i === newArray.length){
                                             ctx.lineTo(x1, y1);
                                             ctx.lineTo(parentRect.width, y1);
                                         } else {
                                             ctx.lineTo(x1, y1);
                                         }
                                     }
-                                };
+                                }
 
                                 ctx.stroke();
                             }
