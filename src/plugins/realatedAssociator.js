@@ -100,6 +100,7 @@
                                     }
                                 }
 
+                                ctx.strokeStyle='#FFFF00';
                                 ctx.stroke();
                             }
                         }
