@@ -46174,17 +46174,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         });
 
-        $scope.pluginScope.$watch('display', function() {
-            updateTaskGroup();
-        });
+        var removeWatch = $scope.pluginScope.$watch('display', updateTaskGroup);
 
-        $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
-            updateTaskGroup();
-        });
+        $scope.$watchCollection('gantt.rowsManager.filteredRows', updateTaskGroup);
 
-        $scope.gantt.api.columns.on.refresh($scope, function() {
-            updateTaskGroup();
-        });
+        $scope.gantt.api.columns.on.refresh($scope, updateTaskGroup);
+
+        $scope.$on('$destroy', removeWatch);
     }]);
 }());
 
