@@ -124,10 +124,16 @@
                         self.shiftColumnMagnetUnit = moment.normalizeUnits(shiftColumnMagnet);
                     }
                 });
-
-                $document.on('keyup keydown', function(e) {
+                
+                var keyHandler = function(e) {
                     self.shiftKey = e.shiftKey;
                     return true;
+                };
+
+                $document.on('keyup keydown', keyHandler);
+
+                $scope.$on('$destroy', function() {
+                    $document.off('keyup keydown', keyHandler);
                 });
 
                 this.scroll = new Scroll(this);
