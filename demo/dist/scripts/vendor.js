@@ -41479,9 +41479,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                $document.on('keyup keydown', function(e) {
+                var keyHandler = function(e) {
                     self.shiftKey = e.shiftKey;
                     return true;
+                };
+
+                $document.on('keyup keydown', keyHandler);
+
+                $scope.$on('$destroy', function() {
+                    $document.off('keyup keydown', keyHandler);
                 });
 
                 this.scroll = new Scroll(this);
@@ -46168,17 +46174,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         });
 
-        $scope.pluginScope.$watch('display', function() {
-            updateTaskGroup();
-        });
+        var removeWatch = $scope.pluginScope.$watch('display', updateTaskGroup);
 
-        $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
-            updateTaskGroup();
-        });
+        $scope.$watchCollection('gantt.rowsManager.filteredRows', updateTaskGroup);
 
-        $scope.gantt.api.columns.on.refresh($scope, function() {
-            updateTaskGroup();
-        });
+        $scope.gantt.api.columns.on.refresh($scope, updateTaskGroup);
+
+        $scope.$on('$destroy', removeWatch);
     }]);
 }());
 
