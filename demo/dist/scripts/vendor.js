@@ -41530,7 +41530,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             self.rowsManager.removeAll();
 
                             // DEPRECATED
-                            self.api.data.raise.clear(self.$scope);
+                            self.api.data.raise.clear();
                         } else {
                             for (var i = 0, l = toRemoveIds.length; i < l; i++) {
                                 var toRemoveId = toRemoveIds[i];
@@ -41544,7 +41544,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                     removedRows.push(removedRow);
                                 }
                             });
-                            self.api.data.raise.remove(self.$scope, removedRows);
+                            self.api.data.raise.remove(removedRows);
                         }
                     }
 
@@ -41560,10 +41560,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             self.rowsManager.addRow(rowData, modelOrderChanged);
                         }
 
-                        self.api.data.raise.change(self.$scope, newData, oldData);
+                        self.api.data.raise.change(newData, oldData);
 
                         // DEPRECATED
-                        self.api.data.raise.load(self.$scope, newData);
+                        self.api.data.raise.load(newData);
                     }
                 });
             };
