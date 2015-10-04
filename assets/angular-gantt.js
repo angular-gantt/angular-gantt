@@ -4947,7 +4947,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         if (ngAnimate !== undefined) {
             return function(enabled, element) {
-                ngAnimate.enabled(false, element);
+
+                if (angular.version.major === 1 && angular.version.minor >= 4) {
+                    ngAnimate.enabled(element,false);
+                }
+                else {
+                    ngAnimate.enabled(false, element);
+                }
+
             };
         } else {
             return function() {};
