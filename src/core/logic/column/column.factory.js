@@ -13,6 +13,7 @@
             this.timeFramesWorkingMode = timeFramesWorkingMode;
             this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
             this.timeFrames = [];
+            this.currentDate = false;
             this.visibleTimeFrames = [];
             this.daysTimeFrames = {};
             this.cropped = false;
@@ -26,6 +27,12 @@
 
         Column.prototype.updateView = function() {
             if (this.$element) {
+                if (this.currentDate) {
+                    this.$element.addClass('gantt-foreground-col-current-date');
+                } else {
+                    this.$element.removeClass('gantt-foreground-col-current-date');
+                }
+
                 this.$element.css({'left': this.left + 'px', 'width': this.width + 'px'});
 
                 for (var i = 0, l = this.timeFrames.length; i < l; i++) {

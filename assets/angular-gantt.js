@@ -854,7 +854,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.date = undefined;
             this.position = undefined;
-            this.currentDateColumnElement = undefined;
+            this.currentDateColumn = undefined;
 
             this.gantt.$scope.simplifyMoment = function(d) {
                 return moment.isMoment(d) ? d.unix() : d;
@@ -869,23 +869,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         GanttCurrentDateManager.prototype.setCurrentDate = function(currentDate) {
             this.date = currentDate;
-            var oldElement = this.currentDateColumnElement;
-            var newElement;
+            var oldColumn = this.currentDateColumn;
+            var newColumn;
 
             if (this.date !== undefined && this.gantt.options.value('currentDate') === 'column') {
-                var column = this.gantt.columnsManager.getColumnByDate(this.date, true);
-                if (column !== undefined && column.$element !== undefined) {
-                    newElement = column.$element;
-                }
+                newColumn = this.gantt.columnsManager.getColumnByDate(this.date, true);
             }
-            this.currentDateColumnElement = newElement;
+            this.currentDateColumn = newColumn;
 
-            if (oldElement !== newElement) {
-                if (oldElement !== undefined) {
-                    oldElement.removeClass('gantt-foreground-col-current-date');
+            if (oldColumn !== newColumn) {
+                if (oldColumn !== undefined) {
+                    oldColumn.currentDate = false;
+                    oldColumn.updateView();
                 }
-                if (newElement !== undefined) {
-                    newElement.addClass('gantt-foreground-col-current-date');
+                if (newColumn !== undefined) {
+                    newColumn.currentDate = true;
+                    newColumn.updateView();
                 }
             }
 
@@ -910,6 +909,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.timeFramesWorkingMode = timeFramesWorkingMode;
             this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
             this.timeFrames = [];
+            this.currentDate = false;
             this.visibleTimeFrames = [];
             this.daysTimeFrames = {};
             this.cropped = false;
@@ -923,6 +923,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         Column.prototype.updateView = function() {
             if (this.$element) {
+                if (this.currentDate) {
+                    this.$element.addClass('gantt-foreground-col-current-date');
+                } else {
+                    this.$element.removeClass('gantt-foreground-col-current-date');
+                }
+
                 this.$element.css({'left': this.left + 'px', 'width': this.width + 'px'});
 
                 for (var i = 0, l = this.timeFrames.length; i < l; i++) {
