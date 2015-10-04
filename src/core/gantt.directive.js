@@ -60,7 +60,7 @@
                 }
 
                 // Disable animation if ngAnimate is present, as it drops down performance.
-                enableNgAnimate(false, $element);
+                enableNgAnimate($element, false);
 
                 $scope.gantt = new Gantt($scope, $element);
                 this.gantt = $scope.gantt;
