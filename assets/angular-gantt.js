@@ -3156,7 +3156,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.$element.css({'left': this.left + 'px', 'width': this.width + 'px', 'display': ''});
 
                     if (this.model.priority > 0) {
-                        this.$element.css('z-index', this.model.priority);
+                        var priority = this.model.priority;
+                        angular.forEach(this.$element.children(), function(element) {
+                            angular.element(element).css('z-index', priority);
+                        });
                     }
 
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
