@@ -1,6 +1,7 @@
 # Resize Sensor
 
-Use [CSS-Element-Queries Polyfill](https://github.com/marcj/css-element-queries) to support dynamic resizing of the component.
+Use [CSS-Element-Queries Polyfill](https://github.com/marcj/css-element-queries) to support dynamic 
+resizing of the component.
 
 ## Dependency
 

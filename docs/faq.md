@@ -16,8 +16,8 @@
     Plugins may require additional dependencies:
    
     - [angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.1.0 ([Sortable](plugins/sortable.md))
-    - [angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree) 2.1.5 (2.2 is banned) ([Tree](plugins/tree.md))
-    - [css-element-queries](https://github.com/marcj/css-element-queries) master ([ResizeSensor](plugins/resizeSensor.md))
+    - [angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree) ([Tree](plugins/tree.md))
+    - [css-element-queries](https://github.com/marcj/css-element-queries) ([ResizeSensor](plugins/resizeSensor.md))
 
 - ### Which browser is supported ?
 
