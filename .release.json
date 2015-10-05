@@ -9,10 +9,14 @@
     "tagName": "v%s",
     "tagAnnotation": "v%s",
     "buildCommand": "grunt dist",
-    "distRepo": false,
-    "distStageDir": ".stage",
-    "distBase": "dist",
-    "distFiles": ["**/*"],
-    "publish": true,
-    "publishPath": "."
+    "dist": {
+        "repo": false,
+        "stageDir": ".stage",
+        "base": "dist",
+        "files": ["**/*"]
+    },
+    "npm": {
+        "publish": true,
+        "publishPath": "."
+    }
 }
