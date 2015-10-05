@@ -21,9 +21,10 @@ angular.module('angularGanttDemoApp', [
     'gantt.groups',
     'gantt.overlap',
     'gantt.resizeSensor',
+    'ngAnimate',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
-    $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
+    $compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
 }]);
 
 'use strict';
@@ -144,6 +145,7 @@ angular.module('angularGanttDemoApp')
                     api.data.on.remove($scope, addEventName('data.on.remove', logDataEvent));
                     api.data.on.load($scope, addEventName('data.on.load', logDataEvent));
                     api.data.on.clear($scope, addEventName('data.on.clear', logDataEvent));
+                    api.data.on.change($scope, addEventName('data.on.change', logDataEvent));
 
                     api.tasks.on.add($scope, addEventName('tasks.on.add', logTaskEvent));
                     api.tasks.on.change($scope, addEventName('tasks.on.change', logTaskEvent));
@@ -174,6 +176,25 @@ angular.module('angularGanttDemoApp')
 
                     api.rows.on.filter($scope, logRowsFilterEvent);
                     api.tasks.on.filter($scope, logTasksFilterEvent);
+
+                    api.data.on.change($scope, function(newData) {
+                        if (dataToRemove === undefined) {
+                            dataToRemove = [
+                                {'id': newData.data[2].id}, // Remove Kickoff row
+                                {
+                                    'id': newData.data[0].id, 'tasks': [
+                                    {'id': newData.data[0].tasks[0].id},
+                                    {'id': newData.data[0].tasks[3].id}
+                                ]
+                                }, // Remove some Milestones
+                                {
+                                    'id': newData.data[6].id, 'tasks': [
+                                    {'id': newData.data[6].tasks[0].id}
+                                ]
+                                } // Remove order basket from Sprint 2
+                            ];
+                        }
+                    });
 
                     // When gantt is ready, load data.
                     // `data` attribute could have been used too.
@@ -484,11 +505,11 @@ angular.module('angularGanttDemoApp')
                                 progress: {percent: 100, color: '#3C8CF8'}}
                         ]},
                         {name: 'Create concept', tasks: [
-                            {name: 'Create concept', content: '<i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"></i> {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
+                            {name: 'Create concept', priority: 20, content: '<i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"></i> {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
                                 progress: 100}
                         ]},
                         {name: 'Finalize concept', tasks: [
-                            {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
+                            {name: 'Finalize concept', priority: 10, color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
                                 progress: 100}
                         ]},
                         {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '<i class="fa fa-file-code-o" ng-click="scope.handleRowIconClick(row.model)"></i> {{row.model.name}}'},

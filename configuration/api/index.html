@@ -451,6 +451,11 @@ api.featureName.methodName();
 <p>Get the width of the columns that would fit the gantt available width.</p>
 </li>
 <li>
+<p><strong>api.columns.getDateRange(visibleOnly)</strong></p>
+<p>Get the column date range. If <code>visibleOnly=true</code> then only the current visible range will be returned.
+Returns an array of two dates <code>[dateOfFirstColumn, endDateOfLastColumn]</code> or <code>undefined</code> if there are no columns.</p>
+</li>
+<li>
 <p><strong>api.columns.refresh()</strong></p>
 <p>Refresh columns and current date. It will also apply filters, and may be required if you use 
 <a href="../attributes#filter-task-filter-task-comparator">filter-task</a> or <a href="../attributes##filter-row-filter-row-comparator">filter-row</a> with a function.</p>
