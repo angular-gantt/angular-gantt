@@ -2,25 +2,6 @@
     line-height: normal;
 }
 
-.gantt-side-content,
-.gantt-body {
-    pointer-events: none;
-}
-
-.gantt-side-background,
-.gantt-body-background,
-.gantt-row {
-    pointer-events: auto;
-}
-
-.gantt a,
-.gantt input,
-.gantt *[ng-click],
-.gantt *[data-ng-click],
-.gantt *[x-ng-click] {
-    pointer-events: auto;
-}
-
 .gantt-scrollable {
     overflow-x: auto;
     border-left: 1px solid #dddddd;
