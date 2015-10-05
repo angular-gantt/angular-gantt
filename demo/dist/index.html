@@ -67,11 +67,11 @@
                                             <div class="form-inline">
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-search"></i> Scale</label><br>
-                                                    <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" ng-options="s for s in ['minute', '5 minutes', 'hour', '3 hours', 'day', 'week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
+                                                    <button type="button" style="width: 5em; text-align: left" class="btn btn-default" ng-model="options.scale" bs-options="s for s in ['minute', '5 minutes', 'hour', '3 hours', 'day', 'week', '2 weeks', 'month', 'quarter', '6 months', 'year']" bs-select></button>
                                                 </div>
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-sort"></i> Sort</label><br>
-                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" ng-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
+                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.sortMode" bs-options="m.value as m.label for m in [{label: 'disabled', value: undefined}, {label: 'name', value: 'model.name'}, {label: 'from', value: 'from'}, {label: 'to', value: 'to'}]" bs-select></button>
                                                 </div>
                                                 <div class="form-group input-append text-center">
                                                     <label class="control-label"><i class="fa fa-filter"></i> Filter Tasks</label><br>
@@ -84,17 +84,17 @@
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-clock-o"></i> Today</label><br>
-                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.currentDate" ng-options="d for d in ['none', 'line', 'column']" bs-select></button>
+                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.currentDate" bs-options="d for d in ['none', 'line', 'column']" bs-select></button>
                                                 </div>
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-expand"></i> Expand</label><br>
-                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.autoExpand" ng-options="e for e in ['none', 'both', 'left', 'right']" bs-select></button>
+                                                    <button type="button" style="width: 6em; text-align: left" class="btn btn-default" ng-model="options.autoExpand" bs-options="e for e in ['none', 'both', 'left', 'right']" bs-select></button>
                                                 </div>
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-scissors"></i> Out of range</label><br>
-                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.taskOutOfRange" ng-options="e for e in ['expand', 'truncate']" bs-select></button>
+                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.taskOutOfRange" bs-options="e for e in ['expand', 'truncate']" bs-select></button>
                                                 </div>
 
                                                 <div class="form-group text-center">
@@ -105,7 +105,7 @@
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-magnet"></i> Magnet</label><br>
-                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.columnMagnet" ng-options="m for m in ['column', '1 second', '1 minute', '5 minutes', '15 minutes', '1 hour', '1 day', '5 days']" bs-select></button>
+                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.columnMagnet" bs-options="m for m in ['column', '1 second', '1 minute', '5 minutes', '15 minutes', '1 hour', '1 day', '5 days']" bs-select></button>
                                                     <button type="button" class="btn btn-default" ng-model="options.daily" bs-checkbox>Daily</button>
                                                     <button type="button" class="btn btn-default" ng-model="options.timeFramesMagnet" bs-checkbox>TimeFrames</button>
                                                 </div>
@@ -113,14 +113,14 @@
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-bars"></i> Side</label><br>
                                                     <div class="btn-group" bs-checkbox-group>
-                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.sideMode" ng-options="s for s in ['Tree', 'Table', 'TreeTable', 'Disabled']" bs-select></button>
+                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.sideMode" bs-options="s for s in ['Tree', 'Table', 'TreeTable', 'Disabled']" bs-select></button>
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-gear"></i> Groups</label><br>
                                                     <div class="btn-group" bs-checkbox-group>
-                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.groupDisplayMode" ng-options="s for s in ['group', 'overview', 'promote', 'Disabled']" bs-select></button>
+                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.groupDisplayMode" bs-options="s for s in ['group', 'overview', 'promote', 'Disabled']" bs-select></button>
                                                     </div>
                                                 </div>
 
@@ -166,7 +166,7 @@
 
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-sign-out"></i> Non-working</label><br>
-                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.timeFramesNonWorkingMode" ng-options="e for e in ['visible', 'hidden', 'cropped']" bs-select></button>
+                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.timeFramesNonWorkingMode" bs-options="e for e in ['visible', 'hidden', 'cropped']" bs-select></button>
                                                 </div>
 
                                                 <div class="form-group text-center">
@@ -262,11 +262,11 @@
                                 <div class="panel-body">
                                     <div class="live-table">
                                         <div class="live-cell" ng-show="live.row.tasks.length > 0">
-                                            <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.task" ng-options="t as t.name for t in live.row.tasks" bs-select></button> (Task object)</h4>
+                                            <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.task" bs-options="t as t.name for t in live.row.tasks" bs-select></button> (Task object)</h4>
                                             <textarea class="live-task" ng-model="live.taskJson"></textarea>
                                         </div>
                                         <div class="live-cell" ng-show="data.length > 0">
-                                            <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.row" ng-options="r as r.name for r in data" bs-select></button> (Row object)</h4>
+                                            <h4><button type="button" style="text-align: left" class="btn btn-default" ng-model="live.row" bs-options="r as r.name for r in data" bs-select></button> (Row object)</h4>
                                             <textarea class="live-row" ng-model="live.rowJson"></textarea>
                                         </div>
                                     </div>

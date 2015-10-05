@@ -8,17 +8,28 @@
   ],
   "description": "Gantt chart component for AngularJS - Demo",
   "dependencies": {
-    "angular": ">=1.3",
-    "angular-sanitize": ">=1.3",
+    "angular": "~1.3",
+    "angular-sanitize": "~1.3",
+    "angular-animate": "~1.3",
     "json3": "~3.3.1",
-    "es5-shim": "~3.1.0",
-    "angular-strap": "~2.1.0",
-    "font-awesome": "~4.3.0",
-    "angular-native-dragdrop": "~1.1.0",
-    "angular-ui-tree": "<2.2.0",
+    "es5-shim": "~4.1.14",
+    "angular-strap": "~2.3.3",
+    "bootstrap": "~3.3.5",
+    "font-awesome": "~4.4.0",
+    "angular-native-dragdrop": "~1.2.0",
+    "angular-ui-tree": "~2.9.0",
     "angular-gantt": ">=1.2",
-    "moment-range": "~1.0.7",
-    "css-element-queries": "master"
+    "moment-range": "~2.0.3",
+    "css-element-queries": "~0.3.0"
+  },
+  "overrides":{
+    "bootstrap":{
+      "main":[
+        "less/bootstrap.less",
+        "dist/css/bootstrap.css",
+        "dist/js/bootstrap.js"
+      ]
+    }
   },
   "devDependencies": {
     "angular-mocks": "~1.3"

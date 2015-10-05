@@ -21,9 +21,10 @@ angular.module('angularGanttDemoApp', [
     'gantt.groups',
     'gantt.overlap',
     'gantt.resizeSensor',
+    'ngAnimate',
     'mgcrea.ngStrap'
 ]).config(['$compileProvider', function($compileProvider) {
-    $compileProvider.debugInfoEnabled(true); // Remove debug info (angularJS >= 1.3)
+    $compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
 }]);
 
 'use strict';
