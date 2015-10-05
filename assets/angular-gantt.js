@@ -422,6 +422,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.default = options.default;
             this.color = options.color;
             this.classes = options.classes;
+            this.internal = options.internal;
         };
 
         TimeFrame.prototype.updateView = function() {
@@ -729,20 +730,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         /**
-         * Solve timeFrames using two rules.
+         * Solve timeFrames.
          *
-         * 1) If at least one working timeFrame is defined, everything outside
-         * defined timeFrames is considered as non-working. Else it's considered
-         * as working.
-         *
-         * 2) Smaller timeFrames have priority over larger one.
+         * Smaller timeFrames have priority over larger one.
          *
          * @param {array} timeFrames Array of timeFrames to solve
          * @param {moment} startDate
          * @param {moment} endDate
          */
         Calendar.prototype.solve = function(timeFrames, startDate, endDate) {
-            var defaultWorking = timeFrames.length === 0;
             var color;
             var classes;
             var minDate;
@@ -774,10 +770,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 endDate = maxDate;
             }
 
-            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, working: defaultWorking, magnet: false, color: color, classes: classes})];
+            var solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, internal: true})];
 
             timeFrames = $filter('filter')(timeFrames, function(timeFrame) {
                 return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+            });
+
+            angular.forEach(timeFrames, function(timeFrame) {
+                if (!timeFrame.start) {
+                    timeFrame.start = startDate;
+                }
+                if (!timeFrame.end) {
+                    timeFrame.end = endDate;
+                }
             });
 
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
@@ -792,7 +797,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var treated = false;
                 angular.forEach(solvedTimeFrames, function(solvedTimeFrame) {
                     if (!treated) {
-                        if (timeFrame.end > solvedTimeFrame.start && timeFrame.start < solvedTimeFrame.end) {
+                        if (!timeFrame.end && !timeFrame.start) {
+                            // timeFrame is infinite.
+                            tmpSolvedTimeFrames.splice(i, 0, timeFrame);
+                            treated = true;
+                            dispatched = false;
+                        } else if (timeFrame.end > solvedTimeFrame.start && timeFrame.start < solvedTimeFrame.end) {
                             // timeFrame is included in this solvedTimeFrame.
                             // solvedTimeFrame:|ssssssssssssssssssssssssssssssssss|
                             //       timeFrame:          |tttttt|
@@ -833,7 +843,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             });
 
             solvedTimeFrames = $filter('filter')(solvedTimeFrames, function(timeFrame) {
-                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+                return !timeFrame.internal &&
+                    (timeFrame.start === undefined || timeFrame.start < endDate) &&
+                    (timeFrame.end === undefined || timeFrame.end > startDate);
             });
 
             return solvedTimeFrames;

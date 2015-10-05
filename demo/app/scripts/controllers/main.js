@@ -58,12 +58,17 @@ angular.module('angularGanttDemoApp')
                 'day': {
                     start: moment('8:00', 'HH:mm'),
                     end: moment('20:00', 'HH:mm'),
+                    color: '#ACFFA3',
                     working: true,
                     default: true
                 },
                 'noon': {
                     start: moment('12:00', 'HH:mm'),
                     end: moment('13:30', 'HH:mm'),
+                    working: false,
+                    default: true
+                },
+                'closed': {
                     working: false,
                     default: true
                 },
@@ -90,6 +95,7 @@ angular.module('angularGanttDemoApp')
                     targets: ['holiday']
                 }
             },
+            timeFramesWorkingMode: 'hidden',
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '15 minutes',
             timeFramesMagnet: true,

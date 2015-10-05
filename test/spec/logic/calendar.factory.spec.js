@@ -148,29 +148,21 @@ describe('Calendar', function() {
             var endDate = moment(startDate).add(1, 'day');
 
             timeFrames = cal.solve(timeFrames, startDate, endDate);
-            expect(timeFrames.length).toBe(5);
+            expect(timeFrames.length).toBe(3);
 
-            expect(timeFrames[0].start).toEqual(startDate);
-            expect(timeFrames[0].end).toEqual(cal.timeFrames.day.start);
-            expect(timeFrames[0].working).toBeFalsy();
+            expect(timeFrames[0].start).toEqual(cal.timeFrames.day.start);
+            expect(timeFrames[0].end).toEqual(cal.timeFrames.noon.start);
+            expect(timeFrames[0].working).toBeTruthy();
 
-            expect(timeFrames[1].start).toEqual(cal.timeFrames.day.start);
-            expect(timeFrames[1].end).toEqual(cal.timeFrames.noon.start);
-            expect(timeFrames[1].working).toBeTruthy();
+            expect(timeFrames[1].start).toEqual(cal.timeFrames.noon.start);
+            expect(timeFrames[1].end).toEqual(cal.timeFrames.noon.end);
+            expect(timeFrames[1].classes).toEqual(cal.timeFrames.noon.classes);
+            expect(timeFrames[1].color).toEqual(cal.timeFrames.noon.color);
+            expect(timeFrames[1].working).toBeFalsy();
 
-            expect(timeFrames[2].start).toEqual(cal.timeFrames.noon.start);
-            expect(timeFrames[2].end).toEqual(cal.timeFrames.noon.end);
-            expect(timeFrames[2].classes).toEqual(cal.timeFrames.noon.classes);
-            expect(timeFrames[2].color).toEqual(cal.timeFrames.noon.color);
-            expect(timeFrames[2].working).toBeFalsy();
-
-            expect(timeFrames[3].start).toEqual(cal.timeFrames.noon.end);
-            expect(timeFrames[3].end).toEqual(cal.timeFrames.day.end);
-            expect(timeFrames[3].working).toBeTruthy();
-
-            expect(timeFrames[4].start).toEqual(cal.timeFrames.day.end);
-            expect(timeFrames[4].end).toEqual(endDate);
-            expect(timeFrames[4].working).toBeFalsy();
+            expect(timeFrames[2].start).toEqual(cal.timeFrames.noon.end);
+            expect(timeFrames[2].end).toEqual(cal.timeFrames.day.end);
+            expect(timeFrames[2].working).toBeTruthy();
         });
 
     it('should solve single open non-working timeFrame ',
@@ -229,15 +221,13 @@ describe('Calendar', function() {
             expect(timeFrames[0].classes).toBe('noon-css');
         });
 
-    it('should solve to a working timeFrame when nothing is registered',
+    it('should solve nothing when nothing is registered',
         function() {
             var cal = new Calendar();
             var timeFrames = cal.getTimeFrames(moment());
 
             timeFrames = cal.solve(timeFrames);
-            expect(timeFrames.length).toBe(1);
-
-            expect(timeFrames[0].working).toBeTruthy();
+            expect(timeFrames.length).toBe(0);
         });
 
     it('should solve timeFrames using dateFrames',
@@ -305,6 +295,67 @@ describe('Calendar', function() {
             timeFrames = cal.getTimeFrames(moment().month(3).date(5).day(3));
             timeFrames = cal.solve(timeFrames);
             expect(timeFrames.length).toBe(3);
+        });
+
+    it('should solve whole day working timeFrame with night as default',
+        function() {
+            var cal = new Calendar();
+
+            var inputTimeFrames = {
+                'night': {
+                    color: 'black',
+                    working: false,
+                    default: true
+                },
+                'day': {
+                    start: moment('8:00', 'HH:mm'),
+                    end: moment('20:00', 'HH:mm'),
+                    color: 'blue',
+                    working: true,
+                    default: true
+                },
+                'noon': {
+                    start: moment('12:00', 'HH:mm'),
+                    end: moment('13:30', 'HH:mm'),
+                    color: 'red',
+                    working: false,
+                    default: true
+                },
+                'weekend': {
+                    working: false
+                },
+                'holiday': {
+                    working: false,
+                    color: 'red',
+                    classes: ['gantt-timeframe-holiday']
+                }
+            };
+
+            cal.registerTimeFrames(inputTimeFrames);
+
+            var cDate = moment();
+            var cDateStartOfDay = moment(cDate).startOf('day');
+            var cDateNextDay = moment(cDateStartOfDay).add(1, 'day');
+
+            var timeFrames = cal.getTimeFrames(cDate);
+            timeFrames = cal.solve(timeFrames, cDateStartOfDay, cDateNextDay);
+            expect(timeFrames.length).toBe(5);
+
+            expect(timeFrames[0].working).toBeFalsy();
+            expect(timeFrames[0].color).toBe('black');
+
+            expect(timeFrames[1].working).toBeTruthy();
+            expect(timeFrames[1].color).toBe('blue');
+
+            expect(timeFrames[2].working).toBeFalsy();
+            expect(timeFrames[2].color).toBe('red');
+
+            expect(timeFrames[3].working).toBeTruthy();
+            expect(timeFrames[3].color).toBe('blue');
+
+            expect(timeFrames[4].working).toBeFalsy();
+            expect(timeFrames[4].color).toBe('black');
+
         });
 
 });

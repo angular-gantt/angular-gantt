@@ -175,8 +175,15 @@
                                                 </div>
 
                                                 <div class="form-group text-center">
-                                                    <label class="control-label"><i class="fa fa-sign-out"></i> Non-working</label><br>
-                                                    <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.timeFramesNonWorkingMode" bs-options="e for e in ['visible', 'hidden', 'cropped']" bs-select></button>
+                                                    <div class="form-group">
+                                                        <label class="control-label"><i class="fa fa-sign-out"></i> Working</label><br>
+                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.timeFramesWorkingMode" bs-options="e for e in ['visible', 'hidden', 'cropped']" bs-select></button>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="control-label"><i class="fa fa-sign-out"></i> Non-working</label><br>
+                                                        <button type="button" style="width: 8em; text-align: left" class="btn btn-default" ng-model="options.timeFramesNonWorkingMode" bs-options="e for e in ['visible', 'hidden', 'cropped']" bs-select></button>
+                                                    </div>
                                                 </div>
 
                                                 <div class="form-group text-center">
@@ -238,6 +245,7 @@
                                          max-height="options.maxHeight && 300 || 0"
                                          time-frames="options.timeFrames"
                                          date-frames="options.dateFrames"
+                                         time-frames-working-mode="options.timeFramesWorkingMode"
                                          time-frames-non-working-mode="options.timeFramesNonWorkingMode"
                                          time-frames-magnet="options.timeFramesMagnet"
                                          api="options.api"
