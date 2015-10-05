@@ -1,8 +1,8 @@
 /*
-Project: angular-gantt v1.2.6 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.7 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
-Homepage: http://www.angular-gantt.com
+Homepage: https://www.angular-gantt.com
 Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
@@ -1403,17 +1403,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         });
 
-        $scope.pluginScope.$watch('display', function() {
-            updateTaskGroup();
-        });
+        var removeWatch = $scope.pluginScope.$watch('display', updateTaskGroup);
 
-        $scope.$watchCollection('gantt.rowsManager.filteredRows', function() {
-            updateTaskGroup();
-        });
+        $scope.$watchCollection('gantt.rowsManager.filteredRows', updateTaskGroup);
 
-        $scope.gantt.api.columns.on.refresh($scope, function() {
-            updateTaskGroup();
-        });
+        $scope.gantt.api.columns.on.refresh($scope, updateTaskGroup);
+
+        $scope.$on('$destroy', removeWatch);
     }]);
 }());
 
@@ -2098,6 +2094,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $scope.gantt.api.rows.refresh();
             }
         };
+
+        $scope.gantt.api.rows.on.remove($scope, refresh);
+        $scope.gantt.api.rows.on.add($scope, refresh);
 
         var isRowCollapsed = function(rowId) {
             var row;

@@ -1,6 +1,6 @@
 {
   "name": "angular-gantt-demo",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "homepage": "https://www.angular-gantt.com",
   "authors": [
     "Marco Schweighauser",
@@ -22,9 +22,9 @@
     "moment-range": "~2.0.3",
     "css-element-queries": "~0.3.0"
   },
-  "overrides":{
-    "bootstrap":{
-      "main":[
+  "overrides": {
+    "bootstrap": {
+      "main": [
         "less/bootstrap.less",
         "dist/css/bootstrap.css",
         "dist/js/bootstrap.js"
