@@ -41921,9 +41921,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
          */
         RowsManager.prototype.applySort = function() {
             var data = this.gantt.$scope.data;
-            while(data > 0) {
-                data.pop();
-            }
+            data.splice(0, data.length); // empty data.
             var rows = [];
             for (var i = 0, l = this.sortedRows.length; i < l; i++) {
                 data.push(this.sortedRows[i].model);
