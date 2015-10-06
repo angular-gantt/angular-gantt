@@ -358,4 +358,63 @@ describe('Calendar', function() {
 
         });
 
+    it('should solve calendar from demo',
+        function() {
+            var cal = new Calendar();
+
+            var inputTimeFrames = {
+                'day': {
+                    start: moment('8:00', 'HH:mm'),
+                    end: moment('20:00', 'HH:mm'),
+                    color: '#ACFFA3',
+                    working: true,
+                    default: true
+                },
+                'noon': {
+                    start: moment('12:00', 'HH:mm'),
+                    end: moment('13:30', 'HH:mm'),
+                    working: false,
+                    default: true
+                },
+                'closed': {
+                    working: false,
+                    default: true
+                },
+                'weekend': {
+                    working: false
+                },
+                'holiday': {
+                    working: false,
+                    color: 'red',
+                    classes: ['gantt-timeframe-holiday']
+                }
+            };
+
+            cal.registerTimeFrames(inputTimeFrames);
+
+            var cDate = moment();
+            var cDateStartOfDay = moment(cDate).startOf('day');
+            var cDateNextDay = moment(cDateStartOfDay).add(1, 'day');
+
+            var timeFrames = cal.getTimeFrames(cDate);
+            timeFrames = cal.solve(timeFrames, cDateStartOfDay, cDateNextDay);
+            expect(timeFrames.length).toBe(5);
+
+            expect(timeFrames[0].working).toBeFalsy();
+            expect(timeFrames[0].color).toBeFalsy();
+
+            expect(timeFrames[1].working).toBeTruthy();
+            expect(timeFrames[1].color).toBe('#ACFFA3');
+
+            expect(timeFrames[2].working).toBeFalsy();
+            expect(timeFrames[2].color).toBeFalsy();
+
+            expect(timeFrames[3].working).toBeTruthy();
+            expect(timeFrames[3].color).toBe('#ACFFA3');
+
+            expect(timeFrames[4].working).toBeFalsy();
+            expect(timeFrames[4].color).toBeFalsy();
+
+        });
+
 });
