@@ -44,12 +44,13 @@
                     to = moment(to).startOf(viewScaleUnit);
                 }
 
+                var left = 0;
                 var date = moment(from).startOf(viewScaleUnit);
                 if (reverse) {
                     date.add(-viewScaleValue, viewScaleUnit);
+                    left -= columnWidth;
                 }
                 var generatedCols = [];
-                var left = 0;
 
                 while (true) {
                     if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {

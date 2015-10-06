@@ -306,7 +306,7 @@
                 var from = firstColumn.date;
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, -this.getColumnsWidth(), true);
+                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
                 }
                 return true;
             } else if (x > this.gantt.width) {

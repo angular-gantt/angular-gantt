@@ -1307,12 +1307,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     to = moment(to).startOf(viewScaleUnit);
                 }
 
+                var left = 0;
                 var date = moment(from).startOf(viewScaleUnit);
                 if (reverse) {
                     date.add(-viewScaleValue, viewScaleUnit);
+                    left -= columnWidth;
                 }
                 var generatedCols = [];
-                var left = 0;
 
                 while (true) {
                     if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
@@ -1718,7 +1719,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var from = firstColumn.date;
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, -this.getColumnsWidth(), true);
+                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
                 }
                 return true;
             } else if (x > this.gantt.width) {

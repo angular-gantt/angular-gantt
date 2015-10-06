@@ -1,16 +1,16 @@
 var app = angular.module('plnkrGanttMaster',
     ['gantt',
-    'gantt.sortable',
-    'gantt.movable',
-    'gantt.drawtask',
-    'gantt.tooltips',
-    'gantt.bounds',
-    'gantt.progress',
-    'gantt.table',
-    'gantt.tree',
-    'gantt.groups',
-    'gantt.resizeSensor',
-    'gantt.overlap'
+        'gantt.sortable',
+        'gantt.movable',
+        'gantt.drawtask',
+        'gantt.tooltips',
+        'gantt.bounds',
+        'gantt.progress',
+        'gantt.table',
+        'gantt.tree',
+        'gantt.groups',
+        'gantt.resizeSensor',
+        'gantt.overlap'
     ]);
 
 app.controller('Ctrl', ['$scope', function ($scope) {
