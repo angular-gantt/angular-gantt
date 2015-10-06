@@ -21,7 +21,9 @@ Move and resize tasks.
 
 - ### enabled
 
-    Enable moving and resizing of tasks. Can also be a function (`fn(event)`) which has one parameter for the event. Such a function can be used to only activate the moving when a certain mouse button is pressed or the task is in a certain condition.
+    Enable moving and resizing of tasks. Can also be a function (`fn(event, Task)`). Such a 
+    function can be used to only activate the moving when a certain mouse button is pressed, 
+    or the task is in a certain condition.
     
     default: `true`
 

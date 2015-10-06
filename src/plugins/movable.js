@@ -69,16 +69,16 @@
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
-                                if (typeof(taskMovable) === 'boolean') {
+                                if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
                                     taskMovable = {enabled: taskMovable};
                                 }
 
-                                if (typeof(rowMovable) === 'boolean') {
+                                if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
                                     rowMovable = {enabled: rowMovable};
                                 }
 
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt, taskScope.task): enabledValue;
                                 if (enabled) {
                                     var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -96,16 +96,16 @@
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
-                                if (typeof(taskMovable) === 'boolean') {
+                                if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
                                     taskMovable = {enabled: taskMovable};
                                 }
 
-                                if (typeof(rowMovable) === 'boolean') {
+                                if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
                                     rowMovable = {enabled: rowMovable};
                                 }
 
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt, taskScope.task): enabledValue;
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -140,11 +140,11 @@
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
-                                if (typeof(taskMovable) === 'boolean') {
+                                if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
                                     taskMovable = {enabled: taskMovable};
                                 }
 
-                                if (typeof(rowMovable) === 'boolean') {
+                                if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
                                     rowMovable = {enabled: rowMovable};
                                 }
 
