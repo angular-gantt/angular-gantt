@@ -139,7 +139,7 @@
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
-                            }, 500, false);
+                            }, $scope.pluginScope.delay, false);
                         } else {
                             showTooltip(mouseEnterX);
                         }
