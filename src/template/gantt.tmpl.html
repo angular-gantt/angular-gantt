@@ -173,7 +173,8 @@
              ng-class-odd="'gantt-row-odd'"
              ng-class-even="'gantt-row-even'"
              ng-style="{'height': row.model.height}">
-            <div ng-transclude class="gantt-row-content"></div>
+            <div ng-transclude class="gantt-row-content"
+                 ng-class="{'on-drop-hover': dropHover}" data-drop="{{dropEnabled}}" ng-model="droppedTask" data-jqyoui-options="jqyouiOptions" jqyoui-droppable="{onDrop: 'onDrop', onOut: 'onOut', onOver: 'onOver'}"></div>
         </div>
     </script>
 

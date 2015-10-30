@@ -1,0 +1,15 @@
+<div ng-model="task" data-drag="enabled" data-jqyoui-options="jqyouiOptions" jqyoui-draggable="{onStart:'onStart', onStop :'onStop'}">
+    <div ng-if="!dragActive" class="btn-drag btn btn-default" ng-class="{'btn-info': task.selected}" ng-click="select(event)"><span class="glyphicon glyphicon-move"></span></div>
+    <div ng-if="dragActive" class="gantt-task" ng-class="task.classes" ng-style="{'height': '1.6em', 'width': task.width +'px', 'z-index': 1000}">
+        <!--<gantt-task-background></gantt-task-background>-->
+        <div class="gantt-task-background" ng-style="{'background-color': task.color}"></div>
+        <div class="gantt-task-content" unselectable="on"><span unselectable="on"/>{{task.content}}</div>
+        <!--<gantt-task-content></gantt-task-content>-->
+    </div>
+    <!--<div ng-if="dragActive" ng-class="(task.isMilestone === true && ['gantt-task-milestone'] || ['gantt-task']).concat(task.classes)"-->
+         <!--ng-style="{'height': '1.6em', 'width': task.width +'em', 'z-index': 1000, 'background-color': task.color}">-->
+        <!--&lt;!&ndash;<gantt-bounds template-url="template/default.bouds.tmpl.html" ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>&ndash;&gt;-->
+        <!--&lt;!&ndash;<gantt-tooltip template-url="template/default.tooltip.tmpl.html" ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>&ndash;&gt;-->
+        <!--<div class="gantt-task-content"><span>{{ (task.isMilestone === true && '&nbsp;' || task.subject) }}</span></div>-->
+    <!--</div>-->
+</div>
