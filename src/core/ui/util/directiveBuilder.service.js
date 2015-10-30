@@ -34,11 +34,11 @@
                     },
                     compile: function () {
                         return {
-                            pre: function preLink(scope, iElement, iAttrs, controller) {
-                                scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller);
+                            pre: function preLink(scope, iElement, iAttrs, controller, transcludeFn) {
+                                scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller, transcludeFn);
                             },
-                            post: function postLink(scope, iElement, iAttrs, controller) {
-                                scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+                            post: function postLink(scope, iElement, iAttrs, controller, transcludeFn) {
+                                scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller, transcludeFn);
 
                             }
                         };

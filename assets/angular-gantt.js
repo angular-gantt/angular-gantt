@@ -4834,11 +4834,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     },
                     compile: function () {
                         return {
-                            pre: function preLink(scope, iElement, iAttrs, controller) {
-                                scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller);
+                            pre: function preLink(scope, iElement, iAttrs, controller, transcludeFn) {
+                                scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller, transcludeFn);
                             },
-                            post: function postLink(scope, iElement, iAttrs, controller) {
-                                scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+                            post: function postLink(scope, iElement, iAttrs, controller, transcludeFn) {
+                                scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller, transcludeFn);
 
                             }
                         };
@@ -5346,7 +5346,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '             ng-class-odd="\'gantt-row-odd\'"\n' +
         '             ng-class-even="\'gantt-row-even\'"\n' +
         '             ng-style="{\'height\': row.model.height}">\n' +
-        '            <div ng-transclude class="gantt-row-content"></div>\n' +
+        '            <div ng-transclude class="gantt-row-content"\n' +
+        '                 ng-class="{\'on-drop-hover\': dropHover}" data-drop="{{dropEnabled}}" ng-model="droppedTask" data-jqyoui-options="jqyouiOptions" jqyoui-droppable="{onDrop: \'onDrop\', onOut: \'onOut\', onOver: \'onOver\'}"></div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
