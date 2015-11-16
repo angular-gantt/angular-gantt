@@ -32,6 +32,12 @@ Display tooltips when moving mouse over a task.
     
     default: `MMM DD, HH:mm`
 
+- ### delay
+
+    Delay in millisecond before the tooltip is displayed.
+    
+    default: `500`
+
 - ### content
 
     Content of the tooltip. It can contain HTML and will be automatically compiled.
