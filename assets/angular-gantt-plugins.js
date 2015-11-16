@@ -1180,7 +1180,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 enabled: '=?',
                 dateFormat: '=?',
-                content: '=?'
+                content: '=?',
+                delay: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -1197,6 +1198,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
                 if (scope.dateFormat === undefined) {
                     scope.dateFormat = 'MMM DD, HH:mm';
+                }
+                if (scope.delay === undefined) {
+                    scope.delay = 500;
                 }
                 if (scope.content === undefined) {
                     scope.content = '{{task.model.name}}</br>'+
@@ -1880,7 +1884,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
-                            }, 500, false);
+                            }, $scope.pluginScope.delay, false);
                         } else {
                             showTooltip(mouseEnterX);
                         }

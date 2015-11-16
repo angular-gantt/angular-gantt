@@ -7,7 +7,8 @@
             scope: {
                 enabled: '=?',
                 dateFormat: '=?',
-                content: '=?'
+                content: '=?',
+                delay: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -24,6 +25,9 @@
                 }
                 if (scope.dateFormat === undefined) {
                     scope.dateFormat = 'MMM DD, HH:mm';
+                }
+                if (scope.delay === undefined) {
+                    scope.delay = 500;
                 }
                 if (scope.content === undefined) {
                     scope.content = '{{task.model.name}}</br>'+
