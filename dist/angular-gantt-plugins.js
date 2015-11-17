@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.7 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.8 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -358,16 +358,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
-                                if (typeof(taskMovable) === 'boolean') {
+                                if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
                                     taskMovable = {enabled: taskMovable};
                                 }
 
-                                if (typeof(rowMovable) === 'boolean') {
+                                if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
                                     rowMovable = {enabled: rowMovable};
                                 }
 
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt, taskScope.task): enabledValue;
                                 if (enabled) {
                                     var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -385,16 +385,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
-                                if (typeof(taskMovable) === 'boolean') {
+                                if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
                                     taskMovable = {enabled: taskMovable};
                                 }
 
-                                if (typeof(rowMovable) === 'boolean') {
+                                if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
                                     rowMovable = {enabled: rowMovable};
                                 }
 
                                 var enabledValue = utils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
+                                var enabled = angular.isFunction(enabledValue) ? enabledValue(evt, taskScope.task): enabledValue;
                                 if (enabled && !taskScope.task.isMoving) {
                                     var taskOffsetX = mouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                                     var mode = getMoveMode(taskOffsetX);
@@ -429,11 +429,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 var taskMovable = taskScope.task.model.movable;
                                 var rowMovable = taskScope.task.row.model.movable;
 
-                                if (typeof(taskMovable) === 'boolean') {
+                                if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
                                     taskMovable = {enabled: taskMovable};
                                 }
 
-                                if (typeof(rowMovable) === 'boolean') {
+                                if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
                                     rowMovable = {enabled: rowMovable};
                                 }
 
@@ -1180,7 +1180,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 enabled: '=?',
                 dateFormat: '=?',
-                content: '=?'
+                content: '=?',
+                delay: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -1197,6 +1198,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
                 if (scope.dateFormat === undefined) {
                     scope.dateFormat = 'MMM DD, HH:mm';
+                }
+                if (scope.delay === undefined) {
+                    scope.delay = 500;
                 }
                 if (scope.content === undefined) {
                     scope.content = '{{task.model.name}}</br>'+
@@ -1566,7 +1570,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         return {
             initialize: function(options) {
 
-                options.enabled = options.enabled !== undefined ? !!options.enabled : true;
+                options.enabled = options.enabled !== undefined ? options.enabled : true;
                 options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
                 options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
                 options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
@@ -1880,7 +1884,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
-                            }, 500, false);
+                            }, $scope.pluginScope.delay, false);
                         } else {
                             showTooltip(mouseEnterX);
                         }
