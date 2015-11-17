@@ -237,7 +237,9 @@
 <ul>
 <li>
 <h3 id="enabled">enabled</h3>
-<p>Enable moving and resizing of tasks. Can also be a function (<code>fn(event)</code>) which has one parameter for the event. Such a function can be used to only activate the moving when a certain mouse button is pressed or the task is in a certain condition.</p>
+<p>Enable moving and resizing of tasks. Can also be a function (<code>fn(event, Task)</code>). Such a 
+function can be used to only activate the moving when a certain mouse button is pressed, 
+or the task is in a certain condition.</p>
 <p>default: <code>true</code></p>
 </li>
 <li>
