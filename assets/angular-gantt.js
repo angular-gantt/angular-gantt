@@ -1650,6 +1650,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
             }, true);
+            
+            if(columns.length == 2 && columns[1] !== undefined && columns[1].date <= date){
+                return columns[1];
+            }
+            
             return columns[0] !== undefined ? columns[0] : columns[1];
         };
 
