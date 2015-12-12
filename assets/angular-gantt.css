@@ -251,11 +251,8 @@
     margin: auto;
     top: 0;
     bottom: 0;
-    width: 0.6em !important;
+    min-width: 0.6em;
     height: 80%;
-
-    background-color: grey;
-    border-radius: 0.3em;
 }
 
 .gantt-task-background {
