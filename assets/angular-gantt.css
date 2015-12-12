@@ -152,6 +152,7 @@
 
 .gantt-body-rows {
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .gantt-body-background {
