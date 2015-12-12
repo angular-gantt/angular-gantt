@@ -1263,130 +1263,139 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt').factory('GanttColumnGenerator', ['GanttColumn', 'moment', function(Column, moment) {
-        var ColumnGenerator = function(columnsManager) {
-            var self = this;
-
+    angular.module('gantt').factory('GanttColumnBuilder', ['GanttColumn', function(Column) {
+        // Builder for columns, based of data given by column generator and columnsManager.
+        var ColumnBuilder = function(columnsManager) {
             this.columnsManager = columnsManager;
+        };
 
-            // Generates one column for each time unit between the given from and to date.
-            self.generate = function(from, to, maximumWidth, leftOffset, reverse) {
-                if (!to && !maximumWidth) {
-                    throw 'to or maximumWidth must be defined';
+        ColumnBuilder.prototype.newColumn = function(date, endDate, left, width) {
+            var calendar = this.columnsManager.gantt.calendar;
+            var timeFramesWorkingMode = this.columnsManager.gantt.options.value('timeFramesWorkingMode');
+            var timeFramesNonWorkingMode = this.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
+
+            return new Column(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
+        };
+
+        return ColumnBuilder;
+    }]);
+}());
+
+
+(function() {
+    'use strict';
+    angular.module('gantt').service('GanttColumnGenerator', ['moment', function(moment) {
+        // Generates one column for each time unit between the given from and to date.
+        this.generate = function(builder, from, to, viewScale, columnWidth, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+
+            viewScale = viewScale.trim();
+            if (viewScale.charAt(viewScale.length - 1) === 's') {
+                viewScale = viewScale.substring(0, viewScale.length - 1);
+            }
+            var viewScaleValue;
+            var viewScaleUnit;
+            var splittedViewScale;
+
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+
+            var excludeTo = false;
+            from = moment(from).startOf(viewScaleUnit);
+            if (to) {
+                excludeTo = isToDateToExclude(to);
+                to = moment(to).startOf(viewScaleUnit);
+            }
+
+            var left = 0;
+            var date = moment(from).startOf(viewScaleUnit);
+            if (reverse) {
+                date.add(-viewScaleValue, viewScaleUnit);
+                left -= columnWidth;
+            }
+            var generatedCols = [];
+
+            while (true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
                 }
 
-                var viewScale = self.columnsManager.gantt.options.value('viewScale');
-                viewScale = viewScale.trim();
-                if (viewScale.charAt(viewScale.length - 1) === 's') {
-                    viewScale = viewScale.substring(0, viewScale.length - 1);
-                }
-                var viewScaleValue;
-                var viewScaleUnit;
-                var splittedViewScale;
+                var startDate = moment(date);
+                var endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
+                ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
 
-                if (viewScale) {
-                    splittedViewScale = viewScale.split(' ');
-                }
-                if (splittedViewScale && splittedViewScale.length > 1) {
-                    viewScaleValue = parseFloat(splittedViewScale[0]);
-                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
-                } else {
-                    viewScaleValue = 1;
-                    viewScaleUnit = viewScale;
-                }
+                var column = builder.newColumn(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth);
 
-                var calendar = self.columnsManager.gantt.calendar;
-                var timeFramesWorkingMode = self.columnsManager.gantt.options.value('timeFramesWorkingMode');
-                var timeFramesNonWorkingMode = self.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
-                var columnWidth = self.columnsManager.getColumnsWidth();
-
-                var excludeTo = false;
-                from = moment(from).startOf(viewScaleUnit);
-                if (to) {
-                    excludeTo = isToDateToExclude(to);
-                    to = moment(to).startOf(viewScaleUnit);
-                }
-
-                var left = 0;
-                var date = moment(from).startOf(viewScaleUnit);
-                if (reverse) {
-                    date.add(-viewScaleValue, viewScaleUnit);
-                    left -= columnWidth;
-                }
-                var generatedCols = [];
-
-                while (true) {
-                    if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
-                        break;
+                if (!column.cropped) {
+                    generatedCols.push(column);
+                    if (reverse) {
+                        left -= columnWidth;
+                    } else {
+                        left += columnWidth;
                     }
 
-                    var startDate = moment(date);
-                    var endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
-                    ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
-
-                    var column = new Column(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
-                    if (!column.cropped) {
-                        generatedCols.push(column);
+                    if (to) {
                         if (reverse) {
-                            left -= columnWidth;
+                            if (excludeTo && date < to || !excludeTo && date <= to) {
+                                break;
+                            }
                         } else {
-                            left += columnWidth;
-                        }
-
-                        if (to) {
-                            if (reverse) {
-                                if (excludeTo && date < to || !excludeTo && date <= to) {
-                                    break;
-                                }
-                            } else {
-                                if (excludeTo && date > to || !excludeTo && date >= to) {
-                                    break;
-                                }
+                            if (excludeTo && date > to || !excludeTo && date >= to) {
+                                break;
                             }
                         }
                     }
-                    if (reverse) {
-                        date.add(-viewScaleValue, viewScaleUnit);
-                        ensureNoUnitOverflow(viewScaleUnit, date, startDate);
-                    } else {
-                        date.add(viewScaleValue, viewScaleUnit);
-                        ensureNoUnitOverflow(viewScaleUnit, startDate, date);
-                    }
                 }
-
                 if (reverse) {
-                    if (isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
-                        generatedCols.shift();
-                    }
-                    generatedCols.reverse();
+                    date.add(-viewScaleValue, viewScaleUnit);
+                    ensureNoUnitOverflow(viewScaleUnit, date, startDate);
+                } else {
+                    date.add(viewScaleValue, viewScaleUnit);
+                    ensureNoUnitOverflow(viewScaleUnit, startDate, date);
                 }
+            }
 
-                return generatedCols;
-            };
-
-            // Columns are generated including or excluding the to date.
-            // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
-
-            var isToDateToExclude = function(to, value, unit) {
-                return moment(to).add(value, unit).startOf(unit) === to;
-            };
-
-            var ensureNoUnitOverflow = function(unit, startDate, endDate) {
-                var v1 = startDate.get(unit);
-                var v2 = endDate.get(unit);
-                var firstValue = getFirstValue(unit);
-                if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
-                    endDate.set(unit, firstValue);
+            if (reverse) {
+                if (isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
+                    generatedCols.shift();
                 }
-            };
+                generatedCols.reverse();
+            }
 
-            var getFirstValue = function(unit) {
-                if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
-                    return 0;
-                }
-            };
+            return generatedCols;
         };
-        return ColumnGenerator;
+
+        // Columns are generated including or excluding the to date.
+        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+
+        var isToDateToExclude = function(to, value, unit) {
+            return moment(to).add(value, unit).startOf(unit) === to;
+        };
+
+        var ensureNoUnitOverflow = function(unit, startDate, endDate) {
+            var v1 = startDate.get(unit);
+            var v2 = endDate.get(unit);
+            var firstValue = getFirstValue(unit);
+            if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+                endDate.set(unit, firstValue);
+            }
+        };
+
+        var getFirstValue = function(unit) {
+            if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+                return 0;
+            }
+        };
     }]);
 }());
 
@@ -1413,7 +1422,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', 'moment', function(ColumnGenerator, HeaderGenerator, $filter, $timeout, layout, bs, moment) {
+    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttColumnBuilder', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', 'moment', function(ColumnGenerator, ColumnBuilder, HeaderGenerator, $filter, $timeout, layout, bs, moment) {
         var ColumnsManager = function(gantt) {
             var self = this;
 
@@ -1431,6 +1440,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleHeaders = [];
 
             this.scrollAnchor = undefined;
+
+            this.columnBuilder = new ColumnBuilder(this);
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
@@ -1562,10 +1573,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.from = from;
             this.to = to;
 
-            var columnGenerator = new ColumnGenerator(this);
             var headerGenerator = new HeaderGenerator(this);
 
-            this.columns = columnGenerator.generate(from, to);
+            this.columns = ColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
             this.headers = headerGenerator.generate(this.columns);
             this.previousColumns = [];
             this.nextColumns = [];
@@ -1714,12 +1724,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         ColumnsManager.prototype.expandExtendedColumnsForPosition = function(x) {
+            var viewScale;
             if (x < 0) {
                 var firstColumn = this.getFirstColumn();
                 var from = firstColumn.date;
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                    this.previousColumns = new ColumnGenerator(this).generate(from, undefined, -x, 0, true);
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.previousColumns = ColumnGenerator.generate(this.columnBuilder, from, undefined, viewScale, this.getColumnsWidth(), -x, 0, true);
                 }
                 return true;
             } else if (x > this.gantt.width) {
@@ -1727,7 +1739,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var endDate = lastColumn.getDateByPosition(lastColumn.width);
                 var lastExtendedColumn = this.getLastColumn(true);
                 if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                    this.nextColumns = new ColumnGenerator(this).generate(endDate, undefined, x - this.gantt.width, this.gantt.width, false);
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.nextColumns = ColumnGenerator.generate(this.columnBuilder, endDate, undefined, viewScale, this.getColumnsWidth(), x - this.gantt.width, this.gantt.width, false);
                 }
                 return true;
             }
@@ -1747,16 +1760,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 endDate = lastColumn.getDateByPosition(lastColumn.width);
             }
 
+            var viewScale;
             if (from && date < from) {
                 var firstExtendedColumn = this.getFirstColumn(true);
                 if (!firstExtendedColumn || firstExtendedColumn.date > date) {
-                    this.previousColumns = new ColumnGenerator(this).generate(from, date, undefined, 0, true);
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.previousColumns = ColumnGenerator.generate(this.columnBuilder, from, date, viewScale, this.getColumnsWidth(), undefined, 0, true);
                 }
                 return true;
             } else if (endDate && date >= endDate) {
                 var lastExtendedColumn = this.getLastColumn(true);
                 if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
-                    this.nextColumns = new ColumnGenerator(this).generate(endDate, date, undefined, this.gantt.width, false);
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.nextColumns = ColumnGenerator.generate(this.columnBuilder, endDate, date, viewScale, this.getColumnsWidth(), undefined, this.gantt.width, false);
                 }
                 return true;
             }
