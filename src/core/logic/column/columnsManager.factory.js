@@ -236,7 +236,7 @@
             var columns = bs.get(extendedColumns, date, function(c) {
                 return c.date;
             }, true);
-            return columns[0] !== undefined ? columns[0] : columns[1];
+            return columns[0] === undefined ? columns[1] : columns[0];
         };
 
         // Returns the column at the given position x (in em)

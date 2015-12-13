@@ -20,36 +20,35 @@
                 viewScaleUnit = viewScale;
             }
 
-            var currentPosition = 0;
+            var currentColumn = columnsManager.columns[0];
+            var currentDate = moment(currentColumn.date);
+
             var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
 
             while (true) {
-                var startColumn = columnsManager.getColumnByPosition(currentPosition, true);
-                if (startColumn === undefined) {
-                    break;
-                }
+                var currentPosition = currentColumn.getPositionByDate(currentDate);
 
-                var startDate = startColumn.getDateByPosition(currentPosition - startColumn.left);
+                var endDate = moment.min(moment(currentDate).add(1, viewScaleUnit).startOf(viewScaleUnit), maximumDate);
 
-                var endDate = moment.min(moment(startDate).add(1, viewScaleUnit).startOf(viewScaleUnit), maximumDate);
+                var column = columnsManager.getColumnByDate(endDate, true);
 
-                var endColumn = columnsManager.getColumnByDate(endDate, true);
-                if (endColumn === undefined) {
-                    break;
-                }
-
-                var left = endColumn.getPositionByDate(endDate);
+                var left = column.getPositionByDate(endDate);
 
                 var width = left - currentPosition;
-                var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
 
-                header = new ColumnHeader(startDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
-                generatedHeaders.push(header);
+                if (width > 0) {
+                    var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
+
+                    header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
+                    generatedHeaders.push(header);
+                }
 
                 if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
                     break;
                 }
-                currentPosition = left;
+
+                currentColumn = column;
+                currentDate = endDate;
             }
 
             return generatedHeaders;
