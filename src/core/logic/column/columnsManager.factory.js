@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttColumnBuilder', 'GanttHeaderGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', 'moment', function(ColumnGenerator, ColumnBuilder, HeaderGenerator, $filter, $timeout, layout, bs, moment) {
+    angular.module('gantt').factory('GanttColumnsManager', ['GanttColumnGenerator', 'GanttColumnBuilder', 'GanttHeadersGenerator', '$filter', '$timeout', 'ganttLayout', 'ganttBinarySearch', 'moment', function(ColumnGenerator, ColumnBuilder, HeadersGenerator, $filter, $timeout, layout, bs, moment) {
         var ColumnsManager = function(gantt) {
             var self = this;
 
@@ -151,10 +151,8 @@
             this.from = from;
             this.to = to;
 
-            var headerGenerator = new HeaderGenerator(this);
-
             this.columns = ColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
-            this.headers = headerGenerator.generate(this.columns);
+            this.headers = HeadersGenerator.generate(this);
             this.previousColumns = [];
             this.nextColumns = [];
 
@@ -288,7 +286,7 @@
         ColumnsManager.prototype.getColumnsWidth = function() {
             var columnWidth = this.gantt.options.value('columnWidth');
             if (columnWidth === undefined) {
-                if (this.gantt.width <= 0) {
+                if (!this.gantt.width || this.gantt.width <= 0) {
                     columnWidth = 20;
                 } else {
                     columnWidth = this.gantt.width / this.columns.length;
