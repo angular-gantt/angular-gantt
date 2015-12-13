@@ -42522,6 +42522,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (this.$element.css('width') !== undefined) {
                         this.$element.css('width', '');
                     }
+                }
+                if (this.$element !== undefined) {
                     width = this.$element[0].offsetWidth;
                 }
                 if (width !== undefined) {
