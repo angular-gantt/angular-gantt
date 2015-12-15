@@ -216,7 +216,7 @@ module.exports = function(grunt) {
                     ]
                 },
                 files: [
-                    {src: ['site/**/*.html'], dest: './'}
+                    {src: ['site/index.html'], dest: './'}
                 ]
             },
             siteIndexTitle: {
@@ -235,20 +235,6 @@ module.exports = function(grunt) {
                 },
                 files: [
                     {src: ['site/index.html'], dest: './'}
-                ]
-            },
-            siteMkdocsFix : { // https://github.com/tomchristie/mkdocs/issues/240. Wait for Mkdocs>0.11.1.
-                options: {
-                    usePrefix: false,
-                    patterns: [
-                        {
-                            match: /script src=".{2}\/assets/g,
-                            replacement: 'script src="assets'
-                        }
-                    ]
-                },
-                files: [
-                    {src: ['site/**/*.html'], dest: './'}
                 ]
             }
         },
@@ -320,7 +306,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('buildDemo', ['run:buildDemo']);
 
-    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite', 'replace:site', 'replace:siteIndexTitle', 'replace:siteMkdocsFix']);
+    grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite', 'replace:site', 'replace:siteIndexTitle']);
 
     grunt.registerTask('uploadSite', ['gh-pages']);
 
