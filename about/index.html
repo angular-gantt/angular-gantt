@@ -6,10 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         
-        <link rel="canonical" href="https://www.angular-gantt.com/sources/">
+        <link rel="canonical" href="https://www.angular-gantt.com/about/">
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-        <title>Sources - angular-gantt</title>
+        <title>About - angular-gantt</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -148,8 +148,8 @@
             
             
             
-                <li class="active">
-                    <a href=".">Sources</a>
+                <li >
+                    <a href="../sources">Sources</a>
                 </li>
             
             
@@ -166,8 +166,8 @@
             
             
             
-                <li >
-                    <a href="../about">About</a>
+                <li class="active">
+                    <a href=".">About</a>
                 </li>
             
             
@@ -177,12 +177,12 @@
             <ul class="nav navbar-nav navbar-right">
                 
                 <li >
-                    <a rel="next" href="../plugins/resizeSensor">
+                    <a rel="next" href="../faq">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
-                <li >
-                    <a rel="prev" href="../contribute">
+                <li class="disabled">
+                    <a rel="prev" >
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -205,49 +205,45 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#sources">Sources</a></li>
+        <li class="main active"><a href="#free-software">Free Software</a></li>
         
-            <li><a href="#build">Build</a></li>
-        
-            <li><a href="#use-angular-gantt-sources">Use angular-gantt sources</a></li>
+    
+        <li class="main "><a href="#the-mit-license-mit">The MIT License (MIT)</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="sources">Sources</h1>
-<p>angular-gantt is under active development, and is available on <a href="https://github.com/angular-gantt/angular-gantt">GitHub</a>.</p>
-<pre><code>git clone https://github.com/angular-gantt/angular-gantt
-</code></pre>
-
-<h2 id="build">Build</h2>
-<ol>
-<li>
-<p>Install <a href="https://www.npmjs.org/">npm</a>, <a href="http://bower.io/">bower</a> and <a href="http://gruntjs.com/">grunt</a></p>
-</li>
-<li>
-<p>Run <code>npm install</code> to install node dependencies</p>
-</li>
-<li>
-<p>Run <code>bower install</code> to install bower dependencies</p>
-</li>
-<li>
-<p>Run <code>grunt</code> to build distribution files in <code>assets</code></p>
-</li>
-<li>
-<p>Run <code>grunt</code> from <code>demo</code> directory to build demo distribution</p>
-<p><em>tip: Run <code>grunt watch --force</code> to build automatically on source file change.</em></p>
-</li>
-</ol>
-<h2 id="use-angular-gantt-sources">Use angular-gantt sources</h2>
-<p>Bower can <a href="http://bower.io/docs/api/#link">link</a> local angular-gantt sources in demo project (or your own project).</p>
-<pre><code>bower link # Create global link for local angular-gantt sources. 
-cd demo # Move to demo project folder
-bower link angular-gantt # Create link for local angular-gantt sources in bower components folder.
-</code></pre>
-<p>This will create a symbolic link in <code>demo/bower_components</code> pointing to your local sources of <code>angular-gantt</code>.</p>
-<p>Then, run <code>grunt serve</code> from <code>demo</code> directory to run the demo.</p>
+<h2 id="free-software">Free Software</h2>
+<p>angular-gantt is Free Software authored by <a href="https://github.com/Schweigi">Marco Schweighauser</a> and <a href="https://twitter.com/Toilal">Rémi Alvergnat</a>.</p>
+<p>It is available under the <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a>.</p>
+<blockquote>
+<p>The MIT License is a free software license originating at the Massachusetts Institute of Technology (MIT).
+It is a permissive free software license, meaning that it permits reuse within proprietary software provided all copies
+of the licensed software include a copy of the MIT License terms and the copyright notice. Such proprietary software
+retains its proprietary nature even though it incorporates software under the MIT License.
+The license is also GPL-compatible, meaning that the GPL permits combination and redistribution with software that uses
+the MIT License.</p>
+<p>-- <cite>Wikipedia</cite></p>
+</blockquote>
+<h2 id="the-mit-license-mit">The MIT License (MIT)</h2>
+<p>Copyright (c) 2015 Marco Schweighauser, Rémi Alvergnat</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
 </div>
         </div>
 
