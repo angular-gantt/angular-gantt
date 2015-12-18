@@ -10,7 +10,8 @@ var app = angular.module('plnkrGanttMaster',
         'gantt.tree',
         'gantt.groups',
         'gantt.resizeSensor',
-        'gantt.overlap'
+        'gantt.overlap',
+        'gantt.dependencies'
     ]);
 
 app.controller('Ctrl', ['$scope', function ($scope) {
@@ -49,17 +50,19 @@ app.controller('Ctrl', ['$scope', function ($scope) {
         ]},
         {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4']},
         {name: 'Sprint 1', tooltips: false, tasks: [
-            {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
-                progress: 25}
+            {id: 'Product list view', name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
+                progress: 25, dependencies: {to: 'Order basket'}},
         ]},
         {name: 'Sprint 2', tasks: [
-            {name: 'Order basket', color: '#F1C232', from: new Date(2013, 9, 28, 8, 0, 0), to: new Date(2013, 10, 1, 15, 0, 0)}
+            {id: 'Order basket', name: 'Order basket', color: '#F1C232', from: new Date(2013, 9, 28, 8, 0, 0), to: new Date(2013, 10, 1, 15, 0, 0),
+                dependencies: {to: 'Checkout'}}
         ]},
         {name: 'Sprint 3', tasks: [
-            {name: 'Checkout', color: '#F1C232', from: new Date(2013, 10, 4, 8, 0, 0), to: new Date(2013, 10, 8, 15, 0, 0)}
+            {id: 'Checkout', name: 'Checkout', color: '#F1C232', from: new Date(2013, 10, 4, 8, 0, 0), to: new Date(2013, 10, 8, 15, 0, 0),
+                dependencies: {to: 'Login & Signup & Admin Views'}}
         ]},
         {name: 'Sprint 4', tasks: [
-            {name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
+            {id: 'Login & Signup & Admin Views', name: 'Login & Signup & Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
         ]},
         {name: 'Hosting'},
         {name: 'Setup', tasks: [

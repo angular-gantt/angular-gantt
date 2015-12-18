@@ -15,6 +15,13 @@
     border-color: #FF6347;
 }
 
+.gantt-dependencies-container {
+    position: absolute;
+    background: darkblue;
+    height: 100%;
+    width: 100%;
+}
+
 .gantt-task-group {
     position: absolute;
 
