@@ -40,6 +40,8 @@ Attributes can be defined for a specific `Row` or `Task` object using an object 
       'groups': {
         'enabled': <Boolean>,
         'display': '...',
+        'from': '<Date>', // force from date to this value
+        'to': '<Date>' // force to date to this value
       }
 
       // Or shortcut for enabled property
