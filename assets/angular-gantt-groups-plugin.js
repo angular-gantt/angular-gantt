@@ -193,7 +193,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             });
 
-            self.from = groupRowGroups.from;
+            self.from = undefined;
+            if (groupRowGroups) {
+                self.from = groupRowGroups.from;
+            }
             if (self.from === undefined) {
                 angular.forEach(self.tasks, function (task) {
                     if (self.from === undefined || task.model.from < self.from) {
@@ -202,7 +205,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             }
 
-            self.to = groupRowGroups.to;
+            self.to = undefined;
+            if (groupRowGroups) {
+                self.to = groupRowGroups.to;
+            }
             if (self.to === undefined) {
                 angular.forEach(self.tasks, function (task) {
                     if (self.to === undefined || task.model.to > self.to) {
