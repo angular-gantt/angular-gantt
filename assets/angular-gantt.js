@@ -2499,6 +2499,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             task.updatePosAndSize();
             this.updateVisibleTasks();
 
+            this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
             }
@@ -2732,6 +2733,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerEvent('tasks', 'viewChange');
 
             this.gantt.api.registerEvent('tasks', 'rowChange');
+            this.gantt.api.registerEvent('tasks', 'viewRowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
 

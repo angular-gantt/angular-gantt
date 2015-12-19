@@ -105,7 +105,11 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 
 - **api.tasks.on.rowChange(task, oldRow)**
 
-    A task has been moved from one row to another
+    A task has been moved from one row to another.
+    
+- **api.tasks.on.viewRowChange(task, oldRow)**
+
+    A task view has been moved from one row to another.
 
 - **api.tasks.on.displayed(tasks, filteredTasks, visibleTasks)**
 

@@ -75,6 +75,7 @@
             task.updatePosAndSize();
             this.updateVisibleTasks();
 
+            this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
             }

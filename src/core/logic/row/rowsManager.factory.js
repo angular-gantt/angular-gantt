@@ -71,6 +71,7 @@
             this.gantt.api.registerEvent('tasks', 'viewChange');
 
             this.gantt.api.registerEvent('tasks', 'rowChange');
+            this.gantt.api.registerEvent('tasks', 'viewRowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
 
