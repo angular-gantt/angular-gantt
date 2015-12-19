@@ -106,8 +106,12 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 - **api.tasks.on.rowChange(task, oldRow)**
 
     A task has been moved from one row to another
-  
-- **api.tasks.on.filter(tasks, filteredTasks)**
+
+- **api.tasks.on.displayed(tasks, filteredTasks, visibleTasks)**
+
+    Tasks have been displayed.
+
+- **api.tasks.on.filter(tasks, filteredTasks, visibleTasks)**
 
     Tasks have been filtered out.
   

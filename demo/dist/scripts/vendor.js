@@ -41762,6 +41762,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
 
+            this.gantt.api.registerEvent('tasks', 'displayed');
+
             this.gantt.api.registerEvent('rows', 'add');
             this.gantt.api.registerEvent('rows', 'change');
             this.gantt.api.registerEvent('rows', 'remove');
@@ -42050,18 +42052,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var oldFilteredTasks = [];
             var filteredTasks = [];
             var tasks = [];
+            var visibleTasks = [];
 
             angular.forEach(this.rows, function(row) {
                 oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
                 filteredTasks = filteredTasks.concat(row.filteredTasks);
+                visibleTasks = visibleTasks.concat(row.visibleTasks);
                 tasks = tasks.concat(row.tasks);
             });
+
+            this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
 
             var filterEvent = !angular.equals(oldFilteredTasks, filteredTasks);
 
             if (filterEvent) {
-                this.gantt.api.tasks.raise.filter(tasks, filteredTasks);
+                this.gantt.api.tasks.raise.filter(tasks, filteredTasks, visibleTasks);
             }
         };
 
