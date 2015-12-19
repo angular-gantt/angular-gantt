@@ -138,6 +138,10 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 - **api.rows.on.move(row, oldIndex, newIndex)**
 
     A row has been moved.
+    
+- **api.rows.on.displayed(rows, filteredRows, visibleRows)**
+
+    Rows have been displayed.
 
 - **api.rows.on.filter(rows, filteredRows)**
 

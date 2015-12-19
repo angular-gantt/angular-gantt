@@ -81,6 +81,8 @@
             this.gantt.api.registerEvent('rows', 'remove');
             this.gantt.api.registerEvent('rows', 'move');
 
+            this.gantt.api.registerEvent('rows', 'displayed');
+
             this.gantt.api.registerEvent('rows', 'filter');
 
             this.updateVisibleObjects();
@@ -329,6 +331,9 @@
 
             // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
             this.visibleRows = this.customFilteredRows;
+
+            this.gantt.api.rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
+
             if (raiseEvent) {
                 this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
             }
