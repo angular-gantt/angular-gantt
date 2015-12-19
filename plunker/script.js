@@ -14,10 +14,6 @@ var app = angular.module('plnkrGanttMaster',
     ]);
 
 app.controller('Ctrl', ['$scope', function ($scope) {
-    $scope.myFunction = function(evt, task) {
-        return false;
-    };
-
     $scope.data = [
         // Order is optional. If not specified it will be assigned automatically
         {name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
