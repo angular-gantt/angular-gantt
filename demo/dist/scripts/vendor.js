@@ -46038,22 +46038,32 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             };
 
+            /**
+             * Set task object in replacement of an existing with the same id.
+             *
+             * @param task
+             */
             this.setTask = function(task) {
-                var oldTask = self.tasks[task.model.id];
-                if (oldTask !== undefined) {
-                    var oldDependencies = this.getTaskDependencies(oldTask);
-                    if (oldDependencies) {
-                        angular.forEach(oldDependencies, function(dependency) {
-                            dependency.disconnect();
+                jsPlumb.setSuspendDrawing(true);
+                try {
+                    var oldTask = self.tasks[task.model.id];
+                    if (oldTask !== undefined) {
+                        var oldDependencies = this.getTaskDependencies(oldTask);
+                        if (oldDependencies) {
+                            angular.forEach(oldDependencies, function(dependency) {
+                                dependency.disconnect();
+                            });
+                        }
+                    }
+                    self.tasks[task.model.id] = task;
+                    var dependencies = this.getTaskDependencies(task);
+                    if (dependencies) {
+                        angular.forEach(dependencies, function(dependency) {
+                            dependency.connect();
                         });
                     }
-                }
-                self.tasks[task.model.id] = task;
-                var dependencies = this.getTaskDependencies(task);
-                if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.connect();
-                    });
+                } finally {
+                    jsPlumb.setSuspendDrawing(false, true);
                 }
             };
 
@@ -46075,16 +46085,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * Refresh jsplumb status based on defined dependencies.
              */
             this.refresh = function() {
-                angular.forEach(this.dependenciesFrom, function(dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        if (!dependency.isConnected()) {
-                            dependency.connect();
-                        } else {
-                            dependency.repaint();
-                        }
+                jsPlumb.setSuspendDrawing(true);
+                try {
+                    angular.forEach(this.dependenciesFrom, function(dependencies) {
+                        angular.forEach(dependencies, function(dependency) {
+                            if (!dependency.isConnected()) {
+                                dependency.connect();
+                            }
+                        });
                     });
-                });
-                //this.plumb.repaintEverything();
+                } finally {
+                    jsPlumb.setSuspendDrawing(false, true);
+                }
             };
         };
         return DependenciesManager;
