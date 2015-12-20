@@ -107,16 +107,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var taskDependencies = task.model.dependencies;
 
                     if (taskDependencies !== undefined) {
-                        var toId = taskDependencies.to;
-
-                        if (toId !== undefined) {
-                            manager.addDependency(task.model.id, toId, taskDependencies.connectParameters);
+                        if (!angular.isArray(taskDependencies)) {
+                            taskDependencies = [taskDependencies];
                         }
 
-                        var fromId = taskDependencies.from;
-                        if (fromId !== undefined) {
-                            manager.addDependency(fromId, task.model.id, taskDependencies.connectParameters);
-                        }
+                        angular.forEach(taskDependencies, function(taskDependency) {
+                            var toId = taskDependency.to;
+
+                            if (toId !== undefined) {
+                                manager.addDependency(task.model.id, toId, taskDependency.connectParameters);
+                            }
+
+                            var fromId = taskDependency.from;
+                            if (fromId !== undefined) {
+                                manager.addDependency(fromId, task.model.id, taskDependency.connectParameters);
+                            }
+                        });
+
                     }
                 });
 
