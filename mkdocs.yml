@@ -21,6 +21,7 @@ pages:
 - [plugins/table.md, Plugins, Table]
 - [plugins/tree.md, Plugins, Tree]
 - [plugins/groups.md, Plugins, Groups]
+- [plugins/dependencies.md, Plugins, Dependencies]
 - [plugins/sortable.md, Plugins, Sortable]
 - [plugins/movable.md, Plugins, Movable]
 - [plugins/drawtask.md, Plugins, Draw Task]
