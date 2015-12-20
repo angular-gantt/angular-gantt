@@ -15,11 +15,14 @@
     border-color: #FF6347;
 }
 
-.gantt-dependencies-container {
+.gantt-body-dependencies {
     position: absolute;
-    background: darkblue;
     height: 100%;
     width: 100%;
+}
+
+.jsplumb-endpoint-anchor {
+    z-index: 20; /* z-index must be higher than tasks z-index */
 }
 
 .gantt-task-group {
