@@ -68,7 +68,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                jsPlumbDefaults: '=?'
                 // Add other option attributes for this plugin
             },
             link: function(scope, element, attrs, ganttCtrl) {
@@ -85,7 +86,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.enabled = true;
                 }
 
-                var manager = new DependenciesManager(ganttCtrl.gantt);
+                if (scope.jsPlumbDefaults === undefined) {
+                    // https://jsplumbtoolkit.com/community/doc/defaults.html
+                    scope.jsPlumbDefaults = {
+                        Anchors: ['Right', 'Left'],
+                        Endpoint: ['Dot', {radius: 7}],
+                        Connector: 'Flowchart'
+                    };
+                }
+
+                var manager = new DependenciesManager(ganttCtrl.gantt, scope);
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement) {
                     if (directiveName === 'ganttBody') {
@@ -100,12 +110,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var toId = taskDependencies.to;
 
                         if (toId !== undefined) {
-                            manager.addDependency(task.model.id, toId);
+                            manager.addDependency(task.model.id, toId, taskDependencies.connectParameters);
                         }
 
                         var fromId = taskDependencies.from;
                         if (fromId !== undefined) {
-                            manager.addDependency(fromId, task.model.id);
+                            manager.addDependency(fromId, task.model.id, taskDependencies.connectParameters);
                         }
                     }
                 });
@@ -1466,26 +1476,43 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
 
     angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', function(Dependency) {
-        var DependenciesManager = function(gantt) {
+        var DependenciesManager = function(gantt, pluginScope) {
             var self = this;
 
             this.gantt = gantt;
+            this.pluginScope = pluginScope;
 
             this.plumb = jsPlumb.getInstance();
+            this.plumb.importDefaults(this.pluginScope.jsPlumbDefaults);
 
             this.dependenciesFrom = {};
             this.dependenciesTo = {};
 
             this.tasks = {};
 
+            this.pluginScope.$watch('enabled', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    self.refresh(true);
+                }
+
+            });
+
+            this.pluginScope.$watch('jsPlumbDefaults', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    self.plumb.importDefaults(newValue);
+                    self.refresh(true);
+                }
+            }, true);
+
             /**
              * Add definition of a dependency.
              *
              * @param fromId id of the start task of the dependency
              * @param toId id of the end task of the dependency
+             * @param connectParameters jsplumb.connect function parameters
              */
-            this.addDependency = function(fromId, toId) {
-                var dependency = new Dependency(this, fromId, toId);
+            this.addDependency = function(fromId, toId, connectParameters) {
+                var dependency = new Dependency(this, fromId, toId, connectParameters);
 
                 if (!(fromId in this.dependenciesFrom)) {
                     this.dependenciesFrom[fromId] = [];
@@ -1634,13 +1661,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             /**
              * Refresh jsplumb status based on defined dependencies.
+             *
+             * @param hard will totaly remove and reconnect every existing dependencies if set to true
              */
-            this.refresh = function() {
+            this.refresh = function(hard) {
                 jsPlumb.setSuspendDrawing(true);
                 try {
                     angular.forEach(this.dependenciesFrom, function(dependencies) {
                         angular.forEach(dependencies, function(dependency) {
-                            if (!dependency.isConnected()) {
+                            if (hard) {
+                                dependency.disconnect();
+                            }
+
+                            if(self.pluginScope.enabled && !dependency.isConnected()) {
                                 dependency.connect();
                             }
                         });
@@ -1658,10 +1691,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
 
     angular.module('gantt.dependencies').factory('GanttDependency', [function() {
-        var Dependency = function(manager, fromId, toId) {
+        /**
+         * Constructor of Dependency object.
+         * 
+         * @param manager Dependency manager used by this dependency
+         * @param fromId id of the start task of the dependency
+         * @param toId id of the end task of the dependency
+         * @param connectParameters jsplumb.connect function parameters
+         *
+         * @constructor
+         *
+         * @see https://jsplumbtoolkit.com/community/apidocs/classes/jsPlumb.html#method_connect
+         */
+        var Dependency = function(manager, fromId, toId, connectParameters) {
             this.manager = manager;
             this.fromId = fromId;
             this.toId = toId;
+            this.connectParameters = connectParameters !== undefined ? connectParameters : {};
             this.connection = undefined;
 
             /**
@@ -1698,14 +1744,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (fromElement && toElement) {
                     var connection = this.manager.plumb.connect({
                         source: fromElement[0],
-                        target: toElement[0],
-                        anchors: ['Right', 'Left'],
-                        endpoints: [
-                            ['Rectangle', {'cssClass': 'gantt-dep-from-endpoint'}],
-                            ['Rectangle', {'cssClass': 'gantt-dep-to-endpoint'}]
-                        ],
-                        connector: 'Flowchart'
-                    });
+                        target: toElement[0]
+                    }, this.connectParameters);
                     this.connection = connection;
                     return true;
                 }

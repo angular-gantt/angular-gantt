@@ -3,26 +3,43 @@
     'use strict';
 
     angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', function(Dependency) {
-        var DependenciesManager = function(gantt) {
+        var DependenciesManager = function(gantt, pluginScope) {
             var self = this;
 
             this.gantt = gantt;
+            this.pluginScope = pluginScope;
 
             this.plumb = jsPlumb.getInstance();
+            this.plumb.importDefaults(this.pluginScope.jsPlumbDefaults);
 
             this.dependenciesFrom = {};
             this.dependenciesTo = {};
 
             this.tasks = {};
 
+            this.pluginScope.$watch('enabled', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    self.refresh(true);
+                }
+
+            });
+
+            this.pluginScope.$watch('jsPlumbDefaults', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    self.plumb.importDefaults(newValue);
+                    self.refresh(true);
+                }
+            }, true);
+
             /**
              * Add definition of a dependency.
              *
              * @param fromId id of the start task of the dependency
              * @param toId id of the end task of the dependency
+             * @param connectParameters jsplumb.connect function parameters
              */
-            this.addDependency = function(fromId, toId) {
-                var dependency = new Dependency(this, fromId, toId);
+            this.addDependency = function(fromId, toId, connectParameters) {
+                var dependency = new Dependency(this, fromId, toId, connectParameters);
 
                 if (!(fromId in this.dependenciesFrom)) {
                     this.dependenciesFrom[fromId] = [];
@@ -171,13 +188,19 @@
 
             /**
              * Refresh jsplumb status based on defined dependencies.
+             *
+             * @param hard will totaly remove and reconnect every existing dependencies if set to true
              */
-            this.refresh = function() {
+            this.refresh = function(hard) {
                 jsPlumb.setSuspendDrawing(true);
                 try {
                     angular.forEach(this.dependenciesFrom, function(dependencies) {
                         angular.forEach(dependencies, function(dependency) {
-                            if (!dependency.isConnected()) {
+                            if (hard) {
+                                dependency.disconnect();
+                            }
+
+                            if(self.pluginScope.enabled && !dependency.isConnected()) {
                                 dependency.connect();
                             }
                         });

@@ -2,10 +2,23 @@
     'use strict';
 
     angular.module('gantt.dependencies').factory('GanttDependency', [function() {
-        var Dependency = function(manager, fromId, toId) {
+        /**
+         * Constructor of Dependency object.
+         * 
+         * @param manager Dependency manager used by this dependency
+         * @param fromId id of the start task of the dependency
+         * @param toId id of the end task of the dependency
+         * @param connectParameters jsplumb.connect function parameters
+         *
+         * @constructor
+         *
+         * @see https://jsplumbtoolkit.com/community/apidocs/classes/jsPlumb.html#method_connect
+         */
+        var Dependency = function(manager, fromId, toId, connectParameters) {
             this.manager = manager;
             this.fromId = fromId;
             this.toId = toId;
+            this.connectParameters = connectParameters !== undefined ? connectParameters : {};
             this.connection = undefined;
 
             /**
@@ -42,14 +55,8 @@
                 if (fromElement && toElement) {
                     var connection = this.manager.plumb.connect({
                         source: fromElement[0],
-                        target: toElement[0],
-                        anchors: ['Right', 'Left'],
-                        endpoints: [
-                            ['Rectangle', {'cssClass': 'gantt-dep-from-endpoint'}],
-                            ['Rectangle', {'cssClass': 'gantt-dep-to-endpoint'}]
-                        ],
-                        connector: 'Flowchart'
-                    });
+                        target: toElement[0]
+                    }, this.connectParameters);
                     this.connection = connection;
                     return true;
                 }

@@ -129,6 +129,7 @@ angular.module('angularGanttDemoApp')
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '15 minutes',
             timeFramesMagnet: true,
+            dependencies: true,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;
                 return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
@@ -526,7 +527,7 @@ angular.module('angularGanttDemoApp')
                         ]},
                         {name: 'Sprint 2', tasks: [
                             {id: 'Order basket', name: 'Order basket', color: '#F1C232', from: new Date(2013, 9, 28, 8, 0, 0), to: new Date(2013, 10, 1, 15, 0, 0),
-                                dependencies: {to: 'Checkout'}}
+                                dependencies: {to: 'Checkout', connectParameters: {endpoint: ['Rectangle', {width: 12, height: 12}]}}}
                         ]},
                         {name: 'Sprint 3', tasks: [
                             {id: 'Checkout', name: 'Checkout', color: '#F1C232', from: new Date(2013, 10, 4, 8, 0, 0), to: new Date(2013, 10, 8, 15, 0, 0),

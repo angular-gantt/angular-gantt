@@ -5,7 +5,8 @@
             restrict: 'E',
             require: '^gantt',
             scope: {
-                enabled: '=?'
+                enabled: '=?',
+                jsPlumbDefaults: '=?'
                 // Add other option attributes for this plugin
             },
             link: function(scope, element, attrs, ganttCtrl) {
@@ -22,7 +23,16 @@
                     scope.enabled = true;
                 }
 
-                var manager = new DependenciesManager(ganttCtrl.gantt);
+                if (scope.jsPlumbDefaults === undefined) {
+                    // https://jsplumbtoolkit.com/community/doc/defaults.html
+                    scope.jsPlumbDefaults = {
+                        Anchors: ['Right', 'Left'],
+                        Endpoint: ['Dot', {radius: 7}],
+                        Connector: 'Flowchart'
+                    };
+                }
+
+                var manager = new DependenciesManager(ganttCtrl.gantt, scope);
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement) {
                     if (directiveName === 'ganttBody') {
@@ -37,12 +47,12 @@
                         var toId = taskDependencies.to;
 
                         if (toId !== undefined) {
-                            manager.addDependency(task.model.id, toId);
+                            manager.addDependency(task.model.id, toId, taskDependencies.connectParameters);
                         }
 
                         var fromId = taskDependencies.from;
                         if (fromId !== undefined) {
-                            manager.addDependency(fromId, task.model.id);
+                            manager.addDependency(fromId, task.model.id, taskDependencies.connectParameters);
                         }
                     }
                 });
