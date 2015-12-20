@@ -15,7 +15,6 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
     <div gantt>
         <gantt-dependencies enabled="true"
                             jsPlumbDefaults="{
-                                             Anchors: ['Right', 'Left'],
                                              Endpoint: ['Dot', {radius: 7}],
                                              Connector: 'Flowchart'
                                              }">
@@ -40,7 +39,6 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
     default: 
 
         {
-        Anchors: ['Right', 'Left'],
         Endpoint: ['Dot', {radius: 7}],
         Connector: 'Flowchart'
         }

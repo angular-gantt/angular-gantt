@@ -33,8 +33,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (scope.jsPlumbDefaults === undefined) {
                     // https://jsplumbtoolkit.com/community/doc/defaults.html
                     scope.jsPlumbDefaults = {
-                        Anchors: ['Right', 'Left'],
                         Endpoint: ['Dot', {radius: 7}],
+                        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 2},
                         Connector: 'Flowchart'
                     };
                 }
@@ -107,11 +107,35 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+(function() {
+    'use strict';
+
+    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', [function() {
+        /**
+         * Creates a new DependenciesEvents object.
+         *
+         * @param manager DependenciesManager object
+         * @constructor
+         */
+        var DependenciesEvents = function(manager) {
+            this.manager = manager;
+
+            var denyDropOnSameTask = function(params) {
+                return params.sourceId !== params.targetId;
+            };
+
+            this.manager.plumb.bind('beforeDrop', denyDropOnSameTask);
+
+        };
+        return DependenciesEvents;
+    }]);
+}());
+
 /* globals jsPlumb */
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', function(Dependency) {
+    angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', function(Dependency, DependenciesEvents) {
         var DependenciesManager = function(gantt, pluginScope) {
             var self = this;
 
@@ -125,6 +149,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.dependenciesTo = {};
 
             this.tasks = {};
+
+            this.events = new DependenciesEvents(this);
 
             this.pluginScope.$watch('enabled', function(newValue, oldValue) {
                 if (newValue !== oldValue) {
@@ -240,17 +266,60 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return dependencies;
             };
 
+            var addTaskEndpoint = function(task) {
+                if (!task.dependencies) {
+                    task.dependencies = {};
+                }
+
+                // TODO: How to allow customizing those Endpoints without introducing to much api complexity ?
+                task.dependencies.leftEndpoint = self.plumb.addEndpoint(task.$element, {
+                    anchor:'Left',
+                    isSource:true,
+                    isTarget:true,
+                    maxConnections: -1,
+                    cssClass: 'gantt-endpoint start-endpoint'
+                });
+                task.dependencies.leftEndpoint.$task = task;
+                task.dependencies.rightEndpoint = self.plumb.addEndpoint(task.$element, {
+                    anchor:'Right',
+                    isSource:true,
+                    isTarget:true,
+                    maxConnections: -1,
+                    cssClass: 'gantt-endpoint end-endpoint'
+                });
+                task.dependencies.rightEndpoint.$task = task;
+            };
+
+            var removeTaskEndpoint = function(task) {
+                if (task.dependencies) {
+                    if (task.dependencies.leftEndpoint) {
+                        self.plumb.deleteEndpoint(task.dependencies.leftEndpoint);
+                    }
+                    if (task.dependencies.rightEndpoint) {
+                        self.plumb.deleteEndpoint(task.dependencies.rightEndpoint);
+                    }
+
+                    task.dependencies = undefined;
+                }
+            };
+
             /**
              * Set tasks objects that can be used to display dependencies.
              *
              * @param tasks
              */
             this.setTasks = function(tasks) {
+                angular.forEach(self.tasks, function(task) {
+                    removeTaskEndpoint(task);
+                });
+
                 self.tasks = {};
                 angular.forEach(tasks, function(task) {
                     self.tasks[task.model.id] = task;
+                    addTaskEndpoint(task);
                 });
             };
+
 
             /**
              * Set task object in replacement of an existing with the same id.
@@ -258,7 +327,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * @param task
              */
             this.setTask = function(task) {
-                jsPlumb.setSuspendDrawing(true);
+                self.plumb.setSuspendDrawing(true);
                 try {
                     var oldTask = self.tasks[task.model.id];
                     if (oldTask !== undefined) {
@@ -268,8 +337,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 dependency.disconnect();
                             });
                         }
+                        removeTaskEndpoint(oldTask);
                     }
                     self.tasks[task.model.id] = task;
+                    addTaskEndpoint(task);
                     var dependencies = this.getTaskDependencies(task);
                     if (dependencies) {
                         angular.forEach(dependencies, function(dependency) {
@@ -277,45 +348,57 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
                     }
                 } finally {
-                    jsPlumb.setSuspendDrawing(false, true);
+                    self.plumb.setSuspendDrawing(false, true);
                 }
             };
 
             /**
-             * Retrieve the element representing the task.
+             * Retrieve the task from it's id.
              *
              * @param taskId id of the task element to retrieve.
              * @returns {*}
              */
-            this.getTaskElement = function(taskId) {
-                var taskObject = self.tasks[taskId];
-                if (taskObject) {
-                    return taskObject.$element;
-                }
+            this.getTask = function(taskId) {
+                return self.tasks[taskId];
             };
 
 
+            var isElementVisible = function(element) {
+                return element.offsetParent !== undefined && element.offsetParent !== null;
+            };
+
             /**
-             * Refresh jsplumb status based on defined dependencies.
+             * Refresh jsplumb status based on defined dependencies and tasks.
              *
              * @param hard will totaly remove and reconnect every existing dependencies if set to true
              */
             this.refresh = function(hard) {
-                jsPlumb.setSuspendDrawing(true);
+                self.plumb.setSuspendDrawing(true);
                 try {
+                    hard = true; // There is issue with soft refresh, when hidden rows using tree plugin.
                     angular.forEach(this.dependenciesFrom, function(dependencies) {
                         angular.forEach(dependencies, function(dependency) {
                             if (hard) {
                                 dependency.disconnect();
                             }
 
-                            if(self.pluginScope.enabled && !dependency.isConnected()) {
-                                dependency.connect();
+                            if(self.pluginScope.enabled) {
+                                if (!dependency.isConnected()) {
+                                    dependency.connect();
+                                } else {
+                                    dependency.refresh();
+                                }
                             }
                         });
                     });
+
+                    angular.forEach(this.tasks, function(task) {
+                        if (!isElementVisible(task.$element[0])) {
+                            self.plumb.hide(task.$element[0]);
+                        }
+                    });
                 } finally {
-                    jsPlumb.setSuspendDrawing(false, true);
+                    self.plumb.setSuspendDrawing(false, true);
                 }
             };
         };
@@ -375,12 +458,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * @returns {boolean}
              */
             this.connect = function() {
-                var fromElement = this.manager.getTaskElement(this.fromId);
-                var toElement = this.manager.getTaskElement(this.toId);
-                if (fromElement && toElement) {
+                var fromTask = this.manager.getTask(this.fromId);
+                var toTask = this.manager.getTask(this.toId);
+                if (fromTask && toTask) {
                     var connection = this.manager.plumb.connect({
-                        source: fromElement[0],
-                        target: toElement[0]
+                        source: fromTask.dependencies.rightEndpoint,
+                        target: toTask.dependencies.leftEndpoint,
                     }, this.connectParameters);
                     this.connection = connection;
                     return true;
@@ -389,14 +472,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             };
 
             /**
-             * Revalidate this dependency.
+             * Refresh this dependency.
              *
              * @returns {boolean}
              */
-            this.repaint = function() {
-                var fromElement = this.manager.getTaskElement(this.fromId);
-                var toElement = this.manager.getTaskElement(this.toId);
-                this.manager.plumb.revalidate([fromElement[0], toElement[0]]);
+            this.refresh = function() {
+                var fromTask = this.manager.getTask(this.fromId);
+                var toTask = this.manager.getTask(this.toId);
+                this.manager.plumb.revalidate([fromTask.$element[0], toTask.$element[0]]);
             };
         };
         return Dependency;

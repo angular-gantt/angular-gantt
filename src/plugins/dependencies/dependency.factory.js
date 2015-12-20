@@ -50,12 +50,12 @@
              * @returns {boolean}
              */
             this.connect = function() {
-                var fromElement = this.manager.getTaskElement(this.fromId);
-                var toElement = this.manager.getTaskElement(this.toId);
-                if (fromElement && toElement) {
+                var fromTask = this.manager.getTask(this.fromId);
+                var toTask = this.manager.getTask(this.toId);
+                if (fromTask && toTask) {
                     var connection = this.manager.plumb.connect({
-                        source: fromElement[0],
-                        target: toElement[0]
+                        source: fromTask.dependencies.rightEndpoint,
+                        target: toTask.dependencies.leftEndpoint,
                     }, this.connectParameters);
                     this.connection = connection;
                     return true;
@@ -64,14 +64,14 @@
             };
 
             /**
-             * Revalidate this dependency.
+             * Refresh this dependency.
              *
              * @returns {boolean}
              */
-            this.repaint = function() {
-                var fromElement = this.manager.getTaskElement(this.fromId);
-                var toElement = this.manager.getTaskElement(this.toId);
-                this.manager.plumb.revalidate([fromElement[0], toElement[0]]);
+            this.refresh = function() {
+                var fromTask = this.manager.getTask(this.fromId);
+                var toTask = this.manager.getTask(this.toId);
+                this.manager.plumb.revalidate([fromTask.$element[0], toTask.$element[0]]);
             };
         };
         return Dependency;

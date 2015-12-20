@@ -23,6 +23,15 @@
 
 .jsplumb-endpoint-anchor {
     z-index: 20; /* z-index must be higher than tasks z-index */
+    overflow: hidden;
+}
+
+.gantt-endpoint svg *{
+    fill-opacity: 0.5;
+}
+
+.gantt-endpoint svg * {
+    fill: green;
 }
 
 .gantt-task-group {
