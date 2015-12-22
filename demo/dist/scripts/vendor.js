@@ -44539,6 +44539,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // https://jsplumbtoolkit.com/community/doc/defaults.html
                     scope.jsPlumbDefaults = {
                         Endpoint: ['Dot', {radius: 7}],
+                        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 2},
                         Connector: 'Flowchart'
                     };
                 }
@@ -45926,7 +45927,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-/* globals jsPlumb */
 (function() {
     'use strict';
 
@@ -45938,13 +45938,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
          * @constructor
          */
         var DependenciesEvents = function(manager) {
-            var self = this;
-
             this.manager = manager;
 
-            this.manager.plumb.bind('connection', function(connectionData) {
-                console.log(connectionData);
-            });
+            var denyDropOnSameTask = function(params) {
+                return params.sourceId !== params.targetId;
+            };
+
+            this.manager.plumb.bind('beforeDrop', denyDropOnSameTask);
 
         };
         return DependenciesEvents;
@@ -46092,29 +46092,56 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 // TODO: How to allow customizing those Endpoints without introducing to much api complexity ?
-                task.dependencies.leftEndpoint = self.plumb.addEndpoint(task.$element, {
+                task.dependencies.leftTargetEndpoint = self.plumb.addEndpoint(task.$element, {
                     anchor:'Left',
-                    isSource:true,
+                    isSource:false,
                     isTarget:true,
-                    maxConnections: -1
+                    maxConnections: -1,
+                    cssClass: 'gantt-endpoint start-endpoint target-endpoint'
                 });
-                task.dependencies.leftEndpoint.$task = task;
-                task.dependencies.rightEndpoint = self.plumb.addEndpoint(task.$element, {
+                task.dependencies.leftTargetEndpoint.$task = task;
+
+                task.dependencies.leftSourceEndpoint = self.plumb.addEndpoint(task.$element, {
+                    anchor:'BottomLeft',
+                    isSource:true,
+                    isTarget:false,
+                    maxConnections: -1,
+                    cssClass: 'gantt-endpoint start-endpoint source-endpoint'
+                });
+                task.dependencies.leftSourceEndpoint.$task = task;
+
+                task.dependencies.rightSourceEndpoint = self.plumb.addEndpoint(task.$element, {
                     anchor:'Right',
                     isSource:true,
-                    isTarget:true,
-                    maxConnections: -1
+                    isTarget:false,
+                    maxConnections: -1,
+                    cssClass: 'gantt-endpoint start-endpoint source-endpoint'
                 });
-                task.dependencies.rightEndpoint.$task = task;
+                task.dependencies.rightSourceEndpoint.$task = task;
+
+                task.dependencies.rightTargetEndpoint = self.plumb.addEndpoint(task.$element, {
+                    anchor:'BottomRight',
+                    isSource:false,
+                    isTarget:true,
+                    maxConnections: -1,
+                    cssClass: 'gantt-endpoint end-endpoint target-endpoint'
+                });
+                task.dependencies.rightTargetEndpoint.$task = task;
             };
 
             var removeTaskEndpoint = function(task) {
                 if (task.dependencies) {
-                    if (task.dependencies.leftEndpoint) {
-                        self.plumb.deleteEndpoint(task.dependencies.leftEndpoint);
+                    if (task.dependencies.leftTargetEndpoint) {
+                        self.plumb.deleteEndpoint(task.dependencies.leftTargetEndpoint);
                     }
-                    if (task.dependencies.rightEndpoint) {
-                        self.plumb.deleteEndpoint(task.dependencies.rightEndpoint);
+                    if (task.dependencies.leftSourceEndpoint) {
+                        self.plumb.deleteEndpoint(task.dependencies.leftSourceEndpoint);
+                    }
+                    if (task.dependencies.rightSourceEndpoint) {
+                        self.plumb.deleteEndpoint(task.dependencies.rightSourceEndpoint);
+                    }
+                    if (task.dependencies.rightTargetEndpoint) {
+                        self.plumb.deleteEndpoint(task.dependencies.rightTargetEndpoint);
                     }
 
                     task.dependencies = undefined;
@@ -46280,8 +46307,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var toTask = this.manager.getTask(this.toId);
                 if (fromTask && toTask) {
                     var connection = this.manager.plumb.connect({
-                        source: fromTask.dependencies.rightEndpoint,
-                        target: toTask.dependencies.leftEndpoint,
+                        source: fromTask.dependencies.rightSourceEndpoint,
+                        target: toTask.dependencies.leftTargetEndpoint
                     }, this.connectParameters);
                     this.connection = connection;
                     return true;

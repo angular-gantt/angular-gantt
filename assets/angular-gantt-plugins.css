@@ -30,8 +30,12 @@
     fill-opacity: 0.5;
 }
 
-.gantt-endpoint svg * {
+.gantt-endpoint.source-endpoint svg * {
     fill: green;
+}
+
+.gantt-endpoint.target-endpoint svg * {
+    fill: blue;
 }
 
 .gantt-task-group {
