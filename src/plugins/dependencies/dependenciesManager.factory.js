@@ -36,45 +36,31 @@
             /**
              * Add definition of a dependency.
              *
-             * @param fromId id of the start task of the dependency
-             * @param toId id of the end task of the dependency
-             * @param connectParameters jsplumb.connect function parameters
+             * @param task Task defining the dependency.
+             * @param model Model object for the dependency.
              */
-            this.addDependency = function(fromId, toId, connectParameters) {
-                var dependency = new Dependency(this, fromId, toId, connectParameters);
+            this.addDependency = function(task, model) {
+                var dependency = new Dependency(this, task, model);
 
-                if (!(fromId in this.dependenciesFrom)) {
-                    this.dependenciesFrom[fromId] = [];
+                var fromTaskId = dependency.getFromTaskId();
+                var toTaskId = dependency.getToTaskId();
+
+                if (!(fromTaskId in this.dependenciesFrom)) {
+                    this.dependenciesFrom[fromTaskId] = [];
                 }
-                if (!(toId in this.dependenciesTo)) {
-                    this.dependenciesTo[toId] = [];
-                }
-
-                this.dependenciesFrom[fromId].push(dependency);
-                this.dependenciesTo[toId].push(dependency);
-            };
-
-            /**
-             * Check if a dependency definition exists.
-             *
-             * @param fromId id of the start task of the dependency
-             * @param toId id of the end task of the dependency
-             * @returns {boolean}
-             */
-            this.hasDependency = function(fromId, toId) {
-                var fromDependencies = this.dependenciesFrom[fromId];
-
-                if (!fromDependencies) {
-                    return false;
+                if (!(toTaskId in this.dependenciesTo)) {
+                    this.dependenciesTo[toTaskId] = [];
                 }
 
-                var found = false;
-                angular.forEach(fromDependencies, function(dependency) {
-                    if (dependency.to === toId) {
-                        found = true;
-                    }
-                });
-                return found;
+                if (fromTaskId) {
+                    this.dependenciesFrom[fromTaskId].push(dependency);
+                }
+
+                if (toTaskId) {
+                    this.dependenciesTo[toTaskId].push(dependency);
+                }
+
+                return dependency;
             };
 
             /**
@@ -83,24 +69,24 @@
              * @param fromId id of the start task of the dependency
              * @param toId id of the end task of the dependency
              */
-            this.removeDependency = function(fromId, toId) {
-                var fromDependencies = this.dependenciesFrom[fromId];
+            this.removeDependency = function(dependency) {
+                var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
 
                 if (fromDependencies) {
-                    angular.forEach(fromDependencies, function(dependency) {
-                        if (dependency.to === toId) {
+                    angular.forEach(fromDependencies, function(fromDependency) {
+                        if (dependency === fromDependency) {
                             fromRemove.push(dependency);
                         }
                     });
                 }
 
-                var toDependencies = this.dependenciesTo[toId];
+                var toDependencies = this.dependenciesTo[dependency.getToTaskId()];
                 var toRemove = [];
 
                 if (toDependencies) {
-                    angular.forEach(toDependencies, function(dependency) {
-                        if (dependency.from === fromId) {
+                    angular.forEach(toDependencies, function(toDependency) {
+                        if (dependency === toDependency) {
                             toRemove.push(dependency);
                         }
                     });
@@ -206,6 +192,25 @@
                 });
             };
 
+            var disconnectTaskDependencies = function(task) {
+                var dependencies = self.getTaskDependencies(task);
+                if (dependencies) {
+                    angular.forEach(dependencies, function(dependency) {
+                        dependency.disconnect();
+                    });
+                }
+                return dependencies;
+            };
+
+            var connectTaskDependencies = function(task) {
+                var dependencies = self.getTaskDependencies(task);
+                if (dependencies) {
+                    angular.forEach(dependencies, function(dependency) {
+                        dependency.connect();
+                    });
+                }
+                return dependencies;
+            };
 
             /**
              * Set task object in replacement of an existing with the same id.
@@ -217,24 +222,14 @@
                 try {
                     var oldTask = self.tasks[task.model.id];
                     if (oldTask !== undefined) {
-                        var oldDependencies = this.getTaskDependencies(oldTask);
-                        if (oldDependencies) {
-                            angular.forEach(oldDependencies, function(dependency) {
-                                dependency.disconnect();
-                            });
-                        }
+                        disconnectTaskDependencies(oldTask);
                         removeTaskMouseHandler(oldTask);
                         removeTaskEndpoint(oldTask);
                     }
                     self.tasks[task.model.id] = task;
                     addTaskEndpoints(task);
                     addTaskMouseHandler(task);
-                    var dependencies = this.getTaskDependencies(task);
-                    if (dependencies) {
-                        angular.forEach(dependencies, function(dependency) {
-                            dependency.connect();
-                        });
-                    }
+                    connectTaskDependencies(task);
                 } finally {
                     self.plumb.setSuspendDrawing(false, true);
                 }
@@ -272,24 +267,24 @@
              *
              * @param fromTask
              * @param toTask
-             * @param connectParameters
+             * @param model
              * @returns connection object
              */
-            this.connect = function(fromTask, toTask, connectParameters) {
+            this.connect = function(fromTask, toTask, model) {
                 var sourceEndpoints = getSourceEndpoints(fromTask);
                 var targetEndpoints = getTargetEndpoints(toTask);
                 if (sourceEndpoints && targetEndpoints) {
                     var sourceEndpoint;
                     var targetEndpoint;
 
-                    if (connectParameters.sourceEndpointIndex) {
-                        sourceEndpoint = sourceEndpoints[connectParameters.sourceEndpointIndex];
+                    if (model.connectParameters && model.connectParameters.sourceEndpointIndex) {
+                        sourceEndpoint = sourceEndpoints[model.connectParameters.sourceEndpointIndex];
                     } else {
                         sourceEndpoint = sourceEndpoints[0];
                     }
 
-                    if (connectParameters.targetEndpointIndex) {
-                        targetEndpoint = targetEndpoints[connectParameters.targetEndpointIndex];
+                    if (model.connectParameters && model.connectParameters.targetEndpointIndex) {
+                        targetEndpoint = targetEndpoints[model.connectParameters.targetEndpointIndex];
                     } else {
                         targetEndpoint = targetEndpoints[0];
                     }
@@ -297,7 +292,7 @@
                     var connection = self.plumb.connect({
                         source: sourceEndpoint,
                         target: targetEndpoint
-                    }, connectParameters);
+                    }, model.connectParameters);
                     return connection;
                 }
             };

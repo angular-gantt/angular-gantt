@@ -43031,6 +43031,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
                 return defaultValue;
             },
+            angularIndexOf: function(arr, obj) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (angular.equals(arr[i], obj)) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
@@ -44592,19 +44600,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (taskDependencies !== undefined) {
                         if (!angular.isArray(taskDependencies)) {
                             taskDependencies = [taskDependencies];
+                            task.model.dependencies = taskDependencies;
                         }
 
                         angular.forEach(taskDependencies, function(taskDependency) {
-                            var toId = taskDependency.to;
-
-                            if (toId !== undefined) {
-                                manager.addDependency(task.model.id, toId, taskDependency.connectParameters);
-                            }
-
-                            var fromId = taskDependency.from;
-                            if (fromId !== undefined) {
-                                manager.addDependency(fromId, task.model.id, taskDependency.connectParameters);
-                            }
+                            manager.addDependency(task, taskDependency);
                         });
 
                     }
@@ -44616,7 +44616,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (dependencies) {
                         angular.forEach(dependencies, function(dependency) {
                             dependency.disconnect();
-                            manager.removeDependency(dependency.fromId, dependency.toId);
+                            manager.removeDependency(dependency);
                         });
                     }
                 });
@@ -44636,9 +44636,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                api.tasks.on.viewRowChange(scope, debounce(function(task) {
+                api.tasks.on.viewRowChange(scope, function(task) {
                     manager.setTask(task);
-                }, 10));
+                });
 
             }
         };
@@ -45964,7 +45964,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', [function() {
+    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', ['ganttUtils', function(utils) {
         /**
          * Creates a new DependenciesEvents object.
          *
@@ -45995,6 +45995,42 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.manager.plumb.bind('beforeDrop', function() {
                 self.manager.setDraggingConnection(undefined);
+                return true;
+            });
+
+            // Record the new dependency in the model and reload the task to display the new connection.
+            this.manager.plumb.bind('beforeDrop', function(info) {
+                var sourceEndpoint = info.connection.endpoints[0];
+                var targetEndpoint = info.dropEndpoint;
+
+                var sourceModel = sourceEndpoint.$task.model;
+
+                var dependenciesModel = sourceModel.dependencies;
+
+                if (dependenciesModel === undefined) {
+                    dependenciesModel = [];
+                    sourceModel.dependencies = dependenciesModel;
+                }
+
+                var connectionModel = {to: targetEndpoint.$task.model.id};
+                dependenciesModel.push(connectionModel);
+
+                var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
+                info.connection.$dependency = dependency;
+
+                return true;
+            });
+
+            // Remove the dependency from the model if it's manually detached.
+            this.manager.plumb.bind('beforeDetach', function(connection, mouseEvent) {
+                if (mouseEvent) {
+                    var modelIndex = utils.angularIndexOf(connection.$dependency.task.model.dependencies, connection.$dependency.model);
+                    if (modelIndex >= 0) {
+                        connection.$dependency.task.model.dependencies.splice(modelIndex, 1);
+                    }
+
+                    self.manager.removeDependency(connection.$dependency);
+                }
                 return true;
             });
 
@@ -46041,45 +46077,31 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             /**
              * Add definition of a dependency.
              *
-             * @param fromId id of the start task of the dependency
-             * @param toId id of the end task of the dependency
-             * @param connectParameters jsplumb.connect function parameters
+             * @param task Task defining the dependency.
+             * @param model Model object for the dependency.
              */
-            this.addDependency = function(fromId, toId, connectParameters) {
-                var dependency = new Dependency(this, fromId, toId, connectParameters);
+            this.addDependency = function(task, model) {
+                var dependency = new Dependency(this, task, model);
 
-                if (!(fromId in this.dependenciesFrom)) {
-                    this.dependenciesFrom[fromId] = [];
+                var fromTaskId = dependency.getFromTaskId();
+                var toTaskId = dependency.getToTaskId();
+
+                if (!(fromTaskId in this.dependenciesFrom)) {
+                    this.dependenciesFrom[fromTaskId] = [];
                 }
-                if (!(toId in this.dependenciesTo)) {
-                    this.dependenciesTo[toId] = [];
-                }
-
-                this.dependenciesFrom[fromId].push(dependency);
-                this.dependenciesTo[toId].push(dependency);
-            };
-
-            /**
-             * Check if a dependency definition exists.
-             *
-             * @param fromId id of the start task of the dependency
-             * @param toId id of the end task of the dependency
-             * @returns {boolean}
-             */
-            this.hasDependency = function(fromId, toId) {
-                var fromDependencies = this.dependenciesFrom[fromId];
-
-                if (!fromDependencies) {
-                    return false;
+                if (!(toTaskId in this.dependenciesTo)) {
+                    this.dependenciesTo[toTaskId] = [];
                 }
 
-                var found = false;
-                angular.forEach(fromDependencies, function(dependency) {
-                    if (dependency.to === toId) {
-                        found = true;
-                    }
-                });
-                return found;
+                if (fromTaskId) {
+                    this.dependenciesFrom[fromTaskId].push(dependency);
+                }
+
+                if (toTaskId) {
+                    this.dependenciesTo[toTaskId].push(dependency);
+                }
+
+                return dependency;
             };
 
             /**
@@ -46088,24 +46110,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * @param fromId id of the start task of the dependency
              * @param toId id of the end task of the dependency
              */
-            this.removeDependency = function(fromId, toId) {
-                var fromDependencies = this.dependenciesFrom[fromId];
+            this.removeDependency = function(dependency) {
+                var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
 
                 if (fromDependencies) {
-                    angular.forEach(fromDependencies, function(dependency) {
-                        if (dependency.to === toId) {
+                    angular.forEach(fromDependencies, function(fromDependency) {
+                        if (dependency === fromDependency) {
                             fromRemove.push(dependency);
                         }
                     });
                 }
 
-                var toDependencies = this.dependenciesTo[toId];
+                var toDependencies = this.dependenciesTo[dependency.getToTaskId()];
                 var toRemove = [];
 
                 if (toDependencies) {
-                    angular.forEach(toDependencies, function(dependency) {
-                        if (dependency.from === fromId) {
+                    angular.forEach(toDependencies, function(toDependency) {
+                        if (dependency === toDependency) {
                             toRemove.push(dependency);
                         }
                     });
@@ -46211,6 +46233,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             };
 
+            var disconnectTaskDependencies = function(task) {
+                var dependencies = self.getTaskDependencies(task);
+                if (dependencies) {
+                    angular.forEach(dependencies, function(dependency) {
+                        dependency.disconnect();
+                    });
+                }
+                return dependencies;
+            };
+
+            var connectTaskDependencies = function(task) {
+                var dependencies = self.getTaskDependencies(task);
+                if (dependencies) {
+                    angular.forEach(dependencies, function(dependency) {
+                        dependency.connect();
+                    });
+                }
+                return dependencies;
+            };
 
             /**
              * Set task object in replacement of an existing with the same id.
@@ -46222,24 +46263,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 try {
                     var oldTask = self.tasks[task.model.id];
                     if (oldTask !== undefined) {
-                        var oldDependencies = this.getTaskDependencies(oldTask);
-                        if (oldDependencies) {
-                            angular.forEach(oldDependencies, function(dependency) {
-                                dependency.disconnect();
-                            });
-                        }
+                        disconnectTaskDependencies(oldTask);
                         removeTaskMouseHandler(oldTask);
                         removeTaskEndpoint(oldTask);
                     }
                     self.tasks[task.model.id] = task;
                     addTaskEndpoints(task);
                     addTaskMouseHandler(task);
-                    var dependencies = this.getTaskDependencies(task);
-                    if (dependencies) {
-                        angular.forEach(dependencies, function(dependency) {
-                            dependency.connect();
-                        });
-                    }
+                    connectTaskDependencies(task);
                 } finally {
                     self.plumb.setSuspendDrawing(false, true);
                 }
@@ -46277,24 +46308,24 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              *
              * @param fromTask
              * @param toTask
-             * @param connectParameters
+             * @param model
              * @returns connection object
              */
-            this.connect = function(fromTask, toTask, connectParameters) {
+            this.connect = function(fromTask, toTask, model) {
                 var sourceEndpoints = getSourceEndpoints(fromTask);
                 var targetEndpoints = getTargetEndpoints(toTask);
                 if (sourceEndpoints && targetEndpoints) {
                     var sourceEndpoint;
                     var targetEndpoint;
 
-                    if (connectParameters.sourceEndpointIndex) {
-                        sourceEndpoint = sourceEndpoints[connectParameters.sourceEndpointIndex];
+                    if (model.connectParameters && model.connectParameters.sourceEndpointIndex) {
+                        sourceEndpoint = sourceEndpoints[model.connectParameters.sourceEndpointIndex];
                     } else {
                         sourceEndpoint = sourceEndpoints[0];
                     }
 
-                    if (connectParameters.targetEndpointIndex) {
-                        targetEndpoint = targetEndpoints[connectParameters.targetEndpointIndex];
+                    if (model.connectParameters && model.connectParameters.targetEndpointIndex) {
+                        targetEndpoint = targetEndpoints[model.connectParameters.targetEndpointIndex];
                     } else {
                         targetEndpoint = targetEndpoints[0];
                     }
@@ -46302,7 +46333,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var connection = self.plumb.connect({
                         source: sourceEndpoint,
                         target: targetEndpoint
-                    }, connectParameters);
+                    }, model.connectParameters);
                     return connection;
                 }
             };
@@ -46354,19 +46385,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
          * Constructor of Dependency object.
          * 
          * @param manager Dependency manager used by this dependency
-         * @param fromId id of the start task of the dependency
-         * @param toId id of the end task of the dependency
-         * @param connectParameters jsplumb.connect function parameters
+         * @param task Task declaring the dependency
+         * @param model model of the dependency
          *
          * @constructor
          *
          * @see https://jsplumbtoolkit.com/community/apidocs/classes/jsPlumb.html#method_connect
          */
-        var Dependency = function(manager, fromId, toId, connectParameters) {
+        var Dependency = function(manager, task, model) {
             this.manager = manager;
-            this.fromId = fromId;
-            this.toId = toId;
-            this.connectParameters = connectParameters !== undefined ? connectParameters : {};
+            this.task = task;
+            this.model = model;
             this.connection = undefined;
 
             /**
@@ -46387,10 +46416,38 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.disconnect = function() {
                 if (this.connection) {
                     this.manager.plumb.detach(this.connection);
+                    this.connection.$dependency = undefined;
                     this.connection = undefined;
                 }
             };
 
+            this.getFromTaskId = function() {
+                if (this.model.from !== undefined) {
+                    return this.model.from;
+                }
+                return this.task.model.id;
+            };
+
+            this.getToTaskId = function() {
+                if (this.model.to !== undefined) {
+                    return this.model.to;
+                }
+                return this.task.model.id;
+            };
+
+            this.getFromTask = function() {
+                if (this.model.from !== undefined) {
+                    return this.manager.getTask(this.model.from);
+                }
+                return this.task;
+            };
+
+            this.getToTask = function() {
+                if (this.model.to !== undefined) {
+                    return this.manager.getTask(this.model.to);
+                }
+                return this.task;
+            };
 
             /**
              * Connect this dependency if both elements are available.
@@ -46398,11 +46455,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * @returns {boolean}
              */
             this.connect = function() {
-                var fromTask = this.manager.getTask(this.fromId);
-                var toTask = this.manager.getTask(this.toId);
-                if (fromTask && toTask) {
-                    var connection = this.manager.connect(fromTask, toTask, this.connectParameters);
+                var fromTask = this.getFromTask();
+                var toTask = this.getToTask();
+
+                if (fromTask && toTask && fromTask !== toTask) {
+                    var connection = this.manager.connect(fromTask, toTask, this.model);
                     if (connection) {
+                        connection.$dependency = this;
                         this.connection = connection;
                         return true;
                     }

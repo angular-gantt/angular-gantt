@@ -80,19 +80,11 @@
                     if (taskDependencies !== undefined) {
                         if (!angular.isArray(taskDependencies)) {
                             taskDependencies = [taskDependencies];
+                            task.model.dependencies = taskDependencies;
                         }
 
                         angular.forEach(taskDependencies, function(taskDependency) {
-                            var toId = taskDependency.to;
-
-                            if (toId !== undefined) {
-                                manager.addDependency(task.model.id, toId, taskDependency.connectParameters);
-                            }
-
-                            var fromId = taskDependency.from;
-                            if (fromId !== undefined) {
-                                manager.addDependency(fromId, task.model.id, taskDependency.connectParameters);
-                            }
+                            manager.addDependency(task, taskDependency);
                         });
 
                     }
@@ -104,7 +96,7 @@
                     if (dependencies) {
                         angular.forEach(dependencies, function(dependency) {
                             dependency.disconnect();
-                            manager.removeDependency(dependency.fromId, dependency.toId);
+                            manager.removeDependency(dependency);
                         });
                     }
                 });
@@ -124,9 +116,9 @@
                     }
                 });
 
-                api.tasks.on.viewRowChange(scope, debounce(function(task) {
+                api.tasks.on.viewRowChange(scope, function(task) {
                     manager.setTask(task);
-                }, 10));
+                });
 
             }
         };
