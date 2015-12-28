@@ -2,7 +2,7 @@
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', function(Dependency, DependenciesEvents) {
+    angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', 'GanttDependencyTaskMouseHandler', function(Dependency, DependenciesEvents, TaskMouseHandler) {
         var DependenciesManager = function(gantt, pluginScope) {
             var self = this;
 
@@ -133,8 +133,26 @@
                 return dependencies;
             };
 
+            this.setDraggingConnection = function(connection) {
+                if (connection) {
+                    self.draggingConnection = connection;
+                    angular.forEach(self.tasks, function(task) {
+                        task.dependencies.mouseHandler.release();
+                    });
+                } else {
+                    self.draggingConnection = undefined;
+                    angular.forEach(self.tasks, function(task) {
+                        task.dependencies.mouseHandler.install();
+                    });
+                }
+            };
+
             var addTaskEndpoints = function(task) {
-                task.dependencies = {endpoints: []};
+                if (!task.dependencies) {
+                    task.dependencies = {};
+                }
+
+                task.dependencies.endpoints = [];
 
                 if (self.pluginScope.endpoints) {
                     angular.forEach(self.pluginScope.endpoints, function(endpoint) {
@@ -152,8 +170,21 @@
                     endpointObject.$task = undefined;
                 });
 
+                task.dependencies.endpoints = undefined;
+            };
 
-                task.dependencies = undefined;
+            var addTaskMouseHandler = function(task) {
+                if (!task.dependencies) {
+                    task.dependencies = {};
+                }
+
+                task.dependencies.mouseHandler = new TaskMouseHandler(self, task);
+                task.dependencies.mouseHandler.install();
+            };
+
+            var removeTaskMouseHandler = function(task) {
+                task.dependencies.mouseHandler.release();
+                task.dependencies.mouseHandler = undefined;
             };
 
             /**
@@ -163,6 +194,7 @@
              */
             this.setTasks = function(tasks) {
                 angular.forEach(self.tasks, function(task) {
+                    removeTaskMouseHandler(task);
                     removeTaskEndpoint(task);
                 });
 
@@ -170,6 +202,7 @@
                 angular.forEach(tasks, function(task) {
                     self.tasks[task.model.id] = task;
                     addTaskEndpoints(task);
+                    addTaskMouseHandler(task);
                 });
             };
 
@@ -190,10 +223,12 @@
                                 dependency.disconnect();
                             });
                         }
+                        removeTaskMouseHandler(oldTask);
                         removeTaskEndpoint(oldTask);
                     }
                     self.tasks[task.model.id] = task;
                     addTaskEndpoints(task);
+                    addTaskMouseHandler(task);
                     var dependencies = this.getTaskDependencies(task);
                     if (dependencies) {
                         angular.forEach(dependencies, function(dependency) {

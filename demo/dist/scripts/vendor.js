@@ -45972,13 +45972,31 @@ Github: https://github.com/angular-gantt/angular-gantt.git
          * @constructor
          */
         var DependenciesEvents = function(manager) {
+            var self = this;
+
             this.manager = manager;
 
+            // Deny drop on the same task.
             var denyDropOnSameTask = function(params) {
                 return params.sourceId !== params.targetId;
             };
 
             this.manager.plumb.bind('beforeDrop', denyDropOnSameTask);
+
+
+            // Notify the manager that a connection is being created.
+            this.manager.plumb.bind('connectionDrag', function(connection) {
+                self.manager.setDraggingConnection(connection);
+            });
+
+            this.manager.plumb.bind('connectionDragStop', function() {
+                self.manager.setDraggingConnection(undefined);
+            });
+
+            this.manager.plumb.bind('beforeDrop', function() {
+                self.manager.setDraggingConnection(undefined);
+                return true;
+            });
 
         };
         return DependenciesEvents;
@@ -45989,7 +46007,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', function(Dependency, DependenciesEvents) {
+    angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', 'GanttDependencyTaskMouseHandler', function(Dependency, DependenciesEvents, TaskMouseHandler) {
         var DependenciesManager = function(gantt, pluginScope) {
             var self = this;
 
@@ -46120,8 +46138,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return dependencies;
             };
 
+            this.setDraggingConnection = function(connection) {
+                if (connection) {
+                    self.draggingConnection = connection;
+                    angular.forEach(self.tasks, function(task) {
+                        task.dependencies.mouseHandler.release();
+                    });
+                } else {
+                    self.draggingConnection = undefined;
+                    angular.forEach(self.tasks, function(task) {
+                        task.dependencies.mouseHandler.install();
+                    });
+                }
+            };
+
             var addTaskEndpoints = function(task) {
-                task.dependencies = {endpoints: []};
+                if (!task.dependencies) {
+                    task.dependencies = {};
+                }
+
+                task.dependencies.endpoints = [];
 
                 if (self.pluginScope.endpoints) {
                     angular.forEach(self.pluginScope.endpoints, function(endpoint) {
@@ -46139,8 +46175,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     endpointObject.$task = undefined;
                 });
 
+                task.dependencies.endpoints = undefined;
+            };
 
-                task.dependencies = undefined;
+            var addTaskMouseHandler = function(task) {
+                if (!task.dependencies) {
+                    task.dependencies = {};
+                }
+
+                task.dependencies.mouseHandler = new TaskMouseHandler(self, task);
+                task.dependencies.mouseHandler.install();
+            };
+
+            var removeTaskMouseHandler = function(task) {
+                task.dependencies.mouseHandler.release();
+                task.dependencies.mouseHandler = undefined;
             };
 
             /**
@@ -46150,6 +46199,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              */
             this.setTasks = function(tasks) {
                 angular.forEach(self.tasks, function(task) {
+                    removeTaskMouseHandler(task);
                     removeTaskEndpoint(task);
                 });
 
@@ -46157,6 +46207,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 angular.forEach(tasks, function(task) {
                     self.tasks[task.model.id] = task;
                     addTaskEndpoints(task);
+                    addTaskMouseHandler(task);
                 });
             };
 
@@ -46177,10 +46228,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 dependency.disconnect();
                             });
                         }
+                        removeTaskMouseHandler(oldTask);
                         removeTaskEndpoint(oldTask);
                     }
                     self.tasks[task.model.id] = task;
                     addTaskEndpoints(task);
+                    addTaskMouseHandler(task);
                     var dependencies = this.getTaskDependencies(task);
                     if (dependencies) {
                         angular.forEach(dependencies, function(dependency) {
@@ -46369,6 +46422,80 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             };
         };
         return Dependency;
+    }]);
+}());
+
+(function() {
+    'use strict';
+
+    angular.module('gantt.dependencies').factory('GanttDependencyTaskMouseHandler', ['$timeout', function($timeout) {
+        var TaskMouseHandler = function(manager, task) {
+            var self = this;
+
+            this.manager = manager;
+            this.task = task;
+            this.installed = false;
+
+            var hideEndpointsPromise;
+
+            var mouseExitHandler = function() {
+                hideEndpointsPromise = $timeout(self.hideEndpoints, 1000, false);
+            };
+
+            var mouseEnterHandler = function() {
+                $timeout.cancel(hideEndpointsPromise);
+                self.displayEndpoints();
+            };
+
+            /**
+             * Install mouse handler for this task, and hide all endpoints.
+             */
+            this.install = function() {
+                if (!self.installed)  {
+                    self.hideEndpoints();
+
+                    self.task.getContentElement().bind('mouseenter', mouseEnterHandler);
+                    self.task.getContentElement().bind('mouseleave', mouseExitHandler);
+
+                    self.installed = true;
+                }
+            };
+
+            /**
+             * Release mouse handler for this task, and display all endpoints.
+             */
+            this.release = function() {
+                if (self.installed) {
+                    self.task.getContentElement().unbind('mouseenter', mouseEnterHandler);
+                    self.task.getContentElement().unbind('mouseleave', mouseExitHandler);
+
+                    $timeout.cancel(hideEndpointsPromise);
+
+                    self.displayEndpoints();
+
+                    self.installed = false;
+                }
+            };
+
+            /**
+             * Display all endpoints for this task.
+             */
+            this.displayEndpoints = function() {
+                angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                    endpoint.setVisible(true, true, true);
+                });
+            };
+
+            /**
+             * Hide all endpoints for this task.
+             */
+            this.hideEndpoints = function() {
+                angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                    endpoint.setVisible(false, true, true);
+                });
+            };
+        };
+        return TaskMouseHandler;
     }]);
 }());
 
