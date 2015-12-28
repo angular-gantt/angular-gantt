@@ -462,8 +462,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
                                             targetRow.moveTaskToRow(taskScope.task, true);
-                                            sourceRow.$scope.$digest();
-                                            targetRow.$scope.$digest();
                                             taskHasBeenChanged = true;
                                         }
                                     }
@@ -684,7 +682,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 getBackgroundElement.removeClass('gantt-task-resizing');
 
                                 if (taskScope.task.originalModel !== undefined) {
-                                    angular.extend(taskScope.task.originalModel, taskScope.task.model);
+
+                                    taskScope.task.originalModel.from = taskScope.task.model.from;
+                                    taskScope.task.originalModel.to = taskScope.task.model.to;
+                                    taskScope.task.originalModel.lct = taskScope.task.model.lct;
+                                    taskScope.task.originalModel.est = taskScope.task.model.est;
+
                                     taskScope.task.model = taskScope.task.originalModel;
                                     if (taskScope.task.row.model.id !== taskScope.task.originalRow.model.id) {
                                         var targetRow = taskScope.task.row;

@@ -2499,6 +2499,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             task.updatePosAndSize();
             this.updateVisibleTasks();
 
+            oldRow.$scope.$digest();
+            task.row.$scope.$digest();
+
             this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
