@@ -6,8 +6,8 @@
             require: '^gantt',
             scope: {
                 enabled: '=?',
-                jsPlumbDefaults: '=?'
-                // Add other option attributes for this plugin
+                jsPlumbDefaults: '=?',
+                endPoints: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -26,10 +26,44 @@
                 if (scope.jsPlumbDefaults === undefined) {
                     // https://jsplumbtoolkit.com/community/doc/defaults.html
                     scope.jsPlumbDefaults = {
-                        Endpoint: ['Dot', {radius: 7}],
-                        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 2},
+                        Endpoint: ['Dot', {radius: 4}],
+                        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
                         Connector: 'Flowchart'
                     };
+                }
+
+                if (scope.endpoints === undefined) {
+                    scope.endpoints = [
+                        {
+                            anchor:'Left',
+                            isSource:false,
+                            isTarget:true,
+                            maxConnections: -1,
+                            cssClass: 'gantt-endpoint start-endpoint target-endpoint'
+                        },
+                        {
+                            anchor:'Right',
+                            isSource:true,
+                            isTarget:false,
+                            maxConnections: -1,
+                            cssClass: 'gantt-endpoint end-endpoint source-endpoint'
+                        }/*,
+                        {
+                            anchor:'BottomLeft',
+                            isSource:true,
+                            isTarget:false,
+                            maxConnections: -1,
+                            cssClass: 'gantt-endpoint start-endpoint source-endpoint'
+                        },
+                        {
+                            anchor:'TopRight',
+                            isSource:false,
+                            isTarget:true,
+                            maxConnections: -1,
+                            cssClass: 'gantt-endpoint end-endpoint target-endpoint'
+                        }
+                        */
+                    ];
                 }
 
                 var manager = new DependenciesManager(ganttCtrl.gantt, scope);

@@ -17,7 +17,8 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
                             jsPlumbDefaults="{
                                              Endpoint: ['Dot', {radius: 7}],
                                              Connector: 'Flowchart'
-                                             }">
+                                             }"
+                            endpoints="[...]">
         </gantt-dependencies>
     </div>
 
@@ -42,6 +43,31 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
         Endpoint: ['Dot', {radius: 7}],
         Connector: 'Flowchart'
         }
+
+- ### endpoints
+
+    Array of endpoints that will be create for each task. See
+    [Endpoint class](https://jsplumbtoolkit.com/community/apidocs/classes/Endpoint.html) of 
+    [jsPlumb documentation](https://jsplumbtoolkit.com/community/doc/home.html).
+
+    default:
+
+       [
+           {
+               anchor:'Left',
+               isSource:false,
+               isTarget:true,
+               maxConnections: -1,
+               cssClass: 'gantt-endpoint start-endpoint target-endpoint'
+           },
+           {
+               anchor:'Right',
+               isSource:true,
+               isTarget:false,
+               maxConnections: -1,
+               cssClass: 'gantt-endpoint end-endpoint source-endpoint'
+           }
+       ];
 
 ## Model
 

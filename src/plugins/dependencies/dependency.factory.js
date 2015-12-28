@@ -53,12 +53,11 @@
                 var fromTask = this.manager.getTask(this.fromId);
                 var toTask = this.manager.getTask(this.toId);
                 if (fromTask && toTask) {
-                    var connection = this.manager.plumb.connect({
-                        source: fromTask.dependencies.rightSourceEndpoint,
-                        target: toTask.dependencies.leftTargetEndpoint
-                    }, this.connectParameters);
-                    this.connection = connection;
-                    return true;
+                    var connection = this.manager.connect(fromTask, toTask, this.connectParameters);
+                    if (connection) {
+                        this.connection = connection;
+                        return true;
+                    }
                 }
                 return false;
             };

@@ -133,66 +133,27 @@
                 return dependencies;
             };
 
-            var addTaskEndpoint = function(task) {
-                if (!task.dependencies) {
-                    task.dependencies = {};
+            var addTaskEndpoints = function(task) {
+                task.dependencies = {endpoints: []};
+
+                if (self.pluginScope.endpoints) {
+                    angular.forEach(self.pluginScope.endpoints, function(endpoint) {
+                        var endpointObject = self.plumb.addEndpoint(task.$element, endpoint);
+                        endpointObject.$task = task;
+                        task.dependencies.endpoints.push(endpointObject);
+                    });
                 }
 
-                // TODO: How to allow customizing those Endpoints without introducing to much api complexity ?
-                task.dependencies.leftTargetEndpoint = self.plumb.addEndpoint(task.$element, {
-                    anchor:'Left',
-                    isSource:false,
-                    isTarget:true,
-                    maxConnections: -1,
-                    cssClass: 'gantt-endpoint start-endpoint target-endpoint'
-                });
-                task.dependencies.leftTargetEndpoint.$task = task;
-
-                task.dependencies.leftSourceEndpoint = self.plumb.addEndpoint(task.$element, {
-                    anchor:'BottomLeft',
-                    isSource:true,
-                    isTarget:false,
-                    maxConnections: -1,
-                    cssClass: 'gantt-endpoint start-endpoint source-endpoint'
-                });
-                task.dependencies.leftSourceEndpoint.$task = task;
-
-                task.dependencies.rightSourceEndpoint = self.plumb.addEndpoint(task.$element, {
-                    anchor:'Right',
-                    isSource:true,
-                    isTarget:false,
-                    maxConnections: -1,
-                    cssClass: 'gantt-endpoint start-endpoint source-endpoint'
-                });
-                task.dependencies.rightSourceEndpoint.$task = task;
-
-                task.dependencies.rightTargetEndpoint = self.plumb.addEndpoint(task.$element, {
-                    anchor:'BottomRight',
-                    isSource:false,
-                    isTarget:true,
-                    maxConnections: -1,
-                    cssClass: 'gantt-endpoint end-endpoint target-endpoint'
-                });
-                task.dependencies.rightTargetEndpoint.$task = task;
             };
 
             var removeTaskEndpoint = function(task) {
-                if (task.dependencies) {
-                    if (task.dependencies.leftTargetEndpoint) {
-                        self.plumb.deleteEndpoint(task.dependencies.leftTargetEndpoint);
-                    }
-                    if (task.dependencies.leftSourceEndpoint) {
-                        self.plumb.deleteEndpoint(task.dependencies.leftSourceEndpoint);
-                    }
-                    if (task.dependencies.rightSourceEndpoint) {
-                        self.plumb.deleteEndpoint(task.dependencies.rightSourceEndpoint);
-                    }
-                    if (task.dependencies.rightTargetEndpoint) {
-                        self.plumb.deleteEndpoint(task.dependencies.rightTargetEndpoint);
-                    }
+                angular.forEach(task.dependencies.endpoints, function(endpointObject) {
+                    self.plumb.deleteEndpoint(endpointObject);
+                    endpointObject.$task = undefined;
+                });
 
-                    task.dependencies = undefined;
-                }
+
+                task.dependencies = undefined;
             };
 
             /**
@@ -208,7 +169,7 @@
                 self.tasks = {};
                 angular.forEach(tasks, function(task) {
                     self.tasks[task.model.id] = task;
-                    addTaskEndpoint(task);
+                    addTaskEndpoints(task);
                 });
             };
 
@@ -232,7 +193,7 @@
                         removeTaskEndpoint(oldTask);
                     }
                     self.tasks[task.model.id] = task;
-                    addTaskEndpoint(task);
+                    addTaskEndpoints(task);
                     var dependencies = this.getTaskDependencies(task);
                     if (dependencies) {
                         angular.forEach(dependencies, function(dependency) {
@@ -259,6 +220,53 @@
                 return element.offsetParent !== undefined && element.offsetParent !== null;
             };
 
+            var getSourceEndpoints = function(task) {
+                return task.dependencies.endpoints.filter(function(endpoint) {
+                    return endpoint.isSource;
+                });
+            };
+
+            var getTargetEndpoints = function(task) {
+                return task.dependencies.endpoints.filter(function(endpoint) {
+                    return endpoint.isTarget;
+                });
+            };
+
+            /**
+             * Connects two tasks together using source endpoint from fromTask and target endpoint from toTask.
+             *
+             * @param fromTask
+             * @param toTask
+             * @param connectParameters
+             * @returns connection object
+             */
+            this.connect = function(fromTask, toTask, connectParameters) {
+                var sourceEndpoints = getSourceEndpoints(fromTask);
+                var targetEndpoints = getTargetEndpoints(toTask);
+                if (sourceEndpoints && targetEndpoints) {
+                    var sourceEndpoint;
+                    var targetEndpoint;
+
+                    if (connectParameters.sourceEndpointIndex) {
+                        sourceEndpoint = sourceEndpoints[connectParameters.sourceEndpointIndex];
+                    } else {
+                        sourceEndpoint = sourceEndpoints[0];
+                    }
+
+                    if (connectParameters.targetEndpointIndex) {
+                        targetEndpoint = targetEndpoints[connectParameters.targetEndpointIndex];
+                    } else {
+                        targetEndpoint = targetEndpoints[0];
+                    }
+
+                    var connection = self.plumb.connect({
+                        source: sourceEndpoint,
+                        target: targetEndpoint
+                    }, connectParameters);
+                    return connection;
+                }
+            };
+
             /**
              * Refresh jsplumb status based on defined dependencies and tasks.
              *
@@ -274,7 +282,7 @@
                                 dependency.disconnect();
                             }
 
-                            if(self.pluginScope.enabled) {
+                            if (self.pluginScope.enabled) {
                                 if (!dependency.isConnected()) {
                                     dependency.connect();
                                 } else {
