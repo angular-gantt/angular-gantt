@@ -70,10 +70,7 @@
                 } else {
                     self.manager.api.dependencies.raise.add(dependency);
                 }
-
-                self.manager.refresh();
-
-                return false; // Block further processing as manager has been refreshed.
+                return true;
             });
 
             // Remove the dependency from the model if it's manually detached.
@@ -84,10 +81,8 @@
                     dependency.removeFromTaskModel();
                     self.manager.removeDependency(dependency);
                     self.manager.api.dependencies.raise.remove(dependency);
-
-                    self.manager.refresh();
                 }
-                return false; // Block further processing as manager has been refreshed.
+                return true;
             });
 
         };

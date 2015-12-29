@@ -12,10 +12,6 @@
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
-                api.registerEvent('dependencies', 'add');
-                api.registerEvent('dependencies', 'change');
-                api.registerEvent('dependencies', 'remove');
-
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.dependencies) === 'object') {
                     for (var option in scope.options.dependencies) {
@@ -95,36 +91,17 @@
                 });
 
                 api.tasks.on.add(scope, function(task) {
-                    var taskDependencies = task.model.dependencies;
-
-                    if (taskDependencies !== undefined) {
-                        if (!angular.isArray(taskDependencies)) {
-                            taskDependencies = [taskDependencies];
-                            task.model.dependencies = taskDependencies;
-                        }
-
-                        angular.forEach(taskDependencies, function(taskDependency) {
-                            manager.addDependency(task, taskDependency);
-                        });
-
-                    }
+                    manager.addDependenciesFromTask(task);
                 });
 
                 api.tasks.on.remove(scope, function(task) {
-                    var dependencies = manager.getTaskDependencies(task);
-
-                    if (dependencies) {
-                        angular.forEach(dependencies, function(dependency) {
-                            dependency.disconnect();
-                            manager.removeDependency(dependency);
-                        });
-                    }
+                    manager.removeDependenciesFromTask(task);
                 });
 
                 api.tasks.on.displayed(scope, debounce(function(tasks, filteredTasks, visibleTasks) {
                     manager.setTasks(visibleTasks);
                     manager.refresh();
-                }, 10));
+                }));
 
                 api.rows.on.displayed(scope, function() {
                     manager.refresh();

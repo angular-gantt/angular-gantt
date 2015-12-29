@@ -99,17 +99,6 @@
                 }
                 return false;
             };
-
-            /**
-             * Refresh this dependency.
-             *
-             * @returns {boolean}
-             */
-            this.refresh = function() {
-                var fromTask = this.manager.getTask(this.fromId);
-                var toTask = this.manager.getTask(this.toId);
-                this.manager.plumb.revalidate([fromTask.$element[0], toTask.$element[0]]);
-            };
         };
         return Dependency;
     }]);

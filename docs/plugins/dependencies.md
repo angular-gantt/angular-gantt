@@ -105,6 +105,15 @@ can optionnaly be set to an object that will be used for each related
 
 ## API
 
+### Methods
+
+### Methods
+    
+- **api.dependencies.refresh(tasks)**
+
+  Refresh the view with dependencies data from the model.
+  tasks is an array of Task objects to refresh, or undefined to refresh the whole chart.
+
 ### Events
 
 - **api.dependencies.on.add(dependency)**, **api.dependencies.on.remove(dependency)**, **api.dependencies.on.change(dependency, oldDependency)**

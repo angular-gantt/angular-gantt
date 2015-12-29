@@ -295,7 +295,9 @@ angular.module('angularGanttDemoApp')
 
         // Remove data action
         $scope.remove = function() {
-            $scope.api.data.remove(dataToRemove);
+            //$scope.api.data.remove(dataToRemove);
+
+            $scope.api.dependencies.refresh();
         };
 
         // Clear data action

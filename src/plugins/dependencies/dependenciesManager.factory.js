@@ -10,6 +10,10 @@
             this.pluginScope = pluginScope;
             this.api = api;
 
+            this.api.registerEvent('dependencies', 'add');
+            this.api.registerEvent('dependencies', 'change');
+            this.api.registerEvent('dependencies', 'remove');
+
             this.plumb = jsPlumb.getInstance();
             this.plumb.importDefaults(this.pluginScope.jsPlumbDefaults);
 
@@ -33,6 +37,42 @@
                     self.refresh(true);
                 }
             }, true);
+
+            /**
+             * Add all dependencies defined from a task.
+             *
+             * @param task
+             */
+            this.addDependenciesFromTask = function(task) {
+                var taskDependencies = task.model.dependencies;
+
+                if (taskDependencies !== undefined) {
+                    if (!angular.isArray(taskDependencies)) {
+                        taskDependencies = [taskDependencies];
+                        task.model.dependencies = taskDependencies;
+                    }
+
+                    angular.forEach(taskDependencies, function(taskDependency) {
+                        self.addDependency(task, taskDependency);
+                    });
+                }
+            };
+
+            /**
+             * Remove all dependencies defined for a task.
+             *
+             * @param task
+             */
+            this.removeDependenciesFromTask = function(task) {
+                var dependencies = this.getTaskDependencies(task);
+
+                if (dependencies) {
+                    angular.forEach(dependencies, function(dependency) {
+                        dependency.disconnect();
+                        this.removeDependency(dependency);
+                    });
+                }
+            };
 
             /**
              * Add definition of a dependency.
@@ -61,6 +101,7 @@
                     this.dependenciesTo[toTaskId].push(dependency);
                 }
 
+                dependency.connect();
                 return dependency;
             };
 
@@ -102,6 +143,14 @@
                     dependency.disconnect();
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
                 });
+
+                if (this.dependenciesFrom[dependency.getFromTaskId()].length === 0) {
+                    delete this.dependenciesFrom[dependency.getFromTaskId()];
+                }
+
+                if (this.dependenciesTo[dependency.getToTaskId()].length === 0) {
+                    delete this.dependenciesTo[dependency.getToTaskId()];
+                }
             };
 
             this.getTaskDependencies = function(task) {
@@ -185,12 +234,13 @@
                     removeTaskEndpoint(task);
                 });
 
-                self.tasks = {};
+                var newTasks = {};
                 angular.forEach(tasks, function(task) {
-                    self.tasks[task.model.id] = task;
+                    newTasks[task.model.id] = task;
                     addTaskEndpoints(task);
                     addTaskMouseHandler(task);
                 });
+                self.tasks = newTasks;
             };
 
             var disconnectTaskDependencies = function(task) {
@@ -299,28 +349,57 @@
             };
 
             /**
-             * Refresh jsplumb status based on defined dependencies and tasks.
+             * Get all defined dependencies.
              *
-             * @param hard will totaly remove and reconnect every existing dependencies if set to true
+             * @returns {Array}
              */
-            this.refresh = function(hard) {
-                self.plumb.setSuspendDrawing(true);
-                try {
-                    hard = true; // There is issue with soft refresh, when hidden rows using tree plugin.
-                    angular.forEach(this.dependenciesFrom, function(dependencies) {
-                        angular.forEach(dependencies, function(dependency) {
-                            if (hard) {
-                                dependency.disconnect();
-                            }
+            this.getDependencies = function() {
+                var allDependencies = [];
 
-                            if (self.pluginScope.enabled) {
-                                if (!dependency.isConnected()) {
-                                    dependency.connect();
-                                } else {
-                                    dependency.refresh();
+                angular.forEach(this.dependenciesFrom, function(dependencies) {
+                    angular.forEach(dependencies, function(dependency) {
+                        if (!(dependency in allDependencies)) {
+                            allDependencies.push(dependency);
+                        }
+                    });
+                });
+
+                return allDependencies;
+            };
+
+            /**
+             * Refresh jsplumb status based on tasks dependencies models.
+             */
+            this.refresh = function(tasks) {
+                self.plumb.setSuspendDrawing(true);
+
+                try {
+                    var tasksDependencies;
+                    if (tasks && !angular.isArray(tasks)) {
+                        tasks = [tasks];
+                    }
+
+                    if (tasks === undefined) {
+                        tasks = this.tasks;
+                        tasksDependencies = this.getDependencies();
+                    } else {
+                        tasksDependencies = [];
+                        angular.forEach(tasks, function(task) {
+                            var taskDependencies = self.getTaskDependencies(task);
+                            angular.forEach(taskDependencies, function(taskDependency) {
+                                if (!(taskDependency in tasksDependencies)) {
+                                    tasksDependencies.push(taskDependency);
                                 }
-                            }
+                            });
                         });
+                    }
+
+                    angular.forEach(tasksDependencies, function(dependency) {
+                        self.removeDependency(dependency);
+                    });
+
+                    angular.forEach(tasks, function(task) {
+                        self.addDependenciesFromTask(task);
                     });
 
                     angular.forEach(this.tasks, function(task) {
@@ -332,6 +411,8 @@
                     self.plumb.setSuspendDrawing(false, true);
                 }
             };
+
+            this.api.registerMethod('dependencies', 'refresh', this.refresh, this);
         };
         return DependenciesManager;
     }]);
