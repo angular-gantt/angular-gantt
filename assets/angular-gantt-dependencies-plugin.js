@@ -627,7 +627,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              */
             this.disconnect = function() {
                 if (this.connection) {
-                    this.manager.plumb.detach(this.connection);
+                    if (this.connection.endpoints) {
+                        this.manager.plumb.detach(this.connection);
+                    }
                     this.connection.$dependency = undefined;
                     this.connection = undefined;
                 }
