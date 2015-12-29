@@ -14,10 +14,13 @@
          * @see https://jsplumbtoolkit.com/community/apidocs/classes/jsPlumb.html#method_connect
          */
         var Dependency = function(manager, task, model) {
+            var self = this;
+
             this.manager = manager;
             this.task = task;
             this.model = model;
             this.connection = undefined;
+            this.fallbackEndpoints = [];
 
             /**
              * Check if this dependency is connected.
@@ -41,6 +44,17 @@
                     }
                     this.connection.$dependency = undefined;
                     this.connection = undefined;
+                }
+
+                this.deleteFallbackEndpoints();
+            };
+
+            this.deleteFallbackEndpoints = function() {
+                if (this.fallbackEndpoints) {
+                    angular.forEach(this.fallbackEndpoints, function(fallbackEndpoint) {
+                        self.manager.plumb.deleteEndpoint(fallbackEndpoint);
+                    });
+                    this.fallbackEndpoints = [];
                 }
             };
 
@@ -89,13 +103,23 @@
                 var fromTask = this.getFromTask();
                 var toTask = this.getToTask();
 
-                if (fromTask && toTask && fromTask !== toTask) {
+                if (fromTask && toTask) {
                     var connection = this.manager.connect(fromTask, toTask, this.model);
                     if (connection) {
                         connection.$dependency = this;
                         this.connection = connection;
                         return true;
                     }
+                }
+
+                this.deleteFallbackEndpoints();
+                if (fromTask !== undefined) {
+                    var toFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[1];
+                    this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(fromTask.$element, toFallbackEndpoint));
+                }
+                if (toTask !== undefined) {
+                    var fromFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[0];
+                    this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(toTask.$element, fromFallbackEndpoint));
                 }
                 return false;
             };

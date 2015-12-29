@@ -77,6 +77,39 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
            }
        ];
 
+- ### fallbackEndpoints
+
+    Endpoints used to display start/end of connections that links invisible tasks (out of range, collapsed, ...).
+    
+    default : 
+
+        [
+            {
+                endpoint: 'Blank',
+                anchor: 'Left',
+                isSource: false,
+                isTarget: true,
+                maxConnections: 0,
+                cssClass: 'gantt-endpoint start-endpoint fallback-endpoint',
+                overlays: [
+                    ['Custom', {create: createLeftFallbackOverlay}]
+                ]
+            },
+            {
+                endpoint: 'Blank',
+                anchor: 'Right',
+                isSource: true,
+                isTarget: false,
+                maxConnections: 0,
+                cssClass: 'gantt-endpoint end-endpoint fallback-endpoint',
+                overlays: [
+                    ['Custom', {create: createRightFallbackOverlay}]
+                ]
+            }
+        ]
+
+
+
 ## Model
 
 Task can specify a `dependencies` field containing a single or a list of objects.

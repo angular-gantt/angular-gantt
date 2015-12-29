@@ -1,4 +1,4 @@
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.dependencies', ['gantt', 'gantt.dependencies.templates']).directive('ganttDependencies', ['$timeout', '$document', 'ganttDebounce', 'GanttDependenciesManager', function($timeout, $document, debounce, DependenciesManager) {
         return {
@@ -7,7 +7,8 @@
             scope: {
                 enabled: '=?',
                 jsPlumbDefaults: '=?',
-                endpoints: '=?'
+                endpoints: '=?',
+                fallbackEndpoints: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -27,9 +28,9 @@
                     // https://jsplumbtoolkit.com/community/doc/defaults.html
                     scope.jsPlumbDefaults = {
                         Endpoint: ['Dot', {radius: 4}],
-                        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
+                        EndpointStyle: {fillStyle: '#456', strokeStyle: '#456', lineWidth: 1},
                         Connector: 'Flowchart',
-                        ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
+                        ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
                     };
                 }
 
@@ -41,44 +42,64 @@
                     return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint arrow-right"></span></span>');
                 }
 
+                function createLeftFallbackOverlay() {
+                    return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint fallback-endpoint"></span></span>');
+                }
+
+                function createRightFallbackOverlay() {
+                    return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint fallback-endpoint"></span></span>');
+                }
+
                 if (scope.endpoints === undefined) {
-                    scope.endpoints = [
+                    scope.endpoints = [
                         {
-                            anchor:'Left',
-                            isSource:false,
-                            isTarget:true,
+                            anchor: 'Left',
+                            isSource: false,
+                            isTarget: true,
                             maxConnections: -1,
                             cssClass: 'gantt-endpoint start-endpoint target-endpoint',
-                            overlays:[
-                                ['Custom', {create:createLeftOverlay}]
+                            overlays: [
+                                ['Custom', {create: createLeftOverlay}]
                             ]
 
                         },
                         {
-                            anchor:'Right',
-                            isSource:true,
-                            isTarget:false,
+                            anchor: 'Right',
+                            isSource: true,
+                            isTarget: false,
                             maxConnections: -1,
                             cssClass: 'gantt-endpoint end-endpoint source-endpoint',
-                            overlays:[
-                                ['Custom', {create:createRightOverlay}]
+                            overlays: [
+                                ['Custom', {create: createRightOverlay}]
                             ]
-                        }/*,
+                        }
+                    ];
+                }
+
+                if (scope.fallbackEndpoints === undefined) {
+                    scope.fallbackEndpoints = [
                         {
-                            anchor:'BottomLeft',
-                            isSource:true,
-                            isTarget:false,
-                            maxConnections: -1,
-                            cssClass: 'gantt-endpoint start-endpoint source-endpoint'
+                            endpoint: 'Blank',
+                            anchor: 'Left',
+                            isSource: false,
+                            isTarget: true,
+                            maxConnections: 0,
+                            cssClass: 'gantt-endpoint start-endpoint fallback-endpoint',
+                            overlays: [
+                                ['Custom', {create: createLeftFallbackOverlay}]
+                            ]
                         },
                         {
-                            anchor:'TopRight',
-                            isSource:false,
-                            isTarget:true,
-                            maxConnections: -1,
-                            cssClass: 'gantt-endpoint end-endpoint target-endpoint'
+                            endpoint: 'Blank',
+                            anchor: 'Right',
+                            isSource: true,
+                            isTarget: false,
+                            maxConnections: 0,
+                            cssClass: 'gantt-endpoint end-endpoint fallback-endpoint',
+                            overlays: [
+                                ['Custom', {create: createRightFallbackOverlay}]
+                            ]
                         }
-                        */
                     ];
                 }
 

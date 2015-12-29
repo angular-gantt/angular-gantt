@@ -5,7 +5,7 @@ License: MIT
 Homepage: https://www.angular-gantt.com
 Github: https://github.com/angular-gantt/angular-gantt.git
 */
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.dependencies', ['gantt', 'gantt.dependencies.templates']).directive('ganttDependencies', ['$timeout', '$document', 'ganttDebounce', 'GanttDependenciesManager', function($timeout, $document, debounce, DependenciesManager) {
         return {
@@ -14,7 +14,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 enabled: '=?',
                 jsPlumbDefaults: '=?',
-                endpoints: '=?'
+                endpoints: '=?',
+                fallbackEndpoints: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -34,9 +35,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // https://jsplumbtoolkit.com/community/doc/defaults.html
                     scope.jsPlumbDefaults = {
                         Endpoint: ['Dot', {radius: 4}],
-                        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
+                        EndpointStyle: {fillStyle: '#456', strokeStyle: '#456', lineWidth: 1},
                         Connector: 'Flowchart',
-                        ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
+                        ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
                     };
                 }
 
@@ -48,44 +49,64 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint arrow-right"></span></span>');
                 }
 
+                function createLeftFallbackOverlay() {
+                    return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint fallback-endpoint"></span></span>');
+                }
+
+                function createRightFallbackOverlay() {
+                    return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint fallback-endpoint"></span></span>');
+                }
+
                 if (scope.endpoints === undefined) {
-                    scope.endpoints = [
+                    scope.endpoints = [
                         {
-                            anchor:'Left',
-                            isSource:false,
-                            isTarget:true,
+                            anchor: 'Left',
+                            isSource: false,
+                            isTarget: true,
                             maxConnections: -1,
                             cssClass: 'gantt-endpoint start-endpoint target-endpoint',
-                            overlays:[
-                                ['Custom', {create:createLeftOverlay}]
+                            overlays: [
+                                ['Custom', {create: createLeftOverlay}]
                             ]
 
                         },
                         {
-                            anchor:'Right',
-                            isSource:true,
-                            isTarget:false,
+                            anchor: 'Right',
+                            isSource: true,
+                            isTarget: false,
                             maxConnections: -1,
                             cssClass: 'gantt-endpoint end-endpoint source-endpoint',
-                            overlays:[
-                                ['Custom', {create:createRightOverlay}]
+                            overlays: [
+                                ['Custom', {create: createRightOverlay}]
                             ]
-                        }/*,
+                        }
+                    ];
+                }
+
+                if (scope.fallbackEndpoints === undefined) {
+                    scope.fallbackEndpoints = [
                         {
-                            anchor:'BottomLeft',
-                            isSource:true,
-                            isTarget:false,
-                            maxConnections: -1,
-                            cssClass: 'gantt-endpoint start-endpoint source-endpoint'
+                            endpoint: 'Blank',
+                            anchor: 'Left',
+                            isSource: false,
+                            isTarget: true,
+                            maxConnections: 0,
+                            cssClass: 'gantt-endpoint start-endpoint fallback-endpoint',
+                            overlays: [
+                                ['Custom', {create: createLeftFallbackOverlay}]
+                            ]
                         },
                         {
-                            anchor:'TopRight',
-                            isSource:false,
-                            isTarget:true,
-                            maxConnections: -1,
-                            cssClass: 'gantt-endpoint end-endpoint target-endpoint'
+                            endpoint: 'Blank',
+                            anchor: 'Right',
+                            isSource: true,
+                            isTarget: false,
+                            maxConnections: 0,
+                            cssClass: 'gantt-endpoint end-endpoint fallback-endpoint',
+                            overlays: [
+                                ['Custom', {create: createRightFallbackOverlay}]
+                            ]
                         }
-                        */
                     ];
                 }
 
@@ -662,10 +683,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
          * @see https://jsplumbtoolkit.com/community/apidocs/classes/jsPlumb.html#method_connect
          */
         var Dependency = function(manager, task, model) {
+            var self = this;
+
             this.manager = manager;
             this.task = task;
             this.model = model;
             this.connection = undefined;
+            this.fallbackEndpoints = [];
 
             /**
              * Check if this dependency is connected.
@@ -689,6 +713,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                     this.connection.$dependency = undefined;
                     this.connection = undefined;
+                }
+
+                this.deleteFallbackEndpoints();
+            };
+
+            this.deleteFallbackEndpoints = function() {
+                if (this.fallbackEndpoints) {
+                    angular.forEach(this.fallbackEndpoints, function(fallbackEndpoint) {
+                        self.manager.plumb.deleteEndpoint(fallbackEndpoint);
+                    });
+                    this.fallbackEndpoints = [];
                 }
             };
 
@@ -737,13 +772,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var fromTask = this.getFromTask();
                 var toTask = this.getToTask();
 
-                if (fromTask && toTask && fromTask !== toTask) {
+                if (fromTask && toTask) {
                     var connection = this.manager.connect(fromTask, toTask, this.model);
                     if (connection) {
                         connection.$dependency = this;
                         this.connection = connection;
                         return true;
                     }
+                }
+
+                this.deleteFallbackEndpoints();
+                if (fromTask !== undefined) {
+                    var toFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[1];
+                    this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(fromTask.$element, toFallbackEndpoint));
+                }
+                if (toTask !== undefined) {
+                    var fromFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[0];
+                    this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(toTask.$element, fromFallbackEndpoint));
                 }
                 return false;
             };
