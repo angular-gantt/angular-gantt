@@ -12,6 +12,10 @@
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                api.registerEvent('dependencies', 'add');
+                api.registerEvent('dependencies', 'change');
+                api.registerEvent('dependencies', 'remove');
+
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.dependencies) === 'object') {
                     for (var option in scope.options.dependencies) {
@@ -82,7 +86,7 @@
                     ];
                 }
 
-                var manager = new DependenciesManager(ganttCtrl.gantt, scope);
+                var manager = new DependenciesManager(ganttCtrl.gantt, scope, api);
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement) {
                     if (directiveName === 'ganttBody') {

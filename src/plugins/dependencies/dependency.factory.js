@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependency', [function() {
+    angular.module('gantt.dependencies').factory('GanttDependency', ['ganttUtils', function(utils) {
         /**
          * Constructor of Dependency object.
          * 
@@ -68,6 +68,14 @@
                     return this.manager.getTask(this.model.to);
                 }
                 return this.task;
+            };
+
+            this.removeFromTaskModel = function() {
+                var modelIndex = utils.angularIndexOf(this.task.model.dependencies, this.model);
+                if (modelIndex >= 0) {
+                    this.task.model.dependencies.splice(modelIndex, 1);
+                }
+                return modelIndex;
             };
 
             /**

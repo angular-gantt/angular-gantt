@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', ['ganttUtils', function(utils) {
+    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', [function() {
         /**
          * Creates a new DependenciesEvents object.
          *
@@ -37,6 +37,11 @@
 
             // Record the new dependency in the model and reload the task to display the new connection.
             this.manager.plumb.bind('beforeDrop', function(info) {
+                var oldDependency;
+                if (info.connection.$dependency) {
+                    oldDependency = info.connection.$dependency;
+                }
+
                 var sourceEndpoint = info.connection.endpoints[0];
                 var targetEndpoint = info.dropEndpoint;
 
@@ -52,23 +57,37 @@
                 var connectionModel = {to: targetEndpoint.$task.model.id};
                 dependenciesModel.push(connectionModel);
 
+                if (oldDependency) {
+                    oldDependency.removeFromTaskModel();
+                    self.manager.removeDependency(oldDependency);
+                }
+
                 var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                 info.connection.$dependency = dependency;
 
-                return true;
+                if (oldDependency) {
+                    self.manager.api.dependencies.raise.change(dependency, oldDependency);
+                } else {
+                    self.manager.api.dependencies.raise.add(dependency);
+                }
+
+                self.manager.refresh();
+
+                return false; // Block further processing as manager has been refreshed.
             });
 
             // Remove the dependency from the model if it's manually detached.
             this.manager.plumb.bind('beforeDetach', function(connection, mouseEvent) {
                 if (mouseEvent) {
-                    var modelIndex = utils.angularIndexOf(connection.$dependency.task.model.dependencies, connection.$dependency.model);
-                    if (modelIndex >= 0) {
-                        connection.$dependency.task.model.dependencies.splice(modelIndex, 1);
-                    }
+                    var dependency = connection.$dependency;
 
-                    self.manager.removeDependency(connection.$dependency);
+                    dependency.removeFromTaskModel();
+                    self.manager.removeDependency(dependency);
+                    self.manager.api.dependencies.raise.remove(dependency);
+
+                    self.manager.refresh();
                 }
-                return true;
+                return false; // Block further processing as manager has been refreshed.
             });
 
         };

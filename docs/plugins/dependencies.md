@@ -88,7 +88,7 @@ can optionnaly be set to an object that will be used for each related
     {
       ...
       // Inside Task object
-      'dependencies': {
+      'dependencies': [{
         'from': <taskId>,
         'connectParameters': {...} // Parameters given to jsPlumb.connect() function call.
       }]
@@ -97,14 +97,16 @@ can optionnaly be set to an object that will be used for each related
     {
       ...
       // Inside Task object
-      'dependencies': {
+      'dependencies': [{
         'to': <taskId>,
         'connectParameters': {...} // Parameters given to jsPlumb.connect() function call.
-      }
+      }]
     }
 
 ## API
 
 ### Events
-  
-- Soon ...
+
+- **api.dependencies.on.add(dependency)**, **api.dependencies.on.remove(dependency)**, **api.dependencies.on.change(dependency, oldDependency)**
+
+  A dependency was created, removed or changed.

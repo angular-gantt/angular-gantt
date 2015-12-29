@@ -75,6 +75,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                api.registerEvent('dependencies', 'add');
+                api.registerEvent('dependencies', 'change');
+                api.registerEvent('dependencies', 'remove');
+
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.dependencies) === 'object') {
                     for (var option in scope.options.dependencies) {
@@ -145,7 +149,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     ];
                 }
 
-                var manager = new DependenciesManager(ganttCtrl.gantt, scope);
+                var manager = new DependenciesManager(ganttCtrl.gantt, scope, api);
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, directiveElement) {
                     if (directiveName === 'ganttBody') {
@@ -1523,7 +1527,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', ['ganttUtils', function(utils) {
+    angular.module('gantt.dependencies').factory('GanttDependenciesEvents', [function() {
         /**
          * Creates a new DependenciesEvents object.
          *
@@ -1559,6 +1563,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             // Record the new dependency in the model and reload the task to display the new connection.
             this.manager.plumb.bind('beforeDrop', function(info) {
+                var oldDependency;
+                if (info.connection.$dependency) {
+                    oldDependency = info.connection.$dependency;
+                }
+
                 var sourceEndpoint = info.connection.endpoints[0];
                 var targetEndpoint = info.dropEndpoint;
 
@@ -1574,23 +1583,37 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var connectionModel = {to: targetEndpoint.$task.model.id};
                 dependenciesModel.push(connectionModel);
 
+                if (oldDependency) {
+                    oldDependency.removeFromTaskModel();
+                    self.manager.removeDependency(oldDependency);
+                }
+
                 var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                 info.connection.$dependency = dependency;
 
-                return true;
+                if (oldDependency) {
+                    self.manager.api.dependencies.raise.change(dependency, oldDependency);
+                } else {
+                    self.manager.api.dependencies.raise.add(dependency);
+                }
+
+                self.manager.refresh();
+
+                return false; // Block further processing as manager has been refreshed.
             });
 
             // Remove the dependency from the model if it's manually detached.
             this.manager.plumb.bind('beforeDetach', function(connection, mouseEvent) {
                 if (mouseEvent) {
-                    var modelIndex = utils.angularIndexOf(connection.$dependency.task.model.dependencies, connection.$dependency.model);
-                    if (modelIndex >= 0) {
-                        connection.$dependency.task.model.dependencies.splice(modelIndex, 1);
-                    }
+                    var dependency = connection.$dependency;
 
-                    self.manager.removeDependency(connection.$dependency);
+                    dependency.removeFromTaskModel();
+                    self.manager.removeDependency(dependency);
+                    self.manager.api.dependencies.raise.remove(dependency);
+
+                    self.manager.refresh();
                 }
-                return true;
+                return false; // Block further processing as manager has been refreshed.
             });
 
         };
@@ -1603,11 +1626,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     'use strict';
 
     angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', 'GanttDependencyTaskMouseHandler', function(Dependency, DependenciesEvents, TaskMouseHandler) {
-        var DependenciesManager = function(gantt, pluginScope) {
+        var DependenciesManager = function(gantt, pluginScope, api) {
             var self = this;
 
             this.gantt = gantt;
             this.pluginScope = pluginScope;
+            this.api = api;
 
             this.plumb = jsPlumb.getInstance();
             this.plumb.importDefaults(this.pluginScope.jsPlumbDefaults);
@@ -1939,7 +1963,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependency', [function() {
+    angular.module('gantt.dependencies').factory('GanttDependency', ['ganttUtils', function(utils) {
         /**
          * Constructor of Dependency object.
          * 
@@ -2006,6 +2030,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     return this.manager.getTask(this.model.to);
                 }
                 return this.task;
+            };
+
+            this.removeFromTaskModel = function() {
+                var modelIndex = utils.angularIndexOf(this.task.model.dependencies, this.model);
+                if (modelIndex >= 0) {
+                    this.task.model.dependencies.splice(modelIndex, 1);
+                }
+                return modelIndex;
             };
 
             /**

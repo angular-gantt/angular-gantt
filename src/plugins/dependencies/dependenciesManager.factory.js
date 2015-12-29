@@ -3,11 +3,12 @@
     'use strict';
 
     angular.module('gantt.dependencies').factory('GanttDependenciesManager', ['GanttDependency', 'GanttDependenciesEvents', 'GanttDependencyTaskMouseHandler', function(Dependency, DependenciesEvents, TaskMouseHandler) {
-        var DependenciesManager = function(gantt, pluginScope) {
+        var DependenciesManager = function(gantt, pluginScope, api) {
             var self = this;
 
             this.gantt = gantt;
             this.pluginScope = pluginScope;
+            this.api = api;
 
             this.plumb = jsPlumb.getInstance();
             this.plumb.importDefaults(this.pluginScope.jsPlumbDefaults);
