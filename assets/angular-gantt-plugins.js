@@ -1567,12 +1567,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                 info.connection.$dependency = dependency;
+                dependency.connection = info.connection;
 
                 if (oldDependency) {
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
                 } else {
                     self.manager.api.dependencies.raise.add(dependency);
                 }
+
                 return true;
             });
 
@@ -1629,7 +1631,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.pluginScope.$watch('jsPlumbDefaults', function(newValue, oldValue) {
                 if (newValue !== oldValue) {
                     self.plumb.importDefaults(newValue);
-                    self.refresh(true);
+                    self.refresh();
                 }
             }, true);
 
@@ -1648,7 +1650,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
 
                     angular.forEach(taskDependencies, function(taskDependency) {
-                        self.addDependency(task, taskDependency);
+                        var dependency = self.addDependency(task, taskDependency);
+                        dependency.connect();
                     });
                 }
             };
@@ -1696,7 +1699,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.dependenciesTo[toTaskId].push(dependency);
                 }
 
-                dependency.connect();
                 return dependency;
             };
 
@@ -1739,11 +1741,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
                 });
 
-                if (this.dependenciesFrom[dependency.getFromTaskId()].length === 0) {
+                if (this.dependenciesFrom[dependency.getFromTaskId()] &&
+                    this.dependenciesFrom[dependency.getFromTaskId()].length === 0) {
                     delete this.dependenciesFrom[dependency.getFromTaskId()];
                 }
 
-                if (this.dependenciesTo[dependency.getToTaskId()].length === 0) {
+                if (this.dependenciesTo[dependency.getToTaskId()] &&
+                    this.dependenciesTo[dependency.getToTaskId()].length === 0) {
                     delete this.dependenciesTo[dependency.getToTaskId()];
                 }
             };

@@ -64,12 +64,14 @@
 
                 var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                 info.connection.$dependency = dependency;
+                dependency.connection = info.connection;
 
                 if (oldDependency) {
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
                 } else {
                     self.manager.api.dependencies.raise.add(dependency);
                 }
+
                 return true;
             });
 
