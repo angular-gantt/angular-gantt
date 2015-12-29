@@ -70,7 +70,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 enabled: '=?',
                 jsPlumbDefaults: '=?',
-                endPoints: '=?'
+                endpoints: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -91,8 +91,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.jsPlumbDefaults = {
                         Endpoint: ['Dot', {radius: 4}],
                         EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
-                        Connector: 'Flowchart'
+                        Connector: 'Flowchart',
+                        ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
                     };
+                }
+
+                function createLeftOverlay() {
+                    return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint arrow-right"></span></span>');
+                }
+
+                function createRightOverlay() {
+                    return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint arrow-right"></span></span>');
                 }
 
                 if (scope.endpoints === undefined) {
@@ -102,14 +111,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             isSource:false,
                             isTarget:true,
                             maxConnections: -1,
-                            cssClass: 'gantt-endpoint start-endpoint target-endpoint'
+                            cssClass: 'gantt-endpoint start-endpoint target-endpoint',
+                            overlays:[
+                                ['Custom', {create:createLeftOverlay}]
+                            ]
+
                         },
                         {
                             anchor:'Right',
                             isSource:true,
                             isTarget:false,
                             maxConnections: -1,
-                            cssClass: 'gantt-endpoint end-endpoint source-endpoint'
+                            cssClass: 'gantt-endpoint end-endpoint source-endpoint',
+                            overlays:[
+                                ['Custom', {create:createRightOverlay}]
+                            ]
                         }/*,
                         {
                             anchor:'BottomLeft',

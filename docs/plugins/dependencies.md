@@ -40,8 +40,10 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
     default: 
 
         {
-        Endpoint: ['Dot', {radius: 7}],
-        Connector: 'Flowchart'
+        Endpoint: ['Dot', {radius: 4}],
+        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
+        Connector: 'Flowchart',
+        ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
         }
 
 - ### endpoints
@@ -59,6 +61,9 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
                isTarget:true,
                maxConnections: -1,
                cssClass: 'gantt-endpoint start-endpoint target-endpoint'
+               overlays:[
+                   ['Custom', {create:createLeftOverlay}]
+               ]
            },
            {
                anchor:'Right',
@@ -66,6 +71,9 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
                isTarget:false,
                maxConnections: -1,
                cssClass: 'gantt-endpoint end-endpoint source-endpoint'
+               overlays:[
+                   ['Custom', {create:createRightOverlay}]
+               ]
            }
        ];
 

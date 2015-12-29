@@ -1,22 +1,44 @@
-.gantt-body-dependencies {
+.gantt .gantt-body-dependencies {
     position: absolute;
     height: 100%;
     width: 100%;
 }
 
-.jsplumb-endpoint-anchor {
+.gantt .jsplumb-endpoint-anchor {
     z-index: 20; /* z-index must be higher than tasks z-index */
     overflow: hidden;
 }
 
-.gantt-endpoint svg *{
-    fill-opacity: 0.5;
+.gantt .jsplumb-overlay {
+    z-index: 20;
+}
+
+.gantt-endpoint-overlay.arrow-right {
+    position: absolute;
+
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid black;
+}
+
+.gantt-endpoint-overlay.start-endpoint {
+    top: -5px;
+    left: -11px;
+    border-left-color: rgb(64, 64, 160); /* blue */
+}
+
+.gantt-endpoint-overlay.end-endpoint {
+    top: -5px;
+    left: 6px;
+    border-left-color: rgb(64, 160, 64); /* green */
 }
 
 .gantt-endpoint.source-endpoint svg * {
-    fill: green;
+    fill: rgb(64, 160, 64); /* green */
 }
 
 .gantt-endpoint.target-endpoint svg * {
-    fill: blue;
+    fill: rgb(64, 64, 160); /* blue */
 }
