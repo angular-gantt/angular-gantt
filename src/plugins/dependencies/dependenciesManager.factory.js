@@ -298,11 +298,6 @@
                 return self.tasks[taskId];
             };
 
-
-            var isElementVisible = function(element) {
-                return element.offsetParent !== undefined && element.offsetParent !== null;
-            };
-
             var getSourceEndpoints = function(task) {
                 return task.dependencies.endpoints.filter(function(endpoint) {
                     return endpoint.isSource;
@@ -402,12 +397,6 @@
 
                     angular.forEach(tasks, function(task) {
                         self.addDependenciesFromTask(task);
-                    });
-
-                    angular.forEach(this.tasks, function(task) {
-                        if (!isElementVisible(task.$element[0])) {
-                            self.plumb.hide(task.$element[0]);
-                        }
                     });
                 } finally {
                     self.plumb.setSuspendDrawing(false, true);

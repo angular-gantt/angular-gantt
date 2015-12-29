@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependency', ['ganttUtils', function(utils) {
+    angular.module('gantt.dependencies').factory('GanttDependency', ['ganttUtils', 'ganttDom', function(utils, dom) {
         /**
          * Constructor of Dependency object.
          * 
@@ -94,6 +94,14 @@
                 return modelIndex;
             };
 
+            var isTaskVisible = function(task) {
+                if (task === undefined || task.$element === undefined) {
+                    return false;
+                }
+                var element = task.$element[0];
+                return dom.isElementVisible(element);
+            };
+
             /**
              * Connect this dependency if both elements are available.
              *
@@ -102,6 +110,14 @@
             this.connect = function() {
                 var fromTask = this.getFromTask();
                 var toTask = this.getToTask();
+
+                if (!isTaskVisible(fromTask)) {
+                    fromTask = undefined;
+                }
+
+                if (!isTaskVisible(toTask)) {
+                    toTask = undefined;
+                }
 
                 if (fromTask && toTask) {
                     var connection = this.manager.connect(fromTask, toTask, this.model);

@@ -44020,6 +44020,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 return found;
+            },
+            isElementVisible: function(element) {
+                return element.offsetParent !== undefined && element.offsetParent !== null;
             }
         };
     }]);
@@ -46373,11 +46376,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return self.tasks[taskId];
             };
 
-
-            var isElementVisible = function(element) {
-                return element.offsetParent !== undefined && element.offsetParent !== null;
-            };
-
             var getSourceEndpoints = function(task) {
                 return task.dependencies.endpoints.filter(function(endpoint) {
                     return endpoint.isSource;
@@ -46478,12 +46476,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     angular.forEach(tasks, function(task) {
                         self.addDependenciesFromTask(task);
                     });
-
-                    angular.forEach(this.tasks, function(task) {
-                        if (!isElementVisible(task.$element[0])) {
-                            self.plumb.hide(task.$element[0]);
-                        }
-                    });
                 } finally {
                     self.plumb.setSuspendDrawing(false, true);
                 }
@@ -46498,7 +46490,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
 
-    angular.module('gantt.dependencies').factory('GanttDependency', ['ganttUtils', function(utils) {
+    angular.module('gantt.dependencies').factory('GanttDependency', ['ganttUtils', 'ganttDom', function(utils, dom) {
         /**
          * Constructor of Dependency object.
          * 
@@ -46591,6 +46583,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return modelIndex;
             };
 
+            var isTaskVisible = function(task) {
+                if (task === undefined || task.$element === undefined) {
+                    return false;
+                }
+                var element = task.$element[0];
+                return dom.isElementVisible(element);
+            };
+
             /**
              * Connect this dependency if both elements are available.
              *
@@ -46599,6 +46599,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.connect = function() {
                 var fromTask = this.getFromTask();
                 var toTask = this.getToTask();
+
+                if (!isTaskVisible(fromTask)) {
+                    fromTask = undefined;
+                }
+
+                if (!isTaskVisible(toTask)) {
+                    toTask = undefined;
+                }
 
                 if (fromTask && toTask) {
                     var connection = this.manager.connect(fromTask, toTask, this.model);
