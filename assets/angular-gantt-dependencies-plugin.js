@@ -859,7 +859,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              */
             this.displayEndpoints = function() {
                 angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                    endpoint.setVisible(true, true, true);
+                    if (!endpoint.isVisible()) {
+                        endpoint.setVisible(true, true, true);
+                        angular.element(endpoint.canvas).bind('mouseenter', mouseEnterHandler);
+                        angular.element(endpoint.canvas).bind('mouseleave', mouseExitHandler);
+                    }
                 });
             };
 
@@ -868,7 +872,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              */
             this.hideEndpoints = function() {
                 angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                    endpoint.setVisible(false, true, true);
+                    if (endpoint.isVisible()) {
+                        angular.element(endpoint.canvas).unbind('mouseenter', mouseEnterHandler);
+                        angular.element(endpoint.canvas).unbind('mouseleave', mouseExitHandler);
+                        endpoint.setVisible(false, true, true);
+                    }
                 });
             };
         };
