@@ -27,7 +27,7 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
 
 - ### enabled
 
-    Enable dependencies support.
+    Enable dependencies display.
 
     default: `true`
 
@@ -137,8 +137,6 @@ can optionnaly be set to an object that will be used for each related
     }
 
 ## API
-
-### Methods
 
 ### Methods
     

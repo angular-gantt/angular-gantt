@@ -273,7 +273,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.pluginScope.$watch('enabled', function(newValue, oldValue) {
                 if (newValue !== oldValue) {
-                    self.refresh(true);
+                    self.refresh();
                 }
 
             });
@@ -286,23 +286,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }, true);
 
             /**
-             * Add all dependencies defined from a task.
+             * Add all dependencies defined from a task. Dependencies will be added only if plugin is enabled.
              *
              * @param task
              */
             this.addDependenciesFromTask = function(task) {
-                var taskDependencies = task.model.dependencies;
+                if (this.pluginScope.enabled) {
+                    var taskDependencies = task.model.dependencies;
 
-                if (taskDependencies !== undefined) {
-                    if (!angular.isArray(taskDependencies)) {
-                        taskDependencies = [taskDependencies];
-                        task.model.dependencies = taskDependencies;
+                    if (taskDependencies !== undefined) {
+                        if (!angular.isArray(taskDependencies)) {
+                            taskDependencies = [taskDependencies];
+                            task.model.dependencies = taskDependencies;
+                        }
+
+                        angular.forEach(taskDependencies, function(taskDependency) {
+                            var dependency = self.addDependency(task, taskDependency);
+                            dependency.connect();
+                        });
                     }
-
-                    angular.forEach(taskDependencies, function(taskDependency) {
-                        var dependency = self.addDependency(task, taskDependency);
-                        dependency.connect();
-                    });
                 }
             };
 
