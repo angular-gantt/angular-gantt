@@ -44512,14 +44512,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['$document', 'ganttMouseOffset', 'moment', function(document, mouseOffset, moment) {
+    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['$document', 'ganttMouseOffset', 'ganttUtils', 'moment', function(document, mouseOffset, utils, moment) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
                 moveThreshold: '=?',
-                taskModelFactory: '=taskFactory'
+                taskModelFactory: '=?taskFactory'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -44530,6 +44530,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.moveThreshold === undefined) {
                     scope.moveThreshold = 0;
+                }
+
+                if (scope.taskModelFactory === undefined) {
+                    scope.taskModelFactory = function() {
+                        return {}; // New empty task.
+                    };
                 }
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
@@ -45846,12 +45852,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
                     updateTaskGroup();
-                    $scope.$digest();
+                    if(!$scope.$$phase) {
+                        $scope.$digest();
+                    }
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
                         updateTaskGroup();
-                        $scope.$digest();
+                        if(!$scope.$$phase) {
+                            $scope.$digest();
+                        }
                     }
                 }
             }

@@ -2,6 +2,10 @@
 
 Draw new tasks with the mouse.
 
+## Dependency
+
+Requires [movable plugin](movable.md).
+
 ## Usage
 
     angular.module('myApp', ['gantt', 'gantt.drawtask']);
