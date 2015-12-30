@@ -20,7 +20,8 @@
     "angular-ui-tree": "~2.9.0",
     "angular-gantt": ">=1.2",
     "moment-range": "~2.0.3",
-    "css-element-queries": "~0.3.0"
+    "css-element-queries": "~0.3.0",
+    "jsPlumb": "~2.0.5"
   },
   "overrides": {
     "bootstrap": {

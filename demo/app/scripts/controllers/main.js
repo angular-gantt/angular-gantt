@@ -99,6 +99,7 @@ angular.module('angularGanttDemoApp')
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '15 minutes',
             timeFramesMagnet: true,
+            dependencies: true,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;
                 return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
@@ -294,7 +295,9 @@ angular.module('angularGanttDemoApp')
 
         // Remove data action
         $scope.remove = function() {
-            $scope.api.data.remove(dataToRemove);
+            //$scope.api.data.remove(dataToRemove);
+
+            $scope.api.dependencies.refresh();
         };
 
         // Clear data action

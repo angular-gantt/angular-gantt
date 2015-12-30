@@ -186,6 +186,21 @@
                                                     </div>
                                                 </div>
 
+                                                <div ng-if="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'" class="form-group text-center">
+                                                    <label class="control-label"><i class="fa fa fa-chevron-circle-right"></i> Tree actions</label><br>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-default" ng-click="expandAll()">Expand all</button>
+                                                        <button class="btn btn-default" ng-click="collapseAll()">Collapse all</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group text-center">
+                                                    <div class="form-group">
+                                                        <label class="control-label"><i class="fa fa-link"></i> Dependencies</label><br>
+                                                        <button type="button" class="btn btn-default" ng-model="options.dependencies" bs-checkbox>Enabled</button>
+                                                    </div>
+                                                </div>
+
                                                 <div class="form-group text-center">
                                                     <label class="control-label"><i class="fa fa-database"></i> Data actions</label><br>
                                                     <div class="btn-group">
@@ -195,13 +210,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div ng-if="options.sideMode === 'Tree' || options.sideMode === 'TreeTable'" class="form-group text-center">
-                                                    <label class="control-label"><i class="fa fa fa-chevron-circle-right"></i> Tree actions</label><br>
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-default" ng-click="expandAll()">Expand all</button>
-                                                        <button class="btn btn-default" ng-click="collapseAll()">Collapse all</button>
-                                                    </div>
-                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -275,6 +284,7 @@
                                         </gantt-draw-task>
                                         <gantt-overlap></gantt-overlap>
                                         <gantt-resize-sensor></gantt-resize-sensor>
+                                        <gantt-dependencies enabled="options.dependencies"></gantt-dependencies>
                                     </div>
                                 </div>
                                 <div class="panel-body">
@@ -345,6 +355,7 @@
 <script src="bower_components/moment-range/dist/moment-range.js"></script>
 <script src="bower_components/css-element-queries/src/ElementQueries.js"></script>
 <script src="bower_components/css-element-queries/src/ResizeSensor.js"></script>
+<script src="bower_components/jsPlumb/dist/js/jsPlumb-2.0.5.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 

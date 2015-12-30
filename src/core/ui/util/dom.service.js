@@ -65,6 +65,9 @@
                 }
 
                 return found;
+            },
+            isElementVisible: function(element) {
+                return element.offsetParent !== undefined && element.offsetParent !== null;
             }
         };
     }]);

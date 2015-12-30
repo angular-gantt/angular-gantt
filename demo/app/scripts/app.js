@@ -19,6 +19,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.table',
     'gantt.tree',
     'gantt.groups',
+    'gantt.dependencies',
     'gantt.overlap',
     'gantt.resizeSensor',
     'ngAnimate',

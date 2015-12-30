@@ -4004,6 +4004,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
                 return defaultValue;
             },
+            angularIndexOf: function(arr, obj) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (angular.equals(arr[i], obj)) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
@@ -4985,6 +4993,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 return found;
+            },
+            isElementVisible: function(element) {
+                return element.offsetParent !== undefined && element.offsetParent !== null;
             }
         };
     }]);
