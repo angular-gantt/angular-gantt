@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.9 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.10 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -1890,14 +1890,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
 
             var currentColumn = columnsManager.columns[0];
-            var currentDate = moment(currentColumn.date);
+            var currentDate = moment(currentColumn.date).startOf(viewScaleUnit);
 
             var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
 
             while (true) {
                 var currentPosition = currentColumn.getPositionByDate(currentDate);
 
-                var endDate = moment.min(moment(currentDate).add(1, viewScaleUnit).startOf(viewScaleUnit), maximumDate);
+                var endDate = moment.min(moment(currentDate).add(1, viewScaleUnit), maximumDate);
 
                 var column = columnsManager.getColumnByDate(endDate, true);
 
@@ -2499,6 +2499,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             task.updatePosAndSize();
             this.updateVisibleTasks();
 
+            oldRow.$scope.$digest();
+            task.row.$scope.$digest();
+
+            this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
             if (!viewOnly) {
                 this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
             }
@@ -2732,13 +2736,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerEvent('tasks', 'viewChange');
 
             this.gantt.api.registerEvent('tasks', 'rowChange');
+            this.gantt.api.registerEvent('tasks', 'viewRowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
             this.gantt.api.registerEvent('tasks', 'filter');
+
+            this.gantt.api.registerEvent('tasks', 'displayed');
 
             this.gantt.api.registerEvent('rows', 'add');
             this.gantt.api.registerEvent('rows', 'change');
             this.gantt.api.registerEvent('rows', 'remove');
             this.gantt.api.registerEvent('rows', 'move');
+
+            this.gantt.api.registerEvent('rows', 'displayed');
 
             this.gantt.api.registerEvent('rows', 'filter');
 
@@ -2988,6 +2997,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
             this.visibleRows = this.customFilteredRows;
+
+            this.gantt.api.rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
+
             if (raiseEvent) {
                 this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
             }
@@ -3023,18 +3035,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var oldFilteredTasks = [];
             var filteredTasks = [];
             var tasks = [];
+            var visibleTasks = [];
 
             angular.forEach(this.rows, function(row) {
                 oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
                 filteredTasks = filteredTasks.concat(row.filteredTasks);
+                visibleTasks = visibleTasks.concat(row.visibleTasks);
                 tasks = tasks.concat(row.tasks);
             });
+
+            this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
 
             var filterEvent = !angular.equals(oldFilteredTasks, filteredTasks);
 
             if (filterEvent) {
-                this.gantt.api.tasks.raise.filter(tasks, filteredTasks);
+                this.gantt.api.tasks.raise.filter(tasks, filteredTasks, visibleTasks);
             }
         };
 
@@ -3987,6 +4003,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 }
                 return defaultValue;
+            },
+            angularIndexOf: function(arr, obj) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (angular.equals(arr[i], obj)) {
+                        return i;
+                    }
+                }
+                return -1;
             },
             random4: function() {
                 return Math.floor((1 + Math.random()) * 0x10000)
@@ -4969,6 +4993,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 return found;
+            },
+            isElementVisible: function(element) {
+                return element.offsetParent !== undefined && element.offsetParent !== null;
             }
         };
     }]);

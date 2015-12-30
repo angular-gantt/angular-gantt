@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.9 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.10 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -97,18 +97,20 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         };
 
-        $scope.gantt.api.tasks.on.change($scope, function(task) {
+        $scope.gantt.api.tasks.on.viewChange($scope, function(task) {
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
-                    $scope.$evalAsync(function() {
-                        updateTaskGroup();
-                    });
+                    updateTaskGroup();
+                    if(!$scope.$$phase) {
+                        $scope.$digest();
+                    }
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
-                        $scope.$evalAsync(function() {
-                            updateTaskGroup();
-                        });
+                        updateTaskGroup();
+                        if(!$scope.$$phase) {
+                            $scope.$digest();
+                        }
                     }
                 }
             }
@@ -194,18 +196,28 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             });
 
             self.from = undefined;
-            angular.forEach(self.tasks, function (task) {
-                if (self.from === undefined || task.model.from < self.from) {
-                    self.from = task.model.from;
-                }
-            });
+            if (groupRowGroups) {
+                self.from = groupRowGroups.from;
+            }
+            if (self.from === undefined) {
+                angular.forEach(self.tasks, function (task) {
+                    if (self.from === undefined || task.model.from < self.from) {
+                        self.from = task.model.from;
+                    }
+                });
+            }
 
             self.to = undefined;
-            angular.forEach(self.tasks, function (task) {
-                if (self.to === undefined || task.model.to > self.to) {
-                    self.to = task.model.to;
-                }
-            });
+            if (groupRowGroups) {
+                self.to = groupRowGroups.to;
+            }
+            if (self.to === undefined) {
+                angular.forEach(self.tasks, function (task) {
+                    if (self.to === undefined || task.model.to > self.to) {
+                        self.to = task.model.to;
+                    }
+                });
+            }
 
             if (self.showGrouping) {
                 self.left = row.rowsManager.gantt.getPositionByDate(self.from);
