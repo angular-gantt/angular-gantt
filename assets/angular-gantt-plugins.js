@@ -182,8 +182,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     manager.removeDependenciesFromTask(task);
                 });
 
-                api.tasks.on.displayed(scope, debounce(function(tasks, filteredTasks, visibleTasks) {
-                    manager.setTasks(visibleTasks);
+                api.tasks.on.displayed(scope, debounce(function(tasks) {
+                    manager.setTasks(tasks);
                     manager.refresh();
                 }));
 
