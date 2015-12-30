@@ -1,13 +1,13 @@
 (function(){
     'use strict';
-    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['$document', 'ganttMouseOffset', 'moment', function(document, mouseOffset, moment) {
+    angular.module('gantt.drawtask', ['gantt']).directive('ganttDrawTask', ['$document', 'ganttMouseOffset', 'ganttUtils', 'moment', function(document, mouseOffset, utils, moment) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '=?',
                 moveThreshold: '=?',
-                taskModelFactory: '=taskFactory'
+                taskModelFactory: '=?taskFactory'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -18,6 +18,12 @@
 
                 if (scope.moveThreshold === undefined) {
                     scope.moveThreshold = 0;
+                }
+
+                if (scope.taskModelFactory === undefined) {
+                    scope.taskModelFactory = function() {
+                        return {}; // New empty task.
+                    };
                 }
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
