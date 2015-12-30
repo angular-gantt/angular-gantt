@@ -40917,14 +40917,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
 
             var currentColumn = columnsManager.columns[0];
-            var currentDate = moment(currentColumn.date);
+            var currentDate = moment(currentColumn.date).startOf(viewScaleUnit);
 
             var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
 
             while (true) {
                 var currentPosition = currentColumn.getPositionByDate(currentDate);
 
-                var endDate = moment.min(moment(currentDate).add(1, viewScaleUnit).startOf(viewScaleUnit), maximumDate);
+                var endDate = moment.min(moment(currentDate).add(1, viewScaleUnit), maximumDate);
 
                 var column = columnsManager.getColumnByDate(endDate, true);
 
