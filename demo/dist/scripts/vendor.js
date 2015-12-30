@@ -46052,7 +46052,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (oldDependency) {
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
-                } else {
+                } else {
                     self.manager.api.dependencies.raise.add(dependency);
                 }
 
@@ -46659,7 +46659,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * Install mouse handler for this task, and hide all endpoints.
              */
             this.install = function() {
-                if (!self.installed)  {
+                if (!self.installed) {
                     self.hideEndpoints();
 
                     self.task.getContentElement().bind('mouseenter', mouseEnterHandler);

@@ -68,7 +68,7 @@
 
                 if (oldDependency) {
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
-                } else {
+                } else {
                     self.manager.api.dependencies.raise.add(dependency);
                 }
 

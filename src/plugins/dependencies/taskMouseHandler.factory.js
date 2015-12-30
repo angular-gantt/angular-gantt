@@ -24,7 +24,7 @@
              * Install mouse handler for this task, and hide all endpoints.
              */
             this.install = function() {
-                if (!self.installed)  {
+                if (!self.installed) {
                     self.hideEndpoints();
 
                     self.task.getContentElement().bind('mouseenter', mouseEnterHandler);
