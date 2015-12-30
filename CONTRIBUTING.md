@@ -47,9 +47,11 @@ major version. Only the latest release branch, and it won't contains new feature
 - Keep only minimal changes for the feature or the fix.
 - For a new feature, write a test by adding of modifying test files located in `test/**`.
 - Run tests with `grunt test`, and ensure all tests are passing.
-- Update the demo application, and run it by running `grunt serve` from `demo` folder.
+- Link your local version of `angular-gantt` in the `demo` application with 
+  [bower link](http://bower.io/docs/api/#link).
+- Update the demo application and run it by running `grunt serve` from `demo` folder.
 - Update `README.md` if required.
-- Build demo by running `grunt` from `demo` folder
+- Build demo by running `grunt` from `demo` folder.
 - Create a Pull Request for your feature branch.
 
 ## <a name="commit"></a> Git Commit Guidelines (from AngularJS)
