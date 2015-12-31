@@ -6,10 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         
-        <link rel="canonical" href="https://www.angular-gantt.com/plugins/resizeSensor/">
+        <link rel="canonical" href="https://www.angular-gantt.com/plugins/dependencies/">
         <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>Resize Sensor - angular-gantt</title>
+        <title>Dependencies - angular-gantt</title>
 
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -111,8 +111,8 @@
                             <a href="../groups">Groups</a>
                         </li>
                     
-                        <li >
-                            <a href="../dependencies">Dependencies</a>
+                        <li class="active">
+                            <a href=".">Dependencies</a>
                         </li>
                     
                         <li >
@@ -143,8 +143,8 @@
                             <a href="../overlap">Overlap</a>
                         </li>
                     
-                        <li class="active">
-                            <a href=".">Resize Sensor</a>
+                        <li >
+                            <a href="../resizeSensor">Resize Sensor</a>
                         </li>
                     
                     </ul>
@@ -181,12 +181,12 @@
             <ul class="nav navbar-nav navbar-right">
                 
                 <li >
-                    <a rel="next" href="../overlap">
+                    <a rel="next" href="../groups">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../../sources">
+                    <a rel="prev" href="../sortable">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -209,7 +209,7 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#resize-sensor">Resize Sensor</a></li>
+        <li class="main active"><a href="#dependencies">Dependencies</a></li>
         
             <li><a href="#dependency">Dependency</a></li>
         
@@ -217,34 +217,150 @@
         
             <li><a href="#attributes">Attributes</a></li>
         
+            <li><a href="#model">Model</a></li>
+        
+            <li><a href="#api">API</a></li>
+        
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="resize-sensor">Resize Sensor</h1>
-<p>Use <a href="https://github.com/marcj/css-element-queries">CSS-Element-Queries Polyfill</a> to support dynamic 
-resizing of the component.</p>
+<h1 id="dependencies">Dependencies</h1>
+<p>Add support for dependency links between tasks using <a href="https://jsplumbtoolkit.com/">jsPlumb</a>.</p>
 <h2 id="dependency">Dependency</h2>
-<p><a href="https://github.com/marcj/css-element-queries">css-element-queries</a></p>
+<p><a href="https://jsplumbtoolkit.com/">jsPlumb</a></p>
 <h2 id="usage">Usage</h2>
-<pre><code>angular.module('myApp', ['gantt', 'gantt.resizeSensor']);
+<pre><code>angular.module('myApp', ['gantt', 'gantt.dependencies']);
 </code></pre>
 <!-- -->
 
 <pre><code>&lt;div gantt&gt;
-  &lt;gantt-resize-sensor enabled="..."&gt;
-  &lt;/gantt-resize-sensor&gt;
+    &lt;gantt-dependencies enabled="true"
+                        jsPlumbDefaults="{
+                                         Endpoint: ['Dot', {radius: 7}],
+                                         Connector: 'Flowchart'
+                                         }"
+                        endpoints="[...]"&gt;
+    &lt;/gantt-dependencies&gt;
 &lt;/div&gt;
 </code></pre>
 <h2 id="attributes">Attributes</h2>
 <ul>
 <li>
-<h4 id="enabled">enabled</h4>
-<p>Enable resize sensor using <a href="https://github.com/marcj/css-element-queries">css-element-queries</a>.</p>
+<h3 id="enabled">enabled</h3>
+<p>Enable dependencies display.</p>
 <p>default: <code>true</code></p>
 </li>
+<li>
+<h3 id="jsplumbdefaults">jsPlumbDefaults</h3>
+<p>Default settings object for the underlying jsPlumb instance. See 
+<a href="https://jsplumbtoolkit.com/community/doc/defaults.html">Configuring Defaults</a> of 
+<a href="https://jsplumbtoolkit.com/community/doc/home.html">jsPlumb documentation</a>.</p>
+<p>default: </p>
+<pre><code>{
+Endpoint: ['Dot', {radius: 4}],
+EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
+Connector: 'Flowchart',
+ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
+}
+</code></pre>
+</li>
+<li>
+<h3 id="endpoints">endpoints</h3>
+<p>Array of endpoints that will be create for each task. See
+<a href="https://jsplumbtoolkit.com/community/apidocs/classes/Endpoint.html">Endpoint class</a> of 
+<a href="https://jsplumbtoolkit.com/community/doc/home.html">jsPlumb documentation</a>.</p>
+<p>default:</p>
+<p>[
+       {
+           anchor:'Left',
+           isSource:false,
+           isTarget:true,
+           maxConnections: -1,
+           cssClass: 'gantt-endpoint start-endpoint target-endpoint'
+           overlays:[
+               ['Custom', {create:createLeftOverlay}]
+           ]
+       },
+       {
+           anchor:'Right',
+           isSource:true,
+           isTarget:false,
+           maxConnections: -1,
+           cssClass: 'gantt-endpoint end-endpoint source-endpoint'
+           overlays:[
+               ['Custom', {create:createRightOverlay}]
+           ]
+       }
+   ];</p>
+</li>
+<li>
+<h3 id="fallbackendpoints">fallbackEndpoints</h3>
+<p>Endpoints used to display start/end of connections that links invisible tasks (out of range, collapsed, ...).</p>
+<p>default : </p>
+<pre><code>[
+    {
+        endpoint: 'Blank',
+        anchor: 'Left',
+        isSource: false,
+        isTarget: true,
+        maxConnections: 0,
+        cssClass: 'gantt-endpoint start-endpoint fallback-endpoint',
+        overlays: [
+            ['Custom', {create: createLeftFallbackOverlay}]
+        ]
+    },
+    {
+        endpoint: 'Blank',
+        anchor: 'Right',
+        isSource: true,
+        isTarget: false,
+        maxConnections: 0,
+        cssClass: 'gantt-endpoint end-endpoint fallback-endpoint',
+        overlays: [
+            ['Custom', {create: createRightFallbackOverlay}]
+        ]
+    }
+]
+</code></pre>
+</li>
 </ul>
+<h2 id="model">Model</h2>
+<p>Task can specify a <code>dependencies</code> field containing a single or a list of objects.</p>
+<p>Each object defines the opposite side or the dependency, using either <code>from</code> or <code>to</code> property. <code>connectParameters</code> field
+can optionnaly be set to an object that will be used for each related 
+<a href="https://jsplumbtoolkit.com/community/doc/connections.html#programmatic">jsPlumb.connect(...)</a> function call.</p>
+<pre><code>{
+  ...
+  // Inside Task object
+  'dependencies': [{
+    'from': &lt;taskId&gt;,
+    'connectParameters': {...} // Parameters given to jsPlumb.connect() function call.
+  }]
+}
+
+{
+  ...
+  // Inside Task object
+  'dependencies': [{
+    'to': &lt;taskId&gt;,
+    'connectParameters': {...} // Parameters given to jsPlumb.connect() function call.
+  }]
+}
+</code></pre>
+<h2 id="api">API</h2>
+<h3 id="methods">Methods</h3>
+<ul>
+<li><strong>api.dependencies.refresh(tasks)</strong></li>
+</ul>
+<p>Refresh the view with dependencies data from the model.
+  tasks is an array of Task objects to refresh, or undefined to refresh the whole chart.</p>
+<h3 id="events">Events</h3>
+<ul>
+<li><strong>api.dependencies.on.add(dependency)</strong>, <strong>api.dependencies.on.remove(dependency)</strong>, <strong>api.dependencies.on.change(dependency, oldDependency)</strong></li>
+</ul>
+<p>A dependency was created, removed or changed.</p>
 </div>
         </div>
 
