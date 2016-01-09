@@ -3429,7 +3429,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         Scroll.prototype.getBordersWidth = function() {
-            return this.$element === undefined ? undefined : (this.$element[0].offsetWidth - this.$element[0].clientWidth);
+            if (this.$element === undefined) {
+               return undefined;
+            }
+
+            if (this.$element[0].clientWidth) {
+               return this.$element[0].offsetWidth - this.$element[0].clientWidth;
+            } else {
+               //fix for IE11
+               var borderLeft = window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width').match(/\d+/)[0] : 0;
+               var borderRight = window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width').match(/\d+/)[0] : 0;
+
+               return parseInt(borderLeft) + parseInt(borderRight);
+            }
         };
 
         Scroll.prototype.getBordersHeight = function() {
@@ -3494,7 +3506,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         return Scroll;
     }]);
 }());
-
 
 (function(){
     'use strict';
