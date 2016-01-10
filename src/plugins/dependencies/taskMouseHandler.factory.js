@@ -8,17 +8,44 @@
             this.manager = manager;
             this.task = task;
             this.installed = false;
+            this.elementHandlers = [];
 
-            var hideEndpointsPromise;
+            this.display = true;
+            this.hideEndpointsPromise = undefined;
 
-            var mouseExitHandler = function() {
-                hideEndpointsPromise = $timeout(self.hideEndpoints, 1000, false);
+            /**
+             * Handler for a single DOM element.
+             *
+             * @param element
+             * @constructor
+             */
+            var ElementHandler = function(element) {
+                this.element = element;
+
+                this.mouseExitHandler = function() {
+                    $timeout.cancel(self.hideEndpointsPromise);
+                    self.hideEndpointsPromise = $timeout(self.hideEndpoints, 1000, false);
+                };
+
+                this.mouseEnterHandler = function() {
+                    $timeout.cancel(self.hideEndpointsPromise);
+                    self.displayEndpoints();
+                };
+
+                this.install = function() {
+                    this.element.bind('mouseenter', this.mouseEnterHandler);
+                    this.element.bind('mouseleave', this.mouseExitHandler);
+                };
+
+                this.release = function() {
+                    this.element.unbind('mouseenter', this.mouseEnterHandler);
+                    this.element.unbind('mouseleave', this.mouseExitHandler);
+                    $timeout.cancel(self.hideEndpointsPromise);
+                };
+
             };
 
-            var mouseEnterHandler = function() {
-                $timeout.cancel(hideEndpointsPromise);
-                self.displayEndpoints();
-            };
+
 
             /**
              * Install mouse handler for this task, and hide all endpoints.
@@ -27,8 +54,14 @@
                 if (!self.installed) {
                     self.hideEndpoints();
 
-                    self.task.getContentElement().bind('mouseenter', mouseEnterHandler);
-                    self.task.getContentElement().bind('mouseleave', mouseExitHandler);
+                    self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
+                    angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                        self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
+                    });
+
+                    angular.forEach(self.elementHandlers, function(elementHandler) {
+                        elementHandler.install();
+                    });
 
                     self.installed = true;
                 }
@@ -39,13 +72,13 @@
              */
             this.release = function() {
                 if (self.installed) {
-                    self.task.getContentElement().unbind('mouseenter', mouseEnterHandler);
-                    self.task.getContentElement().unbind('mouseleave', mouseExitHandler);
+                    angular.forEach(self.elementHandlers, function(elementHandler) {
+                        elementHandler.release();
+                    });
 
-                    $timeout.cancel(hideEndpointsPromise);
+                    self.elementHandlers = [];
 
                     self.displayEndpoints();
-
                     self.installed = false;
                 }
             };
@@ -54,12 +87,9 @@
              * Display all endpoints for this task.
              */
             this.displayEndpoints = function() {
+                self.display = true;
                 angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                    if (!endpoint.isVisible()) {
-                        endpoint.setVisible(true, true, true);
-                        angular.element(endpoint.canvas).bind('mouseenter', mouseEnterHandler);
-                        angular.element(endpoint.canvas).bind('mouseleave', mouseExitHandler);
-                    }
+                    endpoint.setVisible(true, true, true);
                 });
             };
 
@@ -68,12 +98,9 @@
              */
             this.hideEndpoints = function() {
                 angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                    if (endpoint.isVisible()) {
-                        angular.element(endpoint.canvas).unbind('mouseenter', mouseEnterHandler);
-                        angular.element(endpoint.canvas).unbind('mouseleave', mouseExitHandler);
-                        endpoint.setVisible(false, true, true);
-                    }
+                    endpoint.setVisible(false, true, true);
                 });
+                self.display = false;
             };
         };
         return TaskMouseHandler;

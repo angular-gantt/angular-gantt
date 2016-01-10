@@ -65,13 +65,16 @@
              * Remove all dependencies defined for a task.
              *
              * @param task
+             * @param keepConnection if true, dependency will not be disconnected.
              */
-            this.removeDependenciesFromTask = function(task) {
+            this.removeDependenciesFromTask = function(task, keepConnection) {
                 var dependencies = this.getTaskDependencies(task);
 
                 if (dependencies) {
                     angular.forEach(dependencies, function(dependency) {
-                        dependency.disconnect();
+                        if (!keepConnection) {
+                            dependency.disconnect();
+                        }
                         this.removeDependency(dependency);
                     });
                 }
@@ -110,10 +113,10 @@
             /**
              * Remove definition of a dependency
              *
-             * @param fromId id of the start task of the dependency
-             * @param toId id of the end task of the dependency
+             * @param dependency Dependency object
+             * @param keepConnection if true, dependency will not be disconnected.
              */
-            this.removeDependency = function(dependency) {
+            this.removeDependency = function(dependency, keepConnection) {
                 var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
 
@@ -137,12 +140,16 @@
                 }
 
                 angular.forEach(fromRemove, function(dependency) {
-                    dependency.disconnect();
+                    if (!keepConnection) {
+                        dependency.disconnect();
+                    }
                     fromDependencies.splice(fromDependencies.indexOf(dependency), 1);
                 });
 
                 angular.forEach(toRemove, function(dependency) {
-                    dependency.disconnect();
+                    if (!keepConnection) {
+                        dependency.disconnect();
+                    }
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
                 });
 

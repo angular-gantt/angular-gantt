@@ -46087,57 +46087,88 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 return true;
             });
 
-            // Record the new dependency in the model and reload the task to display the new connection.
-            this.manager.plumb.bind('beforeDrop', function(info) {
-                var oldDependency;
-                if (info.connection.$dependency) {
-                    oldDependency = info.connection.$dependency;
-                }
-
-                var sourceEndpoint = info.connection.endpoints[0];
-                var targetEndpoint = info.dropEndpoint;
-
-                var sourceModel = sourceEndpoint.$task.model;
-
-                var dependenciesModel = sourceModel.dependencies;
-
-                if (dependenciesModel === undefined) {
-                    dependenciesModel = [];
-                    sourceModel.dependencies = dependenciesModel;
-                }
-
-                var connectionModel = {to: targetEndpoint.$task.model.id};
-                dependenciesModel.push(connectionModel);
-
-                if (oldDependency) {
-                    oldDependency.removeFromTaskModel();
-                    self.manager.removeDependency(oldDependency);
-                }
-
-                var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
-                info.connection.$dependency = dependency;
-                dependency.connection = info.connection;
-
-                if (oldDependency) {
-                    self.manager.api.dependencies.raise.change(dependency, oldDependency);
-                } else {
-                    self.manager.api.dependencies.raise.add(dependency);
-                }
-
-                return true;
-            });
-
-            // Remove the dependency from the model if it's manually detached.
-            this.manager.plumb.bind('beforeDetach', function(connection, mouseEvent) {
+            var createConnection = function(info, mouseEvent) {
                 if (mouseEvent) {
-                    var dependency = connection.$dependency;
+                    var oldDependency;
+                    if (info.connection.$dependency) {
+                        oldDependency = info.connection.$dependency;
+                    }
+
+                    var sourceEndpoint = info.sourceEndpoint;
+                    var targetEndpoint = info.targetEndpoint;
+
+                    var sourceModel = sourceEndpoint.$task.model;
+
+                    var dependenciesModel = sourceModel.dependencies;
+                    if (dependenciesModel === undefined) {
+                        dependenciesModel = [];
+                        sourceModel.dependencies = dependenciesModel;
+                    }
+
+                    var connectionModel = {to: targetEndpoint.$task.model.id};
+                    dependenciesModel.push(connectionModel);
+
+                    if (oldDependency) {
+                        oldDependency.removeFromTaskModel();
+                        self.manager.removeDependency(oldDependency, true); // Connection will be disconnected later by jsPlumb.
+                    }
+
+                    var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
+                    info.connection.$dependency = dependency;
+                    dependency.connection = info.connection;
+
+                    self.manager.api.dependencies.raise.add(dependency);
+
+                }
+            };
+
+            var updateConnection = function(info, mouseEvent) {
+                if (mouseEvent) {
+                    var oldDependency;
+                    if (info.connection.$dependency) {
+                        oldDependency = info.connection.$dependency;
+                    }
+
+                    var sourceEndpoint = info.newSourceEndpoint;
+                    var targetEndpoint = info.newTargetEndpoint;
+
+                    var sourceModel = sourceEndpoint.$task.model;
+
+                    var dependenciesModel = sourceModel.dependencies;
+                    if (dependenciesModel === undefined) {
+                        dependenciesModel = [];
+                        sourceModel.dependencies = dependenciesModel;
+                    }
+
+                    var connectionModel = {to: targetEndpoint.$task.model.id};
+                    dependenciesModel.push(connectionModel);
+
+                    if (oldDependency) {
+                        oldDependency.removeFromTaskModel();
+                        self.manager.removeDependency(oldDependency, true); // Connection will be disconnected later by jsPlumb.
+                    }
+
+                    var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
+                    info.connection.$dependency = dependency;
+                    dependency.connection = info.connection;
+
+                    self.manager.api.dependencies.raise.change(dependency, oldDependency);
+                }
+            };
+
+            var deleteConnection = function(info, mouseEvent) {
+                if (mouseEvent) {
+                    var dependency = info.connection.$dependency;
 
                     dependency.removeFromTaskModel();
-                    self.manager.removeDependency(dependency);
+                    self.manager.removeDependency(dependency, true); // Connection will be disconnected later by jsPlumb.
                     self.manager.api.dependencies.raise.remove(dependency);
                 }
-                return true;
-            });
+            };
+
+            this.manager.plumb.bind('connectionMoved', updateConnection);
+            this.manager.plumb.bind('connection', createConnection);
+            this.manager.plumb.bind('connectionDetached', deleteConnection);
 
         };
         return DependenciesEvents;
@@ -46211,13 +46242,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * Remove all dependencies defined for a task.
              *
              * @param task
+             * @param keepConnection if true, dependency will not be disconnected.
              */
-            this.removeDependenciesFromTask = function(task) {
+            this.removeDependenciesFromTask = function(task, keepConnection) {
                 var dependencies = this.getTaskDependencies(task);
 
                 if (dependencies) {
                     angular.forEach(dependencies, function(dependency) {
-                        dependency.disconnect();
+                        if (!keepConnection) {
+                            dependency.disconnect();
+                        }
                         this.removeDependency(dependency);
                     });
                 }
@@ -46256,10 +46290,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             /**
              * Remove definition of a dependency
              *
-             * @param fromId id of the start task of the dependency
-             * @param toId id of the end task of the dependency
+             * @param dependency Dependency object
+             * @param keepConnection if true, dependency will not be disconnected.
              */
-            this.removeDependency = function(dependency) {
+            this.removeDependency = function(dependency, keepConnection) {
                 var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
 
@@ -46283,12 +46317,16 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 angular.forEach(fromRemove, function(dependency) {
-                    dependency.disconnect();
+                    if (!keepConnection) {
+                        dependency.disconnect();
+                    }
                     fromDependencies.splice(fromDependencies.indexOf(dependency), 1);
                 });
 
                 angular.forEach(toRemove, function(dependency) {
-                    dependency.disconnect();
+                    if (!keepConnection) {
+                        dependency.disconnect();
+                    }
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
                 });
 
@@ -46713,17 +46751,44 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.manager = manager;
             this.task = task;
             this.installed = false;
+            this.elementHandlers = [];
 
-            var hideEndpointsPromise;
+            this.display = true;
+            this.hideEndpointsPromise = undefined;
 
-            var mouseExitHandler = function() {
-                hideEndpointsPromise = $timeout(self.hideEndpoints, 1000, false);
+            /**
+             * Handler for a single DOM element.
+             *
+             * @param element
+             * @constructor
+             */
+            var ElementHandler = function(element) {
+                this.element = element;
+
+                this.mouseExitHandler = function() {
+                    $timeout.cancel(self.hideEndpointsPromise);
+                    self.hideEndpointsPromise = $timeout(self.hideEndpoints, 1000, false);
+                };
+
+                this.mouseEnterHandler = function() {
+                    $timeout.cancel(self.hideEndpointsPromise);
+                    self.displayEndpoints();
+                };
+
+                this.install = function() {
+                    this.element.bind('mouseenter', this.mouseEnterHandler);
+                    this.element.bind('mouseleave', this.mouseExitHandler);
+                };
+
+                this.release = function() {
+                    this.element.unbind('mouseenter', this.mouseEnterHandler);
+                    this.element.unbind('mouseleave', this.mouseExitHandler);
+                    $timeout.cancel(self.hideEndpointsPromise);
+                };
+
             };
 
-            var mouseEnterHandler = function() {
-                $timeout.cancel(hideEndpointsPromise);
-                self.displayEndpoints();
-            };
+
 
             /**
              * Install mouse handler for this task, and hide all endpoints.
@@ -46732,8 +46797,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (!self.installed) {
                     self.hideEndpoints();
 
-                    self.task.getContentElement().bind('mouseenter', mouseEnterHandler);
-                    self.task.getContentElement().bind('mouseleave', mouseExitHandler);
+                    self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
+                    angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                        self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
+                    });
+
+                    angular.forEach(self.elementHandlers, function(elementHandler) {
+                        elementHandler.install();
+                    });
 
                     self.installed = true;
                 }
@@ -46744,13 +46815,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              */
             this.release = function() {
                 if (self.installed) {
-                    self.task.getContentElement().unbind('mouseenter', mouseEnterHandler);
-                    self.task.getContentElement().unbind('mouseleave', mouseExitHandler);
+                    angular.forEach(self.elementHandlers, function(elementHandler) {
+                        elementHandler.release();
+                    });
 
-                    $timeout.cancel(hideEndpointsPromise);
+                    self.elementHandlers = [];
 
                     self.displayEndpoints();
-
                     self.installed = false;
                 }
             };
@@ -46759,12 +46830,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * Display all endpoints for this task.
              */
             this.displayEndpoints = function() {
+                self.display = true;
                 angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                    if (!endpoint.isVisible()) {
-                        endpoint.setVisible(true, true, true);
-                        angular.element(endpoint.canvas).bind('mouseenter', mouseEnterHandler);
-                        angular.element(endpoint.canvas).bind('mouseleave', mouseExitHandler);
-                    }
+                    endpoint.setVisible(true, true, true);
                 });
             };
 
@@ -46773,12 +46841,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              */
             this.hideEndpoints = function() {
                 angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                    if (endpoint.isVisible()) {
-                        angular.element(endpoint.canvas).unbind('mouseenter', mouseEnterHandler);
-                        angular.element(endpoint.canvas).unbind('mouseleave', mouseExitHandler);
-                        endpoint.setVisible(false, true, true);
-                    }
+                    endpoint.setVisible(false, true, true);
                 });
+                self.display = false;
             };
         };
         return TaskMouseHandler;

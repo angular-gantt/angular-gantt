@@ -35,57 +35,88 @@
                 return true;
             });
 
-            // Record the new dependency in the model and reload the task to display the new connection.
-            this.manager.plumb.bind('beforeDrop', function(info) {
-                var oldDependency;
-                if (info.connection.$dependency) {
-                    oldDependency = info.connection.$dependency;
-                }
-
-                var sourceEndpoint = info.connection.endpoints[0];
-                var targetEndpoint = info.dropEndpoint;
-
-                var sourceModel = sourceEndpoint.$task.model;
-
-                var dependenciesModel = sourceModel.dependencies;
-
-                if (dependenciesModel === undefined) {
-                    dependenciesModel = [];
-                    sourceModel.dependencies = dependenciesModel;
-                }
-
-                var connectionModel = {to: targetEndpoint.$task.model.id};
-                dependenciesModel.push(connectionModel);
-
-                if (oldDependency) {
-                    oldDependency.removeFromTaskModel();
-                    self.manager.removeDependency(oldDependency);
-                }
-
-                var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
-                info.connection.$dependency = dependency;
-                dependency.connection = info.connection;
-
-                if (oldDependency) {
-                    self.manager.api.dependencies.raise.change(dependency, oldDependency);
-                } else {
-                    self.manager.api.dependencies.raise.add(dependency);
-                }
-
-                return true;
-            });
-
-            // Remove the dependency from the model if it's manually detached.
-            this.manager.plumb.bind('beforeDetach', function(connection, mouseEvent) {
+            var createConnection = function(info, mouseEvent) {
                 if (mouseEvent) {
-                    var dependency = connection.$dependency;
+                    var oldDependency;
+                    if (info.connection.$dependency) {
+                        oldDependency = info.connection.$dependency;
+                    }
+
+                    var sourceEndpoint = info.sourceEndpoint;
+                    var targetEndpoint = info.targetEndpoint;
+
+                    var sourceModel = sourceEndpoint.$task.model;
+
+                    var dependenciesModel = sourceModel.dependencies;
+                    if (dependenciesModel === undefined) {
+                        dependenciesModel = [];
+                        sourceModel.dependencies = dependenciesModel;
+                    }
+
+                    var connectionModel = {to: targetEndpoint.$task.model.id};
+                    dependenciesModel.push(connectionModel);
+
+                    if (oldDependency) {
+                        oldDependency.removeFromTaskModel();
+                        self.manager.removeDependency(oldDependency, true); // Connection will be disconnected later by jsPlumb.
+                    }
+
+                    var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
+                    info.connection.$dependency = dependency;
+                    dependency.connection = info.connection;
+
+                    self.manager.api.dependencies.raise.add(dependency);
+
+                }
+            };
+
+            var updateConnection = function(info, mouseEvent) {
+                if (mouseEvent) {
+                    var oldDependency;
+                    if (info.connection.$dependency) {
+                        oldDependency = info.connection.$dependency;
+                    }
+
+                    var sourceEndpoint = info.newSourceEndpoint;
+                    var targetEndpoint = info.newTargetEndpoint;
+
+                    var sourceModel = sourceEndpoint.$task.model;
+
+                    var dependenciesModel = sourceModel.dependencies;
+                    if (dependenciesModel === undefined) {
+                        dependenciesModel = [];
+                        sourceModel.dependencies = dependenciesModel;
+                    }
+
+                    var connectionModel = {to: targetEndpoint.$task.model.id};
+                    dependenciesModel.push(connectionModel);
+
+                    if (oldDependency) {
+                        oldDependency.removeFromTaskModel();
+                        self.manager.removeDependency(oldDependency, true); // Connection will be disconnected later by jsPlumb.
+                    }
+
+                    var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
+                    info.connection.$dependency = dependency;
+                    dependency.connection = info.connection;
+
+                    self.manager.api.dependencies.raise.change(dependency, oldDependency);
+                }
+            };
+
+            var deleteConnection = function(info, mouseEvent) {
+                if (mouseEvent) {
+                    var dependency = info.connection.$dependency;
 
                     dependency.removeFromTaskModel();
-                    self.manager.removeDependency(dependency);
+                    self.manager.removeDependency(dependency, true); // Connection will be disconnected later by jsPlumb.
                     self.manager.api.dependencies.raise.remove(dependency);
                 }
-                return true;
-            });
+            };
+
+            this.manager.plumb.bind('connectionMoved', updateConnection);
+            this.manager.plumb.bind('connection', createConnection);
+            this.manager.plumb.bind('connectionDetached', deleteConnection);
 
         };
         return DependenciesEvents;
