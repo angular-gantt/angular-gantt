@@ -4,7 +4,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/angular-gantt/angular-gantt.svg?style=flat)](https://coveralls.io/r/angular-gantt/angular-gantt)
 [![Documentation](https://readthedocs.org/projects/angular-gantt/badge/?style=flat)](https://angular-gantt.readthedocs.org)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/angular-gantt/angular-gantt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[HuBoard](https://huboard.com/angular-gantt/angular-gantt)
+[![HuBoard](https://img.shields.io/badge/Hu-Board-7965cc.svg)](https://huboard.com/angular-gantt/angular-gantt)
 
 ## Gantt chart component for AngularJS
 
