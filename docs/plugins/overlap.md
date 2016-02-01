@@ -1,4 +1,4 @@
-# Movable
+# Overlap
 
 Add a border with `gantt-task-overlaps` CSS class on tasks that overlaps.
 
