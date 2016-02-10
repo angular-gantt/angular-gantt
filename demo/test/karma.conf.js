@@ -35,7 +35,7 @@ module.exports = function(config) {
       'bower_components/moment-range/dist/moment-range.js',
       'bower_components/css-element-queries/src/ElementQueries.js',
       'bower_components/css-element-queries/src/ResizeSensor.js',
-      'bower_components/jsPlumb/dist/js/jsPlumb-2.0.5.js',
+      'bower_components/jsPlumb/dist/js/jsPlumb-2.0.7.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       'app/scripts/**/*.js',
