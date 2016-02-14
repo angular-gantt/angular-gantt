@@ -188,16 +188,16 @@ angular.module('angularGanttDemoApp')
                     api.data.on.change($scope, function(newData) {
                         if (dataToRemove === undefined) {
                             dataToRemove = [
-                                {'id': newData.data[2].id}, // Remove Kickoff row
+                                {'id': newData[2].id}, // Remove Kickoff row
                                 {
-                                    'id': newData.data[0].id, 'tasks': [
-                                    {'id': newData.data[0].tasks[0].id},
-                                    {'id': newData.data[0].tasks[3].id}
+                                    'id': newData[0].id, 'tasks': [
+                                    {'id': newData[0].tasks[0].id},
+                                    {'id': newData[0].tasks[3].id}
                                 ]
                                 }, // Remove some Milestones
                                 {
-                                    'id': newData.data[6].id, 'tasks': [
-                                    {'id': newData.data[6].tasks[0].id}
+                                    'id': newData[7].id, 'tasks': [
+                                    {'id': newData[7].tasks[0].id}
                                 ]
                                 } // Remove order basket from Sprint 2
                             ];
@@ -325,8 +325,7 @@ angular.module('angularGanttDemoApp')
 
         // Remove data action
         $scope.remove = function() {
-            //$scope.api.data.remove(dataToRemove);
-
+            $scope.api.data.remove(dataToRemove);
             $scope.api.dependencies.refresh();
         };
 

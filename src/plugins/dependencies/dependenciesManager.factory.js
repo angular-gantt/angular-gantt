@@ -75,7 +75,7 @@
                         if (!keepConnection) {
                             dependency.disconnect();
                         }
-                        this.removeDependency(dependency);
+                        self.removeDependency(dependency);
                     });
                 }
             };

@@ -353,7 +353,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         if (!keepConnection) {
                             dependency.disconnect();
                         }
-                        this.removeDependency(dependency);
+                        self.removeDependency(dependency);
                     });
                 }
             };
