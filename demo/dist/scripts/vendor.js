@@ -45653,20 +45653,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 function handleOverlaps(row) {
+                    // Tasks are sorted by start date when added to row
                     var allTasks = row.tasks;
                     var newOverlapsTasks = {};
 
-                    for(var i=0, l=allTasks.length; i<l; i++) {
-                        var currentTask = allTasks[i];
-                        var currentRange = getRange(currentTask);
+                    if (allTasks.length > 1) {
+                        var previousTask = allTasks[0];
+                        var previousRange = getRange(previousTask);
 
-                        for(var j=i+1, k=allTasks.length; j<k; j++) {
-                            var task = allTasks[j];
+                        for (var i = 1, l = allTasks.length; i < l; i++) {
+                            var task = allTasks[i];
                             var range = getRange(task);
 
-                            if (range.overlaps(currentRange)) {
+                            if (range.overlaps(previousRange)) {
                                 handleTaskOverlap(newOverlapsTasks, task);
-                                handleTaskOverlap(newOverlapsTasks, currentTask);
+                                handleTaskOverlap(newOverlapsTasks, previousTask);
+                            }
+
+                            if (previousTask.left+previousTask.width < task.left+task.width) {
+                                previousTask = task;
+                                previousRange = range;
                             }
                         }
                     }
