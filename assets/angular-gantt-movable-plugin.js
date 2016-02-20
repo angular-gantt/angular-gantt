@@ -7,6 +7,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function(){
     'use strict';
+
+    /* jshint latedef: false */
     angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
         function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks

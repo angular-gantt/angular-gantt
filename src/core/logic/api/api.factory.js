@@ -20,6 +20,14 @@
                     this.apiId = utils.newId();
                 };
 
+                function registerEventWithAngular(eventId, handler, gantt, _this) {
+                    return $rootScope.$on(eventId, function() {
+                        var args = Array.prototype.slice.call(arguments);
+                        args.splice(0, 1); //remove evt argument
+                        handler.apply(_this ? _this : gantt.api, args);
+                    });
+                }
+
                 /**
                  * @ngdoc function
                  * @name gantt.class:suppressEvents
@@ -143,14 +151,6 @@
                         return removeListener;
                     };
                 };
-
-                function registerEventWithAngular(eventId, handler, gantt, _this) {
-                    return $rootScope.$on(eventId, function() {
-                        var args = Array.prototype.slice.call(arguments);
-                        args.splice(0, 1); //remove evt argument
-                        handler.apply(_this ? _this : gantt.api, args);
-                    });
-                }
 
                 /**
                  * @ngdoc function

@@ -39,6 +39,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var rendered = false;
+                var sensor;
+
                 api.core.on.rendered(scope, function() {
                     rendered = true;
                     if (sensor !== undefined) {
@@ -50,7 +52,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                var sensor;
                 scope.$watch('enabled', function(newValue) {
                     if (rendered) {
                         if (newValue && sensor === undefined) {

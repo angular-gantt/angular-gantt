@@ -17,6 +17,57 @@
                     $scope.enabled = true;
                 }
 
+                function getWidth() {
+                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
+                }
+
+                function setWidth(width) {
+                    if (width !== getWidth()) {
+                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
+
+                        if (eventTopic !== undefined) {
+                            api[eventTopic].raise.resize(width);
+                        }
+
+                        $timeout(function() {
+                            ganttCtrl.gantt.columnsManager.updateColumnsMeta();
+                        });
+                    }
+                }
+
+                function dblclick(event) {
+                    event.preventDefault();
+                    setWidth(undefined);
+                }
+
+                function mousemove(event) {
+                    $scope.$evalAsync(function (){
+                        var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
+                        var maxWidth = ganttCtrl.gantt.getWidth()-ganttCtrl.gantt.scroll.getBordersWidth();
+                        var width = Math.min(Math.max(offset.x, 0), maxWidth);
+                        setWidth(width);
+                    });
+                }
+
+                function mouseup() {
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeEnd(getWidth());
+                    }
+                    $document.unbind('mousemove', mousemove);
+                    $document.unbind('mouseup', mouseup);
+                }
+
+
+                function mousedown(event) {
+                    event.preventDefault();
+
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeBegin(getWidth());
+                    }
+                    $document.on('mousemove', mousemove);
+                    $document.on('mouseup', mouseup);
+                }
+
                 $attrs.$observe('ganttResizerEnabled', function(value) {
                     $scope.enabled = $parse(value)();
                 });
@@ -37,38 +88,6 @@
                     }
                 });
 
-                function dblclick(event) {
-                    event.preventDefault();
-                    setWidth(undefined);
-                }
-
-                function mousedown(event) {
-                    event.preventDefault();
-
-                    if (eventTopic !== undefined) {
-                        api[eventTopic].raise.resizeBegin(getWidth());
-                    }
-                    $document.on('mousemove', mousemove);
-                    $document.on('mouseup', mouseup);
-                }
-
-                function mousemove(event) {
-                    $scope.$evalAsync(function (){
-                        var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
-                        var maxWidth = ganttCtrl.gantt.getWidth()-ganttCtrl.gantt.scroll.getBordersWidth();
-                        var width = Math.min(Math.max(offset.x, 0), maxWidth);
-                        setWidth(width);
-                    });
-                }
-
-                function mouseup() {
-                    if (eventTopic !== undefined) {
-                        api[eventTopic].raise.resizeEnd(getWidth());
-                    }
-                    $document.unbind('mousemove', mousemove);
-                    $document.unbind('mouseup', mouseup);
-                }
-
                 $scope.$watch(function() {
                     return getWidth();
                 }, function(newValue, oldValue) {
@@ -82,24 +101,6 @@
                         }
                     }
                 });
-
-                function setWidth(width) {
-                    if (width !== getWidth()) {
-                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
-
-                        if (eventTopic !== undefined) {
-                            api[eventTopic].raise.resize(width);
-                        }
-
-                        $timeout(function() {
-                            ganttCtrl.gantt.columnsManager.updateColumnsMeta();
-                        });
-                    }
-                }
-
-                function getWidth() {
-                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
-                }
 
                 if (eventTopic) {
                     api.registerEvent(eventTopic, 'resize');

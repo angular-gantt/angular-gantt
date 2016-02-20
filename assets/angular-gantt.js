@@ -109,6 +109,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.apiId = utils.newId();
                 };
 
+                function registerEventWithAngular(eventId, handler, gantt, _this) {
+                    return $rootScope.$on(eventId, function() {
+                        var args = Array.prototype.slice.call(arguments);
+                        args.splice(0, 1); //remove evt argument
+                        handler.apply(_this ? _this : gantt.api, args);
+                    });
+                }
+
                 /**
                  * @ngdoc function
                  * @name gantt.class:suppressEvents
@@ -232,14 +240,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         return removeListener;
                     };
                 };
-
-                function registerEventWithAngular(eventId, handler, gantt, _this) {
-                    return $rootScope.$on(eventId, function() {
-                        var args = Array.prototype.slice.call(arguments);
-                        args.splice(0, 1); //remove evt argument
-                        handler.apply(_this ? _this : gantt.api, args);
-                    });
-                }
 
                 /**
                  * @ngdoc function
@@ -1285,6 +1285,30 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function() {
     'use strict';
     angular.module('gantt').service('GanttColumnGenerator', ['moment', function(moment) {
+
+        // Columns are generated including or excluding the to date.
+        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+
+        var isToDateToExclude = function(to, value, unit) {
+            return moment(to).add(value, unit).startOf(unit) === to;
+        };
+
+
+        var getFirstValue = function(unit) {
+            if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+                return 0;
+            }
+        };
+
+        var ensureNoUnitOverflow = function(unit, startDate, endDate) {
+            var v1 = startDate.get(unit);
+            var v2 = endDate.get(unit);
+            var firstValue = getFirstValue(unit);
+            if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+                endDate.set(unit, firstValue);
+            }
+        };
+
         // Generates one column for each time unit between the given from and to date.
         this.generate = function(builder, from, to, viewScale, columnWidth, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -1373,28 +1397,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
 
             return generatedCols;
-        };
-
-        // Columns are generated including or excluding the to date.
-        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
-
-        var isToDateToExclude = function(to, value, unit) {
-            return moment(to).add(value, unit).startOf(unit) === to;
-        };
-
-        var ensureNoUnitOverflow = function(unit, startDate, endDate) {
-            var v1 = startDate.get(unit);
-            var v2 = endDate.get(unit);
-            var firstValue = getFirstValue(unit);
-            if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
-                endDate.set(unit, firstValue);
-            }
-        };
-
-        var getFirstValue = function(unit) {
-            if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
-                return 0;
-            }
         };
     }]);
 }());
@@ -4139,6 +4141,57 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     $scope.enabled = true;
                 }
 
+                function getWidth() {
+                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
+                }
+
+                function setWidth(width) {
+                    if (width !== getWidth()) {
+                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
+
+                        if (eventTopic !== undefined) {
+                            api[eventTopic].raise.resize(width);
+                        }
+
+                        $timeout(function() {
+                            ganttCtrl.gantt.columnsManager.updateColumnsMeta();
+                        });
+                    }
+                }
+
+                function dblclick(event) {
+                    event.preventDefault();
+                    setWidth(undefined);
+                }
+
+                function mousemove(event) {
+                    $scope.$evalAsync(function (){
+                        var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
+                        var maxWidth = ganttCtrl.gantt.getWidth()-ganttCtrl.gantt.scroll.getBordersWidth();
+                        var width = Math.min(Math.max(offset.x, 0), maxWidth);
+                        setWidth(width);
+                    });
+                }
+
+                function mouseup() {
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeEnd(getWidth());
+                    }
+                    $document.unbind('mousemove', mousemove);
+                    $document.unbind('mouseup', mouseup);
+                }
+
+
+                function mousedown(event) {
+                    event.preventDefault();
+
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resizeBegin(getWidth());
+                    }
+                    $document.on('mousemove', mousemove);
+                    $document.on('mouseup', mouseup);
+                }
+
                 $attrs.$observe('ganttResizerEnabled', function(value) {
                     $scope.enabled = $parse(value)();
                 });
@@ -4159,38 +4212,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                function dblclick(event) {
-                    event.preventDefault();
-                    setWidth(undefined);
-                }
-
-                function mousedown(event) {
-                    event.preventDefault();
-
-                    if (eventTopic !== undefined) {
-                        api[eventTopic].raise.resizeBegin(getWidth());
-                    }
-                    $document.on('mousemove', mousemove);
-                    $document.on('mouseup', mouseup);
-                }
-
-                function mousemove(event) {
-                    $scope.$evalAsync(function (){
-                        var offset = mouseOffset.getOffsetForElement($scope.targetElement[0], event);
-                        var maxWidth = ganttCtrl.gantt.getWidth()-ganttCtrl.gantt.scroll.getBordersWidth();
-                        var width = Math.min(Math.max(offset.x, 0), maxWidth);
-                        setWidth(width);
-                    });
-                }
-
-                function mouseup() {
-                    if (eventTopic !== undefined) {
-                        api[eventTopic].raise.resizeEnd(getWidth());
-                    }
-                    $document.unbind('mousemove', mousemove);
-                    $document.unbind('mouseup', mouseup);
-                }
-
                 $scope.$watch(function() {
                     return getWidth();
                 }, function(newValue, oldValue) {
@@ -4204,24 +4225,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
                     }
                 });
-
-                function setWidth(width) {
-                    if (width !== getWidth()) {
-                        ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
-
-                        if (eventTopic !== undefined) {
-                            api[eventTopic].raise.resize(width);
-                        }
-
-                        $timeout(function() {
-                            ganttCtrl.gantt.columnsManager.updateColumnsMeta();
-                        });
-                    }
-                }
-
-                function getWidth() {
-                    return ganttCtrl.gantt.options.value($attrs.resizerWidth);
-                }
 
                 if (eventTopic) {
                     api.registerEvent(eventTopic, 'resize');
@@ -4917,7 +4920,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
                         });
 
-                        $scope.$evalAsync(function() {
+                        $scope.$applyAsync(function() {
                             $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
                         });
                     }]

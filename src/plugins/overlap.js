@@ -14,14 +14,39 @@
                     scope.enabled = true;
                 }
 
-                if (scope.enabled){
-                    api.tasks.on.change(scope, function(task) {
-                        handleOverlaps(task.row);
-                    });
+                function getStartEnd(task) {
+                    var start, end;
 
-                    api.tasks.on.rowChange(scope, function(task, oldRow) {
-                        handleOverlaps(oldRow);
-                    });
+                    if (task.model.from.isBefore(task.model.to)) {
+                        start = task.model.from;
+                        end = task.model.to;
+                    } else {
+                        start = task.model.to;
+                        end = task.model.from;
+                    }
+
+                    return [start, end];
+                }
+
+                function getRange(task) {
+                    var startEnd = getStartEnd(task);
+                    return moment().range(startEnd[0], startEnd[1]);
+                }
+
+                function handleTaskOverlap(overlapsList, task) {
+                    if (!(task.model.id in overlapsList)) {
+                        task.$element.addClass('gantt-task-overlaps');
+                        overlapsList[task.model.id] = task;
+                    }
+                }
+
+                function handleTaskNonOverlaps(overlapsList, allTasks) {
+                    for(var i=0, l=allTasks.length; i<l; i++) {
+                        var task = allTasks[i];
+                        if (!(task.model.id in overlapsList)) {
+                            task.$element.removeClass('gantt-task-overlaps');
+                        }
+                    }
                 }
 
                 function handleOverlaps(row) {
@@ -52,40 +77,16 @@
                     handleTaskNonOverlaps(newOverlapsTasks, allTasks);
                 }
 
-                function getRange(task) {
-                    var startEnd = getStartEnd(task);
-                    return moment().range(startEnd[0], startEnd[1]);
+                if (scope.enabled){
+                    api.tasks.on.change(scope, function(task) {
+                        handleOverlaps(task.row);
+                    });
+
+                    api.tasks.on.rowChange(scope, function(task, oldRow) {
+                        handleOverlaps(oldRow);
+                    });
                 }
 
-                function getStartEnd(task) {
-                    var start, end;
-
-                    if (task.model.from.isBefore(task.model.to)) {
-                        start = task.model.from;
-                        end = task.model.to;
-                    } else {
-                        start = task.model.to;
-                        end = task.model.from;
-                    }
-
-                    return [start, end];
-                }
-
-                function handleTaskOverlap(overlapsList, task) {
-                    if (!(task.model.id in overlapsList)) {
-                        task.$element.addClass('gantt-task-overlaps');
-                        overlapsList[task.model.id] = task;
-                    }
-                }
-
-                function handleTaskNonOverlaps(overlapsList, allTasks) {
-                    for(var i=0, l=allTasks.length; i<l; i++) {
-                        var task = allTasks[i];
-                        if (!(task.model.id in overlapsList)) {
-                            task.$element.removeClass('gantt-task-overlaps');
-                        }
-                    }
-                }
             }
         };
     }]);

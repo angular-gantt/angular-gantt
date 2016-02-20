@@ -55,7 +55,7 @@
                             $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
                         });
 
-                        $scope.$evalAsync(function() {
+                        $scope.$applyAsync(function() {
                             $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
                         });
                     }]

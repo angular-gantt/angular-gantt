@@ -300,11 +300,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.nodeScopes = {};
     }]).controller('GanttUiTreeController', ['$scope', function($scope) {
         var collapseAll = function() {
-            $scope.collapseAll();
+            $scope.$broadcast('angular-ui-tree:collapse-all');
         };
 
         var expandAll = function() {
-            $scope.expandAll();
+            $scope.$broadcast('angular-ui-tree:expand-all');
         };
 
         $scope.gantt.api.registerMethod('tree', 'collapseAll', collapseAll, $scope);

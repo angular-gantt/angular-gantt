@@ -13,7 +13,6 @@
     "undef": true,
     "unused": true,
     "strict": true,
-    "globalstrict": true,
     "globals": {
         "angular": false,
         "module": false,

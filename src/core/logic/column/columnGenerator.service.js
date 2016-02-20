@@ -1,6 +1,30 @@
 (function() {
     'use strict';
     angular.module('gantt').service('GanttColumnGenerator', ['moment', function(moment) {
+
+        // Columns are generated including or excluding the to date.
+        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
+
+        var isToDateToExclude = function(to, value, unit) {
+            return moment(to).add(value, unit).startOf(unit) === to;
+        };
+
+
+        var getFirstValue = function(unit) {
+            if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+                return 0;
+            }
+        };
+
+        var ensureNoUnitOverflow = function(unit, startDate, endDate) {
+            var v1 = startDate.get(unit);
+            var v2 = endDate.get(unit);
+            var firstValue = getFirstValue(unit);
+            if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+                endDate.set(unit, firstValue);
+            }
+        };
+
         // Generates one column for each time unit between the given from and to date.
         this.generate = function(builder, from, to, viewScale, columnWidth, maximumWidth, leftOffset, reverse) {
             if (!to && !maximumWidth) {
@@ -89,28 +113,6 @@
             }
 
             return generatedCols;
-        };
-
-        // Columns are generated including or excluding the to date.
-        // If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
-
-        var isToDateToExclude = function(to, value, unit) {
-            return moment(to).add(value, unit).startOf(unit) === to;
-        };
-
-        var ensureNoUnitOverflow = function(unit, startDate, endDate) {
-            var v1 = startDate.get(unit);
-            var v2 = endDate.get(unit);
-            var firstValue = getFirstValue(unit);
-            if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
-                endDate.set(unit, firstValue);
-            }
-        };
-
-        var getFirstValue = function(unit) {
-            if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
-                return 0;
-            }
         };
     }]);
 }());
