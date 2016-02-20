@@ -101,14 +101,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
                     updateTaskGroup();
-                    if(!$scope.$$phase) {
+                    if(!$scope.$$phase && !$scope.$root.$$phase) {
                         $scope.$digest();
                     }
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
                         updateTaskGroup();
-                        if(!$scope.$$phase) {
+                        if(!$scope.$$phase && !$scope.$root.$$phase) {
                             $scope.$digest();
                         }
                     }
