@@ -42,6 +42,66 @@ angular.module('angularGanttDemoApp')
         var objectModel;
         var dataToRemove;
 
+        // Event handler
+        var logScrollEvent = function(left, date, direction) {
+            if (date !== undefined) {
+                $log.info('[Event] api.on.scroll: ' + left + ', ' + (date === undefined ? 'undefined' : date.format()) + ', ' + direction);
+            }
+        };
+
+        // Event handler
+        var logDataEvent = function(eventName) {
+            $log.info('[Event] ' + eventName);
+        };
+
+        // Event handler
+        var logTaskEvent = function(eventName, task) {
+            $log.info('[Event] ' + eventName + ': ' + task.model.name);
+        };
+
+        // Event handler
+        var logRowEvent = function(eventName, row) {
+            $log.info('[Event] ' + eventName + ': ' + row.model.name);
+        };
+
+        // Event handler
+        var logTimespanEvent = function(eventName, timespan) {
+            $log.info('[Event] ' + eventName + ': ' + timespan.model.name);
+        };
+
+        // Event handler
+        var logLabelsEvent = function(eventName, width) {
+            $log.info('[Event] ' + eventName + ': ' + width);
+        };
+
+        // Event handler
+        var logColumnsGenerateEvent = function(columns, headers) {
+            $log.info('[Event] ' + 'columns.on.generate' + ': ' + columns.length + ' column(s), ' + headers.length + ' header(s)');
+        };
+
+        // Event handler
+        var logRowsFilterEvent = function(rows, filteredRows) {
+            $log.info('[Event] rows.on.filter: ' + filteredRows.length + '/' + rows.length + ' rows displayed.');
+        };
+
+        // Event handler
+        var logTasksFilterEvent = function(tasks, filteredTasks) {
+            $log.info('[Event] tasks.on.filter: ' + filteredTasks.length + '/' + tasks.length + ' tasks displayed.');
+        };
+
+        // Event handler
+        var logReadyEvent = function() {
+            $log.info('[Event] core.on.ready');
+        };
+
+        // Event utility function
+        var addEventName = function(eventName, func) {
+            return function(data) {
+                return func(eventName, data);
+            };
+        };
+
+        // angular-gantt options
         $scope.options = {
             mode: 'custom',
             scale: 'day',
@@ -188,16 +248,16 @@ angular.module('angularGanttDemoApp')
                     api.data.on.change($scope, function(newData) {
                         if (dataToRemove === undefined) {
                             dataToRemove = [
-                                {'id': newData.data[2].id}, // Remove Kickoff row
+                                {'id': newData[2].id}, // Remove Kickoff row
                                 {
-                                    'id': newData.data[0].id, 'tasks': [
-                                    {'id': newData.data[0].tasks[0].id},
-                                    {'id': newData.data[0].tasks[3].id}
+                                    'id': newData[0].id, 'tasks': [
+                                    {'id': newData[0].tasks[0].id},
+                                    {'id': newData[0].tasks[3].id}
                                 ]
                                 }, // Remove some Milestones
                                 {
-                                    'id': newData.data[6].id, 'tasks': [
-                                    {'id': newData.data[6].tasks[0].id}
+                                    'id': newData[7].id, 'tasks': [
+                                    {'id': newData[7].tasks[0].id}
                                 ]
                                 } // Remove order basket from Sprint 2
                             ];
@@ -325,8 +385,7 @@ angular.module('angularGanttDemoApp')
 
         // Remove data action
         $scope.remove = function() {
-            //$scope.api.data.remove(dataToRemove);
-
+            $scope.api.data.remove(dataToRemove);
             $scope.api.dependencies.refresh();
         };
 
@@ -414,65 +473,6 @@ angular.module('angularGanttDemoApp')
         $scope.$watchCollection('live.row.tasks', function() {
             $scope.live.rowJson = angular.toJson($scope.live.row, true);
         });
-
-        // Event handler
-        var logScrollEvent = function(left, date, direction) {
-            if (date !== undefined) {
-                $log.info('[Event] api.on.scroll: ' + left + ', ' + (date === undefined ? 'undefined' : date.format()) + ', ' + direction);
-            }
-        };
-
-        // Event handler
-        var logDataEvent = function(eventName) {
-            $log.info('[Event] ' + eventName);
-        };
-
-        // Event handler
-        var logTaskEvent = function(eventName, task) {
-            $log.info('[Event] ' + eventName + ': ' + task.model.name);
-        };
-
-        // Event handler
-        var logRowEvent = function(eventName, row) {
-            $log.info('[Event] ' + eventName + ': ' + row.model.name);
-        };
-
-        // Event handler
-        var logTimespanEvent = function(eventName, timespan) {
-            $log.info('[Event] ' + eventName + ': ' + timespan.model.name);
-        };
-
-        // Event handler
-        var logLabelsEvent = function(eventName, width) {
-            $log.info('[Event] ' + eventName + ': ' + width);
-        };
-
-        // Event handler
-        var logColumnsGenerateEvent = function(columns, headers) {
-            $log.info('[Event] ' + 'columns.on.generate' + ': ' + columns.length + ' column(s), ' + headers.length + ' header(s)');
-        };
-
-        // Event handler
-        var logRowsFilterEvent = function(rows, filteredRows) {
-            $log.info('[Event] rows.on.filter: ' + filteredRows.length + '/' + rows.length + ' rows displayed.');
-        };
-
-        // Event handler
-        var logTasksFilterEvent = function(tasks, filteredTasks) {
-            $log.info('[Event] tasks.on.filter: ' + filteredTasks.length + '/' + tasks.length + ' tasks displayed.');
-        };
-
-        // Event handler
-        var logReadyEvent = function() {
-            $log.info('[Event] core.on.ready');
-        };
-
-        // Event utility function
-        var addEventName = function(eventName, func) {
-            return function(data) {
-                return func(eventName, data);
-            };
-        };
 
     }]);
 
