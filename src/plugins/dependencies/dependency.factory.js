@@ -51,9 +51,9 @@
 
             this.deleteFallbackEndpoints = function() {
                 if (this.fallbackEndpoints) {
-                    angular.forEach(this.fallbackEndpoints, function(fallbackEndpoint) {
-                        self.manager.plumb.deleteEndpoint(fallbackEndpoint);
-                    });
+                    for (var i=0; i<this.fallbackEndpoints.length; i++) {
+                        self.manager.plumb.deleteEndpoint(this.fallbackEndpoints[i]);
+                    }
                     this.fallbackEndpoints = [];
                 }
             };

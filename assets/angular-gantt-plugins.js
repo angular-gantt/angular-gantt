@@ -422,10 +422,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
                     var newSideWidth = 0;
 
-                    angular.forEach(labels, function (label) {
-                        var width = label.children[0].offsetWidth;
+                    for (var i=0; i<labels.length; i++) {
+                        var width = labels[i].children[0].offsetWidth;
                         newSideWidth = Math.max(newSideWidth, width);
-                    });
+                    }
 
                     if (newSideWidth >= 0) {
                         api.side.setWidth(newSideWidth);
@@ -1705,7 +1705,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             task.model.dependencies = taskDependencies;
                         }
 
-                        for(var i = 0, l = taskDependencies.length; i < l; i++){
+                        for (var i = 0, l = taskDependencies.length; i < l; i++) {
                             var dependency = self.addDependency(task, taskDependencies[i]);
                             dependency.connect();
                         }
@@ -1723,12 +1723,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var dependencies = this.getTaskDependencies(task);
 
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
+                    for (var i = 0; i < dependencies.length; i++) {
                         if (!keepConnection) {
-                            dependency.disconnect();
+                            dependencies[i].disconnect();
                         }
-                        self.removeDependency(dependency);
-                    });
+                        self.removeDependency(dependencies[i]);
+                    }
                 }
             };
 
@@ -1771,39 +1771,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.removeDependency = function(dependency, keepConnection) {
                 var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
+                var i;
 
                 if (fromDependencies) {
-                    angular.forEach(fromDependencies, function(fromDependency) {
-                        if (dependency === fromDependency) {
+                    for (i = 0; i < fromDependencies.length; i++) {
+                        if (dependency === fromDependencies[i]) {
                             fromRemove.push(dependency);
                         }
-                    });
+                    }
                 }
 
                 var toDependencies = this.dependenciesTo[dependency.getToTaskId()];
                 var toRemove = [];
 
                 if (toDependencies) {
-                    angular.forEach(toDependencies, function(toDependency) {
-                        if (dependency === toDependency) {
+                    for (i = 0; i < toDependencies.length; i++) {
+                        if (dependency === toDependencies[i]) {
                             toRemove.push(dependency);
                         }
-                    });
+                    }
                 }
 
-                angular.forEach(fromRemove, function(dependency) {
+                for (i = 0; i < fromRemove.length; i++) {
                     if (!keepConnection) {
-                        dependency.disconnect();
+                        fromRemove[i].disconnect();
                     }
                     fromDependencies.splice(fromDependencies.indexOf(dependency), 1);
-                });
+                }
 
-                angular.forEach(toRemove, function(dependency) {
+                for (i = 0; i < toRemove.length; i++) {
                     if (!keepConnection) {
-                        dependency.disconnect();
+                        toRemove[i].disconnect();
                     }
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
-                });
+                }
 
                 if (this.dependenciesFrom[dependency.getFromTaskId()] &&
                     this.dependenciesFrom[dependency.getFromTaskId()].length === 0) {
@@ -1854,20 +1855,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 task.dependencies.endpoints = [];
 
                 if (self.pluginScope.endpoints) {
-                    angular.forEach(self.pluginScope.endpoints, function(endpoint) {
-                        var endpointObject = self.plumb.addEndpoint(task.$element, endpoint);
+                    for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
+                        var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
                         endpointObject.$task = task;
                         task.dependencies.endpoints.push(endpointObject);
-                    });
+                    }
                 }
 
             };
 
             var removeTaskEndpoint = function(task) {
-                angular.forEach(task.dependencies.endpoints, function(endpointObject) {
+                for (var i = 0; i < task.dependencies.endpoints.length; i++) {
+                    var endpointObject = task.dependencies.endpoints[i];
                     self.plumb.deleteEndpoint(endpointObject);
                     endpointObject.$task = undefined;
-                });
+                }
 
                 task.dependencies.endpoints = undefined;
             };
@@ -1898,20 +1900,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
 
                 var newTasks = {};
-                angular.forEach(tasks, function(task) {
+                for (var i = 0; i < tasks.length; i++) {
+                    var task = tasks[i];
                     newTasks[task.model.id] = task;
                     addTaskEndpoints(task);
                     addTaskMouseHandler(task);
-                });
+                }
                 self.tasks = newTasks;
             };
 
             var disconnectTaskDependencies = function(task) {
                 var dependencies = self.getTaskDependencies(task);
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.disconnect();
-                    });
+                    for (var i = 0; i < dependencies.length; i++) {
+                        dependencies[i].disconnect();
+                    }
                 }
                 return dependencies;
             };
@@ -1919,9 +1922,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var connectTaskDependencies = function(task) {
                 var dependencies = self.getTaskDependencies(task);
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.connect();
-                    });
+                    for (var i = 0; i < dependencies.length; i++) {
+                        dependencies[i].connect();
+                    }
                 }
                 return dependencies;
             };
@@ -2015,11 +2018,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var allDependencies = [];
 
                 angular.forEach(this.dependenciesFrom, function(dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        if (!(dependency in allDependencies)) {
-                            allDependencies.push(dependency);
+                    for (var i = 0; i < dependencies.length; i++) {
+                        if (!(dependencies[i] in allDependencies)) {
+                            allDependencies.push(dependencies[i]);
                         }
-                    });
+                    }
                 });
 
                 return allDependencies;
@@ -2033,6 +2036,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 try {
                     var tasksDependencies;
+                    var i;
                     if (tasks && !angular.isArray(tasks)) {
                         tasks = [tasks];
                     }
@@ -2052,9 +2056,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
                     }
 
-                    angular.forEach(tasksDependencies, function(dependency) {
-                        self.removeDependency(dependency);
-                    });
+                    for (i = 0; i < tasksDependencies.length; i++) {
+                        self.removeDependency(tasksDependencies[i]);
+                    }
 
                     angular.forEach(tasks, function(task) {
                         self.addDependenciesFromTask(task);
@@ -2123,9 +2127,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.deleteFallbackEndpoints = function() {
                 if (this.fallbackEndpoints) {
-                    angular.forEach(this.fallbackEndpoints, function(fallbackEndpoint) {
-                        self.manager.plumb.deleteEndpoint(fallbackEndpoint);
-                    });
+                    for (var i=0; i<this.fallbackEndpoints.length; i++) {
+                        self.manager.plumb.deleteEndpoint(this.fallbackEndpoints[i]);
+                    }
                     this.fallbackEndpoints = [];
                 }
             };
@@ -2387,11 +2391,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
 
     angular.module('gantt').factory('GanttTaskGroup', ['ganttUtils', 'GanttTask', function(utils, Task) {
-        var TaskGroup = function (row, pluginScope) {
+        var TaskGroup = function(row, pluginScope) {
             var self = this;
 
             self.row = row;
@@ -2428,8 +2432,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
-            angular.forEach(self.descendants, function(descendant) {
-                angular.forEach(descendant.tasks, function(task) {
+            for (var i = 0; i < self.descendants.length; i++) {
+                var tasks = self.descendants[i].tasks;
+
+                for (var j = 0; j < tasks.length; j++) {
+                    var task = tasks[j];
+
                     var taskDisplay = getTaskDisplay(task);
                     if (taskDisplay !== undefined) {
                         self.tasks.push(task);
@@ -2437,25 +2445,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
-                        } else if(taskDisplay === 'promote'){
+                        } else if (taskDisplay === 'promote') {
                             self.promotedTasks.push(clone);
                         } else {
                             self.showGrouping = true;
                         }
                     }
-                });
-            });
+                }
+            }
 
             self.from = undefined;
             if (groupRowGroups) {
                 self.from = groupRowGroups.from;
             }
             if (self.from === undefined) {
-                angular.forEach(self.tasks, function (task) {
-                    if (self.from === undefined || task.model.from < self.from) {
-                        self.from = task.model.from;
+                for (i=0; i<self.tasks.length; i++) {
+                    if (self.from === undefined || self.tasks[i].model.from < self.from) {
+                        self.from = self.tasks[i].model.from;
                     }
-                });
+                }
             }
 
             self.to = undefined;
@@ -2463,11 +2471,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 self.to = groupRowGroups.to;
             }
             if (self.to === undefined) {
-                angular.forEach(self.tasks, function (task) {
-                    if (self.to === undefined || task.model.to > self.to) {
-                        self.to = task.model.to;
+                for (i=0; i<self.tasks.length; i++) {
+                    if (self.to === undefined || self.tasks[i].model.to > self.to) {
+                        self.to = self.tasks[i].model.to;
                     }
-                });
+                }
             }
 
             if (self.showGrouping) {
@@ -2945,7 +2953,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
@@ -2964,12 +2972,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     hierarchy.refresh(sortedRows);
 
                     var leaves = [];
-                    angular.forEach(sortedRows, function(row) {
-                       var children = hierarchy.children(row);
-                       if (!children || children.length === 0) {
-                           leaves.push(row);
-                       }
-                    });
+                    for (var i = 0; i < sortedRows.length; i++) {
+                        var children = hierarchy.children(sortedRows[i]);
+                        if (!children || children.length === 0) {
+                            leaves.push(sortedRows[i]);
+                        }
+                    }
 
                     var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
 
@@ -2980,7 +2988,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         var descendants = hierarchy.descendants(row);
 
-                        for (var i=0; i < descendants.length; i++) {
+                        for (var i = 0; i < descendants.length; i++) {
                             if (filteredLeaves.indexOf(descendants[i]) > -1) {
                                 return true;
                             }
@@ -3020,19 +3028,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             var hasParent = false;
 
-            angular.forEach(rows, function(row) {
-                var rowParent = $scope.parent(row);
+            for (var i=0; i<rows.length; i++) {
+                var rowParent = $scope.parent(rows[i]);
                 if (rowParent === undefined) {
-                    rootRows.push(row);
+                    rootRows.push(rows[i]);
                 } else {
                     hasParent = true;
                 }
-            });
+            }
 
             var handleChildren = function(row) {
                 sortedRows.push(row);
                 var children = $scope.children(row);
-
 
 
                 if (children !== undefined && children.length > 0) {
@@ -3040,15 +3047,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         return rows.indexOf(a) - rows.indexOf(b);
                     });
 
-                    angular.forEach(sortedChildren, function(child) {
-                        handleChildren(child);
-                    });
+                    for (var i=0;i<sortedChildren.length;i++) {
+                        handleChildren(sortedChildren[i]);
+                    }
                 }
             };
 
-            angular.forEach(rootRows, function(row) {
-                handleChildren(row);
-            });
+            for (i=0; i<rootRows.length; i++) {
+                handleChildren(rootRows[i]);
+            }
 
             return sortedRows;
         };
@@ -3179,7 +3186,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
-                for (var i=0; i < newValue.length; i++) {
+                for (var i = 0; i < newValue.length; i++) {
                     var childRow = newValue[i];
                     if (visibleRows.indexOf(childRow) > -1) {
                         filteredChildrenRows.push(childRow);
@@ -3192,7 +3199,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         });
 
-        $scope.isCollapseDisabled = function(){
+        $scope.isCollapseDisabled = function() {
             return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
         };
 

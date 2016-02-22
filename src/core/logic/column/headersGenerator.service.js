@@ -99,9 +99,9 @@
             }
 
             var headers = [];
-            angular.forEach(units, function(unit) {
-                headers.push(generateHeader(columnsManager, unit));
-            });
+            for (var i=0; i<units.length; i++) {
+                headers.push(generateHeader(columnsManager, units[i]));
+            }
 
             return headers;
         };

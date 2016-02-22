@@ -270,9 +270,9 @@
                         var widthFactor = newWidth / currentWidth;
 
                         layout.setColumnsWidthFactor(columns, widthFactor);
-                        angular.forEach(headers, function(header) {
-                            layout.setColumnsWidthFactor(header, widthFactor);
-                        });
+                        for (var i=0; i< headers.length; i++) {
+                            layout.setColumnsWidthFactor(headers[i], widthFactor);
+                        }
                         // previous and next columns will be generated again on need.
                         previousColumns.splice(0, this.previousColumns.length);
                         nextColumns.splice(0, this.nextColumns.length);
@@ -364,20 +364,20 @@
             this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
 
             this.visibleHeaders = [];
-            angular.forEach(this.headers, function(header) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(header, this.gantt));
-            }, this);
+            for (var i=0; i< this.headers.length; i++) {
+                this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+            }
 
             if (includeViews) {
-                angular.forEach(this.visibleColumns, function(c) {
-                    c.updateView();
-                });
-
-                angular.forEach(this.visibleHeaders, function(headerRow) {
-                    angular.forEach(headerRow, function(header) {
-                        header.updateView();
-                    });
-                });
+                for (i=0; i<this.visibleColumns.length; i++) {
+                    this.visibleColumns[i].updateView();
+                }
+                for (i=0; i<this.visibleHeaders.length; i++) {
+                    var headerRow = this.visibleHeaders[i];
+                    for (var j=0; j<headerRow.length; j++) {
+                        headerRow[j].updateView();
+                    }
+                }
             }
 
             var currentDateValue = this.gantt.options.value('currentDateValue');

@@ -1,8 +1,8 @@
-(function(){
+(function() {
     'use strict';
 
     angular.module('gantt').factory('GanttHierarchy', [function() {
-        var Hierarchy = function () {
+        var Hierarchy = function() {
             var self = this;
 
             var nameToRow = {};
@@ -47,12 +47,16 @@
                 nameToParent = {};
                 idToParent = {};
 
-                angular.forEach(rows, function(row) {
+                var row;
+
+                for (var i = 0; i < rows.length; i++) {
+                    row = rows[i];
                     nameToRow[row.model.name] = row;
                     idToRow[row.model.id] = row;
-                });
+                }
 
-                angular.forEach(rows, function(row) {
+                for (i = 0; i < rows.length; i++) {
+                    row = rows[i];
                     if (row.model.parent !== undefined) {
                         var parentRow = nameToRow[row.model.parent];
                         if (parentRow === undefined) {
@@ -65,7 +69,9 @@
                     }
 
                     if (row.model.children !== undefined) {
-                        angular.forEach(row.model.children, function(childRowNameOrId) {
+                        var children = row.model.children;
+                        for (var j = 0; j<children.length; j++) {
+                            var childRowNameOrId = children[j];
                             var childRow = nameToRow[childRowNameOrId];
                             if (childRow === undefined) {
                                 childRow = idToRow[childRowNameOrId];
@@ -74,16 +80,17 @@
                             if (childRow !== undefined) {
                                 registerChildRow(row, childRow);
                             }
-                        });
+                        }
                     }
-                });
+                }
 
                 var rootRows = [];
-                angular.forEach(rows, function(row) {
+                for (i = 0; i < rows.length; i++) {
+                    row = rows[i];
                     if (self.parent(row) === undefined) {
                         rootRows.push(row);
                     }
-                });
+                }
 
                 return rootRows;
             };
@@ -99,10 +106,10 @@
                 var children = self.children(row);
                 descendants.push.apply(descendants, children);
                 if (children !== undefined) {
-                    angular.forEach(children, function(child) {
-                        var childDescendants = self.descendants(child);
+                    for (var i=0; i<children.length; i++) {
+                        var childDescendants = self.descendants(children[i]);
                         descendants.push.apply(descendants, childDescendants);
-                    });
+                    }
                 }
 
                 return descendants;

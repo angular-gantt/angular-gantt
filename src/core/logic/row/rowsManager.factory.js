@@ -1,4 +1,4 @@
-(function(){
+(function() {
     'use strict';
     angular.module('gantt').factory('GanttRowsManager', ['GanttRow', 'ganttArrays', '$filter', '$timeout', 'moment', function(Row, arrays, $filter, $timeout, moment) {
         var RowsManager = function(gantt) {
@@ -119,7 +119,7 @@
                 }
 
                 var toRemoveIds = arrays.getRemovedIds(rowModel.tasks, row.model.tasks);
-                for (i= 0, l=toRemoveIds.length; i<l; i++) {
+                for (i = 0, l = toRemoveIds.length; i < l; i++) {
                     var toRemoveId = toRemoveIds[i];
                     row.removeTask(toRemoveId);
                 }
@@ -152,18 +152,20 @@
             }
 
             if (!isUpdate) {
-                var watcher = this.gantt.$scope.$watchCollection(function() {return rowModel.tasks;}, function(newTasks, oldTasks) {
+                var watcher = this.gantt.$scope.$watchCollection(function() {
+                    return rowModel.tasks;
+                }, function(newTasks, oldTasks) {
                     if (newTasks !== oldTasks) {
                         var i, l;
 
                         var toRemoveIds = arrays.getRemovedIds(newTasks, oldTasks);
-                        for (i= 0, l = toRemoveIds.length; i<l; i++) {
+                        for (i = 0, l = toRemoveIds.length; i < l; i++) {
                             var toRemove = toRemoveIds[i];
                             row.removeTask(toRemove);
                         }
 
                         if (newTasks !== undefined) {
-                            for (i= 0, l = newTasks.length; i<l; i++) {
+                            for (i = 0, l = newTasks.length; i < l; i++) {
                                 var toAdd = newTasks[i];
                                 row.addTask(toAdd);
                             }
@@ -213,7 +215,7 @@
             this.customFilteredRows = [];
             this.visibleRows = [];
 
-            for (var i= 0, l=this.rowsTaskWatchers.length; i<l; i++) {
+            for (var i = 0, l = this.rowsTaskWatchers.length; i < l; i++) {
                 var deregisterFunction = this.rowsTaskWatchers[i];
                 deregisterFunction();
             }
@@ -253,9 +255,9 @@
         };
 
         RowsManager.prototype.applyCustomRowSorters = function(sortedRows) {
-            angular.forEach(this.customRowSorters, function(sorterFunction) {
-                sortedRows = sorterFunction(sortedRows);
-            });
+            for (var i = 0; i < this.customRowSorters.length; i++) {
+                sortedRows = this.customRowSorters[i](sortedRows);
+            }
             return sortedRows;
         };
 
@@ -313,11 +315,11 @@
 
                 var filterRowComparator = this.gantt.options.value('filterRowComparator');
                 if (typeof(filterRowComparator) === 'function') {
-					//fix issue this.gantt is undefined
-					//
-					var gantt = this.gantt;
+                    //fix issue this.gantt is undefined
+                    //
+                    var gantt = this.gantt;
                     filterRowComparator = function(actual, expected) {
-						//fix actual.model is undefined
+                        //fix actual.model is undefined
                         return gantt.options.value('filterRowComparator')(actual, expected);
                     };
                 }
@@ -352,9 +354,9 @@
         };
 
         RowsManager.prototype.applyCustomRowFilters = function(filteredRows) {
-            angular.forEach(this.customRowFilters, function(filterFunction) {
-                filteredRows = filterFunction(filteredRows);
-            });
+            for (var i = 0; i < this.customRowFilters.length; i++) {
+                filteredRows = this.customRowFilters[i](filteredRows);
+            }
             return filteredRows;
         };
 
@@ -372,13 +374,14 @@
             var tasks = [];
             var visibleTasks = [];
 
-            angular.forEach(this.rows, function(row) {
+            for (var i = 0; i < this.rows.length; i++) {
+                var row = this.rows[i];
                 oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
                 row.updateVisibleTasks();
                 filteredTasks = filteredTasks.concat(row.filteredTasks);
                 visibleTasks = visibleTasks.concat(row.visibleTasks);
                 tasks = tasks.concat(row.tasks);
-            });
+            }
 
             this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
 
@@ -400,11 +403,11 @@
             from = from ? moment(from) : from;
 
             var minRowFrom = from;
-            angular.forEach(this.rows, function(row) {
-                if (minRowFrom === undefined || minRowFrom > row.from) {
-                    minRowFrom = row.from;
+            for (var i = 0; i < this.rows.length; i++) {
+                if (minRowFrom === undefined || minRowFrom > this.rows[i].from) {
+                    minRowFrom = this.rows[i];
                 }
-            });
+            }
             if (minRowFrom && (!from || minRowFrom < from)) {
                 return minRowFrom;
             }
@@ -415,11 +418,11 @@
             to = to ? moment(to) : to;
 
             var maxRowTo = to;
-            angular.forEach(this.rows, function(row) {
-                if (maxRowTo === undefined || maxRowTo < row.to) {
-                    maxRowTo = row.to;
+            for (var i = 0; i < this.rows.length; i++) {
+                if (maxRowTo === undefined || maxRowTo < this.rows[i].to) {
+                    maxRowTo = this.rows[i].to;
                 }
-            });
+            }
             var toDate = this.gantt.options.value('toDate');
             if (maxRowTo && (!toDate || maxRowTo > toDate)) {
                 return maxRowTo;
@@ -429,21 +432,21 @@
 
         RowsManager.prototype.getDefaultFrom = function() {
             var defaultFrom;
-            angular.forEach(this.rows, function(row) {
-                if (defaultFrom === undefined || row.from < defaultFrom) {
-                    defaultFrom = row.from;
+            for (var i = 0; i < this.rows.length; i++) {
+                if (defaultFrom === undefined || this.rows[i].from < defaultFrom) {
+                    defaultFrom = this.rows[i].from;
                 }
-            });
+            }
             return defaultFrom;
         };
 
         RowsManager.prototype.getDefaultTo = function() {
             var defaultTo;
-            angular.forEach(this.rows, function(row) {
-                if (defaultTo === undefined || row.to > defaultTo) {
-                    defaultTo = row.to;
+            for (var i = 0; i < this.rows.length; i++) {
+                if (defaultTo === undefined || this.rows[i].to > defaultTo) {
+                    defaultTo = this.rows[i].to;
                 }
-            });
+            }
             return defaultTo;
         };
 

@@ -1,4 +1,4 @@
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
@@ -17,12 +17,12 @@
                     hierarchy.refresh(sortedRows);
 
                     var leaves = [];
-                    angular.forEach(sortedRows, function(row) {
-                       var children = hierarchy.children(row);
-                       if (!children || children.length === 0) {
-                           leaves.push(row);
-                       }
-                    });
+                    for (var i = 0; i < sortedRows.length; i++) {
+                        var children = hierarchy.children(sortedRows[i]);
+                        if (!children || children.length === 0) {
+                            leaves.push(sortedRows[i]);
+                        }
+                    }
 
                     var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
 
@@ -33,7 +33,7 @@
 
                         var descendants = hierarchy.descendants(row);
 
-                        for (var i=0; i < descendants.length; i++) {
+                        for (var i = 0; i < descendants.length; i++) {
                             if (filteredLeaves.indexOf(descendants[i]) > -1) {
                                 return true;
                             }
@@ -73,19 +73,18 @@
 
             var hasParent = false;
 
-            angular.forEach(rows, function(row) {
-                var rowParent = $scope.parent(row);
+            for (var i=0; i<rows.length; i++) {
+                var rowParent = $scope.parent(rows[i]);
                 if (rowParent === undefined) {
-                    rootRows.push(row);
+                    rootRows.push(rows[i]);
                 } else {
                     hasParent = true;
                 }
-            });
+            }
 
             var handleChildren = function(row) {
                 sortedRows.push(row);
                 var children = $scope.children(row);
-
 
 
                 if (children !== undefined && children.length > 0) {
@@ -93,15 +92,15 @@
                         return rows.indexOf(a) - rows.indexOf(b);
                     });
 
-                    angular.forEach(sortedChildren, function(child) {
-                        handleChildren(child);
-                    });
+                    for (var i=0;i<sortedChildren.length;i++) {
+                        handleChildren(sortedChildren[i]);
+                    }
                 }
             };
 
-            angular.forEach(rootRows, function(row) {
-                handleChildren(row);
-            });
+            for (i=0; i<rootRows.length; i++) {
+                handleChildren(rootRows[i]);
+            }
 
             return sortedRows;
         };
@@ -232,7 +231,7 @@
                 var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
-                for (var i=0; i < newValue.length; i++) {
+                for (var i = 0; i < newValue.length; i++) {
                     var childRow = newValue[i];
                     if (visibleRows.indexOf(childRow) > -1) {
                         filteredChildrenRows.push(childRow);
@@ -245,7 +244,7 @@
             }
         });
 
-        $scope.isCollapseDisabled = function(){
+        $scope.isCollapseDisabled = function() {
             return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
         };
 

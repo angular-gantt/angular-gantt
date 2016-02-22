@@ -80,15 +80,17 @@
                     originalLeftOffset = 0;
                 }
 
-                angular.forEach(columns, function(column) {
+                for (var i=0; i<columns.length; i++) {
+                    var column = columns[i];
                     column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
                     column.width = widthFactor * column.originalSize.width;
 
-                    angular.forEach(column.timeFrames, function(timeFrame) {
+                    for (var j=0; j<column.timeFrames.length; j++) {
+                        var timeFrame = column.timeFrames[j];
                         timeFrame.left = widthFactor * timeFrame.originalSize.left;
                         timeFrame.width = widthFactor * timeFrame.originalSize.width;
-                    });
-                });
+                    }
+                }
             }
         };
     }]);

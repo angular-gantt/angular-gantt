@@ -281,23 +281,25 @@
             var timeFrames = [];
             var dateFrames = filterDateFrames(this.dateFrames, date);
 
-            angular.forEach(dateFrames, function(dateFrame) {
-                if (dateFrame !== undefined) {
-                    angular.forEach(dateFrame.targets, function(timeFrameMappingName) {
-                        var timeFrameMapping = this.timeFrameMappings[timeFrameMappingName];
+            for (var i=0; i < dateFrames.length; i++) {
+                if (dateFrames[i] !== undefined) {
+                    var targets = dateFrames[i].targets;
+
+                    for (var j=0; j < targets.length; j++) {
+                        var timeFrameMapping = this.timeFrameMappings[targets[j]];
                         if (timeFrameMapping !== undefined) {
                             // If a timeFrame mapping is found
                             timeFrames.push(timeFrameMapping.getTimeFrames());
                         } else {
                             // If no timeFrame mapping is found, try using direct timeFrame
-                            var timeFrame = this.timeFrames[timeFrameMappingName];
+                            var timeFrame = this.timeFrames[targets[j]];
                             if (timeFrame !== undefined) {
                                 timeFrames.push(timeFrame);
                             }
                         }
-                    }, this);
+                    }
                 }
-            }, this);
+            }
 
             var dateYear = date.year();
             var dateMonth = date.month();
@@ -312,27 +314,27 @@
                 });
             }
 
-            angular.forEach(timeFrames, function(timeFrame) {
-                timeFrame = timeFrame.clone();
+            for (i=0; i < timeFrames.length; i++) {
+                var cTimeFrame = timeFrames[i].clone();
 
-                if (timeFrame.start !== undefined) {
-                    timeFrame.start.year(dateYear);
-                    timeFrame.start.month(dateMonth);
-                    timeFrame.start.date(dateDate);
+                if (cTimeFrame.start !== undefined) {
+                    cTimeFrame.start.year(dateYear);
+                    cTimeFrame.start.month(dateMonth);
+                    cTimeFrame.start.date(dateDate);
                 }
 
-                if (timeFrame.end !== undefined) {
-                    timeFrame.end.year(dateYear);
-                    timeFrame.end.month(dateMonth);
-                    timeFrame.end.date(dateDate);
+                if (cTimeFrame.end !== undefined) {
+                    cTimeFrame.end.year(dateYear);
+                    cTimeFrame.end.month(dateMonth);
+                    cTimeFrame.end.date(dateDate);
 
-                    if (moment(timeFrame.end).startOf('day') === timeFrame.end) {
-                        timeFrame.end.add(1, 'day');
+                    if (moment(cTimeFrame.end).startOf('day') === cTimeFrame.end) {
+                        cTimeFrame.end.add(1, 'day');
                     }
                 }
 
-                validatedTimeFrames.push(timeFrame);
-            });
+                validatedTimeFrames.push(cTimeFrame);
+            }
 
             return validatedTimeFrames;
         };
@@ -352,7 +354,8 @@
             var minDate;
             var maxDate;
 
-            angular.forEach(timeFrames, function(timeFrame) {
+            for (var i=0; i<timeFrames.length; i++) {
+                var timeFrame = timeFrames[i];
                 if (minDate === undefined || minDate > timeFrame.start) {
                     minDate = timeFrame.start;
                 }
@@ -368,7 +371,7 @@
                     }
                     classes = classes.concat(timeFrame.classes);
                 }
-            });
+            }
 
             if (startDate === undefined) {
                 startDate = minDate;
@@ -384,71 +387,78 @@
                 return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
             });
 
-            angular.forEach(timeFrames, function(timeFrame) {
-                if (!timeFrame.start) {
-                    timeFrame.start = startDate;
+            for (i=0; i<timeFrames.length; i++) {
+                var cTimeFrame = timeFrames[i];
+                if (!cTimeFrame.start) {
+                    cTimeFrame.start = startDate;
                 }
-                if (!timeFrame.end) {
-                    timeFrame.end = endDate;
+                if (!cTimeFrame.end) {
+                    cTimeFrame.end = endDate;
                 }
-            });
+            }
 
             var orderedTimeFrames = $filter('orderBy')(timeFrames, function(timeFrame) {
                 return -timeFrame.getDuration();
             });
 
-            angular.forEach(orderedTimeFrames, function(timeFrame) {
+            var k;
+            for (i=0; i<orderedTimeFrames.length; i++) {
+                var oTimeFrame = orderedTimeFrames[i];
+
                 var tmpSolvedTimeFrames = solvedTimeFrames.slice();
 
-                var i=0;
+                k=0;
                 var dispatched = false;
                 var treated = false;
-                angular.forEach(solvedTimeFrames, function(solvedTimeFrame) {
+
+                for (var j=0; j<solvedTimeFrames.length; j++) {
+                    var sTimeFrame = solvedTimeFrames[j];
+
                     if (!treated) {
-                        if (!timeFrame.end && !timeFrame.start) {
+                        if (!oTimeFrame.end && !oTimeFrame.start) {
                             // timeFrame is infinite.
-                            tmpSolvedTimeFrames.splice(i, 0, timeFrame);
+                            tmpSolvedTimeFrames.splice(k, 0, oTimeFrame);
                             treated = true;
                             dispatched = false;
-                        } else if (timeFrame.end > solvedTimeFrame.start && timeFrame.start < solvedTimeFrame.end) {
+                        } else if (oTimeFrame.end > sTimeFrame.start && oTimeFrame.start < sTimeFrame.end) {
                             // timeFrame is included in this solvedTimeFrame.
                             // solvedTimeFrame:|ssssssssssssssssssssssssssssssssss|
                             //       timeFrame:          |tttttt|
                             //          result:|sssssssss|tttttt|sssssssssssssssss|
 
-                            var newSolvedTimeFrame = solvedTimeFrame.clone();
+                            var newSolvedTimeFrame = sTimeFrame.clone();
 
-                            solvedTimeFrame.end = moment(timeFrame.start);
-                            newSolvedTimeFrame.start = moment(timeFrame.end);
+                            sTimeFrame.end = moment(oTimeFrame.start);
+                            newSolvedTimeFrame.start = moment(oTimeFrame.end);
 
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone(), newSolvedTimeFrame);
+                            tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone(), newSolvedTimeFrame);
                             treated = true;
                             dispatched = false;
-                        } else if (!dispatched && timeFrame.start < solvedTimeFrame.end) {
+                        } else if (!dispatched && oTimeFrame.start < sTimeFrame.end) {
                             // timeFrame is dispatched on two solvedTimeFrame.
                             // First part
                             // solvedTimeFrame:|sssssssssssssssssssssssssssssssssss|s+1;s+1;s+1;s+1;s+1;s+1|
                             //       timeFrame:                                |tttttt|
                             //          result:|sssssssssssssssssssssssssssssss|tttttt|;s+1;s+1;s+1;s+1;s+1|
 
-                            solvedTimeFrame.end = moment(timeFrame.start);
-                            tmpSolvedTimeFrames.splice(i + 1, 0, timeFrame.clone());
+                            sTimeFrame.end = moment(oTimeFrame.start);
+                            tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone());
 
                             dispatched = true;
-                        } else if (dispatched && timeFrame.end > solvedTimeFrame.start) {
+                        } else if (dispatched && oTimeFrame.end > sTimeFrame.start) {
                             // timeFrame is dispatched on two solvedTimeFrame.
                             // Second part
 
-                            solvedTimeFrame.start = moment(timeFrame.end);
+                            sTimeFrame.start = moment(oTimeFrame.end);
                             dispatched = false;
                             treated = true;
                         }
-                        i++;
+                        k++;
                     }
-                });
+                }
 
                 solvedTimeFrames = tmpSolvedTimeFrames;
-            });
+            }
 
             solvedTimeFrames = $filter('filter')(solvedTimeFrames, function(timeFrame) {
                 return !timeFrame.internal &&

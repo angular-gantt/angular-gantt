@@ -45,16 +45,26 @@
             var self = this;
 
             if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
-                var buildPushTimeFrames = function(timeFrames, startDate, endDate) {
-                    return function(timeFrame) {
-                        var start = timeFrame.start;
+                var cDate = self.date;
+                var cDateStartOfDay = moment(cDate).startOf('day');
+                var cDateNextDay = cDateStartOfDay.add(1, 'day');
+                var i;
+                while (cDate < self.endDate) {
+                    var timeFrames = self.calendar.getTimeFrames(cDate);
+                    var nextCDate = moment.min(cDateNextDay, self.endDate);
+                    timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
+                    var cTimeFrames = [];
+                    for (i=0; i < timeFrames.length; i++) {
+                        var cTimeFrame = timeFrames[i];
+
+                        var start = cTimeFrame.start;
                         if (start === undefined) {
-                            start = startDate;
+                            start = cDate;
                         }
 
-                        var end = timeFrame.end;
+                        var end = cTimeFrame.end;
                         if (end === undefined) {
-                            end = endDate;
+                            end = nextCDate;
                         }
 
                         if (start < self.date) {
@@ -65,24 +75,13 @@
                             end = self.endDate;
                         }
 
-                        timeFrame = timeFrame.clone();
+                        cTimeFrame = cTimeFrame.clone();
 
-                        timeFrame.start = moment(start);
-                        timeFrame.end = moment(end);
+                        cTimeFrame.start = moment(start);
+                        cTimeFrame.end = moment(end);
 
-                        timeFrames.push(timeFrame);
-                    };
-                };
-
-                var cDate = self.date;
-                var cDateStartOfDay = moment(cDate).startOf('day');
-                var cDateNextDay = cDateStartOfDay.add(1, 'day');
-                while (cDate < self.endDate) {
-                    var timeFrames = self.calendar.getTimeFrames(cDate);
-                    var nextCDate = moment.min(cDateNextDay, self.endDate);
-                    timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
-                    var cTimeFrames = [];
-                    angular.forEach(timeFrames, buildPushTimeFrames(cTimeFrames, cDate, nextCDate));
+                        cTimeFrames.push(cTimeFrame);
+                    }
                     self.timeFrames = self.timeFrames.concat(cTimeFrames);
 
                     var cDateKey = getDateKey(cDate);
@@ -93,7 +92,9 @@
                     cDateNextDay = cDateStartOfDay.add(1, 'day');
                 }
 
-                angular.forEach(self.timeFrames, function(timeFrame) {
+                for (i=0; i < self.timeFrames.length; i++) {
+                    var timeFrame = self.timeFrames[i];
+
                     var positionDuration = timeFrame.start.diff(self.date, 'milliseconds');
                     var position = positionDuration / self.duration * self.width;
 
@@ -115,16 +116,17 @@
                     timeFrame.left = position;
                     timeFrame.width = timeFramePosition;
                     timeFrame.originalSize = {left: timeFrame.left, width: timeFrame.width};
-                });
+                }
 
                 if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
                     var timeFramesWidth = 0;
-                    angular.forEach(self.timeFrames, function(timeFrame) {
-                        if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
-                            timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
-                            timeFramesWidth += timeFrame.width;
+                    for (var j=0; j < self.timeFrames.length; j++) {
+                        var aTimeFrame = self.timeFrames[j];
+                        if (!aTimeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
+                            aTimeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                            timeFramesWidth += aTimeFrame.width;
                         }
-                    });
+                    }
 
                     if (timeFramesWidth !== self.width) {
                         var croppedRatio = self.width / timeFramesWidth;
@@ -133,24 +135,26 @@
 
                         var allCropped = true;
 
-                        angular.forEach(self.timeFrames, function(timeFrame) {
-                            if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
-                                timeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
-                                timeFrame.left = (timeFrame.left - croppedWidth) * croppedRatio;
-                                timeFrame.width = timeFrame.width * croppedRatio;
-                                timeFrame.originalSize.left = (timeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
-                                timeFrame.originalSize.width = timeFrame.originalSize.width * croppedRatio;
-                                timeFrame.cropped = false;
+                        for (j=0; j < self.timeFrames.length; j++) {
+                            var bTimeFrame = self.timeFrames[j];
+
+                            if (!bTimeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' ||
+                                bTimeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                                bTimeFrame.left = (bTimeFrame.left - croppedWidth) * croppedRatio;
+                                bTimeFrame.width = bTimeFrame.width * croppedRatio;
+                                bTimeFrame.originalSize.left = (bTimeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
+                                bTimeFrame.originalSize.width = bTimeFrame.originalSize.width * croppedRatio;
+                                bTimeFrame.cropped = false;
                                 allCropped = false;
                             } else {
-                                croppedWidth += timeFrame.width;
-                                originalCroppedWidth += timeFrame.originalSize.width;
-                                timeFrame.left = undefined;
-                                timeFrame.width = 0;
-                                timeFrame.originalSize = {left: undefined, width: 0};
-                                timeFrame.cropped = true;
+                                croppedWidth += bTimeFrame.width;
+                                originalCroppedWidth += bTimeFrame.originalSize.width;
+                                bTimeFrame.left = undefined;
+                                bTimeFrame.width = 0;
+                                bTimeFrame.originalSize = {left: undefined, width: 0};
+                                bTimeFrame.cropped = true;
                             }
-                        });
+                        }
 
                         self.cropped = allCropped;
                     } else {

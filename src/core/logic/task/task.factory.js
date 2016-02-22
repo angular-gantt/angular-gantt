@@ -18,7 +18,7 @@
             var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
 
             return (firstColumn === undefined || this.model.to < firstColumn.date ||
-                    lastColumn === undefined || this.model.from > lastColumn.endDate);
+            lastColumn === undefined || this.model.from > lastColumn.endDate);
         };
 
         // Updates the pos and size of the task according to the from - to date
@@ -97,9 +97,10 @@
 
                     if (this.model.priority > 0) {
                         var priority = this.model.priority;
-                        angular.forEach(this.$element.children(), function(element) {
-                            angular.element(element).css('z-index', priority);
-                        });
+                        var children = this.$element.children();
+                        for (var i = 0; i < children.length; i++) {
+                            angular.element(children[i]).css('z-index', priority);
+                        }
                     }
 
                     this.$element.toggleClass('gantt-task-milestone', this.isMilestone());

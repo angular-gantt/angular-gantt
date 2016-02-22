@@ -51,10 +51,10 @@
                     var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
                     var newSideWidth = 0;
 
-                    angular.forEach(labels, function (label) {
-                        var width = label.children[0].offsetWidth;
+                    for (var i=0; i<labels.length; i++) {
+                        var width = labels[i].children[0].offsetWidth;
                         newSideWidth = Math.max(newSideWidth, width);
-                    });
+                    }
 
                     if (newSideWidth >= 0) {
                         api.side.setWidth(newSideWidth);

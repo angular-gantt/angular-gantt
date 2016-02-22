@@ -53,7 +53,7 @@
                             task.model.dependencies = taskDependencies;
                         }
 
-                        for(var i = 0, l = taskDependencies.length; i < l; i++){
+                        for (var i = 0, l = taskDependencies.length; i < l; i++) {
                             var dependency = self.addDependency(task, taskDependencies[i]);
                             dependency.connect();
                         }
@@ -71,12 +71,12 @@
                 var dependencies = this.getTaskDependencies(task);
 
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
+                    for (var i = 0; i < dependencies.length; i++) {
                         if (!keepConnection) {
-                            dependency.disconnect();
+                            dependencies[i].disconnect();
                         }
-                        self.removeDependency(dependency);
-                    });
+                        self.removeDependency(dependencies[i]);
+                    }
                 }
             };
 
@@ -119,39 +119,40 @@
             this.removeDependency = function(dependency, keepConnection) {
                 var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
+                var i;
 
                 if (fromDependencies) {
-                    angular.forEach(fromDependencies, function(fromDependency) {
-                        if (dependency === fromDependency) {
+                    for (i = 0; i < fromDependencies.length; i++) {
+                        if (dependency === fromDependencies[i]) {
                             fromRemove.push(dependency);
                         }
-                    });
+                    }
                 }
 
                 var toDependencies = this.dependenciesTo[dependency.getToTaskId()];
                 var toRemove = [];
 
                 if (toDependencies) {
-                    angular.forEach(toDependencies, function(toDependency) {
-                        if (dependency === toDependency) {
+                    for (i = 0; i < toDependencies.length; i++) {
+                        if (dependency === toDependencies[i]) {
                             toRemove.push(dependency);
                         }
-                    });
+                    }
                 }
 
-                angular.forEach(fromRemove, function(dependency) {
+                for (i = 0; i < fromRemove.length; i++) {
                     if (!keepConnection) {
-                        dependency.disconnect();
+                        fromRemove[i].disconnect();
                     }
                     fromDependencies.splice(fromDependencies.indexOf(dependency), 1);
-                });
+                }
 
-                angular.forEach(toRemove, function(dependency) {
+                for (i = 0; i < toRemove.length; i++) {
                     if (!keepConnection) {
-                        dependency.disconnect();
+                        toRemove[i].disconnect();
                     }
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
-                });
+                }
 
                 if (this.dependenciesFrom[dependency.getFromTaskId()] &&
                     this.dependenciesFrom[dependency.getFromTaskId()].length === 0) {
@@ -202,20 +203,21 @@
                 task.dependencies.endpoints = [];
 
                 if (self.pluginScope.endpoints) {
-                    angular.forEach(self.pluginScope.endpoints, function(endpoint) {
-                        var endpointObject = self.plumb.addEndpoint(task.$element, endpoint);
+                    for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
+                        var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
                         endpointObject.$task = task;
                         task.dependencies.endpoints.push(endpointObject);
-                    });
+                    }
                 }
 
             };
 
             var removeTaskEndpoint = function(task) {
-                angular.forEach(task.dependencies.endpoints, function(endpointObject) {
+                for (var i = 0; i < task.dependencies.endpoints.length; i++) {
+                    var endpointObject = task.dependencies.endpoints[i];
                     self.plumb.deleteEndpoint(endpointObject);
                     endpointObject.$task = undefined;
-                });
+                }
 
                 task.dependencies.endpoints = undefined;
             };
@@ -246,20 +248,21 @@
                 });
 
                 var newTasks = {};
-                angular.forEach(tasks, function(task) {
+                for (var i = 0; i < tasks.length; i++) {
+                    var task = tasks[i];
                     newTasks[task.model.id] = task;
                     addTaskEndpoints(task);
                     addTaskMouseHandler(task);
-                });
+                }
                 self.tasks = newTasks;
             };
 
             var disconnectTaskDependencies = function(task) {
                 var dependencies = self.getTaskDependencies(task);
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.disconnect();
-                    });
+                    for (var i = 0; i < dependencies.length; i++) {
+                        dependencies[i].disconnect();
+                    }
                 }
                 return dependencies;
             };
@@ -267,9 +270,9 @@
             var connectTaskDependencies = function(task) {
                 var dependencies = self.getTaskDependencies(task);
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.connect();
-                    });
+                    for (var i = 0; i < dependencies.length; i++) {
+                        dependencies[i].connect();
+                    }
                 }
                 return dependencies;
             };
@@ -363,11 +366,11 @@
                 var allDependencies = [];
 
                 angular.forEach(this.dependenciesFrom, function(dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        if (!(dependency in allDependencies)) {
-                            allDependencies.push(dependency);
+                    for (var i = 0; i < dependencies.length; i++) {
+                        if (!(dependencies[i] in allDependencies)) {
+                            allDependencies.push(dependencies[i]);
                         }
-                    });
+                    }
                 });
 
                 return allDependencies;
@@ -381,6 +384,7 @@
 
                 try {
                     var tasksDependencies;
+                    var i;
                     if (tasks && !angular.isArray(tasks)) {
                         tasks = [tasks];
                     }
@@ -400,9 +404,9 @@
                         });
                     }
 
-                    angular.forEach(tasksDependencies, function(dependency) {
-                        self.removeDependency(dependency);
-                    });
+                    for (i = 0; i < tasksDependencies.length; i++) {
+                        self.removeDependency(tasksDependencies[i]);
+                    }
 
                     angular.forEach(tasks, function(task) {
                         self.addDependenciesFromTask(task);
