@@ -331,10 +331,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             task.model.dependencies = taskDependencies;
                         }
 
-                        angular.forEach(taskDependencies, function(taskDependency) {
-                            var dependency = self.addDependency(task, taskDependency);
+                        for(var i = 0, l = taskDependencies.length; i < l; i++){
+                            var dependency = self.addDependency(task, taskDependencies[i]);
                             dependency.connect();
-                        });
+                        }
                     }
                 }
             };

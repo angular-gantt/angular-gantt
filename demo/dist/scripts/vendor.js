@@ -47326,7 +47326,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             while (true) {
                 var currentPosition = currentColumn.getPositionByDate(currentDate);
 
-                var endDate = moment.min(moment(currentDate).add(1, viewScaleUnit), maximumDate);
+                var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
 
                 var column = columnsManager.getColumnByDate(endDate, true);
 
@@ -47594,11 +47594,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             // DEPRECATED
                             var removedRows = [];
-                            angular.forEach(oldData, function(removedRow) {
-                                if (toRemoveIds.indexOf(removedRow.id) > -1) {
-                                    removedRows.push(removedRow);
+                            for(i = 0, l = oldData.length; i < l; i++){
+                                if (toRemoveIds.indexOf(oldData[i].id) > -1) {
+                                    removedRows.push(oldData[i]);
                                 }
-                            });
+                            }
                             self.api.data.raise.remove(removedRows);
                         }
                     }
@@ -52579,10 +52579,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             task.model.dependencies = taskDependencies;
                         }
 
-                        angular.forEach(taskDependencies, function(taskDependency) {
-                            var dependency = self.addDependency(task, taskDependency);
+                        for(var i = 0, l = taskDependencies.length; i < l; i++){
+                            var dependency = self.addDependency(task, taskDependencies[i]);
                             dependency.connect();
-                        });
+                        }
                     }
                 }
             };

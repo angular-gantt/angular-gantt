@@ -185,11 +185,11 @@
 
                             // DEPRECATED
                             var removedRows = [];
-                            angular.forEach(oldData, function(removedRow) {
-                                if (toRemoveIds.indexOf(removedRow.id) > -1) {
-                                    removedRows.push(removedRow);
+                            for(i = 0, l = oldData.length; i < l; i++){
+                                if (toRemoveIds.indexOf(oldData[i].id) > -1) {
+                                    removedRows.push(oldData[i]);
                                 }
-                            });
+                            }
                             self.api.data.raise.remove(removedRows);
                         }
                     }
