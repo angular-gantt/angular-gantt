@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.11 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.12 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -39,6 +39,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var rendered = false;
+                var sensor;
+
                 api.core.on.rendered(scope, function() {
                     rendered = true;
                     if (sensor !== undefined) {
@@ -50,7 +52,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                var sensor;
                 scope.$watch('enabled', function(newValue) {
                     if (rendered) {
                         if (newValue && sensor === undefined) {

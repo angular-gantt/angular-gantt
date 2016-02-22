@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.11 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.12 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -13,7 +13,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?'
-                // Add other option attributes for this plugin
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -22,78 +21,79 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.enabled = true;
                 }
 
+                function getStartEnd(task) {
+                    var start, end;
+
+                    if (task.model.from.isBefore(task.model.to)) {
+                        start = task.model.from;
+                        end = task.model.to;
+                    } else {
+                        start = task.model.to;
+                        end = task.model.from;
+                    }
+
+                    return [start, end];
+                }
+
+                function getRange(task) {
+                    var startEnd = getStartEnd(task);
+                    return moment().range(startEnd[0], startEnd[1]);
+                }
+
+                function handleTaskOverlap(overlapsList, task) {
+                    if (!(task.model.id in overlapsList)) {
+                        task.$element.addClass('gantt-task-overlaps');
+                        overlapsList[task.model.id] = task;
+                    }
+                }
+
+                function handleTaskNonOverlaps(overlapsList, allTasks) {
+                    for(var i=0, l=allTasks.length; i<l; i++) {
+                        var task = allTasks[i];
+                        if (!(task.model.id in overlapsList)) {
+                            task.$element.removeClass('gantt-task-overlaps');
+                        }
+                    }
+                }
+
+                function handleOverlaps(row) {
+                    // Tasks are sorted by start date when added to row
+                    var allTasks = row.tasks;
+                    var newOverlapsTasks = {};
+
+                    if (allTasks.length > 1) {
+                        var previousTask = allTasks[0];
+                        var previousRange = getRange(previousTask);
+
+                        for (var i = 1, l = allTasks.length; i < l; i++) {
+                            var task = allTasks[i];
+                            var range = getRange(task);
+
+                            if (range.overlaps(previousRange)) {
+                                handleTaskOverlap(newOverlapsTasks, task);
+                                handleTaskOverlap(newOverlapsTasks, previousTask);
+                            }
+
+                            if (previousTask.left+previousTask.width < task.left+task.width) {
+                                previousTask = task;
+                                previousRange = range;
+                            }
+                        }
+                    }
+
+                    handleTaskNonOverlaps(newOverlapsTasks, allTasks);
+                }
+
                 if (scope.enabled){
-                    api.tasks.on.change(scope, function (task) {
-                        // on every task change check for overlaps
-                        scope.handleOverlaps(task);
+                    api.tasks.on.change(scope, function(task) {
+                        handleOverlaps(task.row);
+                    });
+
+                    api.tasks.on.rowChange(scope, function(task, oldRow) {
+                        handleOverlaps(oldRow);
                     });
                 }
 
-                var overlapsTasks = {};
-
-                scope.handleOverlaps = function (changedTask) {
-                    // Get all the tasks in the row.
-                    var allTasks = changedTask.row.tasks;
-
-                    var newOverlapsTasks = {};
-                    var removedOverlapsTasks = {};
-
-                    angular.forEach(allTasks, function(task) {
-                        removedOverlapsTasks[task.model.id] = task;
-                    });
-
-                    // set overlaps flag to each task that overlaps other task.
-                    angular.forEach(allTasks,function(currentTask){
-                        var currentStart,currentEnd;
-                        if (currentTask.model.from.isBefore(currentTask.model.to)){
-                            currentStart = currentTask.model.from;
-                            currentEnd = currentTask.model.to;
-                        } else {
-                            currentStart = currentTask.model.to;
-                            currentEnd = currentTask.model.from;
-                        }
-                        var currentRange = moment().range(currentStart, currentEnd);
-                        angular.forEach(allTasks,function(task){
-                            if (currentTask.model.id !== task.model.id){
-                                var start,end;
-                                if (task.model.from.isBefore(task.model.to)){
-                                    start = task.model.from;
-                                    end = task.model.to;
-                                } else {
-                                    start = task.model.to;
-                                    end = task.model.from;
-                                }
-                                var range = moment().range(start, end);
-                                if (range.overlaps(currentRange)){
-                                    if (!overlapsTasks.hasOwnProperty(task.model.id)) {
-                                        newOverlapsTasks[task.model.id] = task;
-                                    }
-                                    delete removedOverlapsTasks[task.model.id];
-                                    if (!overlapsTasks.hasOwnProperty(currentTask.model.id)) {
-                                        newOverlapsTasks[currentTask.model.id] = currentTask;
-                                    }
-                                    delete removedOverlapsTasks[currentTask.model.id];
-                                }
-                            }
-                        });
-                    });
-
-                    angular.forEach(removedOverlapsTasks, function(task) {
-                      if (task.$element){
-                        task.$element.removeClass('gantt-task-overlaps');
-                      }
-                        delete overlapsTasks[task.model.id];
-                    });
-
-                    angular.forEach(newOverlapsTasks, function(task) {
-                      if (task.$element){
-                        task.$element.addClass('gantt-task-overlaps');
-                      }
-                        overlapsTasks[task.model.id] = task;
-                    });
-
-                    overlapsTasks = newOverlapsTasks;
-                };
             }
         };
     }]);

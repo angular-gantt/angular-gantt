@@ -45426,7 +45426,7 @@ angular.module('ngAnimate', [])
 })();
 
 /*
-Project: angular-gantt v1.2.11 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.12 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -50900,7 +50900,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.11 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.12 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com

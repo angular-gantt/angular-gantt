@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.11 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.12 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -422,10 +422,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
                     var newSideWidth = 0;
 
-                    angular.forEach(labels, function (label) {
-                        var width = label.children[0].offsetWidth;
+                    for (var i=0; i<labels.length; i++) {
+                        var width = labels[i].children[0].offsetWidth;
                         newSideWidth = Math.max(newSideWidth, width);
-                    });
+                    }
 
                     if (newSideWidth >= 0) {
                         api.side.setWidth(newSideWidth);
@@ -441,6 +441,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
+
+    /* jshint latedef: false */
     angular.module('gantt.movable', ['gantt']).directive('ganttMovable', ['ganttMouseButton', 'ganttMouseOffset', 'ganttSmartEvent', 'ganttMovableOptions', 'ganttUtils', 'ganttDom', '$window', '$document', '$timeout',
         function(mouseButton, mouseOffset, smartEvent, movableOptions, utils, dom, $window, $document, $timeout) {
             // Provides moving and resizing of tasks
@@ -914,7 +916,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?'
-                // Add other option attributes for this plugin
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -923,78 +924,79 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.enabled = true;
                 }
 
+                function getStartEnd(task) {
+                    var start, end;
+
+                    if (task.model.from.isBefore(task.model.to)) {
+                        start = task.model.from;
+                        end = task.model.to;
+                    } else {
+                        start = task.model.to;
+                        end = task.model.from;
+                    }
+
+                    return [start, end];
+                }
+
+                function getRange(task) {
+                    var startEnd = getStartEnd(task);
+                    return moment().range(startEnd[0], startEnd[1]);
+                }
+
+                function handleTaskOverlap(overlapsList, task) {
+                    if (!(task.model.id in overlapsList)) {
+                        task.$element.addClass('gantt-task-overlaps');
+                        overlapsList[task.model.id] = task;
+                    }
+                }
+
+                function handleTaskNonOverlaps(overlapsList, allTasks) {
+                    for(var i=0, l=allTasks.length; i<l; i++) {
+                        var task = allTasks[i];
+                        if (!(task.model.id in overlapsList)) {
+                            task.$element.removeClass('gantt-task-overlaps');
+                        }
+                    }
+                }
+
+                function handleOverlaps(row) {
+                    // Tasks are sorted by start date when added to row
+                    var allTasks = row.tasks;
+                    var newOverlapsTasks = {};
+
+                    if (allTasks.length > 1) {
+                        var previousTask = allTasks[0];
+                        var previousRange = getRange(previousTask);
+
+                        for (var i = 1, l = allTasks.length; i < l; i++) {
+                            var task = allTasks[i];
+                            var range = getRange(task);
+
+                            if (range.overlaps(previousRange)) {
+                                handleTaskOverlap(newOverlapsTasks, task);
+                                handleTaskOverlap(newOverlapsTasks, previousTask);
+                            }
+
+                            if (previousTask.left+previousTask.width < task.left+task.width) {
+                                previousTask = task;
+                                previousRange = range;
+                            }
+                        }
+                    }
+
+                    handleTaskNonOverlaps(newOverlapsTasks, allTasks);
+                }
+
                 if (scope.enabled){
-                    api.tasks.on.change(scope, function (task) {
-                        // on every task change check for overlaps
-                        scope.handleOverlaps(task);
+                    api.tasks.on.change(scope, function(task) {
+                        handleOverlaps(task.row);
+                    });
+
+                    api.tasks.on.rowChange(scope, function(task, oldRow) {
+                        handleOverlaps(oldRow);
                     });
                 }
 
-                var overlapsTasks = {};
-
-                scope.handleOverlaps = function (changedTask) {
-                    // Get all the tasks in the row.
-                    var allTasks = changedTask.row.tasks;
-
-                    var newOverlapsTasks = {};
-                    var removedOverlapsTasks = {};
-
-                    angular.forEach(allTasks, function(task) {
-                        removedOverlapsTasks[task.model.id] = task;
-                    });
-
-                    // set overlaps flag to each task that overlaps other task.
-                    angular.forEach(allTasks,function(currentTask){
-                        var currentStart,currentEnd;
-                        if (currentTask.model.from.isBefore(currentTask.model.to)){
-                            currentStart = currentTask.model.from;
-                            currentEnd = currentTask.model.to;
-                        } else {
-                            currentStart = currentTask.model.to;
-                            currentEnd = currentTask.model.from;
-                        }
-                        var currentRange = moment().range(currentStart, currentEnd);
-                        angular.forEach(allTasks,function(task){
-                            if (currentTask.model.id !== task.model.id){
-                                var start,end;
-                                if (task.model.from.isBefore(task.model.to)){
-                                    start = task.model.from;
-                                    end = task.model.to;
-                                } else {
-                                    start = task.model.to;
-                                    end = task.model.from;
-                                }
-                                var range = moment().range(start, end);
-                                if (range.overlaps(currentRange)){
-                                    if (!overlapsTasks.hasOwnProperty(task.model.id)) {
-                                        newOverlapsTasks[task.model.id] = task;
-                                    }
-                                    delete removedOverlapsTasks[task.model.id];
-                                    if (!overlapsTasks.hasOwnProperty(currentTask.model.id)) {
-                                        newOverlapsTasks[currentTask.model.id] = currentTask;
-                                    }
-                                    delete removedOverlapsTasks[currentTask.model.id];
-                                }
-                            }
-                        });
-                    });
-
-                    angular.forEach(removedOverlapsTasks, function(task) {
-                      if (task.$element){
-                        task.$element.removeClass('gantt-task-overlaps');
-                      }
-                        delete overlapsTasks[task.model.id];
-                    });
-
-                    angular.forEach(newOverlapsTasks, function(task) {
-                      if (task.$element){
-                        task.$element.addClass('gantt-task-overlaps');
-                      }
-                        overlapsTasks[task.model.id] = task;
-                    });
-
-                    overlapsTasks = newOverlapsTasks;
-                };
             }
         };
     }]);
@@ -1093,6 +1095,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 var rendered = false;
+                var sensor;
+
                 api.core.on.rendered(scope, function() {
                     rendered = true;
                     if (sensor !== undefined) {
@@ -1104,7 +1108,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 });
 
-                var sensor;
                 scope.$watch('enabled', function(newValue) {
                     if (rendered) {
                         if (newValue && sensor === undefined) {
@@ -1702,10 +1705,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             task.model.dependencies = taskDependencies;
                         }
 
-                        angular.forEach(taskDependencies, function(taskDependency) {
-                            var dependency = self.addDependency(task, taskDependency);
+                        for (var i = 0, l = taskDependencies.length; i < l; i++) {
+                            var dependency = self.addDependency(task, taskDependencies[i]);
                             dependency.connect();
-                        });
+                        }
                     }
                 }
             };
@@ -1720,12 +1723,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var dependencies = this.getTaskDependencies(task);
 
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
+                    for (var i = 0; i < dependencies.length; i++) {
                         if (!keepConnection) {
-                            dependency.disconnect();
+                            dependencies[i].disconnect();
                         }
-                        this.removeDependency(dependency);
-                    });
+                        self.removeDependency(dependencies[i]);
+                    }
                 }
             };
 
@@ -1768,39 +1771,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.removeDependency = function(dependency, keepConnection) {
                 var fromDependencies = this.dependenciesFrom[dependency.getFromTaskId()];
                 var fromRemove = [];
+                var i;
 
                 if (fromDependencies) {
-                    angular.forEach(fromDependencies, function(fromDependency) {
-                        if (dependency === fromDependency) {
+                    for (i = 0; i < fromDependencies.length; i++) {
+                        if (dependency === fromDependencies[i]) {
                             fromRemove.push(dependency);
                         }
-                    });
+                    }
                 }
 
                 var toDependencies = this.dependenciesTo[dependency.getToTaskId()];
                 var toRemove = [];
 
                 if (toDependencies) {
-                    angular.forEach(toDependencies, function(toDependency) {
-                        if (dependency === toDependency) {
+                    for (i = 0; i < toDependencies.length; i++) {
+                        if (dependency === toDependencies[i]) {
                             toRemove.push(dependency);
                         }
-                    });
+                    }
                 }
 
-                angular.forEach(fromRemove, function(dependency) {
+                for (i = 0; i < fromRemove.length; i++) {
                     if (!keepConnection) {
-                        dependency.disconnect();
+                        fromRemove[i].disconnect();
                     }
                     fromDependencies.splice(fromDependencies.indexOf(dependency), 1);
-                });
+                }
 
-                angular.forEach(toRemove, function(dependency) {
+                for (i = 0; i < toRemove.length; i++) {
                     if (!keepConnection) {
-                        dependency.disconnect();
+                        toRemove[i].disconnect();
                     }
                     toDependencies.splice(toDependencies.indexOf(dependency), 1);
-                });
+                }
 
                 if (this.dependenciesFrom[dependency.getFromTaskId()] &&
                     this.dependenciesFrom[dependency.getFromTaskId()].length === 0) {
@@ -1851,20 +1855,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 task.dependencies.endpoints = [];
 
                 if (self.pluginScope.endpoints) {
-                    angular.forEach(self.pluginScope.endpoints, function(endpoint) {
-                        var endpointObject = self.plumb.addEndpoint(task.$element, endpoint);
+                    for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
+                        var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
                         endpointObject.$task = task;
                         task.dependencies.endpoints.push(endpointObject);
-                    });
+                    }
                 }
 
             };
 
             var removeTaskEndpoint = function(task) {
-                angular.forEach(task.dependencies.endpoints, function(endpointObject) {
+                for (var i = 0; i < task.dependencies.endpoints.length; i++) {
+                    var endpointObject = task.dependencies.endpoints[i];
                     self.plumb.deleteEndpoint(endpointObject);
                     endpointObject.$task = undefined;
-                });
+                }
 
                 task.dependencies.endpoints = undefined;
             };
@@ -1895,20 +1900,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
 
                 var newTasks = {};
-                angular.forEach(tasks, function(task) {
+                for (var i = 0; i < tasks.length; i++) {
+                    var task = tasks[i];
                     newTasks[task.model.id] = task;
                     addTaskEndpoints(task);
                     addTaskMouseHandler(task);
-                });
+                }
                 self.tasks = newTasks;
             };
 
             var disconnectTaskDependencies = function(task) {
                 var dependencies = self.getTaskDependencies(task);
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.disconnect();
-                    });
+                    for (var i = 0; i < dependencies.length; i++) {
+                        dependencies[i].disconnect();
+                    }
                 }
                 return dependencies;
             };
@@ -1916,9 +1922,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var connectTaskDependencies = function(task) {
                 var dependencies = self.getTaskDependencies(task);
                 if (dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        dependency.connect();
-                    });
+                    for (var i = 0; i < dependencies.length; i++) {
+                        dependencies[i].connect();
+                    }
                 }
                 return dependencies;
             };
@@ -2012,11 +2018,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var allDependencies = [];
 
                 angular.forEach(this.dependenciesFrom, function(dependencies) {
-                    angular.forEach(dependencies, function(dependency) {
-                        if (!(dependency in allDependencies)) {
-                            allDependencies.push(dependency);
+                    for (var i = 0; i < dependencies.length; i++) {
+                        if (!(dependencies[i] in allDependencies)) {
+                            allDependencies.push(dependencies[i]);
                         }
-                    });
+                    }
                 });
 
                 return allDependencies;
@@ -2030,6 +2036,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 try {
                     var tasksDependencies;
+                    var i;
                     if (tasks && !angular.isArray(tasks)) {
                         tasks = [tasks];
                     }
@@ -2049,9 +2056,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
                     }
 
-                    angular.forEach(tasksDependencies, function(dependency) {
-                        self.removeDependency(dependency);
-                    });
+                    for (i = 0; i < tasksDependencies.length; i++) {
+                        self.removeDependency(tasksDependencies[i]);
+                    }
 
                     angular.forEach(tasks, function(task) {
                         self.addDependenciesFromTask(task);
@@ -2120,9 +2127,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.deleteFallbackEndpoints = function() {
                 if (this.fallbackEndpoints) {
-                    angular.forEach(this.fallbackEndpoints, function(fallbackEndpoint) {
-                        self.manager.plumb.deleteEndpoint(fallbackEndpoint);
-                    });
+                    for (var i=0; i<this.fallbackEndpoints.length; i++) {
+                        self.manager.plumb.deleteEndpoint(this.fallbackEndpoints[i]);
+                    }
                     this.fallbackEndpoints = [];
                 }
             };
@@ -2349,14 +2356,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if ($scope.taskGroup !== undefined) {
                 if ($scope.taskGroup.tasks.indexOf(task) > -1) {
                     updateTaskGroup();
-                    if(!$scope.$$phase) {
+                    if(!$scope.$$phase && !$scope.$root.$$phase) {
                         $scope.$digest();
                     }
                 } else {
                     var descendants = $scope.pluginScope.hierarchy.descendants($scope.row);
                     if (descendants.indexOf(task.row) > -1) {
                         updateTaskGroup();
-                        if(!$scope.$$phase) {
+                        if(!$scope.$$phase && !$scope.$root.$$phase) {
                             $scope.$digest();
                         }
                     }
@@ -2384,11 +2391,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
 
     angular.module('gantt').factory('GanttTaskGroup', ['ganttUtils', 'GanttTask', function(utils, Task) {
-        var TaskGroup = function (row, pluginScope) {
+        var TaskGroup = function(row, pluginScope) {
             var self = this;
 
             self.row = row;
@@ -2425,8 +2432,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
-            angular.forEach(self.descendants, function(descendant) {
-                angular.forEach(descendant.tasks, function(task) {
+            for (var i = 0; i < self.descendants.length; i++) {
+                var tasks = self.descendants[i].tasks;
+
+                for (var j = 0; j < tasks.length; j++) {
+                    var task = tasks[j];
+
                     var taskDisplay = getTaskDisplay(task);
                     if (taskDisplay !== undefined) {
                         self.tasks.push(task);
@@ -2434,25 +2445,25 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         if (taskDisplay === 'overview') {
                             self.overviewTasks.push(clone);
-                        } else if(taskDisplay === 'promote'){
+                        } else if (taskDisplay === 'promote') {
                             self.promotedTasks.push(clone);
                         } else {
                             self.showGrouping = true;
                         }
                     }
-                });
-            });
+                }
+            }
 
             self.from = undefined;
             if (groupRowGroups) {
                 self.from = groupRowGroups.from;
             }
             if (self.from === undefined) {
-                angular.forEach(self.tasks, function (task) {
-                    if (self.from === undefined || task.model.from < self.from) {
-                        self.from = task.model.from;
+                for (i=0; i<self.tasks.length; i++) {
+                    if (self.from === undefined || self.tasks[i].model.from < self.from) {
+                        self.from = self.tasks[i].model.from;
                     }
-                });
+                }
             }
 
             self.to = undefined;
@@ -2460,11 +2471,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 self.to = groupRowGroups.to;
             }
             if (self.to === undefined) {
-                angular.forEach(self.tasks, function (task) {
-                    if (self.to === undefined || task.model.to > self.to) {
-                        self.to = task.model.to;
+                for (i=0; i<self.tasks.length; i++) {
+                    if (self.to === undefined || self.tasks[i].model.to > self.to) {
+                        self.to = self.tasks[i].model.to;
                     }
-                });
+                }
             }
 
             if (self.showGrouping) {
@@ -2737,6 +2748,104 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var showTooltipPromise;
                 var visible = false;
                 var mouseEnterX;
+                var mouseMoveHandler;
+
+                var getViewPortWidth = function() {
+                    var d = $document[0];
+                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
+                };
+
+                var updateTooltip = function(x) {
+                    // Check if info is overlapping with view port
+                    if (x + $element[0].offsetWidth > getViewPortWidth()) {
+                        $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
+                        $scope.isRightAligned = true;
+                    } else {
+                        $element.css('left', (x - 20) + 'px');
+                        $scope.isRightAligned = false;
+                    }
+                };
+
+                var showTooltip = function(x) {
+                    visible = true;
+                    mouseMoveHandler.bind();
+
+                    $scope.displayed = true;
+
+                    $scope.$evalAsync(function() {
+                        var restoreNgHide;
+                        if ($element.hasClass('ng-hide')) {
+                            $element.removeClass('ng-hide');
+                            restoreNgHide = true;
+                        }
+                        $scope.elementHeight = $element[0].offsetHeight;
+                        if (restoreNgHide) {
+                            $element.addClass('ng-hide');
+                        }
+                        $scope.taskRect = parentElement[0].getBoundingClientRect();
+                        updateTooltip(x);
+                    });
+                };
+
+                var hideTooltip = function() {
+                    visible = false;
+                    mouseMoveHandler.unbind();
+                    $scope.$evalAsync(function() {
+                        $scope.displayed = false;
+                    });
+                };
+
+                var displayTooltip = function(newValue, showDelayed) {
+                    if (showTooltipPromise) {
+                        $timeout.cancel(showTooltipPromise);
+                    }
+
+                    var taskTooltips = $scope.task.model.tooltips;
+                    var rowTooltips = $scope.task.row.model.tooltips;
+
+                    if (typeof(taskTooltips) === 'boolean') {
+                        taskTooltips = {enabled: taskTooltips};
+                    }
+
+                    if (typeof(rowTooltips) === 'boolean') {
+                        rowTooltips = {enabled: rowTooltips};
+                    }
+
+                    var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
+                    if (enabled && !visible && mouseEnterX !== undefined && newValue) {
+                        if (showDelayed) {
+                            showTooltipPromise = $timeout(function() {
+                                showTooltip(mouseEnterX);
+                            }, $scope.pluginScope.delay, false);
+                        } else {
+                            showTooltip(mouseEnterX);
+                        }
+                    } else if (!newValue) {
+                        if (!$scope.task.active) {
+                            hideTooltip();
+                        }
+                    }
+                };
+
+                mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
+                    if (!visible) {
+                        mouseEnterX = e.clientX;
+                        displayTooltip(true, false);
+                    } else {
+                        // check if mouse goes outside the parent
+                        if(
+                            !$scope.taskRect ||
+                            e.clientX < $scope.taskRect.left ||
+                            e.clientX > $scope.taskRect.right ||
+                            e.clientY > $scope.taskRect.bottom ||
+                            e.clientY < $scope.taskRect.top
+                        ) {
+                            displayTooltip(false, false);
+                        }
+
+                        updateTooltip(e.clientX);
+                    }
+                }, 5, false));
 
                 $scope.getFromLabel = function() {
                     var taskTooltips = $scope.task.model.tooltips;
@@ -2769,27 +2878,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
                     return $scope.task.model.to.format(dateFormat);
                 };
-
-                var mouseMoveHandler = smartEvent($scope, bodyElement, 'mousemove', debounce(function(e) {
-                    if (!visible) {
-                        mouseEnterX = e.clientX;
-                        displayTooltip(true, false);
-                    } else {
-                        // check if mouse goes outside the parent
-                        if(
-                            !$scope.taskRect ||
-                            e.clientX < $scope.taskRect.left ||
-                            e.clientX > $scope.taskRect.right ||
-                            e.clientY > $scope.taskRect.bottom ||
-                            e.clientY < $scope.taskRect.top
-                        ) {
-                            displayTooltip(false, false);
-                        }
-
-                        updateTooltip(e.clientX);
-                    }
-                }, 5, false));
-
 
                 $scope.task.getContentElement().bind('mousemove', function(evt) {
                     mouseEnterX = evt.clientX;
@@ -2830,83 +2918,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     });
                 }
 
-                var displayTooltip = function(newValue, showDelayed) {
-                    if (showTooltipPromise) {
-                        $timeout.cancel(showTooltipPromise);
-                    }
-
-                    var taskTooltips = $scope.task.model.tooltips;
-                    var rowTooltips = $scope.task.row.model.tooltips;
-
-                    if (typeof(taskTooltips) === 'boolean') {
-                        taskTooltips = {enabled: taskTooltips};
-                    }
-
-                    if (typeof(rowTooltips) === 'boolean') {
-                        rowTooltips = {enabled: rowTooltips};
-                    }
-
-                    var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
-                    if (enabled && !visible && mouseEnterX !== undefined && newValue) {
-                        if (showDelayed) {
-                            showTooltipPromise = $timeout(function() {
-                                showTooltip(mouseEnterX);
-                            }, $scope.pluginScope.delay, false);
-                        } else {
-                            showTooltip(mouseEnterX);
-                        }
-                    } else if (!newValue) {
-                        if (!$scope.task.active) {
-                            hideTooltip();
-                        }
-                    }
-                };
-
-                var showTooltip = function(x) {
-                    visible = true;
-                    mouseMoveHandler.bind();
-
-                    $scope.displayed = true;
-
-                    $scope.$evalAsync(function() {
-                        var restoreNgHide;
-                        if ($element.hasClass('ng-hide')) {
-                            $element.removeClass('ng-hide');
-                            restoreNgHide = true;
-                        }
-                        $scope.elementHeight = $element[0].offsetHeight;
-                        if (restoreNgHide) {
-                            $element.addClass('ng-hide');
-                        }
-                        $scope.taskRect = parentElement[0].getBoundingClientRect();
-                        updateTooltip(x);
-                    });
-                };
-
-                var getViewPortWidth = function() {
-                    var d = $document[0];
-                    return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
-                };
-
-                var updateTooltip = function(x) {
-                    // Check if info is overlapping with view port
-                    if (x + $element[0].offsetWidth > getViewPortWidth()) {
-                        $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
-                        $scope.isRightAligned = true;
-                    } else {
-                        $element.css('left', (x - 20) + 'px');
-                        $scope.isRightAligned = false;
-                    }
-                };
-
-                var hideTooltip = function() {
-                    visible = false;
-                    mouseMoveHandler.unbind();
-                    $scope.$evalAsync(function() {
-                        $scope.displayed = false;
-                    });
-                };
-
                 if ($scope.task.isMoving) {
                     // Display tooltip because task has been moved to a new row
                     displayTooltip(true, false);
@@ -2942,7 +2953,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-(function(){
+(function() {
     'use strict';
     angular.module('gantt.tree').controller('GanttTreeController', ['$scope', '$filter', 'GanttHierarchy', function($scope, $filter, Hierarchy) {
         $scope.rootRows = [];
@@ -2961,12 +2972,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     hierarchy.refresh(sortedRows);
 
                     var leaves = [];
-                    angular.forEach(sortedRows, function(row) {
-                       var children = hierarchy.children(row);
-                       if (!children || children.length === 0) {
-                           leaves.push(row);
-                       }
-                    });
+                    for (var i = 0; i < sortedRows.length; i++) {
+                        var children = hierarchy.children(sortedRows[i]);
+                        if (!children || children.length === 0) {
+                            leaves.push(sortedRows[i]);
+                        }
+                    }
 
                     var filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
 
@@ -2977,7 +2988,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         var descendants = hierarchy.descendants(row);
 
-                        for (var i=0; i < descendants.length; i++) {
+                        for (var i = 0; i < descendants.length; i++) {
                             if (filteredLeaves.indexOf(descendants[i]) > -1) {
                                 return true;
                             }
@@ -3017,19 +3028,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             var hasParent = false;
 
-            angular.forEach(rows, function(row) {
-                var rowParent = $scope.parent(row);
+            for (var i=0; i<rows.length; i++) {
+                var rowParent = $scope.parent(rows[i]);
                 if (rowParent === undefined) {
-                    rootRows.push(row);
+                    rootRows.push(rows[i]);
                 } else {
                     hasParent = true;
                 }
-            });
+            }
 
             var handleChildren = function(row) {
                 sortedRows.push(row);
                 var children = $scope.children(row);
-
 
 
                 if (children !== undefined && children.length > 0) {
@@ -3037,15 +3047,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         return rows.indexOf(a) - rows.indexOf(b);
                     });
 
-                    angular.forEach(sortedChildren, function(child) {
-                        handleChildren(child);
-                    });
+                    for (var i=0;i<sortedChildren.length;i++) {
+                        handleChildren(sortedChildren[i]);
+                    }
                 }
             };
 
-            angular.forEach(rootRows, function(row) {
-                handleChildren(row);
-            });
+            for (i=0; i<rootRows.length; i++) {
+                handleChildren(rootRows[i]);
+            }
 
             return sortedRows;
         };
@@ -3154,11 +3164,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         $scope.nodeScopes = {};
     }]).controller('GanttUiTreeController', ['$scope', function($scope) {
         var collapseAll = function() {
-            $scope.collapseAll();
+            $scope.$broadcast('angular-ui-tree:collapse-all');
         };
 
         var expandAll = function() {
-            $scope.expandAll();
+            $scope.$broadcast('angular-ui-tree:expand-all');
         };
 
         $scope.gantt.api.registerMethod('tree', 'collapseAll', collapseAll, $scope);
@@ -3176,7 +3186,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var visibleRows = $scope.row.rowsManager.filteredRows;
 
                 var filteredChildrenRows = [];
-                for (var i=0; i < newValue.length; i++) {
+                for (var i = 0; i < newValue.length; i++) {
                     var childRow = newValue[i];
                     if (visibleRows.indexOf(childRow) > -1) {
                         filteredChildrenRows.push(childRow);
@@ -3189,7 +3199,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             }
         });
 
-        $scope.isCollapseDisabled = function(){
+        $scope.isCollapseDisabled = function() {
             return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
         };
 
