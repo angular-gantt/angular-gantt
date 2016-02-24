@@ -46808,16 +46808,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     } else {
                         left += columnWidth;
                     }
-
-                    if (to) {
-                        if (reverse) {
-                            if (excludeTo && date < to || !excludeTo && date <= to) {
-                                break;
-                            }
-                        } else {
-                            if (excludeTo && date > to || !excludeTo && date >= to) {
-                                break;
-                            }
+                }
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
                         }
                     }
                 }
