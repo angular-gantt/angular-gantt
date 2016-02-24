@@ -3279,7 +3279,31 @@ angular.module('gantt.dependencies.templates', []).run(['$templateCache', functi
 
 }]);
 
+angular.module('gantt.dragtask.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/dragtask/dragTask.tmpl.html',
+        '<div ng-model="task" data-drag="enabled" data-jqyoui-options="jqyouiOptions" jqyoui-draggable="{onStart:\'onStart\', onStop :\'onStop\'}">\n' +
+        '    <div ng-if="!dragActive" class="btn-drag btn btn-default" ng-class="{\'btn-info\': task.selected}" ng-click="select(event)"><span class="glyphicon glyphicon-move"></span></div>\n' +
+        '    <div ng-if="dragActive" class="gantt-task" ng-class="task.classes" ng-style="{\'height\': \'1.6em\', \'width\': task.width +\'px\', \'z-index\': 1000}">\n' +
+        '        <!--<gantt-task-background></gantt-task-background>-->\n' +
+        '        <div class="gantt-task-background" ng-style="{\'background-color\': task.color}"></div>\n' +
+        '        <div class="gantt-task-content" unselectable="on"><span unselectable="on"/>{{task.content}}</div>\n' +
+        '        <!--<gantt-task-content></gantt-task-content>-->\n' +
+        '    </div>\n' +
+        '    <!--<div ng-if="dragActive" ng-class="(task.isMilestone === true && [\'gantt-task-milestone\'] || [\'gantt-task\']).concat(task.classes)"-->\n' +
+        '         <!--ng-style="{\'height\': \'1.6em\', \'width\': task.width +\'em\', \'z-index\': 1000, \'background-color\': task.color}">-->\n' +
+        '        <!--&lt;!&ndash;<gantt-bounds template-url="template/default.bouds.tmpl.html" ng-if="task.bounds !== undefined" ng-model="task"></gantt-bounds>&ndash;&gt;-->\n' +
+        '        <!--&lt;!&ndash;<gantt-tooltip template-url="template/default.tooltip.tmpl.html" ng-if="showTooltips && (task.isMouseOver || task.isMoving)" ng-model="task"></gantt-tooltip>&ndash;&gt;-->\n' +
+        '        <!--<div class="gantt-task-content"><span>{{ (task.isMilestone === true && \'&nbsp;\' || task.subject) }}</span></div>-->\n' +
+        '    <!--</div>-->\n' +
+        '</div>\n' +
+        '');
+}]);
+
 angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.drop.templates', []).run(['$templateCache', function($templateCache) {
 
 }]);
 
@@ -3396,6 +3420,24 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '        </div>\n' +
         '\n' +
         '    </div>\n' +
+        '</div>\n' +
+        '');
+}]);
+
+angular.module('gantt.taskmenu.templates', []).run(['$templateCache', function($templateCache) {
+
+}]);
+
+angular.module('gantt.taskmenus.templates', []).run(['$templateCache', function($templateCache) {
+    $templateCache.put('plugins/taskmenus/taskmenu.tmpl.html',
+        '<div class="task-menu" dropdown is-open="menuVisible">\n' +
+        '    <div class="dropdown-toggle">\n' +
+        '        <span class="caret"></span>\n' +
+        '    </div>\n' +
+        '    <ul class="dropdown-menu" role="menu">\n' +
+        '        <li><a href="https://www.google.com/maps/search/{{ task.model.data.locationComplete | encodeURIComponent }}" target="_blank"><span class="glyphicon glyphicon-map-marker"></span> Montrer sur la carte</a></li>\n' +
+        '        <li><a href ng-click="delete($event)"><span class="glyphicon glyphicon-remove"></span> Retirer l\'affectation</a></li>\n' +
+        '    </ul>\n' +
         '</div>\n' +
         '');
 }]);
