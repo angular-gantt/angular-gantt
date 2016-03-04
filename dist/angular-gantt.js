@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.12 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.13 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -1381,16 +1381,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     } else {
                         left += columnWidth;
                     }
-
-                    if (to) {
-                        if (reverse) {
-                            if (excludeTo && date < to || !excludeTo && date <= to) {
-                                break;
-                            }
-                        } else {
-                            if (excludeTo && date > to || !excludeTo && date >= to) {
-                                break;
-                            }
+                }
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
                         }
                     }
                 }
