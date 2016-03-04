@@ -13,6 +13,14 @@
 
             this.manager = manager;
 
+            // Deny the start of a drag when in readonly
+            var denyDragWhenReadOnly = function () {
+                return !self.manager.pluginScope.readOnly;
+            };
+
+            this.manager.plumb.bind('beforeDrag', denyDragWhenReadOnly);
+            this.manager.plumb.bind('beforeStartDetach', denyDragWhenReadOnly);
+
             // Deny drop on the same task.
             var denyDropOnSameTask = function(params) {
                 return params.sourceId !== params.targetId;

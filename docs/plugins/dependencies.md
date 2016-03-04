@@ -31,6 +31,13 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
 
     default: `true`
 
+- ### readOnly
+
+    If enabled, existing dependencies will be displayed, but it won't be possible to edit existing dependencies or 
+    create new dependencies using mouse.
+    
+    default: `false`
+
 - ### jsPlumbDefaults
 
     Default settings object for the underlying jsPlumb instance. See 

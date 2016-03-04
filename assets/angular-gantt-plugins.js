@@ -69,6 +69,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             require: '^gantt',
             scope: {
                 enabled: '=?',
+                readOnly: '=?',
                 jsPlumbDefaults: '=?',
                 endpoints: '=?',
                 fallbackEndpoints: '=?'
@@ -85,6 +86,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
+                }
+
+                if (scope.readOnly === undefined) {
+                    scope.readOnly = false;
                 }
 
                 if (scope.jsPlumbDefaults === undefined) {
@@ -1540,6 +1545,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
             this.manager = manager;
 
+            // Deny the start of a drag when in readonly
+            var denyDragWhenReadOnly = function () {
+                return !self.manager.pluginScope.readOnly;
+            };
+
+            this.manager.plumb.bind('beforeDrag', denyDragWhenReadOnly);
+            this.manager.plumb.bind('beforeStartDetach', denyDragWhenReadOnly);
+
             // Deny drop on the same task.
             var denyDropOnSameTask = function(params) {
                 return params.sourceId !== params.targetId;
@@ -1672,6 +1685,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.dependenciesFrom = {};
             this.dependenciesTo = {};
 
+            this.tasksList = [];
             this.tasks = {};
 
             this.events = new DependenciesEvents(this);
@@ -1680,7 +1694,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (newValue !== oldValue) {
                     self.refresh();
                 }
+            });
 
+            this.pluginScope.$watch('readOnly', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    self.setTasks(self.tasksList);
+                    self.refresh();
+                }
             });
 
             this.pluginScope.$watch('jsPlumbDefaults', function(newValue, oldValue) {
@@ -1857,6 +1877,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (self.pluginScope.endpoints) {
                     for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
                         var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
+                        endpointObject.setVisible(false, true, true); // hide endpoint
                         endpointObject.$task = task;
                         task.dependencies.endpoints.push(endpointObject);
                     }
@@ -1879,13 +1900,17 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     task.dependencies = {};
                 }
 
-                task.dependencies.mouseHandler = new TaskMouseHandler(self, task);
-                task.dependencies.mouseHandler.install();
+                if (!self.pluginScope.readOnly) {
+                    task.dependencies.mouseHandler = new TaskMouseHandler(self, task);
+                    task.dependencies.mouseHandler.install();
+                }
             };
 
             var removeTaskMouseHandler = function(task) {
-                task.dependencies.mouseHandler.release();
-                task.dependencies.mouseHandler = undefined;
+                if (task.dependencies.mouseHandler) {
+                    task.dependencies.mouseHandler.release();
+                    task.dependencies.mouseHandler = undefined;
+                }
             };
 
             /**
@@ -1907,6 +1932,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     addTaskMouseHandler(task);
                 }
                 self.tasks = newTasks;
+                self.tasksList = tasks;
             };
 
             var disconnectTaskDependencies = function(task) {

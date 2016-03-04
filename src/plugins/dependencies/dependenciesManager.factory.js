@@ -20,6 +20,7 @@
             this.dependenciesFrom = {};
             this.dependenciesTo = {};
 
+            this.tasksList = [];
             this.tasks = {};
 
             this.events = new DependenciesEvents(this);
@@ -28,7 +29,13 @@
                 if (newValue !== oldValue) {
                     self.refresh();
                 }
+            });
 
+            this.pluginScope.$watch('readOnly', function(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    self.setTasks(self.tasksList);
+                    self.refresh();
+                }
             });
 
             this.pluginScope.$watch('jsPlumbDefaults', function(newValue, oldValue) {
@@ -205,6 +212,7 @@
                 if (self.pluginScope.endpoints) {
                     for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
                         var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
+                        endpointObject.setVisible(false, true, true); // hide endpoint
                         endpointObject.$task = task;
                         task.dependencies.endpoints.push(endpointObject);
                     }
@@ -227,13 +235,17 @@
                     task.dependencies = {};
                 }
 
-                task.dependencies.mouseHandler = new TaskMouseHandler(self, task);
-                task.dependencies.mouseHandler.install();
+                if (!self.pluginScope.readOnly) {
+                    task.dependencies.mouseHandler = new TaskMouseHandler(self, task);
+                    task.dependencies.mouseHandler.install();
+                }
             };
 
             var removeTaskMouseHandler = function(task) {
-                task.dependencies.mouseHandler.release();
-                task.dependencies.mouseHandler = undefined;
+                if (task.dependencies.mouseHandler) {
+                    task.dependencies.mouseHandler.release();
+                    task.dependencies.mouseHandler = undefined;
+                }
             };
 
             /**
@@ -255,6 +267,7 @@
                     addTaskMouseHandler(task);
                 }
                 self.tasks = newTasks;
+                self.tasksList = tasks;
             };
 
             var disconnectTaskDependencies = function(task) {

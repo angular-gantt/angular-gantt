@@ -6,6 +6,7 @@
             require: '^gantt',
             scope: {
                 enabled: '=?',
+                readOnly: '=?',
                 jsPlumbDefaults: '=?',
                 endpoints: '=?',
                 fallbackEndpoints: '=?'
@@ -22,6 +23,10 @@
 
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
+                }
+
+                if (scope.readOnly === undefined) {
+                    scope.readOnly = false;
                 }
 
                 if (scope.jsPlumbDefaults === undefined) {
