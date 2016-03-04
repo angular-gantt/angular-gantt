@@ -14,11 +14,13 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
 
     <div gantt>
         <gantt-dependencies enabled="true"
-                            jsPlumbDefaults="{
+                            read-only="false"
+                            js-plumb-defaults="{
                                              Endpoint: ['Dot', {radius: 7}],
                                              Connector: 'Flowchart'
                                              }"
-                            endpoints="[...]">
+                            endpoints="[...]"
+                            fallback-endpoints="[...]">
         </gantt-dependencies>
     </div>
 
@@ -31,14 +33,14 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
 
     default: `true`
 
-- ### readOnly
+- ### read-only
 
     If enabled, existing dependencies will be displayed, but it won't be possible to edit existing dependencies or 
     create new dependencies using mouse.
     
     default: `false`
 
-- ### jsPlumbDefaults
+- ### js-plumb-defaults
 
     Default settings object for the underlying jsPlumb instance. See 
     [Configuring Defaults](https://jsplumbtoolkit.com/community/doc/defaults.html) of 
@@ -84,7 +86,7 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
            }
        ];
 
-- ### fallbackEndpoints
+- ### fallback-endpoints
 
     Endpoints used to display start/end of connections that links invisible tasks (out of range, collapsed, ...).
     
