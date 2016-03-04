@@ -195,8 +195,8 @@
     filter: grayscale(0.7);
 }
 
-.gantt-task-overlaps{
-    border: 2px solid #e00000;
+.gantt-task-overlaps {
+    border: 2px solid #a00000;
 }
 
 .gantt-task-progress {
