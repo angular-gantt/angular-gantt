@@ -151,18 +151,18 @@
                 timeFrames = cal.solve(timeFrames, startDate, endDate);
                 expect(timeFrames.length).toBe(3);
 
-                expect(timeFrames[0].start).toEqual(cal.timeFrames.day.start);
-                expect(timeFrames[0].end).toEqual(cal.timeFrames.noon.start);
+                expect(timeFrames[0].start.valueOf()).toEqual(cal.timeFrames.day.start.valueOf());
+                expect(timeFrames[0].end.valueOf()).toEqual(cal.timeFrames.noon.start.valueOf());
                 expect(timeFrames[0].working).toBeTruthy();
 
-                expect(timeFrames[1].start).toEqual(cal.timeFrames.noon.start);
-                expect(timeFrames[1].end).toEqual(cal.timeFrames.noon.end);
-                expect(timeFrames[1].classes).toEqual(cal.timeFrames.noon.classes);
-                expect(timeFrames[1].color).toEqual(cal.timeFrames.noon.color);
+                expect(timeFrames[1].start.valueOf()).toEqual(cal.timeFrames.noon.start.valueOf());
+                expect(timeFrames[1].end.valueOf()).toEqual(cal.timeFrames.noon.end.valueOf());
+                expect(timeFrames[1].classes.valueOf()).toEqual(cal.timeFrames.noon.classes.valueOf());
+                expect(timeFrames[1].color.valueOf()).toEqual(cal.timeFrames.noon.color.valueOf());
                 expect(timeFrames[1].working).toBeFalsy();
 
-                expect(timeFrames[2].start).toEqual(cal.timeFrames.noon.end);
-                expect(timeFrames[2].end).toEqual(cal.timeFrames.day.end);
+                expect(timeFrames[2].start.valueOf()).toEqual(cal.timeFrames.noon.end.valueOf());
+                expect(timeFrames[2].end.valueOf()).toEqual(cal.timeFrames.day.end.valueOf());
                 expect(timeFrames[2].working).toBeTruthy();
             });
 
