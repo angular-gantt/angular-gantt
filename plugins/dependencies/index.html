@@ -237,11 +237,13 @@
 
 <pre><code>&lt;div gantt&gt;
     &lt;gantt-dependencies enabled="true"
-                        jsPlumbDefaults="{
+                        read-only="false"
+                        js-plumb-defaults="{
                                          Endpoint: ['Dot', {radius: 7}],
                                          Connector: 'Flowchart'
                                          }"
-                        endpoints="[...]"&gt;
+                        endpoints="[...]"
+                        fallback-endpoints="[...]"&gt;
     &lt;/gantt-dependencies&gt;
 &lt;/div&gt;
 </code></pre>
@@ -253,7 +255,13 @@
 <p>default: <code>true</code></p>
 </li>
 <li>
-<h3 id="jsplumbdefaults">jsPlumbDefaults</h3>
+<h3 id="read-only">read-only</h3>
+<p>If enabled, existing dependencies will be displayed, but it won't be possible to edit existing dependencies or 
+create new dependencies using mouse.</p>
+<p>default: <code>false</code></p>
+</li>
+<li>
+<h3 id="js-plumb-defaults">js-plumb-defaults</h3>
 <p>Default settings object for the underlying jsPlumb instance. See 
 <a href="https://jsplumbtoolkit.com/community/doc/defaults.html">Configuring Defaults</a> of 
 <a href="https://jsplumbtoolkit.com/community/doc/home.html">jsPlumb documentation</a>.</p>
@@ -296,7 +304,7 @@ ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
    ];</p>
 </li>
 <li>
-<h3 id="fallbackendpoints">fallbackEndpoints</h3>
+<h3 id="fallback-endpoints">fallback-endpoints</h3>
 <p>Endpoints used to display start/end of connections that links invisible tasks (out of range, collapsed, ...).</p>
 <p>default : </p>
 <pre><code>[

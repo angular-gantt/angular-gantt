@@ -272,9 +272,9 @@
                                             move-threshold="2"
                                             task-factory="options.drawTaskFactory">
                                         </gantt-draw-task>
-                                        <gantt-overlap></gantt-overlap>
+                                        <gantt-overlap global="true"></gantt-overlap>
                                         <gantt-resize-sensor></gantt-resize-sensor>
-                                        <gantt-dependencies enabled="options.dependencies"></gantt-dependencies>
+                                        <gantt-dependencies enabled="options.dependencies" read-only="options.readOnly"></gantt-dependencies>
                                     </div>
                                 </div>
                                 <div class="panel-body">
