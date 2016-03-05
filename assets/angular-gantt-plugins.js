@@ -915,7 +915,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function() {
     'use strict';
-    angular.module('gantt.overlap', ['gantt', 'gantt.overlap.templates']).directive('ganttOverlap', ['moment', function(moment) {
+    angular.module('gantt.overlap', ['gantt', 'gantt.overlap.templates']).directive('ganttOverlap', ['moment', '$timeout', function(moment, $timeout) {
         return {
             restrict: 'E',
             require: '^gantt',
@@ -954,7 +954,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 function handleTaskOverlap(overlapsList, task) {
-                    if (!(task.model.id in overlapsList)) {
+                    if (!(task.model.id in overlapsList) && task.$element) {
                         task.$element.addClass('gantt-task-overlaps');
                         overlapsList[task.model.id] = task;
                     }
@@ -963,7 +963,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 function handleTaskNonOverlaps(overlapsList, allTasks) {
                     for (var i = 0, l = allTasks.length; i < l; i++) {
                         var task = allTasks[i];
-                        if (!(task.model.id in overlapsList)) {
+                        if (!(task.model.id in overlapsList) && task.$element) {
                             task.$element.removeClass('gantt-task-overlaps');
                         }
                     }
@@ -1021,16 +1021,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 if (scope.enabled) {
-                    api.core.on.rendered(scope, function(api) {
-                        var rows = api.gantt.rowsManager.rows;
+                    api.data.on.change(scope, function() {
+                        $timeout(function() {
+                            var rows = api.gantt.rowsManager.rows;
 
-                        if (scope.global) {
-                            handleGlobalOverlaps(rows);
-                        } else {
-                            for (var i = 0; i < rows.length; i++) {
-                                handleOverlaps(rows[i].tasks);
+                            if (scope.global) {
+                                handleGlobalOverlaps(rows);
+                            } else {
+                                for (var i = 0; i < rows.length; i++) {
+                                    handleOverlaps(rows[i].tasks);
+                                }
                             }
-                        }
+                        });
                     });
 
                     api.tasks.on.change(scope, function(task) {
