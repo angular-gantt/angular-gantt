@@ -92,22 +92,27 @@
                     });
                 }
 
+                function handleGlobalOverlaps(rows) {
+                    var globalTasks = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        globalTasks.push.apply(globalTasks, rows[i].tasks);
+                    }
+
+                    globalTasks = sortOn(globalTasks, function(task) {
+                        return task.model.from;
+                    });
+
+                    handleOverlaps(globalTasks);
+                }
+
                 if (scope.enabled) {
                     api.core.on.rendered(scope, function(api) {
-                        var rows = ganttCtrl.gantt.rowsManager.rows;
-                        var i;
+                        var rows = api.gantt.rowsManager.rows;
+
                         if (scope.global) {
-                            var globalTasks = [];
-                            for (i = 0; i < rows.length; i++) {
-                                globalTasks.push.apply(globalTasks, rows[i].tasks);
-                            }
-                            globalTasks = sortOn(globalTasks, function(task) {
-                                return task.model.from;
-                            });
-                            handleOverlaps(globalTasks);
+                            handleGlobalOverlaps(rows);
                         } else {
-                            rows = api.gantt.rowsManager.rows;
-                            for (i = 0; i < rows.length; i++) {
+                            for (var i = 0; i < rows.length; i++) {
                                 handleOverlaps(rows[i].tasks);
                             }
                         }
@@ -116,14 +121,7 @@
                     api.tasks.on.change(scope, function(task) {
                         if (scope.global) {
                             var rows = task.row.rowsManager.rows;
-                            var globalTasks = [];
-                            for (var i = 0; i < rows.length; i++) {
-                                globalTasks.push.apply(globalTasks, rows[i].tasks);
-                            }
-                            globalTasks = sortOn(globalTasks, function(task) {
-                                return task.model.from;
-                            });
-                            handleOverlaps(globalTasks);
+                            handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(task.row.tasks);
                         }
@@ -132,22 +130,13 @@
                     api.tasks.on.rowChange(scope, function(task, oldRow) {
                         if (scope.global) {
                             var rows = oldRow.rowsManager.rows;
-                            var globalTasks = [];
-                            for (var i = 0; i < rows.length; i++) {
-                                globalTasks.push.apply(globalTasks, rows[i].tasks);
-                            }
-                            globalTasks = sortOn(globalTasks, function(task) {
-                                return task.model.from;
-                            });
-                            handleOverlaps(globalTasks);
+                            handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(oldRow.tasks);
                         }
                     });
                 }
-
             }
         };
     }]);
 }());
-
