@@ -67,3 +67,7 @@
 .gantt .gantt-endpoint.target-endpoint svg * {
     fill: rgb(64, 64, 160); /* blue */
 }
+
+.gantt-task-conflict {
+    border: 2px solid #a00000;
+}

@@ -117,6 +117,11 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
             }
         ]
 
+- ### conflict-checker
+
+    Check for conflicts in dependent tasks and mark invalid tasks with `gantt-task-overlaps` CSS class.
+    
+    default : false
 
 
 ## Model

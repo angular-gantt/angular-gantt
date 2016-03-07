@@ -197,7 +197,8 @@
                                                 <div class="form-group text-center">
                                                     <div class="form-group">
                                                         <label class="control-label"><i class="fa fa-link"></i> Dependencies</label><br>
-                                                        <button type="button" class="btn btn-default" ng-model="options.dependencies" bs-checkbox>Enabled</button>
+                                                        <button type="button" class="btn btn-default" ng-model="options.dependencies.enabled" bs-checkbox>Enabled</button>
+                                                        <button type="button" class="btn btn-default" ng-model="options.dependencies.conflictChecker" bs-checkbox>Conflicts</button>
                                                     </div>
                                                 </div>
 
@@ -284,7 +285,11 @@
                                         </gantt-draw-task>
                                         <gantt-overlap></gantt-overlap>
                                         <gantt-resize-sensor></gantt-resize-sensor>
-                                        <gantt-dependencies enabled="options.dependencies" read-only="options.readOnly"></gantt-dependencies>
+                                        <gantt-dependencies
+                                            enabled="options.dependencies.enabled"
+                                            conflict-checker="options.dependencies.conflictChecker"
+                                            read-only="options.readOnly">
+                                        </gantt-dependencies>
                                     </div>
                                 </div>
                                 <div class="panel-body">
