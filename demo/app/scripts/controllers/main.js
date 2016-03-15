@@ -163,6 +163,7 @@ angular.module('angularGanttDemoApp')
                 enabled: true,
                 conflictChecker: true
             },
+            targetDataAddRowIndex: undefined,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;
                 return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
@@ -365,6 +366,35 @@ angular.module('angularGanttDemoApp')
         // Clear data action
         $scope.clear = function() {
             $scope.data = [];
+        };
+
+        // Add data to target row index
+        $scope.addOverlapTaskToTargetRowIndex = function() {
+            var targetDataAddRowIndex = parseInt($scope.options.targetDataAddRowIndex);
+
+            if (targetDataAddRowIndex) {
+                var targetRow = $scope.data[$scope.options.targetDataAddRowIndex];
+
+                if (targetRow && targetRow.tasks && targetRow.tasks.length > 0) {
+                    var firstTaskInRow = targetRow.tasks[0];
+                    var copiedColor = firstTaskInRow.color;
+                    var firstTaskEndDate = firstTaskInRow.to.toDate();
+                    var overlappingFromDate = new Date(firstTaskEndDate);
+
+                    overlappingFromDate.setDate(overlappingFromDate.getDate() - 1);
+
+                    var overlappingToDate = new Date(overlappingFromDate);
+
+                    overlappingToDate.setDate(overlappingToDate.getDate() + 7);
+
+                    targetRow.tasks.push({
+                        "name": "Overlapping",
+                        "from": overlappingFromDate,
+                        "to": overlappingToDate,
+                        "color": copiedColor
+                    });
+                }
+            }
         };
 
 
