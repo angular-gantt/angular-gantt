@@ -62,7 +62,15 @@
 
                         var drawHandler = function(evt) {
                             var evtTarget = (evt.target ? evt.target : evt.srcElement);
-                            var enabled = angular.isFunction(scope.enabled) ? scope.enabled(evt): scope.enabled;
+
+                            var rowDrawTask = directiveScope.row.model.drawTask;
+
+                            if (typeof(rowDrawTask) === 'boolean') {
+                                rowDrawTask = {enabled: rowDrawTask};
+                            }
+
+                            var enabledValue = utils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
+                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var x = mouseOffset.getOffset(evt).x;
 
