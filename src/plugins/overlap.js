@@ -137,6 +137,18 @@
                             handleOverlaps(oldRow.tasks);
                         }
                     });
+
+                    api.tasks.on.add(scope, function(task) {
+                        // TODO: Mimicked functionality from api.data.on.change to defer until element creation, but not ideal.  Refactor necessary to raise 'add' event after task is fully drawn.
+                        $timeout(function() {
+                            if (scope.global) {
+                                var rows = task.row.rowsManager.rows;
+                                handleGlobalOverlaps(rows);
+                            } else {
+                                handleOverlaps(task.row.tasks);
+                            }
+                        });
+                    });
                 }
             }
         };
