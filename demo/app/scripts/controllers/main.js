@@ -388,10 +388,10 @@ angular.module('angularGanttDemoApp')
                     overlappingToDate.setDate(overlappingToDate.getDate() + 7);
 
                     targetRow.tasks.push({
-                        "name": "Overlapping",
-                        "from": overlappingFromDate,
-                        "to": overlappingToDate,
-                        "color": copiedColor
+                        'name': 'Overlapping',
+                        'from': overlappingFromDate,
+                        'to': overlappingToDate,
+                        'color': copiedColor
                     });
                 }
             }
