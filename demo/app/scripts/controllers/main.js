@@ -420,6 +420,8 @@ angular.module('angularGanttDemoApp')
                 var tasks = row.tasks;
 
                 delete row.tasks;
+                delete row.drawTask;
+
                 var rowModel = $scope.live.row;
 
                 angular.extend(rowModel, row);

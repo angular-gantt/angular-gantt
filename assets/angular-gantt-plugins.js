@@ -273,7 +273,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 enabled: '=?',
                 moveThreshold: '=?',
-                taskModelFactory: '=?taskFactory'
+                taskFactory: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -286,11 +286,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.moveThreshold = 0;
                 }
 
-                if (scope.taskModelFactory === undefined) {
-                    scope.taskModelFactory = function() {
+                if (scope.taskFactory === undefined) {
+                    scope.taskFactory = function() {
                         return {}; // New empty task.
                     };
                 }
+
+                var newTaskModel = function(row) {
+                    if (row.model.drawTask && angular.isFunction(row.model.drawTask.taskFactory)) {
+                        return row.model.drawTask.taskFactory();
+                    } else {
+                        return scope.taskFactory();
+                    }
+                };
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
@@ -298,7 +306,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var startDate = api.core.getDateByPosition(x, true);
                             var endDate = moment(startDate);
 
-                            var taskModel = scope.taskModelFactory();
+                            var taskModel = newTaskModel(directiveScope.row);
                             taskModel.from = startDate;
                             taskModel.to = endDate;
 
@@ -321,14 +329,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             element.on('mousemove', moveTrigger);
-                            document.one('mouseup', function() {
+                            document.on('mouseup', function() {
                                 element.off('mousemove', moveTrigger);
                             });
                         };
 
                         var drawHandler = function(evt) {
                             var evtTarget = (evt.target ? evt.target : evt.srcElement);
-                            var enabled = angular.isFunction(scope.enabled) ? scope.enabled(evt): scope.enabled;
+
+                            var rowDrawTask = directiveScope.row.model.drawTask;
+
+                            if (typeof(rowDrawTask) === 'boolean' || angular.isFunction(rowDrawTask)) {
+                                rowDrawTask = {enabled: rowDrawTask};
+                            }
+
+                            var enabledValue = utils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
+                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var x = mouseOffset.getOffset(evt).x;
 

@@ -49,3 +49,20 @@ Requires [movable plugin](movable.md).
     Factory method which creates the task. The factory method is called when the user is starting to draw a task. Supported task properties according to [Data](../configuration/data.md). `From` and `To` properties are set by the plugin and there is no need in specifying them.
     
     default: `undefined`
+
+## Model
+
+Attributes can be defined for a specific `Row` using an object property named `drawTask`
+
+    {
+      ...
+      // Inside Row or Task object
+      // Full options object
+      'drawTask': {
+        'enabled': <Boolean>,
+        'taskFactory': <Function>
+      }
+      
+      // Or shortcut for enabled property
+      'drawTask': <Boolean>
+    }
