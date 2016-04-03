@@ -149,6 +149,12 @@ can optionnaly be set to an object that will be used for each related
         'connectParameters': {...} // Parameters given to jsPlumb.connect() function call.
       }]
     }
+    
+    {
+      ...
+      // Inside Task object or Row object
+      'dependencies': false // Disable dependencies support for this task or row
+    }
 
 ## API
 
