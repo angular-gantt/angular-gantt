@@ -36,7 +36,7 @@ angular.module('angularGanttDemoApp')
                             {name: 'Day 3', color: '#9FC5F8', from: new Date(2013, 9, 9, 8, 30, 0), to: new Date(2013, 9, 9, 12, 0, 0),
                                 progress: {percent: 100, color: '#3C8CF8'}}
                         ]},
-                        {name: 'Create concept', dependencies: false, tasks: [
+                        {name: 'Create concept', tasks: [
                             {name: 'Create concept', priority: 20, content: '<i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"></i> {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
                                 progress: 100}
                         ]},
@@ -47,7 +47,7 @@ angular.module('angularGanttDemoApp')
                         {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '<i class="fa fa-file-code-o" ng-click="scope.handleRowIconClick(row.model)"></i> {{row.model.name}}'},
                         {name: 'Sprint 1', tooltips: false, tasks: [
                             {id: 'Product list view', name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
-                                progress: 25, dependencies: false}
+                                progress: 25, dependencies: [{to: 'Order basket'}, {from: 'Finalize concept'}]}
                         ]},
                         {name: 'Sprint 2', tasks: [
                             {id: 'Order basket', name: 'Order basket', color: '#F1C232', from: new Date(2013, 9, 28, 8, 0, 0), to: new Date(2013, 10, 1, 15, 0, 0),
