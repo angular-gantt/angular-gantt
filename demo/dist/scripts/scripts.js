@@ -234,6 +234,12 @@ angular.module('angularGanttDemoApp')
                         api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
                     }
 
+                    if (api.tasks.on.drawBegin) {
+                        api.tasks.on.drawBegin($scope, addEventName('tasks.on.drawBegin', logTaskEvent));
+                        //api.tasks.on.draw($scope, addEventName('tasks.on.draw', logTaskEvent));
+                        api.tasks.on.drawEnd($scope, addEventName('tasks.on.drawEnd', logTaskEvent));
+                    }
+
                     api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
                     api.rows.on.change($scope, addEventName('rows.on.change', logRowEvent));
                     api.rows.on.move($scope, addEventName('rows.on.move', logRowEvent));
