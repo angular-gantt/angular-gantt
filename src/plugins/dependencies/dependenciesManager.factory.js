@@ -54,7 +54,7 @@
                 if (this.pluginScope.enabled) {
                     var taskDependencies = task.model.dependencies;
 
-                    if (taskDependencies !== undefined) {
+                    if (taskDependencies !== undefined && taskDependencies) {
                         if (!angular.isArray(taskDependencies)) {
                             taskDependencies = [taskDependencies];
                             task.model.dependencies = taskDependencies;
@@ -202,6 +202,18 @@
                 }
             };
 
+            var isTaskEnabled = function(task) {
+                var rowDependencies = task.row.model.dependencies;
+                if (rowDependencies !== undefined) {
+                    return rowDependencies !== false;
+                }
+                var taskDependencies = task.model.dependencies;
+                if (taskDependencies !== undefined) {
+                    return taskDependencies !== false;
+                }
+                return true;
+            };
+
             var addTaskEndpoints = function(task) {
                 if (!task.dependencies) {
                     task.dependencies = {};
@@ -221,13 +233,15 @@
             };
 
             var removeTaskEndpoint = function(task) {
-                for (var i = 0; i < task.dependencies.endpoints.length; i++) {
-                    var endpointObject = task.dependencies.endpoints[i];
-                    self.plumb.deleteEndpoint(endpointObject);
-                    endpointObject.$task = undefined;
-                }
+                if (task.dependencies.endpoints) {
+                    for (var i = 0; i < task.dependencies.endpoints.length; i++) {
+                        var endpointObject = task.dependencies.endpoints[i];
+                        self.plumb.deleteEndpoint(endpointObject);
+                        endpointObject.$task = undefined;
+                    }
 
-                task.dependencies.endpoints = undefined;
+                    task.dependencies.endpoints = undefined;
+                }
             };
 
             var addTaskMouseHandler = function(task) {
@@ -260,11 +274,15 @@
                 });
 
                 var newTasks = {};
+                var tasksList = [];
                 for (var i = 0; i < tasks.length; i++) {
                     var task = tasks[i];
-                    newTasks[task.model.id] = task;
-                    addTaskEndpoints(task);
-                    addTaskMouseHandler(task);
+                    if (isTaskEnabled(task)) {
+                        newTasks[task.model.id] = task;
+                        tasksList.push(task);
+                        addTaskEndpoints(task);
+                        addTaskMouseHandler(task);
+                    }
                 }
                 self.tasks = newTasks;
                 self.tasksList = tasks;
@@ -304,10 +322,12 @@
                         removeTaskMouseHandler(oldTask);
                         removeTaskEndpoint(oldTask);
                     }
-                    self.tasks[task.model.id] = task;
-                    addTaskEndpoints(task);
-                    addTaskMouseHandler(task);
-                    connectTaskDependencies(task);
+                    if (isTaskEnabled(task)) {
+                        self.tasks[task.model.id] = task;
+                        addTaskEndpoints(task);
+                        addTaskMouseHandler(task);
+                        connectTaskDependencies(task);
+                    }
                 } finally {
                     self.plumb.setSuspendDrawing(false, true);
                 }

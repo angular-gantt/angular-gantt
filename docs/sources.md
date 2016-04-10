@@ -15,7 +15,14 @@ git clone https://github.com/angular-gantt/angular-gantt
 
 4. Run `grunt` to build distribution files in `assets`
 
-5. Run `grunt` from `demo` directory to build demo distribution
+## Build Demo
+from `demo` directory:
+
+1. Run `npm install` to install node dependencies
+
+2. Run `bower install` to install bower dependencies
+
+3. Run `grunt` directory to build demo distribution
 
     *tip: Run `grunt watch --force` to build automatically on source file change.*
 

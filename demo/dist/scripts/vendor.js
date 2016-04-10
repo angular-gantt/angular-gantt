@@ -51267,7 +51267,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 enabled: '=?',
                 moveThreshold: '=?',
-                taskModelFactory: '=?taskFactory'
+                taskFactory: '=?'
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
@@ -51280,11 +51280,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     scope.moveThreshold = 0;
                 }
 
-                if (scope.taskModelFactory === undefined) {
-                    scope.taskModelFactory = function() {
+                if (scope.taskFactory === undefined) {
+                    scope.taskFactory = function() {
                         return {}; // New empty task.
                     };
                 }
+
+                var newTaskModel = function(row) {
+                    if (row.model.drawTask && angular.isFunction(row.model.drawTask.taskFactory)) {
+                        return row.model.drawTask.taskFactory();
+                    } else {
+                        return scope.taskFactory();
+                    }
+                };
 
                 api.directives.on.new(scope, function(directiveName, directiveScope, element) {
                     if (directiveName === 'ganttRow') {
@@ -51292,7 +51300,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             var startDate = api.core.getDateByPosition(x, true);
                             var endDate = moment(startDate);
 
-                            var taskModel = scope.taskModelFactory();
+                            var taskModel = newTaskModel(directiveScope.row);
                             taskModel.from = startDate;
                             taskModel.to = endDate;
 
@@ -51315,14 +51323,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             element.on('mousemove', moveTrigger);
-                            document.one('mouseup', function() {
+                            document.on('mouseup', function() {
                                 element.off('mousemove', moveTrigger);
                             });
                         };
 
                         var drawHandler = function(evt) {
                             var evtTarget = (evt.target ? evt.target : evt.srcElement);
-                            var enabled = angular.isFunction(scope.enabled) ? scope.enabled(evt): scope.enabled;
+
+                            var rowDrawTask = directiveScope.row.model.drawTask;
+
+                            if (typeof(rowDrawTask) === 'boolean' || angular.isFunction(rowDrawTask)) {
+                                rowDrawTask = {enabled: rowDrawTask};
+                            }
+
+                            var enabledValue = utils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
+                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
                             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var x = mouseOffset.getOffset(evt).x;
 
@@ -52097,6 +52113,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         } else {
                             handleOverlaps(oldRow.tasks);
                         }
+                    });
+
+                    api.tasks.on.add(scope, function(task) {
+                        // TODO: Mimicked functionality from api.data.on.change to defer until element creation, but not ideal.  Refactor necessary to raise 'add' event after task is fully drawn.
+                        $timeout(function() {
+                            if (scope.global) {
+                                var rows = task.row.rowsManager.rows;
+                                handleGlobalOverlaps(rows);
+                            } else {
+                                handleOverlaps(task.row.tasks);
+                            }
+                        });
                     });
                 }
             }
@@ -52892,7 +52920,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (this.pluginScope.enabled) {
                     var taskDependencies = task.model.dependencies;
 
-                    if (taskDependencies !== undefined) {
+                    if (taskDependencies !== undefined && taskDependencies) {
                         if (!angular.isArray(taskDependencies)) {
                             taskDependencies = [taskDependencies];
                             task.model.dependencies = taskDependencies;
@@ -53040,6 +53068,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             };
 
+            var isTaskEnabled = function(task) {
+                var rowDependencies = task.row.model.dependencies;
+                if (rowDependencies !== undefined) {
+                    return rowDependencies !== false;
+                }
+                var taskDependencies = task.model.dependencies;
+                if (taskDependencies !== undefined) {
+                    return taskDependencies !== false;
+                }
+                return true;
+            };
+
             var addTaskEndpoints = function(task) {
                 if (!task.dependencies) {
                     task.dependencies = {};
@@ -53059,13 +53099,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             };
 
             var removeTaskEndpoint = function(task) {
-                for (var i = 0; i < task.dependencies.endpoints.length; i++) {
-                    var endpointObject = task.dependencies.endpoints[i];
-                    self.plumb.deleteEndpoint(endpointObject);
-                    endpointObject.$task = undefined;
-                }
+                if (task.dependencies.endpoints) {
+                    for (var i = 0; i < task.dependencies.endpoints.length; i++) {
+                        var endpointObject = task.dependencies.endpoints[i];
+                        self.plumb.deleteEndpoint(endpointObject);
+                        endpointObject.$task = undefined;
+                    }
 
-                task.dependencies.endpoints = undefined;
+                    task.dependencies.endpoints = undefined;
+                }
             };
 
             var addTaskMouseHandler = function(task) {
@@ -53098,11 +53140,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
 
                 var newTasks = {};
+                var tasksList = [];
                 for (var i = 0; i < tasks.length; i++) {
                     var task = tasks[i];
-                    newTasks[task.model.id] = task;
-                    addTaskEndpoints(task);
-                    addTaskMouseHandler(task);
+                    if (isTaskEnabled(task)) {
+                        newTasks[task.model.id] = task;
+                        tasksList.push(task);
+                        addTaskEndpoints(task);
+                        addTaskMouseHandler(task);
+                    }
                 }
                 self.tasks = newTasks;
                 self.tasksList = tasks;
@@ -53142,10 +53188,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         removeTaskMouseHandler(oldTask);
                         removeTaskEndpoint(oldTask);
                     }
-                    self.tasks[task.model.id] = task;
-                    addTaskEndpoints(task);
-                    addTaskMouseHandler(task);
-                    connectTaskDependencies(task);
+                    if (isTaskEnabled(task)) {
+                        self.tasks[task.model.id] = task;
+                        addTaskEndpoints(task);
+                        addTaskMouseHandler(task);
+                        connectTaskDependencies(task);
+                    }
                 } finally {
                     self.plumb.setSuspendDrawing(false, true);
                 }
