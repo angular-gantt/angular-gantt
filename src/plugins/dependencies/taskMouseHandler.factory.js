@@ -54,16 +54,18 @@
                 if (!self.installed) {
                     self.hideEndpoints();
 
-                    self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
-                    angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                        self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
-                    });
+                    if (self.task.getContentElement()) {
+                        self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
+                        angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                            self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
+                        });
 
-                    angular.forEach(self.elementHandlers, function(elementHandler) {
-                        elementHandler.install();
-                    });
+                        angular.forEach(self.elementHandlers, function(elementHandler) {
+                            elementHandler.install();
+                        });
 
-                    self.installed = true;
+                        self.installed = true;
+                    }
                 }
             };
 
