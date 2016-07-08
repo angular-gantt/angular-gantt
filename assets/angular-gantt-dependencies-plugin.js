@@ -641,7 +641,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 task.dependencies.endpoints = [];
 
-                if (self.pluginScope.endpoints) {
+                if (self.pluginScope.endpoints && task.$element) {
                     for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
                         var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
                         endpointObject.setVisible(false, true, true); // hide endpoint
@@ -1077,16 +1077,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (!self.installed) {
                     self.hideEndpoints();
 
-                    self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
-                    angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                        self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
-                    });
+                    if (self.task.getContentElement()) {
+                        self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
+                        angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                            self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
+                        });
 
-                    angular.forEach(self.elementHandlers, function(elementHandler) {
-                        elementHandler.install();
-                    });
+                        angular.forEach(self.elementHandlers, function(elementHandler) {
+                            elementHandler.install();
+                        });
 
-                    self.installed = true;
+                        self.installed = true;
+                    }
                 }
             };
 
