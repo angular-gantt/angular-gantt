@@ -191,8 +191,10 @@
                 var indexOf = arrays.indexOfId(this.rows, rowId, ['model', 'id']);
                 if (indexOf > -1) {
                     removedRow = this.rows.splice(indexOf, 1)[0]; // Remove from array
-                    var deregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
-                    deregisterFunction();
+                    var unregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
+                    if (unregisterFunction) {
+                        unregisterFunction();
+                    }
                 }
 
                 arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
@@ -216,8 +218,8 @@
             this.visibleRows = [];
 
             for (var i = 0, l = this.rowsTaskWatchers.length; i < l; i++) {
-                var deregisterFunction = this.rowsTaskWatchers[i];
-                deregisterFunction();
+                var unregisterFunction = this.rowsTaskWatchers[i];
+                unregisterFunction();
             }
             this.rowsTaskWatchers = [];
         };
