@@ -425,6 +425,21 @@
             return format;
         };
 
+        ColumnsManager.prototype.getHeaderScale = function(header) {
+            var scale;
+            var headersScales = this.gantt.options.value('headersScales');
+            if (headersScales !== undefined) {
+                scale = headersScales[header];
+            }
+            if (scale === undefined) {
+                scale = header;
+            }
+            if (['second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
+                scale = 'day';
+            }
+            return scale;
+        };
+
         ColumnsManager.prototype.getDateRange = function(visibleOnly) {
             var firstColumn, lastColumn;
 

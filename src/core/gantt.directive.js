@@ -42,6 +42,7 @@
                 sideWidth: '=?',
                 headers: '=?',
                 headersFormats: '=?',
+                headersScales: '=?',
                 timeFrames: '=?',
                 dateFrames: '=?',
                 timeFramesWorkingMode: '=?',
