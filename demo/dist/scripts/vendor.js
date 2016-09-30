@@ -48163,7 +48163,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
 })();
 
 /*
-Project: angular-gantt v1.2.13 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -48213,6 +48213,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 sideWidth: '=?',
                 headers: '=?',
                 headersFormats: '=?',
+                headersScales: '=?',
                 timeFrames: '=?',
                 dateFrames: '=?',
                 timeFramesWorkingMode: '=?',
@@ -50026,6 +50027,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             return format;
         };
 
+        ColumnsManager.prototype.getHeaderScale = function(header) {
+            var scale;
+            var headersScales = this.gantt.options.value('headersScales');
+            if (headersScales !== undefined) {
+                scale = headersScales[header];
+            }
+            if (scale === undefined) {
+                scale = header;
+            }
+            if (['second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
+                scale = 'day';
+            }
+            return scale;
+        };
+
         ColumnsManager.prototype.getDateRange = function(visibleOnly) {
             var firstColumn, lastColumn;
 
@@ -50049,9 +50065,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 (function(){
     'use strict';
     angular.module('gantt').service('GanttHeadersGenerator', ['GanttColumnHeader', 'moment', function(ColumnHeader, moment) {
-        var generateHeader = function(columnsManager, viewScale) {
+        var generateHeader = function(columnsManager, value) {
             var generatedHeaders = [];
             var header;
+
+            var viewScale = columnsManager.getHeaderScale(value);
 
             var viewScaleValue;
             var viewScaleUnit;
@@ -50085,7 +50103,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var width = left - currentPosition;
 
                 if (width > 0) {
-                    var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
+                    var labelFormat = columnsManager.getHeaderFormat(value);
 
                     header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
                     generatedHeaders.push(header);
@@ -53636,7 +53654,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.2.13 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
