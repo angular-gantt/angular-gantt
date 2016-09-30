@@ -90,6 +90,9 @@
 
                     var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && !visible && mouseEnterX !== undefined && newValue) {
+                        var content = utils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
+                        $scope.content = content;
+
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);

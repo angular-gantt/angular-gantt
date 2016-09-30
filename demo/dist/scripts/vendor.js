@@ -56746,6 +56746,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && !visible && mouseEnterX !== undefined && newValue) {
+                        var content = utils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
+                        $scope.content = content;
+
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
@@ -57341,7 +57344,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
         '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
         '    <div class="gantt-task-info-content">\n' +
-        '        <div gantt-bind-compile-html="pluginScope.content"></div>\n' +
+        '        <div gantt-bind-compile-html="content"></div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');
