@@ -189,7 +189,11 @@ angular.module('angularGanttDemoApp')
             timeFramesNonWorkingMode: 'visible',
             columnMagnet: '15 minutes',
             timeFramesMagnet: true,
-            dependencies: true,
+            dependencies: {
+                enabled: true,
+                conflictChecker: true
+            },
+            targetDataAddRowIndex: undefined,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;
                 return $scope.options.draw && !$scope.options.readOnly && isLeftMouseButton;
@@ -228,6 +232,12 @@ angular.module('angularGanttDemoApp')
                         api.tasks.on.resizeBegin($scope, addEventName('tasks.on.resizeBegin', logTaskEvent));
                         //api.tasks.on.resize($scope, addEventName('tasks.on.resize', logTaskEvent));
                         api.tasks.on.resizeEnd($scope, addEventName('tasks.on.resizeEnd', logTaskEvent));
+                    }
+
+                    if (api.tasks.on.drawBegin) {
+                        api.tasks.on.drawBegin($scope, addEventName('tasks.on.drawBegin', logTaskEvent));
+                        //api.tasks.on.draw($scope, addEventName('tasks.on.draw', logTaskEvent));
+                        api.tasks.on.drawEnd($scope, addEventName('tasks.on.drawEnd', logTaskEvent));
                     }
 
                     api.rows.on.add($scope, addEventName('rows.on.add', logRowEvent));
@@ -394,6 +404,35 @@ angular.module('angularGanttDemoApp')
             $scope.data = [];
         };
 
+        // Add data to target row index
+        $scope.addOverlapTaskToTargetRowIndex = function() {
+            var targetDataAddRowIndex = parseInt($scope.options.targetDataAddRowIndex);
+
+            if (targetDataAddRowIndex) {
+                var targetRow = $scope.data[$scope.options.targetDataAddRowIndex];
+
+                if (targetRow && targetRow.tasks && targetRow.tasks.length > 0) {
+                    var firstTaskInRow = targetRow.tasks[0];
+                    var copiedColor = firstTaskInRow.color;
+                    var firstTaskEndDate = firstTaskInRow.to.toDate();
+                    var overlappingFromDate = new Date(firstTaskEndDate);
+
+                    overlappingFromDate.setDate(overlappingFromDate.getDate() - 1);
+
+                    var overlappingToDate = new Date(overlappingFromDate);
+
+                    overlappingToDate.setDate(overlappingToDate.getDate() + 7);
+
+                    targetRow.tasks.push({
+                        'name': 'Overlapping',
+                        'from': overlappingFromDate,
+                        'to': overlappingToDate,
+                        'color': copiedColor
+                    });
+                }
+            }
+        };
+
 
         // Visual two way binding.
         $scope.live = {};
@@ -417,6 +456,8 @@ angular.module('angularGanttDemoApp')
                 var tasks = row.tasks;
 
                 delete row.tasks;
+                delete row.drawTask;
+
                 var rowModel = $scope.live.row;
 
                 angular.extend(rowModel, row);
@@ -491,7 +532,7 @@ angular.module('angularGanttDemoApp')
             getSampleData: function() {
                 return [
                         // Order is optional. If not specified it will be assigned automatically
-                        {name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
+                        {name: 'Milestones', height: '3em', sortable: false, drawTask: false, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
                             // Dates can be specified as string, timestamp or javascript date object. The data attribute can be used to attach a custom object
                             {name: 'Kickoff', color: '#93C47D', from: '2013-10-07T09:00:00', to: '2013-10-07T10:00:00', data: 'Can contain any custom data or object'},
                             {name: 'Concept approval', color: '#93C47D', from: new Date(2013, 9, 18, 18, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0), est: new Date(2013, 9, 16, 7, 0, 0), lct: new Date(2013, 9, 19, 0, 0, 0)},

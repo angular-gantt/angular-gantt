@@ -247,6 +247,8 @@
         
             <li><a href="#headers-formats">headers-formats</a></li>
         
+            <li><a href="#headers-scales">headers-scales</a></li>
+        
             <li><a href="#time-frames-date-frames">time-frames, date-frames</a></li>
         
             <li><a href="#time-frames-working-mode">time-frames-working-mode</a></li>
@@ -451,6 +453,19 @@ tasks, or empty time after the last task, or truncate next tasks.</p>
   week: function(column) {
     return column.date.format('Do [-]') + column.endDate.format('Do') + column.date.format(' [(W]w[)]');
   }
+};
+</code></pre>
+</li>
+<li>
+<h3 id="headers-scales">headers-scales</h3>
+<p>Associative object of headers view scales, indicating which scale each header should use. Key is the header, and value is the view scale.</p>
+<p>Scale can be any <a href="http://momentjs.com/docs/#/manipulating/add/">momentJS#add()</a> supported unit.</p>
+<pre><code>&lt;div gantt headers="['dayLetter', 'day']" headers-formats="{dayLetter: 'dd'}" headers-scales="{dayLetter: 'day'}"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.headersScales = {
+  dayLetter: 'day'
 };
 </code></pre>
 </li>

@@ -217,6 +217,10 @@
         
             <li><a href="#attributes">Attributes</a></li>
         
+            <li><a href="#model">Model</a></li>
+        
+            <li><a href="#api">API</a></li>
+        
     
     </ul>
 </div></div>
@@ -265,6 +269,29 @@
 <h3 id="task-factory">task-factory</h3>
 <p>Factory method which creates the task. The factory method is called when the user is starting to draw a task. Supported task properties according to <a href="../../configuration/data">Data</a>. <code>From</code> and <code>To</code> properties are set by the plugin and there is no need in specifying them.</p>
 <p>default: <code>undefined</code></p>
+</li>
+</ul>
+<h2 id="model">Model</h2>
+<p>Attributes can be defined for a specific <code>Row</code> using an object property named <code>drawTask</code></p>
+<pre><code>{
+  ...
+  // Inside Row or Task object
+  // Full options object
+  'drawTask': {
+    'enabled': &lt;Boolean&gt;,
+    'taskFactory': &lt;Function&gt;
+  }
+
+  // Or shortcut for enabled property
+  'drawTask': &lt;Boolean&gt;
+}
+</code></pre>
+<h2 id="api">API</h2>
+<h3 id="events">Events</h3>
+<ul>
+<li>
+<p><strong>api.tasks.on.drawBegin(task)</strong>, <strong>api.tasks.on.draw(task)</strong>, <strong>api.tasks.on.drawEnd(task)</strong></p>
+<p>A task is starting to be drawn, being drawn or has stopped being drawn.</p>
 </li>
 </ul>
 </div>

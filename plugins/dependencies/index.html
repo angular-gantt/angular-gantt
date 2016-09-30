@@ -333,6 +333,11 @@ ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
 ]
 </code></pre>
 </li>
+<li>
+<h3 id="conflict-checker">conflict-checker</h3>
+<p>Check for conflicts in dependent tasks and mark invalid tasks with <code>gantt-task-overlaps</code> CSS class.</p>
+<p>default : false</p>
+</li>
 </ul>
 <h2 id="model">Model</h2>
 <p>Task can specify a <code>dependencies</code> field containing a single or a list of objects.</p>
@@ -355,6 +360,12 @@ can optionnaly be set to an object that will be used for each related
     'to': &lt;taskId&gt;,
     'connectParameters': {...} // Parameters given to jsPlumb.connect() function call.
   }]
+}
+
+{
+  ...
+  // Inside Task object or Row object
+  'dependencies': false // Disable dependencies support for this task or row
 }
 </code></pre>
 <h2 id="api">API</h2>
