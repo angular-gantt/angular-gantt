@@ -221,7 +221,7 @@
 
                 task.dependencies.endpoints = [];
 
-                if (self.pluginScope.endpoints) {
+                if (self.pluginScope.endpoints && task.$element) {
                     for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
                         var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
                         endpointObject.setVisible(false, true, true); // hide endpoint

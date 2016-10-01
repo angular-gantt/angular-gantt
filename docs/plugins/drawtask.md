@@ -66,3 +66,11 @@ Attributes can be defined for a specific `Row` using an object property named `d
       // Or shortcut for enabled property
       'drawTask': <Boolean>
     }
+
+## API
+
+### Events
+
+- **api.tasks.on.drawBegin(task)**, **api.tasks.on.draw(task)**, **api.tasks.on.drawEnd(task)**
+
+    A task is starting to be drawn, being drawn or has stopped being drawn.

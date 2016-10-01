@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.13 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -33,6 +33,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
+                api.registerEvent('tasks', 'draw');
+                api.registerEvent('tasks', 'drawBegin');
+                api.registerEvent('tasks', 'drawEnd');
+
                 var newTaskModel = function(row) {
                     if (row.model.drawTask && angular.isFunction(row.model.drawTask.taskFactory)) {
                         return row.model.drawTask.taskFactory();
@@ -57,6 +61,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             directiveScope.row.updateVisibleTasks();
 
                             directiveScope.row.$scope.$digest();
+
+                            return task;
+                        };
+
+                        var addEventListeners = function(task) {
+                            var raiseDrawEvent = function() {
+                                directiveScope.row.rowsManager.gantt.api.tasks.raise.draw(task);
+                            };
+
+                            directiveScope.row.rowsManager.gantt.api.tasks.raise.drawBegin(task);
+
+                            document.on('mousemove', raiseDrawEvent);
+
+                            document.one('mouseup', function() {
+                                directiveScope.row.rowsManager.gantt.api.tasks.raise.drawEnd(task);
+                                document.off('mousemove', raiseDrawEvent);
+                            });
                         };
 
                         var deferDrawing = function(startX) {
@@ -65,12 +86,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 if (Math.abs(startX - currentX) >= scope.moveThreshold) {
                                     element.off('mousemove', moveTrigger);
-                                    addNewTask(startX);
+                                    var task = addNewTask(startX);
+                                    addEventListeners(task);
                                 }
                             };
 
                             element.on('mousemove', moveTrigger);
-                            document.on('mouseup', function() {
+                            document.one('mouseup', function() {
                                 element.off('mousemove', moveTrigger);
                             });
                         };
@@ -85,12 +107,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             }
 
                             var enabledValue = utils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
-                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
+                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt, directiveScope.row) : enabledValue;
                             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var x = mouseOffset.getOffset(evt).x;
 
                                 if (scope.moveThreshold === 0) {
-                                    addNewTask(x, x);
+                                    var task = addNewTask(x);
+                                    addEventListeners(task);
                                 } else {
                                     deferDrawing(x);
                                 }

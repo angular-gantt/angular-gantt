@@ -45,6 +45,8 @@ Move and resize tasks.
     
     default: `true`
 
+## Model
+
 Attributes can be defined for a specific `Row` or `Task` object using an object property named `movable`
 
     {

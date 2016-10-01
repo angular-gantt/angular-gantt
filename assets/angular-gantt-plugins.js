@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.13 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -292,6 +292,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     };
                 }
 
+                api.registerEvent('tasks', 'draw');
+                api.registerEvent('tasks', 'drawBegin');
+                api.registerEvent('tasks', 'drawEnd');
+
                 var newTaskModel = function(row) {
                     if (row.model.drawTask && angular.isFunction(row.model.drawTask.taskFactory)) {
                         return row.model.drawTask.taskFactory();
@@ -316,6 +320,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             directiveScope.row.updateVisibleTasks();
 
                             directiveScope.row.$scope.$digest();
+
+                            return task;
+                        };
+
+                        var addEventListeners = function(task) {
+                            var raiseDrawEvent = function() {
+                                directiveScope.row.rowsManager.gantt.api.tasks.raise.draw(task);
+                            };
+
+                            directiveScope.row.rowsManager.gantt.api.tasks.raise.drawBegin(task);
+
+                            document.on('mousemove', raiseDrawEvent);
+
+                            document.one('mouseup', function() {
+                                directiveScope.row.rowsManager.gantt.api.tasks.raise.drawEnd(task);
+                                document.off('mousemove', raiseDrawEvent);
+                            });
                         };
 
                         var deferDrawing = function(startX) {
@@ -324,12 +345,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                                 if (Math.abs(startX - currentX) >= scope.moveThreshold) {
                                     element.off('mousemove', moveTrigger);
-                                    addNewTask(startX);
+                                    var task = addNewTask(startX);
+                                    addEventListeners(task);
                                 }
                             };
 
                             element.on('mousemove', moveTrigger);
-                            document.on('mouseup', function() {
+                            document.one('mouseup', function() {
                                 element.off('mousemove', moveTrigger);
                             });
                         };
@@ -344,12 +366,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             }
 
                             var enabledValue = utils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
-                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt): enabledValue;
+                            var enabled = angular.isFunction(enabledValue) ? enabledValue(evt, directiveScope.row) : enabledValue;
                             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
                                 var x = mouseOffset.getOffset(evt).x;
 
                                 if (scope.moveThreshold === 0) {
-                                    addNewTask(x, x);
+                                    var task = addNewTask(x);
+                                    addEventListeners(task);
                                 } else {
                                     deferDrawing(x);
                                 }
@@ -2093,7 +2116,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 task.dependencies.endpoints = [];
 
-                if (self.pluginScope.endpoints) {
+                if (self.pluginScope.endpoints && task.$element) {
                     for (var i = 0; i < self.pluginScope.endpoints.length; i++) {
                         var endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
                         endpointObject.setVisible(false, true, true); // hide endpoint
@@ -2529,16 +2552,18 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (!self.installed) {
                     self.hideEndpoints();
 
-                    self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
-                    angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
-                        self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
-                    });
+                    if (self.task.getContentElement()) {
+                        self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
+                        angular.forEach(self.task.dependencies.endpoints, function(endpoint) {
+                            self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
+                        });
 
-                    angular.forEach(self.elementHandlers, function(elementHandler) {
-                        elementHandler.install();
-                    });
+                        angular.forEach(self.elementHandlers, function(elementHandler) {
+                            elementHandler.install();
+                        });
 
-                    self.installed = true;
+                        self.installed = true;
+                    }
                 }
             };
 
@@ -3066,6 +3091,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && !visible && mouseEnterX !== undefined && newValue) {
+                        var content = utils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
+                        $scope.content = content;
+
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
@@ -3661,7 +3689,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
         '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
         '    <div class="gantt-task-info-content">\n' +
-        '        <div gantt-bind-compile-html="pluginScope.content"></div>\n' +
+        '        <div gantt-bind-compile-html="content"></div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');

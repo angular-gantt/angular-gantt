@@ -85,6 +85,10 @@
     fill: rgb(64, 64, 160); /* blue */
 }
 
+.gantt-task-conflict {
+    border: 2px solid #a00000;
+}
+
 .gantt-task-group {
     position: absolute;
 

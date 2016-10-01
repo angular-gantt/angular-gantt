@@ -185,6 +185,20 @@
           }
         };
 
+- ### headers-scales
+
+    Associative object of headers view scales, indicating which scale each header should use. Key is the header, and value is the view scale.
+
+    Scale can be any [momentJS#add()](http://momentjs.com/docs/#/manipulating/add/) supported unit.
+
+        <div gantt headers="['dayLetter', 'day']" headers-formats="{dayLetter: 'dd'}" headers-scales="{dayLetter: 'day'}"></div>
+
+    <!-- -->
+
+        $scope.headersScales = {
+          dayLetter: 'day'
+        };
+
 - ### time-frames, date-frames
 
     TimeFrames and DateFrames are used to configure global calendar in the gantt.

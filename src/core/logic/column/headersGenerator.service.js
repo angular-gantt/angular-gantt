@@ -1,9 +1,11 @@
 (function(){
     'use strict';
     angular.module('gantt').service('GanttHeadersGenerator', ['GanttColumnHeader', 'moment', function(ColumnHeader, moment) {
-        var generateHeader = function(columnsManager, viewScale) {
+        var generateHeader = function(columnsManager, value) {
             var generatedHeaders = [];
             var header;
+
+            var viewScale = columnsManager.getHeaderScale(value);
 
             var viewScaleValue;
             var viewScaleUnit;
@@ -37,7 +39,7 @@
                 var width = left - currentPosition;
 
                 if (width > 0) {
-                    var labelFormat = columnsManager.getHeaderFormat(viewScaleUnit);
+                    var labelFormat = columnsManager.getHeaderFormat(value);
 
                     header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
                     generatedHeaders.push(header);

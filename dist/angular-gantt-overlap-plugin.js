@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.13 - Gantt chart component for AngularJS
+Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -7,7 +7,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 */
 (function() {
     'use strict';
-    angular.module('gantt.overlap', ['gantt', 'gantt.overlap.templates']).directive('ganttOverlap', ['moment', function(moment) {
+    angular.module('gantt.overlap', ['gantt', 'gantt.overlap.templates']).directive('ganttOverlap', ['moment', '$timeout', function(moment, $timeout) {
         return {
             restrict: 'E',
             require: '^gantt',
@@ -46,7 +46,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
 
                 function handleTaskOverlap(overlapsList, task) {
-                    if (!(task.model.id in overlapsList)) {
+                    if (!(task.model.id in overlapsList) && task.$element) {
                         task.$element.addClass('gantt-task-overlaps');
                         overlapsList[task.model.id] = task;
                     }
@@ -55,7 +55,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 function handleTaskNonOverlaps(overlapsList, allTasks) {
                     for (var i = 0, l = allTasks.length; i < l; i++) {
                         var task = allTasks[i];
-                        if (!(task.model.id in overlapsList)) {
+                        if (!(task.model.id in overlapsList) && task.$element) {
                             task.$element.removeClass('gantt-task-overlaps');
                         }
                     }
@@ -99,38 +99,38 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     });
                 }
 
+                function handleGlobalOverlaps(rows) {
+                    var globalTasks = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        globalTasks.push.apply(globalTasks, rows[i].tasks);
+                    }
+
+                    globalTasks = sortOn(globalTasks, function(task) {
+                        return task.model.from;
+                    });
+
+                    handleOverlaps(globalTasks);
+                }
+
                 if (scope.enabled) {
-                    api.core.on.rendered(scope, function(api) {
-                        var rows = ganttCtrl.gantt.rowsManager.rows;
-                        var i;
-                        if (scope.global) {
-                            var globalTasks = [];
-                            for (i = 0; i < rows.length; i++) {
-                                globalTasks.push.apply(globalTasks, rows[i].tasks);
+                    api.data.on.change(scope, function() {
+                        $timeout(function() {
+                            var rows = api.gantt.rowsManager.rows;
+
+                            if (scope.global) {
+                                handleGlobalOverlaps(rows);
+                            } else {
+                                for (var i = 0; i < rows.length; i++) {
+                                    handleOverlaps(rows[i].tasks);
+                                }
                             }
-                            globalTasks = sortOn(globalTasks, function(task) {
-                                return task.model.from;
-                            });
-                            handleOverlaps(globalTasks);
-                        } else {
-                            rows = api.gantt.rowsManager.rows;
-                            for (i = 0; i < rows.length; i++) {
-                                handleOverlaps(rows[i].tasks);
-                            }
-                        }
+                        });
                     });
 
                     api.tasks.on.change(scope, function(task) {
                         if (scope.global) {
                             var rows = task.row.rowsManager.rows;
-                            var globalTasks = [];
-                            for (var i = 0; i < rows.length; i++) {
-                                globalTasks.push.apply(globalTasks, rows[i].tasks);
-                            }
-                            globalTasks = sortOn(globalTasks, function(task) {
-                                return task.model.from;
-                            });
-                            handleOverlaps(globalTasks);
+                            handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(task.row.tasks);
                         }
@@ -139,25 +139,28 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     api.tasks.on.rowChange(scope, function(task, oldRow) {
                         if (scope.global) {
                             var rows = oldRow.rowsManager.rows;
-                            var globalTasks = [];
-                            for (var i = 0; i < rows.length; i++) {
-                                globalTasks.push.apply(globalTasks, rows[i].tasks);
-                            }
-                            globalTasks = sortOn(globalTasks, function(task) {
-                                return task.model.from;
-                            });
-                            handleOverlaps(globalTasks);
+                            handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(oldRow.tasks);
                         }
                     });
-                }
 
+                    api.tasks.on.add(scope, function(task) {
+                        // TODO: Mimicked functionality from api.data.on.change to defer until element creation, but not ideal.  Refactor necessary to raise 'add' event after task is fully drawn.
+                        $timeout(function() {
+                            if (scope.global) {
+                                var rows = task.row.rowsManager.rows;
+                                handleGlobalOverlaps(rows);
+                            } else {
+                                handleOverlaps(task.row.tasks);
+                            }
+                        });
+                    });
+                }
             }
         };
     }]);
 }());
-
 
 angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
 
