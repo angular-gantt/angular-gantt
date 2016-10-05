@@ -21,7 +21,7 @@
 
                     if (task && !(task.model.id in conflictsList) && task.$element) {
                         task.$element.removeClass('gantt-task-conflict');
-                    };
+                    }
 
                 }
             }
