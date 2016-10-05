@@ -18,9 +18,11 @@
             function handleTaskNonConflict(conflictsList, allTasks) {
                 for (var i = 0, l = allTasks.length; i < l; i++) {
                     var task = allTasks[i];
-                    if (!(task.model.id in conflictsList) && task.$element) {
+
+                    if (task && !(task.model.id in conflictsList) && task.$element) {
                         task.$element.removeClass('gantt-task-conflict');
-                    }
+                    };
+
                 }
             }
 
@@ -34,11 +36,13 @@
                 var conflictsList = [];
 
                 for (var i = 0; i < tasks.length; i++) {
+
+                    if (!tasks[i]) { continue; }
+
                     var taskDependencies = manager.getTaskDependencies(tasks[i]);
 
                     for (var j = 0; j < taskDependencies.length; j++) {
                         var dependency = taskDependencies[j];
-
                         var fromTask = dependency.getFromTask();
                         var toTask = dependency.getToTask();
 
@@ -46,14 +50,28 @@
                             allTasks.push(fromTask);
                         }
 
-                        if (!(toTask in allTasks)) {
-                            allTasks.push(toTask);
+                        if (toTask !== undefined) {
+
+                            if (!(toTask in allTasks)) {
+                                allTasks.push(toTask);
+                            }
+
+                           if (fromTask.model.to > toTask.model.from) {
+                                handleTaskConflict(conflictsList, fromTask);
+                                handleTaskConflict(conflictsList, toTask);
+                            }
+
+                        } else {
+                            manager.removeDependency(dependency, true);
+                            dependency.removeFromTaskModel();
+                            dependency.disconnect();
+
+                            if (manager.api) {
+                                manager.api.dependencies.raise.remove(dependency, dependency.model);
+                            }
+
                         }
 
-                        if (fromTask.model.to > toTask.model.from) {
-                            handleTaskConflict(conflictsList, fromTask);
-                            handleTaskConflict(conflictsList, toTask);
-                        }
                     }
                 }
 
