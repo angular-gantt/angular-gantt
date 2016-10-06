@@ -50,7 +50,7 @@
              *
              * @param task
              */
-            this.addDependenciesFromTask = function(task) {
+            this.addDependenciesFromTask = function(task, isDraw) {
                 if (this.pluginScope.enabled) {
                     var taskDependencies = task.model.dependencies;
 
@@ -61,8 +61,11 @@
                         }
 
                         for (var i = 0, l = taskDependencies.length; i < l; i++) {
-                            var dependency = self.addDependency(task, taskDependencies[i]);
-                            dependency.connect();
+                            var dependency = self.addDependency(task, taskDependencies[i], isDraw);
+
+                            if (dependency !== null) {
+                                dependency.connect();
+                            }
                         }
                     }
                 }
@@ -93,11 +96,12 @@
              * @param task Task defining the dependency.
              * @param model Model object for the dependency.
              */
-            this.addDependency = function(task, model) {
+            this.addDependency = function(task, model, isDraw) {
                 var dependency = new Dependency(this, task, model);
-
                 var fromTaskId = dependency.getFromTaskId();
                 var toTaskId = dependency.getToTaskId();
+                var toTask = dependency.getToTask();
+                var manager = dependency.manager;
 
                 if (!(fromTaskId in this.dependenciesFrom)) {
                     this.dependenciesFrom[fromTaskId] = [];
@@ -106,13 +110,24 @@
                     this.dependenciesTo[toTaskId] = [];
                 }
 
-                if (fromTaskId) {
-                    this.dependenciesFrom[fromTaskId].push(dependency);
+                 if (!isDraw && !toTask) {
+                    // Remove dependency
+                    this.removeDependency(dependency, true);
+                    dependency.canConnect = false;
+
+                    manager.api.dependencies.raise.remove(dependency);
+
+                    return null;
+                } else {
+                    if (fromTaskId) {
+                        this.dependenciesFrom[fromTaskId].push(dependency);
+                    }
+
+                    if (toTaskId) {
+                        this.dependenciesTo[toTaskId].push(dependency);
+                    }
                 }
 
-                if (toTaskId) {
-                    this.dependenciesTo[toTaskId].push(dependency);
-                }
 
                 return dependency;
             };

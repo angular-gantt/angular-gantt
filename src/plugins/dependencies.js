@@ -141,7 +141,7 @@
                         });
 
                         api.tasks.on.add(scope, function(task) {
-                            manager.addDependenciesFromTask(task);
+                            manager.addDependenciesFromTask(task, true);
                         });
 
                         api.tasks.on.remove(scope, function(task) {
@@ -190,7 +190,21 @@
 
                         api.dependencies.on.remove(scope, function(dependency) {
                             if (scope.conflictChecker && scope.enabled) {
-                                checker.refresh([dependency.getFromTask(), dependency.getToTask()]);
+                                var fromTask = dependency.getFromTask();
+                                var toTask = dependency.getToTask();
+
+                                if (fromTask && toTask) {
+                                    checker.refresh([fromTask, toTask]);
+                                } else {
+
+                                    if (fromTask) {
+                                        checker.removeConflictClass(fromTask);
+                                    } else {
+                                        checker.removeConflictClass(toTask);
+                                    }
+
+                                }
+
                             }
                         });
 
