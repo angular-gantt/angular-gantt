@@ -49,6 +49,7 @@
              * Add all dependencies defined from a task. Dependencies will be added only if plugin is enabled.
              *
              * @param task
+             * @param isDraw [boolean] - true: Do not remove dependency from Task model
              */
             this.addDependenciesFromTask = function(task, isDraw) {
                 if (this.pluginScope.enabled) {
@@ -95,6 +96,7 @@
              *
              * @param task Task defining the dependency.
              * @param model Model object for the dependency.
+             * @param isDraw [boolean] - true: Do not remove dependency from Task model
              */
             this.addDependency = function(task, model, isDraw) {
                 var dependency = new Dependency(this, task, model);

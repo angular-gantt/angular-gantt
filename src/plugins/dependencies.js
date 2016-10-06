@@ -141,6 +141,7 @@
                         });
 
                         api.tasks.on.add(scope, function(task) {
+                            // isDraw = true - Do not remove dependencies from Task model when toTask is not defined
                             manager.addDependenciesFromTask(task, true);
                         });
 
