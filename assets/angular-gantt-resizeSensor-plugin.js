@@ -33,8 +33,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 function buildSensor() {
                     var ganttElement = element.parent().parent().parent()[0].querySelectorAll('div.gantt')[0];
                     return new ResizeSensor(ganttElement, function() {
-                        ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
-                        ganttCtrl.gantt.$scope.$apply();
+                        // See issue #664
+                        if (Math.abs(ganttElement.clientWidth - ganttCtrl.gantt.$scope.ganttElementWidth) > 1) {
+                            ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
+                            ganttCtrl.gantt.$scope.$apply();
+                        }
                     });
                 }
 
