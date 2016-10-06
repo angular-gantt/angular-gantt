@@ -53861,7 +53861,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
 
                         api.tasks.on.add(scope, function(task) {
-                            manager.addDependenciesFromTask(task);
+                            manager.addDependenciesFromTask(task, true);
                         });
 
                         api.tasks.on.remove(scope, function(task) {
@@ -53910,7 +53910,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         api.dependencies.on.remove(scope, function(dependency) {
                             if (scope.conflictChecker && scope.enabled) {
-                                checker.refresh([dependency.getFromTask(), dependency.getToTask()]);
+                                var fromTask = dependency.getFromTask();
+                                var toTask = dependency.getToTask();
+
+                                if (fromTask && toTask) {
+                                    checker.refresh([fromTask, toTask]);
+                                } else {
+
+                                    if (fromTask) {
+                                        checker.removeConflictClass(fromTask);
+                                    } else {
+                                        checker.removeConflictClass(toTask);
+                                    }
+
+                                }
+
                             }
                         });
 
@@ -55402,6 +55416,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 handleTaskNonConflict(conflictsList, allTasks);
             };
 
+            this.removeConflictClass = function(task) {
+                task.$element.removeClass('gantt-task-conflict');
+            };
+
             /**
              * Remove the conflict status of given tasks.
              *
@@ -55601,8 +55619,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * Add all dependencies defined from a task. Dependencies will be added only if plugin is enabled.
              *
              * @param task
+             * @param allowPartial if true, dependency linking to a missing task will still be added.
              */
-            this.addDependenciesFromTask = function(task) {
+            this.addDependenciesFromTask = function(task, allowPartial) {
                 if (this.pluginScope.enabled) {
                     var taskDependencies = task.model.dependencies;
 
@@ -55613,8 +55632,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
 
                         for (var i = 0, l = taskDependencies.length; i < l; i++) {
-                            var dependency = self.addDependency(task, taskDependencies[i]);
-                            dependency.connect();
+                            var dependency = self.addDependency(task, taskDependencies[i], allowPartial);
+                            if (dependency) {
+                                dependency.connect();
+                            }
                         }
                     }
                 }
@@ -55644,12 +55665,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              *
              * @param task Task defining the dependency.
              * @param model Model object for the dependency.
+             * @param allowPartial if true, dependency linking to a missing task will still be added.
              */
-            this.addDependency = function(task, model) {
+            this.addDependency = function(task, model, allowPartial) {
                 var dependency = new Dependency(this, task, model);
-
                 var fromTaskId = dependency.getFromTaskId();
+                var fromTask = dependency.getFromTask();
                 var toTaskId = dependency.getToTaskId();
+                var toTask = dependency.getToTask();
+                var manager = dependency.manager;
 
                 if (!(fromTaskId in this.dependenciesFrom)) {
                     this.dependenciesFrom[fromTaskId] = [];
@@ -55658,13 +55682,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.dependenciesTo[toTaskId] = [];
                 }
 
-                if (fromTaskId) {
-                    this.dependenciesFrom[fromTaskId].push(dependency);
+                if (!allowPartial && (!toTask || !fromTask)) {
+                    // Partial dependency is not allowed, remove it.
+                    this.removeDependency(dependency, true);
+
+                    manager.api.dependencies.raise.remove(dependency);
+
+                    return null;
+                } else {
+                    if (fromTaskId) {
+                        this.dependenciesFrom[fromTaskId].push(dependency);
+                    }
+
+                    if (toTaskId) {
+                        this.dependenciesTo[toTaskId].push(dependency);
+                    }
                 }
 
-                if (toTaskId) {
-                    this.dependenciesTo[toTaskId].push(dependency);
-                }
 
                 return dependency;
             };

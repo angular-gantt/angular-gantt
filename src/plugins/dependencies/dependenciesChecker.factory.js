@@ -60,6 +60,10 @@
                 handleTaskNonConflict(conflictsList, allTasks);
             };
 
+            this.removeConflictClass = function(task) {
+                task.$element.removeClass('gantt-task-conflict');
+            };
+
             /**
              * Remove the conflict status of given tasks.
              *

@@ -49,8 +49,9 @@
              * Add all dependencies defined from a task. Dependencies will be added only if plugin is enabled.
              *
              * @param task
+             * @param allowPartial if true, dependency linking to a missing task will still be added.
              */
-            this.addDependenciesFromTask = function(task) {
+            this.addDependenciesFromTask = function(task, allowPartial) {
                 if (this.pluginScope.enabled) {
                     var taskDependencies = task.model.dependencies;
 
@@ -61,8 +62,10 @@
                         }
 
                         for (var i = 0, l = taskDependencies.length; i < l; i++) {
-                            var dependency = self.addDependency(task, taskDependencies[i]);
-                            dependency.connect();
+                            var dependency = self.addDependency(task, taskDependencies[i], allowPartial);
+                            if (dependency) {
+                                dependency.connect();
+                            }
                         }
                     }
                 }
@@ -92,12 +95,15 @@
              *
              * @param task Task defining the dependency.
              * @param model Model object for the dependency.
+             * @param allowPartial if true, dependency linking to a missing task will still be added.
              */
-            this.addDependency = function(task, model) {
+            this.addDependency = function(task, model, allowPartial) {
                 var dependency = new Dependency(this, task, model);
-
                 var fromTaskId = dependency.getFromTaskId();
+                var fromTask = dependency.getFromTask();
                 var toTaskId = dependency.getToTaskId();
+                var toTask = dependency.getToTask();
+                var manager = dependency.manager;
 
                 if (!(fromTaskId in this.dependenciesFrom)) {
                     this.dependenciesFrom[fromTaskId] = [];
@@ -106,13 +112,23 @@
                     this.dependenciesTo[toTaskId] = [];
                 }
 
-                if (fromTaskId) {
-                    this.dependenciesFrom[fromTaskId].push(dependency);
+                if (!allowPartial && (!toTask || !fromTask)) {
+                    // Partial dependency is not allowed, remove it.
+                    this.removeDependency(dependency, true);
+
+                    manager.api.dependencies.raise.remove(dependency);
+
+                    return null;
+                } else {
+                    if (fromTaskId) {
+                        this.dependenciesFrom[fromTaskId].push(dependency);
+                    }
+
+                    if (toTaskId) {
+                        this.dependenciesTo[toTaskId].push(dependency);
+                    }
                 }
 
-                if (toTaskId) {
-                    this.dependenciesTo[toTaskId].push(dependency);
-                }
 
                 return dependency;
             };
