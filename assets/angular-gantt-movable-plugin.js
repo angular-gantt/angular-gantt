@@ -245,12 +245,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
 
                                 if (!oldTaskHasBeenChanged && taskHasBeenChanged && !taskHasBeenMovedFromAnotherRow) {
-                                    var backgroundElement = taskScope.task.getBackgroundElement();
                                     if (taskScope.task.moveMode === 'M') {
-                                        backgroundElement.addClass('gantt-task-moving');
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
                                     } else {
-                                        backgroundElement.addClass('gantt-task-resizing');
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
                                     }
                                 }
@@ -371,6 +368,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.isMoving = true;
                                 taskScope.task.active = true;
 
+                                // Apply CSS style
+                                var backgroundElement = taskScope.task.getBackgroundElement();
+                                if (taskScope.task.moveMode === 'M') {
+                                    backgroundElement.addClass('gantt-task-resizing');
+                                } else {
+                                    backgroundElement.addClass('gantt-task-moving');
+                                }
+
                                 // Add move event handler
                                 var taskMoveHandler = function(evt) {
                                     evt.stopImmediatePropagation();
@@ -397,10 +402,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             var disableMoveMode = function() {
-                                var getBackgroundElement = taskScope.task.getBackgroundElement();
-                                getBackgroundElement.removeClass('gantt-task-moving');
-                                getBackgroundElement.removeClass('gantt-task-resizing');
-
                                 if (taskScope.task.originalModel !== undefined) {
 
                                     taskScope.task.originalModel.from = taskScope.task.model.from;
@@ -424,6 +425,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskHasBeenMovedFromAnotherRow = false;
                                 taskScope.task.isMoving = false;
                                 taskScope.task.active = false;
+
+                                // Remove CSS class
+                                var getBackgroundElement = taskScope.task.getBackgroundElement();
+                                getBackgroundElement.removeClass('gantt-task-moving');
+                                getBackgroundElement.removeClass('gantt-task-resizing');
 
                                 // Stop any active auto scroll
                                 clearScrollInterval();
@@ -461,7 +467,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
                                 delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
-                                // In case the task has been moved to another row a new controller is is created by angular.
+                                // In case the task has been moved to another row a new controller is created by angular.
                                 // Enable the move mode again if this was the case.
                                 taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('M', taskScope.task.mouseOffsetX);
