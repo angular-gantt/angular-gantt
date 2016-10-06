@@ -115,7 +115,6 @@
                  if (!isDraw && !toTask) {
                     // Remove dependency
                     this.removeDependency(dependency, true);
-                    dependency.canConnect = false;
 
                     manager.api.dependencies.raise.remove(dependency);
 
