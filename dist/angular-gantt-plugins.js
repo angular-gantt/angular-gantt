@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -204,7 +204,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         });
 
                         api.tasks.on.add(scope, function(task) {
-                            manager.addDependenciesFromTask(task);
+                            manager.addDependenciesFromTask(task, true);
                         });
 
                         api.tasks.on.remove(scope, function(task) {
@@ -253,7 +253,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                         api.dependencies.on.remove(scope, function(dependency) {
                             if (scope.conflictChecker && scope.enabled) {
-                                checker.refresh([dependency.getFromTask(), dependency.getToTask()]);
+                                var fromTask = dependency.getFromTask();
+                                var toTask = dependency.getToTask();
+
+                                if (fromTask && toTask) {
+                                    checker.refresh([fromTask, toTask]);
+                                } else {
+
+                                    if (fromTask) {
+                                        checker.removeConflictClass(fromTask);
+                                    } else {
+                                        checker.removeConflictClass(toTask);
+                                    }
+
+                                }
+
                             }
                         });
 
@@ -775,12 +789,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 }
 
                                 if (!oldTaskHasBeenChanged && taskHasBeenChanged && !taskHasBeenMovedFromAnotherRow) {
-                                    var backgroundElement = taskScope.task.getBackgroundElement();
                                     if (taskScope.task.moveMode === 'M') {
-                                        backgroundElement.addClass('gantt-task-moving');
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.moveBegin(taskScope.task);
                                     } else {
-                                        backgroundElement.addClass('gantt-task-resizing');
                                         taskScope.row.rowsManager.gantt.api.tasks.raise.resizeBegin(taskScope.task);
                                     }
                                 }
@@ -901,6 +912,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.isMoving = true;
                                 taskScope.task.active = true;
 
+                                // Apply CSS style
+                                var backgroundElement = taskScope.task.getBackgroundElement();
+                                if (taskScope.task.moveMode === 'M') {
+                                    backgroundElement.addClass('gantt-task-resizing');
+                                } else {
+                                    backgroundElement.addClass('gantt-task-moving');
+                                }
+
                                 // Add move event handler
                                 var taskMoveHandler = function(evt) {
                                     evt.stopImmediatePropagation();
@@ -927,10 +946,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             };
 
                             var disableMoveMode = function() {
-                                var getBackgroundElement = taskScope.task.getBackgroundElement();
-                                getBackgroundElement.removeClass('gantt-task-moving');
-                                getBackgroundElement.removeClass('gantt-task-resizing');
-
                                 if (taskScope.task.originalModel !== undefined) {
 
                                     taskScope.task.originalModel.from = taskScope.task.model.from;
@@ -954,6 +969,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskHasBeenMovedFromAnotherRow = false;
                                 taskScope.task.isMoving = false;
                                 taskScope.task.active = false;
+
+                                // Remove CSS class
+                                var getBackgroundElement = taskScope.task.getBackgroundElement();
+                                getBackgroundElement.removeClass('gantt-task-moving');
+                                getBackgroundElement.removeClass('gantt-task-resizing');
 
                                 // Stop any active auto scroll
                                 clearScrollInterval();
@@ -991,7 +1011,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 enableMoveMode('E', taskScope.task.mouseOffsetX);
                                 delete taskScope.task.isResizing;
                             } else if (taskScope.task.isMoving) {
-                                // In case the task has been moved to another row a new controller is is created by angular.
+                                // In case the task has been moved to another row a new controller is created by angular.
                                 // Enable the move mode again if this was the case.
                                 taskHasBeenMovedFromAnotherRow = true;
                                 enableMoveMode('M', taskScope.task.mouseOffsetX);
@@ -1247,8 +1267,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 function buildSensor() {
                     var ganttElement = element.parent().parent().parent()[0].querySelectorAll('div.gantt')[0];
                     return new ResizeSensor(ganttElement, function() {
-                        ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
-                        ganttCtrl.gantt.$scope.$apply();
+                        // See issue #664
+                        if (Math.abs(ganttElement.clientWidth - ganttCtrl.gantt.$scope.ganttElementWidth) > 1) {
+                            ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
+                            ganttCtrl.gantt.$scope.$apply();
+                        }
                     });
                 }
 
@@ -1745,6 +1768,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 handleTaskNonConflict(conflictsList, allTasks);
             };
 
+            this.removeConflictClass = function(task) {
+                task.$element.removeClass('gantt-task-conflict');
+            };
+
             /**
              * Remove the conflict status of given tasks.
              *
@@ -1944,8 +1971,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              * Add all dependencies defined from a task. Dependencies will be added only if plugin is enabled.
              *
              * @param task
+             * @param allowPartial if true, dependency linking to a missing task will still be added.
              */
-            this.addDependenciesFromTask = function(task) {
+            this.addDependenciesFromTask = function(task, allowPartial) {
                 if (this.pluginScope.enabled) {
                     var taskDependencies = task.model.dependencies;
 
@@ -1956,8 +1984,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         }
 
                         for (var i = 0, l = taskDependencies.length; i < l; i++) {
-                            var dependency = self.addDependency(task, taskDependencies[i]);
-                            dependency.connect();
+                            var dependency = self.addDependency(task, taskDependencies[i], allowPartial);
+                            if (dependency) {
+                                dependency.connect();
+                            }
                         }
                     }
                 }
@@ -1987,12 +2017,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
              *
              * @param task Task defining the dependency.
              * @param model Model object for the dependency.
+             * @param allowPartial if true, dependency linking to a missing task will still be added.
              */
-            this.addDependency = function(task, model) {
+            this.addDependency = function(task, model, allowPartial) {
                 var dependency = new Dependency(this, task, model);
-
                 var fromTaskId = dependency.getFromTaskId();
+                var fromTask = dependency.getFromTask();
                 var toTaskId = dependency.getToTaskId();
+                var toTask = dependency.getToTask();
+                var manager = dependency.manager;
 
                 if (!(fromTaskId in this.dependenciesFrom)) {
                     this.dependenciesFrom[fromTaskId] = [];
@@ -2001,13 +2034,23 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     this.dependenciesTo[toTaskId] = [];
                 }
 
-                if (fromTaskId) {
-                    this.dependenciesFrom[fromTaskId].push(dependency);
+                if (!allowPartial && (!toTask || !fromTask)) {
+                    // Partial dependency is not allowed, remove it.
+                    this.removeDependency(dependency, true);
+
+                    manager.api.dependencies.raise.remove(dependency);
+
+                    return null;
+                } else {
+                    if (fromTaskId) {
+                        this.dependenciesFrom[fromTaskId].push(dependency);
+                    }
+
+                    if (toTaskId) {
+                        this.dependenciesTo[toTaskId].push(dependency);
+                    }
                 }
 
-                if (toTaskId) {
-                    this.dependenciesTo[toTaskId].push(dependency);
-                }
 
                 return dependency;
             };
@@ -3091,6 +3134,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
                     if (enabled && !visible && mouseEnterX !== undefined && newValue) {
+                        var content = utils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
+                        $scope.content = content;
+
                         if (showDelayed) {
                             showTooltipPromise = $timeout(function() {
                                 showTooltip(mouseEnterX);
@@ -3686,7 +3732,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '     ng-class="isRightAligned ? \'gantt-task-infoArrowR\' : \'gantt-task-infoArrow\'"\n' +
         '     ng-style="{top: taskRect.top + \'px\', marginTop: -elementHeight - 8 + \'px\'}">\n' +
         '    <div class="gantt-task-info-content">\n' +
-        '        <div gantt-bind-compile-html="pluginScope.content"></div>\n' +
+        '        <div gantt-bind-compile-html="content"></div>\n' +
         '    </div>\n' +
         '</div>\n' +
         '');

@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -1241,7 +1241,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var timeFrames = this.getDayTimeFrame(croppedDate);
                 for (var i = 0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
-                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
+                    if (croppedDate > timeFrame.start && croppedDate < timeFrame.end) {
                         if (timeFrame.cropped) {
                             if (timeFrames.length > i + 1) {
                                 croppedDate = timeFrames[i + 1].start;
@@ -2889,8 +2889,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var indexOf = arrays.indexOfId(this.rows, rowId, ['model', 'id']);
                 if (indexOf > -1) {
                     removedRow = this.rows.splice(indexOf, 1)[0]; // Remove from array
-                    var deregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
-                    deregisterFunction();
+                    var unregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
+                    if (unregisterFunction) {
+                        unregisterFunction();
+                    }
                 }
 
                 arrays.removeId(this.sortedRows, rowId, ['model', 'id']);
@@ -2914,8 +2916,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleRows = [];
 
             for (var i = 0, l = this.rowsTaskWatchers.length; i < l; i++) {
-                var deregisterFunction = this.rowsTaskWatchers[i];
-                deregisterFunction();
+                var unregisterFunction = this.rowsTaskWatchers[i];
+                unregisterFunction();
             }
             this.rowsTaskWatchers = [];
         };
@@ -4297,91 +4299,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
 (function(){
     'use strict';
-    angular.module('gantt').directive('ganttScrollManager', function() {
-        // The element with this attribute will scroll at the same time as the scrollSender element
-
-        return {
-            restrict: 'A',
-            scope: {},
-            controller: ['$scope', function($scope) {
-                $scope.horizontal = [];
-                $scope.vertical = [];
-
-                this.registerVerticalReceiver = function (element) {
-                    element.css('position', 'relative');
-                    $scope.vertical.push(element[0]);
-                };
-
-                this.registerHorizontalReceiver = function (element) {
-                    element.css('position', 'relative');
-                    $scope.horizontal.push(element[0]);
-                };
-
-                this.getHorizontalRecievers = function() {
-                    return $scope.horizontal;
-                };
-
-                this.getVerticalRecievers = function() {
-                    return $scope.vertical;
-                };
-            }]
-        };
-    });
-}());
-
-
-(function(){
-    'use strict';
-    angular.module('gantt').directive('ganttScrollSender', [function() {
-        // Updates the element which are registered for the horizontal or vertical scroll event
-
-        return {
-            restrict: 'A',
-            require: ['^gantt', '^ganttScrollManager'],
-            link: function(scope, element, attrs, controllers) {
-                var el = element[0];
-
-                var updateListeners = function() {
-                    var i, l;
-
-                    var vertical = controllers[1].getVerticalRecievers();
-                    for (i = 0, l = vertical.length; i < l; i++) {
-                        var vElement = vertical[i];
-                        if (vElement.parentNode.scrollTop !== el.scrollTop) {
-                            vElement.parentNode.scrollTop = el.scrollTop;
-                        }
-                    }
-
-                    var horizontal = controllers[1].getHorizontalRecievers();
-                    for (i = 0, l = horizontal.length; i < l; i++) {
-                        var hElement = horizontal[i];
-                        if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
-                            hElement.parentNode.scrollLeft  = el.scrollLeft;
-                        }
-                    }
-                };
-
-                element.bind('scroll', updateListeners);
-
-                scope.$watch(function() {
-                    return controllers[0].gantt.width;
-                }, function(newValue, oldValue) {
-                    if (newValue !== oldValue) {
-                        var horizontal = controllers[1].getHorizontalRecievers();
-                        for (var i = 0, l = horizontal.length; i < l; i++) {
-                            var hElement = horizontal[i];
-                            hElement.style.width = newValue + 'px';
-                        }
-                    }
-                });
-            }
-        };
-    }]);
-}());
-
-
-(function(){
-    'use strict';
     angular.module('gantt').directive('ganttScrollable', ['GanttDirectiveBuilder', '$timeout', 'ganttDebounce', 'moment', function(Builder, $timeout, debounce, moment) {
         var builder = new Builder('ganttScrollable');
         builder.controller = function($scope, $element) {
@@ -4484,6 +4401,91 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             };
         };
         return builder.build();
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttScrollManager', function() {
+        // The element with this attribute will scroll at the same time as the scrollSender element
+
+        return {
+            restrict: 'A',
+            scope: {},
+            controller: ['$scope', function($scope) {
+                $scope.horizontal = [];
+                $scope.vertical = [];
+
+                this.registerVerticalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.vertical.push(element[0]);
+                };
+
+                this.registerHorizontalReceiver = function (element) {
+                    element.css('position', 'relative');
+                    $scope.horizontal.push(element[0]);
+                };
+
+                this.getHorizontalRecievers = function() {
+                    return $scope.horizontal;
+                };
+
+                this.getVerticalRecievers = function() {
+                    return $scope.vertical;
+                };
+            }]
+        };
+    });
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt').directive('ganttScrollSender', [function() {
+        // Updates the element which are registered for the horizontal or vertical scroll event
+
+        return {
+            restrict: 'A',
+            require: ['^gantt', '^ganttScrollManager'],
+            link: function(scope, element, attrs, controllers) {
+                var el = element[0];
+
+                var updateListeners = function() {
+                    var i, l;
+
+                    var vertical = controllers[1].getVerticalRecievers();
+                    for (i = 0, l = vertical.length; i < l; i++) {
+                        var vElement = vertical[i];
+                        if (vElement.parentNode.scrollTop !== el.scrollTop) {
+                            vElement.parentNode.scrollTop = el.scrollTop;
+                        }
+                    }
+
+                    var horizontal = controllers[1].getHorizontalRecievers();
+                    for (i = 0, l = horizontal.length; i < l; i++) {
+                        var hElement = horizontal[i];
+                        if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
+                            hElement.parentNode.scrollLeft  = el.scrollLeft;
+                        }
+                    }
+                };
+
+                element.bind('scroll', updateListeners);
+
+                scope.$watch(function() {
+                    return controllers[0].gantt.width;
+                }, function(newValue, oldValue) {
+                    if (newValue !== oldValue) {
+                        var horizontal = controllers[1].getHorizontalRecievers();
+                        for (var i = 0, l = horizontal.length; i < l; i++) {
+                            var hElement = horizontal[i];
+                            hElement.style.width = newValue + 'px';
+                        }
+                    }
+                });
+            }
+        };
     }]);
 }());
 

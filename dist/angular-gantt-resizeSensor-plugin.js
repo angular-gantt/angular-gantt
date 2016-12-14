@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.2.14 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -33,8 +33,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 function buildSensor() {
                     var ganttElement = element.parent().parent().parent()[0].querySelectorAll('div.gantt')[0];
                     return new ResizeSensor(ganttElement, function() {
-                        ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
-                        ganttCtrl.gantt.$scope.$apply();
+                        // See issue #664
+                        if (Math.abs(ganttElement.clientWidth - ganttCtrl.gantt.$scope.ganttElementWidth) > 1) {
+                            ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
+                            ganttCtrl.gantt.$scope.$apply();
+                        }
                     });
                 }
 
