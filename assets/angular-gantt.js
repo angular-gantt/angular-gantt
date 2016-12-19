@@ -1235,9 +1235,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Column.prototype.getPositionByDate = function(date) {
             var positionDuration;
             var position;
+            var croppedDate = date;
 
             if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
-                var croppedDate = date;
                 var timeFrames = this.getDayTimeFrame(croppedDate);
                 for (var i = 0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
@@ -1257,7 +1257,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             }
 
-            positionDuration = date.diff(this.date, 'milliseconds');
+            positionDuration = croppedDate.diff(this.date, 'milliseconds');
             position = positionDuration / this.duration * this.width;
 
             if (position < 0) {
@@ -1922,36 +1922,39 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 viewScaleUnit = viewScale;
             }
 
-            var currentColumn = columnsManager.columns[0];
-            var currentDate = moment(currentColumn.date).startOf(viewScaleUnit);
+            if(columnsManager.columns.length > 0){
+                var currentColumn = columnsManager.columns[0];
+                var currentDate = moment(currentColumn.date).startOf(viewScaleUnit);
 
-            var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
+                var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
 
-            while (true) {
-                var currentPosition = currentColumn.getPositionByDate(currentDate);
+                while (true) {
+                    var currentPosition = currentColumn.getPositionByDate(currentDate);
 
-                var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
+                    var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
 
-                var column = columnsManager.getColumnByDate(endDate, true);
+                    var column = columnsManager.getColumnByDate(endDate, true);
 
-                var left = column.getPositionByDate(endDate);
+                    var left = column.getPositionByDate(endDate);
 
-                var width = left - currentPosition;
+                    var width = left - currentPosition;
 
-                if (width > 0) {
-                    var labelFormat = columnsManager.getHeaderFormat(value);
+                    if (width > 0) {
+                        var labelFormat = columnsManager.getHeaderFormat(value);
 
-                    header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
-                    generatedHeaders.push(header);
+                        header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
+                        generatedHeaders.push(header);
+                    }
+
+                    if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
+                        break;
+                    }
+
+                    currentColumn = column;
+                    currentDate = endDate;
                 }
-
-                if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
-                    break;
-                }
-
-                currentColumn = column;
-                currentDate = endDate;
             }
+
 
             return generatedHeaders;
         };
