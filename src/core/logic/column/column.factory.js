@@ -316,13 +316,13 @@
         Column.prototype.getPositionByDate = function(date) {
             var positionDuration;
             var position;
+            var croppedDate = date;
 
             if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
-                var croppedDate = date;
                 var timeFrames = this.getDayTimeFrame(croppedDate);
                 for (var i = 0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
-                    if (croppedDate > timeFrame.start && croppedDate < timeFrame.end) {
+                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
                         if (timeFrame.cropped) {
                             if (timeFrames.length > i + 1) {
                                 croppedDate = timeFrames[i + 1].start;
@@ -338,7 +338,7 @@
                 }
             }
 
-            positionDuration = date.diff(this.date, 'milliseconds');
+            positionDuration = croppedDate.diff(this.date, 'milliseconds');
             position = positionDuration / this.duration * this.width;
 
             if (position < 0) {
