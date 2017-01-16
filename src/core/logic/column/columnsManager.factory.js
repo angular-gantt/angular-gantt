@@ -333,7 +333,7 @@
             var lastColumn = this.getLastColumn();
             var endDate;
             if (lastColumn) {
-                endDate = lastColumn.getDateByPosition(lastColumn.width);
+                endDate = lastColumn.endDate;
             }
 
             var viewScale;
