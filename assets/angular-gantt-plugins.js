@@ -1159,10 +1159,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     api.tasks.on.rowChange(scope, function(task, oldRow) {
                         if (scope.global) {
-                            var rows = oldRow.rowsManager.rows;
+                            var rows = task.row.rowsManager.rows;
                             handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(oldRow.tasks);
+                            handleOverlaps(task.row.tasks);
                         }
                     });
 
