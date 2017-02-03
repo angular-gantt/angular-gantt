@@ -362,11 +362,11 @@
                                 taskScope.task.active = true;
 
                                 // Apply CSS style
-                                var backgroundElement = taskScope.task.getBackgroundElement();
+                                var taskElement = taskScope.task.$element;
                                 if (taskScope.task.moveMode === 'M') {
-                                    backgroundElement.addClass('gantt-task-resizing');
+                                    taskElement.addClass('gantt-task-resizing');
                                 } else {
-                                    backgroundElement.addClass('gantt-task-moving');
+                                    taskElement.addClass('gantt-task-moving');
                                 }
 
                                 // Add move event handler
@@ -420,9 +420,9 @@
                                 taskScope.task.active = false;
 
                                 // Remove CSS class
-                                var getBackgroundElement = taskScope.task.getBackgroundElement();
-                                getBackgroundElement.removeClass('gantt-task-moving');
-                                getBackgroundElement.removeClass('gantt-task-resizing');
+                                var taskElement = taskScope.task.$element;
+                                taskElement.removeClass('gantt-task-moving');
+                                taskElement.removeClass('gantt-task-resizing');
 
                                 // Stop any active auto scroll
                                 clearScrollInterval();
