@@ -276,7 +276,7 @@
                 cal.registerTimeFrames(inputTimeFrames);
                 cal.registerDateFrames(inputDateFrames);
 
-                var timeFrames = cal.getTimeFrames(moment().month(10).date(11));
+                var timeFrames = cal.getTimeFrames(moment().year(2016).month(10).date(11));
                 timeFrames = cal.solve(timeFrames);
                 expect(timeFrames.length).toBe(1);
 
@@ -285,7 +285,7 @@
                 expect(timeFrames[0].classes.length).toBe(1);
                 expect(timeFrames[0].classes[0]).toBe('gantt-timeframe-holiday');
 
-                timeFrames = cal.getTimeFrames(moment().day(6));
+                timeFrames = cal.getTimeFrames(moment().month(0).day(6));
                 timeFrames = cal.solve(timeFrames);
                 expect(timeFrames.length).toBe(1);
 
