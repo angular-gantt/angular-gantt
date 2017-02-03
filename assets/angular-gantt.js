@@ -1241,7 +1241,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var timeFrames = this.getDayTimeFrame(croppedDate);
                 for (var i = 0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
-                    if (croppedDate > timeFrame.start && croppedDate < timeFrame.end) {
+                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
                         if (timeFrame.cropped) {
                             if (timeFrames.length > i + 1) {
                                 croppedDate = timeFrames[i + 1].start;
@@ -5286,7 +5286,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('template/gantt.tmpl.html',
         '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener="ganttElementWidth">\n' +
         '    <gantt-side>\n' +

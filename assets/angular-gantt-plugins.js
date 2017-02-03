@@ -3593,21 +3593,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.bounds.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
         '<div ng-cloak class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '');
 }]);
 
-angular.module('gantt.dependencies.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.dependencies.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.groups.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.groups.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/groups/taskGroup.tmpl.html',
         '<div ng-controller="GanttGroupController">\n' +
         '    <div class="gantt-task-group-overview" ng-if="taskGroup.overviewTasks.length > 0">\n' +
@@ -3637,7 +3637,7 @@ angular.module('gantt.groups.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
-angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.labels.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body" ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
@@ -3671,29 +3671,29 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
-angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.movable.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.overlap.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.progress.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/progress/taskProgress.tmpl.html',
         '<div ng-cloak class="gantt-task-progress" ng-style="getCss()" ng-class="getClasses()"></div>\n' +
         '');
 }]);
 
-angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.sortable.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.table.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
         '<div class="gantt-side-content-table">\n' +
         '\n' +
@@ -3724,7 +3724,7 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '');
 }]);
 
-angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.tooltips.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
         '<div ng-cloak\n' +
         '     class="gantt-task-info"\n' +
@@ -3738,7 +3738,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '');
 }]);
 
-angular.module('gantt.tree.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.tree.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/tree/sideContentTree.tmpl.html',
         '<div class="gantt-side-content-tree" ng-controller="GanttTreeController">\n' +
         '    <gantt-tree-header>\n' +

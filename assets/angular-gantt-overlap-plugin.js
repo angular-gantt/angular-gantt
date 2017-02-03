@@ -162,7 +162,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.overlap.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 

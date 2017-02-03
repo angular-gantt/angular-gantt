@@ -117,7 +117,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.labels.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body" ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +

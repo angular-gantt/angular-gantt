@@ -179,7 +179,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.table.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
         '<div class="gantt-side-content-table">\n' +
         '\n' +

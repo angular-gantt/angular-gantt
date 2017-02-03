@@ -245,7 +245,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-angular.module('gantt.groups.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.groups.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/groups/taskGroup.tmpl.html',
         '<div ng-controller="GanttGroupController">\n' +
         '    <div class="gantt-task-group-overview" ng-if="taskGroup.overviewTasks.length > 0">\n' +
