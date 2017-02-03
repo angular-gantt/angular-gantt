@@ -41,7 +41,8 @@ Move and resize tasks.
 
 - ### allow-row-switching
 
-    Tasks can be moved to a different row.
+    Tasks can be moved to a different row. Can also be a function (`fn(Task, TargetRow)`) returning `true` to allow the 
+    switch, or `false` to prevent it.
     
     default: `true`
 
@@ -57,7 +58,7 @@ Attributes can be defined for a specific `Row` or `Task` object using an object 
         'enabled': <Boolean>,
         'allowMoving': <Boolean>,
         'allowResizing': <Boolean>,
-        'allowRowSwitching': <Boolean>
+        'allowRowSwitching': <Boolean|Function>
       }
       
       // Or shortcut for enabled property

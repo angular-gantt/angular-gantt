@@ -58961,8 +58961,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
-                                            targetRow.moveTaskToRow(taskScope.task, true);
-                                            taskHasBeenChanged = true;
+                                            if (!angular.isFunction(allowRowSwitching) || allowRowSwitching(taskScope.task, targetRow)) {
+                                                targetRow.moveTaskToRow(taskScope.task, true);
+                                                taskHasBeenChanged = true;
+                                            }
                                         }
                                     }
 
@@ -61104,12 +61106,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
         return {
             initialize: function(options) {
-
                 options.enabled = options.enabled !== undefined ? options.enabled : true;
                 options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
                 options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
-                options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
-
+                if (!angular.isFunction(options.allowRowSwitching)) {
+                    options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
+                }
                 return options;
             }
         };

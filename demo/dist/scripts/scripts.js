@@ -193,6 +193,11 @@ angular.module('angularGanttDemoApp')
                 enabled: true,
                 conflictChecker: true
             },
+            movable: {
+                allowRowSwitching: function(task, targetRow) {
+                    return task.row.model.name !== 'Milestones' && targetRow.model.name !== 'Milestones';
+                }
+            },
             targetDataAddRowIndex: undefined,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;

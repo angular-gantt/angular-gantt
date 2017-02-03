@@ -174,8 +174,10 @@
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
-                                            targetRow.moveTaskToRow(taskScope.task, true);
-                                            taskHasBeenChanged = true;
+                                            if (!angular.isFunction(allowRowSwitching) || allowRowSwitching(taskScope.task, targetRow)) {
+                                                targetRow.moveTaskToRow(taskScope.task, true);
+                                                taskHasBeenChanged = true;
+                                            }
                                         }
                                     }
 
