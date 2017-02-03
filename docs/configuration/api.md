@@ -267,6 +267,9 @@ Directives events are entry points to build [Template Hooks](customize.md#templa
 - **api.side.setWidth(width)**
 
     Set side area width. If given `width` is `undefined`, it will be computed automatically based on content.
+    
+    Calling this function after setting or updating gantt data may lead to unexpected results. Wrap the call in 
+    `$timeout` function if the computed width doesn't seem to use the new data to compute the width.
 
 - **api.side.getWidth()**
 
