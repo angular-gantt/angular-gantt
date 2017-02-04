@@ -12,6 +12,13 @@
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.drawtask) === 'object') {
+                    for (var option in scope.options.drawtask) {
+                        scope[option] = scope.options.drawtask[option];
+                    }
+                }
+
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
                 }

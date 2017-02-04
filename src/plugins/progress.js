@@ -13,7 +13,7 @@
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.progress) === 'object') {
                     for (var option in scope.options.progress) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.progress[option];
                     }
                 }
 

@@ -20,7 +20,7 @@
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.movable) === 'object') {
                         for (var option in scope.options.movable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.movable[option];
                         }
                     }
 

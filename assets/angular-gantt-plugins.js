@@ -20,7 +20,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.bounds) === 'object') {
                     for (var option in scope.options.bounds) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.bounds[option];
                     }
                 }
 
@@ -80,7 +80,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.corner) === 'object') {
                     for (var option in scope.options.corner) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.corner[option];
                     }
                 }
 
@@ -132,7 +132,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         // Load options from global options attribute.
                         if (scope.options && typeof(scope.options.dependencies) === 'object') {
                             for (var option in scope.options.dependencies) {
-                                scope[option] = scope.options[option];
+                                scope[option] = scope.options.dependencies[option];
                             }
                         }
 
@@ -341,6 +341,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.drawtask) === 'object') {
+                    for (var option in scope.options.drawtask) {
+                        scope[option] = scope.options.drawtask[option];
+                    }
+                }
+
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
                 }
@@ -476,9 +483,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.groups) === 'object') {
+                    for (var option in scope.options.groups) {
+                        scope[option] = scope.options.groups[option];
                     }
                 }
 
@@ -547,9 +554,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $log.warn('Angular Gantt Labels plugin is deprecated. Please use Table plugin instead.');
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.labels) === 'object') {
+                    for (var option in scope.options.labels) {
+                        scope[option] = scope.options.labels[option];
                     }
                 }
 
@@ -620,7 +627,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.movable) === 'object') {
                         for (var option in scope.options.movable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.movable[option];
                         }
                     }
 
@@ -1088,6 +1095,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.overlap) === 'object') {
+                    for (var option in scope.options.overlap) {
+                        scope[option] = scope.options.overlap[option];
+                    }
+                }
+
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
                 }
@@ -1248,7 +1262,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.progress) === 'object') {
                     for (var option in scope.options.progress) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.progress[option];
                     }
                 }
 
@@ -1306,9 +1320,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.progress) === 'object') {
-                    for (var option in scope.options.progress) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.resizeSensor) === 'object') {
+                    for (var option in scope.options.resizeSensor) {
+                        scope[option] = scope.options.resizeSensor[option];
                     }
                 }
 
@@ -1431,7 +1445,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.sortable) === 'object') {
                         for (var option in scope.options.sortable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.sortable[option];
                         }
                     }
 
@@ -1506,9 +1520,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.table) === 'object') {
+                    for (var option in scope.options.table) {
+                        scope[option] = scope.options.table[option];
                     }
                 }
 
@@ -1580,7 +1594,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.tooltips) === 'object') {
                     for (var option in scope.options.tooltips) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.tooltips[option];
                     }
                 }
 
@@ -1648,9 +1662,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.tree) === 'object') {
+                    for (var option in scope.options.tree) {
+                        scope[option] = scope.options.tree[option];
                     }
                 }
 

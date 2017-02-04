@@ -13,7 +13,7 @@
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.bounds) === 'object') {
                     for (var option in scope.options.bounds) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.bounds[option];
                     }
                 }
 

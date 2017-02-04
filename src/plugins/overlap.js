@@ -11,6 +11,13 @@
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.overlap) === 'object') {
+                    for (var option in scope.options.overlap) {
+                        scope[option] = scope.options.overlap[option];
+                    }
+                }
+
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
                 }

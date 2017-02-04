@@ -13,9 +13,9 @@
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.progress) === 'object') {
-                    for (var option in scope.options.progress) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.resizeSensor) === 'object') {
+                    for (var option in scope.options.resizeSensor) {
+                        scope[option] = scope.options.resizeSensor[option];
                     }
                 }
 

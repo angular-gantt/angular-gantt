@@ -16,7 +16,7 @@
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.tooltips) === 'object') {
                     for (var option in scope.options.tooltips) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.tooltips[option];
                     }
                 }
 

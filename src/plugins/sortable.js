@@ -71,7 +71,7 @@
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.sortable) === 'object') {
                         for (var option in scope.options.sortable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.sortable[option];
                         }
                     }
 

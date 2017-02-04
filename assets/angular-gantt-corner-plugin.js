@@ -24,7 +24,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.corner) === 'object') {
                     for (var option in scope.options.corner) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.corner[option];
                     }
                 }
 

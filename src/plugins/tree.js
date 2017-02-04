@@ -18,9 +18,9 @@
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.tree) === 'object') {
+                    for (var option in scope.options.tree) {
+                        scope[option] = scope.options.tree[option];
                     }
                 }
 
