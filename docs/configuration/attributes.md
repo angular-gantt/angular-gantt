@@ -410,3 +410,31 @@
     An optional number value can be prepended to this scale, like `5 minutes`, `3 hours` or `6 months`.
     
     default: `day`
+
+- ### taskLimitThreshold
+
+    The threshold tasks count for `ganttTaskLimiter`.
+ 
+    For performance reasons, when more than 100 tasks are loaded in the gantt chart, tasks outside of the visible 
+    scrollable viewport are removed from the DOM by the `ganttTaskLimiter` filter .
+    
+    It enhance global performance when `ganttTaskLimiter` is enabled on a heavy-loaded data model, but tasks may appear 
+    with a small delay when scrolling the viewport.
+    
+    Set to a negative number like `-1` to disable it, or set to `null` to force it regardless the tasks count.
+
+    default: `100`
+
+- ### columnLimitThreshold
+
+    The threshold columns count for `ganttColumnLimiter`.
+ 
+    For performance reasons, when more than 500 columns are loaded in the gantt chart, columns outside of the visible 
+    scrollable viewport are removed from the DOM by the `ganttColumnLimiter` filter.
+    
+    It enhance global performance when `ganttColumnLimiter` is enabled on a heavy-loaded data model, but columns may 
+    appear with a small delay when scrolling the viewport.
+    
+    Set to a negative number like `-1` to disable it, or set to `null` to force it regardless the columns count.
+
+    default: `500`

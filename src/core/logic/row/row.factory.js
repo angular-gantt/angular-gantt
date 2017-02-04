@@ -102,7 +102,13 @@
             } else {
                 this.filteredTasks = this.tasks.slice(0);
             }
-            this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+
+            var limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
+            if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
+                this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+            } else {
+                this.visibleTasks = this.filteredTasks;
+            }
         };
 
         Row.prototype.updateTasksPosAndSize = function() {

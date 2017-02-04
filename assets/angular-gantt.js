@@ -1799,11 +1799,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         ColumnsManager.prototype.updateVisibleColumns = function(includeViews) {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+            var limitThreshold = this.gantt.options.value('columnLimitThreshold');
 
-            this.visibleHeaders = [];
-            for (var i=0; i< this.headers.length; i++) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+            var i;
+            if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
+                this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+
+                this.visibleHeaders = [];
+                for (i=0; i< this.headers.length; i++) {
+                    this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+                }
+            } else {
+                this.visibleColumns = this.columns;
+                this.visibleHeaders = this.headers;
             }
 
             if (includeViews) {
@@ -2045,7 +2053,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timeFrames': [],
                     'dateFrames': [],
                     'timeFramesWorkingMode': 'hidden',
-                    'timeFramesNonWorkingMode': 'visible'
+                    'timeFramesNonWorkingMode': 'visible',
+                    'taskLimitThreshold': 100,
+                    'columnLimitThreshold': 500
                 });
 
                 this.api = new GanttApi(this);
@@ -2562,7 +2572,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             } else {
                 this.filteredTasks = this.tasks.slice(0);
             }
-            this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+
+            var limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
+            if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
+                this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+            } else {
+                this.visibleTasks = this.filteredTasks;
+            }
         };
 
         Row.prototype.updateTasksPosAndSize = function() {

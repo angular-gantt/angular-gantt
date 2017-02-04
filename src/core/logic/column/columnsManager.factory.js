@@ -361,11 +361,19 @@
         };
 
         ColumnsManager.prototype.updateVisibleColumns = function(includeViews) {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+            var limitThreshold = this.gantt.options.value('columnLimitThreshold');
 
-            this.visibleHeaders = [];
-            for (var i=0; i< this.headers.length; i++) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+            var i;
+            if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
+                this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+
+                this.visibleHeaders = [];
+                for (i=0; i< this.headers.length; i++) {
+                    this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+                }
+            } else {
+                this.visibleColumns = this.columns;
+                this.visibleHeaders = this.headers;
             }
 
             if (includeViews) {
