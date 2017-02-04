@@ -67,6 +67,10 @@
     display: inline-block;
 }
 
+.gantt-side-content > div.top-element {
+
+}
+
 .gantt-header-columns {
     position: relative;
     height: 100%;

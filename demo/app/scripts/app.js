@@ -18,6 +18,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.progress',
     'gantt.table',
     'gantt.tree',
+    'gantt.corner',
     'gantt.groups',
     'gantt.dependencies',
     'gantt.overlap',

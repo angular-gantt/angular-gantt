@@ -20,6 +20,7 @@ pages:
 - [plugins/labels.md, Plugins, Labels]
 - [plugins/table.md, Plugins, Table]
 - [plugins/tree.md, Plugins, Tree]
+- [plugins/corner.md, Plugins, Corner]
 - [plugins/groups.md, Plugins, Groups]
 - [plugins/dependencies.md, Plugins, Dependencies]
 - [plugins/sortable.md, Plugins, Sortable]

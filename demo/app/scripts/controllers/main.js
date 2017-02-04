@@ -168,6 +168,10 @@ angular.module('angularGanttDemoApp')
                     return task.row.model.name !== 'Milestones' && targetRow.model.name !== 'Milestones';
                 }
             },
+            corner: {
+                headersLabels: function(key) {return key.charAt(0).toUpperCase() + key.slice(1);},
+                headersLabelsTemplates: '{{getLabel(header)}} <i class="fa fa-calendar"></i>'
+            },
             targetDataAddRowIndex: undefined,
             canDraw: function(event) {
                 var isLeftMouseButton = event.button === 0 || event.button === 1;
