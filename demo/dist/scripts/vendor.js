@@ -55962,29 +55962,36 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 modelWidth = this.rowsManager.gantt.getPositionByDate(moment(this.model.to).endOf('day')) - modelLeft;
             }
 
-            if (modelLeft === undefined || modelWidth === undefined ||
-                modelLeft + modelWidth < 0 || modelLeft > maxModelLeft) {
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+
+            if (modelLeft === undefined || modelWidth === undefined) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(modelLeft, 0), this.rowsManager.gantt.width);
+                this.left = modelLeft;
+                this.width = modelWidth;
                 if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
-                        this.truncatedRight = true;
-                        this.width = this.rowsManager.gantt.width;
-                    } else {
-                        this.truncatedRight = false;
-                        this.width = modelWidth + modelLeft;
-                    }
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
                 } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                     this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
                     this.truncatedLeft = false;
-                    this.width = this.rowsManager.gantt.width - modelLeft;
+                    this.truncatedLeftOffset = undefined;
                 } else {
                     this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
                     this.truncatedRight = false;
-                    this.width = modelWidth;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
                 }
 
                 if (this.width < 0) {
@@ -56361,28 +56368,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+            var modelLeft = this.modelLeft;
+            var modelWidth = this.modelWidth;
+
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+
+
+            if (modelLeft === undefined || modelWidth === undefined) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(this.modelLeft, 0), this.gantt.width);
-                if (this.modelLeft < 0) {
+                this.left = modelLeft;
+                this.width = modelWidth;
+                if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (this.modelWidth + this.modelLeft > this.gantt.width) {
-                        this.truncatedRight = true;
-                        this.width = this.gantt.width;
-                    } else {
-                        this.truncatedRight = false;
-                        this.width = this.modelWidth + this.modelLeft;
-                    }
-                } else if (this.modelWidth + this.modelLeft > this.gantt.width) {
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
+                } else if (modelWidth + modelLeft > this.gantt.width) {
                     this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
                     this.truncatedLeft = false;
-                    this.width = this.gantt.width - this.modelLeft;
+                    this.truncatedLeftOffset = undefined;
                 } else {
                     this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
                     this.truncatedRight = false;
-                    this.width = this.modelWidth;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
                 }
 
                 if (this.width < 0) {
@@ -58188,8 +58207,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function ($template
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
         '        <div class="gantt-task-foreground">\n' +
-        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right">&gt;</div>\n' +
-        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left">&lt;</div>\n' +
+        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right" ng-style="{\'padding-right\': task.truncatedRightOffset + \'px\'}">&gt;</div>\n' +
+        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left" ng-style="{\'padding-left\': task.truncatedLeftOffset + \'px\'}">&lt;</div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -62078,6 +62097,18 @@ angular.module('gantt.progress.templates', []).run(['$templateCache', function (
 
 angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function ($templateCache) {
 
+}]);
+
+angular.module('gantt.sections.templates', []).run(['$templateCache', function ($templateCache) {
+    $templateCache.put('plugins/sections/taskSections.tmpl.html',
+        '<div ng-cloak class="gantt-task-sections">\n' +
+        '    <div ng-repeat="section in task.model.sections"\n' +
+        '         ng-style="getCss(section)"\n' +
+        '         ng-class="getClasses(section)"\n' +
+        '         class="gantt-task-section"\n' +
+        '         gantt-task-section></div>\n' +
+        '</div>\n' +
+        '');
 }]);
 
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function ($templateCache) {

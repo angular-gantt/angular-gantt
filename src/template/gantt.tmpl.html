@@ -142,8 +142,8 @@
 
     <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">
         <div class="gantt-task-foreground">
-            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right">&gt;</div>
-            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left">&lt;</div>
+            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right" ng-style="{'padding-right': task.truncatedRightOffset + 'px'}">&gt;</div>
+            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left" ng-style="{'padding-left': task.truncatedLeftOffset + 'px'}">&lt;</div>
         </div>
     </script>
 

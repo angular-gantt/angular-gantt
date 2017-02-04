@@ -47,29 +47,36 @@
                 modelWidth = this.rowsManager.gantt.getPositionByDate(moment(this.model.to).endOf('day')) - modelLeft;
             }
 
-            if (modelLeft === undefined || modelWidth === undefined ||
-                modelLeft + modelWidth < 0 || modelLeft > maxModelLeft) {
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+
+            if (modelLeft === undefined || modelWidth === undefined) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(modelLeft, 0), this.rowsManager.gantt.width);
+                this.left = modelLeft;
+                this.width = modelWidth;
                 if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
-                        this.truncatedRight = true;
-                        this.width = this.rowsManager.gantt.width;
-                    } else {
-                        this.truncatedRight = false;
-                        this.width = modelWidth + modelLeft;
-                    }
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
                 } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                     this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
                     this.truncatedLeft = false;
-                    this.width = this.rowsManager.gantt.width - modelLeft;
+                    this.truncatedLeftOffset = undefined;
                 } else {
                     this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
                     this.truncatedRight = false;
-                    this.width = modelWidth;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
                 }
 
                 if (this.width < 0) {

@@ -3828,6 +3828,18 @@ angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', functi
 
 }]);
 
+angular.module('gantt.sections.templates', []).run(['$templateCache', function ($templateCache) {
+    $templateCache.put('plugins/sections/taskSections.tmpl.html',
+        '<div ng-cloak class="gantt-task-sections">\n' +
+        '    <div ng-repeat="section in task.model.sections"\n' +
+        '         ng-style="getCss(section)"\n' +
+        '         ng-class="getClasses(section)"\n' +
+        '         class="gantt-task-section"\n' +
+        '         gantt-task-section></div>\n' +
+        '</div>\n' +
+        '');
+}]);
+
 angular.module('gantt.sortable.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
