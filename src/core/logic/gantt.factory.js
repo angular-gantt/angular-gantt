@@ -187,7 +187,7 @@
 
                             // DEPRECATED
                             var removedRows = [];
-                            for(i = 0, l = oldData.length; i < l; i++){
+                            for (i = 0, l = oldData.length; i < l; i++) {
                                 if (toRemoveIds.indexOf(oldData[i].id) > -1) {
                                     removedRows.push(oldData[i]);
                                 }
@@ -216,6 +216,58 @@
                 });
             };
 
+            /**
+             * Get the magnet value and unit considering the current gantt state.
+             *
+             * @returns {[*,*]}
+             */
+            Gantt.prototype.getMagnetValueAndUnit = function() {
+                if (this.shiftKey) {
+                    if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                        return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
+                    } else {
+                        var viewScale = this.options.value('viewScale');
+                        viewScale = viewScale.trim();
+                        var viewScaleValue;
+                        var viewScaleUnit;
+                        var splittedViewScale;
+
+                        if (viewScale) {
+                            splittedViewScale = viewScale.split(' ');
+                        }
+                        if (splittedViewScale && splittedViewScale.length > 1) {
+                            viewScaleValue = parseFloat(splittedViewScale[0]);
+                            viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
+                        } else {
+                            viewScaleValue = 1;
+                            viewScaleUnit = moment.normalizeUnits(viewScale);
+                        }
+                        return [viewScaleValue * 0.25, viewScaleUnit];
+                    }
+                } else {
+                    return [this.columnMagnetValue, this.columnMagnetUnit];
+                }
+            };
+
+            // Get the date transformed by magnet feature.
+            Gantt.prototype.getMagnetDate = function(date, disableExpand) {
+                if (date === undefined) {
+                    return undefined;
+                }
+
+                if (!moment.isMoment(moment)) {
+                    date = moment(date);
+                }
+
+                var column = this.columnsManager.getColumnByDate(date, disableExpand);
+                var magnetValueAndUnit = this.getMagnetValueAndUnit();
+
+                var magnetValue = magnetValueAndUnit[0];
+                var magnetUnit = magnetValueAndUnit[1];
+
+                return column.getMagnetDate(date, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+            };
+
             // Returns the exact column date at the given position x (in em)
             Gantt.prototype.getDateByPosition = function(x, magnet, disableExpand) {
                 var column = this.columnsManager.getColumnByPosition(x, disableExpand);
@@ -223,36 +275,10 @@
                     var magnetValue;
                     var magnetUnit;
                     if (magnet) {
-                        if (this.shiftKey) {
-                            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
-                                magnetValue = this.shiftColumnMagnetValue;
-                                magnetUnit = this.shiftColumnMagnetUnit;
-                            } else {
-                                var viewScale = this.options.value('viewScale');
-                                viewScale = viewScale.trim();
-                                var viewScaleValue;
-                                var viewScaleUnit;
-                                var splittedViewScale;
-
-                                if (viewScale) {
-                                    splittedViewScale = viewScale.split(' ');
-                                }
-                                if (splittedViewScale && splittedViewScale.length > 1) {
-                                    viewScaleValue = parseFloat(splittedViewScale[0]);
-                                    viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
-                                } else {
-                                    viewScaleValue = 1;
-                                    viewScaleUnit = moment.normalizeUnits(viewScale);
-                                }
-                                magnetValue = viewScaleValue * 0.25;
-                                magnetUnit = viewScaleUnit;
-                            }
-                        } else {
-                            magnetValue = this.columnMagnetValue;
-                            magnetUnit = this.columnMagnetUnit;
-                        }
+                        var magnetValueAndUnit = this.getMagnetValueAndUnit();
+                        magnetValue = magnetValueAndUnit[0];
+                        magnetUnit = magnetValueAndUnit[1];
                     }
-
                     return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
                 } else {
                     return undefined;

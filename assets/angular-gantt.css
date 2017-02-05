@@ -265,6 +265,7 @@
 
     background-color: grey;
     border-radius: 2px;
+    overflow: hidden;
 }
 
 .gantt-task-foreground {
@@ -338,4 +339,16 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+/* Use this pointer-events hack to make mouse events go through absolutely positioned layers.
+   This is not supported by IE<11.
+   If you need IE<11 support, try using this polyfill: https://github.com/kmewhort/pointer_events_polyfill
+*/
+.gantt-task-content {
+    pointer-events: none;
+}
+
+.gantt-task-content *[ng-click], .gantt-task-content button, .gantt-task-content a, .gantt-task-content input {
+    pointer-events: auto;
 }

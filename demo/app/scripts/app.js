@@ -20,6 +20,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.tree',
     'gantt.corner',
     'gantt.groups',
+    'gantt.sections',
     'gantt.dependencies',
     'gantt.overlap',
     'gantt.resizeSensor',
