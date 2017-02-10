@@ -3159,34 +3159,50 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 options: '=?'
             },
             controller: ['$scope', '$element', 'ganttUtils', 'moment', function($scope, $element, utils, moment) {
+                var fromTask = moment($scope.section.from).isSame(moment($scope.task.model.from));
+                var toTask = moment($scope.section.to).isSame(moment($scope.task.model.to));
+
                 var getLeft = function() {
+                    if (fromTask) {
+                        return 0;
+                    }
+
                     var gantt = $scope.task.rowsManager.gantt;
+                    var taskLeft = $scope.task.left;
+
+                    var from;
+
                     var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
 
-                    var taskLeft = $scope.task.left;
-                    var from = disableMagnet ? $scope.section.from : gantt.getMagnetDate($scope.section.from);
+                    from = disableMagnet ? $scope.section.from : gantt.getMagnetDate($scope.section.from);
 
-                    var sectionLeft;
                     var disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
                     if (!disableDaily && gantt.options.value('daily')) {
                         from = moment(from).startOf('day');
                     }
-                    sectionLeft = gantt.getPositionByDate(from);
+
+                    var sectionLeft = gantt.getPositionByDate(from);
 
                     return sectionLeft - taskLeft;
                 };
 
                 var getRight = function() {
-                    var gantt = $scope.task.rowsManager.gantt;
-                    var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+                    var keepProportions = utils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
+                    if (toTask && keepProportions) {
+                        return $scope.task.width;
+                    }
 
+                    var gantt = $scope.task.rowsManager.gantt;
                     var taskLeft = $scope.task.left;
+
+                    var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
                     var to = disableMagnet ? $scope.section.to : gantt.getMagnetDate($scope.section.to);
 
                     var disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
                     if (!disableDaily && gantt.options.value('daily')) {
                         to = moment(to).startOf('day');
                     }
+
                     var sectionRight = gantt.getPositionByDate(to);
 
                     return sectionRight - taskLeft;
@@ -3237,16 +3253,26 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
                         var disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
 
-                        var from = gantt.getDateByPosition($scope.task.modelLeft + sectionLeft, !disableMagnet);
-                        if (!disableDaily && gantt.options.value('daily')) {
-                            from = moment(from).startOf('day');
+                        var from;
+                        if (fromTask) {
+                            from = $scope.task.model.from;
+                        } else {
+                            from = gantt.getDateByPosition($scope.task.modelLeft + sectionLeft, !disableMagnet);
+                            if (!disableDaily && gantt.options.value('daily')) {
+                                from = moment(from).startOf('day');
+                            }
                         }
 
-                        var sectionRight = sectionLeft + $element[0].offsetWidth;
-                        var to = gantt.getDateByPosition($scope.task.modelLeft + sectionRight, !disableMagnet);
+                        var to;
+                        if (toTask) {
+                            to = $scope.task.model.to;
+                        } else {
+                            var sectionRight = sectionLeft + $element[0].offsetWidth;
+                            to = gantt.getDateByPosition($scope.task.modelLeft + sectionRight, !disableMagnet);
 
-                        if (!disableDaily && gantt.options.value('daily')) {
-                            to = moment(to).startOf('day');
+                            if (!disableDaily && gantt.options.value('daily')) {
+                                to = moment(to).startOf('day');
+                            }
                         }
 
                         $scope.section.from = from;
@@ -3256,6 +3282,21 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 };
 
+                var taskCleanHandler = function(taskModel) {
+                    if (taskModel.id === $scope.task.model.id) {
+                        var model = $scope.section;
+                        if (model.from !== undefined && !moment.isMoment(model.from)) {
+                            model.from = moment(model.from);
+                        }
+
+                        if (model.to !== undefined && !moment.isMoment(model.to)) {
+                            model.to = moment(model.to);
+                        }
+                    }
+                };
+                taskCleanHandler($scope.task.model);
+
+                $scope.task.rowsManager.gantt.api.tasks.on.clean($scope, taskCleanHandler);
                 $scope.task.rowsManager.gantt.api.tasks.on.change($scope, taskChangeHandler);
 
                 $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSection', $scope, $element);
@@ -4055,8 +4096,7 @@ angular.module('gantt.sections.templates', []).run(['$templateCache', function (
     $templateCache.put('plugins/sections/taskSection.tmpl.html',
         '<div ng-style="sectionCss"\n' +
         '     ng-class="sectionClasses"\n' +
-        '     class="gantt-task-section"\n' +
-        '     gantt-task-section></div>\n' +
+        '     class="gantt-task-section"></div>\n' +
         '');
     $templateCache.put('plugins/sections/taskSections.tmpl.html',
         '<div ng-cloak class="gantt-task-sections">\n' +
