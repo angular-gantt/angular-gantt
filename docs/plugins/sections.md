@@ -9,7 +9,7 @@ Display sections inside tasks. Sections are defined with date and smartly follow
 <!-- -->
 
     <div gantt>
-        <gantt-sections enabled="..." keep-proportions="..." disable-magnet="..." disable-daily="..."></gantt-corner>
+        <gantt-sections enabled="..." keep-proportions="..." disable-magnet="..." disable-daily="..."></gantt-sections>
     </div>
 
 <!-- -->
