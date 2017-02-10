@@ -3156,11 +3156,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             scope: {
                 section: '=',
                 task: '=',
+                index: '=',
                 options: '=?'
             },
             controller: ['$scope', '$element', 'ganttUtils', 'moment', function($scope, $element, utils, moment) {
                 var fromTask = moment($scope.section.from).isSame(moment($scope.task.model.from));
                 var toTask = moment($scope.section.to).isSame(moment($scope.task.model.to));
+
+                var loadPreviousScope = function() {
+                    if ($scope.task._movingTaskSections) {
+                        // We are coming from a task row change
+                        var sectionScopes = $scope.task._movingTaskSections;
+                        var sectionScope = sectionScopes['$$index_' + $scope.index];
+                        $scope.section = sectionScope.section;
+                        $scope.sectionCss = sectionScope.sectionCss;
+                        fromTask = sectionScope.fromTask;
+                        toTask = sectionScope.toTask;
+                        delete sectionScopes['$$index_' + $scope.index];
+                    }
+
+                    var sectionScopesEmpty = true;
+                    for (var property in $scope.task._movingTaskSections) {
+                        if ($scope.task._movingTaskSections.hasOwnProperty(property)) {
+                            sectionScopesEmpty = false;
+                            break;
+                        }
+                    }
+
+                    if (sectionScopesEmpty) {
+                        delete $scope.task._movingTaskSections;
+                    }
+                };
+                loadPreviousScope();
+
+
 
                 var getLeft = function() {
                     if (fromTask) {
@@ -3228,20 +3257,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     }
                 };
 
-                var getCss = function() {
-                    var css = {};
-
+                var updateCss = function() {
                     if ($scope.section.color) {
-                        css['background-color'] = $scope.section.color;
+                        $scope.sectionCss['background-color'] = $scope.section.color;
+                    } else {
+                        $scope.sectionCss['background-color'] = undefined;
                     }
-
-                    return css;
                 };
 
-                $scope.sectionClasses = $scope.section.classes;
-                $scope.sectionCss = getCss();
-
-                updatePosition();
+                if ($scope.sectionCss === undefined) {
+                    $scope.sectionCss = {};
+                    updatePosition();
+                    updateCss();
+                }
 
                 var taskChangeHandler = function(task) {
                     if (task === $scope.task) {
@@ -3290,6 +3318,22 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                 $scope.task.rowsManager.gantt.api.tasks.on.clean($scope, taskCleanHandler);
                 $scope.task.rowsManager.gantt.api.tasks.on.change($scope, taskChangeHandler);
+
+                var beforeViewRowChangeHandler = function(task) {
+                    var sectionScopes = task._movingTaskSections;
+                    if (!sectionScopes) {
+                        sectionScopes = {};
+                        task._movingTaskSections = sectionScopes;
+                    }
+
+                    sectionScopes['$$index_' + $scope.index] = {
+                        'section' : $scope.section,
+                        'sectionCss': $scope.sectionCss,
+                        'fromTask': fromTask,
+                        'toTask': toTask
+                    };
+                };
+                $scope.task.rowsManager.gantt.api.tasks.on.beforeViewRowChange($scope, beforeViewRowChangeHandler);
 
                 $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSection', $scope, $element);
                 $scope.$on('$destroy', function() {
@@ -4087,7 +4131,7 @@ angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', functi
 angular.module('gantt.sections.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/sections/taskSection.tmpl.html',
         '<div ng-style="sectionCss"\n' +
-        '     ng-class="sectionClasses"\n' +
+        '     ng-class="section.classes"\n' +
         '     class="gantt-task-section"></div>\n' +
         '');
     $templateCache.put('plugins/sections/taskSections.tmpl.html',
@@ -4095,6 +4139,7 @@ angular.module('gantt.sections.templates', []).run(['$templateCache', function (
         '    <gantt-task-section section="section"\n' +
         '                        task="task"\n' +
         '                        options="task.model.sections"\n' +
+        '                        index="$index"\n' +
         '                        ng-repeat="section in task.model.sections.items track by $index">\n' +
         '    </gantt-task-section>\n' +
         '</div>\n' +
