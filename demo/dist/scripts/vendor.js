@@ -58289,7 +58289,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function ($template
         '                         ng-class="row.model.classes"\n' +
         '                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"\n' +
         '                         ng-style="{\'height\': row.model.height}">\n' +
-        '                        <div gantt-row-label class="gantt-row-label gantt-row-background"\n' +
+        '                        <div class="gantt-row-label gantt-row-background"\n' +
         '                             ng-style="{\'background-color\': row.model.color}">\n' +
         '                        </div>\n' +
         '                    </div>\n' +

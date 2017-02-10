@@ -426,7 +426,7 @@ angular.module('angularGanttDemoApp')
                 angular.merge(model, task);
             }
         }, debounceValue);
-        //$scope.$watch('live.taskJson', listenTaskJson);
+        $scope.$watch('live.taskJson', listenTaskJson);
 
         var listenRowJson = debounce(function(rowJson) {
             if (rowJson !== undefined) {
@@ -476,7 +476,7 @@ angular.module('angularGanttDemoApp')
                 });
             }
         }, debounceValue);
-        //$scope.$watch('live.rowJson', listenRowJson);
+        $scope.$watch('live.rowJson', listenRowJson);
 
 
         $scope.$watchCollection('live.task', function(task) {
