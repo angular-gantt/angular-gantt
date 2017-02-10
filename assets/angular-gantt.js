@@ -2211,7 +2211,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             // DEPRECATED
                             var removedRows = [];
-                            for(i = 0, l = oldData.length; i < l; i++){
+                            for (i = 0, l = oldData.length; i < l; i++) {
                                 if (toRemoveIds.indexOf(oldData[i].id) > -1) {
                                     removedRows.push(oldData[i]);
                                 }
@@ -2240,6 +2240,58 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             };
 
+            /**
+             * Get the magnet value and unit considering the current gantt state.
+             *
+             * @returns {[*,*]}
+             */
+            Gantt.prototype.getMagnetValueAndUnit = function() {
+                if (this.shiftKey) {
+                    if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                        return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
+                    } else {
+                        var viewScale = this.options.value('viewScale');
+                        viewScale = viewScale.trim();
+                        var viewScaleValue;
+                        var viewScaleUnit;
+                        var splittedViewScale;
+
+                        if (viewScale) {
+                            splittedViewScale = viewScale.split(' ');
+                        }
+                        if (splittedViewScale && splittedViewScale.length > 1) {
+                            viewScaleValue = parseFloat(splittedViewScale[0]);
+                            viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
+                        } else {
+                            viewScaleValue = 1;
+                            viewScaleUnit = moment.normalizeUnits(viewScale);
+                        }
+                        return [viewScaleValue * 0.25, viewScaleUnit];
+                    }
+                } else {
+                    return [this.columnMagnetValue, this.columnMagnetUnit];
+                }
+            };
+
+            // Get the date transformed by magnet feature.
+            Gantt.prototype.getMagnetDate = function(date, disableExpand) {
+                if (date === undefined) {
+                    return undefined;
+                }
+
+                if (!moment.isMoment(moment)) {
+                    date = moment(date);
+                }
+
+                var column = this.columnsManager.getColumnByDate(date, disableExpand);
+                var magnetValueAndUnit = this.getMagnetValueAndUnit();
+
+                var magnetValue = magnetValueAndUnit[0];
+                var magnetUnit = magnetValueAndUnit[1];
+
+                return column.getMagnetDate(date, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+            };
+
             // Returns the exact column date at the given position x (in em)
             Gantt.prototype.getDateByPosition = function(x, magnet, disableExpand) {
                 var column = this.columnsManager.getColumnByPosition(x, disableExpand);
@@ -2247,36 +2299,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var magnetValue;
                     var magnetUnit;
                     if (magnet) {
-                        if (this.shiftKey) {
-                            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
-                                magnetValue = this.shiftColumnMagnetValue;
-                                magnetUnit = this.shiftColumnMagnetUnit;
-                            } else {
-                                var viewScale = this.options.value('viewScale');
-                                viewScale = viewScale.trim();
-                                var viewScaleValue;
-                                var viewScaleUnit;
-                                var splittedViewScale;
-
-                                if (viewScale) {
-                                    splittedViewScale = viewScale.split(' ');
-                                }
-                                if (splittedViewScale && splittedViewScale.length > 1) {
-                                    viewScaleValue = parseFloat(splittedViewScale[0]);
-                                    viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
-                                } else {
-                                    viewScaleValue = 1;
-                                    viewScaleUnit = moment.normalizeUnits(viewScale);
-                                }
-                                magnetValue = viewScaleValue * 0.25;
-                                magnetUnit = viewScaleUnit;
-                            }
-                        } else {
-                            magnetValue = this.columnMagnetValue;
-                            magnetUnit = this.columnMagnetUnit;
-                        }
+                        var magnetValueAndUnit = this.getMagnetValueAndUnit();
+                        magnetValue = magnetValueAndUnit[0];
+                        magnetUnit = magnetValueAndUnit[1];
                     }
-
                     return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
                 } else {
                     return undefined;
@@ -2533,6 +2559,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         // Removes the task from the existing row and adds it to he current one
         Row.prototype.moveTaskToRow = function(task, viewOnly) {
+            this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(task, this);
+            if (!viewOnly) {
+                this.rowsManager.gantt.api.tasks.raise.beforeRowChange(task, this);
+            }
+
             var oldRow = task.row;
             oldRow.removeTask(task.model.id, viewOnly, true);
 
@@ -2787,6 +2818,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerEvent('tasks', 'change');
             this.gantt.api.registerEvent('tasks', 'viewChange');
 
+            this.gantt.api.registerEvent('tasks', 'beforeRowChange');
+            this.gantt.api.registerEvent('tasks', 'beforeViewRowChange');
             this.gantt.api.registerEvent('tasks', 'rowChange');
             this.gantt.api.registerEvent('tasks', 'viewRowChange');
             this.gantt.api.registerEvent('tasks', 'remove');

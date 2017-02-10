@@ -232,6 +232,27 @@
     border-radius: 2px;
 }
 
+.gantt-task-foreground-sections {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+}
+
+.gantt-task-sections {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+}
+
+.gantt-task-sections .gantt-task-section {
+    position: absolute;
+    overflow: hidden;
+    height: 100%;
+}
+
 .gantt-row-label.on-dragging {
     background-color: #999999 !important;
 }

@@ -6,7 +6,7 @@
 
     module.exports = function(grunt) {
         var plugins = ['labels', 'table', 'tree', 'groups', 'sortable', 'movable', 'drawtask', 'tooltips', 'bounds',
-            'progress', 'resizeSensor', 'overlap', 'dependencies', 'corner'];
+            'progress', 'resizeSensor', 'overlap', 'dependencies', 'corner', 'sections'];
 
         var coverage = grunt.option('coverage');
 

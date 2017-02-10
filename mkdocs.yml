@@ -28,6 +28,7 @@ pages:
 - [plugins/drawtask.md, Plugins, Draw Task]
 - [plugins/tooltips.md, Plugins, Tooltips]
 - [plugins/bounds.md, Plugins, Bounds]
+- [plugins/sections.md, Plugins, Sections]
 - [plugins/progress.md, Plugins, Progress]
 - [plugins/overlap.md, Plugins, Overlap]
 - [plugins/resizeSensor.md, Plugins, Resize Sensor]

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <div class="layer one">
+        <div>pointer-events: none is not supported in IE<11</div>
+        <button onclick="alert('layer1 buttonn click')">Click on me</button>
+    </div>
+    <div class="layer two"></div>
+</div>
+
+<div class="container workaround">
+    <div class="layer one">
+        <div>pointer-events: none is not supported in IE<11</div>
+        <button onclick="alert('layer1 buttonn click')">Click on me</button>
+    </div>
+    <div class="layer two"></div>
+    <div class="layer event-dispatch-layer"></div>
+</div>
+</body>
+
+</html>

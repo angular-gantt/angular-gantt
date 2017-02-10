@@ -63,6 +63,11 @@
 
         // Removes the task from the existing row and adds it to he current one
         Row.prototype.moveTaskToRow = function(task, viewOnly) {
+            this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(task, this);
+            if (!viewOnly) {
+                this.rowsManager.gantt.api.tasks.raise.beforeRowChange(task, this);
+            }
+
             var oldRow = task.row;
             oldRow.removeTask(task.model.id, viewOnly, true);
 

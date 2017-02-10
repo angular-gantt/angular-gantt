@@ -60,3 +60,18 @@ textarea.live-row {
     font-size: 0.9em;
     color: #333;
 }
+
+.gantt-task-section.section-1 {
+    background-color: #00b3ee;
+    opacity: 0.5;
+}
+
+.gantt-task-section.section-2 {
+    background-color: #eb9100;
+    opacity: 0.5;
+}
+
+.gantt-task-section.section-3 {
+    background-color: #ee1400;
+    opacity: 0.5;
+}

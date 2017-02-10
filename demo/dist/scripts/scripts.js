@@ -20,6 +20,7 @@ angular.module('angularGanttDemoApp', [
     'gantt.tree',
     'gantt.corner',
     'gantt.groups',
+    'gantt.sections',
     'gantt.dependencies',
     'gantt.overlap',
     'gantt.resizeSensor',
@@ -454,10 +455,10 @@ angular.module('angularGanttDemoApp')
                 var task = angular.fromJson(taskJson);
                 objectModel.cleanTask(task);
                 var model = $scope.live.task;
-                angular.extend(model, task);
+                angular.merge(model, task);
             }
         }, debounceValue);
-        $scope.$watch('live.taskJson', listenTaskJson);
+        //$scope.$watch('live.taskJson', listenTaskJson);
 
         var listenRowJson = debounce(function(rowJson) {
             if (rowJson !== undefined) {
@@ -470,7 +471,7 @@ angular.module('angularGanttDemoApp')
 
                 var rowModel = $scope.live.row;
 
-                angular.extend(rowModel, row);
+                angular.merge(rowModel, row);
 
                 var newTasks = {};
                 var i, l;
@@ -494,7 +495,7 @@ angular.module('angularGanttDemoApp')
                             rowModel.tasks.splice(i, 1);
                         } else {
                             objectModel.cleanTask(newTask);
-                            angular.extend(existingTask, newTask);
+                            angular.merge(existingTask, newTask);
                             delete newTasks[existingTask.id];
                         }
                     }
@@ -507,22 +508,30 @@ angular.module('angularGanttDemoApp')
                 });
             }
         }, debounceValue);
-        $scope.$watch('live.rowJson', listenRowJson);
+        //$scope.$watch('live.rowJson', listenRowJson);
+
 
         $scope.$watchCollection('live.task', function(task) {
-            $scope.live.taskJson = angular.toJson(task, true);
-            $scope.live.rowJson = angular.toJson($scope.live.row, true);
+            $timeout(function() {
+                $scope.live.taskJson = angular.toJson(task, true);
+                $scope.live.rowJson = angular.toJson($scope.live.row, true);
+            });
         });
 
         $scope.$watchCollection('live.row', function(row) {
-            $scope.live.rowJson = angular.toJson(row, true);
-            if (row !== undefined && row.tasks !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
-                $scope.live.task = row.tasks[0];
-            }
+            $timeout(function() {
+                $scope.live.rowJson = angular.toJson(row, true);
+                if (row !== undefined && row.tasks !== undefined && row.tasks.indexOf($scope.live.task) < 0) {
+                    $scope.live.task = row.tasks[0];
+                }
+            });
+
         });
 
         $scope.$watchCollection('live.row.tasks', function() {
-            $scope.live.rowJson = angular.toJson($scope.live.row, true);
+            $timeout(function() {
+                $scope.live.rowJson = angular.toJson($scope.live.row, true);
+            });
         });
 
     }]);
@@ -567,7 +576,14 @@ angular.module('angularGanttDemoApp')
                         ]},
                         {name: 'Create concept', tasks: [
                             {name: 'Create concept', priority: 20, content: '<i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"></i> {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
-                                progress: 100}
+                                progress: 100, sections: {
+                                    items: [
+                                        {name: 'Section #1', classes:['section-1'], from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 13, 8, 0, 0)},
+                                        {name: 'Section #2', classes:['section-2'], from: new Date(2013, 9, 13, 8, 0, 0), to: new Date(2013, 9, 15, 8, 0, 0)},
+                                        {name: 'Section #3', classes:['section-3'], from: new Date(2013, 9, 15, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0)}
+                                    ]
+                                }
+                            }
                         ]},
                         {name: 'Finalize concept', tasks: [
                             {id: 'Finalize concept', name: 'Finalize concept', priority: 10, color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
