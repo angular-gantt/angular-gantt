@@ -3251,16 +3251,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         var sectionLeft = $element[0].offsetLeft;
 
                         var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
-                        var disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
 
                         var from;
                         if (fromTask) {
                             from = $scope.task.model.from;
                         } else {
                             from = gantt.getDateByPosition($scope.task.modelLeft + sectionLeft, !disableMagnet);
-                            if (!disableDaily && gantt.options.value('daily')) {
-                                from = moment(from).startOf('day');
-                            }
                         }
 
                         var to;
@@ -3269,10 +3265,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         } else {
                             var sectionRight = sectionLeft + $element[0].offsetWidth;
                             to = gantt.getDateByPosition($scope.task.modelLeft + sectionRight, !disableMagnet);
-
-                            if (!disableDaily && gantt.options.value('daily')) {
-                                to = moment(to).startOf('day');
-                            }
                         }
 
                         $scope.section.from = from;
