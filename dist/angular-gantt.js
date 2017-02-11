@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -1235,13 +1235,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         Column.prototype.getPositionByDate = function(date) {
             var positionDuration;
             var position;
+            var croppedDate = date;
 
             if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
-                var croppedDate = date;
                 var timeFrames = this.getDayTimeFrame(croppedDate);
                 for (var i = 0; i < timeFrames.length; i++) {
                     var timeFrame = timeFrames[i];
-                    if (croppedDate > timeFrame.start && croppedDate < timeFrame.end) {
+                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
                         if (timeFrame.cropped) {
                             if (timeFrames.length > i + 1) {
                                 croppedDate = timeFrames[i + 1].start;
@@ -1257,7 +1257,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 }
             }
 
-            positionDuration = date.diff(this.date, 'milliseconds');
+            positionDuration = croppedDate.diff(this.date, 'milliseconds');
             position = positionDuration / this.duration * this.width;
 
             if (position < 0) {
@@ -1771,7 +1771,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.getLastColumn();
             var endDate;
             if (lastColumn) {
-                endDate = lastColumn.getDateByPosition(lastColumn.width);
+                endDate = lastColumn.endDate;
             }
 
             var viewScale;
@@ -1799,11 +1799,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         };
 
         ColumnsManager.prototype.updateVisibleColumns = function(includeViews) {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+            var limitThreshold = this.gantt.options.value('columnLimitThreshold');
 
-            this.visibleHeaders = [];
-            for (var i=0; i< this.headers.length; i++) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+            var i;
+            if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
+                this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+
+                this.visibleHeaders = [];
+                for (i=0; i< this.headers.length; i++) {
+                    this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+                }
+            } else {
+                this.visibleColumns = this.columns;
+                this.visibleHeaders = this.headers;
             }
 
             if (includeViews) {
@@ -1922,36 +1930,39 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 viewScaleUnit = viewScale;
             }
 
-            var currentColumn = columnsManager.columns[0];
-            var currentDate = moment(currentColumn.date).startOf(viewScaleUnit);
+            if(columnsManager.columns.length > 0){
+                var currentColumn = columnsManager.columns[0];
+                var currentDate = moment(currentColumn.date).startOf(viewScaleUnit);
 
-            var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
+                var maximumDate = moment(columnsManager.columns[columnsManager.columns.length - 1].endDate);
 
-            while (true) {
-                var currentPosition = currentColumn.getPositionByDate(currentDate);
+                while (true) {
+                    var currentPosition = currentColumn.getPositionByDate(currentDate);
 
-                var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
+                    var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
 
-                var column = columnsManager.getColumnByDate(endDate, true);
+                    var column = columnsManager.getColumnByDate(endDate, true);
 
-                var left = column.getPositionByDate(endDate);
+                    var left = column.getPositionByDate(endDate);
 
-                var width = left - currentPosition;
+                    var width = left - currentPosition;
 
-                if (width > 0) {
-                    var labelFormat = columnsManager.getHeaderFormat(value);
+                    if (width > 0) {
+                        var labelFormat = columnsManager.getHeaderFormat(value);
 
-                    header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
-                    generatedHeaders.push(header);
+                        header = new ColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat);
+                        generatedHeaders.push(header);
+                    }
+
+                    if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
+                        break;
+                    }
+
+                    currentColumn = column;
+                    currentDate = endDate;
                 }
-
-                if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
-                    break;
-                }
-
-                currentColumn = column;
-                currentDate = endDate;
             }
+
 
             return generatedHeaders;
         };
@@ -2042,7 +2053,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     'timeFrames': [],
                     'dateFrames': [],
                     'timeFramesWorkingMode': 'hidden',
-                    'timeFramesNonWorkingMode': 'visible'
+                    'timeFramesNonWorkingMode': 'visible',
+                    'taskLimitThreshold': 100,
+                    'columnLimitThreshold': 500
                 });
 
                 this.api = new GanttApi(this);
@@ -2198,7 +2211,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                             // DEPRECATED
                             var removedRows = [];
-                            for(i = 0, l = oldData.length; i < l; i++){
+                            for (i = 0, l = oldData.length; i < l; i++) {
                                 if (toRemoveIds.indexOf(oldData[i].id) > -1) {
                                     removedRows.push(oldData[i]);
                                 }
@@ -2227,6 +2240,58 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             };
 
+            /**
+             * Get the magnet value and unit considering the current gantt state.
+             *
+             * @returns {[*,*]}
+             */
+            Gantt.prototype.getMagnetValueAndUnit = function() {
+                if (this.shiftKey) {
+                    if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                        return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
+                    } else {
+                        var viewScale = this.options.value('viewScale');
+                        viewScale = viewScale.trim();
+                        var viewScaleValue;
+                        var viewScaleUnit;
+                        var splittedViewScale;
+
+                        if (viewScale) {
+                            splittedViewScale = viewScale.split(' ');
+                        }
+                        if (splittedViewScale && splittedViewScale.length > 1) {
+                            viewScaleValue = parseFloat(splittedViewScale[0]);
+                            viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
+                        } else {
+                            viewScaleValue = 1;
+                            viewScaleUnit = moment.normalizeUnits(viewScale);
+                        }
+                        return [viewScaleValue * 0.25, viewScaleUnit];
+                    }
+                } else {
+                    return [this.columnMagnetValue, this.columnMagnetUnit];
+                }
+            };
+
+            // Get the date transformed by magnet feature.
+            Gantt.prototype.getMagnetDate = function(date, disableExpand) {
+                if (date === undefined) {
+                    return undefined;
+                }
+
+                if (!moment.isMoment(moment)) {
+                    date = moment(date);
+                }
+
+                var column = this.columnsManager.getColumnByDate(date, disableExpand);
+                var magnetValueAndUnit = this.getMagnetValueAndUnit();
+
+                var magnetValue = magnetValueAndUnit[0];
+                var magnetUnit = magnetValueAndUnit[1];
+
+                return column.getMagnetDate(date, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+            };
+
             // Returns the exact column date at the given position x (in em)
             Gantt.prototype.getDateByPosition = function(x, magnet, disableExpand) {
                 var column = this.columnsManager.getColumnByPosition(x, disableExpand);
@@ -2234,36 +2299,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var magnetValue;
                     var magnetUnit;
                     if (magnet) {
-                        if (this.shiftKey) {
-                            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
-                                magnetValue = this.shiftColumnMagnetValue;
-                                magnetUnit = this.shiftColumnMagnetUnit;
-                            } else {
-                                var viewScale = this.options.value('viewScale');
-                                viewScale = viewScale.trim();
-                                var viewScaleValue;
-                                var viewScaleUnit;
-                                var splittedViewScale;
-
-                                if (viewScale) {
-                                    splittedViewScale = viewScale.split(' ');
-                                }
-                                if (splittedViewScale && splittedViewScale.length > 1) {
-                                    viewScaleValue = parseFloat(splittedViewScale[0]);
-                                    viewScaleUnit = moment.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
-                                } else {
-                                    viewScaleValue = 1;
-                                    viewScaleUnit = moment.normalizeUnits(viewScale);
-                                }
-                                magnetValue = viewScaleValue * 0.25;
-                                magnetUnit = viewScaleUnit;
-                            }
-                        } else {
-                            magnetValue = this.columnMagnetValue;
-                            magnetUnit = this.columnMagnetUnit;
-                        }
+                        var magnetValueAndUnit = this.getMagnetValueAndUnit();
+                        magnetValue = magnetValueAndUnit[0];
+                        magnetUnit = magnetValueAndUnit[1];
                     }
-
                     return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
                 } else {
                     return undefined;
@@ -2520,6 +2559,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
         // Removes the task from the existing row and adds it to he current one
         Row.prototype.moveTaskToRow = function(task, viewOnly) {
+            this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(task, this);
+            if (!viewOnly) {
+                this.rowsManager.gantt.api.tasks.raise.beforeRowChange(task, this);
+            }
+
             var oldRow = task.row;
             oldRow.removeTask(task.model.id, viewOnly, true);
 
@@ -2559,7 +2603,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             } else {
                 this.filteredTasks = this.tasks.slice(0);
             }
-            this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+
+            var limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
+            if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
+                this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+            } else {
+                this.visibleTasks = this.filteredTasks;
+            }
         };
 
         Row.prototype.updateTasksPosAndSize = function() {
@@ -2768,6 +2818,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerEvent('tasks', 'change');
             this.gantt.api.registerEvent('tasks', 'viewChange');
 
+            this.gantt.api.registerEvent('tasks', 'beforeRowChange');
+            this.gantt.api.registerEvent('tasks', 'beforeViewRowChange');
             this.gantt.api.registerEvent('tasks', 'rowChange');
             this.gantt.api.registerEvent('tasks', 'viewRowChange');
             this.gantt.api.registerEvent('tasks', 'remove');
@@ -3203,29 +3255,36 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 modelWidth = this.rowsManager.gantt.getPositionByDate(moment(this.model.to).endOf('day')) - modelLeft;
             }
 
-            if (modelLeft === undefined || modelWidth === undefined ||
-                modelLeft + modelWidth < 0 || modelLeft > maxModelLeft) {
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+
+            if (modelLeft === undefined || modelWidth === undefined) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(modelLeft, 0), this.rowsManager.gantt.width);
+                this.left = modelLeft;
+                this.width = modelWidth;
                 if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
-                        this.truncatedRight = true;
-                        this.width = this.rowsManager.gantt.width;
-                    } else {
-                        this.truncatedRight = false;
-                        this.width = modelWidth + modelLeft;
-                    }
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
                 } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
                     this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
                     this.truncatedLeft = false;
-                    this.width = this.rowsManager.gantt.width - modelLeft;
+                    this.truncatedLeftOffset = undefined;
                 } else {
                     this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
                     this.truncatedRight = false;
-                    this.width = modelWidth;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
                 }
 
                 if (this.width < 0) {
@@ -3602,28 +3661,40 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             var lastColumn = this.gantt.columnsManager.getLastColumn();
             var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
 
-            if (this.modelLeft + this.modelWidth < 0 || this.modelLeft > maxModelLeft) {
+            var modelLeft = this.modelLeft;
+            var modelWidth = this.modelWidth;
+
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+
+
+            if (modelLeft === undefined || modelWidth === undefined) {
                 this.left = undefined;
                 this.width = undefined;
             } else {
-                this.left = Math.min(Math.max(this.modelLeft, 0), this.gantt.width);
-                if (this.modelLeft < 0) {
+                this.left = modelLeft;
+                this.width = modelWidth;
+                if (modelLeft < 0) {
                     this.truncatedLeft = true;
-                    if (this.modelWidth + this.modelLeft > this.gantt.width) {
-                        this.truncatedRight = true;
-                        this.width = this.gantt.width;
-                    } else {
-                        this.truncatedRight = false;
-                        this.width = this.modelWidth + this.modelLeft;
-                    }
-                } else if (this.modelWidth + this.modelLeft > this.gantt.width) {
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
+                } else if (modelWidth + modelLeft > this.gantt.width) {
                     this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
                     this.truncatedLeft = false;
-                    this.width = this.gantt.width - this.modelLeft;
+                    this.truncatedLeftOffset = undefined;
                 } else {
                     this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
                     this.truncatedRight = false;
-                    this.width = this.modelWidth;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
                 }
 
                 if (this.width < 0) {
@@ -5283,7 +5354,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-angular.module('gantt.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('template/gantt.tmpl.html',
         '<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener="ganttElementWidth">\n' +
         '    <gantt-side>\n' +
@@ -5429,8 +5500,8 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '\n' +
         '    <script type="text/ng-template" id="template/ganttTaskForeground.tmpl.html">\n' +
         '        <div class="gantt-task-foreground">\n' +
-        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right">&gt;</div>\n' +
-        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left">&lt;</div>\n' +
+        '            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right" ng-style="{\'padding-right\': task.truncatedRightOffset + \'px\'}">&gt;</div>\n' +
+        '            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left" ng-style="{\'padding-left\': task.truncatedLeftOffset + \'px\'}">&lt;</div>\n' +
         '        </div>\n' +
         '    </script>\n' +
         '\n' +
@@ -5478,7 +5549,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function($templateC
         '                         ng-class="row.model.classes"\n' +
         '                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"\n' +
         '                         ng-style="{\'height\': row.model.height}">\n' +
-        '                        <div gantt-row-label class="gantt-row-label gantt-row-background"\n' +
+        '                        <div class="gantt-row-label gantt-row-background"\n' +
         '                             ng-style="{\'background-color\': row.model.color}">\n' +
         '                        </div>\n' +
         '                    </div>\n' +

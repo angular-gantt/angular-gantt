@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -17,6 +17,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.overlap) === 'object') {
+                    for (var option in scope.options.overlap) {
+                        scope[option] = scope.options.overlap[option];
+                    }
+                }
 
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
@@ -138,10 +145,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     api.tasks.on.rowChange(scope, function(task, oldRow) {
                         if (scope.global) {
-                            var rows = oldRow.rowsManager.rows;
+                            var rows = task.row.rowsManager.rows;
                             handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(oldRow.tasks);
+                            handleOverlaps(task.row.tasks);
                         }
                     });
 
@@ -162,7 +170,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     }]);
 }());
 
-angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.overlap.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 

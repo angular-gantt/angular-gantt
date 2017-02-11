@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -27,7 +27,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.movable) === 'object') {
                         for (var option in scope.options.movable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.movable[option];
                         }
                     }
 
@@ -181,8 +181,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
-                                            targetRow.moveTaskToRow(taskScope.task, true);
-                                            taskHasBeenChanged = true;
+                                            if (!angular.isFunction(allowRowSwitching) || allowRowSwitching(taskScope.task, targetRow)) {
+                                                targetRow.moveTaskToRow(taskScope.task, true);
+                                                taskHasBeenChanged = true;
+                                            }
                                         }
                                     }
 
@@ -369,11 +371,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.active = true;
 
                                 // Apply CSS style
-                                var backgroundElement = taskScope.task.getBackgroundElement();
+                                var taskElement = taskScope.task.$element;
                                 if (taskScope.task.moveMode === 'M') {
-                                    backgroundElement.addClass('gantt-task-resizing');
+                                    taskElement.addClass('gantt-task-resizing');
                                 } else {
-                                    backgroundElement.addClass('gantt-task-moving');
+                                    taskElement.addClass('gantt-task-moving');
                                 }
 
                                 // Add move event handler
@@ -427,9 +429,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.active = false;
 
                                 // Remove CSS class
-                                var getBackgroundElement = taskScope.task.getBackgroundElement();
-                                getBackgroundElement.removeClass('gantt-task-moving');
-                                getBackgroundElement.removeClass('gantt-task-resizing');
+                                var taskElement = taskScope.task.$element;
+                                taskElement.removeClass('gantt-task-moving');
+                                taskElement.removeClass('gantt-task-resizing');
 
                                 // Stop any active auto scroll
                                 clearScrollInterval();
@@ -485,12 +487,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
         return {
             initialize: function(options) {
-
                 options.enabled = options.enabled !== undefined ? options.enabled : true;
                 options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
                 options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
-                options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
-
+                if (!angular.isFunction(options.allowRowSwitching)) {
+                    options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
+                }
                 return options;
             }
         };
@@ -498,7 +500,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.movable.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 

@@ -265,6 +265,7 @@
 
     background-color: grey;
     border-radius: 2px;
+    overflow: hidden;
 }
 
 .gantt-task-foreground {

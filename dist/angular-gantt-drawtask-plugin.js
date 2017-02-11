@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -18,6 +18,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.drawtask) === 'object') {
+                    for (var option in scope.options.drawtask) {
+                        scope[option] = scope.options.drawtask[option];
+                    }
+                }
 
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
@@ -137,7 +144,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 

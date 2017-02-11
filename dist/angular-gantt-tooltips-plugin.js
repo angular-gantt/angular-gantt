@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -23,7 +23,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.tooltips) === 'object') {
                     for (var option in scope.options.tooltips) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.tooltips[option];
                     }
                 }
 
@@ -286,7 +286,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.tooltips.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
         '<div ng-cloak\n' +
         '     class="gantt-task-info"\n' +

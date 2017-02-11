@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -20,7 +20,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.bounds) === 'object') {
                     for (var option in scope.options.bounds) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.bounds[option];
                     }
                 }
 
@@ -61,6 +61,55 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
+(function(){
+    'use strict';
+    angular.module('gantt.corner', ['gantt', 'gantt.corner.templates']).directive('ganttCorner', ['ganttUtils', '$compile', '$document', function(utils, $compile, $document) {
+        // Provides customization for corner area
+
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?',
+                headersLabels: '=?',
+                headersLabelsTemplates: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.corner) === 'object') {
+                    for (var option in scope.options.corner) {
+                        scope[option] = scope.options.corner[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                api.directives.on.new(scope, function(directiveName, sideBackgroundScope, sideBackgroundElement) {
+                    if (directiveName === 'ganttSideBackground') {
+                        var cornerScope = sideBackgroundScope.$new();
+                        cornerScope.pluginScope = scope;
+
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+                        angular.element(ifElement).addClass('gantt-corner-area');
+
+                        var topElement = $document[0].createElement('gantt-corner-area');
+                        angular.element(ifElement).append(topElement);
+
+                        sideBackgroundElement[0].parentNode.insertBefore($compile(ifElement)(cornerScope)[0], sideBackgroundElement[0].nextSibling);
+                    }
+                });
+
+            }
+        };
+    }]);
+}());
+
+
 (function() {
     'use strict';
     angular.module('gantt.dependencies', ['gantt', 'gantt.dependencies.templates']).directive('ganttDependencies',
@@ -83,7 +132,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                         // Load options from global options attribute.
                         if (scope.options && typeof(scope.options.dependencies) === 'object') {
                             for (var option in scope.options.dependencies) {
-                                scope[option] = scope.options[option];
+                                scope[option] = scope.options.dependencies[option];
                             }
                         }
 
@@ -292,6 +341,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
 
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.drawtask) === 'object') {
+                    for (var option in scope.options.drawtask) {
+                        scope[option] = scope.options.drawtask[option];
+                    }
+                }
+
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
                 }
@@ -427,9 +483,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.groups) === 'object') {
+                    for (var option in scope.options.groups) {
+                        scope[option] = scope.options.groups[option];
                     }
                 }
 
@@ -498,9 +554,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $log.warn('Angular Gantt Labels plugin is deprecated. Please use Table plugin instead.');
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.labels) === 'object') {
+                    for (var option in scope.options.labels) {
+                        scope[option] = scope.options.labels[option];
                     }
                 }
 
@@ -571,7 +627,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.movable) === 'object') {
                         for (var option in scope.options.movable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.movable[option];
                         }
                     }
 
@@ -725,8 +781,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                         var sourceRow = taskScope.task.row;
 
                                         if (targetRow !== undefined && sourceRow !== targetRow) {
-                                            targetRow.moveTaskToRow(taskScope.task, true);
-                                            taskHasBeenChanged = true;
+                                            if (!angular.isFunction(allowRowSwitching) || allowRowSwitching(taskScope.task, targetRow)) {
+                                                targetRow.moveTaskToRow(taskScope.task, true);
+                                                taskHasBeenChanged = true;
+                                            }
                                         }
                                     }
 
@@ -913,11 +971,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.active = true;
 
                                 // Apply CSS style
-                                var backgroundElement = taskScope.task.getBackgroundElement();
+                                var taskElement = taskScope.task.$element;
                                 if (taskScope.task.moveMode === 'M') {
-                                    backgroundElement.addClass('gantt-task-resizing');
+                                    taskElement.addClass('gantt-task-resizing');
                                 } else {
-                                    backgroundElement.addClass('gantt-task-moving');
+                                    taskElement.addClass('gantt-task-moving');
                                 }
 
                                 // Add move event handler
@@ -971,9 +1029,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                                 taskScope.task.active = false;
 
                                 // Remove CSS class
-                                var getBackgroundElement = taskScope.task.getBackgroundElement();
-                                getBackgroundElement.removeClass('gantt-task-moving');
-                                getBackgroundElement.removeClass('gantt-task-resizing');
+                                var taskElement = taskScope.task.$element;
+                                taskElement.removeClass('gantt-task-moving');
+                                taskElement.removeClass('gantt-task-resizing');
 
                                 // Stop any active auto scroll
                                 clearScrollInterval();
@@ -1036,6 +1094,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             },
             link: function(scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.overlap) === 'object') {
+                    for (var option in scope.options.overlap) {
+                        scope[option] = scope.options.overlap[option];
+                    }
+                }
 
                 if (scope.enabled === undefined) {
                     scope.enabled = true;
@@ -1157,10 +1222,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     api.tasks.on.rowChange(scope, function(task, oldRow) {
                         if (scope.global) {
-                            var rows = oldRow.rowsManager.rows;
+                            var rows = task.row.rowsManager.rows;
                             handleGlobalOverlaps(rows);
                         } else {
                             handleOverlaps(oldRow.tasks);
+                            handleOverlaps(task.row.tasks);
                         }
                     });
 
@@ -1196,7 +1262,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.progress) === 'object') {
                     for (var option in scope.options.progress) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.progress[option];
                     }
                 }
 
@@ -1254,9 +1320,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.progress) === 'object') {
-                    for (var option in scope.options.progress) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.resizeSensor) === 'object') {
+                    for (var option in scope.options.resizeSensor) {
+                        scope[option] = scope.options.resizeSensor[option];
                     }
                 }
 
@@ -1298,6 +1364,64 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             sensor.detach();
                             sensor = undefined;
                         }
+                    }
+                });
+            }
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.sections', ['gantt', 'gantt.sections.templates']).directive('ganttSections', ['moment', '$compile', '$document', function(moment, $compile, $document) {
+        return {
+            restrict: 'E',
+            require: '^gantt',
+            scope: {
+                enabled: '=?',
+                keepProportions: '=?',
+                disableMagnet: '=?',
+                disableDaily: '=?'
+            },
+            link: function(scope, element, attrs, ganttCtrl) {
+                var api = ganttCtrl.gantt.api;
+
+                // Load options from global options attribute.
+                if (scope.options && typeof(scope.options.sections) === 'object') {
+                    for (var option in scope.options.sections) {
+                        scope[option] = scope.options.sections[option];
+                    }
+                }
+
+                if (scope.enabled === undefined) {
+                    scope.enabled = true;
+                }
+
+                if (scope.keepProportions === undefined) {
+                    scope.keepProportions = true;
+                }
+
+                api.directives.on.new(scope, function(directiveName, taskScope, taskElement) {
+                    if (directiveName === 'ganttTaskForeground') {
+                        var sectionsScope = taskScope.$new();
+                        sectionsScope.pluginScope = scope;
+                        sectionsScope.task = taskScope.task;
+
+                        var ifElement = $document[0].createElement('div');
+                        angular.element(ifElement).attr('data-ng-if', 'task.model.sections !== undefined && pluginScope.enabled');
+                        angular.element(ifElement).attr('class', 'gantt-task-foreground-sections');
+
+                        var sectionsElement = $document[0].createElement('gantt-task-sections');
+
+                        if (attrs.templateUrl !== undefined) {
+                            angular.element(sectionsElement).attr('data-template-url', attrs.templateUrl);
+                        }
+                        if (attrs.template !== undefined) {
+                            angular.element(sectionsElement).attr('data-template', attrs.template);
+                        }
+                        angular.element(ifElement).append(sectionsElement);
+                        taskElement.append($compile(ifElement)(sectionsScope));
                     }
                 });
             }
@@ -1379,7 +1503,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     // Load options from global options attribute.
                     if (scope.options && typeof(scope.options.sortable) === 'object') {
                         for (var option in scope.options.sortable) {
-                            scope[option] = scope.options[option];
+                            scope[option] = scope.options.sortable[option];
                         }
                     }
 
@@ -1454,9 +1578,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.table) === 'object') {
+                    for (var option in scope.options.table) {
+                        scope[option] = scope.options.table[option];
                     }
                 }
 
@@ -1528,7 +1652,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 // Load options from global options attribute.
                 if (scope.options && typeof(scope.options.tooltips) === 'object') {
                     for (var option in scope.options.tooltips) {
-                        scope[option] = scope.options[option];
+                        scope[option] = scope.options.tooltips[option];
                     }
                 }
 
@@ -1596,9 +1720,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.tree) === 'object') {
+                    for (var option in scope.options.tree) {
+                        scope[option] = scope.options.tree[option];
                     }
                 }
 
@@ -1702,6 +1826,69 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 });
             }]
         };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.corner').directive('ganttCornerArea', ['GanttDirectiveBuilder', function(Builder) {
+        var builder = new Builder('ganttCornerArea', 'plugins/corner/corner.tmpl.html');
+        builder.controller = function($scope) {
+            var headers = $scope.gantt.columnsManager.headers;
+
+            function updateModelWithHeaders(headers) {
+                var scopeHeaders = [];
+                for (var i=0; i<headers.length; i++) {
+                    var columns = headers[i];
+                    var unit = columns[0].unit;
+                    var scopeHeader = {columns: columns, unit: unit};
+                    scopeHeaders.push(scopeHeader);
+                }
+                $scope.headers = scopeHeaders;
+
+            }
+            updateModelWithHeaders(headers);
+
+            $scope.getLabel = function(header) {
+                var label = header.unit;
+
+                if ($scope.pluginScope.headersLabels && header.unit in $scope.pluginScope.headersLabels) {
+                    label = $scope.pluginScope.headersLabels[header.unit];
+                    if (angular.isFunction(label)) {
+                        label = label(header.unit);
+                    }
+                } else if (angular.isFunction($scope.pluginScope.headersLabels)) {
+                    label = $scope.pluginScope.headersLabels(header.unit);
+                }
+
+                return label;
+            };
+
+            $scope.getLabelContent = function(header) {
+                var content;
+                if (content === undefined && $scope.pluginScope.headersLabelsTemplates !== undefined) {
+                    content = $scope.pluginScope.headersLabelsTemplates;
+
+                    if (angular.isObject(content) && header.unit in content) {
+                        content = content[header.unit];
+                    }
+
+                    if (angular.isFunction(content)) {
+                        content = content(header.unit);
+                    }
+                }
+                if (content === undefined) {
+                    return '{{getLabel(header)}}';
+                }
+                return content;
+            };
+
+            $scope.gantt.api.columns.on.generate($scope, function(columns, headers) {
+                updateModelWithHeaders(headers);
+            });
+        };
+        return builder.build();
     }]);
 }());
 
@@ -2868,12 +3055,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
     angular.module('gantt.movable').factory('ganttMovableOptions', [function() {
         return {
             initialize: function(options) {
-
                 options.enabled = options.enabled !== undefined ? options.enabled : true;
                 options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
                 options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
-                options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
-
+                if (!angular.isFunction(options.allowRowSwitching)) {
+                    options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
+                }
                 return options;
             }
         };
@@ -2940,6 +3127,248 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element);
                 $scope.$on('$destroy', function() {
                     $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
+                });
+            }]
+        };
+    }]);
+}());
+
+
+(function() {
+    'use strict';
+    angular.module('gantt.sections').directive('ganttTaskSection', ['$templateCache', function($templateCache) {
+        return {
+            restrict: 'E',
+            requires: '^ganttTaskSections',
+            templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
+                if (tAttrs.templateUrl === undefined) {
+                    templateUrl = 'plugins/sections/taskSection.tmpl.html';
+                } else {
+                    templateUrl = tAttrs.templateUrl;
+                }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
+            },
+            replace: true,
+            scope: {
+                section: '=',
+                task: '=',
+                index: '=',
+                options: '=?'
+            },
+            controller: ['$scope', '$element', 'ganttUtils', 'moment', function($scope, $element, utils, moment) {
+                var fromTask = moment($scope.section.from).isSame(moment($scope.task.model.from));
+                var toTask = moment($scope.section.to).isSame(moment($scope.task.model.to));
+
+                var loadPreviousScope = function() {
+                    if ($scope.task._movingTaskSections) {
+                        // We are coming from a task row change
+                        var sectionScopes = $scope.task._movingTaskSections;
+                        var sectionScope = sectionScopes['$$index_' + $scope.index];
+                        $scope.section = sectionScope.section;
+                        $scope.sectionCss = sectionScope.sectionCss;
+                        fromTask = sectionScope.fromTask;
+                        toTask = sectionScope.toTask;
+                        delete sectionScopes['$$index_' + $scope.index];
+                    }
+
+                    var sectionScopesEmpty = true;
+                    for (var property in $scope.task._movingTaskSections) {
+                        if ($scope.task._movingTaskSections.hasOwnProperty(property)) {
+                            sectionScopesEmpty = false;
+                            break;
+                        }
+                    }
+
+                    if (sectionScopesEmpty) {
+                        delete $scope.task._movingTaskSections;
+                    }
+                };
+                loadPreviousScope();
+
+
+
+                var getLeft = function() {
+                    if (fromTask) {
+                        return 0;
+                    }
+
+                    var gantt = $scope.task.rowsManager.gantt;
+                    var taskLeft = $scope.task.left;
+
+                    var from;
+
+                    var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+
+                    from = disableMagnet ? $scope.section.from : gantt.getMagnetDate($scope.section.from);
+
+                    var disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
+                    if (!disableDaily && gantt.options.value('daily')) {
+                        from = moment(from).startOf('day');
+                    }
+
+                    var sectionLeft = gantt.getPositionByDate(from);
+
+                    return sectionLeft - taskLeft;
+                };
+
+                var getRight = function() {
+                    var keepProportions = utils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
+                    if (toTask && keepProportions) {
+                        return $scope.task.width;
+                    }
+
+                    var gantt = $scope.task.rowsManager.gantt;
+                    var taskLeft = $scope.task.left;
+
+                    var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+                    var to = disableMagnet ? $scope.section.to : gantt.getMagnetDate($scope.section.to);
+
+                    var disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
+                    if (!disableDaily && gantt.options.value('daily')) {
+                        to = moment(to).startOf('day');
+                    }
+
+                    var sectionRight = gantt.getPositionByDate(to);
+
+                    return sectionRight - taskLeft;
+                };
+
+                var getRelative = function(position) {
+                    return position / $scope.task.width * 100;
+                };
+
+                var updatePosition = function() {
+                    var sectionLeft = getLeft();
+                    var sectionWidth = getRight() - sectionLeft;
+
+                    var keepProportions = utils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
+                    if (keepProportions) {
+                        // Setting left and width as to keep proportions when changing task size.
+                        // This may somewhat break the magnet feature, but it seems acceptable
+                        $scope.sectionCss.left = getRelative(sectionLeft) + '%';
+                        $scope.sectionCss.width = getRelative(sectionWidth) + '%';
+                    } else {
+                        $scope.sectionCss.left = sectionLeft + 'px';
+                        $scope.sectionCss.width = sectionWidth + 'px';
+                    }
+                };
+
+                var updateCss = function() {
+                    if ($scope.section.color) {
+                        $scope.sectionCss['background-color'] = $scope.section.color;
+                    } else {
+                        $scope.sectionCss['background-color'] = undefined;
+                    }
+                };
+
+                if ($scope.sectionCss === undefined) {
+                    $scope.sectionCss = {};
+                    updatePosition();
+                    updateCss();
+                }
+
+                var taskChangeHandler = function(task) {
+                    if (task === $scope.task) {
+                        // Update from/to section model value based on position.
+                        var gantt = $scope.task.rowsManager.gantt;
+
+                        var sectionLeft = $element[0].offsetLeft;
+
+                        var disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+
+                        var from;
+                        if (fromTask) {
+                            from = $scope.task.model.from;
+                        } else {
+                            from = gantt.getDateByPosition($scope.task.modelLeft + sectionLeft, !disableMagnet);
+                        }
+
+                        var to;
+                        if (toTask) {
+                            to = $scope.task.model.to;
+                        } else {
+                            var sectionRight = sectionLeft + $element[0].offsetWidth;
+                            to = gantt.getDateByPosition($scope.task.modelLeft + sectionRight, !disableMagnet);
+                        }
+
+                        $scope.section.from = from;
+                        $scope.section.to = to;
+
+                        updatePosition();
+                    }
+                };
+
+                var taskCleanHandler = function(taskModel) {
+                    if (taskModel.id === $scope.task.model.id) {
+                        var model = $scope.section;
+                        if (model.from !== undefined && !moment.isMoment(model.from)) {
+                            model.from = moment(model.from);
+                        }
+
+                        if (model.to !== undefined && !moment.isMoment(model.to)) {
+                            model.to = moment(model.to);
+                        }
+                    }
+                };
+                taskCleanHandler($scope.task.model);
+
+                $scope.task.rowsManager.gantt.api.tasks.on.clean($scope, taskCleanHandler);
+                $scope.task.rowsManager.gantt.api.tasks.on.change($scope, taskChangeHandler);
+
+                var beforeViewRowChangeHandler = function(task) {
+                    var sectionScopes = task._movingTaskSections;
+                    if (!sectionScopes) {
+                        sectionScopes = {};
+                        task._movingTaskSections = sectionScopes;
+                    }
+
+                    sectionScopes['$$index_' + $scope.index] = {
+                        'section' : $scope.section,
+                        'sectionCss': $scope.sectionCss,
+                        'fromTask': fromTask,
+                        'toTask': toTask
+                    };
+                };
+                $scope.task.rowsManager.gantt.api.tasks.on.beforeViewRowChange($scope, beforeViewRowChangeHandler);
+
+                $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSection', $scope, $element);
+                $scope.$on('$destroy', function() {
+                    $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSection', $scope, $element);
+                });
+            }]
+        };
+    }]);
+}());
+
+
+(function(){
+    'use strict';
+    angular.module('gantt.sections').directive('ganttTaskSections', ['$templateCache', function($templateCache) {
+        return {
+            restrict: 'E',
+            requires: '^ganttTask',
+            templateUrl: function(tElement, tAttrs) {
+                var templateUrl;
+                if (tAttrs.templateUrl === undefined) {
+                    templateUrl = 'plugins/sections/taskSections.tmpl.html';
+                } else {
+                    templateUrl = tAttrs.templateUrl;
+                }
+                if (tAttrs.template !== undefined) {
+                    $templateCache.put(templateUrl, tAttrs.template);
+                }
+                return templateUrl;
+            },
+            replace: true,
+            scope: true,
+            controller: ['$scope', '$element', function($scope, $element) {
+                $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSections', $scope, $element);
+                $scope.$on('$destroy', function() {
+                    $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSections', $scope, $element);
                 });
             }]
         };
@@ -3593,21 +4022,31 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.bounds.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.bounds.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/bounds/taskBounds.tmpl.html',
         '<div ng-cloak class="gantt-task-bounds" ng-style="getCss()" ng-class="getClass()"></div>\n' +
         '');
 }]);
 
-angular.module('gantt.dependencies.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.corner.templates', []).run(['$templateCache', function ($templateCache) {
+    $templateCache.put('plugins/corner/corner.tmpl.html',
+        '<div class="gantt-corner-area-content">\n' +
+        '    <div ng-show="$parent.ganttHeaderHeight" class="gantt-header-row" ng-repeat="header in headers">\n' +
+        '        <div class="gantt-column-header" ><span class="gantt-label-text" gantt-bind-compile-html="getLabelContent(header)"></span></div>\n' +
+        '    </div>\n' +
+        '</div>\n' +
+        '');
+}]);
+
+angular.module('gantt.dependencies.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.drawtask.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.drawtask.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.groups.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.groups.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/groups/taskGroup.tmpl.html',
         '<div ng-controller="GanttGroupController">\n' +
         '    <div class="gantt-task-group-overview" ng-if="taskGroup.overviewTasks.length > 0">\n' +
@@ -3637,7 +4076,7 @@ angular.module('gantt.groups.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
-angular.module('gantt.labels.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.labels.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/labels/labelsBody.tmpl.html',
         '<div class="gantt-labels-body" ng-style="getLabelsCss()">\n' +
         '    <div gantt-vertical-scroll-receiver>\n' +
@@ -3671,29 +4110,47 @@ angular.module('gantt.labels.templates', []).run(['$templateCache', function($te
         '');
 }]);
 
-angular.module('gantt.movable.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.movable.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.overlap.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.overlap.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.progress.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.progress.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/progress/taskProgress.tmpl.html',
         '<div ng-cloak class="gantt-task-progress" ng-style="getCss()" ng-class="getClasses()"></div>\n' +
         '');
 }]);
 
-angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.resizeSensor.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.sortable.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.sections.templates', []).run(['$templateCache', function ($templateCache) {
+    $templateCache.put('plugins/sections/taskSection.tmpl.html',
+        '<div ng-style="sectionCss"\n' +
+        '     ng-class="section.classes"\n' +
+        '     class="gantt-task-section"></div>\n' +
+        '');
+    $templateCache.put('plugins/sections/taskSections.tmpl.html',
+        '<div ng-cloak class="gantt-task-sections">\n' +
+        '    <gantt-task-section section="section"\n' +
+        '                        task="task"\n' +
+        '                        options="task.model.sections"\n' +
+        '                        index="$index"\n' +
+        '                        ng-repeat="section in task.model.sections.items track by $index">\n' +
+        '    </gantt-task-section>\n' +
+        '</div>\n' +
+        '');
+}]);
+
+angular.module('gantt.sortable.templates', []).run(['$templateCache', function ($templateCache) {
 
 }]);
 
-angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.table.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
         '<div class="gantt-side-content-table">\n' +
         '\n' +
@@ -3724,7 +4181,7 @@ angular.module('gantt.table.templates', []).run(['$templateCache', function($tem
         '');
 }]);
 
-angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.tooltips.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/tooltips/tooltip.tmpl.html',
         '<div ng-cloak\n' +
         '     class="gantt-task-info"\n' +
@@ -3738,7 +4195,7 @@ angular.module('gantt.tooltips.templates', []).run(['$templateCache', function($
         '');
 }]);
 
-angular.module('gantt.tree.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.tree.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/tree/sideContentTree.tmpl.html',
         '<div class="gantt-side-content-tree" ng-controller="GanttTreeController">\n' +
         '    <gantt-tree-header>\n' +

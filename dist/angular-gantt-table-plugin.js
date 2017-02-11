@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.0 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -28,9 +28,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var api = ganttCtrl.gantt.api;
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.sortable) === 'object') {
-                    for (var option in scope.options.sortable) {
-                        scope[option] = scope.options[option];
+                if (scope.options && typeof(scope.options.table) === 'object') {
+                    for (var option in scope.options.table) {
+                        scope[option] = scope.options.table[option];
                     }
                 }
 
@@ -179,7 +179,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 }());
 
 
-angular.module('gantt.table.templates', []).run(['$templateCache', function($templateCache) {
+angular.module('gantt.table.templates', []).run(['$templateCache', function ($templateCache) {
     $templateCache.put('plugins/table/sideContentTable.tmpl.html',
         '<div class="gantt-side-content-table">\n' +
         '\n' +

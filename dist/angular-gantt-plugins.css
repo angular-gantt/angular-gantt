@@ -15,6 +15,28 @@
     border-color: #FF6347;
 }
 
+.gantt-corner-area {
+    position: absolute;
+    width: 100%;
+    overflow: hidden;
+}
+
+.gantt-corner-area .gantt-header-row {
+    padding-top: 1px;
+    border-top: none;
+}
+
+.gantt-corner-area .gantt-header-row {
+    position: relative;
+}
+
+.gantt-corner-area .gantt-header-row .gantt-column-header {
+    position: absolute;
+    right: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
 .gantt .gantt-body-dependencies {
     position: absolute;
     height: 100%;
@@ -192,7 +214,6 @@
 }
 
 .gantt-task-moving, .gantt-task-resizing {
-    z-index: 750 !important;
     opacity: 0.6;
     filter: alpha(opacity=60);
     -webkit-filter: grayscale(0.7);
@@ -209,6 +230,27 @@
     bottom: 0px;
     height: 6px;
     border-radius: 2px;
+}
+
+.gantt-task-foreground-sections {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+}
+
+.gantt-task-sections {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+}
+
+.gantt-task-sections .gantt-task-section {
+    position: absolute;
+    overflow: hidden;
+    height: 100%;
 }
 
 .gantt-row-label.on-dragging {
