@@ -108,6 +108,10 @@
                         </li>
                     
                         <li >
+                            <a href="../../plugins/corner">Corner</a>
+                        </li>
+                    
+                        <li >
                             <a href="../../plugins/groups">Groups</a>
                         </li>
                     
@@ -133,6 +137,10 @@
                     
                         <li >
                             <a href="../../plugins/bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sections">Sections</a>
                         </li>
                     
                         <li >
@@ -317,12 +325,12 @@ api.featureName.methodName();
 <p>A task view has been changed and displayed.</p>
 </li>
 <li>
-<p><strong>api.tasks.on.rowChange(task, oldRow)</strong></p>
-<p>A task has been moved from one row to another.</p>
+<p><strong>api.tasks.on.rowChange(task, oldRow)</strong>, <strong>api.tasks.on.beforeRowChange(task, newRow)</strong></p>
+<p>A task has been (or will be) moved from one row to another.</p>
 </li>
 <li>
-<p><strong>api.tasks.on.viewRowChange(task, oldRow)</strong></p>
-<p>A task view has been moved from one row to another.</p>
+<p><strong>api.tasks.on.viewRowChange(task, oldRow)</strong>, <strong>api.tasks.on.beforeViewRowChange(task, newRow)</strong></p>
+<p>A task view has been (or will be) moved from one row to another.</p>
 </li>
 <li>
 <p><strong>api.tasks.on.displayed(tasks, filteredTasks, visibleTasks)</strong></p>
@@ -482,6 +490,8 @@ Returns an array of two dates <code>[dateOfFirstColumn, endDateOfLastColumn]</co
 <li>
 <p><strong>api.side.setWidth(width)</strong></p>
 <p>Set side area width. If given <code>width</code> is <code>undefined</code>, it will be computed automatically based on content.</p>
+<p>Calling this function after setting or updating gantt data may lead to unexpected results. Wrap the call in 
+<code>$timeout</code> function if the computed width doesn't seem to use the new data to compute the width.</p>
 </li>
 <li>
 <p><strong>api.side.getWidth()</strong></p>

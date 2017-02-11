@@ -108,6 +108,10 @@
                         </li>
                     
                         <li >
+                            <a href="../corner">Corner</a>
+                        </li>
+                    
+                        <li >
                             <a href="../groups">Groups</a>
                         </li>
                     
@@ -133,6 +137,10 @@
                     
                         <li >
                             <a href="../bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../sections">Sections</a>
                         </li>
                     
                         <li >
@@ -260,7 +268,8 @@ or the task is in a certain condition.</p>
 </li>
 <li>
 <h3 id="allow-row-switching">allow-row-switching</h3>
-<p>Tasks can be moved to a different row.</p>
+<p>Tasks can be moved to a different row. Can also be a function (<code>fn(Task, TargetRow)</code>) returning <code>true</code> to allow the 
+switch, or <code>false</code> to prevent it.</p>
 <p>default: <code>true</code></p>
 </li>
 </ul>
@@ -274,7 +283,7 @@ or the task is in a certain condition.</p>
     'enabled': &lt;Boolean&gt;,
     'allowMoving': &lt;Boolean&gt;,
     'allowResizing': &lt;Boolean&gt;,
-    'allowRowSwitching': &lt;Boolean&gt;
+    'allowRowSwitching': &lt;Boolean|Function&gt;
   }
 
   // Or shortcut for enabled property

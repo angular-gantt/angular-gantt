@@ -6,10 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         
-        <link rel="canonical" href="https://www.angular-gantt.com/configuration/plugins/">
+        <link rel="canonical" href="https://www.angular-gantt.com/plugins/sections/">
         <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>Plugins - angular-gantt</title>
+        <title>Sections - angular-gantt</title>
 
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -54,36 +54,36 @@
             
             
             
-                <li class="dropdown active">
+                <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                     
                         <li >
-                            <a href="../data">Data</a>
+                            <a href="../../configuration/data">Data</a>
                         </li>
                     
                         <li >
-                            <a href="../timespans">Timespans</a>
+                            <a href="../../configuration/timespans">Timespans</a>
                         </li>
                     
                         <li >
-                            <a href="../attributes">Attributes</a>
-                        </li>
-                    
-                        <li class="active">
-                            <a href=".">Plugins</a>
+                            <a href="../../configuration/attributes">Attributes</a>
                         </li>
                     
                         <li >
-                            <a href="../customize">Customize</a>
+                            <a href="../../configuration/plugins">Plugins</a>
                         </li>
                     
                         <li >
-                            <a href="../api">API</a>
+                            <a href="../../configuration/customize">Customize</a>
                         </li>
                     
                         <li >
-                            <a href="../write_plugin">Write a Plugin</a>
+                            <a href="../../configuration/api">API</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/write_plugin">Write a Plugin</a>
                         </li>
                     
                     </ul>
@@ -91,68 +91,68 @@
             
             
             
-                <li class="dropdown">
+                <li class="dropdown active">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                     
                         <li >
-                            <a href="../../plugins/labels">Labels</a>
+                            <a href="../labels">Labels</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/table">Table</a>
+                            <a href="../table">Table</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/tree">Tree</a>
+                            <a href="../tree">Tree</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/corner">Corner</a>
+                            <a href="../corner">Corner</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/groups">Groups</a>
+                            <a href="../groups">Groups</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/dependencies">Dependencies</a>
+                            <a href="../dependencies">Dependencies</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/sortable">Sortable</a>
+                            <a href="../sortable">Sortable</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/movable">Movable</a>
+                            <a href="../movable">Movable</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/drawtask">Draw Task</a>
+                            <a href="../drawtask">Draw Task</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/tooltips">Tooltips</a>
+                            <a href="../tooltips">Tooltips</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/bounds">Bounds</a>
+                            <a href="../bounds">Bounds</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href=".">Sections</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/sections">Sections</a>
+                            <a href="../progress">Progress</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/progress">Progress</a>
+                            <a href="../overlap">Overlap</a>
                         </li>
                     
                         <li >
-                            <a href="../../plugins/overlap">Overlap</a>
-                        </li>
-                    
-                        <li >
-                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                            <a href="../resizeSensor">Resize Sensor</a>
                         </li>
                     
                     </ul>
@@ -189,12 +189,12 @@
             <ul class="nav navbar-nav navbar-right">
                 
                 <li >
-                    <a rel="next" href="../attributes">
+                    <a rel="next" href="../bounds">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../customize">
+                    <a rel="prev" href="../progress">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -217,86 +217,80 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#plugins">Plugins</a></li>
+        <li class="main active"><a href="#sections">Sections</a></li>
         
-            <li><a href="#enable-a-plugin">Enable a plugin</a></li>
+            <li><a href="#usage">Usage</a></li>
         
-            <li><a href="#supported-plugins">Supported plugins</a></li>
+            <li><a href="#attributes">Attributes</a></li>
+        
+            <li><a href="#model">Model</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="plugins">Plugins</h1>
-<p>Plugins are additional features that are not included in <code>angular-gantt</code> main distribution file.
-They can be configured using attributes defined for each plugin, and some plugins may use additional properties from
-<a href="../attributes#data">data</a>.</p>
-<p>Each plugin is available under <code>assets</code> folder as standalone <code>angular-gantt-xxxxxx.js</code> and <code>angular-gantt-xxxxxx.css</code>
-files, where <code>xxxxxx</code> plugin is the name of the plugin.</p>
-<p><code>angular-gantt-plugins.js</code> and <code>angular-gantt-plugins.css</code> files contains every standard plugin as a single package. </p>
-<h2 id="enable-a-plugin">Enable a plugin</h2>
-<ol>
-<li>
-<p>Add the plugin module dependency to your application module dependencies list.</p>
-<pre><code>angular.module('myApp', ['gantt', 'gantt.xxxxxx']);
+<h1 id="sections">Sections</h1>
+<p>Display sections inside tasks. Sections are defined with date and smartly follow tasks and magnet on changes.</p>
+<h2 id="usage">Usage</h2>
+<pre><code>angular.module('myApp', ['gantt', 'gantt.sections']);
 </code></pre>
-</li>
-<li>
-<p>Add the plugin directive as a child element of the gantt directive.</p>
+<!-- -->
+
 <pre><code>&lt;div gantt&gt;
-    &lt;gantt-xxxxxx&gt;&lt;/gantt-xxxxxx&gt;
+    &lt;gantt-sections enabled="..." keep-proportions="..." disable-magnet="..." disable-daily="..."&gt;&lt;/gantt-sections&gt;
 &lt;/div&gt;
 </code></pre>
-</li>
-</ol>
-<h2 id="supported-plugins">Supported plugins</h2>
+<!-- -->
+
+<pre><code>&lt;link rel="stylesheet" href="angular-gantt-sections.css"&gt;
+</code></pre>
+<h2 id="attributes">Attributes</h2>
 <ul>
 <li>
-<h3 id="table"><a href="../../plugins/table">Table</a></h3>
-<p>Display row labels in multiple columns on the side.</p>
+<h3 id="enabled">enabled</h3>
+<p>Enable sections display.</p>
+<p>default: <code>true</code></p>
 </li>
 <li>
-<h3 id="tree"><a href="../../plugins/tree">Tree</a></h3>
-<p>Display a tree hierarchy for rows.</p>
+<h3 id="keep-proportions">keep-proportions</h3>
+<p>If true, proportions will be kept when the task is resized. If false, sections will stay at the same place relative
+to the left border of the task container.</p>
+<p>default: <code>true</code></p>
 </li>
 <li>
-<h3 id="sortable"><a href="../../plugins/sortable">Sortable</a></h3>
-<p>Sort rows by drag &amp; drop on rows label.</p>
+<h3 id="disable-magnet">disable-magnet</h3>
+<p>If true, sections won't follow magnets defined by <code>column-magnet</code> and <code>shit-column-magnet</code> gantt attributes.</p>
+<p>default: <code>false</code></p>
 </li>
 <li>
-<h3 id="movable"><a href="../../plugins/movable">Movable</a></h3>
-<p>Move and resize tasks.</p>
-</li>
-<li>
-<h3 id="draw-task"><a href="../../plugins/drawtask">Draw Task</a></h3>
-<p>Draw new tasks with the mouse.</p>
-</li>
-<li>
-<h3 id="progress"><a href="../../plugins/progress">Progress</a></h3>
-<p>Display a visual indicator showing configured progress of tasks.</p>
-</li>
-<li>
-<h3 id="bounds"><a href="../../plugins/bounds">Bounds</a></h3>
-<p>Display configured bounds when moving mouse over a task.</p>
-</li>
-<li>
-<h3 id="overlap"><a href="../../plugins/overlap">Overlap</a></h3>
-<p>Add a border with <code>gantt-task-overlaps</code> CSS class on tasks that overlaps.</p>
-</li>
-<li>
-<h3 id="tooltips"><a href="../../plugins/tooltips">Tooltips</a></h3>
-<p>Display tooltips when moving mouse over a task.</p>
-</li>
-<li>
-<h3 id="resize-sensor"><a href="../../plugins/resizeSensor">Resize Sensor</a></h3>
-<p>Use <a href="https://github.com/marcj/css-element-queries">CSS-Element-Queries Polyfill</a> to support dynamic resizing.</p>
-</li>
-<li>
-<h3 id="labels-deprecated"><a href="../../plugins/labels">Labels</a> <strong>DEPRECATED</strong></h3>
-<p>Display row labels on the side. (Use <a href="../../plugins/table">Table</a> plugin instead)</p>
+<h3 id="disable-daily">disable-daily</h3>
+<p>If true, sections won't follow daily mode defined by <code>daily</code> gantt attribute.</p>
+<p>default: <code>false</code></p>
 </li>
 </ul>
+<h2 id="model">Model</h2>
+<p>Sections are defined inside Task object.</p>
+<pre><code>{
+  ...
+  // Inside Task object
+  sections: {
+    keepProportions: true/false, // Override plugin configuration (Optional).
+    disableMagnet: true/false, // Override plugin configuration (Optional).
+    disableDaily: true/false, // Override plugin configuration (Optional).
+    items: [
+      {
+        from: &lt;Date&gt;, // Date can be a String, Timestamp, Date object or moment object.
+        to: &lt;Date&gt;, // Date can be a String, Timestamp, Date object or moment object.
+        classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the section. See ng-class documentation for details (Optional).
+      },
+      {
+        ... 
+      }
+    ]
+  }
+}
+</code></pre>
 </div>
         </div>
 

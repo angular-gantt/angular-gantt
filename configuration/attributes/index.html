@@ -108,6 +108,10 @@
                         </li>
                     
                         <li >
+                            <a href="../../plugins/corner">Corner</a>
+                        </li>
+                    
+                        <li >
                             <a href="../../plugins/groups">Groups</a>
                         </li>
                     
@@ -133,6 +137,10 @@
                     
                         <li >
                             <a href="../../plugins/bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sections">Sections</a>
                         </li>
                     
                         <li >
@@ -278,6 +286,10 @@
             <li><a href="#template-url">template-url</a></li>
         
             <li><a href="#view-scale">view-scale</a></li>
+        
+            <li><a href="#tasklimitthreshold">taskLimitThreshold</a></li>
+        
+            <li><a href="#columnlimitthreshold">columnLimitThreshold</a></li>
         
     
     </ul>
@@ -659,6 +671,26 @@ template included in <code>angular-gantt.js</code>.</em></p>
 </ul>
 <p>An optional number value can be prepended to this scale, like <code>5 minutes</code>, <code>3 hours</code> or <code>6 months</code>.</p>
 <p>default: <code>day</code></p>
+</li>
+<li>
+<h3 id="tasklimitthreshold">taskLimitThreshold</h3>
+<p>The threshold tasks count for <code>ganttTaskLimiter</code>.</p>
+<p>For performance reasons, when more than 100 tasks are loaded in the gantt chart, tasks outside of the visible 
+scrollable viewport are removed from the DOM by the <code>ganttTaskLimiter</code> filter .</p>
+<p>It enhance global performance when <code>ganttTaskLimiter</code> is enabled on a heavy-loaded data model, but tasks may appear 
+with a small delay when scrolling the viewport.</p>
+<p>Set to a negative number like <code>-1</code> to disable it, or set to <code>null</code> to force it regardless the tasks count.</p>
+<p>default: <code>100</code></p>
+</li>
+<li>
+<h3 id="columnlimitthreshold">columnLimitThreshold</h3>
+<p>The threshold columns count for <code>ganttColumnLimiter</code>.</p>
+<p>For performance reasons, when more than 500 columns are loaded in the gantt chart, columns outside of the visible 
+scrollable viewport are removed from the DOM by the <code>ganttColumnLimiter</code> filter.</p>
+<p>It enhance global performance when <code>ganttColumnLimiter</code> is enabled on a heavy-loaded data model, but columns may 
+appear with a small delay when scrolling the viewport.</p>
+<p>Set to a negative number like <code>-1</code> to disable it, or set to <code>null</code> to force it regardless the columns count.</p>
+<p>default: <code>500</code></p>
 </li>
 </ul>
 </div>
