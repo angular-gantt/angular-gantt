@@ -40,9 +40,9 @@ Display labels for column headers in the corner
         
     It is also possible to specify a function to return the header label.
     
-        $scope.headersLabels = function(header) {
+        $scope.headersLabels = function(headerName, headerUnit, columns) {
             // Capitalize the header name to build the label.
-            return key.charAt(0).toUpperCase() + key.slice(1);
+            return headerName.charAt(0).toUpperCase() + headerName.slice(1);
         }
 
 - ### headers-labels-templates
@@ -60,10 +60,11 @@ Display labels for column headers in the corner
     
     It is also possible to specify a function to return the header label template.
     
-        $scope.headersLabelsTemplates = function(header) {
-            if (header == 'year') {
+        $scope.headersLabelsTemplates = function(headerName, headerUnit, columns) {
+            if (headerName == 'year') {
                 return '<i>{{getLabel(header)}}</i>';
-            } else if (header == 'month') {
+            } else if (headerName == 'month') {
                 return '<b>{{getLabel(header)}}</b>';
             }
+            // Other case will default template.
         }

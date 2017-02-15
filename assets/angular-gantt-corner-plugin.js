@@ -65,8 +65,9 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var scopeHeaders = [];
                 for (var i=0; i<headers.length; i++) {
                     var columns = headers[i];
+                    var name = columns[0].name;
                     var unit = columns[0].unit;
-                    var scopeHeader = {columns: columns, unit: unit};
+                    var scopeHeader = {columns: columns, unit: unit, name: name};
                     scopeHeaders.push(scopeHeader);
                 }
                 $scope.headers = scopeHeaders;
@@ -75,15 +76,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             updateModelWithHeaders(headers);
 
             $scope.getLabel = function(header) {
-                var label = header.unit;
+                var label = header.name;
 
-                if ($scope.pluginScope.headersLabels && header.unit in $scope.pluginScope.headersLabels) {
-                    label = $scope.pluginScope.headersLabels[header.unit];
+                if ($scope.pluginScope.headersLabels && header.name in $scope.pluginScope.headersLabels) {
+                    label = $scope.pluginScope.headersLabels[header.name];
                     if (angular.isFunction(label)) {
-                        label = label(header.unit);
+                        label = label(header.name, header.unit, header.columns);
                     }
                 } else if (angular.isFunction($scope.pluginScope.headersLabels)) {
-                    label = $scope.pluginScope.headersLabels(header.unit);
+                    label = $scope.pluginScope.headersLabels(header.name, header.unit, header.columns);
                 }
 
                 return label;
@@ -94,12 +95,12 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (content === undefined && $scope.pluginScope.headersLabelsTemplates !== undefined) {
                     content = $scope.pluginScope.headersLabelsTemplates;
 
-                    if (angular.isObject(content) && header.unit in content) {
-                        content = content[header.unit];
+                    if (angular.isObject(content) && header.name in content) {
+                        content = content[header.name];
                     }
 
                     if (angular.isFunction(content)) {
-                        content = content(header.unit);
+                        content = content(header.name, header.unit, header.columns);
                     }
                 }
                 if (content === undefined) {
