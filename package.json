@@ -25,7 +25,8 @@
     "dist": "grunt dist",
     "serve": "cd demo && grunt serve",
     "test": "grunt test",
-    "upload-site": "grunt uploadSite"
+    "upload-site": "grunt uploadSite",
+    "watch": "grunt build --force && grunt watch --force"
   },
   "main": "assets/angular-gantt.js",
   "directories.doc": "docs",

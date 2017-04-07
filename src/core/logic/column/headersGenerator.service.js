@@ -33,7 +33,7 @@
 
                     var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
 
-                    var column = columnsManager.getColumnByDate(endDate, true);
+                    var column = columnsManager.getColumnByDate(endDate);
 
                     var left = column.getPositionByDate(endDate);
 
