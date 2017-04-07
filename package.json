@@ -18,6 +18,15 @@
     "chart",
     "angularjs"
   ],
+  "scripts": {
+    "build": "grunt build",
+    "build-demo": "grunt buildDemo",
+    "build-site": "grunt buildSite",
+    "dist": "grunt dist",
+    "serve": "cd demo && grunt serve",
+    "test": "grunt test",
+    "upload-site": "grunt uploadSite"
+  },
   "main": "assets/angular-gantt.js",
   "directories.doc": "docs",
   "devDependencies": {
