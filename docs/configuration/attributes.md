@@ -144,6 +144,7 @@
 
     Array of headers to display.
   
+      - `millisecond`
       - `second`
       - `minute`
       - `hour`
@@ -174,7 +175,9 @@
           week: 'w', 
           day: 'D', 
           hour: 'H', 
-          minute:'HH:mm'
+          minute:'H:mm',
+          second:'H:mm:ss',
+          millisecond:'H:mm:ss:SSS'
         };
         
     It is also possible to specify a function to format the header label.

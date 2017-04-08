@@ -1831,8 +1831,8 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.currentDateManager.setCurrentDate(currentDateValue);
         };
 
-        var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
-        var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
+        var defaultHeadersFormats = {year: 'YYYY', quarter: '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'H:mm', second:'H:mm:ss', millisecond: 'H:mm:ss:SSS'};
+        var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'H:mm', second:'H:mm:ss', millisecond: 'H:mm:ss:SSS'};
         var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
 
         ColumnsManager.prototype.getHeaderFormat = function(unit) {
@@ -1881,7 +1881,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             if (scale === undefined) {
                 scale = header;
             }
-            if (['second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
+            if (['millisecond', 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
                 scale = 'day';
             }
             return scale;
@@ -2001,11 +2001,14 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 if (['hour'].indexOf(viewScaleUnit) > -1) {
                     headerNames.push('day');
                 }
-                if (['minute', 'second'].indexOf(viewScaleUnit) > -1) {
+                if (['minute', 'second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
                     headerNames.push('hour');
                 }
-                if (['second'].indexOf(viewScaleUnit) > -1) {
+                if (['second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
                     headerNames.push('minute');
+                }
+                if (['millisecond'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('second');
                 }
                 headerNames.push(viewScale);
             } else {

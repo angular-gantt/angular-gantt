@@ -392,8 +392,8 @@
             this.gantt.currentDateManager.setCurrentDate(currentDateValue);
         };
 
-        var defaultHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'HH:mm'};
-        var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'HH:mm'};
+        var defaultHeadersFormats = {year: 'YYYY', quarter: '[Q]Q YYYY', month: 'MMMM YYYY', week: 'w', day: 'D', hour: 'H', minute:'H:mm', second:'H:mm:ss', millisecond: 'H:mm:ss:SSS'};
+        var defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute:'H:mm', second:'H:mm:ss', millisecond: 'H:mm:ss:SSS'};
         var defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
 
         ColumnsManager.prototype.getHeaderFormat = function(unit) {
@@ -442,7 +442,7 @@
             if (scale === undefined) {
                 scale = header;
             }
-            if (['second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
+            if (['millisecond', 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
                 scale = 'day';
             }
             return scale;

@@ -92,11 +92,14 @@
                 if (['hour'].indexOf(viewScaleUnit) > -1) {
                     headerNames.push('day');
                 }
-                if (['minute', 'second'].indexOf(viewScaleUnit) > -1) {
+                if (['minute', 'second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
                     headerNames.push('hour');
                 }
-                if (['second'].indexOf(viewScaleUnit) > -1) {
+                if (['second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
                     headerNames.push('minute');
+                }
+                if (['millisecond'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('second');
                 }
                 headerNames.push(viewScale);
             } else {
