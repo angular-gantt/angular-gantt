@@ -400,8 +400,15 @@
 
                     var connection = self.plumb.connect({
                         source: sourceEndpoint,
-                        target: targetEndpoint
+                        target: targetEndpoint,
+                        parameters: {
+                            from: fromTask,
+                            to: toTask
+                        }
+                        //cssClass: 'gantt-endpoint start-endpoint target-endpoint connect-' + fromTask.model.id + '-' + toTask.model.id,
                     }, model.connectParameters);
+                    connection.canvas.setAttribute('data-fromId', fromTask.model.id);
+                    connection.canvas.setAttribute('data-toId', toTask.model.id);
                     return connection;
                 }
             };
