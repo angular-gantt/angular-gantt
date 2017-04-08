@@ -384,6 +384,18 @@
                 return this.$scope.ganttElementWidth;
             };
 
+            Gantt.prototype.getHeight = function() {
+                return this.$scope.ganttElementHeight;
+            };
+
+            Gantt.prototype.getContainerWidth = function() {
+                return this.$scope.ganttContainerWidth;
+            };
+
+            Gantt.prototype.getContainerHeight = function() {
+                return this.$scope.ganttContainerHeight;
+            };
+
             Gantt.prototype.initialized = function() {
                 // Gantt is initialized. Signal that the Gantt is ready.
                 this.api.core.raise.ready(this.api);

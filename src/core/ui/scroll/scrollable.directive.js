@@ -83,6 +83,10 @@
                 var css = {};
 
                 var maxHeight = $scope.gantt.options.value('maxHeight');
+                if (!maxHeight) {
+                    maxHeight = $scope.gantt.getContainerHeight();
+                }
+
                 if (maxHeight > 0) {
                     css['max-height'] = maxHeight - $scope.gantt.header.getHeight() + 'px';
                     css['overflow-y'] = 'auto';
