@@ -21,7 +21,7 @@
     "angular-gantt": ">=1.2",
     "moment-range": "~2.2.0",
     "css-element-queries": "~0.3.0",
-    "jsplumb": "<2.2.0"
+    "jsplumb": ">=2.2.0"
   },
   "overrides": {
     "bootstrap": {

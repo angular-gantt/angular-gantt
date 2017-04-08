@@ -43,12 +43,12 @@
     width: 100%;
 }
 
-.gantt .gantt-endpoint.jsplumb-endpoint-anchor {
+.gantt .gantt-endpoint.jtk-endpoint-anchor {
     z-index: 20; /* z-index must be higher than tasks z-index */
     overflow: hidden;
 }
 
-.gantt .gantt-endpoint.fallback-endpoint.jsplumb-endpoint-anchor {
+.gantt .gantt-endpoint.fallback-endpoint.jtk-endpoint-anchor {
     z-index: auto;
     overflow: hidden;
 }
@@ -71,7 +71,7 @@
     background-image:linear-gradient(to left, rgba(255,255,255,0), #456);
 }
 
-.gantt .jsplumb-overlay {
+.gantt .jtk-overlay {
     z-index: 20;
 }
 

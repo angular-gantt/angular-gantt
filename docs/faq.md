@@ -18,6 +18,7 @@
     - [angular-native-dragdrop](https://github.com/ganarajpr/angular-dragdrop) >= 1.1.0 ([Sortable](plugins/sortable.md))
     - [angular-ui-tree](https://github.com/angular-ui-tree/angular-ui-tree) ([Tree](plugins/tree.md))
     - [css-element-queries](https://github.com/marcj/css-element-queries) ([ResizeSensor](plugins/resizeSensor.md))
+    - [jsPlumb](https://github.com/jsplumb/jsplumb/) >= 2.2.0 ([Dependencies](plugins/dependencies.md))
 
 - ### Which browser is supported ?
 

@@ -48,12 +48,14 @@ Add support for dependency links between tasks using [jsPlumb](https://jsplumbto
     
     default: 
 
-        {
         Endpoint: ['Dot', {radius: 4}],
-        EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
+        EndpointStyle: {fillStyle: '#456', strokeStyle: '#456', lineWidth: 1},
+        PaintStyle: {
+            strokeWidth: 3,
+            stroke: 'rgb(68, 85, 102)'
+        },
         Connector: 'Flowchart',
-        ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
-        }
+        ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
 
 - ### endpoints
 
