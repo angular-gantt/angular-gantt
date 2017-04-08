@@ -1,8 +1,10 @@
-(function() {
+(function(require) {
     /*jshint undef:false */
     /*jshint camelcase:false */
     /* jshint node: true */
     'use strict';
+
+    var serveStatic = require('serve-static');
 
     module.exports = function(grunt) {
         var plugins = ['labels', 'table', 'tree', 'groups', 'sortable', 'movable', 'drawtask', 'tooltips', 'bounds',
@@ -182,15 +184,15 @@
                         middleware: function(connect) {
                             return [
                                 connect().use(
-                                    '/bower_components', connect.static('./bower_components')
+                                    '/bower_components', serveStatic('./bower_components')
                                 ),
                                 connect().use(
-                                    '/assets', connect.static('./assets')
+                                    '/assets', serveStatic('./assets')
                                 ),
                                 connect().use(
-                                    '/dist', connect.static('./dist')
+                                    '/dist', serveStatic('./dist')
                                 ),
-                                connect.static('plunker')
+                                serveStatic('plunker')
                             ];
                         }
                     }
@@ -319,5 +321,5 @@
         grunt.registerTask('default', ['build', 'test']);
 
     };
-})();
+})(require);
 
