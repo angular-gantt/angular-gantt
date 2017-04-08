@@ -1,6 +1,6 @@
 /**
- * @license AngularJS v1.6.1
- * (c) 2010-2016 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.6.4
+ * (c) 2010-2017 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window) {'use strict';
@@ -38,31 +38,29 @@
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
   return function() {
-    var SKIP_INDEXES = 2;
-
-    var templateArgs = arguments,
-      code = templateArgs[0],
+    var code = arguments[0],
+      template = arguments[1],
       message = '[' + (module ? module + ':' : '') + code + '] ',
-      template = templateArgs[1],
+      templateArgs = sliceArgs(arguments, 2).map(function(arg) {
+        return toDebugString(arg, minErrConfig.objectMaxDepth);
+      }),
       paramPrefix, i;
 
     message += template.replace(/\{\d+\}/g, function(match) {
-      var index = +match.slice(1, -1),
-        shiftedIndex = index + SKIP_INDEXES;
+      var index = +match.slice(1, -1);
 
-      if (shiftedIndex < templateArgs.length) {
-        return toDebugString(templateArgs[shiftedIndex]);
+      if (index < templateArgs.length) {
+        return templateArgs[index];
       }
 
       return match;
     });
 
-    message += '\nhttp://errors.angularjs.org/1.6.1/' +
+    message += '\nhttp://errors.angularjs.org/1.6.4/' +
       (module ? module + '/' : '') + code;
 
-    for (i = SKIP_INDEXES, paramPrefix = '?'; i < templateArgs.length; i++, paramPrefix = '&') {
-      message += paramPrefix + 'p' + (i - SKIP_INDEXES) + '=' +
-        encodeURIComponent(toDebugString(templateArgs[i]));
+    for (i = 0, paramPrefix = '?'; i < templateArgs.length; i++, paramPrefix = '&') {
+      message += paramPrefix + 'p' + i + '=' + encodeURIComponent(templateArgs[i]);
     }
 
     return new ErrorConstructor(message);
@@ -79,6 +77,9 @@ function minErr(module, ErrorConstructor) {
   splice,
   push,
   toString,
+  minErrConfig,
+  errorHandlingConfig,
+  isValidObjectMaxDepth,
   ngMinErr,
   angularModule,
   uid,
@@ -128,6 +129,7 @@ function minErr(module, ErrorConstructor) {
   includes,
   arrayRemove,
   copy,
+  simpleCompare,
   equals,
   csp,
   jq,
@@ -193,6 +195,50 @@ var VALIDITY_STATE_PROPERTY = 'validity';
 
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+var minErrConfig = {
+  objectMaxDepth: 5
+};
+
+ /**
+ * @ngdoc function
+ * @name angular.errorHandlingConfig
+ * @module ng
+ * @kind function
+ *
+ * @description
+ * Configure several aspects of error handling in AngularJS if used as a setter or return the
+ * current configuration if used as a getter. The following options are supported:
+ *
+ * - **objectMaxDepth**: The maximum depth to which objects are traversed when stringified for error messages.
+ *
+ * Omitted or undefined options will leave the corresponding configuration values unchanged.
+ *
+ * @param {Object=} config - The configuration object. May only contain the options that need to be
+ *     updated. Supported keys:
+ *
+ * * `objectMaxDepth`  **{Number}** - The max depth for stringifying objects. Setting to a
+ *   non-positive or non-numeric value, removes the max depth limit.
+ *   Default: 5
+ */
+function errorHandlingConfig(config) {
+  if (isObject(config)) {
+    if (isDefined(config.objectMaxDepth)) {
+      minErrConfig.objectMaxDepth = isValidObjectMaxDepth(config.objectMaxDepth) ? config.objectMaxDepth : NaN;
+    }
+  } else {
+    return minErrConfig;
+  }
+}
+
+/**
+ * @private
+ * @param {Number} maxDepth
+ * @return {boolean}
+ */
+function isValidObjectMaxDepth(maxDepth) {
+  return isNumber(maxDepth) && maxDepth > 0;
+}
 
 /**
  * @ngdoc function
@@ -916,9 +962,10 @@ function arrayRemove(array, value) {
     </file>
   </example>
  */
-function copy(source, destination) {
+function copy(source, destination, maxDepth) {
   var stackSource = [];
   var stackDest = [];
+  maxDepth = isValidObjectMaxDepth(maxDepth) ? maxDepth : NaN;
 
   if (destination) {
     if (isTypedArray(destination) || isArrayBuffer(destination)) {
@@ -941,35 +988,39 @@ function copy(source, destination) {
 
     stackSource.push(source);
     stackDest.push(destination);
-    return copyRecurse(source, destination);
+    return copyRecurse(source, destination, maxDepth);
   }
 
-  return copyElement(source);
+  return copyElement(source, maxDepth);
 
-  function copyRecurse(source, destination) {
+  function copyRecurse(source, destination, maxDepth) {
+    maxDepth--;
+    if (maxDepth < 0) {
+      return '...';
+    }
     var h = destination.$$hashKey;
     var key;
     if (isArray(source)) {
       for (var i = 0, ii = source.length; i < ii; i++) {
-        destination.push(copyElement(source[i]));
+        destination.push(copyElement(source[i], maxDepth));
       }
     } else if (isBlankObject(source)) {
       // createMap() fast path --- Safe to avoid hasOwnProperty check because prototype chain is empty
       for (key in source) {
-        destination[key] = copyElement(source[key]);
+        destination[key] = copyElement(source[key], maxDepth);
       }
     } else if (source && typeof source.hasOwnProperty === 'function') {
       // Slow path, which must rely on hasOwnProperty
       for (key in source) {
         if (source.hasOwnProperty(key)) {
-          destination[key] = copyElement(source[key]);
+          destination[key] = copyElement(source[key], maxDepth);
         }
       }
     } else {
       // Slowest path --- hasOwnProperty can't be called as a method
       for (key in source) {
         if (hasOwnProperty.call(source, key)) {
-          destination[key] = copyElement(source[key]);
+          destination[key] = copyElement(source[key], maxDepth);
         }
       }
     }
@@ -977,7 +1028,7 @@ function copy(source, destination) {
     return destination;
   }
 
-  function copyElement(source) {
+  function copyElement(source, maxDepth) {
     // Simple values
     if (!isObject(source)) {
       return source;
@@ -1006,7 +1057,7 @@ function copy(source, destination) {
     stackDest.push(destination);
 
     return needsRecurse
-      ? copyRecurse(source, destination)
+      ? copyRecurse(source, destination, maxDepth)
       : destination;
   }
 
@@ -1055,6 +1106,10 @@ function copy(source, destination) {
     }
   }
 }
+
+
+// eslint-disable-next-line no-self-compare
+function simpleCompare(a, b) { return a === b || (a !== a && b !== b); }
 
 
 /**
@@ -1137,7 +1192,7 @@ function equals(o1, o2) {
       }
     } else if (isDate(o1)) {
       if (!isDate(o2)) return false;
-      return equals(o1.getTime(), o2.getTime());
+      return simpleCompare(o1.getTime(), o2.getTime());
     } else if (isRegExp(o1)) {
       if (!isRegExp(o2)) return false;
       return o1.toString() === o2.toString();
@@ -1548,30 +1603,51 @@ function getNgAttribute(element, ngAttr) {
 }
 
 function allowAutoBootstrap(document) {
-  if (!document.currentScript) {
+  var script = document.currentScript;
+
+  if (!script) {
+    // IE does not have `document.currentScript`
     return true;
   }
-  var src = document.currentScript.getAttribute('src');
-  var link = document.createElement('a');
-  link.href = src;
-  if (document.location.origin === link.origin) {
-    // Same-origin resources are always allowed, even for non-whitelisted schemes.
-    return true;
+
+  // If the `currentScript` property has been clobbered just return false, since this indicates a probable attack
+  if (!(script instanceof window.HTMLScriptElement || script instanceof window.SVGScriptElement)) {
+    return false;
   }
-  // Disabled bootstrapping unless angular.js was loaded from a known scheme used on the web.
-  // This is to prevent angular.js bundled with browser extensions from being used to bypass the
-  // content security policy in web pages and other browser extensions.
-  switch (link.protocol) {
-    case 'http:':
-    case 'https:':
-    case 'ftp:':
-    case 'blob:':
-    case 'file:':
-    case 'data:':
+
+  var attributes = script.attributes;
+  var srcs = [attributes.getNamedItem('src'), attributes.getNamedItem('href'), attributes.getNamedItem('xlink:href')];
+
+  return srcs.every(function(src) {
+    if (!src) {
       return true;
-    default:
+    }
+    if (!src.value) {
       return false;
-  }
+    }
+
+    var link = document.createElement('a');
+    link.href = src.value;
+
+    if (document.location.origin === link.origin) {
+      // Same-origin resources are always allowed, even for non-whitelisted schemes.
+      return true;
+    }
+    // Disabled bootstrapping unless angular.js was loaded from a known scheme used on the web.
+    // This is to prevent angular.js bundled with browser extensions from being used to bypass the
+    // content security policy in web pages and other browser extensions.
+    switch (link.protocol) {
+      case 'http:':
+      case 'https:':
+      case 'ftp:':
+      case 'blob:':
+      case 'file:':
+      case 'data:':
+        return true;
+      default:
+        return false;
+    }
+  });
 }
 
 // Cached as it has to run during loading so that document.currentScript is available.
@@ -1935,7 +2011,7 @@ function bindJQuery() {
     extend(jQuery.fn, {
       scope: JQLitePrototype.scope,
       isolateScope: JQLitePrototype.isolateScope,
-      controller: JQLitePrototype.controller,
+      controller: /** @type {?} */ (JQLitePrototype).controller,
       injector: JQLitePrototype.injector,
       inheritedData: JQLitePrototype.inheritedData
     });
@@ -2168,6 +2244,9 @@ function setupModuleLoader(window) {
      * @returns {angular.Module} new module with the {@link angular.Module} api.
      */
     return function module(name, requires, configFn) {
+
+      var info = {};
+
       var assertNotHasOwnProperty = function(name, context) {
         if (name === 'hasOwnProperty') {
           throw ngMinErr('badname', 'hasOwnProperty is not a valid {0} name', context);
@@ -2202,6 +2281,45 @@ function setupModuleLoader(window) {
           _invokeQueue: invokeQueue,
           _configBlocks: configBlocks,
           _runBlocks: runBlocks,
+
+          /**
+           * @ngdoc method
+           * @name angular.Module#info
+           * @module ng
+           *
+           * @param {Object=} info Information about the module
+           * @returns {Object|Module} The current info object for this module if called as a getter,
+           *                          or `this` if called as a setter.
+           *
+           * @description
+           * Read and write custom information about this module.
+           * For example you could put the version of the module in here.
+           *
+           * ```js
+           * angular.module('myModule', []).info({ version: '1.0.0' });
+           * ```
+           *
+           * The version could then be read back out by accessing the module elsewhere:
+           *
+           * ```
+           * var version = angular.module('myModule').info().version;
+           * ```
+           *
+           * You can also retrieve this information during runtime via the
+           * {@link $injector#modules `$injector.modules`} property:
+           *
+           * ```js
+           * var version = $injector.modules['myModule'].info().version;
+           * ```
+           */
+          info: function(value) {
+            if (isDefined(value)) {
+              if (!isObject(value)) throw ngMinErr('aobj', 'Argument \'{0}\' must be an object', 'value');
+              info = value;
+              return this;
+            }
+            return info;
+          },
 
           /**
            * @ngdoc property
@@ -2481,9 +2599,15 @@ function shallowCopy(src, dst) {
 
 /* global toDebugString: true */
 
-function serializeObject(obj) {
+function serializeObject(obj, maxDepth) {
   var seen = [];
 
+  // There is no direct way to stringify object until reaching a specific depth
+  // and a very deep object can cause a performance issue, so we copy the object
+  // based on this specific depth and then stringify it.
+  if (isValidObjectMaxDepth(maxDepth)) {
+    obj = copy(obj, null, maxDepth);
+  }
   return JSON.stringify(obj, function(key, val) {
     val = toJsonReplacer(key, val);
     if (isObject(val)) {
@@ -2496,13 +2620,13 @@ function serializeObject(obj) {
   });
 }
 
-function toDebugString(obj) {
+function toDebugString(obj, maxDepth) {
   if (typeof obj === 'function') {
     return obj.toString().replace(/ \{[\s\S]*$/, '');
   } else if (isUndefined(obj)) {
     return 'undefined';
   } else if (typeof obj !== 'string') {
-    return serializeObject(obj);
+    return serializeObject(obj, maxDepth);
   }
   return obj;
 }
@@ -2577,7 +2701,6 @@ function toDebugString(obj) {
   $$ForceReflowProvider,
   $InterpolateProvider,
   $IntervalProvider,
-  $$HashMapProvider,
   $HttpProvider,
   $HttpParamSerializerProvider,
   $HttpParamSerializerJQLikeProvider,
@@ -2586,6 +2709,7 @@ function toDebugString(obj) {
   $jsonpCallbacksProvider,
   $LocationProvider,
   $LogProvider,
+  $$MapProvider,
   $ParseProvider,
   $RootScopeProvider,
   $QProvider,
@@ -2623,16 +2747,17 @@ function toDebugString(obj) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.6.1',
+  full: '1.6.4',
   major: 1,
   minor: 6,
-  dot: 1,
-  codeName: 'promise-rectification'
+  dot: 4,
+  codeName: 'phenomenal-footnote'
 };
 
 
 function publishExternalAPI(angular) {
   extend(angular, {
+    'errorHandlingConfig': errorHandlingConfig,
     'bootstrap': bootstrap,
     'copy': copy,
     'extend': extend,
@@ -2767,11 +2892,12 @@ function publishExternalAPI(angular) {
         $window: $WindowProvider,
         $$rAF: $$RAFProvider,
         $$jqLite: $$jqLiteProvider,
-        $$HashMap: $$HashMapProvider,
+        $$Map: $$MapProvider,
         $$cookieReader: $$CookieReaderProvider
       });
     }
-  ]);
+  ])
+  .info({ angularVersion: '1.6.4' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -2975,12 +3101,6 @@ function jqLiteHasData(node) {
   return false;
 }
 
-function jqLiteCleanData(nodes) {
-  for (var i = 0, ii = nodes.length; i < ii; i++) {
-    jqLiteRemoveData(nodes[i]);
-  }
-}
-
 function jqLiteBuildFragment(html, context) {
   var tmp, tag, wrap,
       fragment = context.createDocumentFragment(),
@@ -3083,13 +3203,10 @@ function jqLiteClone(element) {
 }
 
 function jqLiteDealoc(element, onlyDescendants) {
-  if (!onlyDescendants) jqLiteRemoveData(element);
+  if (!onlyDescendants && jqLiteAcceptsData(element)) jqLite.cleanData([element]);
 
   if (element.querySelectorAll) {
-    var descendants = element.querySelectorAll('*');
-    for (var i = 0, l = descendants.length; i < l; i++) {
-      jqLiteRemoveData(descendants[i]);
-    }
+    jqLite.cleanData(element.querySelectorAll('*'));
   }
 }
 
@@ -3387,7 +3504,11 @@ forEach({
   data: jqLiteData,
   removeData: jqLiteRemoveData,
   hasData: jqLiteHasData,
-  cleanData: jqLiteCleanData
+  cleanData: function jqLiteCleanData(nodes) {
+    for (var i = 0, ii = nodes.length; i < ii; i++) {
+      jqLiteRemoveData(nodes[i]);
+    }
+  }
 }, function(fn, name) {
   JQLite[name] = fn;
 });
@@ -3915,50 +4036,70 @@ function hashKey(obj, nextUidFn) {
   return key;
 }
 
-/**
- * HashMap which can use objects as keys
- */
-function HashMap(array, isolatedUid) {
-  if (isolatedUid) {
-    var uid = 0;
-    this.nextUid = function() {
-      return ++uid;
-    };
-  }
-  forEach(array, this.put, this);
+// A minimal ES2015 Map implementation.
+// Should be bug/feature equivalent to the native implementations of supported browsers
+// (for the features required in Angular).
+// See https://kangax.github.io/compat-table/es6/#test-Map
+var nanKey = Object.create(null);
+function NgMapShim() {
+  this._keys = [];
+  this._values = [];
+  this._lastKey = NaN;
+  this._lastIndex = -1;
 }
-HashMap.prototype = {
-  /**
-   * Store key value pair
-   * @param key key to store can be any type
-   * @param value value to store can be any type
-   */
-  put: function(key, value) {
-    this[hashKey(key, this.nextUid)] = value;
+NgMapShim.prototype = {
+  _idx: function(key) {
+    if (key === this._lastKey) {
+      return this._lastIndex;
+    }
+    this._lastKey = key;
+    this._lastIndex = this._keys.indexOf(key);
+    return this._lastIndex;
   },
-
-  /**
-   * @param key
-   * @returns {Object} the value for the key
-   */
+  _transformKey: function(key) {
+    return isNumberNaN(key) ? nanKey : key;
+  },
   get: function(key) {
-    return this[hashKey(key, this.nextUid)];
+    key = this._transformKey(key);
+    var idx = this._idx(key);
+    if (idx !== -1) {
+      return this._values[idx];
+    }
   },
+  set: function(key, value) {
+    key = this._transformKey(key);
+    var idx = this._idx(key);
+    if (idx === -1) {
+      idx = this._lastIndex = this._keys.length;
+    }
+    this._keys[idx] = key;
+    this._values[idx] = value;
 
-  /**
-   * Remove the key/value pair
-   * @param key
-   */
-  remove: function(key) {
-    var value = this[key = hashKey(key, this.nextUid)];
-    delete this[key];
-    return value;
+    // Support: IE11
+    // Do not `return this` to simulate the partial IE11 implementation
+  },
+  delete: function(key) {
+    key = this._transformKey(key);
+    var idx = this._idx(key);
+    if (idx === -1) {
+      return false;
+    }
+    this._keys.splice(idx, 1);
+    this._values.splice(idx, 1);
+    this._lastKey = NaN;
+    this._lastIndex = -1;
+    return true;
   }
 };
 
-var $$HashMapProvider = [/** @this */function() {
+// For now, always use `NgMapShim`, even if `window.Map` is available. Some native implementations
+// are still buggy (often in subtle ways) and can cause hard-to-debug failures. When native `Map`
+// implementations get more stable, we can reconsider switching to `window.Map` (when available).
+var NgMap = NgMapShim;
+
+var $$MapProvider = [/** @this */function() {
   this.$get = [function() {
-    return HashMap;
+    return NgMap;
   }];
 }];
 
@@ -4033,11 +4174,7 @@ var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var $injectorMinErr = minErr('$injector');
 
 function stringifyFn(fn) {
-  // Support: Chrome 50-51 only
-  // Creating a new string by adding `' '` at the end, to hack around some bug in Chrome v50/51
-  // (See https://github.com/angular/angular.js/issues/14487.)
-  // TODO (gkalpak): Remove workaround when Chrome v52 is released
-  return Function.prototype.toString.call(fn) + ' ';
+  return Function.prototype.toString.call(fn);
 }
 
 function extractArgs(fn) {
@@ -4145,6 +4282,28 @@ function annotate(fn, strictDi, name) {
  * ## Inline
  * As an array of injection names, where the last item in the array is the function to call.
  */
+
+/**
+ * @ngdoc property
+ * @name $injector#modules
+ * @type {Object}
+ * @description
+ * A hash containing all the modules that have been loaded into the
+ * $injector.
+ *
+ * You can use this property to find out information about a module via the
+ * {@link angular.Module#info `myModule.info(...)`} method.
+ *
+ * For example:
+ *
+ * ```
+ * var info = $injector.modules['ngAnimate'].info();
+ * ```
+ *
+ * **Do not use this property to attempt to modify the modules after the application
+ * has been bootstrapped.**
+ */
+
 
 /**
  * @ngdoc method
@@ -4611,7 +4770,7 @@ function createInjector(modulesToLoad, strictDi) {
   var INSTANTIATING = {},
       providerSuffix = 'Provider',
       path = [],
-      loadedModules = new HashMap([], true),
+      loadedModules = new NgMap(),
       providerCache = {
         $provide: {
             provider: supportObject(provider),
@@ -4639,6 +4798,7 @@ function createInjector(modulesToLoad, strictDi) {
       instanceInjector = protoInstanceInjector;
 
   providerCache['$injector' + providerSuffix] = { $get: valueFn(protoInstanceInjector) };
+  instanceInjector.modules = providerInjector.modules = createMap();
   var runBlocks = loadModules(modulesToLoad);
   instanceInjector = protoInstanceInjector.get('$injector');
   instanceInjector.strictDi = strictDi;
@@ -4719,7 +4879,7 @@ function createInjector(modulesToLoad, strictDi) {
     var runBlocks = [], moduleFn;
     forEach(modulesToLoad, function(module) {
       if (loadedModules.get(module)) return;
-      loadedModules.put(module, true);
+      loadedModules.set(module, true);
 
       function runInvokeQueue(queue) {
         var i, ii;
@@ -4734,6 +4894,7 @@ function createInjector(modulesToLoad, strictDi) {
       try {
         if (isString(module)) {
           moduleFn = angularModule(module);
+          instanceInjector.modules[module] = moduleFn;
           runBlocks = runBlocks.concat(loadModules(moduleFn.requires)).concat(moduleFn._runBlocks);
           runInvokeQueue(moduleFn._invokeQueue);
           runInvokeQueue(moduleFn._configBlocks);
@@ -5205,7 +5366,7 @@ var $$CoreAnimateJsProvider = /** @this */ function() {
 // this is prefixed with Core since it conflicts with
 // the animateQueueProvider defined in ngAnimate/animateQueue.js
 var $$CoreAnimateQueueProvider = /** @this */ function() {
-  var postDigestQueue = new HashMap();
+  var postDigestQueue = new NgMap();
   var postDigestElements = [];
 
   this.$get = ['$$AnimateRunner', '$rootScope',
@@ -5284,7 +5445,7 @@ var $$CoreAnimateQueueProvider = /** @this */ function() {
               jqLiteRemoveClass(elm, toRemove);
             }
           });
-          postDigestQueue.remove(element);
+          postDigestQueue.delete(element);
         }
       });
       postDigestElements.length = 0;
@@ -5299,7 +5460,7 @@ var $$CoreAnimateQueueProvider = /** @this */ function() {
 
       if (classesAdded || classesRemoved) {
 
-        postDigestQueue.put(element, data);
+        postDigestQueue.set(element, data);
         postDigestElements.push(element);
 
         if (postDigestElements.length === 1) {
@@ -5324,6 +5485,7 @@ var $$CoreAnimateQueueProvider = /** @this */ function() {
  */
 var $AnimateProvider = ['$provide', /** @this */ function($provide) {
   var provider = this;
+  var classNameFilter = null;
 
   this.$$registeredAnimations = Object.create(null);
 
@@ -5392,15 +5554,16 @@ var $AnimateProvider = ['$provide', /** @this */ function($provide) {
    */
   this.classNameFilter = function(expression) {
     if (arguments.length === 1) {
-      this.$$classNameFilter = (expression instanceof RegExp) ? expression : null;
-      if (this.$$classNameFilter) {
-        var reservedRegex = new RegExp('(\\s+|\\/)' + NG_ANIMATE_CLASSNAME + '(\\s+|\\/)');
-        if (reservedRegex.test(this.$$classNameFilter.toString())) {
-          throw $animateMinErr('nongcls','$animateProvider.classNameFilter(regex) prohibits accepting a regex value which matches/contains the "{0}" CSS class.', NG_ANIMATE_CLASSNAME);
+      classNameFilter = (expression instanceof RegExp) ? expression : null;
+      if (classNameFilter) {
+        var reservedRegex = new RegExp('[(\\s|\\/)]' + NG_ANIMATE_CLASSNAME + '[(\\s|\\/)]');
+        if (reservedRegex.test(classNameFilter.toString())) {
+          classNameFilter = null;
+          throw $animateMinErr('nongcls', '$animateProvider.classNameFilter(regex) prohibits accepting a regex value which matches/contains the "{0}" CSS class.', NG_ANIMATE_CLASSNAME);
         }
       }
     }
-    return this.$$classNameFilter;
+    return classNameFilter;
   };
 
   this.$get = ['$$animateQueue', function($$animateQueue) {
@@ -6159,7 +6322,6 @@ function Browser(window, document, $log, $sniffer) {
       };
 
   cacheState();
-  lastHistoryState = cachedState;
 
   /**
    * @name $browser#url
@@ -6213,8 +6375,6 @@ function Browser(window, document, $log, $sniffer) {
       if ($sniffer.history && (!sameBase || !sameState)) {
         history[replace ? 'replaceState' : 'pushState'](state, '', url);
         cacheState();
-        // Do the assignment again so that those two variables are referentially identical.
-        lastHistoryState = cachedState;
       } else {
         if (!sameBase) {
           pendingLocation = url;
@@ -6263,8 +6423,7 @@ function Browser(window, document, $log, $sniffer) {
 
   function cacheStateAndFireUrlChange() {
     pendingLocation = null;
-    cacheState();
-    fireUrlChange();
+    fireStateOrUrlChange();
   }
 
   // This variable should be used *only* inside the cacheState function.
@@ -6278,11 +6437,16 @@ function Browser(window, document, $log, $sniffer) {
     if (equals(cachedState, lastCachedState)) {
       cachedState = lastCachedState;
     }
+
     lastCachedState = cachedState;
+    lastHistoryState = cachedState;
   }
 
-  function fireUrlChange() {
-    if (lastBrowserUrl === self.url() && lastHistoryState === cachedState) {
+  function fireStateOrUrlChange() {
+    var prevLastHistoryState = lastHistoryState;
+    cacheState();
+
+    if (lastBrowserUrl === self.url() && prevLastHistoryState === cachedState) {
       return;
     }
 
@@ -6317,8 +6481,8 @@ function Browser(window, document, $log, $sniffer) {
   self.onUrlChange = function(callback) {
     // TODO(vojta): refactor to use node's syntax for events
     if (!urlChangeInit) {
-      // We listen on both (hashchange/popstate) when available, as some browsers (e.g. Opera)
-      // don't fire popstate when user change the address bar and don't fire hashchange when url
+      // We listen on both (hashchange/popstate) when available, as some browsers don't
+      // fire popstate when user changes the address bar and don't fire hashchange when url
       // changed by push/replaceState
 
       // html5 history api - popstate event
@@ -6348,7 +6512,7 @@ function Browser(window, document, $log, $sniffer) {
    * Needs to be exported to be able to check for changes that have been done in sync,
    * as hashchange/popstate events fire in async.
    */
-  self.$$checkUrlChange = fireUrlChange;
+  self.$$checkUrlChange = fireStateOrUrlChange;
 
   //////////////////////////////////////////////////////////////
   // Misc API
@@ -6958,7 +7122,8 @@ function $TemplateCacheProvider() {
  * * `$onChanges(changesObj)` - Called whenever one-way (`<`) or interpolation (`@`) bindings are updated. The
  *   `changesObj` is a hash whose keys are the names of the bound properties that have changed, and the values are an
  *   object of the form `{ currentValue, previousValue, isFirstChange() }`. Use this hook to trigger updates within a
- *   component such as cloning the bound value to prevent accidental mutation of the outer value.
+ *   component such as cloning the bound value to prevent accidental mutation of the outer value. Note that this will
+ *   also be called when your bindings are initialized.
  * * `$doCheck()` - Called on each turn of the digest cycle. Provides an opportunity to detect and act on
  *   changes. Any actions that you wish to take in response to the changes that you detect must be
  *   invoked from this hook; implementing this has no effect on when `$onChanges` is called. For example, this hook
@@ -7106,10 +7271,12 @@ function $TemplateCacheProvider() {
  * the directive's element. If multiple directives on the same element request a new scope,
  * only one new scope is created.
  *
- * * **`{...}` (an object hash):** A new "isolate" scope is created for the directive's element. The
- * 'isolate' scope differs from normal scope in that it does not prototypically inherit from its parent
- * scope. This is useful when creating reusable components, which should not accidentally read or modify
- * data in the parent scope.
+ * * **`{...}` (an object hash):** A new "isolate" scope is created for the directive's template.
+ * The 'isolate' scope differs from normal scope in that it does not prototypically
+ * inherit from its parent scope. This is useful when creating reusable components, which should not
+ * accidentally read or modify data in the parent scope. Note that an isolate scope
+ * directive without a `template` or `templateUrl` will not apply the isolate scope
+ * to its children elements.
  *
  * The 'isolate' scope object hash defines a set of local scope properties derived from attributes on the
  * directive's element. These local properties are useful for aliasing values for templates. The keys in
@@ -7202,9 +7369,9 @@ function $TemplateCacheProvider() {
  * initialized.
  *
  * <div class="alert alert-warning">
- * **Deprecation warning:** although bindings for non-ES6 class controllers are currently
- * bound to `this` before the controller constructor is called, this use is now deprecated. Please place initialization
- * code that relies upon bindings inside a `$onInit` method on the controller, instead.
+ * **Deprecation warning:** if `$compileProcvider.preAssignBindingsEnabled(true)` was called, bindings for non-ES6 class
+ * controllers are bound to `this` before the controller constructor is called but this use is now deprecated. Please
+ * place initialization code that relies upon bindings inside a `$onInit` method on the controller, instead.
  * </div>
  *
  * It is also possible to set `bindToController` to an object hash with the same format as the `scope` property.
@@ -7813,7 +7980,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
   var bindingCache = createMap();
 
   function parseIsolateBindings(scope, directiveName, isController) {
-    var LOCAL_REGEXP = /^\s*([@&<]|=(\*?))(\??)\s*(\w*)\s*$/;
+    var LOCAL_REGEXP = /^\s*([@&<]|=(\*?))(\??)\s*([\w$]*)\s*$/;
 
     var bindings = createMap();
 
@@ -8217,7 +8384,14 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
    *
    * If disabled (false), the compiler calls the constructor first before assigning bindings.
    *
-   * The default value is true in Angular 1.5.x but will switch to false in Angular 1.6.x.
+   * The default value is false.
+   *
+   * @deprecated
+   * sinceVersion="1.6.0"
+   * removeVersion="1.7.0"
+   *
+   * This method and the option to assign the bindings before calling the controller's constructor
+   * will be removed in v1.7.0.
    */
   var preAssignBindingsEnabled = false;
   this.preAssignBindingsEnabled = function(enabled) {
@@ -9985,7 +10159,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           if (error instanceof Error) {
             $exceptionHandler(error);
           }
-        }).catch(noop);
+        });
 
       return function delayedNodeLinkFn(ignoreChildLinkFn, scope, node, rootElement, boundTranscludeFn) {
         var childBoundTranscludeFn = boundTranscludeFn;
@@ -10307,8 +10481,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
             if (parentGet.literal) {
               compare = equals;
             } else {
-              // eslint-disable-next-line no-self-compare
-              compare = function simpleCompare(a, b) { return a === b || (a !== a && b !== b); };
+              compare = simpleCompare;
             }
             parentSet = parentGet.assign || function() {
               // reset the change, or we will throw this exception on every $digest
@@ -10383,9 +10556,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       });
 
       function recordChanges(key, currentValue, previousValue) {
-        if (isFunction(destination.$onChanges) && currentValue !== previousValue &&
-            // eslint-disable-next-line no-self-compare
-            (currentValue === currentValue || previousValue === previousValue)) {
+        if (isFunction(destination.$onChanges) && !simpleCompare(currentValue, previousValue)) {
           // If we have not already scheduled the top level onChangesQueue handler then do so now
           if (!onChangesQueue) {
             scope.$$postDigest(flushOnChangesQueue);
@@ -11000,7 +11171,12 @@ function defaultHttpResponseTransform(data, headers) {
     if (tempData) {
       var contentType = headers('Content-Type');
       if ((contentType && (contentType.indexOf(APPLICATION_JSON) === 0)) || isJsonLike(tempData)) {
-        data = fromJson(tempData);
+        try {
+          data = fromJson(tempData);
+        } catch (e) {
+          throw $httpMinErr('baddata', 'Data must be a valid JSON object. Received: "{0}". ' +
+          'Parse error: "{1}"', data, e);
+        }
       }
     }
   }
@@ -12117,7 +12293,8 @@ function $HttpProvider() {
       if ((config.cache || defaults.cache) && config.cache !== false &&
           (config.method === 'GET' || config.method === 'JSONP')) {
         cache = isObject(config.cache) ? config.cache
-              : isObject(defaults.cache) ? defaults.cache
+            : isObject(/** @type {?} */ (defaults).cache)
+              ? /** @type {?} */ (defaults).cache
               : defaultCache;
       }
 
@@ -12904,7 +13081,7 @@ function $IntervalProvider() {
       * @param {boolean=} [invokeApply=true] If set to `false` skips model dirty checking, otherwise
       *   will invoke `fn` within the {@link ng.$rootScope.Scope#$apply $apply} block.
       * @param {...*=} Pass additional parameters to the executed function.
-      * @returns {promise} A promise which will be notified on each iteration.
+      * @returns {promise} A promise which will be notified on each iteration. It will resolve once all iterations of the interval complete.
       *
       * @example
       * <example module="intervalExample" name="interval-service">
@@ -13076,8 +13253,8 @@ function $IntervalProvider() {
  * how they vary compared to the requested url.
  */
 var $jsonpCallbacksProvider = /** @this */ function() {
-  this.$get = ['$window', function($window) {
-    var callbacks = $window.angular.callbacks;
+  this.$get = function() {
+    var callbacks = angular.callbacks;
     var callbackMap = {};
 
     function createCallback(callbackId) {
@@ -13144,7 +13321,7 @@ var $jsonpCallbacksProvider = /** @this */ function() {
         delete callbackMap[callbackPath];
       }
     };
-  }];
+  };
 };
 
 /**
@@ -13295,6 +13472,8 @@ function LocationHtml5Url(appBase, appBaseNoFile, basePrefix) {
 
     this.$$url = encodePath(this.$$path) + (search ? '?' + search : '') + hash;
     this.$$absUrl = appBaseNoFile + this.$$url.substr(1); // first char is always '/'
+
+    this.$$urlUpdatedByLocation = true;
   };
 
   this.$$parseLinkUrl = function(url, relHref) {
@@ -13372,7 +13551,7 @@ function LocationHashbangUrl(appBase, appBaseNoFile, hashPrefix) {
         withoutHashUrl = '';
         if (isUndefined(withoutBaseUrl)) {
           appBase = url;
-          this.replace();
+          /** @type {?} */ (this).replace();
         }
       }
     }
@@ -13428,6 +13607,8 @@ function LocationHashbangUrl(appBase, appBaseNoFile, hashPrefix) {
 
     this.$$url = encodePath(this.$$path) + (search ? '?' + search : '') + hash;
     this.$$absUrl = appBase + (this.$$url ? hashPrefix + this.$$url : '');
+
+    this.$$urlUpdatedByLocation = true;
   };
 
   this.$$parseLinkUrl = function(url, relHref) {
@@ -13485,6 +13666,8 @@ function LocationHashbangInHtml5Url(appBase, appBaseNoFile, hashPrefix) {
     this.$$url = encodePath(this.$$path) + (search ? '?' + search : '') + hash;
     // include hashPrefix in $$absUrl when $$url is empty so IE9 does not reload page because of removal of '#'
     this.$$absUrl = appBase + hashPrefix + this.$$url;
+
+    this.$$urlUpdatedByLocation = true;
   };
 
 }
@@ -13814,6 +13997,7 @@ forEach([LocationHashbangInHtml5Url, LocationHashbangUrl, LocationHtml5Url], fun
     // but we're changing the $$state reference to $browser.state() during the $digest
     // so the modification window is narrow.
     this.$$state = isUndefined(state) ? null : state;
+    this.$$urlUpdatedByLocation = true;
 
     return this;
   };
@@ -14126,36 +14310,40 @@ function $LocationProvider() {
 
     // update browser
     $rootScope.$watch(function $locationWatch() {
-      var oldUrl = trimEmptyHash($browser.url());
-      var newUrl = trimEmptyHash($location.absUrl());
-      var oldState = $browser.state();
-      var currentReplace = $location.$$replace;
-      var urlOrStateChanged = oldUrl !== newUrl ||
-        ($location.$$html5 && $sniffer.history && oldState !== $location.$$state);
+      if (initializing || $location.$$urlUpdatedByLocation) {
+        $location.$$urlUpdatedByLocation = false;
 
-      if (initializing || urlOrStateChanged) {
-        initializing = false;
+        var oldUrl = trimEmptyHash($browser.url());
+        var newUrl = trimEmptyHash($location.absUrl());
+        var oldState = $browser.state();
+        var currentReplace = $location.$$replace;
+        var urlOrStateChanged = oldUrl !== newUrl ||
+          ($location.$$html5 && $sniffer.history && oldState !== $location.$$state);
 
-        $rootScope.$evalAsync(function() {
-          var newUrl = $location.absUrl();
-          var defaultPrevented = $rootScope.$broadcast('$locationChangeStart', newUrl, oldUrl,
-              $location.$$state, oldState).defaultPrevented;
+        if (initializing || urlOrStateChanged) {
+          initializing = false;
 
-          // if the location was changed by a `$locationChangeStart` handler then stop
-          // processing this location change
-          if ($location.absUrl() !== newUrl) return;
+          $rootScope.$evalAsync(function() {
+            var newUrl = $location.absUrl();
+            var defaultPrevented = $rootScope.$broadcast('$locationChangeStart', newUrl, oldUrl,
+                $location.$$state, oldState).defaultPrevented;
 
-          if (defaultPrevented) {
-            $location.$$parse(oldUrl);
-            $location.$$state = oldState;
-          } else {
-            if (urlOrStateChanged) {
-              setBrowserUrlWithFallback(newUrl, currentReplace,
-                                        oldState === $location.$$state ? null : $location.$$state);
+            // if the location was changed by a `$locationChangeStart` handler then stop
+            // processing this location change
+            if ($location.absUrl() !== newUrl) return;
+
+            if (defaultPrevented) {
+              $location.$$parse(oldUrl);
+              $location.$$state = oldState;
+            } else {
+              if (urlOrStateChanged) {
+                setBrowserUrlWithFallback(newUrl, currentReplace,
+                                          oldState === $location.$$state ? null : $location.$$state);
+              }
+              afterLocationChange(oldUrl, oldState);
             }
-            afterLocationChange(oldUrl, oldState);
-          }
-        });
+          });
+        }
       }
 
       $location.$$replace = false;
@@ -14233,13 +14421,22 @@ function $LogProvider() {
   this.debugEnabled = function(flag) {
     if (isDefined(flag)) {
       debug = flag;
-    return this;
+      return this;
     } else {
       return debug;
     }
   };
 
   this.$get = ['$window', function($window) {
+    // Support: IE 9-11, Edge 12-14+
+    // IE/Edge display errors in such a way that it requires the user to click in 4 places
+    // to see the stack trace. There is no way to feature-detect it so there's a chance
+    // of the user agent sniffing to go wrong but since it's only about logging, this shouldn't
+    // break apps. Other browsers display errors in a sensible way and some of them map stack
+    // traces along source maps if available so it makes sense to let browsers display it
+    // as they want.
+    var formatStackTrace = msie || /\bEdge\//.test($window.navigator && $window.navigator.userAgent);
+
     return {
       /**
        * @ngdoc method
@@ -14297,7 +14494,7 @@ function $LogProvider() {
 
     function formatError(arg) {
       if (arg instanceof Error) {
-        if (arg.stack) {
+        if (arg.stack && formatStackTrace) {
           arg = (arg.message && arg.stack.indexOf(arg.message) === -1)
               ? 'Error: ' + arg.message + '\n' + arg.stack
               : arg.stack;
@@ -15055,6 +15252,13 @@ function findConstantAndWatchExpressions(ast, $filter) {
       if (!property.value.constant) {
         argsToWatch.push.apply(argsToWatch, property.value.toWatch);
       }
+      if (property.computed) {
+        findConstantAndWatchExpressions(property.key, $filter);
+        if (!property.key.constant) {
+          argsToWatch.push.apply(argsToWatch, property.key.toWatch);
+        }
+      }
+
     });
     ast.constant = allConstants;
     ast.toWatch = argsToWatch;
@@ -15100,15 +15304,13 @@ function isConstant(ast) {
   return ast.constant;
 }
 
-function ASTCompiler(astBuilder, $filter) {
-  this.astBuilder = astBuilder;
+function ASTCompiler($filter) {
   this.$filter = $filter;
 }
 
 ASTCompiler.prototype = {
-  compile: function(expression) {
+  compile: function(ast) {
     var self = this;
-    var ast = this.astBuilder.ast(expression);
     this.state = {
       nextId: 0,
       filters: {},
@@ -15163,8 +15365,6 @@ ASTCompiler.prototype = {
           ifDefined,
           plusFn);
     this.state = this.stage = undefined;
-    fn.literal = isLiteral(ast);
-    fn.constant = isConstant(ast);
     return fn;
   },
 
@@ -15567,15 +15767,13 @@ ASTCompiler.prototype = {
 };
 
 
-function ASTInterpreter(astBuilder, $filter) {
-  this.astBuilder = astBuilder;
+function ASTInterpreter($filter) {
   this.$filter = $filter;
 }
 
 ASTInterpreter.prototype = {
-  compile: function(expression) {
+  compile: function(ast) {
     var self = this;
-    var ast = this.astBuilder.ast(expression);
     findConstantAndWatchExpressions(ast, self.$filter);
     var assignable;
     var assign;
@@ -15614,8 +15812,6 @@ ASTInterpreter.prototype = {
     if (inputs) {
       fn.inputs = inputs;
     }
-    fn.literal = isLiteral(ast);
-    fn.constant = isConstant(ast);
     return fn;
   },
 
@@ -15944,20 +16140,21 @@ ASTInterpreter.prototype = {
 /**
  * @constructor
  */
-var Parser = function Parser(lexer, $filter, options) {
-  this.lexer = lexer;
-  this.$filter = $filter;
-  this.options = options;
+function Parser(lexer, $filter, options) {
   this.ast = new AST(lexer, options);
-  this.astCompiler = options.csp ? new ASTInterpreter(this.ast, $filter) :
-                                   new ASTCompiler(this.ast, $filter);
-};
+  this.astCompiler = options.csp ? new ASTInterpreter($filter) :
+                                   new ASTCompiler($filter);
+}
 
 Parser.prototype = {
   constructor: Parser,
 
   parse: function(text) {
-    return this.astCompiler.compile(text);
+    var ast = this.ast.ast(text);
+    var fn = this.astCompiler.compile(ast);
+    fn.literal = isLiteral(ast);
+    fn.constant = isConstant(ast);
+    return fn;
   }
 };
 
@@ -16103,8 +16300,8 @@ function $ParseProvider() {
             if (parsedExpression.constant) {
               parsedExpression.$$watchDelegate = constantWatchDelegate;
             } else if (oneTime) {
-              parsedExpression.$$watchDelegate = parsedExpression.literal ?
-                  oneTimeLiteralWatchDelegate : oneTimeWatchDelegate;
+              parsedExpression.oneTime = true;
+              parsedExpression.$$watchDelegate = oneTimeWatchDelegate;
             } else if (parsedExpression.inputs) {
               parsedExpression.$$watchDelegate = inputsWatchDelegate;
             }
@@ -16120,7 +16317,7 @@ function $ParseProvider() {
       }
     }
 
-    function expressionInputDirtyCheck(newValue, oldValueOfValue) {
+    function expressionInputDirtyCheck(newValue, oldValueOfValue, compareObjectIdentity) {
 
       if (newValue == null || oldValueOfValue == null) { // null/undefined
         return newValue === oldValueOfValue;
@@ -16133,7 +16330,7 @@ function $ParseProvider() {
         //             be cheaply dirty-checked
         newValue = getValueOf(newValue);
 
-        if (typeof newValue === 'object') {
+        if (typeof newValue === 'object' && !compareObjectIdentity) {
           // objects/arrays are not supported - deep-watching them would be too expensive
           return false;
         }
@@ -16155,7 +16352,7 @@ function $ParseProvider() {
         inputExpressions = inputExpressions[0];
         return scope.$watch(function expressionInputWatch(scope) {
           var newInputValue = inputExpressions(scope);
-          if (!expressionInputDirtyCheck(newInputValue, oldInputValueOf)) {
+          if (!expressionInputDirtyCheck(newInputValue, oldInputValueOf, parsedExpression.literal)) {
             lastResult = parsedExpression(scope, undefined, undefined, [newInputValue]);
             oldInputValueOf = newInputValue && getValueOf(newInputValue);
           }
@@ -16175,7 +16372,7 @@ function $ParseProvider() {
 
         for (var i = 0, ii = inputExpressions.length; i < ii; i++) {
           var newInputValue = inputExpressions[i](scope);
-          if (changed || (changed = !expressionInputDirtyCheck(newInputValue, oldInputValueOfValues[i]))) {
+          if (changed || (changed = !expressionInputDirtyCheck(newInputValue, oldInputValueOfValues[i], parsedExpression.literal))) {
             oldInputValues[i] = newInputValue;
             oldInputValueOfValues[i] = newInputValue && getValueOf(newInputValue);
           }
@@ -16190,6 +16387,7 @@ function $ParseProvider() {
     }
 
     function oneTimeWatchDelegate(scope, listener, objectEquality, parsedExpression, prettyPrintExpression) {
+      var isDone = parsedExpression.literal ? isAllDefined : isDefined;
       var unwatch, lastValue;
       if (parsedExpression.inputs) {
         unwatch = inputsWatchDelegate(scope, oneTimeListener, objectEquality, parsedExpression, prettyPrintExpression);
@@ -16206,9 +16404,9 @@ function $ParseProvider() {
         if (isFunction(listener)) {
           listener(value, old, scope);
         }
-        if (isDefined(value)) {
+        if (isDone(value)) {
           scope.$$postDigest(function() {
-            if (isDefined(lastValue)) {
+            if (isDone(lastValue)) {
               unwatch();
             }
           });
@@ -16216,31 +16414,12 @@ function $ParseProvider() {
       }
     }
 
-    function oneTimeLiteralWatchDelegate(scope, listener, objectEquality, parsedExpression) {
-      var unwatch, lastValue;
-      unwatch = scope.$watch(function oneTimeWatch(scope) {
-        return parsedExpression(scope);
-      }, function oneTimeListener(value, old, scope) {
-        lastValue = value;
-        if (isFunction(listener)) {
-          listener(value, old, scope);
-        }
-        if (isAllDefined(value)) {
-          scope.$$postDigest(function() {
-            if (isAllDefined(lastValue)) unwatch();
-          });
-        }
-      }, objectEquality);
-
-      return unwatch;
-
-      function isAllDefined(value) {
-        var allDefined = true;
-        forEach(value, function(val) {
-          if (!isDefined(val)) allDefined = false;
-        });
-        return allDefined;
-      }
+    function isAllDefined(value) {
+      var allDefined = true;
+      forEach(value, function(val) {
+        if (!isDefined(val)) allDefined = false;
+      });
+      return allDefined;
     }
 
     function constantWatchDelegate(scope, listener, objectEquality, parsedExpression) {
@@ -16256,26 +16435,31 @@ function $ParseProvider() {
       var watchDelegate = parsedExpression.$$watchDelegate;
       var useInputs = false;
 
-      var regularWatch =
-          watchDelegate !== oneTimeLiteralWatchDelegate &&
-          watchDelegate !== oneTimeWatchDelegate;
+      var isDone = parsedExpression.literal ? isAllDefined : isDefined;
 
-      var fn = regularWatch ? function regularInterceptedExpression(scope, locals, assign, inputs) {
+      function regularInterceptedExpression(scope, locals, assign, inputs) {
         var value = useInputs && inputs ? inputs[0] : parsedExpression(scope, locals, assign, inputs);
         return interceptorFn(value, scope, locals);
-      } : function oneTimeInterceptedExpression(scope, locals, assign, inputs) {
-        var value = parsedExpression(scope, locals, assign, inputs);
+      }
+
+      function oneTimeInterceptedExpression(scope, locals, assign, inputs) {
+        var value = useInputs && inputs ? inputs[0] : parsedExpression(scope, locals, assign, inputs);
         var result = interceptorFn(value, scope, locals);
         // we only return the interceptor's result if the
         // initial value is defined (for bind-once)
-        return isDefined(value) ? result : value;
-      };
+        return isDone(value) ? result : value;
+      }
 
-      // Propagate $$watchDelegates other then inputsWatchDelegate
+      var fn = parsedExpression.oneTime ? oneTimeInterceptedExpression : regularInterceptedExpression;
+
+      // Propogate the literal/oneTime attributes
+      fn.literal = parsedExpression.literal;
+      fn.oneTime = parsedExpression.oneTime;
+
+      // Propagate or create inputs / $$watchDelegates
       useInputs = !parsedExpression.inputs;
-      if (parsedExpression.$$watchDelegate &&
-          parsedExpression.$$watchDelegate !== inputsWatchDelegate) {
-        fn.$$watchDelegate = parsedExpression.$$watchDelegate;
+      if (watchDelegate && watchDelegate !== inputsWatchDelegate) {
+        fn.$$watchDelegate = watchDelegate;
         fn.inputs = parsedExpression.inputs;
       } else if (!interceptorFn.$stateful) {
         // If there is an interceptor, but no watchDelegate then treat the interceptor like
@@ -17778,12 +17962,13 @@ function $RootScopeProvider() {
           current = target;
 
           // It's safe for asyncQueuePosition to be a local variable here because this loop can't
-          // be reentered recursively. Calling $digest from a function passed to $applyAsync would
+          // be reentered recursively. Calling $digest from a function passed to $evalAsync would
           // lead to a '$digest already in progress' error.
           for (var asyncQueuePosition = 0; asyncQueuePosition < asyncQueue.length; asyncQueuePosition++) {
             try {
               asyncTask = asyncQueue[asyncQueuePosition];
-              asyncTask.scope.$eval(asyncTask.expression, asyncTask.locals);
+              fn = asyncTask.fn;
+              fn(asyncTask.scope, asyncTask.locals);
             } catch (e) {
               $exceptionHandler(e);
             }
@@ -17868,6 +18053,10 @@ function $RootScopeProvider() {
           }
         }
         postDigestQueue.length = postDigestQueuePosition = 0;
+
+        // Check for changes to browser url that happened during the $digest
+        // (for which no event is fired; e.g. via `history.pushState()`)
+        $browser.$$checkUrlChange();
       },
 
 
@@ -18013,7 +18202,7 @@ function $RootScopeProvider() {
           });
         }
 
-        asyncQueue.push({scope: this, expression: $parse(expr), locals: locals});
+        asyncQueue.push({scope: this, fn: $parse(expr), locals: locals});
       },
 
       $$postDigest: function(fn) {
@@ -18487,12 +18676,21 @@ function $$SanitizeUriProvider() {
 var $sceMinErr = minErr('$sce');
 
 var SCE_CONTEXTS = {
+  // HTML is used when there's HTML rendered (e.g. ng-bind-html, iframe srcdoc binding).
   HTML: 'html',
+
+  // Style statements or stylesheets. Currently unused in AngularJS.
   CSS: 'css',
+
+  // An URL used in a context where it does not refer to a resource that loads code. Currently
+  // unused in AngularJS.
   URL: 'url',
-  // RESOURCE_URL is a subtype of URL used in contexts where a privileged resource is sourced from a
-  // url.  (e.g. ng-include, script src, templateUrl)
+
+  // RESOURCE_URL is a subtype of URL used where the referred-to resource could be interpreted as
+  // code. (e.g. ng-include, script src binding, templateUrl)
   RESOURCE_URL: 'resourceUrl',
+
+  // Script. Currently unused in AngularJS.
   JS: 'js'
 };
 
@@ -18554,6 +18752,16 @@ function adjustMatchers(matchers) {
  * `$sceDelegate` is a service that is used by the `$sce` service to provide {@link ng.$sce Strict
  * Contextual Escaping (SCE)} services to AngularJS.
  *
+ * For an overview of this service and the functionnality it provides in AngularJS, see the main
+ * page for {@link ng.$sce SCE}. The current page is targeted for developers who need to alter how
+ * SCE works in their application, which shouldn't be needed in most cases.
+ *
+ * <div class="alert alert-danger">
+ * AngularJS strongly relies on contextual escaping for the security of bindings: disabling or
+ * modifying this might cause cross site scripting (XSS) vulnerabilities. For libraries owners,
+ * changes to this service will also influence users, so be extra careful and document your changes.
+ * </div>
+ *
  * Typically, you would configure or override the {@link ng.$sceDelegate $sceDelegate} instead of
  * the `$sce` service to customize the way Strict Contextual Escaping works in AngularJS.  This is
  * because, while the `$sce` provides numerous shorthand methods, etc., you really only need to
@@ -18579,10 +18787,14 @@ function adjustMatchers(matchers) {
  * @description
  *
  * The `$sceDelegateProvider` provider allows developers to configure the {@link ng.$sceDelegate
- * $sceDelegate} service.  This allows one to get/set the whitelists and blacklists used to ensure
- * that the URLs used for sourcing Angular templates are safe.  Refer {@link
- * ng.$sceDelegateProvider#resourceUrlWhitelist $sceDelegateProvider.resourceUrlWhitelist} and
- * {@link ng.$sceDelegateProvider#resourceUrlBlacklist $sceDelegateProvider.resourceUrlBlacklist}
+ * $sceDelegate service}, used as a delegate for {@link ng.$sce Strict Contextual Escaping (SCE)}.
+ *
+ * The `$sceDelegateProvider` allows one to get/set the whitelists and blacklists used to ensure
+ * that the URLs used for sourcing AngularJS templates and other script-running URLs are safe (all
+ * places that use the `$sce.RESOURCE_URL` context). See
+ * {@link ng.$sceDelegateProvider#resourceUrlWhitelist $sceDelegateProvider.resourceUrlWhitelist}
+ * and
+ * {@link ng.$sceDelegateProvider#resourceUrlBlacklist $sceDelegateProvider.resourceUrlBlacklist},
  *
  * For the general details about this service in Angular, read the main page for {@link ng.$sce
  * Strict Contextual Escaping (SCE)}.
@@ -18611,6 +18823,13 @@ function adjustMatchers(matchers) {
  *    ]);
  *  });
  * ```
+ * Note that an empty whitelist will block every resource URL from being loaded, and will require
+ * you to manually mark each one as trusted with `$sce.trustAsResourceUrl`. However, templates
+ * requested by {@link ng.$templateRequest $templateRequest} that are present in
+ * {@link ng.$templateCache $templateCache} will not go through this check. If you have a mechanism
+ * to populate your templates in that cache at config time, then it is a good idea to remove 'self'
+ * from that whitelist. This helps to mitigate the security impact of certain types of issues, like
+ * for instance attacker-controlled `ng-includes`.
  */
 
 function $SceDelegateProvider() {
@@ -18626,23 +18845,23 @@ function $SceDelegateProvider() {
    * @kind function
    *
    * @param {Array=} whitelist When provided, replaces the resourceUrlWhitelist with the value
-   *    provided.  This must be an array or null.  A snapshot of this array is used so further
-   *    changes to the array are ignored.
+   *     provided.  This must be an array or null.  A snapshot of this array is used so further
+   *     changes to the array are ignored.
+   *     Follow {@link ng.$sce#resourceUrlPatternItem this link} for a description of the items
+   *     allowed in this array.
    *
-   *    Follow {@link ng.$sce#resourceUrlPatternItem this link} for a description of the items
-   *    allowed in this array.
+   * @return {Array} The currently set whitelist array.
    *
-   *    <div class="alert alert-warning">
-   *    **Note:** an empty whitelist array will block all URLs!
-   *    </div>
-   *
-   * @return {Array} the currently set whitelist array.
+   * @description
+   * Sets/Gets the whitelist of trusted resource URLs.
    *
    * The **default value** when no whitelist has been explicitly set is `['self']` allowing only
    * same origin resource requests.
    *
-   * @description
-   * Sets/Gets the whitelist of trusted resource URLs.
+   * <div class="alert alert-warning">
+   * **Note:** the default whitelist of 'self' is not recommended if your app shares its origin
+   * with other apps! It is a good idea to limit it to only your application's directory.
+   * </div>
    */
   this.resourceUrlWhitelist = function(value) {
     if (arguments.length) {
@@ -18657,25 +18876,23 @@ function $SceDelegateProvider() {
    * @kind function
    *
    * @param {Array=} blacklist When provided, replaces the resourceUrlBlacklist with the value
-   *    provided.  This must be an array or null.  A snapshot of this array is used so further
-   *    changes to the array are ignored.
+   *     provided.  This must be an array or null.  A snapshot of this array is used so further
+   *     changes to the array are ignored.</p><p>
+   *     Follow {@link ng.$sce#resourceUrlPatternItem this link} for a description of the items
+   *     allowed in this array.</p><p>
+   *     The typical usage for the blacklist is to **block
+   *     [open redirects](http://cwe.mitre.org/data/definitions/601.html)** served by your domain as
+   *     these would otherwise be trusted but actually return content from the redirected domain.
+   *     </p><p>
+   *     Finally, **the blacklist overrides the whitelist** and has the final say.
    *
-   *    Follow {@link ng.$sce#resourceUrlPatternItem this link} for a description of the items
-   *    allowed in this array.
-   *
-   *    The typical usage for the blacklist is to **block
-   *    [open redirects](http://cwe.mitre.org/data/definitions/601.html)** served by your domain as
-   *    these would otherwise be trusted but actually return content from the redirected domain.
-   *
-   *    Finally, **the blacklist overrides the whitelist** and has the final say.
-   *
-   * @return {Array} the currently set blacklist array.
-   *
-   * The **default value** when no whitelist has been explicitly set is the empty array (i.e. there
-   * is no blacklist.)
+   * @return {Array} The currently set blacklist array.
    *
    * @description
    * Sets/Gets the blacklist of trusted resource URLs.
+   *
+   * The **default value** when no whitelist has been explicitly set is the empty array (i.e. there
+   * is no blacklist.)
    */
 
   this.resourceUrlBlacklist = function(value) {
@@ -18759,17 +18976,24 @@ function $SceDelegateProvider() {
      * @name $sceDelegate#trustAs
      *
      * @description
-     * Returns an object that is trusted by angular for use in specified strict
-     * contextual escaping contexts (such as ng-bind-html, ng-include, any src
-     * attribute interpolation, any dom event binding attribute interpolation
-     * such as for onclick,  etc.) that uses the provided value.
-     * See {@link ng.$sce $sce} for enabling strict contextual escaping.
+     * Returns a trusted representation of the parameter for the specified context. This trusted
+     * object will later on be used as-is, without any security check, by bindings or directives
+     * that require this security context.
+     * For instance, marking a string as trusted for the `$sce.HTML` context will entirely bypass
+     * the potential `$sanitize` call in corresponding `$sce.HTML` bindings or directives, such as
+     * `ng-bind-html`. Note that in most cases you won't need to call this function: if you have the
+     * sanitizer loaded, passing the value itself will render all the HTML that does not pose a
+     * security risk.
      *
-     * @param {string} type The kind of context in which this value is safe for use.  e.g. url,
-     *   resourceUrl, html, js and css.
-     * @param {*} value The value that that should be considered trusted/safe.
-     * @returns {*} A value that can be used to stand in for the provided `value` in places
-     * where Angular expects a $sce.trustAs() return value.
+     * See {@link ng.$sceDelegate#getTrusted getTrusted} for the function that will consume those
+     * trusted values, and {@link ng.$sce $sce} for general documentation about strict contextual
+     * escaping.
+     *
+     * @param {string} type The context in which this value is safe for use, e.g. `$sce.URL`,
+     *     `$sce.RESOURCE_URL`, `$sce.HTML`, `$sce.JS` or `$sce.CSS`.
+     *
+     * @param {*} value The value that should be considered trusted.
+     * @return {*} A trusted representation of value, that can be used in the given context.
      */
     function trustAs(type, trustedValue) {
       var Constructor = (byType.hasOwnProperty(type) ? byType[type] : null);
@@ -18801,11 +19025,11 @@ function $SceDelegateProvider() {
      * ng.$sceDelegate#trustAs `$sceDelegate.trustAs`}.
      *
      * If the passed parameter is not a value that had been returned by {@link
-     * ng.$sceDelegate#trustAs `$sceDelegate.trustAs`}, returns it as-is.
+     * ng.$sceDelegate#trustAs `$sceDelegate.trustAs`}, it must be returned as-is.
      *
      * @param {*} value The result of a prior {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs`}
-     *      call or anything else.
-     * @returns {*} The `value` that was originally provided to {@link ng.$sceDelegate#trustAs
+     *     call or anything else.
+     * @return {*} The `value` that was originally provided to {@link ng.$sceDelegate#trustAs
      *     `$sceDelegate.trustAs`} if `value` is the result of such a call.  Otherwise, returns
      *     `value` unchanged.
      */
@@ -18822,33 +19046,38 @@ function $SceDelegateProvider() {
      * @name $sceDelegate#getTrusted
      *
      * @description
-     * Takes the result of a {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs`} call and
-     * returns the originally supplied value if the queried context type is a supertype of the
-     * created type.  If this condition isn't satisfied, throws an exception.
+     * Takes any input, and either returns a value that's safe to use in the specified context, or
+     * throws an exception.
      *
-     * <div class="alert alert-danger">
-     * Disabling auto-escaping is extremely dangerous, it usually creates a Cross Site Scripting
-     * (XSS) vulnerability in your application.
-     * </div>
+     * In practice, there are several cases. When given a string, this function runs checks
+     * and sanitization to make it safe without prior assumptions. When given the result of a {@link
+     * ng.$sceDelegate#trustAs `$sceDelegate.trustAs`} call, it returns the originally supplied
+     * value if that value's context is valid for this call's context. Finally, this function can
+     * also throw when there is no way to turn `maybeTrusted` in a safe value (e.g., no sanitization
+     * is available or possible.)
      *
-     * @param {string} type The kind of context in which this value is to be used.
+     * @param {string} type The context in which this value is to be used (such as `$sce.HTML`).
      * @param {*} maybeTrusted The result of a prior {@link ng.$sceDelegate#trustAs
-     *     `$sceDelegate.trustAs`} call.
-     * @returns {*} The value the was originally provided to {@link ng.$sceDelegate#trustAs
-     *     `$sceDelegate.trustAs`} if valid in this context.  Otherwise, throws an exception.
+     *     `$sceDelegate.trustAs`} call, or anything else (which will not be considered trusted.)
+     * @return {*} A version of the value that's safe to use in the given context, or throws an
+     *     exception if this is impossible.
      */
     function getTrusted(type, maybeTrusted) {
       if (maybeTrusted === null || isUndefined(maybeTrusted) || maybeTrusted === '') {
         return maybeTrusted;
       }
       var constructor = (byType.hasOwnProperty(type) ? byType[type] : null);
+      // If maybeTrusted is a trusted class instance or subclass instance, then unwrap and return
+      // as-is.
       if (constructor && maybeTrusted instanceof constructor) {
         return maybeTrusted.$$unwrapTrustedValue();
       }
-      // If we get here, then we may only take one of two actions.
-      // 1. sanitize the value for the requested type, or
-      // 2. throw an exception.
+      // Otherwise, if we get here, then we may either make it safe, or throw an exception. This
+      // depends on the context: some are sanitizatible (HTML), some use whitelists (RESOURCE_URL),
+      // some are impossible to do (JS). This step isn't implemented for CSS and URL, as AngularJS
+      // has no corresponding sinks.
       if (type === SCE_CONTEXTS.RESOURCE_URL) {
+        // RESOURCE_URL uses a whitelist.
         if (isResourceUrlAllowedByPolicy(maybeTrusted)) {
           return maybeTrusted;
         } else {
@@ -18857,8 +19086,10 @@ function $SceDelegateProvider() {
               maybeTrusted.toString());
         }
       } else if (type === SCE_CONTEXTS.HTML) {
+        // htmlSanitizer throws its own error when no sanitizer is available.
         return htmlSanitizer(maybeTrusted);
       }
+      // Default error when the $sce service has no way to make the input safe.
       throw $sceMinErr('unsafe', 'Attempting to use an unsafe value in a safe context.');
     }
 
@@ -18894,21 +19125,27 @@ function $SceDelegateProvider() {
  *
  * # Strict Contextual Escaping
  *
- * Strict Contextual Escaping (SCE) is a mode in which AngularJS requires bindings in certain
- * contexts to result in a value that is marked as safe to use for that context.  One example of
- * such a context is binding arbitrary html controlled by the user via `ng-bind-html`.  We refer
- * to these contexts as privileged or SCE contexts.
+ * Strict Contextual Escaping (SCE) is a mode in which AngularJS constrains bindings to only render
+ * trusted values. Its goal is to assist in writing code in a way that (a) is secure by default, and
+ * (b) makes auditing for security vulnerabilities such as XSS, clickjacking, etc. a lot easier.
  *
- * As of version 1.2, Angular ships with SCE enabled by default.
+ * ## Overview
  *
- * Note:  When enabled (the default), IE<11 in quirks mode is not supported.  In this mode, IE<11 allow
- * one to execute arbitrary javascript by the use of the expression() syntax.  Refer
- * <http://blogs.msdn.com/b/ie/archive/2008/10/16/ending-expressions.aspx> to learn more about them.
- * You can ensure your document is in standards mode and not quirks mode by adding `<!doctype html>`
- * to the top of your HTML document.
+ * To systematically block XSS security bugs, AngularJS treats all values as untrusted by default in
+ * HTML or sensitive URL bindings. When binding untrusted values, AngularJS will automatically
+ * run security checks on them (sanitizations, whitelists, depending on context), or throw when it
+ * cannot guarantee the security of the result. That behavior depends strongly on contexts: HTML
+ * can be sanitized, but template URLs cannot, for instance.
  *
- * SCE assists in writing code in a way that (a) is secure by default and (b) makes auditing for
- * security vulnerabilities such as XSS, clickjacking, etc. a lot easier.
+ * To illustrate this, consider the `ng-bind-html` directive. It renders its value directly as HTML:
+ * we call that the *context*. When given an untrusted input, AngularJS will attempt to sanitize it
+ * before rendering if a sanitizer is available, and throw otherwise. To bypass sanitization and
+ * render the input as-is, you will need to mark it as trusted for that context before attempting
+ * to bind it.
+ *
+ * As of version 1.2, AngularJS ships with SCE enabled by default.
+ *
+ * ## In practice
  *
  * Here's an example of a binding in a privileged context:
  *
@@ -18918,10 +19155,10 @@ function $SceDelegateProvider() {
  * ```
  *
  * Notice that `ng-bind-html` is bound to `userHtml` controlled by the user.  With SCE
- * disabled, this application allows the user to render arbitrary HTML into the DIV.
- * In a more realistic example, one may be rendering user comments, blog articles, etc. via
- * bindings.  (HTML is just one example of a context where rendering user controlled input creates
- * security vulnerabilities.)
+ * disabled, this application allows the user to render arbitrary HTML into the DIV, which would
+ * be an XSS security bug. In a more realistic example, one may be rendering user comments, blog
+ * articles, etc. via bindings. (HTML is just one example of a context where rendering user
+ * controlled input creates security vulnerabilities.)
  *
  * For the case of HTML, you might use a library, either on the client side, or on the server side,
  * to sanitize unsafe HTML before binding to the value and rendering it in the document.
@@ -18931,25 +19168,29 @@ function $SceDelegateProvider() {
  * ensure that you didn't accidentally delete the line that sanitized the value, or renamed some
  * properties/fields and forgot to update the binding to the sanitized value?
  *
- * To be secure by default, you want to ensure that any such bindings are disallowed unless you can
- * determine that something explicitly says it's safe to use a value for binding in that
- * context.  You can then audit your code (a simple grep would do) to ensure that this is only done
- * for those values that you can easily tell are safe - because they were received from your server,
- * sanitized by your library, etc.  You can organize your codebase to help with this - perhaps
- * allowing only the files in a specific directory to do this.  Ensuring that the internal API
- * exposed by that code doesn't markup arbitrary values as safe then becomes a more manageable task.
+ * To be secure by default, AngularJS makes sure bindings go through that sanitization, or
+ * any similar validation process, unless there's a good reason to trust the given value in this
+ * context.  That trust is formalized with a function call. This means that as a developer, you
+ * can assume all untrusted bindings are safe. Then, to audit your code for binding security issues,
+ * you just need to ensure the values you mark as trusted indeed are safe - because they were
+ * received from your server, sanitized by your library, etc. You can organize your codebase to
+ * help with this - perhaps allowing only the files in a specific directory to do this.
+ * Ensuring that the internal API exposed by that code doesn't markup arbitrary values as safe then
+ * becomes a more manageable task.
  *
  * In the case of AngularJS' SCE service, one uses {@link ng.$sce#trustAs $sce.trustAs}
  * (and shorthand methods such as {@link ng.$sce#trustAsHtml $sce.trustAsHtml}, etc.) to
- * obtain values that will be accepted by SCE / privileged contexts.
- *
+ * build the trusted versions of your values.
  *
  * ## How does it work?
  *
  * In privileged contexts, directives and code will bind to the result of {@link ng.$sce#getTrusted
- * $sce.getTrusted(context, value)} rather than to the value directly.  Directives use {@link
- * ng.$sce#parseAs $sce.parseAs} rather than `$parse` to watch attribute bindings, which performs the
- * {@link ng.$sce#getTrusted $sce.getTrusted} behind the scenes on non-constant literals.
+ * $sce.getTrusted(context, value)} rather than to the value directly.  Think of this function as
+ * a way to enforce the required security context in your data sink. Directives use {@link
+ * ng.$sce#parseAs $sce.parseAs} rather than `$parse` to watch attribute bindings, which performs
+ * the {@link ng.$sce#getTrusted $sce.getTrusted} behind the scenes on non-constant literals. Also,
+ * when binding without directives, AngularJS will understand the context of your bindings
+ * automatically.
  *
  * As an example, {@link ng.directive:ngBindHtml ngBindHtml} uses {@link
  * ng.$sce#parseAsHtml $sce.parseAsHtml(binding expression)}.  Here's the actual code (slightly
@@ -18990,11 +19231,12 @@ function $SceDelegateProvider() {
  * It's important to remember that SCE only applies to interpolation expressions.
  *
  * If your expressions are constant literals, they're automatically trusted and you don't need to
- * call `$sce.trustAs` on them (remember to include the `ngSanitize` module) (e.g.
- * `<div ng-bind-html="'<b>implicitly trusted</b>'"></div>`) just works.
- *
- * Additionally, `a[href]` and `img[src]` automatically sanitize their URLs and do not pass them
- * through {@link ng.$sce#getTrusted $sce.getTrusted}.  SCE doesn't play a role here.
+ * call `$sce.trustAs` on them (e.g.
+ * `<div ng-bind-html="'<b>implicitly trusted</b>'"></div>`) just works. The `$sceDelegate` will
+ * also use the `$sanitize` service if it is available when binding untrusted values to
+ * `$sce.HTML` context. AngularJS provides an implementation in `angular-sanitize.js`, and if you
+ * wish to use it, you will also need to depend on the {@link ngSanitize `ngSanitize`} module in
+ * your application.
  *
  * The included {@link ng.$sceDelegate $sceDelegate} comes with sane defaults to allow you to load
  * templates in `ng-include` from your application's domain without having to even know about SCE.
@@ -19012,11 +19254,17 @@ function $SceDelegateProvider() {
  *
  * | Context             | Notes          |
  * |---------------------|----------------|
- * | `$sce.HTML`         | For HTML that's safe to source into the application.  The {@link ng.directive:ngBindHtml ngBindHtml} directive uses this context for bindings. If an unsafe value is encountered and the {@link ngSanitize $sanitize} module is present this will sanitize the value instead of throwing an error. |
- * | `$sce.CSS`          | For CSS that's safe to source into the application.  Currently unused.  Feel free to use it in your own directives. |
- * | `$sce.URL`          | For URLs that are safe to follow as links.  Currently unused (`<a href=` and `<img src=` sanitize their urls and don't constitute an SCE context. |
- * | `$sce.RESOURCE_URL` | For URLs that are not only safe to follow as links, but whose contents are also safe to include in your application.  Examples include `ng-include`, `src` / `ngSrc` bindings for tags other than `IMG`, `VIDEO`, `AUDIO`, `SOURCE`, and `TRACK` (e.g. `IFRAME`, `OBJECT`, etc.)  <br><br>Note that `$sce.RESOURCE_URL` makes a stronger statement about the URL than `$sce.URL` does and therefore contexts requiring values trusted for `$sce.RESOURCE_URL` can be used anywhere that values trusted for `$sce.URL` are required. |
- * | `$sce.JS`           | For JavaScript that is safe to execute in your application's context.  Currently unused.  Feel free to use it in your own directives. |
+ * | `$sce.HTML`         | For HTML that's safe to source into the application.  The {@link ng.directive:ngBindHtml ngBindHtml} directive uses this context for bindings. If an unsafe value is encountered, and the {@link ngSanitize.$sanitize $sanitize} service is available (implemented by the {@link ngSanitize ngSanitize} module) this will sanitize the value instead of throwing an error. |
+ * | `$sce.CSS`          | For CSS that's safe to source into the application.  Currently, no bindings require this context. Feel free to use it in your own directives. |
+ * | `$sce.URL`          | For URLs that are safe to follow as links.  Currently unused (`<a href=`, `<img src=`, and some others sanitize their urls and don't constitute an SCE context.) |
+ * | `$sce.RESOURCE_URL` | For URLs that are not only safe to follow as links, but whose contents are also safe to include in your application.  Examples include `ng-include`, `src` / `ngSrc` bindings for tags other than `IMG`, `VIDEO`, `AUDIO`, `SOURCE`, and `TRACK` (e.g. `IFRAME`, `OBJECT`, etc.)  <br><br>Note that `$sce.RESOURCE_URL` makes a stronger statement about the URL than `$sce.URL` does (it's not just the URL that matters, but also what is at the end of it), and therefore contexts requiring values trusted for `$sce.RESOURCE_URL` can be used anywhere that values trusted for `$sce.URL` are required. |
+ * | `$sce.JS`           | For JavaScript that is safe to execute in your application's context.  Currently, no bindings require this context.  Feel free to use it in your own directives. |
+ *
+ *
+ * Be aware that `a[href]` and `img[src]` automatically sanitize their URLs and do not pass them
+ * through {@link ng.$sce#getTrusted $sce.getTrusted}. There's no CSS-, URL-, or JS-context bindings
+ * in AngularJS currently, so their corresponding `$sce.trustAs` functions aren't useful yet. This
+ * might evolve.
  *
  * ## Format of items in {@link ng.$sceDelegateProvider#resourceUrlWhitelist resourceUrlWhitelist}/{@link ng.$sceDelegateProvider#resourceUrlBlacklist Blacklist} <a name="resourceUrlPatternItem"></a>
  *
@@ -19135,14 +19383,15 @@ function $SceDelegateProvider() {
  * for little coding overhead.  It will be much harder to take an SCE disabled application and
  * either secure it on your own or enable SCE at a later stage.  It might make sense to disable SCE
  * for cases where you have a lot of existing code that was written before SCE was introduced and
- * you're migrating them a module at a time.
+ * you're migrating them a module at a time. Also do note that this is an app-wide setting, so if
+ * you are writing a library, you will cause security bugs applications using it.
  *
  * That said, here's how you can completely disable SCE:
  *
  * ```
  * angular.module('myAppWithSceDisabledmyApp', []).config(function($sceProvider) {
  *   // Completely disable SCE.  For demonstration purposes only!
- *   // Do not use in new projects.
+ *   // Do not use in new projects or libraries.
  *   $sceProvider.enabled(false);
  * });
  * ```
@@ -19157,8 +19406,8 @@ function $SceProvider() {
    * @name $sceProvider#enabled
    * @kind function
    *
-   * @param {boolean=} value If provided, then enables/disables SCE.
-   * @return {boolean} true if SCE is enabled, false otherwise.
+   * @param {boolean=} value If provided, then enables/disables SCE application-wide.
+   * @return {boolean} True if SCE is enabled, false otherwise.
    *
    * @description
    * Enables/disables SCE and returns the current value.
@@ -19212,9 +19461,9 @@ function $SceProvider() {
    *     getTrusted($sce.RESOURCE_URL, value) succeeding implies that getTrusted($sce.URL, value)
    *     will also succeed.
    *
-   * Inheritance happens to capture this in a natural way.  In some future, we
-   * may not use inheritance anymore.  That is OK because no code outside of
-   * sce.js and sceSpecs.js would need to be aware of this detail.
+   * Inheritance happens to capture this in a natural way. In some future, we may not use
+   * inheritance anymore. That is OK because no code outside of sce.js and sceSpecs.js would need to
+   * be aware of this detail.
    */
 
   this.$get = ['$parse', '$sceDelegate', function(
@@ -19236,8 +19485,8 @@ function $SceProvider() {
      * @name $sce#isEnabled
      * @kind function
      *
-     * @return {Boolean} true if SCE is enabled, false otherwise.  If you want to set the value, you
-     * have to do it at module config time on {@link ng.$sceProvider $sceProvider}.
+     * @return {Boolean} True if SCE is enabled, false otherwise.  If you want to set the value, you
+     *     have to do it at module config time on {@link ng.$sceProvider $sceProvider}.
      *
      * @description
      * Returns a boolean indicating if SCE is enabled.
@@ -19264,14 +19513,14 @@ function $SceProvider() {
      * wraps the expression in a call to {@link ng.$sce#getTrusted $sce.getTrusted(*type*,
      * *result*)}
      *
-     * @param {string} type The kind of SCE context in which this result will be used.
+     * @param {string} type The SCE context in which this result will be used.
      * @param {string} expression String expression to compile.
-     * @returns {function(context, locals)} a function which represents the compiled expression:
+     * @return {function(context, locals)} A function which represents the compiled expression:
      *
-     *    * `context` – `{object}` – an object against which any expressions embedded in the strings
-     *      are evaluated against (typically a scope object).
-     *    * `locals` – `{object=}` – local variables context object, useful for overriding values in
-     *      `context`.
+     *    * `context` – `{object}` – an object against which any expressions embedded in the
+     *      strings are evaluated against (typically a scope object).
+     *    * `locals` – `{object=}` – local variables context object, useful for overriding values
+     *      in `context`.
      */
     sce.parseAs = function sceParseAs(type, expr) {
       var parsed = $parse(expr);
@@ -19289,18 +19538,18 @@ function $SceProvider() {
      * @name $sce#trustAs
      *
      * @description
-     * Delegates to {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs`}.  As such,
-     * returns an object that is trusted by angular for use in specified strict contextual
-     * escaping contexts (such as ng-bind-html, ng-include, any src attribute
-     * interpolation, any dom event binding attribute interpolation such as for onclick,  etc.)
-     * that uses the provided value.  See * {@link ng.$sce $sce} for enabling strict contextual
-     * escaping.
+     * Delegates to {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs`}. As such, returns a
+     * wrapped object that represents your value, and the trust you have in its safety for the given
+     * context. AngularJS can then use that value as-is in bindings of the specified secure context.
+     * This is used in bindings for `ng-bind-html`, `ng-include`, and most `src` attribute
+     * interpolations. See {@link ng.$sce $sce} for strict contextual escaping.
      *
-     * @param {string} type The kind of context in which this value is safe for use.  e.g. url,
-     *   resourceUrl, html, js and css.
-     * @param {*} value The value that that should be considered trusted/safe.
-     * @returns {*} A value that can be used to stand in for the provided `value` in places
-     * where Angular expects a $sce.trustAs() return value.
+     * @param {string} type The context in which this value is safe for use, e.g. `$sce.URL`,
+     *     `$sce.RESOURCE_URL`, `$sce.HTML`, `$sce.JS` or `$sce.CSS`.
+     *
+     * @param {*} value The value that that should be considered trusted.
+     * @return {*} A wrapped version of value that can be used as a trusted variant of your `value`
+     *     in the context you specified.
      */
 
     /**
@@ -19311,11 +19560,23 @@ function $SceProvider() {
      * Shorthand method.  `$sce.trustAsHtml(value)` →
      *     {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs($sce.HTML, value)`}
      *
-     * @param {*} value The value to trustAs.
-     * @returns {*} An object that can be passed to {@link ng.$sce#getTrustedHtml
-     *     $sce.getTrustedHtml(value)} to obtain the original value.  (privileged directives
-     *     only accept expressions that are either literal constants or are the
-     *     return value of {@link ng.$sce#trustAs $sce.trustAs}.)
+     * @param {*} value The value to mark as trusted for `$sce.HTML` context.
+     * @return {*} A wrapped version of value that can be used as a trusted variant of your `value`
+     *     in `$sce.HTML` context (like `ng-bind-html`).
+     */
+
+    /**
+     * @ngdoc method
+     * @name $sce#trustAsCss
+     *
+     * @description
+     * Shorthand method.  `$sce.trustAsCss(value)` →
+     *     {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs($sce.CSS, value)`}
+     *
+     * @param {*} value The value to mark as trusted for `$sce.CSS` context.
+     * @return {*} A wrapped version of value that can be used as a trusted variant
+     *     of your `value` in `$sce.CSS` context. This context is currently unused, so there are
+     *     almost no reasons to use this function so far.
      */
 
     /**
@@ -19326,11 +19587,10 @@ function $SceProvider() {
      * Shorthand method.  `$sce.trustAsUrl(value)` →
      *     {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs($sce.URL, value)`}
      *
-     * @param {*} value The value to trustAs.
-     * @returns {*} An object that can be passed to {@link ng.$sce#getTrustedUrl
-     *     $sce.getTrustedUrl(value)} to obtain the original value.  (privileged directives
-     *     only accept expressions that are either literal constants or are the
-     *     return value of {@link ng.$sce#trustAs $sce.trustAs}.)
+     * @param {*} value The value to mark as trusted for `$sce.URL` context.
+     * @return {*} A wrapped version of value that can be used as a trusted variant of your `value`
+     *     in `$sce.URL` context. That context is currently unused, so there are almost no reasons
+     *     to use this function so far.
      */
 
     /**
@@ -19341,11 +19601,10 @@ function $SceProvider() {
      * Shorthand method.  `$sce.trustAsResourceUrl(value)` →
      *     {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs($sce.RESOURCE_URL, value)`}
      *
-     * @param {*} value The value to trustAs.
-     * @returns {*} An object that can be passed to {@link ng.$sce#getTrustedResourceUrl
-     *     $sce.getTrustedResourceUrl(value)} to obtain the original value.  (privileged directives
-     *     only accept expressions that are either literal constants or are the return
-     *     value of {@link ng.$sce#trustAs $sce.trustAs}.)
+     * @param {*} value The value to mark as trusted for `$sce.RESOURCE_URL` context.
+     * @return {*} A wrapped version of value that can be used as a trusted variant of your `value`
+     *     in `$sce.RESOURCE_URL` context (template URLs in `ng-include`, most `src` attribute
+     *     bindings, ...)
      */
 
     /**
@@ -19356,11 +19615,10 @@ function $SceProvider() {
      * Shorthand method.  `$sce.trustAsJs(value)` →
      *     {@link ng.$sceDelegate#trustAs `$sceDelegate.trustAs($sce.JS, value)`}
      *
-     * @param {*} value The value to trustAs.
-     * @returns {*} An object that can be passed to {@link ng.$sce#getTrustedJs
-     *     $sce.getTrustedJs(value)} to obtain the original value.  (privileged directives
-     *     only accept expressions that are either literal constants or are the
-     *     return value of {@link ng.$sce#trustAs $sce.trustAs}.)
+     * @param {*} value The value to mark as trusted for `$sce.JS` context.
+     * @return {*} A wrapped version of value that can be used as a trusted variant of your `value`
+     *     in `$sce.JS` context. That context is currently unused, so there are almost no reasons to
+     *     use this function so far.
      */
 
     /**
@@ -19369,16 +19627,17 @@ function $SceProvider() {
      *
      * @description
      * Delegates to {@link ng.$sceDelegate#getTrusted `$sceDelegate.getTrusted`}.  As such,
-     * takes the result of a {@link ng.$sce#trustAs `$sce.trustAs`}() call and returns the
-     * originally supplied value if the queried context type is a supertype of the created type.
-     * If this condition isn't satisfied, throws an exception.
+     * takes any input, and either returns a value that's safe to use in the specified context,
+     * or throws an exception. This function is aware of trusted values created by the `trustAs`
+     * function and its shorthands, and when contexts are appropriate, returns the unwrapped value
+     * as-is. Finally, this function can also throw when there is no way to turn `maybeTrusted` in a
+     * safe value (e.g., no sanitization is available or possible.)
      *
-     * @param {string} type The kind of context in which this value is to be used.
-     * @param {*} maybeTrusted The result of a prior {@link ng.$sce#trustAs `$sce.trustAs`}
-     *                         call.
-     * @returns {*} The value the was originally provided to
-     *              {@link ng.$sce#trustAs `$sce.trustAs`} if valid in this context.
-     *              Otherwise, throws an exception.
+     * @param {string} type The context in which this value is to be used.
+     * @param {*} maybeTrusted The result of a prior {@link ng.$sce#trustAs
+     *     `$sce.trustAs`} call, or anything else (which will not be considered trusted.)
+     * @return {*} A version of the value that's safe to use in the given context, or throws an
+     *     exception if this is impossible.
      */
 
     /**
@@ -19390,7 +19649,7 @@ function $SceProvider() {
      *     {@link ng.$sceDelegate#getTrusted `$sceDelegate.getTrusted($sce.HTML, value)`}
      *
      * @param {*} value The value to pass to `$sce.getTrusted`.
-     * @returns {*} The return value of `$sce.getTrusted($sce.HTML, value)`
+     * @return {*} The return value of `$sce.getTrusted($sce.HTML, value)`
      */
 
     /**
@@ -19402,7 +19661,7 @@ function $SceProvider() {
      *     {@link ng.$sceDelegate#getTrusted `$sceDelegate.getTrusted($sce.CSS, value)`}
      *
      * @param {*} value The value to pass to `$sce.getTrusted`.
-     * @returns {*} The return value of `$sce.getTrusted($sce.CSS, value)`
+     * @return {*} The return value of `$sce.getTrusted($sce.CSS, value)`
      */
 
     /**
@@ -19414,7 +19673,7 @@ function $SceProvider() {
      *     {@link ng.$sceDelegate#getTrusted `$sceDelegate.getTrusted($sce.URL, value)`}
      *
      * @param {*} value The value to pass to `$sce.getTrusted`.
-     * @returns {*} The return value of `$sce.getTrusted($sce.URL, value)`
+     * @return {*} The return value of `$sce.getTrusted($sce.URL, value)`
      */
 
     /**
@@ -19426,7 +19685,7 @@ function $SceProvider() {
      *     {@link ng.$sceDelegate#getTrusted `$sceDelegate.getTrusted($sce.RESOURCE_URL, value)`}
      *
      * @param {*} value The value to pass to `$sceDelegate.getTrusted`.
-     * @returns {*} The return value of `$sce.getTrusted($sce.RESOURCE_URL, value)`
+     * @return {*} The return value of `$sce.getTrusted($sce.RESOURCE_URL, value)`
      */
 
     /**
@@ -19438,7 +19697,7 @@ function $SceProvider() {
      *     {@link ng.$sceDelegate#getTrusted `$sceDelegate.getTrusted($sce.JS, value)`}
      *
      * @param {*} value The value to pass to `$sce.getTrusted`.
-     * @returns {*} The return value of `$sce.getTrusted($sce.JS, value)`
+     * @return {*} The return value of `$sce.getTrusted($sce.JS, value)`
      */
 
     /**
@@ -19450,12 +19709,12 @@ function $SceProvider() {
      *     {@link ng.$sce#parseAs `$sce.parseAs($sce.HTML, value)`}
      *
      * @param {string} expression String expression to compile.
-     * @returns {function(context, locals)} a function which represents the compiled expression:
+     * @return {function(context, locals)} A function which represents the compiled expression:
      *
-     *    * `context` – `{object}` – an object against which any expressions embedded in the strings
-     *      are evaluated against (typically a scope object).
-     *    * `locals` – `{object=}` – local variables context object, useful for overriding values in
-     *      `context`.
+     *    * `context` – `{object}` – an object against which any expressions embedded in the
+     *      strings are evaluated against (typically a scope object).
+     *    * `locals` – `{object=}` – local variables context object, useful for overriding values
+     *      in `context`.
      */
 
     /**
@@ -19467,12 +19726,12 @@ function $SceProvider() {
      *     {@link ng.$sce#parseAs `$sce.parseAs($sce.CSS, value)`}
      *
      * @param {string} expression String expression to compile.
-     * @returns {function(context, locals)} a function which represents the compiled expression:
+     * @return {function(context, locals)} A function which represents the compiled expression:
      *
-     *    * `context` – `{object}` – an object against which any expressions embedded in the strings
-     *      are evaluated against (typically a scope object).
-     *    * `locals` – `{object=}` – local variables context object, useful for overriding values in
-     *      `context`.
+     *    * `context` – `{object}` – an object against which any expressions embedded in the
+     *      strings are evaluated against (typically a scope object).
+     *    * `locals` – `{object=}` – local variables context object, useful for overriding values
+     *      in `context`.
      */
 
     /**
@@ -19484,12 +19743,12 @@ function $SceProvider() {
      *     {@link ng.$sce#parseAs `$sce.parseAs($sce.URL, value)`}
      *
      * @param {string} expression String expression to compile.
-     * @returns {function(context, locals)} a function which represents the compiled expression:
+     * @return {function(context, locals)} A function which represents the compiled expression:
      *
-     *    * `context` – `{object}` – an object against which any expressions embedded in the strings
-     *      are evaluated against (typically a scope object).
-     *    * `locals` – `{object=}` – local variables context object, useful for overriding values in
-     *      `context`.
+     *    * `context` – `{object}` – an object against which any expressions embedded in the
+     *      strings are evaluated against (typically a scope object).
+     *    * `locals` – `{object=}` – local variables context object, useful for overriding values
+     *      in `context`.
      */
 
     /**
@@ -19501,12 +19760,12 @@ function $SceProvider() {
      *     {@link ng.$sce#parseAs `$sce.parseAs($sce.RESOURCE_URL, value)`}
      *
      * @param {string} expression String expression to compile.
-     * @returns {function(context, locals)} a function which represents the compiled expression:
+     * @return {function(context, locals)} A function which represents the compiled expression:
      *
-     *    * `context` – `{object}` – an object against which any expressions embedded in the strings
-     *      are evaluated against (typically a scope object).
-     *    * `locals` – `{object=}` – local variables context object, useful for overriding values in
-     *      `context`.
+     *    * `context` – `{object}` – an object against which any expressions embedded in the
+     *      strings are evaluated against (typically a scope object).
+     *    * `locals` – `{object=}` – local variables context object, useful for overriding values
+     *      in `context`.
      */
 
     /**
@@ -19518,12 +19777,12 @@ function $SceProvider() {
      *     {@link ng.$sce#parseAs `$sce.parseAs($sce.JS, value)`}
      *
      * @param {string} expression String expression to compile.
-     * @returns {function(context, locals)} a function which represents the compiled expression:
+     * @return {function(context, locals)} A function which represents the compiled expression:
      *
-     *    * `context` – `{object}` – an object against which any expressions embedded in the strings
-     *      are evaluated against (typically a scope object).
-     *    * `locals` – `{object=}` – local variables context object, useful for overriding values in
-     *      `context`.
+     *    * `context` – `{object}` – an object against which any expressions embedded in the
+     *      strings are evaluated against (typically a scope object).
+     *    * `locals` – `{object=}` – local variables context object, useful for overriding values
+     *      in `context`.
      */
 
     // Shorthand delegations.
@@ -19573,7 +19832,10 @@ function $SnifferProvider() {
         // (see https://developer.chrome.com/apps/api_index). If sandboxed, they can be detected by
         // the presence of an extension runtime ID and the absence of other Chrome runtime APIs
         // (see https://developer.chrome.com/apps/manifest/sandbox).
+        // (NW.js apps have access to Chrome APIs, but do support `history`.)
+        isNw = $window.nw && $window.nw.process,
         isChromePackagedApp =
+            !isNw &&
             $window.chrome &&
             ($window.chrome.app && $window.chrome.app.runtime ||
                 !$window.chrome.app && $window.chrome.runtime && $window.chrome.runtime.id),
@@ -19978,7 +20240,7 @@ var originUrl = urlResolve(window.location.href);
  * URL will be resolved into an absolute URL in the context of the application document.
  * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
  * properties are all populated to reflect the normalized URL.  This approach has wide
- * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
+ * compatibility - Safari 1+, Mozilla 1+ etc.  See
  * http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
  *
  * Implementation Notes for IE
@@ -20344,6 +20606,9 @@ function $FilterProvider($provide) {
  * Selects a subset of items from `array` and returns it as a new array.
  *
  * @param {Array} array The source array.
+ * <div class="alert alert-info">
+ *   **Note**: If the array contains objects that reference themselves, filtering is not possible.
+ * </div>
  * @param {string|Object|function()} expression The predicate to be used for selecting items from
  *   `array`.
  *
@@ -20377,8 +20642,9 @@ function $FilterProvider($provide) {
  *     The final result is an array of those elements that the predicate returned true for.
  *
  * @param {function(actual, expected)|true|false} [comparator] Comparator which is used in
- *     determining if the expected value (from the filter expression) and actual value (from
- *     the object in the array) should be considered a match.
+ *     determining if values retrieved using `expression` (when it is not a function) should be
+ *     considered a match based on the the expected value (from the filter expression) and actual
+ *     value (from the object in the array).
  *
  *   Can be one of:
  *
@@ -20561,7 +20827,10 @@ function deepCompare(actual, expected, comparator, anyPropertyKey, matchAgainstA
       var key;
       if (matchAgainstAnyProp) {
         for (key in actual) {
-          if ((key.charAt(0) !== '$') && deepCompare(actual[key], expected, comparator, anyPropertyKey, true)) {
+          // Under certain, rare, circumstances, key may not be a string and `charAt` will be undefined
+          // See: https://github.com/angular/angular.js/issues/15644
+          if (key.charAt && (key.charAt(0) !== '$') &&
+              deepCompare(actual[key], expected, comparator, anyPropertyKey, true)) {
             return true;
           }
         }
@@ -21070,7 +21339,7 @@ var DATE_FORMATS = {
      GGGG: longEraGetter
 };
 
-var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|m+|s+|a|Z|G+|w+))(.*)/,
+var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|m+|s+|a|Z|G+|w+))([\s\S]*)/,
     NUMBER_STRING = /^-?\d+$/;
 
 /**
@@ -21128,6 +21397,8 @@ var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+
  *   `format` string can contain literal values. These need to be escaped by surrounding with single quotes (e.g.
  *   `"h 'in the morning'"`). In order to output a single quote, escape it - i.e., two single quotes in a sequence
  *   (e.g. `"h 'o''clock'"`).
+ *
+ *   Any other characters in the `format` string will be output as-is.
  *
  * @param {(Date|number|string)} date Date to format either as Date object, milliseconds (string or
  *    number) or various ISO 8601 datetime string formats (e.g. yyyy-MM-ddTHH:mm:ss.sssZ and its
@@ -22334,7 +22605,8 @@ var htmlAnchorDirective = valueFn({
  *
  * @description
  *
- * This directive sets the `disabled` attribute on the element if the
+ * This directive sets the `disabled` attribute on the element (typically a form control,
+ * e.g. `input`, `button`, `select` etc.) if the
  * {@link guide/expression expression} inside `ngDisabled` evaluates to truthy.
  *
  * A special directive is necessary because we cannot use interpolation inside the `disabled`
@@ -24840,15 +25112,27 @@ function isValidForStep(viewValue, stepBase, step) {
   // and `viewValue` is expected to be a valid stringified number.
   var value = Number(viewValue);
 
+  var isNonIntegerValue = !isNumberInteger(value);
+  var isNonIntegerStepBase = !isNumberInteger(stepBase);
+  var isNonIntegerStep = !isNumberInteger(step);
+
   // Due to limitations in Floating Point Arithmetic (e.g. `0.3 - 0.2 !== 0.1` or
   // `0.5 % 0.1 !== 0`), we need to convert all numbers to integers.
-  if (!isNumberInteger(value) || !isNumberInteger(stepBase) || !isNumberInteger(step)) {
-    var decimalCount = Math.max(countDecimals(value), countDecimals(stepBase), countDecimals(step));
+  if (isNonIntegerValue || isNonIntegerStepBase || isNonIntegerStep) {
+    var valueDecimals = isNonIntegerValue ? countDecimals(value) : 0;
+    var stepBaseDecimals = isNonIntegerStepBase ? countDecimals(stepBase) : 0;
+    var stepDecimals = isNonIntegerStep ? countDecimals(step) : 0;
+
+    var decimalCount = Math.max(valueDecimals, stepBaseDecimals, stepDecimals);
     var multiplier = Math.pow(10, decimalCount);
 
     value = value * multiplier;
     stepBase = stepBase * multiplier;
     step = step * multiplier;
+
+    if (isNonIntegerValue) value = Math.round(value);
+    if (isNonIntegerStepBase) stepBase = Math.round(stepBase);
+    if (isNonIntegerStep) step = Math.round(step);
   }
 
   return (value - stepBase) % step === 0;
@@ -25405,7 +25689,10 @@ var ngValueDirective = function() {
    *  makes it possible to use ngValue as a sort of one-way bind.
    */
   function updateElementValue(element, attr, value) {
-    element.prop('value', value);
+    // Support: IE9 only
+    // In IE9 values are converted to string (e.g. `input.value = null` results in `input.value === 'null'`).
+    var propValue = isDefined(value) ? value : (msie === 9) ? '' : null;
+    element.prop('value', propValue);
     attr.$set('value', value);
   }
 
@@ -25727,13 +26014,6 @@ function classDirective(name, selector) {
     return {
       restrict: 'AC',
       link: function(scope, element, attr) {
-        var expression = attr[name].trim();
-        var isOneTime = (expression.charAt(0) === ':') && (expression.charAt(1) === ':');
-
-        var watchInterceptor = isOneTime ? toFlatValue : toClassString;
-        var watchExpression = $parse(expression, watchInterceptor);
-        var watchAction = isOneTime ? ngClassOneTimeWatchAction : ngClassWatchAction;
-
         var classCounts = element.data('$classCounts');
         var oldModulo = true;
         var oldClassString;
@@ -25756,7 +26036,7 @@ function classDirective(name, selector) {
           scope.$watch(indexWatchExpression, ngClassIndexWatchAction);
         }
 
-        scope.$watch(watchExpression, watchAction, isOneTime);
+        scope.$watch($parse(attr[name], toClassString), ngClassWatchAction);
 
         function addClasses(classString) {
           classString = digestClassCounts(split(classString), 1);
@@ -25798,9 +26078,9 @@ function classDirective(name, selector) {
         }
 
         function ngClassIndexWatchAction(newModulo) {
-          // This watch-action should run before the `ngClass[OneTime]WatchAction()`, thus it
+          // This watch-action should run before the `ngClassWatchAction()`, thus it
           // adds/removes `oldClassString`. If the `ngClass` expression has changed as well, the
-          // `ngClass[OneTime]WatchAction()` will update the classes.
+          // `ngClassWatchAction()` will update the classes.
           if (newModulo === selector) {
             addClasses(oldClassString);
           } else {
@@ -25810,15 +26090,13 @@ function classDirective(name, selector) {
           oldModulo = newModulo;
         }
 
-        function ngClassOneTimeWatchAction(newClassValue) {
-          var newClassString = toClassString(newClassValue);
-
-          if (newClassString !== oldClassString) {
-            ngClassWatchAction(newClassString);
-          }
-        }
-
         function ngClassWatchAction(newClassString) {
+          // When using a one-time binding the newClassString will return
+          // the pre-interceptor value until the one-time is complete
+          if (!isString(newClassString)) {
+            newClassString = toClassString(newClassString);
+          }
+
           if (oldModulo === selector) {
             updateClasses(oldClassString, newClassString);
           }
@@ -25864,34 +26142,6 @@ function classDirective(name, selector) {
     }
 
     return classString;
-  }
-
-  function toFlatValue(classValue) {
-    var flatValue = classValue;
-
-    if (isArray(classValue)) {
-      flatValue = classValue.map(toFlatValue);
-    } else if (isObject(classValue)) {
-      var hasUndefined = false;
-
-      flatValue = Object.keys(classValue).filter(function(key) {
-        var value = classValue[key];
-
-        if (!hasUndefined && isUndefined(value)) {
-          hasUndefined = true;
-        }
-
-        return value;
-      });
-
-      if (hasUndefined) {
-        // Prevent the `oneTimeLiteralWatchInterceptor` from unregistering
-        // the watcher, by including at least one `undefined` value.
-        flatValue.push(undefined);
-      }
-    }
-
-    return flatValue;
   }
 }
 
@@ -26733,15 +26983,15 @@ forEach(
       return {
         restrict: 'A',
         compile: function($element, attr) {
-          // We expose the powerful $event object on the scope that provides access to the Window,
-          // etc. that isn't protected by the fast paths in $parse.  We explicitly request better
-          // checks at the cost of speed since event handler expressions are not executed as
-          // frequently as regular change detection.
-          var fn = $parse(attr[directiveName], /* interceptorFn */ null, /* expensiveChecks */ true);
+          // NOTE:
+          // We expose the powerful `$event` object on the scope that provides access to the Window,
+          // etc. This is OK, because expressions are not sandboxed any more (and the expression
+          // sandbox was never meant to be a security feature anyway).
+          var fn = $parse(attr[directiveName]);
           return function ngEventHandler(scope, element) {
             element.on(eventName, function(event) {
               var callback = function() {
-                fn(scope, {$event:event});
+                fn(scope, {$event: event});
               };
               if (forceAsyncEvents[eventName] && $rootScope.$$phase) {
                 scope.$evalAsync(callback);
@@ -27822,32 +28072,57 @@ var ngModelMinErr = minErr('ngModel');
  * @property {*} $viewValue The actual value from the control's view. For `input` elements, this is a
  * String. See {@link ngModel.NgModelController#$setViewValue} for information about when the $viewValue
  * is set.
+ *
  * @property {*} $modelValue The value in the model that the control is bound to.
+ *
  * @property {Array.<Function>} $parsers Array of functions to execute, as a pipeline, whenever
-       the control reads value from the DOM. The functions are called in array order, each passing
-       its return value through to the next. The last return value is forwarded to the
-       {@link ngModel.NgModelController#$validators `$validators`} collection.
+ *  the control updates the ngModelController with a new {@link ngModel.NgModelController#$viewValue
+    `$viewValue`} from the DOM, usually via user input.
+    See {@link ngModel.NgModelController#$setViewValue `$setViewValue()`} for a detailed lifecycle explanation.
+    Note that the `$parsers` are not called when the bound ngModel expression changes programmatically.
 
-Parsers are used to sanitize / convert the {@link ngModel.NgModelController#$viewValue
-`$viewValue`}.
+  The functions are called in array order, each passing
+    its return value through to the next. The last return value is forwarded to the
+    {@link ngModel.NgModelController#$validators `$validators`} collection.
 
-Returning `undefined` from a parser means a parse error occurred. In that case,
-no {@link ngModel.NgModelController#$validators `$validators`} will run and the `ngModel`
-will be set to `undefined` unless {@link ngModelOptions `ngModelOptions.allowInvalid`}
-is set to `true`. The parse error is stored in `ngModel.$error.parse`.
+  Parsers are used to sanitize / convert the {@link ngModel.NgModelController#$viewValue
+    `$viewValue`}.
+
+  Returning `undefined` from a parser means a parse error occurred. In that case,
+    no {@link ngModel.NgModelController#$validators `$validators`} will run and the `ngModel`
+    will be set to `undefined` unless {@link ngModelOptions `ngModelOptions.allowInvalid`}
+    is set to `true`. The parse error is stored in `ngModel.$error.parse`.
+
+  This simple example shows a parser that would convert text input value to lowercase:
+ * ```js
+ * function parse(value) {
+ *   if (value) {
+ *     return value.toLowerCase();
+ *   }
+ * }
+ * ngModelController.$parsers.push(parse);
+ * ```
 
  *
  * @property {Array.<Function>} $formatters Array of functions to execute, as a pipeline, whenever
-       the model value changes. The functions are called in reverse array order, each passing the value through to the
-       next. The last return value is used as the actual DOM value.
-       Used to format / convert values for display in the control.
+    the bound ngModel expression changes programmatically. The `$formatters` are not called when the
+    value of the control is changed by user interaction.
+
+  Formatters are used to format / convert the {@link ngModel.NgModelController#$modelValue
+    `$modelValue`} for display in the control.
+
+  The functions are called in reverse array order, each passing the value through to the
+    next. The last return value is used as the actual DOM value.
+
+  This simple example shows a formatter that would convert the model value to uppercase:
+
  * ```js
- * function formatter(value) {
+ * function format(value) {
  *   if (value) {
  *     return value.toUpperCase();
  *   }
  * }
- * ngModel.$formatters.push(formatter);
+ * ngModel.$formatters.push(format);
  * ```
  *
  * @property {Object.<string, function>} $validators A collection of validators that are applied
@@ -28047,7 +28322,9 @@ function NgModelController($scope, $exceptionHandler, $attr, $element, $parse, $
 
   this.$$currentValidationRunId = 0;
 
-  this.$$scope = $scope;
+  // https://github.com/angular/angular.js/issues/15833
+  // Prevent `$$scope` from being iterated over by `copy` when NgModelController is deep watched
+  Object.defineProperty(this, '$$scope', {value: $scope});
   this.$$attr = $attr;
   this.$$element = $element;
   this.$$animate = $animate;
@@ -28555,9 +28832,10 @@ NgModelController.prototype = {
    *
    * When `$setViewValue` is called, the new `value` will be staged for committing through the `$parsers`
    * and `$validators` pipelines. If there are no special {@link ngModelOptions} specified then the staged
-   * value sent directly for processing, finally to be applied to `$modelValue` and then the
-   * **expression** specified in the `ng-model` attribute. Lastly, all the registered change listeners,
-   * in the `$viewChangeListeners` list, are called.
+   * value is sent directly for processing through the `$parsers` pipeline. After this, the `$validators` and
+   * `$asyncValidators` are called and the value is applied to `$modelValue`.
+   * Finally, the value is set to the **expression** specified in the `ng-model` attribute and
+   * all the registered change listeners, in the `$viewChangeListeners` list are called.
    *
    * In case the {@link ng.directive:ngModelOptions ngModelOptions} directive is used with `updateOn`
    * and the `default` trigger is not listed, all those actions will remain pending until one of the
@@ -28620,6 +28898,29 @@ NgModelController.prototype = {
         that.$commitViewValue();
       });
     }
+  },
+
+  /**
+   * @ngdoc method
+   *
+   * @name ngModel.NgModelController#$overrideModelOptions
+   *
+   * @description
+   *
+   * Override the current model options settings programmatically.
+   *
+   * The previous `ModelOptions` value will not be modified. Instead, a
+   * new `ModelOptions` object will inherit from the previous one overriding
+   * or inheriting settings that are defined in the given parameter.
+   *
+   * See {@link ngModelOptions} for information about what options can be specified
+   * and how model option inheritance works.
+   *
+   * @param {Object} options a hash of settings to override the previous options
+   *
+   */
+  $overrideModelOptions: function(options) {
+    this.$options = this.$options.createChild(options);
   }
 };
 
@@ -28632,8 +28933,8 @@ function setupModelWatcher(ctrl) {
   //    -> scope value did not change since the last digest as
   //       ng-change executes in apply phase
   // 4. view should be changed back to 'a'
-  ctrl.$$scope.$watch(function ngModelWatch() {
-    var modelValue = ctrl.$$ngModelGet(ctrl.$$scope);
+  ctrl.$$scope.$watch(function ngModelWatch(scope) {
+    var modelValue = ctrl.$$ngModelGet(scope);
 
     // if scope model value and ngModel value are out of sync
     // TODO(perf): why not move this to the action fn?
@@ -29461,13 +29762,8 @@ var ngOptionsMinErr = minErr('ngOptions');
  * is not matched against any `<option>` and the `<select>` appears as having no selected value.
  *
  *
- * @param {string} ngModel Assignable angular expression to data-bind to.
- * @param {string=} name Property name of the form under which the control is published.
- * @param {string=} required The control is considered valid only if value is entered.
- * @param {string=} ngRequired Adds `required` attribute and `required` validation constraint to
- *    the element when the ngRequired expression evaluates to true. Use `ngRequired` instead of
- *    `required` when you want to data-bind to the `required` attribute.
- * @param {comprehension_expression=} ngOptions in one of the following forms:
+ * @param {string} ngModel Assignable AngularJS expression to data-bind to.
+ * @param {comprehension_expression} ngOptions in one of the following forms:
  *
  *   * for array data sources:
  *     * `label` **`for`** `value` **`in`** `array`
@@ -29506,6 +29802,13 @@ var ngOptionsMinErr = minErr('ngOptions');
  *      used to identify the objects in the array. The `trackexpr` will most likely refer to the
  *     `value` variable (e.g. `value.propertyName`). With this the selection is preserved
  *      even when the options are recreated (e.g. reloaded from the server).
+ * @param {string=} name Property name of the form under which the control is published.
+ * @param {string=} required The control is considered valid only if value is entered.
+ * @param {string=} ngRequired Adds `required` attribute and `required` validation constraint to
+ *    the element when the ngRequired expression evaluates to true. Use `ngRequired` instead of
+ *    `required` when you want to data-bind to the `required` attribute.
+ * @param {string=} ngAttrSize sets the size of the select element dynamically. Uses the
+ * {@link guide/interpolation#-ngattr-for-binding-to-arbitrary-attributes ngAttr} directive.
  *
  * @example
     <example module="selectExample" name="select">
@@ -30317,6 +30620,7 @@ var ngPluralizeDirective = ['$locale', '$interpolate', '$log', function($locale,
  * @ngdoc directive
  * @name ngRepeat
  * @multiElement
+ * @restrict A
  *
  * @description
  * The `ngRepeat` directive instantiates a template once per item from a collection. Each template
@@ -30883,11 +31187,13 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  * @multiElement
  *
  * @description
- * The `ngShow` directive shows or hides the given HTML element based on the expression
- * provided to the `ngShow` attribute. The element is shown or hidden by removing or adding
- * the `.ng-hide` CSS class onto the element. The `.ng-hide` CSS class is predefined
- * in AngularJS and sets the display style to none (using an !important flag).
- * For CSP mode please add `angular-csp.css` to your html file (see {@link ng.directive:ngCsp ngCsp}).
+ * The `ngShow` directive shows or hides the given HTML element based on the expression provided to
+ * the `ngShow` attribute.
+ *
+ * The element is shown or hidden by removing or adding the `.ng-hide` CSS class onto the element.
+ * The `.ng-hide` CSS class is predefined in AngularJS and sets the display style to none (using an
+ * `!important` flag). For CSP mode please add `angular-csp.css` to your HTML file (see
+ * {@link ng.directive:ngCsp ngCsp}).
  *
  * ```html
  * <!-- when $scope.myValue is truthy (element is visible) -->
@@ -30897,31 +31203,32 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  * <div ng-show="myValue" class="ng-hide"></div>
  * ```
  *
- * When the `ngShow` expression evaluates to a falsy value then the `.ng-hide` CSS class is added to the class
- * attribute on the element causing it to become hidden. When truthy, the `.ng-hide` CSS class is removed
- * from the element causing the element not to appear hidden.
+ * When the `ngShow` expression evaluates to a falsy value then the `.ng-hide` CSS class is added
+ * to the class attribute on the element causing it to become hidden. When truthy, the `.ng-hide`
+ * CSS class is removed from the element causing the element not to appear hidden.
  *
- * ## Why is !important used?
+ * ## Why is `!important` used?
  *
- * You may be wondering why !important is used for the `.ng-hide` CSS class. This is because the `.ng-hide` selector
- * can be easily overridden by heavier selectors. For example, something as simple
- * as changing the display style on a HTML list item would make hidden elements appear visible.
- * This also becomes a bigger issue when dealing with CSS frameworks.
+ * You may be wondering why `!important` is used for the `.ng-hide` CSS class. This is because the
+ * `.ng-hide` selector can be easily overridden by heavier selectors. For example, something as
+ * simple as changing the display style on a HTML list item would make hidden elements appear
+ * visible. This also becomes a bigger issue when dealing with CSS frameworks.
  *
- * By using !important, the show and hide behavior will work as expected despite any clash between CSS selector
- * specificity (when !important isn't used with any conflicting styles). If a developer chooses to override the
- * styling to change how to hide an element then it is just a matter of using !important in their own CSS code.
+ * By using `!important`, the show and hide behavior will work as expected despite any clash between
+ * CSS selector specificity (when `!important` isn't used with any conflicting styles). If a
+ * developer chooses to override the styling to change how to hide an element then it is just a
+ * matter of using `!important` in their own CSS code.
  *
  * ### Overriding `.ng-hide`
  *
- * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
- * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
- * class CSS. Note that the selector that needs to be used is actually `.ng-hide:not(.ng-hide-animate)` to cope
- * with extra animation classes that can be added.
+ * By default, the `.ng-hide` class will style the element with `display: none !important`. If you
+ * wish to change the hide behavior with `ngShow`/`ngHide`, you can simply overwrite the styles for
+ * the `.ng-hide` CSS class. Note that the selector that needs to be used is actually
+ * `.ng-hide:not(.ng-hide-animate)` to cope with extra animation classes that can be added.
  *
  * ```css
  * .ng-hide:not(.ng-hide-animate) {
- *   /&#42; this is just another form of hiding an element &#42;/
+ *   /&#42; These are just alternative ways of hiding an element &#42;/
  *   display: block!important;
  *   position: absolute;
  *   top: -9999px;
@@ -30929,29 +31236,20 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  * }
  * ```
  *
- * By default you don't need to override in CSS anything and the animations will work around the display style.
+ * By default you don't need to override anything in CSS and the animations will work around the
+ * display style.
  *
  * ## A note about animations with `ngShow`
  *
- * Animations in ngShow/ngHide work with the show and hide events that are triggered when the directive expression
- * is true and false. This system works like the animation system present with ngClass except that
- * you must also include the !important flag to override the display property
- * so that you can perform an animation when the element is hidden during the time of the animation.
+ * Animations in `ngShow`/`ngHide` work with the show and hide events that are triggered when the
+ * directive expression is true and false. This system works like the animation system present with
+ * `ngClass` except that you must also include the `!important` flag to override the display
+ * property so that the elements are not actually hidden during the animation.
  *
  * ```css
- * //
- * //a working example can be found at the bottom of this page
- * //
+ * /&#42; A working example can be found at the bottom of this page. &#42;/
  * .my-element.ng-hide-add, .my-element.ng-hide-remove {
- *   /&#42; this is required as of 1.3x to properly
- *      apply all styling in a show/hide animation &#42;/
- *   transition: 0s linear all;
- * }
- *
- * .my-element.ng-hide-add-active,
- * .my-element.ng-hide-remove-active {
- *   /&#42; the transition is defined in the active class &#42;/
- *   transition: 1s linear all;
+ *   transition: all 0.5s linear;
  * }
  *
  * .my-element.ng-hide-add { ... }
@@ -30960,76 +31258,108 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  * .my-element.ng-hide-remove.ng-hide-remove-active { ... }
  * ```
  *
- * Keep in mind that, as of AngularJS version 1.3, there is no need to change the display
- * property to block during animation states--ngAnimate will handle the style toggling automatically for you.
+ * Keep in mind that, as of AngularJS version 1.3, there is no need to change the display property
+ * to block during animation states - ngAnimate will automatically handle the style toggling for you.
  *
  * @animations
- * | Animation                        | Occurs                              |
- * |----------------------------------|-------------------------------------|
- * | {@link $animate#addClass addClass} `.ng-hide`  | after the `ngShow` expression evaluates to a non truthy value and just before the contents are set to hidden |
- * | {@link $animate#removeClass removeClass}  `.ng-hide`  | after the `ngShow` expression evaluates to a truthy value and just before contents are set to visible |
+ * | Animation                                           | Occurs                                                                                                        |
+ * |-----------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+ * | {@link $animate#addClass addClass} `.ng-hide`       | After the `ngShow` expression evaluates to a non truthy value and just before the contents are set to hidden. |
+ * | {@link $animate#removeClass removeClass} `.ng-hide` | After the `ngShow` expression evaluates to a truthy value and just before contents are set to visible.        |
  *
  * @element ANY
- * @param {expression} ngShow If the {@link guide/expression expression} is truthy
- *     then the element is shown or hidden respectively.
+ * @param {expression} ngShow If the {@link guide/expression expression} is truthy/falsy then the
+ *                            element is shown/hidden respectively.
  *
  * @example
-  <example module="ngAnimate" deps="angular-animate.js" animations="true" name="ng-show">
+ * A simple example, animating the element's opacity:
+ *
+  <example module="ngAnimate" deps="angular-animate.js" animations="true" name="ng-show-simple">
     <file name="index.html">
-      Click me: <input type="checkbox" ng-model="checked" aria-label="Toggle ngHide"><br/>
-      <div>
-        Show:
-        <div class="check-element animate-show" ng-show="checked">
-          <span class="glyphicon glyphicon-thumbs-up"></span> I show up when your checkbox is checked.
-        </div>
+      Show: <input type="checkbox" ng-model="checked" aria-label="Toggle ngShow"><br />
+      <div class="check-element animate-show-hide" ng-show="checked">
+        I show up when your checkbox is checked.
       </div>
-      <div>
-        Hide:
-        <div class="check-element animate-show" ng-hide="checked">
-          <span class="glyphicon glyphicon-thumbs-down"></span> I hide when your checkbox is checked.
-        </div>
-      </div>
-    </file>
-    <file name="glyphicons.css">
-      @import url(../../components/bootstrap-3.1.1/css/bootstrap.css);
     </file>
     <file name="animations.css">
-      .animate-show {
-        line-height: 20px;
-        opacity: 1;
-        padding: 10px;
-        border: 1px solid black;
-        background: white;
+      .animate-show-hide.ng-hide {
+        opacity: 0;
       }
 
-      .animate-show.ng-hide-add, .animate-show.ng-hide-remove {
+      .animate-show-hide.ng-hide-add,
+      .animate-show-hide.ng-hide-remove {
         transition: all linear 0.5s;
       }
 
-      .animate-show.ng-hide {
-        line-height: 0;
-        opacity: 0;
-        padding: 0 10px;
-      }
-
       .check-element {
-        padding: 10px;
         border: 1px solid black;
-        background: white;
+        opacity: 1;
+        padding: 10px;
       }
     </file>
     <file name="protractor.js" type="protractor">
-      var thumbsUp = element(by.css('span.glyphicon-thumbs-up'));
-      var thumbsDown = element(by.css('span.glyphicon-thumbs-down'));
+      it('should check ngShow', function() {
+        var checkbox = element(by.model('checked'));
+        var checkElem = element(by.css('.check-element'));
 
-      it('should check ng-show / ng-hide', function() {
-        expect(thumbsUp.isDisplayed()).toBeFalsy();
-        expect(thumbsDown.isDisplayed()).toBeTruthy();
+        expect(checkElem.isDisplayed()).toBe(false);
+        checkbox.click();
+        expect(checkElem.isDisplayed()).toBe(true);
+      });
+    </file>
+  </example>
+ *
+ * <hr />
+ * @example
+ * A more complex example, featuring different show/hide animations:
+ *
+  <example module="ngAnimate" deps="angular-animate.js" animations="true" name="ng-show-complex">
+    <file name="index.html">
+      Show: <input type="checkbox" ng-model="checked" aria-label="Toggle ngShow"><br />
+      <div class="check-element funky-show-hide" ng-show="checked">
+        I show up when your checkbox is checked.
+      </div>
+    </file>
+    <file name="animations.css">
+      body {
+        overflow: hidden;
+        perspective: 1000px;
+      }
 
-        element(by.model('checked')).click();
+      .funky-show-hide.ng-hide-add {
+        transform: rotateZ(0);
+        transform-origin: right;
+        transition: all 0.5s ease-in-out;
+      }
 
-        expect(thumbsUp.isDisplayed()).toBeTruthy();
-        expect(thumbsDown.isDisplayed()).toBeFalsy();
+      .funky-show-hide.ng-hide-add.ng-hide-add-active {
+        transform: rotateZ(-135deg);
+      }
+
+      .funky-show-hide.ng-hide-remove {
+        transform: rotateY(90deg);
+        transform-origin: left;
+        transition: all 0.5s ease;
+      }
+
+      .funky-show-hide.ng-hide-remove.ng-hide-remove-active {
+        transform: rotateY(0);
+      }
+
+      .check-element {
+        border: 1px solid black;
+        opacity: 1;
+        padding: 10px;
+      }
+    </file>
+    <file name="protractor.js" type="protractor">
+      it('should check ngShow', function() {
+        var checkbox = element(by.model('checked'));
+        var checkElem = element(by.css('.check-element'));
+
+        expect(checkElem.isDisplayed()).toBe(false);
+        checkbox.click();
+        expect(checkElem.isDisplayed()).toBe(true);
       });
     </file>
   </example>
@@ -31059,11 +31389,13 @@ var ngShowDirective = ['$animate', function($animate) {
  * @multiElement
  *
  * @description
- * The `ngHide` directive shows or hides the given HTML element based on the expression
- * provided to the `ngHide` attribute. The element is shown or hidden by removing or adding
- * the `ng-hide` CSS class onto the element. The `.ng-hide` CSS class is predefined
- * in AngularJS and sets the display style to none (using an !important flag).
- * For CSP mode please add `angular-csp.css` to your html file (see {@link ng.directive:ngCsp ngCsp}).
+ * The `ngHide` directive shows or hides the given HTML element based on the expression provided to
+ * the `ngHide` attribute.
+ *
+ * The element is shown or hidden by removing or adding the `.ng-hide` CSS class onto the element.
+ * The `.ng-hide` CSS class is predefined in AngularJS and sets the display style to none (using an
+ * `!important` flag). For CSP mode please add `angular-csp.css` to your HTML file (see
+ * {@link ng.directive:ngCsp ngCsp}).
  *
  * ```html
  * <!-- when $scope.myValue is truthy (element is hidden) -->
@@ -31073,30 +31405,32 @@ var ngShowDirective = ['$animate', function($animate) {
  * <div ng-hide="myValue"></div>
  * ```
  *
- * When the `ngHide` expression evaluates to a truthy value then the `.ng-hide` CSS class is added to the class
- * attribute on the element causing it to become hidden. When falsy, the `.ng-hide` CSS class is removed
- * from the element causing the element not to appear hidden.
+ * When the `ngHide` expression evaluates to a truthy value then the `.ng-hide` CSS class is added
+ * to the class attribute on the element causing it to become hidden. When falsy, the `.ng-hide`
+ * CSS class is removed from the element causing the element not to appear hidden.
  *
- * ## Why is !important used?
+ * ## Why is `!important` used?
  *
- * You may be wondering why !important is used for the `.ng-hide` CSS class. This is because the `.ng-hide` selector
- * can be easily overridden by heavier selectors. For example, something as simple
- * as changing the display style on a HTML list item would make hidden elements appear visible.
- * This also becomes a bigger issue when dealing with CSS frameworks.
+ * You may be wondering why `!important` is used for the `.ng-hide` CSS class. This is because the
+ * `.ng-hide` selector can be easily overridden by heavier selectors. For example, something as
+ * simple as changing the display style on a HTML list item would make hidden elements appear
+ * visible. This also becomes a bigger issue when dealing with CSS frameworks.
  *
- * By using !important, the show and hide behavior will work as expected despite any clash between CSS selector
- * specificity (when !important isn't used with any conflicting styles). If a developer chooses to override the
- * styling to change how to hide an element then it is just a matter of using !important in their own CSS code.
+ * By using `!important`, the show and hide behavior will work as expected despite any clash between
+ * CSS selector specificity (when `!important` isn't used with any conflicting styles). If a
+ * developer chooses to override the styling to change how to hide an element then it is just a
+ * matter of using `!important` in their own CSS code.
  *
  * ### Overriding `.ng-hide`
  *
- * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
- * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
- * class in CSS:
+ * By default, the `.ng-hide` class will style the element with `display: none !important`. If you
+ * wish to change the hide behavior with `ngShow`/`ngHide`, you can simply overwrite the styles for
+ * the `.ng-hide` CSS class. Note that the selector that needs to be used is actually
+ * `.ng-hide:not(.ng-hide-animate)` to cope with extra animation classes that can be added.
  *
  * ```css
- * .ng-hide {
- *   /&#42; this is just another form of hiding an element &#42;/
+ * .ng-hide:not(.ng-hide-animate) {
+ *   /&#42; These are just alternative ways of hiding an element &#42;/
  *   display: block!important;
  *   position: absolute;
  *   top: -9999px;
@@ -31104,20 +31438,20 @@ var ngShowDirective = ['$animate', function($animate) {
  * }
  * ```
  *
- * By default you don't need to override in CSS anything and the animations will work around the display style.
+ * By default you don't need to override in CSS anything and the animations will work around the
+ * display style.
  *
  * ## A note about animations with `ngHide`
  *
- * Animations in ngShow/ngHide work with the show and hide events that are triggered when the directive expression
- * is true and false. This system works like the animation system present with ngClass, except that the `.ng-hide`
- * CSS class is added and removed for you instead of your own CSS class.
+ * Animations in `ngShow`/`ngHide` work with the show and hide events that are triggered when the
+ * directive expression is true and false. This system works like the animation system present with
+ * `ngClass` except that you must also include the `!important` flag to override the display
+ * property so that the elements are not actually hidden during the animation.
  *
  * ```css
- * //
- * //a working example can be found at the bottom of this page
- * //
+ * /&#42; A working example can be found at the bottom of this page. &#42;/
  * .my-element.ng-hide-add, .my-element.ng-hide-remove {
- *   transition: 0.5s linear all;
+ *   transition: all 0.5s linear;
  * }
  *
  * .my-element.ng-hide-add { ... }
@@ -31126,74 +31460,109 @@ var ngShowDirective = ['$animate', function($animate) {
  * .my-element.ng-hide-remove.ng-hide-remove-active { ... }
  * ```
  *
- * Keep in mind that, as of AngularJS version 1.3, there is no need to change the display
- * property to block during animation states--ngAnimate will handle the style toggling automatically for you.
+ * Keep in mind that, as of AngularJS version 1.3, there is no need to change the display property
+ * to block during animation states - ngAnimate will automatically handle the style toggling for you.
  *
  * @animations
- * | Animation                        | Occurs                              |
- * |----------------------------------|-------------------------------------|
- * | {@link $animate#addClass addClass} `.ng-hide`  | after the `ngHide` expression evaluates to a truthy value and just before the contents are set to hidden |
- * | {@link $animate#removeClass removeClass}  `.ng-hide`  | after the `ngHide` expression evaluates to a non truthy value and just before contents are set to visible |
+ * | Animation                                           | Occurs                                                                                                     |
+ * |-----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+ * | {@link $animate#addClass addClass} `.ng-hide`       | After the `ngHide` expression evaluates to a truthy value and just before the contents are set to hidden.  |
+ * | {@link $animate#removeClass removeClass} `.ng-hide` | After the `ngHide` expression evaluates to a non truthy value and just before contents are set to visible. |
  *
  *
  * @element ANY
- * @param {expression} ngHide If the {@link guide/expression expression} is truthy then
- *     the element is shown or hidden respectively.
+ * @param {expression} ngHide If the {@link guide/expression expression} is truthy/falsy then the
+ *                            element is hidden/shown respectively.
  *
  * @example
-  <example module="ngAnimate" deps="angular-animate.js" animations="true" name="ng-hide">
+ * A simple example, animating the element's opacity:
+ *
+  <example module="ngAnimate" deps="angular-animate.js" animations="true" name="ng-hide-simple">
     <file name="index.html">
-      Click me: <input type="checkbox" ng-model="checked" aria-label="Toggle ngShow"><br/>
-      <div>
-        Show:
-        <div class="check-element animate-hide" ng-show="checked">
-          <span class="glyphicon glyphicon-thumbs-up"></span> I show up when your checkbox is checked.
-        </div>
+      Hide: <input type="checkbox" ng-model="checked" aria-label="Toggle ngHide"><br />
+      <div class="check-element animate-show-hide" ng-hide="checked">
+        I hide when your checkbox is checked.
       </div>
-      <div>
-        Hide:
-        <div class="check-element animate-hide" ng-hide="checked">
-          <span class="glyphicon glyphicon-thumbs-down"></span> I hide when your checkbox is checked.
-        </div>
-      </div>
-    </file>
-    <file name="glyphicons.css">
-      @import url(../../components/bootstrap-3.1.1/css/bootstrap.css);
     </file>
     <file name="animations.css">
-      .animate-hide {
-        transition: all linear 0.5s;
-        line-height: 20px;
-        opacity: 1;
-        padding: 10px;
-        border: 1px solid black;
-        background: white;
+      .animate-show-hide.ng-hide {
+        opacity: 0;
       }
 
-      .animate-hide.ng-hide {
-        line-height: 0;
-        opacity: 0;
-        padding: 0 10px;
+      .animate-show-hide.ng-hide-add,
+      .animate-show-hide.ng-hide-remove {
+        transition: all linear 0.5s;
       }
 
       .check-element {
-        padding: 10px;
         border: 1px solid black;
-        background: white;
+        opacity: 1;
+        padding: 10px;
       }
     </file>
     <file name="protractor.js" type="protractor">
-      var thumbsUp = element(by.css('span.glyphicon-thumbs-up'));
-      var thumbsDown = element(by.css('span.glyphicon-thumbs-down'));
+      it('should check ngHide', function() {
+        var checkbox = element(by.model('checked'));
+        var checkElem = element(by.css('.check-element'));
 
-      it('should check ng-show / ng-hide', function() {
-        expect(thumbsUp.isDisplayed()).toBeFalsy();
-        expect(thumbsDown.isDisplayed()).toBeTruthy();
+        expect(checkElem.isDisplayed()).toBe(true);
+        checkbox.click();
+        expect(checkElem.isDisplayed()).toBe(false);
+      });
+    </file>
+  </example>
+ *
+ * <hr />
+ * @example
+ * A more complex example, featuring different show/hide animations:
+ *
+  <example module="ngAnimate" deps="angular-animate.js" animations="true" name="ng-hide-complex">
+    <file name="index.html">
+      Hide: <input type="checkbox" ng-model="checked" aria-label="Toggle ngHide"><br />
+      <div class="check-element funky-show-hide" ng-hide="checked">
+        I hide when your checkbox is checked.
+      </div>
+    </file>
+    <file name="animations.css">
+      body {
+        overflow: hidden;
+        perspective: 1000px;
+      }
 
-        element(by.model('checked')).click();
+      .funky-show-hide.ng-hide-add {
+        transform: rotateZ(0);
+        transform-origin: right;
+        transition: all 0.5s ease-in-out;
+      }
 
-        expect(thumbsUp.isDisplayed()).toBeTruthy();
-        expect(thumbsDown.isDisplayed()).toBeFalsy();
+      .funky-show-hide.ng-hide-add.ng-hide-add-active {
+        transform: rotateZ(-135deg);
+      }
+
+      .funky-show-hide.ng-hide-remove {
+        transform: rotateY(90deg);
+        transform-origin: left;
+        transition: all 0.5s ease;
+      }
+
+      .funky-show-hide.ng-hide-remove.ng-hide-remove-active {
+        transform: rotateY(0);
+      }
+
+      .check-element {
+        border: 1px solid black;
+        opacity: 1;
+        padding: 10px;
+      }
+    </file>
+    <file name="protractor.js" type="protractor">
+      it('should check ngHide', function() {
+        var checkbox = element(by.model('checked'));
+        var checkElem = element(by.css('.check-element'));
+
+        expect(checkElem.isDisplayed()).toBe(true);
+        checkbox.click();
+        expect(checkElem.isDisplayed()).toBe(false);
       });
     </file>
   </example>
@@ -31776,6 +32145,18 @@ var scriptDirective = ['$templateCache', function($templateCache) {
 
 var noopNgModelController = { $setViewValue: noop, $render: noop };
 
+function setOptionSelectedStatus(optionEl, value) {
+  optionEl.prop('selected', value); // needed for IE
+  /**
+   * When unselecting an option, setting the property to null / false should be enough
+   * However, screenreaders might react to the selected attribute instead, see
+   * https://github.com/angular/angular.js/issues/14419
+   * Note: "selected" is a boolean attr and will be removed when the "value" arg in attr() is false
+   * or null
+   */
+  optionEl.attr('selected', value);
+}
+
 /**
  * @ngdoc type
  * @name  select.SelectController
@@ -31788,7 +32169,7 @@ var SelectController =
         ['$element', '$scope', /** @this */ function($element, $scope) {
 
   var self = this,
-      optionsMap = new HashMap();
+      optionsMap = new NgMap();
 
   self.selectValueMap = {}; // Keys are the hashed values, values the original values
 
@@ -31816,14 +32197,14 @@ var SelectController =
     var unknownVal = self.generateUnknownOptionValue(val);
     self.unknownOption.val(unknownVal);
     $element.prepend(self.unknownOption);
-    setOptionAsSelected(self.unknownOption);
+    setOptionSelectedStatus(self.unknownOption, true);
     $element.val(unknownVal);
   };
 
   self.updateUnknownOption = function(val) {
     var unknownVal = self.generateUnknownOptionValue(val);
     self.unknownOption.val(unknownVal);
-    setOptionAsSelected(self.unknownOption);
+    setOptionSelectedStatus(self.unknownOption, true);
     $element.val(unknownVal);
   };
 
@@ -31838,7 +32219,7 @@ var SelectController =
   self.selectEmptyOption = function() {
     if (self.emptyOption) {
       $element.val('');
-      setOptionAsSelected(self.emptyOption);
+      setOptionSelectedStatus(self.emptyOption, true);
     }
   };
 
@@ -31874,7 +32255,7 @@ var SelectController =
     // Make sure to remove the selected attribute from the previously selected option
     // Otherwise, screen readers might get confused
     var currentlySelectedOption = $element[0].options[$element[0].selectedIndex];
-    if (currentlySelectedOption) currentlySelectedOption.removeAttribute('selected');
+    if (currentlySelectedOption) setOptionSelectedStatus(jqLite(currentlySelectedOption), false);
 
     if (self.hasOption(value)) {
       self.removeUnknownOption();
@@ -31884,7 +32265,7 @@ var SelectController =
 
       // Set selected attribute and property on selected option for screen readers
       var selectedOption = $element[0].options[$element[0].selectedIndex];
-      setOptionAsSelected(jqLite(selectedOption));
+      setOptionSelectedStatus(jqLite(selectedOption), true);
     } else {
       if (value == null && self.emptyOption) {
         self.removeUnknownOption();
@@ -31909,7 +32290,7 @@ var SelectController =
       self.emptyOption = element;
     }
     var count = optionsMap.get(value) || 0;
-    optionsMap.put(value, count + 1);
+    optionsMap.set(value, count + 1);
     // Only render at the end of a digest. This improves render performance when many options
     // are added during a digest and ensures all relevant options are correctly marked as selected
     scheduleRender();
@@ -31920,13 +32301,13 @@ var SelectController =
     var count = optionsMap.get(value);
     if (count) {
       if (count === 1) {
-        optionsMap.remove(value);
+        optionsMap.delete(value);
         if (value === '') {
           self.hasEmptyOption = false;
           self.emptyOption = undefined;
         }
       } else {
-        optionsMap.put(value, count - 1);
+        optionsMap.set(value, count - 1);
       }
     }
   };
@@ -32053,7 +32434,7 @@ var SelectController =
       var removeValue = optionAttrs.value;
 
       self.removeOption(removeValue);
-      self.ngModelCtrl.$render();
+      scheduleRender();
 
       if (self.multiple && currentValue && currentValue.indexOf(removeValue) !== -1 ||
           currentValue === removeValue
@@ -32064,11 +32445,6 @@ var SelectController =
       }
     });
   };
-
-  function setOptionAsSelected(optionEl) {
-    optionEl.prop('selected', true); // needed for IE
-    optionEl.attr('selected', true);
-  }
 }];
 
 /**
@@ -32138,6 +32514,8 @@ var SelectController =
  *    interaction with the select element.
  * @param {string=} ngOptions sets the options that the select is populated with and defines what is
  * set on the model on selection. See {@link ngOptions `ngOptions`}.
+ * @param {string=} ngAttrSize sets the size of the select element dynamically. Uses the
+ * {@link guide/interpolation#-ngattr-for-binding-to-arbitrary-attributes ngAttr} directive.
  *
  * @example
  * ### Simple `select` elements with static options
@@ -32378,9 +32756,21 @@ var selectDirective = function() {
 
         // Write value now needs to set the selected property of each matching option
         selectCtrl.writeValue = function writeMultipleValue(value) {
-          var items = new HashMap(value);
           forEach(element.find('option'), function(option) {
-            option.selected = isDefined(items.get(option.value)) || isDefined(items.get(selectCtrl.selectValueMap[option.value]));
+            var shouldBeSelected = !!value && (includes(value, option.value) ||
+                                               includes(value, selectCtrl.selectValueMap[option.value]));
+            var currentlySelected = option.selected;
+
+            // IE and Edge, adding options to the selection via shift+click/UP/DOWN,
+            // will de-select already selected options if "selected" on those options was set
+            // more than once (i.e. when the options were already selected)
+            // So we only modify the selected property if neccessary.
+            // Note: this behavior cannot be replicated via unit tests because it only shows in the
+            // actual user interface.
+            if (shouldBeSelected !== currentlySelected) {
+              setOptionSelectedStatus(jqLite(option), shouldBeSelected);
+            }
+
           });
         };
 
@@ -32981,8 +33371,8 @@ $provide.value("$locale", {
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
 /**
- * @license AngularJS v1.6.1
- * (c) 2010-2016 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.6.4
+ * (c) 2010-2017 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window, angular) {'use strict';
@@ -33005,6 +33395,7 @@ var forEach;
 var isDefined;
 var lowercase;
 var noop;
+var nodeContains;
 var htmlParser;
 var htmlSanitizeWriter;
 
@@ -33205,6 +33596,11 @@ function $SanitizeProvider() {
   htmlParser = htmlParserImpl;
   htmlSanitizeWriter = htmlSanitizeWriterImpl;
 
+  nodeContains = window.Node.prototype.contains || /** @this */ function(arg) {
+    // eslint-disable-next-line no-bitwise
+    return !!(this.compareDocumentPosition(arg) & 16);
+  };
+
   // Regular Expressions for parsing tags and attributes
   var SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
     // Match everything outside of normal chars and " (quote character)
@@ -33368,12 +33764,12 @@ function $SanitizeProvider() {
         if (node.nodeType === 1) {
           handler.end(node.nodeName.toLowerCase());
         }
-        nextNode = node.nextSibling;
+        nextNode = getNonDescendant('nextSibling', node);
         if (!nextNode) {
           while (nextNode == null) {
-            node = node.parentNode;
+            node = getNonDescendant('parentNode', node);
             if (node === inertBodyElement) break;
-            nextNode = node.nextSibling;
+            nextNode = getNonDescendant('nextSibling', node);
             if (node.nodeType === 1) {
               handler.end(node.nodeName.toLowerCase());
             }
@@ -33505,8 +33901,17 @@ function $SanitizeProvider() {
         stripCustomNsAttrs(nextNode);
       }
 
-      node = node.nextSibling;
+      node = getNonDescendant('nextSibling', node);
     }
+  }
+
+  function getNonDescendant(propName, node) {
+    // An element is clobbered if its `propName` property points to one of its descendants
+    var nextNode = node[propName];
+    if (nextNode && nodeContains.call(node, nextNode)) {
+      throw $sanitizeMinErr('elclob', 'Failed to sanitize html because the element is clobbered: {0}', node.outerHTML || node.outerText);
+    }
+    return nextNode;
   }
 }
 
@@ -33519,7 +33924,9 @@ function sanitizeText(chars) {
 
 
 // define ngSanitize module and register $sanitize service
-angular.module('ngSanitize', []).provider('$sanitize', $SanitizeProvider);
+angular.module('ngSanitize', [])
+  .provider('$sanitize', $SanitizeProvider)
+  .info({ angularVersion: '1.6.4' });
 
 /**
  * @ngdoc filter
@@ -33721,8 +34128,8 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 })(window, window.angular);
 
 /**
- * @license AngularJS v1.6.1
- * (c) 2010-2016 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.6.4
+ * (c) 2010-2017 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window, angular) {'use strict';
@@ -35892,9 +36299,9 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
     }
   }
 
-  function isAllowed(ruleType, element, currentAnimation, previousAnimation) {
+  function isAllowed(ruleType, currentAnimation, previousAnimation) {
     return rules[ruleType].some(function(fn) {
-      return fn(element, currentAnimation, previousAnimation);
+      return fn(currentAnimation, previousAnimation);
     });
   }
 
@@ -35904,40 +36311,40 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
     return and ? a && b : a || b;
   }
 
-  rules.join.push(function(element, newAnimation, currentAnimation) {
+  rules.join.push(function(newAnimation, currentAnimation) {
     // if the new animation is class-based then we can just tack that on
     return !newAnimation.structural && hasAnimationClasses(newAnimation);
   });
 
-  rules.skip.push(function(element, newAnimation, currentAnimation) {
+  rules.skip.push(function(newAnimation, currentAnimation) {
     // there is no need to animate anything if no classes are being added and
     // there is no structural animation that will be triggered
     return !newAnimation.structural && !hasAnimationClasses(newAnimation);
   });
 
-  rules.skip.push(function(element, newAnimation, currentAnimation) {
+  rules.skip.push(function(newAnimation, currentAnimation) {
     // why should we trigger a new structural animation if the element will
     // be removed from the DOM anyway?
     return currentAnimation.event === 'leave' && newAnimation.structural;
   });
 
-  rules.skip.push(function(element, newAnimation, currentAnimation) {
+  rules.skip.push(function(newAnimation, currentAnimation) {
     // if there is an ongoing current animation then don't even bother running the class-based animation
     return currentAnimation.structural && currentAnimation.state === RUNNING_STATE && !newAnimation.structural;
   });
 
-  rules.cancel.push(function(element, newAnimation, currentAnimation) {
+  rules.cancel.push(function(newAnimation, currentAnimation) {
     // there can never be two structural animations running at the same time
     return currentAnimation.structural && newAnimation.structural;
   });
 
-  rules.cancel.push(function(element, newAnimation, currentAnimation) {
+  rules.cancel.push(function(newAnimation, currentAnimation) {
     // if the previous animation is already running, but the new animation will
     // be triggered, but the new animation is structural
     return currentAnimation.state === RUNNING_STATE && newAnimation.structural;
   });
 
-  rules.cancel.push(function(element, newAnimation, currentAnimation) {
+  rules.cancel.push(function(newAnimation, currentAnimation) {
     // cancel the animation if classes added / removed in both animation cancel each other out,
     // but only if the current animation isn't structural
 
@@ -35956,15 +36363,15 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
     return hasMatchingClasses(nA, cR) || hasMatchingClasses(nR, cA);
   });
 
-  this.$get = ['$$rAF', '$rootScope', '$rootElement', '$document', '$$HashMap',
+  this.$get = ['$$rAF', '$rootScope', '$rootElement', '$document', '$$Map',
                '$$animation', '$$AnimateRunner', '$templateRequest', '$$jqLite', '$$forceReflow',
                '$$isDocumentHidden',
-       function($$rAF,   $rootScope,   $rootElement,   $document,   $$HashMap,
+       function($$rAF,   $rootScope,   $rootElement,   $document,   $$Map,
                 $$animation,   $$AnimateRunner,   $templateRequest,   $$jqLite,   $$forceReflow,
                 $$isDocumentHidden) {
 
-    var activeAnimationsLookup = new $$HashMap();
-    var disabledElementsLookup = new $$HashMap();
+    var activeAnimationsLookup = new $$Map();
+    var disabledElementsLookup = new $$Map();
     var animationsEnabled = null;
 
     function postDigestTaskFactory() {
@@ -36037,10 +36444,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       return this === arg || !!(this.compareDocumentPosition(arg) & 16);
     };
 
-    function findCallbacks(parent, element, event) {
-      var targetNode = getDomNode(element);
-      var targetParentNode = getDomNode(parent);
-
+    function findCallbacks(targetParentNode, targetNode, event) {
       var matches = [];
       var entries = callbackRegistry[event];
       if (entries) {
@@ -36065,11 +36469,11 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       });
     }
 
-    function cleanupEventListeners(phase, element) {
-      if (phase === 'close' && !element[0].parentNode) {
+    function cleanupEventListeners(phase, node) {
+      if (phase === 'close' && !node.parentNode) {
         // If the element is not attached to a parentNode, it has been removed by
         // the domOperation, and we can safely remove the event callbacks
-        $animate.off(element);
+        $animate.off(node);
       }
     }
 
@@ -36150,7 +36554,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
               bool = !disabledElementsLookup.get(node);
             } else {
               // (element, bool) - Element setter
-              disabledElementsLookup.put(node, !bool);
+              disabledElementsLookup.set(node, !bool);
             }
           }
         }
@@ -36161,18 +36565,15 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
 
     return $animate;
 
-    function queueAnimation(element, event, initialOptions) {
+    function queueAnimation(originalElement, event, initialOptions) {
       // we always make a copy of the options since
       // there should never be any side effects on
       // the input data when running `$animateCss`.
       var options = copy(initialOptions);
 
-      var node, parent;
-      element = stripCommentsFromElement(element);
-      if (element) {
-        node = getDomNode(element);
-        parent = element.parent();
-      }
+      var element = stripCommentsFromElement(originalElement);
+      var node = getDomNode(element);
+      var parentNode = node && node.parentNode;
 
       options = prepareAnimationOptions(options);
 
@@ -36237,7 +36638,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       // there is no point in traversing the same collection of parent ancestors if a followup
       // animation will be run on the same element that already did all that checking work
       if (!skipAnimations && (!hasExistingAnimation || existingAnimation.state !== PRE_DIGEST_STATE)) {
-        skipAnimations = !areAnimationsAllowed(element, parent, event);
+        skipAnimations = !areAnimationsAllowed(node, parentNode, event);
       }
 
       if (skipAnimations) {
@@ -36249,7 +36650,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       }
 
       if (isStructural) {
-        closeChildAnimations(element);
+        closeChildAnimations(node);
       }
 
       var newAnimation = {
@@ -36264,7 +36665,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       };
 
       if (hasExistingAnimation) {
-        var skipAnimationFlag = isAllowed('skip', element, newAnimation, existingAnimation);
+        var skipAnimationFlag = isAllowed('skip', newAnimation, existingAnimation);
         if (skipAnimationFlag) {
           if (existingAnimation.state === RUNNING_STATE) {
             close();
@@ -36274,7 +36675,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
             return existingAnimation.runner;
           }
         }
-        var cancelAnimationFlag = isAllowed('cancel', element, newAnimation, existingAnimation);
+        var cancelAnimationFlag = isAllowed('cancel', newAnimation, existingAnimation);
         if (cancelAnimationFlag) {
           if (existingAnimation.state === RUNNING_STATE) {
             // this will end the animation right away and it is safe
@@ -36296,7 +36697,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
           // a joined animation means that this animation will take over the existing one
           // so an example would involve a leave animation taking over an enter. Then when
           // the postDigest kicks in the enter will be ignored.
-          var joinAnimationFlag = isAllowed('join', element, newAnimation, existingAnimation);
+          var joinAnimationFlag = isAllowed('join', newAnimation, existingAnimation);
           if (joinAnimationFlag) {
             if (existingAnimation.state === RUNNING_STATE) {
               normalizeAnimationDetails(element, newAnimation);
@@ -36330,7 +36731,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
 
       if (!isValidAnimation) {
         close();
-        clearElementAnimationState(element);
+        clearElementAnimationState(node);
         return runner;
       }
 
@@ -36338,9 +36739,18 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       var counter = (existingAnimation.counter || 0) + 1;
       newAnimation.counter = counter;
 
-      markElementAnimationState(element, PRE_DIGEST_STATE, newAnimation);
+      markElementAnimationState(node, PRE_DIGEST_STATE, newAnimation);
 
       $rootScope.$$postDigest(function() {
+        // It is possible that the DOM nodes inside `originalElement` have been replaced. This can
+        // happen if the animated element is a transcluded clone and also has a `templateUrl`
+        // directive on it. Therefore, we must recreate `element` in order to interact with the
+        // actual DOM nodes.
+        // Note: We still need to use the old `node` for certain things, such as looking up in
+        //       HashMaps where it was used as the key.
+
+        element = stripCommentsFromElement(originalElement);
+
         var animationDetails = activeAnimationsLookup.get(node);
         var animationCancelled = !animationDetails;
         animationDetails = animationDetails || {};
@@ -36379,7 +36789,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
           // isn't allowed to animate from here then we need to clear the state of the element
           // so that any future animations won't read the expired animation data.
           if (!isValidAnimation) {
-            clearElementAnimationState(element);
+            clearElementAnimationState(node);
           }
 
           return;
@@ -36391,7 +36801,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
             ? 'setClass'
             : animationDetails.event;
 
-        markElementAnimationState(element, RUNNING_STATE);
+        markElementAnimationState(node, RUNNING_STATE);
         var realRunner = $$animation(element, event, animationDetails.options);
 
         // this will update the runner's flow-control events based on
@@ -36403,7 +36813,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
           close(!status);
           var animationDetails = activeAnimationsLookup.get(node);
           if (animationDetails && animationDetails.counter === counter) {
-            clearElementAnimationState(getDomNode(element));
+            clearElementAnimationState(node);
           }
           notifyProgress(runner, event, 'close', {});
         });
@@ -36413,7 +36823,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
 
       function notifyProgress(runner, event, phase, data) {
         runInNextPostDigestOrNow(function() {
-          var callbacks = findCallbacks(parent, element, event);
+          var callbacks = findCallbacks(parentNode, node, event);
           if (callbacks.length) {
             // do not optimize this call here to RAF because
             // we don't know how heavy the callback code here will
@@ -36423,10 +36833,10 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
               forEach(callbacks, function(callback) {
                 callback(element, phase, data);
               });
-              cleanupEventListeners(phase, element);
+              cleanupEventListeners(phase, node);
             });
           } else {
-            cleanupEventListeners(phase, element);
+            cleanupEventListeners(phase, node);
           }
         });
         runner.progress(event, phase, data);
@@ -36441,8 +36851,7 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
       }
     }
 
-    function closeChildAnimations(element) {
-      var node = getDomNode(element);
+    function closeChildAnimations(node) {
       var children = node.querySelectorAll('[' + NG_ANIMATE_ATTR_NAME + ']');
       forEach(children, function(child) {
         var state = parseInt(child.getAttribute(NG_ANIMATE_ATTR_NAME), 10);
@@ -36453,21 +36862,16 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
               animationDetails.runner.end();
               /* falls through */
             case PRE_DIGEST_STATE:
-              activeAnimationsLookup.remove(child);
+              activeAnimationsLookup.delete(child);
               break;
           }
         }
       });
     }
 
-    function clearElementAnimationState(element) {
-      var node = getDomNode(element);
+    function clearElementAnimationState(node) {
       node.removeAttribute(NG_ANIMATE_ATTR_NAME);
-      activeAnimationsLookup.remove(node);
-    }
-
-    function isMatchingElement(nodeOrElmA, nodeOrElmB) {
-      return getDomNode(nodeOrElmA) === getDomNode(nodeOrElmB);
+      activeAnimationsLookup.delete(node);
     }
 
     /**
@@ -36477,54 +36881,54 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
      * c) the element is not a child of the body
      * d) the element is not a child of the $rootElement
      */
-    function areAnimationsAllowed(element, parentElement, event) {
-      var bodyElement = jqLite($document[0].body);
-      var bodyElementDetected = isMatchingElement(element, bodyElement) || element[0].nodeName === 'HTML';
-      var rootElementDetected = isMatchingElement(element, $rootElement);
-      var parentAnimationDetected = false;
-      var animateChildren;
-      var elementDisabled = disabledElementsLookup.get(getDomNode(element));
+    function areAnimationsAllowed(node, parentNode, event) {
+      var bodyNode = $document[0].body;
+      var rootNode = getDomNode($rootElement);
 
-      var parentHost = jqLite.data(element[0], NG_ANIMATE_PIN_DATA);
+      var bodyNodeDetected = (node === bodyNode) || node.nodeName === 'HTML';
+      var rootNodeDetected = (node === rootNode);
+      var parentAnimationDetected = false;
+      var elementDisabled = disabledElementsLookup.get(node);
+      var animateChildren;
+
+      var parentHost = jqLite.data(node, NG_ANIMATE_PIN_DATA);
       if (parentHost) {
-        parentElement = parentHost;
+        parentNode = getDomNode(parentHost);
       }
 
-      parentElement = getDomNode(parentElement);
-
-      while (parentElement) {
-        if (!rootElementDetected) {
+      while (parentNode) {
+        if (!rootNodeDetected) {
           // angular doesn't want to attempt to animate elements outside of the application
           // therefore we need to ensure that the rootElement is an ancestor of the current element
-          rootElementDetected = isMatchingElement(parentElement, $rootElement);
+          rootNodeDetected = (parentNode === rootNode);
         }
 
-        if (parentElement.nodeType !== ELEMENT_NODE) {
+        if (parentNode.nodeType !== ELEMENT_NODE) {
           // no point in inspecting the #document element
           break;
         }
 
-        var details = activeAnimationsLookup.get(parentElement) || {};
+        var details = activeAnimationsLookup.get(parentNode) || {};
         // either an enter, leave or move animation will commence
         // therefore we can't allow any animations to take place
         // but if a parent animation is class-based then that's ok
         if (!parentAnimationDetected) {
-          var parentElementDisabled = disabledElementsLookup.get(parentElement);
+          var parentNodeDisabled = disabledElementsLookup.get(parentNode);
 
-          if (parentElementDisabled === true && elementDisabled !== false) {
+          if (parentNodeDisabled === true && elementDisabled !== false) {
             // disable animations if the user hasn't explicitly enabled animations on the
             // current element
             elementDisabled = true;
             // element is disabled via parent element, no need to check anything else
             break;
-          } else if (parentElementDisabled === false) {
+          } else if (parentNodeDisabled === false) {
             elementDisabled = false;
           }
           parentAnimationDetected = details.structural;
         }
 
         if (isUndefined(animateChildren) || animateChildren === true) {
-          var value = jqLite.data(parentElement, NG_ANIMATE_CHILDREN_DATA);
+          var value = jqLite.data(parentNode, NG_ANIMATE_CHILDREN_DATA);
           if (isDefined(value)) {
             animateChildren = value;
           }
@@ -36533,47 +36937,46 @@ var $$AnimateQueueProvider = ['$animateProvider', /** @this */ function($animate
         // there is no need to continue traversing at this point
         if (parentAnimationDetected && animateChildren === false) break;
 
-        if (!bodyElementDetected) {
+        if (!bodyNodeDetected) {
           // we also need to ensure that the element is or will be a part of the body element
           // otherwise it is pointless to even issue an animation to be rendered
-          bodyElementDetected = isMatchingElement(parentElement, bodyElement);
+          bodyNodeDetected = (parentNode === bodyNode);
         }
 
-        if (bodyElementDetected && rootElementDetected) {
+        if (bodyNodeDetected && rootNodeDetected) {
           // If both body and root have been found, any other checks are pointless,
           // as no animation data should live outside the application
           break;
         }
 
-        if (!rootElementDetected) {
-          // If no rootElement is detected, check if the parentElement is pinned to another element
-          parentHost = jqLite.data(parentElement, NG_ANIMATE_PIN_DATA);
+        if (!rootNodeDetected) {
+          // If `rootNode` is not detected, check if `parentNode` is pinned to another element
+          parentHost = jqLite.data(parentNode, NG_ANIMATE_PIN_DATA);
           if (parentHost) {
             // The pin target element becomes the next parent element
-            parentElement = getDomNode(parentHost);
+            parentNode = getDomNode(parentHost);
             continue;
           }
         }
 
-        parentElement = parentElement.parentNode;
+        parentNode = parentNode.parentNode;
       }
 
       var allowAnimation = (!parentAnimationDetected || animateChildren) && elementDisabled !== true;
-      return allowAnimation && rootElementDetected && bodyElementDetected;
+      return allowAnimation && rootNodeDetected && bodyNodeDetected;
     }
 
-    function markElementAnimationState(element, state, details) {
+    function markElementAnimationState(node, state, details) {
       details = details || {};
       details.state = state;
 
-      var node = getDomNode(element);
       node.setAttribute(NG_ANIMATE_ATTR_NAME, state);
 
       var oldValue = activeAnimationsLookup.get(node);
       var newValue = oldValue
           ? extend(oldValue, details)
           : details;
-      activeAnimationsLookup.put(node, newValue);
+      activeAnimationsLookup.set(node, newValue);
     }
   }];
 }];
@@ -36599,21 +37002,21 @@ var $$AnimationProvider = ['$animateProvider', /** @this */ function($animatePro
     return element.data(RUNNER_STORAGE_KEY);
   }
 
-  this.$get = ['$$jqLite', '$rootScope', '$injector', '$$AnimateRunner', '$$HashMap', '$$rAFScheduler',
-       function($$jqLite,   $rootScope,   $injector,   $$AnimateRunner,   $$HashMap,   $$rAFScheduler) {
+  this.$get = ['$$jqLite', '$rootScope', '$injector', '$$AnimateRunner', '$$Map', '$$rAFScheduler',
+       function($$jqLite,   $rootScope,   $injector,   $$AnimateRunner,   $$Map,   $$rAFScheduler) {
 
     var animationQueue = [];
     var applyAnimationClasses = applyAnimationClassesFactory($$jqLite);
 
     function sortAnimations(animations) {
       var tree = { children: [] };
-      var i, lookup = new $$HashMap();
+      var i, lookup = new $$Map();
 
-      // this is done first beforehand so that the hashmap
+      // this is done first beforehand so that the map
       // is filled with a list of the elements that will be animated
       for (i = 0; i < animations.length; i++) {
         var animation = animations[i];
-        lookup.put(animation.domNode, animations[i] = {
+        lookup.set(animation.domNode, animations[i] = {
           domNode: animation.domNode,
           fn: animation.fn,
           children: []
@@ -36632,7 +37035,7 @@ var $$AnimationProvider = ['$animateProvider', /** @this */ function($animatePro
 
         var elementNode = entry.domNode;
         var parentNode = elementNode.parentNode;
-        lookup.put(elementNode, entry);
+        lookup.set(elementNode, entry);
 
         var parentEntry;
         while (parentNode) {
@@ -37279,6 +37682,10 @@ var ngAnimateSwapDirective = ['$animate', '$rootScope', function($animate, $root
  *   /&#42; As of 1.4.4, this must always be set: it signals ngAnimate
  *     to not accidentally inherit a delay property from another CSS class &#42;/
  *   transition-duration: 0s;
+ *
+ *   /&#42; if you are using animations instead of transitions you should configure as follows:
+ *     animation-delay: 0.1s;
+ *     animation-duration: 0s; &#42;/
  * }
  * .my-animation.ng-enter.ng-enter-active {
  *   /&#42; standard transition styles &#42;/
@@ -37858,6 +38265,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
   isFunction  = angular.isFunction;
   isElement   = angular.isElement;
 })
+  .info({ angularVersion: '1.6.4' })
   .directive('ngAnimateSwap', ngAnimateSwapDirective)
 
   .directive('ngAnimateChildren', $$AnimateChildrenDirective)
@@ -45874,8 +46282,8 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
 }(angular));
 
 /**
- * @license Angular UI Tree v2.22.2
- * (c) 2010-2016. https://github.com/angular-ui-tree/angular-ui-tree
+ * @license Angular UI Tree v2.22.5
+ * (c) 2010-2017. https://github.com/angular-ui-tree/angular-ui-tree
  * License: MIT
  */
 (function () {
@@ -46631,6 +47039,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
 
               //Check if it or it's parents has a 'data-nodrag' attribute
               el = angular.element(e.target);
+              isUiTreeRoot = el[0].attributes['ui-tree'];
               while (el && el[0] && el[0] !== element && !isUiTreeRoot) {
 
                 //Checking that I can access attributes.
@@ -46697,7 +47106,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
 
               //Getting starting position of element being moved.
               pos = UiTreeHelper.positionStarted(eventObj, element);
-              placeElm.css('height', UiTreeHelper.height(element) + 'px');
+              placeElm.css('height', element.prop('offsetHeight') + 'px');
 
               //Creating drag element to represent node.
               dragElm = angular.element($window.document.createElement(scope.$parentNodesScope.$element.prop('tagName')))
@@ -47025,6 +47434,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
                       if (targetNode.collapsed) {
                         if (scope.expandOnHover === true || (angular.isNumber(scope.expandOnHover) && scope.expandOnHover === 0)) {
                           targetNode.collapsed = false;
+                          targetNode.$treeScope.$callbacks.toggle(false, targetNode);
                         } else if (scope.expandOnHover !== false && angular.isNumber(scope.expandOnHover) && scope.expandOnHover > 0) {
 
                           //Triggering expansion.
@@ -47036,6 +47446,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
                             {
                               scope.$callbacks.expandTimeoutEnd();
                               targetNode.collapsed = false;
+                              targetNode.$treeScope.$callbacks.toggle(false, targetNode);
                             }, scope.expandOnHover);
                           }
                         }
@@ -47237,6 +47648,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
       }
     ]);
 })();
+
 (function () {
   'use strict';
 
@@ -47699,7 +48111,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
 
 })();
 //! moment.js
-//! version : 2.17.1
+//! version : 2.18.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -47739,6 +48151,10 @@ function isObjectEmpty(obj) {
         return false;
     }
     return true;
+}
+
+function isUndefined(input) {
+    return input === void 0;
 }
 
 function isNumber(input) {
@@ -47797,7 +48213,9 @@ function defaultParsingFlags() {
         userInvalidated : false,
         iso             : false,
         parsedDateParts : [],
-        meridiem        : null
+        meridiem        : null,
+        rfc2822         : false,
+        weekdayMismatch : false
     };
 }
 
@@ -47873,10 +48291,6 @@ function createInvalid (flags) {
     return m;
 }
 
-function isUndefined(input) {
-    return input === void 0;
-}
-
 // Plugins that add properties should also add the key here (null value),
 // so we can properly clone ourselves.
 var momentProperties = hooks.momentProperties = [];
@@ -47916,7 +48330,7 @@ function copyConfig(to, from) {
     }
 
     if (momentProperties.length > 0) {
-        for (i in momentProperties) {
+        for (i = 0; i < momentProperties.length; i++) {
             prop = momentProperties[i];
             val = from[prop];
             if (!isUndefined(val)) {
@@ -48053,8 +48467,11 @@ function set (config) {
     }
     this._config = config;
     // Lenient ordinal parsing accepts just a number in addition to
-    // number + (possibly) stuff coming from _ordinalParseLenient.
-    this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + (/\d{1,2}/).source);
+    // number + (possibly) stuff coming from _dayOfMonthOrdinalParse.
+    // TODO: Remove "ordinalParse" fallback in next major release.
+    this._dayOfMonthOrdinalParseLenient = new RegExp(
+        (this._dayOfMonthOrdinalParse.source || this._ordinalParse.source) +
+            '|' + (/\d{1,2}/).source);
 }
 
 function mergeConfigs(parentConfig, childConfig) {
@@ -48152,7 +48569,7 @@ function invalidDate () {
 }
 
 var defaultOrdinal = '%d';
-var defaultOrdinalParse = /\d{1,2}/;
+var defaultDayOfMonthOrdinalParse = /\d{1,2}/;
 
 function ordinal (number) {
     return this._ordinal.replace('%d', number);
@@ -48162,6 +48579,7 @@ var defaultRelativeTime = {
     future : 'in %s',
     past   : '%s ago',
     s  : 'a few seconds',
+    ss : '%d seconds',
     m  : 'a minute',
     mm : '%d minutes',
     h  : 'an hour',
@@ -48344,7 +48762,7 @@ function makeFormatFunction(format) {
     return function (mom) {
         var output = '', i;
         for (i = 0; i < length; i++) {
-            output += array[i] instanceof Function ? array[i].call(mom, format) : array[i];
+            output += isFunction(array[i]) ? array[i].call(mom, format) : array[i];
         }
         return output;
     };
@@ -48547,7 +48965,8 @@ var MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?/;
 var defaultLocaleMonths = 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_');
 function localeMonths (m, format) {
     if (!m) {
-        return this._months;
+        return isArray(this._months) ? this._months :
+            this._months['standalone'];
     }
     return isArray(this._months) ? this._months[m.month()] :
         this._months[(this._months.isFormat || MONTHS_IN_FORMAT).test(format) ? 'format' : 'standalone'][m.month()];
@@ -48556,7 +48975,8 @@ function localeMonths (m, format) {
 var defaultLocaleMonthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
 function localeMonthsShort (m, format) {
     if (!m) {
-        return this._monthsShort;
+        return isArray(this._monthsShort) ? this._monthsShort :
+            this._monthsShort['standalone'];
     }
     return isArray(this._monthsShort) ? this._monthsShort[m.month()] :
         this._monthsShort[MONTHS_IN_FORMAT.test(format) ? 'format' : 'standalone'][m.month()];
@@ -48823,11 +49243,11 @@ function getIsLeapYear () {
 }
 
 function createDate (y, m, d, h, M, s, ms) {
-    //can't just apply() to create a date:
-    //http://stackoverflow.com/questions/181348/instantiating-a-javascript-object-by-calling-prototype-constructor-apply
+    // can't just apply() to create a date:
+    // https://stackoverflow.com/q/181348
     var date = new Date(y, m, d, h, M, s, ms);
 
-    //the date constructor remaps years 0-99 to 1900-1999
+    // the date constructor remaps years 0-99 to 1900-1999
     if (y < 100 && y >= 0 && isFinite(date.getFullYear())) {
         date.setFullYear(y);
     }
@@ -48837,7 +49257,7 @@ function createDate (y, m, d, h, M, s, ms) {
 function createUTCDate (y) {
     var date = new Date(Date.UTC.apply(null, arguments));
 
-    //the Date.UTC function remaps years 0-99 to 1900-1999
+    // the Date.UTC function remaps years 0-99 to 1900-1999
     if (y < 100 && y >= 0 && isFinite(date.getUTCFullYear())) {
         date.setUTCFullYear(y);
     }
@@ -48854,7 +49274,7 @@ function firstWeekOffset(year, dow, doy) {
     return -fwdlw + fwd - 1;
 }
 
-//http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
+// https://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
 function dayOfYearFromWeeks(year, week, weekday, dow, doy) {
     var localWeekday = (7 + weekday - dow) % 7,
         weekOffset = firstWeekOffset(year, dow, doy),
@@ -49055,7 +49475,8 @@ function parseIsoWeekday(input, locale) {
 var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_');
 function localeWeekdays (m, format) {
     if (!m) {
-        return this._weekdays;
+        return isArray(this._weekdays) ? this._weekdays :
+            this._weekdays['standalone'];
     }
     return isArray(this._weekdays) ? this._weekdays[m.day()] :
         this._weekdays[this._weekdays.isFormat.test(format) ? 'format' : 'standalone'][m.day()];
@@ -49375,8 +49796,10 @@ addRegexToken('a',  matchMeridiem);
 addRegexToken('A',  matchMeridiem);
 addRegexToken('H',  match1to2);
 addRegexToken('h',  match1to2);
+addRegexToken('k',  match1to2);
 addRegexToken('HH', match1to2, match2);
 addRegexToken('hh', match1to2, match2);
+addRegexToken('kk', match1to2, match2);
 
 addRegexToken('hmm', match3to4);
 addRegexToken('hmmss', match5to6);
@@ -49384,6 +49807,10 @@ addRegexToken('Hmm', match3to4);
 addRegexToken('Hmmss', match5to6);
 
 addParseToken(['H', 'HH'], HOUR);
+addParseToken(['k', 'kk'], function (input, array, config) {
+    var kInput = toInt(input);
+    array[HOUR] = kInput === 24 ? 0 : kInput;
+});
 addParseToken(['a', 'A'], function (input, array, config) {
     config._isPm = config._locale.isPM(input);
     config._meridiem = input;
@@ -49454,7 +49881,7 @@ var baseConfig = {
     longDateFormat: defaultLongDateFormat,
     invalidDate: defaultInvalidDate,
     ordinal: defaultOrdinal,
-    ordinalParse: defaultOrdinalParse,
+    dayOfMonthOrdinalParse: defaultDayOfMonthOrdinalParse,
     relativeTime: defaultRelativeTime,
 
     months: defaultLocaleMonths,
@@ -49765,6 +50192,77 @@ function configFromISO(config) {
     }
 }
 
+// RFC 2822 regex: For details see https://tools.ietf.org/html/rfc2822#section-3.3
+var basicRfcRegex = /^((?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s)?(\d?\d\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(?:\d\d)?\d\d\s)(\d\d:\d\d)(\:\d\d)?(\s(?:UT|GMT|[ECMP][SD]T|[A-IK-Za-ik-z]|[+-]\d{4}))$/;
+
+// date and time from ref 2822 format
+function configFromRFC2822(config) {
+    var string, match, dayFormat,
+        dateFormat, timeFormat, tzFormat;
+    var timezones = {
+        ' GMT': ' +0000',
+        ' EDT': ' -0400',
+        ' EST': ' -0500',
+        ' CDT': ' -0500',
+        ' CST': ' -0600',
+        ' MDT': ' -0600',
+        ' MST': ' -0700',
+        ' PDT': ' -0700',
+        ' PST': ' -0800'
+    };
+    var military = 'YXWVUTSRQPONZABCDEFGHIKLM';
+    var timezone, timezoneIndex;
+
+    string = config._i
+        .replace(/\([^\)]*\)|[\n\t]/g, ' ') // Remove comments and folding whitespace
+        .replace(/(\s\s+)/g, ' ') // Replace multiple-spaces with a single space
+        .replace(/^\s|\s$/g, ''); // Remove leading and trailing spaces
+    match = basicRfcRegex.exec(string);
+
+    if (match) {
+        dayFormat = match[1] ? 'ddd' + ((match[1].length === 5) ? ', ' : ' ') : '';
+        dateFormat = 'D MMM ' + ((match[2].length > 10) ? 'YYYY ' : 'YY ');
+        timeFormat = 'HH:mm' + (match[4] ? ':ss' : '');
+
+        // TODO: Replace the vanilla JS Date object with an indepentent day-of-week check.
+        if (match[1]) { // day of week given
+            var momentDate = new Date(match[2]);
+            var momentDay = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][momentDate.getDay()];
+
+            if (match[1].substr(0,3) !== momentDay) {
+                getParsingFlags(config).weekdayMismatch = true;
+                config._isValid = false;
+                return;
+            }
+        }
+
+        switch (match[5].length) {
+            case 2: // military
+                if (timezoneIndex === 0) {
+                    timezone = ' +0000';
+                } else {
+                    timezoneIndex = military.indexOf(match[5][1].toUpperCase()) - 12;
+                    timezone = ((timezoneIndex < 0) ? ' -' : ' +') +
+                        (('' + timezoneIndex).replace(/^-?/, '0')).match(/..$/)[0] + '00';
+                }
+                break;
+            case 4: // Zone
+                timezone = timezones[match[5]];
+                break;
+            default: // UT or +/-9999
+                timezone = timezones[' GMT'];
+        }
+        match[5] = timezone;
+        config._i = match.splice(1).join('');
+        tzFormat = ' ZZ';
+        config._f = dayFormat + dateFormat + timeFormat + tzFormat;
+        configFromStringAndFormat(config);
+        getParsingFlags(config).rfc2822 = true;
+    } else {
+        config._isValid = false;
+    }
+}
+
 // date from iso format or fallback
 function configFromString(config) {
     var matched = aspNetJsonRegex.exec(config._i);
@@ -49777,13 +50275,24 @@ function configFromString(config) {
     configFromISO(config);
     if (config._isValid === false) {
         delete config._isValid;
-        hooks.createFromInputFallback(config);
+    } else {
+        return;
     }
+
+    configFromRFC2822(config);
+    if (config._isValid === false) {
+        delete config._isValid;
+    } else {
+        return;
+    }
+
+    // Final attempt, use Input Fallback
+    hooks.createFromInputFallback(config);
 }
 
 hooks.createFromInputFallback = deprecate(
-    'value provided is not in a recognized ISO format. moment construction falls back to js Date(), ' +
-    'which is not reliable across all browsers and versions. Non ISO date formats are ' +
+    'value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), ' +
+    'which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are ' +
     'discouraged and will be removed in an upcoming major release. Please refer to ' +
     'http://momentjs.com/guides/#/warnings/js-date/ for more info.',
     function (config) {
@@ -49830,10 +50339,10 @@ function configFromArray (config) {
     }
 
     //if the day of the year is set, figure out what it is
-    if (config._dayOfYear) {
+    if (config._dayOfYear != null) {
         yearToUse = defaults(config._a[YEAR], currentDate[YEAR]);
 
-        if (config._dayOfYear > daysInYear(yearToUse)) {
+        if (config._dayOfYear > daysInYear(yearToUse) || config._dayOfYear === 0) {
             getParsingFlags(config)._overflowDayOfYear = true;
         }
 
@@ -49937,6 +50446,9 @@ function dayOfYearFromWeekInfo(config) {
 // constant that refers to the ISO standard
 hooks.ISO_8601 = function () {};
 
+// constant that refers to the RFC 2822 form
+hooks.RFC_2822 = function () {};
+
 // date from string and format string
 function configFromStringAndFormat(config) {
     // TODO: Move this to another part of the creation flow to prevent circular deps
@@ -49944,7 +50456,10 @@ function configFromStringAndFormat(config) {
         configFromISO(config);
         return;
     }
-
+    if (config._f === hooks.RFC_2822) {
+        configFromRFC2822(config);
+        return;
+    }
     config._a = [];
     getParsingFlags(config).empty = true;
 
@@ -50136,7 +50651,7 @@ function prepareConfig (config) {
 
 function configFromInput(config) {
     var input = config._i;
-    if (input === undefined) {
+    if (isUndefined(input)) {
         config._d = new Date(hooks.now());
     } else if (isDate(input)) {
         config._d = new Date(input.valueOf());
@@ -50147,7 +50662,7 @@ function configFromInput(config) {
             return parseInt(obj, 10);
         });
         configFromArray(config);
-    } else if (typeof(input) === 'object') {
+    } else if (isObject(input)) {
         configFromObject(config);
     } else if (isNumber(input)) {
         // from milliseconds
@@ -50248,6 +50763,38 @@ var now = function () {
     return Date.now ? Date.now() : +(new Date());
 };
 
+var ordering = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond'];
+
+function isDurationValid(m) {
+    for (var key in m) {
+        if (!(ordering.indexOf(key) !== -1 && (m[key] == null || !isNaN(m[key])))) {
+            return false;
+        }
+    }
+
+    var unitHasDecimal = false;
+    for (var i = 0; i < ordering.length; ++i) {
+        if (m[ordering[i]]) {
+            if (unitHasDecimal) {
+                return false; // only allow non-integers for smallest unit
+            }
+            if (parseFloat(m[ordering[i]]) !== toInt(m[ordering[i]])) {
+                unitHasDecimal = true;
+            }
+        }
+    }
+
+    return true;
+}
+
+function isValid$1() {
+    return this._isValid;
+}
+
+function createInvalid$1() {
+    return createDuration(NaN);
+}
+
 function Duration (duration) {
     var normalizedInput = normalizeObjectUnits(duration),
         years = normalizedInput.year || 0,
@@ -50259,6 +50806,8 @@ function Duration (duration) {
         minutes = normalizedInput.minute || 0,
         seconds = normalizedInput.second || 0,
         milliseconds = normalizedInput.millisecond || 0;
+
+    this._isValid = isDurationValid(normalizedInput);
 
     // representation for dateAddRemove
     this._milliseconds = +milliseconds +
@@ -50383,7 +50932,7 @@ hooks.updateOffset = function () {};
 // a second time. In case it wants us to change the offset again
 // _changeInProgress == true case, then we have to adjust, because
 // there is no such time in the given timezone.
-function getSetOffset (input, keepLocalTime) {
+function getSetOffset (input, keepLocalTime, keepMinutes) {
     var offset = this._offset || 0,
         localAdjust;
     if (!this.isValid()) {
@@ -50395,7 +50944,7 @@ function getSetOffset (input, keepLocalTime) {
             if (input === null) {
                 return this;
             }
-        } else if (Math.abs(input) < 16) {
+        } else if (Math.abs(input) < 16 && !keepMinutes) {
             input = input * 60;
         }
         if (!this._isUTC && keepLocalTime) {
@@ -50453,7 +51002,7 @@ function setOffsetToLocal (keepLocalTime) {
 
 function setOffsetToParsedOffset () {
     if (this._tzm != null) {
-        this.utcOffset(this._tzm);
+        this.utcOffset(this._tzm, false, true);
     } else if (typeof this._i === 'string') {
         var tZone = offsetFromString(matchOffset, this._i);
         if (tZone != null) {
@@ -50585,6 +51134,7 @@ function createDuration (input, key) {
 }
 
 createDuration.fn = Duration.prototype;
+createDuration.invalid = createInvalid$1;
 
 function parseIso (inp, sign) {
     // We'd normally use ~~inp for this, but unfortunately it also
@@ -50821,18 +51371,19 @@ function toString () {
     return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
 }
 
-function toISOString () {
+function toISOString() {
+    if (!this.isValid()) {
+        return null;
+    }
     var m = this.clone().utc();
-    if (0 < m.year() && m.year() <= 9999) {
-        if (isFunction(Date.prototype.toISOString)) {
-            // native implementation is ~50x faster, use it when we can
-            return this.toDate().toISOString();
-        } else {
-            return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
-        }
-    } else {
+    if (m.year() < 0 || m.year() > 9999) {
         return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
     }
+    if (isFunction(Date.prototype.toISOString)) {
+        // native implementation is ~50x faster, use it when we can
+        return this.toDate().toISOString();
+    }
+    return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
 }
 
 /**
@@ -50852,7 +51403,7 @@ function inspect () {
         zone = 'Z';
     }
     var prefix = '[' + func + '("]';
-    var year = (0 < this.year() && this.year() <= 9999) ? 'YYYY' : 'YYYYYY';
+    var year = (0 <= this.year() && this.year() <= 9999) ? 'YYYY' : 'YYYYYY';
     var datetime = '-MM-DD[T]HH:mm:ss.SSS';
     var suffix = zone + '[")]';
 
@@ -51020,7 +51571,7 @@ function toJSON () {
     return this.isValid() ? this.toISOString() : null;
 }
 
-function isValid$1 () {
+function isValid$2 () {
     return isValid(this);
 }
 
@@ -51180,7 +51731,10 @@ addUnitPriority('date', 9);
 addRegexToken('D',  match1to2);
 addRegexToken('DD', match1to2, match2);
 addRegexToken('Do', function (isStrict, locale) {
-    return isStrict ? locale._ordinalParse : locale._ordinalParseLenient;
+    // TODO: Remove "ordinalParse" fallback in next major release.
+    return isStrict ?
+      (locale._dayOfMonthOrdinalParse || locale._ordinalParse) :
+      locale._dayOfMonthOrdinalParseLenient;
 });
 
 addParseToken(['D', 'DD'], DATE);
@@ -51360,7 +51914,7 @@ proto.isBetween         = isBetween;
 proto.isSame            = isSame;
 proto.isSameOrAfter     = isSameOrAfter;
 proto.isSameOrBefore    = isSameOrBefore;
-proto.isValid           = isValid$1;
+proto.isValid           = isValid$2;
 proto.lang              = lang;
 proto.locale            = locale;
 proto.localeData        = localeData;
@@ -51585,7 +52139,7 @@ function listWeekdaysMin (localeSorted, format, index) {
 }
 
 getSetGlobalLocale('en', {
-    ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+    dayOfMonthOrdinalParse: /\d{1,2}(th|st|nd|rd)/,
     ordinal : function (number) {
         var b = number % 10,
             output = (toInt(number % 100 / 10) === 1) ? 'th' :
@@ -51706,6 +52260,9 @@ function monthsToDays (months) {
 }
 
 function as (units) {
+    if (!this.isValid()) {
+        return NaN;
+    }
     var days;
     var months;
     var milliseconds = this._milliseconds;
@@ -51734,6 +52291,9 @@ function as (units) {
 
 // TODO: Use this.as('ms')?
 function valueOf$1 () {
+    if (!this.isValid()) {
+        return NaN;
+    }
     return (
         this._milliseconds +
         this._days * 864e5 +
@@ -51759,12 +52319,12 @@ var asYears        = makeAs('y');
 
 function get$2 (units) {
     units = normalizeUnits(units);
-    return this[units + 's']();
+    return this.isValid() ? this[units + 's']() : NaN;
 }
 
 function makeGetter(name) {
     return function () {
-        return this._data[name];
+        return this.isValid() ? this._data[name] : NaN;
     };
 }
 
@@ -51782,11 +52342,12 @@ function weeks () {
 
 var round = Math.round;
 var thresholds = {
-    s: 45,  // seconds to minute
-    m: 45,  // minutes to hour
-    h: 22,  // hours to day
-    d: 26,  // days to month
-    M: 11   // months to year
+    ss: 44,         // a few seconds to seconds
+    s : 45,         // seconds to minute
+    m : 45,         // minutes to hour
+    h : 22,         // hours to day
+    d : 26,         // days to month
+    M : 11          // months to year
 };
 
 // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
@@ -51803,16 +52364,17 @@ function relativeTime$1 (posNegDuration, withoutSuffix, locale) {
     var months   = round(duration.as('M'));
     var years    = round(duration.as('y'));
 
-    var a = seconds < thresholds.s && ['s', seconds]  ||
-            minutes <= 1           && ['m']           ||
-            minutes < thresholds.m && ['mm', minutes] ||
-            hours   <= 1           && ['h']           ||
-            hours   < thresholds.h && ['hh', hours]   ||
-            days    <= 1           && ['d']           ||
-            days    < thresholds.d && ['dd', days]    ||
-            months  <= 1           && ['M']           ||
-            months  < thresholds.M && ['MM', months]  ||
-            years   <= 1           && ['y']           || ['yy', years];
+    var a = seconds <= thresholds.ss && ['s', seconds]  ||
+            seconds < thresholds.s   && ['ss', seconds] ||
+            minutes <= 1             && ['m']           ||
+            minutes < thresholds.m   && ['mm', minutes] ||
+            hours   <= 1             && ['h']           ||
+            hours   < thresholds.h   && ['hh', hours]   ||
+            days    <= 1             && ['d']           ||
+            days    < thresholds.d   && ['dd', days]    ||
+            months  <= 1             && ['M']           ||
+            months  < thresholds.M   && ['MM', months]  ||
+            years   <= 1             && ['y']           || ['yy', years];
 
     a[2] = withoutSuffix;
     a[3] = +posNegDuration > 0;
@@ -51841,10 +52403,17 @@ function getSetRelativeTimeThreshold (threshold, limit) {
         return thresholds[threshold];
     }
     thresholds[threshold] = limit;
+    if (threshold === 's') {
+        thresholds.ss = limit - 1;
+    }
     return true;
 }
 
 function humanize (withSuffix) {
+    if (!this.isValid()) {
+        return this.localeData().invalidDate();
+    }
+
     var locale = this.localeData();
     var output = relativeTime$1(this, !withSuffix, locale);
 
@@ -51865,6 +52434,10 @@ function toISOString$1() {
     // This is because there is no context-free conversion between hours and days
     // (think of clock changes)
     // and also not between days and months (28-31 days per month)
+    if (!this.isValid()) {
+        return this.localeData().invalidDate();
+    }
+
     var seconds = abs$1(this._milliseconds) / 1000;
     var days         = abs$1(this._days);
     var months       = abs$1(this._months);
@@ -51909,6 +52482,7 @@ function toISOString$1() {
 
 var proto$2 = Duration.prototype;
 
+proto$2.isValid        = isValid$1;
 proto$2.abs            = abs;
 proto$2.add            = add$1;
 proto$2.subtract       = subtract$1;
@@ -51964,7 +52538,7 @@ addParseToken('x', function (input, array, config) {
 // Side effect imports
 
 
-hooks.version = '2.17.1';
+hooks.version = '2.18.1';
 
 setHookCallback(createLocal);
 
@@ -54682,7 +55256,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var endDate = moment.min(moment(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
 
-                    var column = columnsManager.getColumnByDate(endDate, true);
+                    var column = columnsManager.getColumnByDate(endDate);
 
                     var left = column.getPositionByDate(endDate);
 
@@ -58454,6 +59028,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             scope.jsPlumbDefaults = {
                                 Endpoint: ['Dot', {radius: 4}],
                                 EndpointStyle: {fillStyle: '#456', strokeStyle: '#456', lineWidth: 1},
+                                PaintStyle: {
+                                    strokeWidth: 3,
+                                    stroke: 'rgb(68, 85, 102)'
+                                },
                                 Connector: 'Flowchart',
                                 ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
                             };
@@ -63649,9 +64227,9 @@ return DateRange;
 })();
 
 /**
- * jsBezier-0.8
+ * jsBezier
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * licensed under the MIT license.
  *
@@ -64060,7 +64638,7 @@ return DateRange;
         return [{x:p.point.x + x, y:p.point.y + y}, {x:p.point.x - x, y:p.point.y - y}];
     };
 
-    this.jsBezier = {
+    var jsBezier = this.jsBezier = {
         distanceFromCurve : _distanceFromCurve,
         gradientAtPoint : _gradientAtPoint,
         gradientAtPointAlongCurveFrom : _gradientAtPointAlongPathFrom,
@@ -64069,16 +64647,22 @@ return DateRange;
         pointAlongCurveFrom : _pointAlongPathFrom,
         perpendicularToCurveAt : _perpendicularToPathAt,
         locationAlongCurveFrom:_locationAlongPathFrom,
-        getLength:_length
+        getLength:_length,
+        version:"0.9.0"
     };
+
+    if (typeof exports !== "undefined") {
+        exports.jsBezier = jsBezier;
+    }
+
 }).call(typeof window !== 'undefined' ? window : this);
 
 /**
- * Biltong v0.3
+ * Biltong v0.4.0
  *
  * Various geometry functions written as part of jsPlumb and perhaps useful for others.
  *
- * Copyright (c) 2016 jsPlumb
+ * Copyright (c) 2017 jsPlumb
  * https://jsplumbtoolkit.com
  *
  * Permission is hereby granted, free of charge, to any person
@@ -64107,7 +64691,13 @@ return DateRange;
     "use strict";
     var root = this;
 
-    var Biltong = root.Biltong = {};
+    var Biltong = root.Biltong = {
+        version:"0.4.0"
+    };
+
+    if (typeof exports !== "undefined") {
+        exports.Biltong = Biltong;
+    }
 
     var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
         _pointHelper = function(p1, p2, fn) {
@@ -64300,7 +64890,7 @@ return DateRange;
     //
         _pi = function(e, target, obj, doCompute) {
             if (!doCompute) return { path:[target], end:1 };
-            else if (typeof e.path !== "undefined") {
+            else if (typeof e.path !== "undefined" && e.path.indexOf) {
                 return { path: e.path, end: e.path.indexOf(obj) };
             } else {
                 var out = { path:[], end:-1 }, _one = function(el) {
@@ -64890,6 +65480,12 @@ return DateRange;
         isMouseDevice = value;
     };
 
+    root.Mottle.version = "0.8.0";
+
+    if (typeof exports !== "undefined") {
+        exports.Mottle = root.Mottle;
+    }
+
 }).call(typeof window === "undefined" ? this : window);
 
 /**
@@ -65327,6 +65923,8 @@ return DateRange;
                     dragEl = null;
                 }
 
+                intersectingDroppables.length = 0;
+
                 if (revertFunction && revertFunction(this.el, this.params.getPosition(this.el)) === true) {
                     this.params.setPosition(this.el, posAtDown);
                     _dispatch("revert", this.el);
@@ -65445,6 +66043,7 @@ return DateRange;
                 if (intersectingDroppables.length > 0 && ghostProxyOffsets) {
                     params.setPosition(this.el, ghostProxyOffsets);
                 }
+                intersectingDroppables.sort(_rankSort);
                 for (var i = 0; i < intersectingDroppables.length; i++) {
                     var retVal = intersectingDroppables[i].drop(this, e);
                     if (retVal === true) break;
@@ -65527,6 +66126,7 @@ return DateRange;
     var Drop = function(el, params, css, scope) {
         this._class = css.droppable;
         this.params = params || {};
+        this.rank = params.rank || 0;
         this._activeClass = this.params.activeClass || css.active;
         this._hoverClass = this.params.hoverClass || css.hover;
         Super.apply(this, arguments);
@@ -65582,6 +66182,10 @@ return DateRange;
         }));
     };
 
+    var _rankSort = function(a,b) {
+        return a.rank < b.rank ? 1 : a.rank > b.rank ? -1 : 0;
+    };
+
     var _gel = function(el) {
         if (el == null) return null;
         el = (typeof el === "string" || el.constructor == String)  ? document.getElementById(el) : el;
@@ -65635,6 +66239,7 @@ return DateRange;
                         }
                     }
                 }
+                dd.sort(_rankSort);
                 return dd;
             },
             _prepareParams = function(p) {
@@ -65880,6 +66485,13 @@ return DateRange;
         var _destroy = function(el, type, map) {
             el = _gel(el);
             if (el[type]) {
+
+                // remove from selection, if present.
+                var selIdx = _selection.indexOf(el[type]);
+                if (selIdx >= 0) {
+                    _selection.splice(selIdx, 1);
+                }
+
                 if (_unreg(el[type], map)) {
                     _each(el[type], function(kObj) { kObj.destroy() });
                 }
@@ -66045,19 +66657,27 @@ return DateRange;
                 });
             }
         };
+
     };
+
+    root.Katavorio.version = "0.19.2";
+
+    if (typeof exports !== "undefined") {
+        exports.Katavorio = root.Katavorio;
+    }
+
 }).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains utility functions that run in both browsers and headless.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -66103,7 +66723,7 @@ return DateRange;
         };
 
     var root = this;
-    var exports = root.jsPlumbUtil = {
+    root.jsPlumbUtil = {
         isArray: _isa,
         isString: _iss,
         isBoolean: _isb,
@@ -66284,7 +66904,7 @@ return DateRange;
             return -1;
         },
         removeWithFunction: function (a, f) {
-            var idx = exports.findWithFunction(a, f);
+            var idx = root.jsPlumbUtil.findWithFunction(a, f);
             if (idx > -1) a.splice(idx, 1);
             return idx != -1;
         },
@@ -66295,7 +66915,7 @@ return DateRange;
         },
         // TODO support insert index
         addWithFunction: function (list, item, hashFunction) {
-            if (exports.findWithFunction(list, hashFunction) == -1) list.push(item);
+            if (root.jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
         },
         addToList: function (map, key, value, insertAtStart) {
             var l = map[key];
@@ -66364,7 +66984,7 @@ return DateRange;
         },
         logEnabled: true,
         log: function () {
-            if (exports.logEnabled && typeof console != "undefined") {
+            if (root.jsPlumbUtil.logEnabled && typeof console != "undefined") {
                 try {
                     var msg = arguments[arguments.length - 1];
                     console.log(msg);
@@ -66397,13 +67017,13 @@ return DateRange;
                 try {
                     r = newFunction.apply(this, arguments);
                 } catch (e) {
-                    exports.log("jsPlumb function failed : " + e);
+                    root.jsPlumbUtil.log("jsPlumb function failed : " + e);
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
                         r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
-                        exports.log("wrapped function failed : " + e);
+                        root.jsPlumbUtil.log("wrapped function failed : " + e);
                     }
                 }
                 return r;
@@ -66411,7 +67031,7 @@ return DateRange;
         }
     };
 
-    exports.EventGenerator = function () {
+    root.jsPlumbUtil.EventGenerator = function () {
         var _listeners = {},
             eventsSuspended = false,
         // this is a list of events that should re-throw any errors that occur during their dispatch. it is current private.
@@ -66419,7 +67039,7 @@ return DateRange;
 
         this.bind = function (event, listener, insertAtStart) {
             var _one = function(evt) {
-                exports.addToList(_listeners, evt, listener, insertAtStart);
+                root.jsPlumbUtil.addToList(_listeners, evt, listener, insertAtStart);
                 listener.__jsPlumb = listener.__jsPlumb || {};
                 listener.__jsPlumb[root.jsPlumbUtil.uuid()] = evt;
             };
@@ -66447,7 +67067,7 @@ return DateRange;
                             try {
                                 ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
                             } catch (e) {
-                                exports.log("jsPlumb: fire failed for event " + event + " : " + e);
+                                root.jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
                             }
                         }
                         i++;
@@ -66471,12 +67091,12 @@ return DateRange;
                     var evt;
                     for (var i in eventOrListener.__jsPlumb) {
                         evt = eventOrListener.__jsPlumb[i];
-                        exports.remove(_listeners[evt] || [], eventOrListener);
+                        root.jsPlumbUtil.remove(_listeners[evt] || [], eventOrListener);
                     }
                 }
             }
             else if (arguments.length === 2) {
-                exports.remove(_listeners[eventOrListener] || [], listener);
+                root.jsPlumbUtil.remove(_listeners[eventOrListener] || [], listener);
             }
 
             return this;
@@ -66508,24 +67128,28 @@ return DateRange;
         };
     };
 
-    exports.EventGenerator.prototype = {
+    root.jsPlumbUtil.EventGenerator.prototype = {
         cleanup: function () {
             this.cleanupListeners();
         }
     };
+
+    if (typeof exports !== "undefined") {
+        exports.jsPlumbUtil = root.jsPlumbUtil;
+    }
 
 }).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains utility functions that run in browsers only.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -66537,9 +67161,8 @@ return DateRange;
   "use strict";
 
    var root = this;
-   var exports = root.jsPlumbUtil;
 
-   exports.matchesSelector = function(el, selector, ctx) {
+    root.jsPlumbUtil.matchesSelector = function(el, selector, ctx) {
        ctx = ctx || el.parentNode;
        var possibles = ctx.querySelectorAll(selector);
        for (var i = 0; i < possibles.length; i++) {
@@ -66549,7 +67172,7 @@ return DateRange;
        return false;
    };
 
-   exports.consume = function(e, doNotPreventDefault) {
+    root.jsPlumbUtil.consume = function(e, doNotPreventDefault) {
        if (e.stopPropagation)
            e.stopPropagation();
        else
@@ -66571,7 +67194,7 @@ return DateRange;
     *  h - [int] height of the element
     *
     */
-   exports.sizeElement = function(el, x, y, w, h) {
+    root.jsPlumbUtil.sizeElement = function(el, x, y, w, h) {
        if (el) {
            el.style.height = h + "px";
            el.height = h;
@@ -66582,19 +67205,18 @@ return DateRange;
        }
    };
 
-
  }).call(typeof window !== 'undefined' ? window : this);
 
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the core code.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -66629,8 +67251,8 @@ return DateRange;
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.paintStyle);
                 jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
                 delete component._jsPlumb.hoverPaintStyle;
-                // we want the fillStyle of paintStyle to override a gradient, if possible.
-                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fillStyle)
+                // we want the fill of paintStyle to override a gradient, if possible.
+                if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fill)
                     delete mergedHoverStyle.gradient;
                 component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
             }
@@ -67047,33 +67669,8 @@ return DateRange;
 
     var jsPlumbInstance = root.jsPlumbInstance = function (_defaults) {
 
-        this.Defaults = {
-            Anchor: "Bottom",
-            Anchors: [ null, null ],
-            ConnectionsDetachable: true,
-            ConnectionOverlays: [ ],
-            Connector: "Bezier",
-            Container: null,
-            DoNotThrowErrors: false,
-            DragOptions: { },
-            DropOptions: { },
-            Endpoint: "Dot",
-            EndpointOverlays: [ ],
-            Endpoints: [ null, null ],
-            EndpointStyle: { fillStyle: "#456" },
-            EndpointStyles: [ null, null ],
-            EndpointHoverStyle: null,
-            EndpointHoverStyles: [ null, null ],
-            HoverPaintStyle: null,
-            LabelStyle: { color: "black" },
-            LogEnabled: false,
-            Overlays: [ ],
-            MaxConnections: 1,
-            PaintStyle: { lineWidth: 4, strokeStyle: "#456" },
-            ReattachConnections: false,
-            RenderMode: "svg",
-            Scope: "jsPlumb_DefaultScope"
-        };
+        this.version = "2.3.2";
+
         if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 
         this.logEnabled = this.Defaults.LogEnabled;
@@ -67168,16 +67765,15 @@ return DateRange;
             // done by the renderer (although admittedly from 2.0 onwards we're not supporting vml anymore)
             var _oneDelegate = function (id) {
                 // connections.
-                _addOneDelegate(id, ".jsplumb-connector", function (e) {
+                _addOneDelegate(id, ".jtk-connector", function (e) {
                     _oneDelegateHandler(id, e);
                 });
                 // endpoints. note they can have an enclosing div, or not.
-                //_addOneDelegate(id, ".jsplumb-endpoint, .jsplumb-endpoint > *, .jsplumb-endpoint svg *", function (e) {
-                _addOneDelegate(id, ".jsplumb-endpoint", function (e) {
+                _addOneDelegate(id, ".jtk-endpoint", function (e) {
                     _oneDelegateHandler(id, e, "endpoint");
                 });
                 // overlays
-                _addOneDelegate(id, ".jsplumb-overlay", function (e) {
+                _addOneDelegate(id, ".jtk-overlay", function (e) {
                     _oneDelegateHandler(id, e);
                 });
             };
@@ -67237,7 +67833,6 @@ return DateRange;
             _suspendDrawing = false,
             _suspendedAt = null,
             DEFAULT_SCOPE = this.Defaults.Scope,
-            renderMode = null,  // will be set in init()
             _curIdStamp = 1,
             _idstamp = function () {
                 return "" + _curIdStamp++;
@@ -67271,18 +67866,19 @@ return DateRange;
         ///
             _draw = function (element, ui, timestamp, clearEdits) {
 
-                // TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
-                // NO. it is not correct.
-                if (!jsPlumb.headless && !_suspendDrawing) {
+                if (!_suspendDrawing) {
                     var id = _getId(element),
-                        repaintEls = _currentInstance.getDragManager().getElementsForDraggable(id);
+                        repaintEls,
+                        dm = _currentInstance.getDragManager();
+
+                    if (dm) repaintEls = dm.getElementsForDraggable(id);
 
                     if (timestamp == null) timestamp = _timestamp();
 
                     // update the offset of everything _before_ we try to draw anything.
                     var o = _updateOffset({ elId: id, offset: ui, recalc: false, timestamp: timestamp });
 
-                    if (repaintEls) {
+                    if (repaintEls && o && o.o) {
                         for (var i in repaintEls) {
                             _updateOffset({
                                 elId: repaintEls[i].id,
@@ -67349,7 +67945,7 @@ return DateRange;
                                     var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
                                     if (ui != null) {
                                         _draw(element, ui, null, true);
-                                        if (_started) _currentInstance.addClass(element, "jsplumb-dragged");
+                                        if (_started) _currentInstance.addClass(element, "jtk-dragged");
                                         _started = true;
                                     }
                                 });
@@ -67366,7 +67962,7 @@ return DateRange;
                                             }]);
                                             _draw(_e[2].el, uip);
                                         }
-                                        _currentInstance.removeClass(_e[0], "jsplumb-dragged");
+                                        _currentInstance.removeClass(_e[0], "jtk-dragged");
                                         _currentInstance.select({source: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
                                         _currentInstance.select({target: _e[2].el}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
                                         _currentInstance.getDragManager().dragEnded(_e[2].el);
@@ -67501,6 +68097,7 @@ return DateRange;
                             var newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p[type], tep.def, idx);
                             if (newEndpoint.isFull()) return false;
                             _p[type + "Endpoint"] = newEndpoint;
+                            if (!_p.scope && tep.def.scope) _p.scope = tep.def.scope; // provide scope if not already provided and endpoint def has one.
                             newEndpoint._doNotDeleteOnDetach = false; // reset.
                             newEndpoint._deleteOnDetach = true;
                             if (tep.uniqueEndpoint) {
@@ -67753,27 +68350,25 @@ return DateRange;
             return managedElements;
         };
 
-        this.getRenderMode = function() { return "svg"; };
-
-        this.connectorClass = "jsplumb-connector";
-        this.connectorOutlineClass = "jsplumb-connector-outline";
-        this.editableConnectorClass = "jsplumb-connector-editable";
-        this.connectedClass = "jsplumb-connected";
-        this.hoverClass = "jsplumb-hover";
-        this.endpointClass = "jsplumb-endpoint";
-        this.endpointConnectedClass = "jsplumb-endpoint-connected";
-        this.endpointFullClass = "jsplumb-endpoint-full";
-        this.endpointDropAllowedClass = "jsplumb-endpoint-drop-allowed";
-        this.endpointDropForbiddenClass = "jsplumb-endpoint-drop-forbidden";
-        this.overlayClass = "jsplumb-overlay";
-        this.draggingClass = "jsplumb-dragging";
-        this.elementDraggingClass = "jsplumb-element-dragging";
-        this.sourceElementDraggingClass = "jsplumb-source-element-dragging";
-        this.targetElementDraggingClass = "jsplumb-target-element-dragging";
-        this.endpointAnchorClassPrefix = "jsplumb-endpoint-anchor";
-        this.hoverSourceClass = "jsplumb-source-hover";
-        this.hoverTargetClass = "jsplumb-target-hover";
-        this.dragSelectClass = "jsplumb-drag-select";
+        this.connectorClass = "jtk-connector";
+        this.connectorOutlineClass = "jtk-connector-outline";
+        this.editableConnectorClass = "jtk-connector-editable";
+        this.connectedClass = "jtk-connected";
+        this.hoverClass = "jtk-hover";
+        this.endpointClass = "jtk-endpoint";
+        this.endpointConnectedClass = "jtk-endpoint-connected";
+        this.endpointFullClass = "jtk-endpoint-full";
+        this.endpointDropAllowedClass = "jtk-endpoint-drop-allowed";
+        this.endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden";
+        this.overlayClass = "jtk-overlay";
+        this.draggingClass = "jtk-dragging";
+        this.elementDraggingClass = "jtk-element-dragging";
+        this.sourceElementDraggingClass = "jtk-source-element-dragging";
+        this.targetElementDraggingClass = "jtk-target-element-dragging";
+        this.endpointAnchorClassPrefix = "jtk-endpoint-anchor";
+        this.hoverSourceClass = "jtk-source-hover";
+        this.hoverTargetClass = "jtk-target-hover";
+        this.dragSelectClass = "jtk-drag-select";
 
         this.Anchors = {};
         this.Connectors = {  "svg": {} };
@@ -68016,8 +68611,12 @@ return DateRange;
                     sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
                 } : jpc;
 
-            if (doFireEvent)
+            if (doFireEvent) {
                 _currentInstance.fire("connectionDetached", params, originalEvent);
+            }
+
+            // always fire this. used by internal jsplumb stuff.
+            _currentInstance.fire("internal.connectionDetached", params, originalEvent);
 
             _currentInstance.anchorManager.connectionDetached(params);
         };
@@ -68697,25 +69296,6 @@ return DateRange;
 // --------------------- makeSource/makeTarget ---------------------------------------------- 
 
         this.targetEndpointDefinitions = {};
-        var _setEndpointPaintStylesAndAnchor = function (ep, epIndex, _instance) {
-           /* ep.paintStyle = ep.paintStyle ||
-                _instance.Defaults.EndpointStyles[epIndex] ||
-                _instance.Defaults.EndpointStyle;
-
-            ep.hoverPaintStyle = ep.hoverPaintStyle ||
-                _instance.Defaults.EndpointHoverStyles[epIndex] ||
-                _instance.Defaults.EndpointHoverStyle;
-
-            ep.anchor = ep.anchor ||
-                _instance.Defaults.Anchors[epIndex] ||
-                _instance.Defaults.Anchor;
-
-            ep.endpoint = ep.endpoint ||
-                _instance.Defaults.Endpoints[epIndex] ||
-                _instance.Defaults.Endpoint;*/
-        };
-
-        // TODO put all the source stuff inside one parent, keyed by id.
         this.sourceEndpointDefinitions = {};
 
         var selectorFilter = function (evt, _el, selector, _instance, negate) {
@@ -68853,11 +69433,7 @@ return DateRange;
             var p = root.jsPlumb.extend({_jsPlumb: this}, referenceParams);
             root.jsPlumb.extend(p, params);
 
-            // calculate appropriate paint styles and anchor from the params given
-            _setEndpointPaintStylesAndAnchor(p, 1, this);
-
-            var deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
-                maxConnections = p.maxConnections || -1,
+            var maxConnections = p.maxConnections || -1,
 
                 _doOne = function (el) {
 
@@ -68867,11 +69443,17 @@ return DateRange;
                     var elInfo = _info(el),
                         elid = elInfo.id,
                         dropOptions = root.jsPlumb.extend({}, p.dropOptions || {}),
-                        type = "default";
+                        type = p.connectionType || "default";
 
                     this.targetEndpointDefinitions[elid] = this.targetEndpointDefinitions[elid] || {};
 
                     _ensureContainer(elid);
+
+                    // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
+                    // precedence.
+                    if (elInfo.el._isJsPlumbGroup && dropOptions.rank == null) {
+                        dropOptions.rank = -1;
+                    }
 
                     // store the definition
                     var _def = {
@@ -68918,7 +69500,6 @@ return DateRange;
             var aae = _currentInstance.deriveEndpointAndAnchorSpec(type);
             p.endpoint = p.endpoint || aae.endpoints[0];
             p.anchor = p.anchor || aae.anchors[0];
-            _setEndpointPaintStylesAndAnchor(p, 0, this);
             var maxConnections = p.maxConnections || -1,
                 onMaxConnections = p.onMaxConnections,
                 _doOne = function (elInfo) {
@@ -69676,15 +70257,48 @@ return DateRange;
         }
     });
 
-// --------------------- static instance + AMD registration -------------------------------------------	
+    jsPlumbInstance.prototype.Defaults = {
+        Anchor: "Bottom",
+        Anchors: [ null, null ],
+        ConnectionsDetachable: true,
+        ConnectionOverlays: [ ],
+        Connector: "Bezier",
+        Container: null,
+        DoNotThrowErrors: false,
+        DragOptions: { },
+        DropOptions: { },
+        Endpoint: "Dot",
+        EndpointOverlays: [ ],
+        Endpoints: [ null, null ],
+        EndpointStyle: { fill: "#456" },
+        EndpointStyles: [ null, null ],
+        EndpointHoverStyle: null,
+        EndpointHoverStyles: [ null, null ],
+        HoverPaintStyle: null,
+        LabelStyle: { color: "black" },
+        LogEnabled: false,
+        Overlays: [ ],
+        MaxConnections: 1,
+        PaintStyle: { "stroke-width": 4, stroke: "#456" },
+        ReattachConnections: false,
+        RenderMode: "svg",
+        Scope: "jsPlumb_DefaultScope"
+    };
+
+// --------------------- static instance + module registration -------------------------------------------
 
 // create static instance and assign to window if window exists.	
     var jsPlumb = new jsPlumbInstance();
     // register on 'root' (lets us run on server or browser)
     root.jsPlumb = jsPlumb;
     // add 'getInstance' method to static instance
-    jsPlumb.getInstance = function (_defaults) {
+    jsPlumb.getInstance = function (_defaults, overrideFns) {
         var j = new jsPlumbInstance(_defaults);
+        if (overrideFns) {
+            for (var ovf in overrideFns) {
+                j[ovf] = overrideFns[ovf];
+            }
+        }
         j.init();
         return j;
     };
@@ -69699,23 +70313,10 @@ return DateRange;
         else
             fn(spec); // assume it's an element.
     };
-// maybe register static instance as an AMD module, and getInstance method too.
-    if (typeof define === "function") {
-        define("jsplumb", [], function () {
-            return jsPlumb;
-        });
-        define("jsplumbinstance", [], function () {
-            return jsPlumb.getInstance();
-        });
-    }
+
     // CommonJS
     if (typeof exports !== 'undefined') {
         exports.jsPlumb = jsPlumb;
-    }
-
-    // npm
-    if (typeof module !== "undefined") {
-        module.exports = jsPlumb;
     }
 
 // --------------------- end static instance + AMD registration -------------------------------------------		
@@ -69725,13 +70326,13 @@ return DateRange;
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains the base functionality for DOM type adapters.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -69946,7 +70547,8 @@ return DateRange;
             }
             var pLoc = _currentInstance.getOffset(p),
                 cLoc = currentChildLocation || _currentInstance.getOffset(el);
-            if (current) {
+
+            if (current && _delements[current]) {
                 delete _delements[current][elId];
             }
 
@@ -70251,7 +70853,8 @@ return DateRange;
         },
         getHeight: function (el) {
             return el.offsetHeight;
-        }
+        },
+        getRenderMode : function() { return "svg"; }
 
     });
 }).call(typeof window !== 'undefined' ? window : this);
@@ -70259,13 +70862,13 @@ return DateRange;
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains code for components that support overlays.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -70528,13 +71131,13 @@ return DateRange;
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for Endpoints.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -70671,7 +71274,7 @@ return DateRange;
             this.removeClass(oldAnchorClass);
             this.addClass(anchorClass);
             // add and remove at the same time to reduce the number of reflows.
-            jsPlumb.updateClasses(this.element, anchorClass, oldAnchorClass);
+            _jp.updateClasses(this.element, anchorClass, oldAnchorClass);
         }.bind(this);
 
         this.prepareAnchor = function(anchorParams) {
@@ -70913,7 +71516,7 @@ return DateRange;
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function (e) {
                 return e.id == this.id;
             }.bind(this));
-            this.element = jsPlumb.getElement(el);
+            this.element = _jp.getElement(el);
             this.elementId = _jsPlumb.getId(this.element);
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             _jsPlumb.dragManager.endpointAdded(this.element);
@@ -71079,7 +71682,7 @@ return DateRange;
                     // else we might have been given some data. we'll pass it in to a new connection as 'data'.
                     // here we also merge in the optional payload we were given on mousedown.
                     else if (typeof beforeDrag === "object") {
-                        jsPlumb.extend(beforeDrag, payload || {});
+                        _jp.extend(beforeDrag, payload || {});
                     }
                     else
                         // or if no beforeDrag data, maybe use the payload on its own.
@@ -71505,7 +72108,7 @@ return DateRange;
         },
         cleanup: function () {
             var anchorClass = this._jsPlumb.instance.endpointAnchorClassPrefix + (this._jsPlumb.currentAnchorClass ? "-" + this._jsPlumb.currentAnchorClass : "");
-            jsPlumb.removeClass(this.element, anchorClass);
+            _jp.removeClass(this.element, anchorClass);
             this.anchor = null;
             this.endpoint.cleanup(true);
             this.endpoint.destroy();
@@ -71792,13 +72395,13 @@ return DateRange;
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for Connections.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * https://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -71814,7 +72417,7 @@ return DateRange;
         _ju = root.jsPlumbUtil;
 
     var makeConnector = function (_jsPlumb, renderMode, connectorName, connectorArgs, forComponent) {
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
+            if (!_jsPlumb.Defaults.DoNotThrowErrors && _jp.Connectors[renderMode][connectorName] == null)
                 throw { msg: "jsPlumb: unknown connector type '" + connectorName + "'" };
 
             return new _jp.Connectors[renderMode][connectorName](connectorArgs, forComponent);
@@ -71908,7 +72511,7 @@ return DateRange;
         // we apply types at the end of this constructor but endpoints are only honoured in a type definition at
         // create time.
         if (params.type) {
-            params.endpoints = this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
+            params.endpoints = params.endpoints || this._jsPlumb.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
         }
 
         var eS = this.makeEndpoint(true, this.source, this.sourceId, params.sourceEndpoint),
@@ -71943,8 +72546,8 @@ return DateRange;
         this.appendToDefaultType({
             detachable: _detachable,
             reattach: _reattach,
-            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle
+            paintStyle:this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _jsPlumb.Defaults.PaintStyle || _jp.Defaults.PaintStyle,
+            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _jsPlumb.Defaults.HoverPaintStyle || _jp.Defaults.HoverPaintStyle
         });
 
 
@@ -72010,7 +72613,7 @@ return DateRange;
         // merge all the parameters objects into the connection.  parameters set
         // on the connection take precedence; then source endpoint params, then
         // finally target endpoint params.
-        var _p = jsPlumb.extend({}, this.endpoints[1].getParameters());
+        var _p = _jp.extend({}, this.endpoints[1].getParameters());
         _jp.extend(_p, this.endpoints[0].getParameters());
         _jp.extend(_p, this.getParameters());
         this.setParameters(_p);
@@ -72025,7 +72628,7 @@ return DateRange;
         var data = params.data == null || !_ju.isObject(params.data) ? {} : params.data;
         this.getData = function() { return data; };
         this.setData = function(d) { data = d || {}; };
-        this.mergeData = function(d) { data = jsPlumb.extend(data, d); };
+        this.mergeData = function(d) { data = _jp.extend(data, d); };
 
         // the very last thing we do is apply types, if there are any.
         var _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ");
@@ -72235,7 +72838,7 @@ return DateRange;
                         targetPos: tAnchorP,
                         sourceEndpoint: this.endpoints[sIdx],
                         targetEndpoint: this.endpoints[tIdx],
-                        lineWidth: this._jsPlumb.paintStyleInUse.lineWidth,
+                        "stroke-width": this._jsPlumb.paintStyleInUse.strokeWidth,
                         sourceInfo: sourceInfo,
                         targetInfo: targetInfo
                     });
@@ -72257,8 +72860,8 @@ return DateRange;
                         }
                     }
 
-                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
+                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 1) / 2,
+                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.strokeWidth || 0),
                         extents = {
                             xmin: Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin: Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -72291,25 +72894,25 @@ return DateRange;
                 existing.addConnection(conn);
             } else {
                 if (!params.endpoints) params.endpoints = [ null, null ];
-                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+                var ep = params.endpoints[index] || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || _jp.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || _jp.Defaults.Endpoint;
                 if (!params.endpointStyles) params.endpointStyles = [ null, null ];
                 if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
-                var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-                // Endpoints derive their fillStyle from the connector's strokeStyle, if no fillStyle was specified.
-                if (es.fillStyle == null && params.paintStyle != null)
-                    es.fillStyle = params.paintStyle.strokeStyle;
+                var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || _jp.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || _jp.Defaults.EndpointStyle;
+                // Endpoints derive their fill from the connector's stroke, if no fill was specified.
+                if (es.fill == null && params.paintStyle != null)
+                    es.fill = params.paintStyle.stroke;
 
-                if (es.outlineColor == null && params.paintStyle != null)
-                    es.outlineColor = params.paintStyle.outlineColor;
+                if (es.outlineStroke == null && params.paintStyle != null)
+                    es.outlineStroke = params.paintStyle.outlineStroke;
                 if (es.outlineWidth == null && params.paintStyle != null)
                     es.outlineWidth = params.paintStyle.outlineWidth;
 
-                var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
+                var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _jsPlumb.Defaults.EndpointHoverStyles[index] || _jp.Defaults.EndpointHoverStyles[index] || _jsPlumb.Defaults.EndpointHoverStyle || _jp.Defaults.EndpointHoverStyle;
                 // endpoint hover fill style is derived from connector's hover stroke style
                 if (params.hoverPaintStyle != null) {
                     if (ehs == null) ehs = {};
-                    if (ehs.fillStyle == null) {
-                        ehs.fillStyle = params.hoverPaintStyle.strokeStyle;
+                    if (ehs.fill == null) {
+                        ehs.fill = params.hoverPaintStyle.stroke;
                     }
                 }
                 var a = params.anchors ? params.anchors[index] :
@@ -72340,13 +72943,13 @@ return DateRange;
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the code for creating and manipulating anchors.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -72481,7 +73084,7 @@ return DateRange;
                 var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
                     p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
                 if (p1 > p2) return 1;
-                else return a[0][1] > b[0][1] ? 1 : -1;
+                else return -1;
             },
         // used by placeAnchors
             edgeSortFunctions = {
@@ -73062,7 +73665,7 @@ return DateRange;
             if (params.clearUserDefinedLocation)
                 this.userDefinedLocation = null;
 
-            if (timestamp && timestamp === self.timestamp)
+            if (timestamp && timestamp === this.timestamp)
                 return this.lastReturnValue;
 
             if (this.userDefinedLocation != null) {
@@ -73499,13 +74102,13 @@ return DateRange;
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the default Connectors, Endpoint and Overlay definitions.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -73906,6 +74509,29 @@ return DateRange;
         }
     };
 
+    _jp.SegmentRenderer = {
+        getPath: function (segment) {
+            return ({
+                "Straight": function () {
+                    var d = segment.getCoordinates();
+                    return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
+                },
+                "Bezier": function () {
+                    var d = segment.params;
+                    return "M " + d.x1 + " " + d.y1 +
+                        " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
+                },
+                "Arc": function () {
+                    var d = segment.params,
+                        laf = segment.sweep > Math.PI ? 1 : 0,
+                        sf = segment.anticlockwise ? 0 : 1;
+
+                    return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
+                }
+            })[segment.type]();
+        }
+    };
+
     /*
      Class: AbstractComponent
      Superclass for AbstractConnector and AbstractEndpoint.
@@ -73945,7 +74571,7 @@ return DateRange;
             edited = false,
             paintInfo = null,
             geometry = null,
-            editable = params.editable !== false && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null;
+            editable = params.editable !== false && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null;
 
         var _setGeometry = this.setGeometry = function(g, internallyComputed) {
             edited = (!internallyComputed);
@@ -73955,13 +74581,22 @@ return DateRange;
             return geometry;
         };
 
+        this.getPathData = function() {
+            var p = "";
+            for (var i = 0; i < segments.length; i++) {
+                p += _jp.SegmentRenderer.getPath(segments[i]);
+                p += " ";
+            }
+            return p;
+        };
+
         this.hasBeenEdited = function() { return edited; };
         this.isEditing = function() { return this.editor != null && this.editor.isActive(); };
         this.setEditable = function(e) {
             // if this connector has an editor already, or
             // if an editor for this connector's type is available, or
             // if the child declares an overrideSetEditable and it does not return false, editable is true.
-            if (e && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
+            if (e && _jp.ConnectorEditors != null && _jp.ConnectorEditors[this.type] != null && (this.overrideSetEditable == null || this.overrideSetEditable())) {
                 editable = e;
             } else {
                 editable = false;
@@ -74061,11 +74696,11 @@ return DateRange;
         };
 
         var _prepareCompute = function (params) {
-            this.lineWidth = params.lineWidth;
+            this.strokeWidth = params.strokeWidth;
             var segment = _jg.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
-                lw = params.lineWidth || 1,
+                lw = params.strokeWidth || 1,
                 so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
                 to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0],
@@ -74179,23 +74814,6 @@ return DateRange;
     };
     _ju.extend(_jp.Connectors.AbstractConnector, AbstractComponent);
 
-    /**
-     * Class: Connectors.Straight
-     * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
-     */
-    var Straight = _jp.Connectors.Straight = function () {
-        this.type = "Straight";
-        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
-
-        this._compute = function (paintInfo, _) {
-            _super.addSegment(this, "Straight", {x1: paintInfo.sx, y1: paintInfo.sy, x2: paintInfo.startStubX, y2: paintInfo.startStubY});
-            _super.addSegment(this, "Straight", {x1: paintInfo.startStubX, y1: paintInfo.startStubY, x2: paintInfo.endStubX, y2: paintInfo.endStubY});
-            _super.addSegment(this, "Straight", {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty});
-        };
-    };
-    _ju.extend(_jp.Connectors.Straight, _jp.Connectors.AbstractConnector);
-    _jp.registerConnectorType(Straight, "Straight");
-
 
     // ********************************* END OF CONNECTOR TYPES *******************************************************************
 
@@ -74249,8 +74867,8 @@ return DateRange;
                 w = this.radius * 2,
                 h = this.radius * 2;
 
-            if (endpointStyle.strokeStyle) {
-                var lw = endpointStyle.lineWidth || 1;
+            if (endpointStyle.stroke) {
+                var lw = endpointStyle.strokeWidth || 1;
                 x -= lw;
                 y -= lw;
                 w += (lw * 2);
@@ -74363,7 +74981,7 @@ return DateRange;
             else return [0, 0, 0, 0];
         };
 
-        this.canvas = jsPlumb.createElement("img", {
+        this.canvas = _jp.createElement("img", {
             position:"absolute",
             margin:0,
             padding:0,
@@ -74424,7 +75042,7 @@ return DateRange;
 
         var clazz = params.cssClass ? " " + params.cssClass : "";
 
-        this.canvas = jsPlumb.createElement("div", {
+        this.canvas = _jp.createElement("div", {
             display: "block",
             width: "1px",
             height: "1px",
@@ -74535,18 +75153,17 @@ return DateRange;
      * across the tail.
      */
     /*
-     * Function: Constructor
+     * @constructor
      *
-     * Parameters:
-     *
-     * 	length - distance in pixels from head to tail baseline. default 20.
-     * 	width - width in pixels of the tail baseline. default 20.
-     * 	fillStyle - style to use when filling the arrow.  defaults to "black".
-     * 	strokeStyle - style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
-     * 	lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
-     * 	foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
-     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
-     * 	direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
+     * @param {Object} params Constructor params.
+     * @param {Number} [params.length] Distance in pixels from head to tail baseline. default 20.
+     * @param {Number} [params.width] Width in pixels of the tail baseline. default 20.
+     * @param {String} [params.fill] Style to use when filling the arrow.  defaults to "black".
+     * @param {String} [params.stroke] Style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
+     * @param {Number} [params.stroke-width] Line width to use when stroking the arrow. defaults to 1, but only used if stroke is not null.
+     * @param {Number} [params.foldback] Distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
+     * @param {Number} [params.location] Distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
+     * @param {NUmber} [params.direction] Indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
      */
     _jp.Overlays.Arrow = function (params) {
         this.type = "Arrow";
@@ -74558,7 +75175,7 @@ return DateRange;
         this.width = params.width || 20;
         this.id = params.id;
         var direction = (params.direction || 1) < 0 ? -1 : 1,
-            paintStyle = params.paintStyle || { lineWidth: 1 },
+            paintStyle = params.paintStyle || { "stroke-width": 1 },
         // how far along the arrow the lines folding back in come to. default is 62.3%.
             foldback = params.foldback || 0.623;
 
@@ -74570,7 +75187,7 @@ return DateRange;
             this.path = p;
             if (params.events) {
                 for (var i in params.events) {
-                    jsPlumb.on(p, i, params.events[i]);
+                    _jp.on(p, i, params.events[i]);
                 }
             }
         };
@@ -74618,16 +75235,16 @@ return DateRange;
                 cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);
 
                 var d = { hxy: hxy, tail: tail, cxy: cxy },
-                    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
-                    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-                    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
+                    stroke = paintStyle.stroke || currentConnectionPaintStyle.stroke,
+                    fill = paintStyle.fill || currentConnectionPaintStyle.stroke,
+                    lineWidth = paintStyle.strokeWidth || currentConnectionPaintStyle.strokeWidth;
 
                 return {
                     component: component,
                     d: d,
-                    lineWidth: lineWidth,
-                    strokeStyle: strokeStyle,
-                    fillStyle: fillStyle,
+                    "stroke-width": lineWidth,
+                    stroke: stroke,
+                    fill: fill,
                     minX: Math.min(hxy.x, tail[0].x, tail[1].x),
                     maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
                     minY: Math.min(hxy.y, tail[0].y, tail[1].y),
@@ -74683,7 +75300,7 @@ return DateRange;
     _jp.Overlays.Diamond = function (params) {
         params = params || {};
         var l = params.length || 40,
-            p = jsPlumb.extend(params, {length: l / 2, foldback: 2});
+            p = _jp.extend(params, {length: l / 2, foldback: 2});
         _jp.Overlays.Arrow.call(this, p);
         this.type = "Diamond";
     };
@@ -74718,7 +75335,7 @@ return DateRange;
 
         this.getElement = function () {
             if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = jsPlumb.getElement(this._jsPlumb.create(this._jsPlumb.component));
+                var div = this._jsPlumb.div = _jp.getElement(this._jsPlumb.create(this._jsPlumb.component));
                 div.style.position = "absolute";
                 div.className = this._jsPlumb.instance.overlayClass + " " +
                     (this.cssClass ? this.cssClass :
@@ -74866,7 +75483,7 @@ return DateRange;
     _jp.Overlays.GuideLines = function () {
         var self = this;
         self.length = 50;
-        self.lineWidth = 5;
+        self.strokeWidth = 5;
         this.type = "GuideLines";
         AbstractOverlay.apply(this, arguments);
         _jp.jsPlumbUIComponent.apply(this, arguments);
@@ -74918,7 +75535,7 @@ return DateRange;
         this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
         var p = _jp.extend({
             create: function () {
-                return jsPlumb.createElement("div");
+                return _jp.createElement("div");
             }}, params);
         _jp.Overlays.Custom.call(this, p);
         this.type = "Label";
@@ -74929,7 +75546,7 @@ return DateRange;
             this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
             el.style.font = this.labelStyle.font;
             el.style.color = this.labelStyle.color || "black";
-            if (this.labelStyle.fillStyle) el.style.background = this.labelStyle.fillStyle;
+            if (this.labelStyle.fill) el.style.background = this.labelStyle.fill;
             if (this.labelStyle.borderWidth > 0) {
                 var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
                 el.style.border = this.labelStyle.borderWidth + "px solid " + dStyle;
@@ -74982,7 +75599,9 @@ return DateRange;
             }
         },
         updateFrom:function(d) {
-            if(d.label) this.setLabel(d.label);
+            if(d.label != null){
+                this.setLabel(d.label);
+            }
         }
     });
 
@@ -74993,13 +75612,13 @@ return DateRange;
 /*
  * jsPlumb
  *
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  *
  * Provides a way to visually connect elements on an HTML page, using SVG.
  *
  * This file contains the base class for library adapters.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -75040,6 +75659,22 @@ return DateRange;
 
 
 }).call(typeof window !== 'undefined' ? window : this);
+/*
+ * jsPlumb
+ *
+ * Title:jsPlumb 2.3.0
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
+ * This file contains the code for working with Groups.
+ *
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
     "use strict";
 
@@ -75047,9 +75682,9 @@ return DateRange;
         _ju = root.jsPlumbUtil,
         _jpi = root.jsPlumbInstance;
 
-    var GROUP_COLLAPSED_CLASS = "jsplumb-group-collapsed";
-    var GROUP_EXPANDED_CLASS = "jsplumb-group-expanded";
-    var GROUP_CONTAINER_SELECTOR = "[jsplumb-group-content]";
+    var GROUP_COLLAPSED_CLASS = "jtk-group-collapsed";
+    var GROUP_EXPANDED_CLASS = "jtk-group-expanded";
+    var GROUP_CONTAINER_SELECTOR = "[jtk-group-content]";
     var ELEMENT_DRAGGABLE_EVENT = "elementDraggable";
     var STOP = "stop";
     var REVERT = "revert";
@@ -75102,7 +75737,7 @@ return DateRange;
             }
         }
 
-        _jsPlumb.bind("connectionDetached", function(p) {
+        _jsPlumb.bind("internal.connectionDetached", function(p) {
             _cleanupDetachedConnection(p.connection);
         });
 
@@ -75119,7 +75754,7 @@ return DateRange;
         });
 
         this.addGroup = function(group) {
-            _jsPlumb.addClass(group.el, GROUP_EXPANDED_CLASS);
+            _jsPlumb.addClass(group.getEl(), GROUP_EXPANDED_CLASS);
             _managedGroups[group.id] = group;
             group.manager = this;
             _updateConnectionsForGroup(group);
@@ -75129,7 +75764,60 @@ return DateRange;
         this.addToGroup = function(group, el, doNotFireEvent) {
             group = this.getGroup(group);
             if (group) {
-                group.add(el, doNotFireEvent);
+                //group.add(el, doNotFireEvent);
+                var groupEl = group.getEl();
+
+                if (el._isJsPlumbGroup) return;
+                var currentGroup = el._jsPlumbGroup;
+                // if already a member of this group, do nothing
+                if (currentGroup !== group) {
+                    var elpos = _jsPlumb.getOffset(el, true);
+                    var cpos = group.collapsed ? _jsPlumb.getOffset(groupEl, true) : _jsPlumb.getOffset(group.getDragArea(), true);
+
+                    // otherwise, transfer to this group.
+                    if (currentGroup != null) {
+                        currentGroup.remove(el, doNotFireEvent);
+                        self.updateConnectionsForGroup(currentGroup);
+                    }
+                    group.add(el, doNotFireEvent);
+
+                    var handleDroppedConnections = function (list, index) {
+                        var oidx = index == 0 ? 1 : 0;
+                        list.each(function (c) {
+                            c.setVisible(false);
+                            if (c.endpoints[oidx].element._jsPlumbGroup === group) {
+                                c.endpoints[oidx].setVisible(false);
+                                self.expandConnection(c, oidx, group);
+                            }
+                            else {
+                                c.endpoints[index].setVisible(false);
+                                self.collapseConnection(c, index, group);
+                            }
+                        });
+                    };
+
+                    if (group.collapsed) {
+                        handleDroppedConnections(_jsPlumb.select({source: el}), 0);
+                        handleDroppedConnections(_jsPlumb.select({target: el}), 1);
+                    }
+
+                    var elId = _jsPlumb.getId(el);
+                    _jsPlumb.dragManager.setParent(el, elId, groupEl, _jsPlumb.getId(groupEl), elpos);
+
+                    var newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top };
+
+                    _jsPlumb.setPosition(el, newPosition);
+
+                    _jsPlumb.dragManager.revalidateParent(el, elId, elpos);
+
+                    self.updateConnectionsForGroup(group);
+
+                    _jsPlumb.revalidate(elId);
+
+                    setTimeout(function () {
+                        _jsPlumb.fire(EVT_CHILD_ADDED, {group: group, el: el});
+                    }, 0);
+                }
             }
         };
 
@@ -75157,19 +75845,19 @@ return DateRange;
             return o;
         };
 
-        this.removeGroup = function(group, deleteMembers) {
+        this.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
             group = this.getGroup(group);
             this.expandGroup(group, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
-            group[deleteMembers ? "removeAll" : "orphanAll"]();
+            group[deleteMembers ? "removeAll" : "orphanAll"](manipulateDOM, doNotFireEvent);
             _jsPlumb.remove(group.getEl());
             delete _managedGroups[group.id];
             delete _jsPlumb._groups[group.id];
             _jsPlumb.fire(EVT_GROUP_REMOVED, { group:group });
         };
 
-        this.removeAllGroups = function(deleteMembers) {
+        this.removeAllGroups = function(deleteMembers, manipulateDOM, doNotFireEvent) {
             for (var g in _managedGroups) {
-                this.removeGroup(_managedGroups[g], deleteMembers);
+                this.removeGroup(_managedGroups[g], deleteMembers, manipulateDOM, doNotFireEvent);
             }
         };
 
@@ -75389,8 +76077,12 @@ return DateRange;
         this.getEl = function() { return el; };
         this.id = params.id || _ju.uuid();
         el._isJsPlumbGroup = true;
-        var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
-        var dragArea = da && da.length > 0 ? da[0] : el;
+
+        var getDragArea = this.getDragArea = function() {
+            var da = _jsPlumb.getSelector(el, GROUP_CONTAINER_SELECTOR);
+            return da && da.length > 0 ? da[0] : el;
+        };
+
         var ghost = params.ghost === true;
         var constrain = ghost || (params.constrain === true);
         var revert = params.revert !== false;
@@ -75427,56 +76119,18 @@ return DateRange;
         if (params.droppable !== false) {
             _jsPlumb.droppable(params.el, {
                 drop:function(p) {
-                    var groupManager = _jsPlumb.getGroupManager();
-                    var _el = p.drag.el;
-                    if (_el._isJsPlumbGroup) return;
-                    var currentGroup = _el._jsPlumbGroup;
-                    // if already a member of this group, do nothing
+                    var el = p.drag.el;
+                    if (el._isJsPlumbGroup) return;
+                    var currentGroup = el._jsPlumbGroup;
                     if (currentGroup !== self) {
-                        var elpos = _jsPlumb.getOffset(_el, true);
-                        var cpos = self.collapsed ? _jsPlumb.getOffset(el, true) : _jsPlumb.getOffset(dragArea, true);
-
-                        // otherwise, transfer to this group.
                         if (currentGroup != null) {
-                            if (currentGroup.overrideDrop(_el, self)) {
+                            if (currentGroup.overrideDrop(el, self)) {
                                 return;
                             }
-                            currentGroup.remove(_el, true);
-                            groupManager.updateConnectionsForGroup(currentGroup);
                         }
-                        self.add(_el, true);
-
-                        var handleDroppedConnections = function(list, index) {
-                            var oidx = index == 0 ? 1 : 0;
-                            list.each(function(c) {
-                                c.setVisible(false);
-                                if (c.endpoints[oidx].element._jsPlumbGroup === self) {
-                                    c.endpoints[oidx].setVisible(false);
-                                    groupManager.expandConnection(c, oidx, self);
-                                }
-                                else {
-                                    c.endpoints[index].setVisible(false);
-                                    groupManager.collapseConnection(c, index, self);
-                                }
-                            });
-                        };
-
-                        if (self.collapsed) {
-                            handleDroppedConnections(_jsPlumb.select({source: _el}), 0);
-                            handleDroppedConnections(_jsPlumb.select({target: _el}), 1);
-                        }
-
-                        var elId = _jsPlumb.getId(_el);
-                        _jsPlumb.dragManager.setParent(_el, elId, el, _jsPlumb.getId(el), elpos);
-                        _jsPlumb.setPosition(_el, {left:elpos.left - cpos.left, top:elpos.top - cpos.top});
-                        _jsPlumb.dragManager.revalidateParent(_el, elId, elpos);
-
-                        groupManager.updateConnectionsForGroup(self);
-
-                        setTimeout(function() {
-                            _jsPlumb.fire(EVT_CHILD_ADDED, {group: self, el: _el});
-                        }, 0);
+                        _jsPlumb.getGroupManager().addToGroup(self, el, false);
                     }
+
                 }
             });
         }
@@ -75492,7 +76146,17 @@ return DateRange;
         };
 
         this.add = function(_el, doNotFireEvent) {
+            var dragArea = getDragArea();
             _each(_el, function(__el) {
+
+                if (__el._jsPlumbGroup != null) {
+                    if (__el._jsPlumbGroup === self) {
+                        return;
+                    } else {
+                        __el._jsPlumbGroup.remove(__el, true, doNotFireEvent, false);
+                    }
+                }
+
                 __el._jsPlumbGroup = self;
                 elements.push(__el);
                 // test if draggable and add handlers if so.
@@ -75521,7 +76185,7 @@ return DateRange;
                 });
 
                 if (manipulateDOM) {
-                    try { self.getEl().removeChild(__el); }
+                    try { self.getDragArea().removeChild(__el); }
                     catch (e) {
                         jsPlumbUtil.log("Could not remove element from Group " + e);
                     }
@@ -75682,7 +76346,20 @@ return DateRange;
      * @param {Element} el Element to add to the group.
      */
     _jpi.prototype.addToGroup = function(group, el, doNotFireEvent) {
-        this.getGroupManager().addToGroup(group, el, doNotFireEvent);
+
+        var _one = function(_el) {
+            var id = this.getId(_el);
+            this.manage(id, _el);
+            this.getGroupManager().addToGroup(group, _el, doNotFireEvent);
+        }.bind(this);
+
+        if (Array.isArray(el)) {
+            for (var i = 0; i < el.length; i++) {
+                _one(el[i]);
+            }
+        } else {
+            _one(el);
+        }
     };
 
     /**
@@ -75698,12 +76375,12 @@ return DateRange;
     /**
      * Remove a group, and optionally remove its members from the jsPlumb instance.
      * @method removeGroup
-     * @param {String|Group} group Group to delete, or ID of Grrup to delete.
+     * @param {String|Group} group Group to delete, or ID of Group to delete.
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the group. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    _jpi.prototype.removeGroup = function(group, deleteMembers) {
-        this.getGroupManager().removeGroup(group, deleteMembers);
+    _jpi.prototype.removeGroup = function(group, deleteMembers, manipulateDOM, doNotFireEvent) {
+        this.getGroupManager().removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
     };
 
     /**
@@ -75712,8 +76389,8 @@ return DateRange;
      * @param {Boolean} [deleteMembers=false] If true, group members will be removed along with the groups. Otherwise they will
      * just be 'orphaned' (returned to the main container).
      */
-    _jpi.prototype.removeAllGroups = function(deleteMembers) {
-        this.getGroupManager().removeAllGroups(deleteMembers);
+    _jpi.prototype.removeAllGroups = function(deleteMembers, manipulateDOM, doNotFireEvent) {
+        this.getGroupManager().removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
     };
 
     /**
@@ -75742,8 +76419,8 @@ return DateRange;
      * the group to the group itself)
      * - Proxies all connections for which the source or target is a member of the group.
      * - Hides the proxied connections.
-     * - Adds the jsplumb-group-expanded class to the group's element
-     * - Removes the jsplumb-group-collapsed class from the group's element.
+     * - Adds the jtk-group-expanded class to the group's element
+     * - Removes the jtk-group-collapsed class from the group's element.
      *
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
@@ -75760,8 +76437,8 @@ return DateRange;
      * the group to the group itself)
      * - Removes proxies for all connections for which the source or target is a member of the group.
      * - Shows the previously proxied connections.
-     * - Adds the jsplumb-group-collapsed class to the group's element
-     * - Removes the jsplumb-group-expanded class from the group's element.
+     * - Adds the jtk-group-collapsed class to the group's element
+     * - Removes the jtk-group-expanded class from the group's element.
      *
      * @method expandGroup
      * @param {String|Group} group Group to expand, or ID of Group to expand.
@@ -75822,13 +76499,13 @@ return DateRange;
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -76192,11 +76869,17 @@ return DateRange;
     _jp.registerConnectorType(Flowchart, "Flowchart");
 }).call(typeof window !== 'undefined' ? window : this);
 /*
+ * jsPlumb
+ *
+ * Title:jsPlumb 2.3.0
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
  * This file contains the code for the Bezier connector type.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
- * 
- * https://jsplumbtoolkit.com
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
@@ -76342,11 +77025,17 @@ return DateRange;
 
 }).call(typeof window !== 'undefined' ? window : this);
 /*
+ * jsPlumb
+ *
+ * Title:jsPlumb 2.3.0
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
  * This file contains the state machine connectors, which extend AbstractBezierConnector.
  *
- * Copyright (c) 2010 - 2015 jsPlumb (hello@jsplumbtoolkit.com)
- * 
- * https://jsplumbtoolkit.com
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
@@ -76500,14 +77189,52 @@ return DateRange;
 }).call(typeof window !== 'undefined' ? window : this);
 /*
  * jsPlumb
+ *
+ * Title:jsPlumb 2.3.0
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG.
+ *
+ * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
+ *
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
+;
+(function () {
+
+    "use strict";
+    var root = this, _jp = root.jsPlumb, _ju = root.jsPlumbUtil;
+    var STRAIGHT = "Straight";
+
+    var Straight = function (params) {
+        this.type = STRAIGHT;
+        var _super = _jp.Connectors.AbstractConnector.apply(this, arguments);
+
+        this._compute = function (paintInfo, _) {
+            _super.addSegment(this, STRAIGHT, {x1: paintInfo.sx, y1: paintInfo.sy, x2: paintInfo.startStubX, y2: paintInfo.startStubY});
+            _super.addSegment(this, STRAIGHT, {x1: paintInfo.startStubX, y1: paintInfo.startStubY, x2: paintInfo.endStubX, y2: paintInfo.endStubY});
+            _super.addSegment(this, STRAIGHT, {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty});
+        };
+    };
+
+    _ju.extend(Straight, _jp.Connectors.AbstractConnector);
+    _jp.registerConnectorType(Straight, STRAIGHT);
+
+}).call(typeof window !== 'undefined' ? window : this);
+/*
+ * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -76539,7 +77266,7 @@ return DateRange;
         STYLE = "style",
         NONE = "none",
         JSPLUMB_GRADIENT = "jsplumb_gradient_",
-        LINE_WIDTH = "lineWidth",
+        LINE_WIDTH = "strokeWidth",
         ns = {
             svg: "http://www.w3.org/2000/svg",
             xhtml: "http://www.w3.org/1999/xhtml"
@@ -76552,7 +77279,7 @@ return DateRange;
             attributes = attributes || {};
             attributes.version = "1.1";
             attributes.xmlns = ns.xhtml;
-            return jsPlumb.createElementNS(ns.svg, name, null, null, attributes);
+            return _jp.createElementNS(ns.svg, name, null, null, attributes);
         },
         _pos = function (d) {
             return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
@@ -76594,13 +77321,13 @@ return DateRange;
 
                 g.appendChild(s);
             }
-            var applyGradientTo = style.strokeStyle ? STROKE : FILL;
+            var applyGradientTo = style.stroke ? STROKE : FILL;
             node.setAttribute(applyGradientTo, "url(#" + id + ")");
         },
         _applyStyles = function (parent, node, style, dimensions, uiComponent) {
 
-            node.setAttribute(FILL, style.fillStyle ? style.fillStyle : NONE);
-            node.setAttribute(STROKE, style.strokeStyle ? style.strokeStyle : NONE);
+            node.setAttribute(FILL, style.fill ? style.fill : NONE);
+            node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
 
             if (style.gradient) {
                 _updateGradient(parent, node, style, dimensions, uiComponent);
@@ -76611,8 +77338,8 @@ return DateRange;
                 node.setAttribute(STYLE, "");
             }
 
-            if (style.lineWidth) {
-                node.setAttribute(STROKE_WIDTH, style.lineWidth);
+            if (style.strokeWidth) {
+                node.setAttribute(STROKE_WIDTH, style.strokeWidth);
             }
 
             // in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
@@ -76628,7 +77355,7 @@ return DateRange;
                     parts = style[DASHSTYLE].split(sep),
                     styleToUse = "";
                 parts.forEach(function (p) {
-                    styleToUse += (Math.floor(p * style.lineWidth) + sep);
+                    styleToUse += (Math.floor(p * style.strokeWidth) + sep);
                 });
                 node.setAttribute(STROKE_DASHARRAY, styleToUse);
             }
@@ -76685,7 +77412,7 @@ return DateRange;
         this.svg = _node("svg", svgParams);
 
         if (params.useDivWrapper) {
-            this.canvas = jsPlumb.createElement("div", { position : "absolute" });
+            this.canvas = _jp.createElement("div", { position : "absolute" });
             _ju.sizeElement(this.canvas, 0, 0, 1, 1);
             this.canvas.className = clazz;
         }
@@ -76793,7 +77520,7 @@ return DateRange;
         var _superSetEditable = this.setEditable;
         this.setEditable = function(e) {
             var result = _superSetEditable.apply(this, [e]);
-            jsPlumb[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
+            _jp[result ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.editableConnectorClass);
         };
 
         _super.renderer.paint = function (style, anchor, extents) {
@@ -76804,11 +77531,7 @@ return DateRange;
 
             if (segments.length > 0) {
 
-                // create path from segments.
-                for (var i = 0; i < segments.length; i++) {
-                    p += _jp.Segments.svg.SegmentRenderer.getPath(segments[i]);
-                    p += " ";
-                }
+                p = self.getPathData();
 
                 var a = {
                         d: p,
@@ -76819,13 +77542,13 @@ return DateRange;
                     d = [self.x, self.y, self.w, self.h];
 
                 // outline style.  actually means drawing an svg object underneath the main one.
-                if (style.outlineColor) {
+                if (style.outlineStroke) {
                     var outlineWidth = style.outlineWidth || 1,
-                        outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+                        outlineStrokeWidth = style.strokeWidth + (2 * outlineWidth);
                     outlineStyle = _jp.extend({}, style);
                     delete outlineStyle.gradient;
-                    outlineStyle.strokeStyle = style.outlineColor;
-                    outlineStyle.lineWidth = outlineStrokeWidth;
+                    outlineStyle.stroke = style.outlineStroke;
+                    outlineStyle.strokeWidth = outlineStrokeWidth;
 
                     if (self.bgPath == null) {
                         self.bgPath = _node("path", a);
@@ -76841,7 +77564,7 @@ return DateRange;
 
                 if (self.path == null) {
                     self.path = _node("path", a);
-                    _appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
+                    _appendAtIndex(self.svg, self.path, style.outlineStroke ? 1 : 0);
                 }
                 else {
                     _attr(self.path, a);
@@ -76855,30 +77578,6 @@ return DateRange;
 
 // ******************************* svg segment renderer *****************************************************	
 
-    _jp.Segments.svg = {
-        SegmentRenderer: {
-            getPath: function (segment) {
-                return ({
-                    "Straight": function () {
-                        var d = segment.getCoordinates();
-                        return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;
-                    },
-                    "Bezier": function () {
-                        var d = segment.params;
-                        return "M " + d.x1 + " " + d.y1 +
-                            " C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;
-                    },
-                    "Arc": function () {
-                        var d = segment.params,
-                            laf = segment.sweep > Math.PI ? 1 : 0,
-                            sf = segment.anticlockwise ? 0 : 1;
-
-                        return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
-                    }
-                })[segment.type]();
-            }
-        }
-    };
 
 // ******************************* /svg segments *****************************************************
 
@@ -76898,9 +77597,9 @@ return DateRange;
 
         _super.renderer.paint = function (style) {
             var s = _jp.extend({}, style);
-            if (s.outlineColor) {
-                s.strokeWidth = s.outlineWidth;
-                s.strokeStyle = s.outlineColor;
+            if (s.outlineStroke) {
+                s.strokeWidth = s.strokeWidth;
+                s.stroke = s.outlineStroke;
             }
 
             if (this.node == null) {
@@ -77007,8 +77706,8 @@ return DateRange;
                 _attr(this.path, {
                     "d": makePath(params.d),
                     "class": clazz,
-                    stroke: params.strokeStyle ? params.strokeStyle : null,
-                    fill: params.fillStyle ? params.fillStyle : null,
+                    stroke: params.stroke ? params.stroke : null,
+                    fill: params.fill ? params.fill : null,
                     transform: "translate(" + offset[0] + "," + offset[1] + ")"
                 });
             }
@@ -77120,13 +77819,13 @@ return DateRange;
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 2.1.1
+ * Title:jsPlumb 2.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG.
  * 
  * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
  *
- * Copyright (c) 2010 - 2016 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2017 jsPlumb (hello@jsplumbtoolkit.com)
  * 
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
@@ -77151,7 +77850,7 @@ return DateRange;
             k = new _jk({
                 bind: e.on,
                 unbind: e.off,
-                getSize: jsPlumb.getSize,
+                getSize: _jp.getSize,
                 getPosition: function (el, relativeToRoot) {
                     // if this is a nested draggable then compute the offset against its own offsetParent, otherwise
                     // compute against the Container's origin. see also the getUIPosition method below.
@@ -77162,19 +77861,20 @@ return DateRange;
                     el.style.left = xy[0] + "px";
                     el.style.top = xy[1] + "px";
                 },
-                addClass: jsPlumb.addClass,
-                removeClass: jsPlumb.removeClass,
+                addClass: _jp.addClass,
+                removeClass: _jp.removeClass,
                 intersects: _jg.intersects,
                 indexOf: function(l, i) { return l.indexOf(i); },
+                scope:instance.getDefaultScope(),
                 css: {
                     noSelect: instance.dragSelectClass,
-                    droppable: "jsplumb-droppable",
-                    draggable: "jsplumb-draggable",
-                    drag: "jsplumb-drag",
-                    selected: "jsplumb-drag-selected",
-                    active: "jsplumb-drag-active",
-                    hover: "jsplumb-drag-hover",
-                    ghostProxy:"jsplumb-ghost-proxy"
+                    droppable: "jtk-droppable",
+                    draggable: "jtk-draggable",
+                    drag: "jtk-drag",
+                    selected: "jtk-drag-selected",
+                    active: "jtk-drag-active",
+                    hover: "jtk-drag-hover",
+                    ghostProxy:"jtk-ghost-proxy"
                 }
             });
             instance[key] = k;
@@ -77237,7 +77937,7 @@ return DateRange;
                 tinc = (step / d) * tdist,
                 idx = 0,
                 _int = setInterval(function () {
-                    jsPlumb.setPosition(el, {
+                    _jp.setPosition(el, {
                         left: o.left + (linc * (idx + 1)),
                         top: o.top + (tinc * (idx + 1))
                     });
@@ -77272,7 +77972,7 @@ return DateRange;
             return true;
         },
         isElementDraggable: function (el) {
-            el = jsPlumb.getElement(el);
+            el = _jp.getElement(el);
             return el._katavorioDrag && el._katavorioDrag.isEnabled();
         },
         getDragObject: function (eventArgs) {
@@ -77309,7 +78009,7 @@ return DateRange;
             }
         },
         setElementDraggable: function (el, draggable) {
-            el = jsPlumb.getElement(el);
+            el = _jp.getElement(el);
             if (el._katavorioDrag)
                 el._katavorioDrag.setEnabled(draggable);
         },
@@ -77325,8 +78025,8 @@ return DateRange;
         addToPosse:function(el, spec) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.addToPosse.apply(dm, _el);
             });
@@ -77334,8 +78034,8 @@ return DateRange;
         setPosse:function(el, spec) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.setPosse.apply(dm, _el);
             });
@@ -77343,19 +78043,19 @@ return DateRange;
         removeFromPosse:function(el, posseId) {
             var specs = Array.prototype.slice.call(arguments, 1);
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) {
-                _el = [ jsPlumb.getElement(_el) ];
+            _jp.each(el, function(_el) {
+                _el = [ _jp.getElement(_el) ];
                 _el.push.apply(_el, specs );
                 dm.removeFromPosse.apply(dm, _el);
             });
         },
         removeFromAllPosses:function(el) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.removeFromAllPosses(jsPlumb.getElement(_el)); });
+            _jp.each(el, function(_el) { dm.removeFromAllPosses(_jp.getElement(_el)); });
         },
         setPosseState:function(el, posseId, state) {
             var dm = _getDragManager(this);
-            jsPlumb.each(el, function(_el) { dm.setPosseState(jsPlumb.getElement(_el), posseId, state); });
+            _jp.each(el, function(_el) { dm.setPosseState(_jp.getElement(_el), posseId, state); });
         },
         dragEvents: {
             'start': 'start', 'stop': 'stop', 'drag': 'drag', 'step': 'step',
