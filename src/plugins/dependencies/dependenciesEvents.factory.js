@@ -72,6 +72,10 @@
                     var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                     info.connection.$dependency = dependency;
                     dependency.connection = info.connection;
+                    dependency.connection.setParameter('from', sourceEndpoint.$task);
+                    dependency.connection.setParameter('to', targetEndpoint.$task);
+                    dependency.connection.canvas.setAttribute('data-fromId', sourceEndpoint.$task.model.id);
+                    dependency.connection.canvas.setAttribute('data-toId', targetEndpoint.$task.model.id);
 
                     self.manager.api.dependencies.raise.add(dependency);
 
@@ -107,6 +111,10 @@
                     var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                     info.connection.$dependency = dependency;
                     dependency.connection = info.connection;
+                    dependency.connection.setParameter('from', sourceEndpoint.$task);
+                    dependency.connection.setParameter('to', targetEndpoint.$task);
+                    dependency.connection.canvas.setAttribute('data-fromId', sourceEndpoint.$task.model.id);
+                    dependency.connection.canvas.setAttribute('data-toId', targetEndpoint.$task.model.id);
 
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
                 }

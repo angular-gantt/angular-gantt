@@ -60935,6 +60935,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                     info.connection.$dependency = dependency;
                     dependency.connection = info.connection;
+                    dependency.connection.setParameter('from', sourceEndpoint.$task);
+                    dependency.connection.setParameter('to', targetEndpoint.$task);
+                    dependency.connection.canvas.setAttribute('data-fromId', sourceEndpoint.$task.model.id);
+                    dependency.connection.canvas.setAttribute('data-toId', targetEndpoint.$task.model.id);
 
                     self.manager.api.dependencies.raise.add(dependency);
 
@@ -60970,6 +60974,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                     info.connection.$dependency = dependency;
                     dependency.connection = info.connection;
+                    dependency.connection.setParameter('from', sourceEndpoint.$task);
+                    dependency.connection.setParameter('to', targetEndpoint.$task);
+                    dependency.connection.canvas.setAttribute('data-fromId', sourceEndpoint.$task.model.id);
+                    dependency.connection.canvas.setAttribute('data-toId', targetEndpoint.$task.model.id);
 
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
                 }
@@ -61396,8 +61404,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var connection = self.plumb.connect({
                         source: sourceEndpoint,
-                        target: targetEndpoint
+                        target: targetEndpoint,
+                        parameters: {
+                            from: fromTask,
+                            to: toTask
+                        }
+                        //cssClass: 'gantt-endpoint start-endpoint target-endpoint connect-' + fromTask.model.id + '-' + toTask.model.id,
                     }, model.connectParameters);
+                    connection.canvas.setAttribute('data-fromId', fromTask.model.id);
+                    connection.canvas.setAttribute('data-toId', toTask.model.id);
                     return connection;
                 }
             };
