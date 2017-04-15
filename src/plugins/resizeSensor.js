@@ -23,39 +23,70 @@
                     scope.enabled = true;
                 }
 
-                function buildSensor() {
-                    var ganttElement = element.parent().parent().parent()[0].querySelectorAll('div.gantt')[0];
-                    return new ResizeSensor(ganttElement, function() {
+                function buildSensors() {
+                    var ganttElement = ganttCtrl.gantt.$element[0];
+                    var ganttSensor = new ResizeSensor(ganttElement, function() {
                         // See issue #664
+                        var changed = false;
                         if (Math.abs(ganttElement.clientWidth - ganttCtrl.gantt.$scope.ganttElementWidth) > 1) {
                             ganttCtrl.gantt.$scope.ganttElementWidth = ganttElement.clientWidth;
+                            changed = true;
+                        }
+                        if (Math.abs(ganttElement.clientHeight - ganttCtrl.gantt.$scope.ganttElementHeight) > 1) {
+                            ganttCtrl.gantt.$scope.ganttElementHeight = ganttElement.clientHeight;
+                            changed = true;
+                        }
+                        if (changed) {
                             ganttCtrl.gantt.$scope.$apply();
                         }
                     });
+                    var containerSensor = new ResizeSensor(ganttElement.parentElement, function() {
+                        var el = ganttElement.parentElement;
+                        var height = el.offsetHeight;
+
+                        var style = getComputedStyle(el);
+                        height = height - parseInt(style.marginTop) - parseInt(style.marginBottom);
+
+                        ganttCtrl.gantt.$scope.ganttContainerHeight = height;
+
+                        var width = el.offsetWidth;
+
+                        style = getComputedStyle(el);
+                        width = width - parseInt(style.marginLeft) - parseInt(style.marginRight);
+
+                        ganttCtrl.gantt.$scope.ganttContainerWidth = width;
+
+                        ganttCtrl.gantt.$scope.$apply();
+                    });
+                    return [ganttSensor, containerSensor];
                 }
 
                 var rendered = false;
-                var sensor;
+                var sensors = [];
+
+                function detach(sensors) {
+                    for (var i=0; i<sensors; i++) {
+                        sensors[i].detach();
+                    }
+                }
 
                 api.core.on.rendered(scope, function() {
                     rendered = true;
-                    if (sensor !== undefined) {
-                        sensor.detach();
-                    }
+                    detach(sensors);
                     if (scope.enabled) {
                         ElementQueries.update();
-                        sensor = buildSensor();
+                        sensors = buildSensors();
                     }
                 });
 
                 scope.$watch('enabled', function(newValue) {
                     if (rendered) {
-                        if (newValue && sensor === undefined) {
+                        if (newValue) {
                             ElementQueries.update();
-                            sensor = buildSensor();
-                        } else if (!newValue && sensor !== undefined) {
-                            sensor.detach();
-                            sensor = undefined;
+                            sensors = buildSensors();
+                        } else if (!newValue) {
+                            detach(sensors);
+                            sensors = [];
                         }
                     }
                 });

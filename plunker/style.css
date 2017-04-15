@@ -1,3 +1,7 @@
+html, body, div[ng-app], div[gantt] {
+    height: 100%;
+}
+
 .gantt-row-milestone {
     font-weight: bold;
     vertical-align: middle;

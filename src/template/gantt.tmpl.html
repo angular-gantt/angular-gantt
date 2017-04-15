@@ -1,4 +1,8 @@
-<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-element-width-listener="ganttElementWidth">
+<div class="gantt unselectable" ng-cloak gantt-scroll-manager
+     gantt-container-height-listener="ganttContainerHeight"
+     gantt-container-width-listener="ganttContainerWidth"
+     gantt-element-height-listener="ganttElementHeight"
+     gantt-element-width-listener="ganttElementWidth">
     <gantt-side>
         <gantt-side-background>
         </gantt-side-background>
@@ -70,7 +74,7 @@
 
     <!-- Side content template-->
     <script type="text/ng-template" id="template/ganttSideContent.tmpl.html">
-        <div class="gantt-side-content">
+        <div class="gantt-side-content" ng-style="getSideCss()">
         </div>
     </script>
 

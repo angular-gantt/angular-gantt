@@ -9,6 +9,7 @@
                     scopeVariable = 'ganttElementWidth';
                 }
 
+                var el = $element[0];
                 var effectiveScope = $scope;
 
                 while(scopeVariable.indexOf('$parent.') === 0) {
@@ -17,7 +18,7 @@
                 }
 
                 effectiveScope.$watch(function() {
-                    return $element[0].offsetWidth;
+                    return el.clientWidth;
                 }, function(newValue) {
                     if (newValue > 0) {
                         effectiveScope[scopeVariable] = newValue;
