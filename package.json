@@ -23,6 +23,7 @@
     "build-demo": "grunt buildDemo",
     "build-site": "grunt buildSite",
     "dist": "grunt dist",
+    "grunt": "grunt",
     "serve": "cd demo && grunt serve",
     "plunkr": "grunt plunker",
     "test": "grunt test",
