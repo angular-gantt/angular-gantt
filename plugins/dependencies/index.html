@@ -229,6 +229,8 @@
         
             <li><a href="#api">API</a></li>
         
+            <li><a href="#tips">Tips</a></li>
+        
     
     </ul>
 </div></div>
@@ -274,12 +276,14 @@ create new dependencies using mouse.</p>
 <a href="https://jsplumbtoolkit.com/community/doc/defaults.html">Configuring Defaults</a> of 
 <a href="https://jsplumbtoolkit.com/community/doc/home.html">jsPlumb documentation</a>.</p>
 <p>default: </p>
-<pre><code>{
-Endpoint: ['Dot', {radius: 4}],
-EndpointStyle: {fillStyle:'#456', strokeStyle:'#456', lineWidth: 1},
+<pre><code>Endpoint: ['Dot', {radius: 4}],
+EndpointStyle: {fillStyle: '#456', strokeStyle: '#456', lineWidth: 1},
+PaintStyle: {
+    strokeWidth: 3,
+    stroke: 'rgb(68, 85, 102)'
+},
 Connector: 'Flowchart',
-ConnectionOverlays: [['Arrow', { location:1, length:12, width:12}]]
-}
+ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
 </code></pre>
 </li>
 <li>
@@ -388,6 +392,30 @@ can optionnaly be set to an object that will be used for each related
 <li><strong>api.dependencies.on.add(dependency)</strong>, <strong>api.dependencies.on.remove(dependency)</strong>, <strong>api.dependencies.on.change(dependency, oldDependency)</strong></li>
 </ul>
 <p>A dependency was created, removed or changed.</p>
+<h2 id="tips">Tips</h2>
+<ul>
+<li>Display dependencies related to a task only</li>
+</ul>
+<p><code>data-fromId</code> and <code>data-toId</code> attributes are added to svg canvas used to display dependency links.</p>
+<p>So it's possible with CSS to hide all dependencies but thoses related to a given task id.</p>
+<pre><code class="css">.jtk-connector {
+    display: none;
+}
+
+.jtk-connector.jtk-dragging {
+    display: inherit;
+}
+
+.jtk-connector[data-fromId='Product list view'] {
+    display: inherit;
+}
+
+.jtk-connector[data-toId='Product list view'] {
+    display: inherit;
+}
+</code></pre>
+
+<p>For more information, see <a href="https://jsplumbtoolkit.com/community/doc/styling-via-css.html">Styling via css</a> from <a href="https://jsplumbtoolkit.com/community/doc/home.html">jsPlumb documentation</a>.</p>
 </div>
         </div>
 

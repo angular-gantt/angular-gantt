@@ -428,6 +428,7 @@ tasks, or empty time after the last task, or truncate next tasks.</p>
 <h3 id="headers">headers</h3>
 <p>Array of headers to display.</p>
 <ul>
+<li><code>millisecond</code></li>
 <li><code>second</code></li>
 <li><code>minute</code></li>
 <li><code>hour</code></li>
@@ -457,7 +458,9 @@ tasks, or empty time after the last task, or truncate next tasks.</p>
   week: 'w', 
   day: 'D', 
   hour: 'H', 
-  minute:'HH:mm'
+  minute:'H:mm',
+  second:'H:mm:ss',
+  millisecond:'H:mm:ss:SSS'
 };
 </code></pre>
 <p>It is also possible to specify a function to format the header label.</p>

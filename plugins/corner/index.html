@@ -264,9 +264,9 @@
 };
 </code></pre>
 <p>It is also possible to specify a function to return the header label.</p>
-<pre><code>$scope.headersLabels = function(header) {
+<pre><code>$scope.headersLabels = function(headerName, headerUnit, columns) {
     // Capitalize the header name to build the label.
-    return key.charAt(0).toUpperCase() + key.slice(1);
+    return headerName.charAt(0).toUpperCase() + headerName.slice(1);
 }
 </code></pre>
 </li>
@@ -281,12 +281,13 @@
 };
 </code></pre>
 <p>It is also possible to specify a function to return the header label template.</p>
-<pre><code>$scope.headersLabelsTemplates = function(header) {
-    if (header == 'year') {
+<pre><code>$scope.headersLabelsTemplates = function(headerName, headerUnit, columns) {
+    if (headerName == 'year') {
         return '&lt;i&gt;{{getLabel(header)}}&lt;/i&gt;';
-    } else if (header == 'month') {
+    } else if (headerName == 'month') {
         return '&lt;b&gt;{{getLabel(header)}}&lt;/b&gt;';
     }
+    // Other case will default template.
 }
 </code></pre>
 </li>
