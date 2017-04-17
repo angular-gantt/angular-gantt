@@ -53313,7 +53313,7 @@ return hooks;
 })();
 
 /*
-Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -59003,7 +59003,7 @@ angular.module('gantt.templates', []).run(['$templateCache', function ($template
 
 //# sourceMappingURL=angular-gantt.js.map
 /*
-Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com

@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -94,10 +94,13 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             $scope.getMaxHeightCss = function() {
                 var css = {};
 
-                if ($scope.maxHeight) {
-                    var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
-                    css['max-height'] = $scope.maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+                var maxHeight = $scope.maxHeight;
+                if (!maxHeight) {
+                    maxHeight = $scope.gantt.getContainerHeight();
                 }
+
+                var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+                css['max-height'] = maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
 
                 return css;
             };

@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.1 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.2 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -44,6 +44,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             scope.jsPlumbDefaults = {
                                 Endpoint: ['Dot', {radius: 4}],
                                 EndpointStyle: {fillStyle: '#456', strokeStyle: '#456', lineWidth: 1},
+                                PaintStyle: {
+                                    strokeWidth: 3,
+                                    stroke: 'rgb(68, 85, 102)'
+                                },
                                 Connector: 'Flowchart',
                                 ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
                             };
@@ -377,6 +381,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                     info.connection.$dependency = dependency;
                     dependency.connection = info.connection;
+                    dependency.connection.setParameter('from', sourceEndpoint.$task);
+                    dependency.connection.setParameter('to', targetEndpoint.$task);
+                    dependency.connection.canvas.setAttribute('data-fromId', sourceEndpoint.$task.model.id);
+                    dependency.connection.canvas.setAttribute('data-toId', targetEndpoint.$task.model.id);
 
                     self.manager.api.dependencies.raise.add(dependency);
 
@@ -412,6 +420,10 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     var dependency = self.manager.addDependency(sourceEndpoint.$task, connectionModel);
                     info.connection.$dependency = dependency;
                     dependency.connection = info.connection;
+                    dependency.connection.setParameter('from', sourceEndpoint.$task);
+                    dependency.connection.setParameter('to', targetEndpoint.$task);
+                    dependency.connection.canvas.setAttribute('data-fromId', sourceEndpoint.$task.model.id);
+                    dependency.connection.canvas.setAttribute('data-toId', targetEndpoint.$task.model.id);
 
                     self.manager.api.dependencies.raise.change(dependency, oldDependency);
                 }
@@ -838,8 +850,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
 
                     var connection = self.plumb.connect({
                         source: sourceEndpoint,
-                        target: targetEndpoint
+                        target: targetEndpoint,
+                        parameters: {
+                            from: fromTask,
+                            to: toTask
+                        }
+                        //cssClass: 'gantt-endpoint start-endpoint target-endpoint connect-' + fromTask.model.id + '-' + toTask.model.id,
                     }, model.connectParameters);
+                    connection.canvas.setAttribute('data-fromId', fromTask.model.id);
+                    connection.canvas.setAttribute('data-toId', toTask.model.id);
                     return connection;
                 }
             };
