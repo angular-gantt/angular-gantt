@@ -73,7 +73,7 @@
                 assets: 'assets/**/*'
             },
             clean: {
-                site: ['site'],
+                site: ['docs'],
                 dist: ['dist']
             },
             uglify: {
@@ -118,15 +118,9 @@
                 demoToSite: {
                     files: [
                         // includes files within path
-                        {expand: true, cwd: 'demo/dist/', src: ['**'], dest: 'site/demo'},
+                        {expand: true, cwd: 'demo/dist/', src: ['**'], dest: 'docs/demo'},
                     ]
                 },
-                ghPagesToSite: {
-                    files: [
-                        // includes files within path
-                        {expand: true, cwd: 'gh-pages/', src: ['**'], dest: 'site/'},
-                    ]
-                }
             },
             jshint: {
                 src: {
@@ -220,7 +214,7 @@
                         ]
                     },
                     files: [
-                        {src: ['site/index.html'], dest: './'}
+                        {src: ['docs/index.html'], dest: './'}
                     ]
                 },
                 siteIndexTitle: {
@@ -238,16 +232,9 @@
                         ]
                     },
                     files: [
-                        {src: ['site/index.html'], dest: './'}
+                        {src: ['docs/index.html'], dest: './'}
                     ]
                 }
-            },
-            'gh-pages': {
-                options: {
-                    base: 'site',
-                    message: 'chore(site): Automatic update (grunt-gh-pages)'
-                },
-                src: ['**']
             }
         };
 
@@ -289,7 +276,6 @@
         grunt.loadNpmTasks('grunt-html2js');
         grunt.loadNpmTasks('grunt-autoprefixer');
         grunt.loadNpmTasks('grunt-cleanempty');
-        grunt.loadNpmTasks('grunt-gh-pages');
         grunt.loadNpmTasks('grunt-run');
         grunt.loadNpmTasks('grunt-release-it');
 
@@ -310,9 +296,7 @@
 
         grunt.registerTask('buildDemo', ['run:buildDemo']);
 
-        grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'copy:ghPagesToSite', 'replace:site', 'replace:siteIndexTitle']);
-
-        grunt.registerTask('uploadSite', ['gh-pages']);
+        grunt.registerTask('buildSite', ['clean:site', 'run:buildDocs', 'run:buildDemo', 'copy:demoToSite', 'replace:site', 'replace:siteIndexTitle']);
 
         grunt.registerTask('dist', ['clean:dist', 'build', 'buildSite', 'copy:assetsToDist', 'uglify', 'cssmin']);
 

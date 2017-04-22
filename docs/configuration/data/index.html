@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.angular-gantt.com/configuration/data/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+        <title>Data - angular-gantt</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">angular-gantt</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../../get-started">Get Started</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li class="active">
+                            <a href=".">Data</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../timespans">Timespans</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../attributes">Attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../plugins">Plugins</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../customize">Customize</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../api">API</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../write_plugin">Write a Plugin</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../../plugins/labels">Labels</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/table">Table</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tree">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/corner">Corner</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/groups">Groups</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/dependencies">Dependencies</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sortable">Sortable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/movable">Movable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/drawtask">Draw Task</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tooltips">Tooltips</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sections">Sections</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/progress">Progress</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/overlap">Overlap</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../sources">Sources</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../contribute">Contribute</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../faq">FAQ</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../about">About</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../../get-started">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../timespans">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/angular-gantt/angular-gantt">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#data">Data</a></li>
+        
+            <li><a href="#row">Row</a></li>
+        
+            <li><a href="#task">Task</a></li>
+        
+            <li><a href="#css-selectors">CSS Selectors</a></li>
+        
+            <li><a href="#example">Example</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="data">Data</h1>
+<p><a href="../attributes#data">data</a> is the <a href="../attributes">attribute</a> used to load data into <code>angular-gantt</code>.</p>
+<p>This attribute support two-way binding. Modifications made to <code>data</code> will automatically be displayed in <code>angular-gantt</code>,
+and modification made to <code>angular-gantt</code> will be applied to <code>data</code>.</p>
+<p><code>data</code> is a list of <code>Row</code> objects. Each <code>Row</code> object contains a list of <code>Task</code> object defined in <code>tasks</code> property. </p>
+<h2 id="row">Row</h2>
+<pre><code>{
+  name: "...", // Name shown on the left side of each row.
+  id: "...",  // Unique id of the row (Optional).
+  height: "..." // Height of the row (Optional).
+  color: "..." , // Color of the task in HEX format (Optional).
+  classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+  content: "...", // Content used in labels (Optional).
+  tasks: [] // Array containing &lt;Task&gt; tasks to add in this row.
+}
+</code></pre>
+<h2 id="task">Task</h2>
+<pre><code>{
+  name: "...", // Name shown on top of each task.
+  from: &lt;Date&gt;, // Date can be a String, Timestamp, Date object or moment object.
+  to: &lt;Date&gt;, // Date can be a String, Timestamp, Date object or moment object.
+  id: "...",  // Unique id of the task (Optional).
+  color: "..." , // Color of the task in HEX format (Optional).
+  classes: &lt;Array|String&gt; // Array or String of class names which should be applied to the task. See ng-class documentation for details (Optional).
+  priority: &lt;Number&gt; // Defines which of an overlapping task is on top (Optional). Tip: Leave property away for default behaviour.
+  data: &lt;Any&gt; // Custom object. Use this to attach your own data (Optional).
+  content: "...", // Content used in labels (Optional).
+}
+</code></pre>
+<h2 id="css-selectors">CSS Selectors</h2>
+<p>CSS Classes defined in model with <code>classes</code> property are applied to multiple elements for each row and task. </p>
+<p>Using single class selector like <code>.custom-row</code> or <code>.custom-task</code> may not work as expected. You should use following selectors.</p>
+<h3 id="row-selectors">Row selectors</h3>
+<p>Define <code>custom-row</code> class in the row model.</p>
+<pre><code>{
+  name: "Some row",
+  classes: "custom-row",
+  tasks: [...]
+}
+</code></pre>
+<p>Use the following selectors to customize this particular row.</p>
+<pre><code>.gantt-row.custom-row .gantt-row-background {
+  // Customize background of the row
+  background: blue;
+  opacity: 0.3;
+}
+
+.gantt-row.custom-row .gantt-row-content {
+  // Customize content of the row
+  weight: bolder;
+}
+</code></pre>
+<h3 id="task-selectors">Task selectors</h3>
+<p>Define <code>custom-task</code> class in the task model.</p>
+<pre><code>{
+  name: "Some task",
+  classes: "custom-task",
+}
+</code></pre>
+<p>Use the following selectors to customize this particular task.</p>
+<pre><code>.gantt-task.custom-task .gantt-task-background {
+  // Customize background of the task
+  background: blue;
+  opacity: 0.3;
+}
+
+.gantt-task.custom-task .gantt-task-content {
+  // Customize content of the task
+  weight: bolder;
+}
+
+.gantt-task.custom-task .gantt-task-foreground {
+  // Customize foreground of the task
+}
+</code></pre>
+<h2 id="example">Example</h2>
+<pre><code>&lt;div gantt data=data&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.data = [{name: 'Milestones', height: '3em', sortable: false, classes: 'gantt-row-milestone', color: '#45607D', tasks: [
+                   // Dates can be specified as string, timestamp or javascript date object. The data attribute can be used to attach a custom object
+                   {name: 'Kickoff', color: '#93C47D', from: '2013-10-07T09:00:00', to: '2013-10-07T10:00:00', data: 'Can contain any custom data or object'},
+                   {name: 'Concept approval', color: '#93C47D', from: new Date(2013, 9, 18, 18, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0), est: new Date(2013, 9, 16, 7, 0, 0), lct: new Date(2013, 9, 19, 0, 0, 0)},
+                   {name: 'Development finished', color: '#93C47D', from: new Date(2013, 10, 15, 18, 0, 0), to: new Date(2013, 10, 15, 18, 0, 0)},
+                   {name: 'Shop is running', color: '#93C47D', from: new Date(2013, 10, 22, 12, 0, 0), to: new Date(2013, 10, 22, 12, 0, 0)},
+                   {name: 'Go-live', color: '#93C47D', from: new Date(2013, 10, 29, 16, 0, 0), to: new Date(2013, 10, 29, 16, 0, 0)}
+               ], data: 'Can contain any custom data or object'},
+               {name: 'Status meetings', tasks: [
+                   {name: 'Demo #1', color: '#9FC5F8', from: new Date(2013, 9, 25, 15, 0, 0), to: new Date(2013, 9, 25, 18, 30, 0)},
+                   {name: 'Demo #2', color: '#9FC5F8', from: new Date(2013, 10, 1, 15, 0, 0), to: new Date(2013, 10, 1, 18, 0, 0)},
+                   {name: 'Demo #3', color: '#9FC5F8', from: new Date(2013, 10, 8, 15, 0, 0), to: new Date(2013, 10, 8, 18, 0, 0)},
+                   {name: 'Demo #4', color: '#9FC5F8', from: new Date(2013, 10, 15, 15, 0, 0), to: new Date(2013, 10, 15, 18, 0, 0)},
+                   {name: 'Demo #5', color: '#9FC5F8', from: new Date(2013, 10, 24, 9, 0, 0), to: new Date(2013, 10, 24, 10, 0, 0)}
+               ]},
+               {name: 'Kickoff', movable: {allowResizing: false}, tasks: [
+                   {name: 'Day 1', color: '#9FC5F8', from: new Date(2013, 9, 7, 9, 0, 0), to: new Date(2013, 9, 7, 17, 0, 0),
+                       progress: {percent: 100, color: '#3C8CF8'}, movable: false},
+                   {name: 'Day 2', color: '#9FC5F8', from: new Date(2013, 9, 8, 9, 0, 0), to: new Date(2013, 9, 8, 17, 0, 0),
+                       progress: {percent: 100, color: '#3C8CF8'}},
+                   {name: 'Day 3', color: '#9FC5F8', from: new Date(2013, 9, 9, 8, 30, 0), to: new Date(2013, 9, 9, 12, 0, 0),
+                       progress: {percent: 100, color: '#3C8CF8'}}
+               ]},
+               {name: 'Create concept', tasks: [
+                   {name: 'Create concept', content: '&lt;i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"&gt;&lt;/i&gt; {{task.model.name}}', color: '#F1C232', from: new Date(2013, 9, 10, 8, 0, 0), to: new Date(2013, 9, 16, 18, 0, 0), est: new Date(2013, 9, 8, 8, 0, 0), lct: new Date(2013, 9, 18, 20, 0, 0),
+                       progress: 100}
+               ]},
+               {name: 'Finalize concept', tasks: [
+                   {name: 'Finalize concept', color: '#F1C232', from: new Date(2013, 9, 17, 8, 0, 0), to: new Date(2013, 9, 18, 18, 0, 0),
+                       progress: 100}
+               ]},
+               {name: 'Development', children: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'], content: '&lt;i class="fa fa-file-code-o" ng-click="scope.handleRowIconClick(row.model)"&gt;&lt;/i&gt; {{row.model.name}}'},
+               {name: 'Sprint 1', tooltips: false, tasks: [
+                   {name: 'Product list view', color: '#F1C232', from: new Date(2013, 9, 21, 8, 0, 0), to: new Date(2013, 9, 25, 15, 0, 0),
+                       progress: 25}
+               ]},
+               {name: 'Sprint 2', tasks: [
+                   {name: 'Order basket', color: '#F1C232', from: new Date(2013, 9, 28, 8, 0, 0), to: new Date(2013, 10, 1, 15, 0, 0)}
+               ]},
+               {name: 'Sprint 3', tasks: [
+                   {name: 'Checkout', color: '#F1C232', from: new Date(2013, 10, 4, 8, 0, 0), to: new Date(2013, 10, 8, 15, 0, 0)}
+               ]},
+               {name: 'Sprint 4', tasks: [
+                   {name: 'Login &amp; Signup &amp; Admin Views', color: '#F1C232', from: new Date(2013, 10, 11, 8, 0, 0), to: new Date(2013, 10, 15, 15, 0, 0)}
+               ]},
+               {name: 'Hosting'},
+               {name: 'Setup', tasks: [
+                   {name: 'HW', color: '#F1C232', from: new Date(2013, 10, 18, 8, 0, 0), to: new Date(2013, 10, 18, 12, 0, 0)}
+               ]},
+               {name: 'Config', tasks: [
+                   {name: 'SW / DNS/ Backups', color: '#F1C232', from: new Date(2013, 10, 18, 12, 0, 0), to: new Date(2013, 10, 21, 18, 0, 0)}
+               ]},
+               {name: 'Server', parent: 'Hosting', children: ['Setup', 'Config']},
+               {name: 'Deployment', parent: 'Hosting', tasks: [
+                   {name: 'Depl. &amp; Final testing', color: '#F1C232', from: new Date(2013, 10, 21, 8, 0, 0), to: new Date(2013, 10, 22, 12, 0, 0), 'classes': 'gantt-task-deployment'}
+               ]},
+               {name: 'Workshop', tasks: [
+                   {name: 'On-side education', color: '#F1C232', from: new Date(2013, 10, 24, 9, 0, 0), to: new Date(2013, 10, 25, 15, 0, 0)}
+               ]},
+               {name: 'Content', tasks: [
+                   {name: 'Supervise content creation', color: '#F1C232', from: new Date(2013, 10, 26, 9, 0, 0), to: new Date(2013, 10, 29, 16, 0, 0)}
+               ]},
+               {name: 'Documentation', tasks: [
+                   {name: 'Technical/User documentation', color: '#F1C232', from: new Date(2013, 10, 26, 8, 0, 0), to: new Date(2013, 10, 28, 18, 0, 0)}
+               ]}]
+</code></pre>
+<p><em>This example use additional <a href="../plugins">plugins</a> data.</em></p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../skeletons/plugin.js"></script>
+    </body>
+</html>
