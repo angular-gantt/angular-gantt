@@ -33,6 +33,7 @@ webpackConfig = merge(baseWebpackConfig, {
     'angular-animate': 'angular-animate',
     'angular-strap': 'angular-strap',
     'angular-ui-tree': 'ui.tree',
+    'angular-native-dragdrop': 'angular-native-dragdrop',
     'bootstrap': 'bootstrap',
     'css-element-queries/src/ElementQueries': 'ElementQueries',
     'css-element-queries/src/ResizeSensor': 'ResizeSensor',

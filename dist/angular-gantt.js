@@ -7,14 +7,14 @@
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("angular"), require("moment"), require("ElementQueries"), require("ResizeSensor"), require("jsPlumb"), require("ui.tree"));
+		module.exports = factory(require("angular"), require("moment"), require("ElementQueries"), require("ResizeSensor"), require("angular-native-dragdrop"), require("jsPlumb"), require("ui.tree"));
 	else if(typeof define === 'function' && define.amd)
-		define("angular-gantt", ["angular", "moment", "ElementQueries", "ResizeSensor", "jsPlumb", "ui.tree"], factory);
+		define("angular-gantt", ["angular", "moment", "ElementQueries", "ResizeSensor", "angular-native-dragdrop", "jsPlumb", "ui.tree"], factory);
 	else if(typeof exports === 'object')
-		exports["angular-gantt"] = factory(require("angular"), require("moment"), require("ElementQueries"), require("ResizeSensor"), require("jsPlumb"), require("ui.tree"));
+		exports["angular-gantt"] = factory(require("angular"), require("moment"), require("ElementQueries"), require("ResizeSensor"), require("angular-native-dragdrop"), require("jsPlumb"), require("ui.tree"));
 	else
-		root["angular-gantt"] = factory(root["angular"], root["moment"], root["ElementQueries"], root["ResizeSensor"], root["jsPlumb"], root["ui.tree"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_239__, __WEBPACK_EXTERNAL_MODULE_240__, __WEBPACK_EXTERNAL_MODULE_241__, __WEBPACK_EXTERNAL_MODULE_242__) {
+		root["angular-gantt"] = factory(root["angular"], root["moment"], root["ElementQueries"], root["ResizeSensor"], root["angular-native-dragdrop"], root["jsPlumb"], root["ui.tree"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_239__, __WEBPACK_EXTERNAL_MODULE_240__, __WEBPACK_EXTERNAL_MODULE_241__, __WEBPACK_EXTERNAL_MODULE_242__, __WEBPACK_EXTERNAL_MODULE_243__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -80,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 243);
+/******/ 	return __webpack_require__(__webpack_require__.s = 244);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -7506,6 +7506,8 @@ var _angular = __webpack_require__(0);
 
 var _angular2 = _interopRequireDefault(_angular);
 
+__webpack_require__(241);
+
 var _index = __webpack_require__(3);
 
 var _index2 = _interopRequireDefault(_index);
@@ -7518,7 +7520,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var pluginModule = 'gantt.sortable';
 __webpack_require__(174);
-_angular2.default.module(pluginModule, [_index2.default]).directive('ganttSortable', _sortable2.default);
+_angular2.default.module(pluginModule, ['ang-drag-drop', _index2.default]).directive('ganttSortable', _sortable2.default);
 exports.default = pluginModule;
 
 /***/ }),
@@ -7612,7 +7614,7 @@ var _angular = __webpack_require__(0);
 
 var _angular2 = _interopRequireDefault(_angular);
 
-var _angularUiTree = __webpack_require__(242);
+var _angularUiTree = __webpack_require__(243);
 
 var _angularUiTree2 = _interopRequireDefault(_angularUiTree);
 
@@ -9695,7 +9697,7 @@ var _angular = __webpack_require__(0);
 
 var _angular2 = _interopRequireDefault(_angular);
 
-var _jsplumb = __webpack_require__(241);
+var _jsplumb = __webpack_require__(242);
 
 var _jsplumb2 = _interopRequireDefault(_jsplumb);
 
@@ -12760,6 +12762,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_242__;
 
 /***/ }),
 /* 243 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_243__;
+
+/***/ }),
+/* 244 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(3);

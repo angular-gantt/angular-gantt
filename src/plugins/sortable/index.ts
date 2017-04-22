@@ -1,4 +1,5 @@
 import angular from 'angular';
+import 'angular-native-dragdrop';
 
 import ganttModule from '../../index';
 
@@ -8,7 +9,7 @@ const pluginModule = 'gantt.sortable';
 
 require('./sortable.css');
 
-angular.module(pluginModule, [ganttModule])
+angular.module(pluginModule, ['ang-drag-drop', ganttModule])
   .directive('ganttSortable', ganttSortableDirective);
 
 export default pluginModule;

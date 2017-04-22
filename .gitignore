@@ -8,7 +8,6 @@ test/unit/coverage
 test/e2e/reports
 selenium-debug.log
 *.log
-/dist/**/*.map
-/demo/dist/**/*.map
+*.map
 /docs/_build/
 /site/

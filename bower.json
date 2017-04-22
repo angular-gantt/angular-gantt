@@ -29,6 +29,7 @@
     "angular-animate": "^1.6.4",
     "angular-strap": "^2.3.12",
     "angular-ui-tree": "^2.22.5",
+    "angular-native-dragdrop": "^1.2.2",
     "bootstrap": "^3.3.7",
     "css-element-queries": "^0.4.0",
     "font-awesome": "^4.7.0",
