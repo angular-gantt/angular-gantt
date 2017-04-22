@@ -3,6 +3,7 @@ var utils = require('./utils');
 var webpack = require('webpack');
 var config = require('../config');
 var merge = require('webpack-merge');
+var banner = require('./banner');
 var baseWebpackConfig = require('./webpack.base.conf');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -29,7 +30,7 @@ webpackConfig = merge(baseWebpackConfig, {
   },
   devtool: config.build.productionSourceMap ? '#source-map' : false,
   plugins: [
-    // http://vuejs.github.io/vue-loader/en/workflow/production.html
+    new webpack.BannerPlugin({banner:banner, entryOnly: true}),
     new webpack.DefinePlugin({
       'process.env': env
     }),

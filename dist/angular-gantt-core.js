@@ -1,2 +1,7006 @@
-!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("angular"),require("moment")):"function"==typeof define&&define.amd?define("angular-gantt-core",["angular","moment"],e):"object"==typeof exports?exports["angular-gantt-core"]=e(require("angular"),require("moment")):t["angular-gantt-core"]=e(t.angular,t.moment)}(this,function(t,e){return function(t){function e(i){if(n[i])return n[i].exports;var r=n[i]={i:i,l:!1,exports:{}};return t[i].call(r.exports,r,r.exports,e),r.l=!0,r.exports}var n={};return e.m=t,e.c=n,e.i=function(t){return t},e.d=function(t,n,i){e.o(t,n)||Object.defineProperty(t,n,{configurable:!1,enumerable:!0,get:i})},e.n=function(t){var n=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(n,"a",n),n},e.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},e.p="",e(e.s=3)}([function(e,n){e.exports=t},function(t,n){t.exports=e},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}e.__esModule=!0;var r=n(118),o=i(r),s=n(117),a=i(s),l="function"==typeof a.default&&"symbol"==typeof o.default?function(t){return typeof t}:function(t){return t&&"function"==typeof a.default&&t.constructor===a.default&&t!==a.default.prototype?"symbol":typeof t};e.default="function"==typeof a.default&&"symbol"===l(o.default)?function(t){return void 0===t?"undefined":l(t)}:function(t){return t&&"function"==typeof a.default&&t.constructor===a.default&&t!==a.default.prototype?"symbol":void 0===t?"undefined":l(t)}},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0});var r=n(0),o=i(r),s=n(41),a=i(s),l=n(75),u=i(l),d=n(81),c=i(d),h=n(82),f=i(h),g=n(83),p=i(g),m=n(84),v=i(m),y=n(76),w=i(y),b=n(79),M=i(b),k=n(77),C=i(k),$=n(78),_=i($),F=n(80),O=i(F),T=n(85),x=i(T),j=n(86),S=i(j),P=n(87),R=i(P),D=n(88),B=i(D),W=n(89),E=i(W),I=n(90),H=i(I),G=n(91),L=i(G),A=n(92),V=i(A),z=n(93),U=i(z),N=n(94),q=i(N),Y=n(95),K=i(Y),Q=n(96),X=i(Q),J=n(97),Z=i(J),tt=n(98),et=i(tt),nt=n(99),it=i(nt),rt=n(100),ot=i(rt),st=n(101),at=i(st),lt=n(102),ut=i(lt),dt=n(103),ct=i(dt),ht=n(104),ft=i(ht),gt=n(105),pt=i(gt),mt=n(106),vt=i(mt),yt=n(111),wt=i(yt),bt=n(52),Mt=i(bt),kt=n(42),Ct=i(kt),$t=n(43),_t=i($t),Ft=n(44),Ot=i(Ft),Tt=n(65),xt=i(Tt),jt=n(58),St=i(jt),Pt=n(60),Rt=i(Pt),Dt=n(62),Bt=i(Dt),Wt=n(59),Et=i(Wt),It=n(61),Ht=i(It),Gt=n(55),Lt=i(Gt),At=n(63),Vt=i(At),zt=n(64),Ut=i(zt),Nt=n(66),qt=i(Nt),Yt=n(53),Kt=i(Yt),Qt=n(57),Xt=i(Qt),Jt=n(54),Zt=i(Jt),te=n(56),ee=i(te),ne=n(46),ie=i(ne),re=n(49),oe=i(re),se=n(47),ae=i(se),le=n(50),ue=i(le),de=n(67),ce=i(de),he=n(68),fe=i(he),ge=n(45),pe=i(ge),me=n(71),ve=i(me),ye=n(107),we=i(ye),be=n(115),Me=i(be),ke=n(110),Ce=i(ke),$e=n(72),_e=i($e),Fe=n(69),Oe=i(Fe),Te=n(108),xe=i(Te),je=n(70),Se=i(je),Pe=n(112),Re=i(Pe),De=n(51),Be=i(De),We=n(48),Ee=i(We),Ie=n(109),He=i(Ie),Ge=n(113),Le=i(Ge),Ae=n(114),Ve=i(Ae),ze=n(73),Ue=i(ze),Ne=n(74),qe=i(Ne);n(116),n(40);o.default.module("gantt",[]).directive("gantt",a.default).directive("ganttResizer",u.default).directive("ganttContainerWidthListener",f.default).directive("ganttContainerHeightListener",c.default).directive("ganttElementWidthListener",v.default).directive("ganttElementHeightListener",p.default).directive("ganttHorizontalScrollReceiver",w.default).directive("ganttScrollable",M.default).directive("ganttScrollManager",C.default).directive("ganttScrollSender",_.default).directive("ganttVerticalScrollReceiver",O.default).directive("ganttBindCompileHtml",wt.default).directive("ganttBody",x.default).directive("ganttBodyBackground",S.default).directive("ganttBodyColumns",R.default).directive("ganttBodyForeground",B.default).directive("ganttBodyRows",E.default).directive("ganttColumn",H.default).directive("ganttColumnHeader",L.default).directive("ganttHeader",V.default).directive("ganttHeaderColumns",U.default).directive("ganttRow",q.default).directive("ganttRowBackground",K.default).directive("ganttRowLabel",X.default).directive("ganttScrollableHeader",Z.default).directive("ganttSide",et.default).directive("ganttSideBackground",it.default).directive("ganttSideContent",ot.default).directive("ganttTask",at.default).directive("ganttTaskBackground",ut.default).directive("ganttTaskContent",ct.default).directive("ganttTaskForeground",ft.default).directive("ganttTimeFrame",pt.default).directive("ganttTimespan",vt.default).factory("Gantt",Mt.default).factory("GanttApi",Ct.default).factory("GanttOptions",_t.default).factory("GanttCalendar",Ot.default).factory("GanttScroll",xt.default).factory("GanttBody",St.default).factory("GanttBodyColumns",Rt.default).factory("GanttBodyRows",Bt.default).factory("GanttBodyBackground",Et.default).factory("GanttBodyForeground",Ht.default).factory("GanttRowHeader",Lt.default).factory("GanttHeader",Vt.default).factory("GanttHeaderColumns",Ut.default).factory("GanttSide",qt.default).factory("GanttObjectModel",Kt.default).factory("GanttTask",Xt.default).factory("GanttRow",Zt.default).factory("GanttRowsManager",ee.default).factory("GanttColumn",ie.default).factory("GanttColumnHeader",oe.default).factory("GanttColumnBuilder",ae.default).factory("GanttColumnsManager",ue.default).factory("GanttTimespan",ce.default).factory("GanttTimespansManager",fe.default).factory("GanttCurrentDateManager",pe.default).factory("GanttHierarchy",ve.default).factory("ganttDebounce",we.default).factory("ganttSmartEvent",Me.default).service("ganttEnableNgAnimate",Ce.default).service("ganttUtils",_e.default).service("ganttArrays",Oe.default).service("GanttDirectiveBuilder",xe.default).service("ganttBinarySearch",Se.default).service("ganttLayout",Re.default).service("GanttHeadersGenerator",Be.default).service("GanttColumnGenerator",Ee.default).service("ganttDom",He.default).service("ganttMouseButton",Le.default).service("ganttMouseOffset",Ve.default).filter("ganttColumnLimit",Ue.default).filter("ganttTaskLimit",qe.default),e.default="gantt"},function(t,e){var n=t.exports="undefined"!=typeof window&&window.Math==Math?window:"undefined"!=typeof self&&self.Math==Math?self:Function("return this")();"number"==typeof __g&&(__g=n)},function(t,e){var n={}.hasOwnProperty;t.exports=function(t,e){return n.call(t,e)}},function(t,e,n){var i=n(127),r=n(18);t.exports=function(t){return i(r(t))}},function(t,e,n){t.exports=!n(12)(function(){return 7!=Object.defineProperty({},"a",{get:function(){return 7}}).a})},function(t,e,n){var i=n(9),r=n(15);t.exports=n(7)?function(t,e,n){return i.f(t,e,r(1,n))}:function(t,e,n){return t[e]=n,t}},function(t,e,n){var i=n(11),r=n(33),o=n(27),s=Object.defineProperty;e.f=n(7)?Object.defineProperty:function(t,e,n){if(i(t),e=o(e,!0),i(n),r)try{return s(t,e,n)}catch(t){}if("get"in n||"set"in n)throw TypeError("Accessors not supported!");return"value"in n&&(t[e]=n.value),t}},function(t,e,n){var i=n(25)("wks"),r=n(16),o=n(4).Symbol,s="function"==typeof o;(t.exports=function(t){return i[t]||(i[t]=s&&o[t]||(s?o:r)("Symbol."+t))}).store=i},function(t,e,n){var i=n(13);t.exports=function(t){if(!i(t))throw TypeError(t+" is not an object!");return t}},function(t,e){t.exports=function(t){try{return!!t()}catch(t){return!0}}},function(t,e){t.exports=function(t){return"object"==typeof t?null!==t:"function"==typeof t}},function(t,e,n){var i=n(38),r=n(19);t.exports=Object.keys||function(t){return i(t,r)}},function(t,e){t.exports=function(t,e){return{enumerable:!(1&t),configurable:!(2&t),writable:!(4&t),value:e}}},function(t,e){var n=0,i=Math.random();t.exports=function(t){return"Symbol(".concat(void 0===t?"":t,")_",(++n+i).toString(36))}},function(t,e){var n=t.exports={version:"2.4.0"};"number"==typeof __e&&(__e=n)},function(t,e){t.exports=function(t){if(void 0==t)throw TypeError("Can't call method on  "+t);return t}},function(t,e){t.exports="constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf".split(",")},function(t,e){t.exports={}},function(t,e){t.exports=!0},function(t,e){e.f={}.propertyIsEnumerable},function(t,e,n){var i=n(9).f,r=n(5),o=n(10)("toStringTag");t.exports=function(t,e,n){t&&!r(t=n?t:t.prototype,o)&&i(t,o,{configurable:!0,value:e})}},function(t,e,n){var i=n(25)("keys"),r=n(16);t.exports=function(t){return i[t]||(i[t]=r(t))}},function(t,e,n){var i=n(4),r=i["__core-js_shared__"]||(i["__core-js_shared__"]={});t.exports=function(t){return r[t]||(r[t]={})}},function(t,e){var n=Math.ceil,i=Math.floor;t.exports=function(t){return isNaN(t=+t)?0:(t>0?i:n)(t)}},function(t,e,n){var i=n(13);t.exports=function(t,e){if(!i(t))return t;var n,r;if(e&&"function"==typeof(n=t.toString)&&!i(r=n.call(t)))return r;if("function"==typeof(n=t.valueOf)&&!i(r=n.call(t)))return r;if(!e&&"function"==typeof(n=t.toString)&&!i(r=n.call(t)))return r;throw TypeError("Can't convert object to primitive value")}},function(t,e,n){var i=n(4),r=n(17),o=n(21),s=n(29),a=n(9).f;t.exports=function(t){var e=r.Symbol||(r.Symbol=o?{}:i.Symbol||{});"_"==t.charAt(0)||t in e||a(e,t,{value:s.f(t)})}},function(t,e,n){e.f=n(10)},function(t,e){var n={}.toString;t.exports=function(t){return n.call(t).slice(8,-1)}},function(t,e,n){var i=n(13),r=n(4).document,o=i(r)&&i(r.createElement);t.exports=function(t){return o?r.createElement(t):{}}},function(t,e,n){var i=n(4),r=n(17),o=n(124),s=n(8),a=function(t,e,n){var l,u,d,c=t&a.F,h=t&a.G,f=t&a.S,g=t&a.P,p=t&a.B,m=t&a.W,v=h?r:r[e]||(r[e]={}),y=v.prototype,w=h?i:f?i[e]:(i[e]||{}).prototype;h&&(n=e);for(l in n)(u=!c&&w&&void 0!==w[l])&&l in v||(d=u?w[l]:n[l],v[l]=h&&"function"!=typeof w[l]?n[l]:p&&u?o(d,i):m&&w[l]==d?function(t){var e=function(e,n,i){if(this instanceof t){switch(arguments.length){case 0:return new t;case 1:return new t(e);case 2:return new t(e,n)}return new t(e,n,i)}return t.apply(this,arguments)};return e.prototype=t.prototype,e}(d):g&&"function"==typeof d?o(Function.call,d):d,g&&((v.virtual||(v.virtual={}))[l]=d,t&a.R&&y&&!y[l]&&s(y,l,d)))};a.F=1,a.G=2,a.S=4,a.P=8,a.B=16,a.W=32,a.U=64,a.R=128,t.exports=a},function(t,e,n){t.exports=!n(7)&&!n(12)(function(){return 7!=Object.defineProperty(n(31)("div"),"a",{get:function(){return 7}}).a})},function(t,e,n){"use strict";var i=n(21),r=n(32),o=n(39),s=n(8),a=n(5),l=n(20),u=n(129),d=n(23),c=n(136),h=n(10)("iterator"),f=!([].keys&&"next"in[].keys()),g=function(){return this};t.exports=function(t,e,n,p,m,v,y){u(n,e,p);var w,b,M,k=function(t){if(!f&&t in F)return F[t];switch(t){case"keys":case"values":return function(){return new n(this,t)}}return function(){return new n(this,t)}},C=e+" Iterator",$="values"==m,_=!1,F=t.prototype,O=F[h]||F["@@iterator"]||m&&F[m],T=O||k(m),x=m?$?k("entries"):T:void 0,j="Array"==e?F.entries||O:O;if(j&&(M=c(j.call(new t)))!==Object.prototype&&(d(M,C,!0),i||a(M,h)||s(M,h,g)),$&&O&&"values"!==O.name&&(_=!0,T=function(){return O.call(this)}),i&&!y||!f&&!_&&F[h]||s(F,h,T),l[e]=T,l[C]=g,m)if(w={values:$?T:k("values"),keys:v?T:k("keys"),entries:x},y)for(b in w)b in F||o(F,b,w[b]);else r(r.P+r.F*(f||_),e,w);return w}},function(t,e,n){var i=n(11),r=n(133),o=n(19),s=n(24)("IE_PROTO"),a=function(){},l=function(){var t,e=n(31)("iframe"),i=o.length;for(e.style.display="none",n(126).appendChild(e),e.src="javascript:",t=e.contentWindow.document,t.open(),t.write("<script>document.F=Object<\/script>"),t.close(),l=t.F;i--;)delete l.prototype[o[i]];return l()};t.exports=Object.create||function(t,e){var n;return null!==t?(a.prototype=i(t),n=new a,a.prototype=null,n[s]=t):n=l(),void 0===e?n:r(n,e)}},function(t,e,n){var i=n(38),r=n(19).concat("length","prototype");e.f=Object.getOwnPropertyNames||function(t){return i(t,r)}},function(t,e){e.f=Object.getOwnPropertySymbols},function(t,e,n){var i=n(5),r=n(6),o=n(123)(!1),s=n(24)("IE_PROTO");t.exports=function(t,e){var n,a=r(t),l=0,u=[];for(n in a)n!=s&&i(a,n)&&u.push(n);for(;e.length>l;)i(a,n=e[l++])&&(~o(u,n)||u.push(n));return u}},function(t,e,n){t.exports=n(8)},function(t,e){},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["Gantt","ganttEnableNgAnimate","$timeout","$templateCache",function(t,e,n,i){"ngInject";return{restrict:"A",transclude:!0,templateUrl:function(t,e){var n=void 0;return n=void 0===e.templateUrl?"template/gantt.tmpl.html":e.templateUrl,void 0!==e.template&&i.put(n,e.template),n},scope:{sortMode:"=?",filterTask:"=?",filterTaskComparator:"=?",filterRow:"=?",filterRowComparator:"=?",viewScale:"=?",columnWidth:"=?",expandToFit:"=?",shrinkToFit:"=?",showSide:"=?",allowSideResizing:"=?",fromDate:"=?",toDate:"=?",currentDateValue:"=?",currentDate:"=?",daily:"=?",autoExpand:"=?",taskOutOfRange:"=?",taskContent:"=?",rowContent:"=?",maxHeight:"=?",sideWidth:"=?",headers:"=?",headersFormats:"=?",headersScales:"=?",timeFrames:"=?",dateFrames:"=?",timeFramesWorkingMode:"=?",timeFramesNonWorkingMode:"=?",timespans:"=?",columnMagnet:"=?",shiftColumnMagnet:"=?",timeFramesMagnet:"=?",data:"=?",api:"=?",options:"=?"},controller:["$scope","$element",function(n,i){for(var r in n.options)n[r]=n.options[r];e(i,!1),n.gantt=new t(n,i),this.gantt=n.gantt}],link:function(t,e){t.gantt.api.directives.raise.new("gantt",t,e),t.$on("$destroy",function(){t.gantt.api.directives.raise.destroy("gantt",t,e)}),n(function(){t.gantt.initialized()})}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$q","$rootScope","ganttUtils",function(t,e,n){"ngInject";function i(t,n,i,r){return e.$on(t,function(){var t=Array.prototype.slice.call(arguments);t.splice(0,1),n.apply(r||i.api,t)})}var o=function(t){this.gantt=t,this.listeners=[],this.apiId=n.newId()};return o.prototype.suppressEvents=function(t,e){var n=this,o=r.default.isArray(t)?t:[t],s=[];o.forEach(function(t){s=n.listeners.filter(function(e){return t===e.handler})}),s.forEach(function(t){t.dereg()}),e(),s.forEach(function(t){t.dereg=i(t.eventId,t.handler,n.gantt,t._this)})},o.prototype.registerEvent=function(t,n){var r=this;r[t]||(r[t]={});var o=r[t];o.on||(o.on={},o.raise={});var s="event:gantt:"+this.apiId+":"+t+":"+n;o.raise[n]=function(){e.$emit.apply(e,[s].concat(Array.prototype.slice.call(arguments)))},o.on[n]=function(t,e,n){var o=i(s,e,r.gantt,n),a={handler:e,dereg:o,eventId:s,scope:t,_this:n};r.listeners.push(a);var l=function(){a.dereg();var t=r.listeners.indexOf(a);r.listeners.splice(t,1)};return t.$on("$destroy",function(){l()}),l}},o.prototype.registerEventsFromObject=function(t){var e=this,n=[];r.default.forEach(t,function(t,e){var i={name:e,events:[]};r.default.forEach(t,function(t,e){i.events.push(e)}),n.push(i)}),n.forEach(function(t){t.events.forEach(function(n){e.registerEvent(t.name,n)})})},o.prototype.registerMethod=function(t,e,i,r){this[t]||(this[t]={}),this[t][e]=n.createBoundedWrapper(r||this.gantt,i)},o.prototype.registerMethodsFromObject=function(t,e){var n=this,i=[];r.default.forEach(t,function(t,e){var n={name:e,methods:[]};r.default.forEach(t,function(t,e){n.methods.push({name:e,fn:t})}),i.push(n)}),i.forEach(function(t){t.methods.forEach(function(i){n.registerMethod(t.name,i.name,i.fn,e)})})},o}];var i=n(0),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t,e){this.defaultValues=e,this.values=t,this.defaultValue=function(t){var e=this.defaultValues[t];return r.default.isFunction(e)&&(e=e()),e},this.sanitize=function(t,e){if(!e){var n=this.defaultValue(t);if(void 0!==n)return void 0!==e&&"boolean"==typeof n?e:n}return e},this.value=function(t){return this.sanitize(t,this.values[t])},this.set=function(t,e){this.values[t]=e},this.initialize=function(){for(var t in this.values){var e=this.values[t];this.values.hasOwnProperty(t)&&(this.values[t]=this.value(t,e))}return this.values}}};var i=n(0),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$filter",function(t){"ngInject";var e=function(t){void 0===t&&(t={}),this.start=t.start,this.end=t.end,this.working=t.working,this.magnet=void 0===t.magnet||t.magnet,this.default=t.default,this.color=t.color,this.classes=t.classes,this.internal=t.internal};e.prototype.updateView=function(){if(this.$element){var t={};void 0!==this.left?t.left=this.left+"px":t.left="",void 0!==this.width?t.width=this.width+"px":t.width="",void 0!==this.color?t["background-color"]=this.color:t["background-color"]="",this.$element.css(t);var e=["gantt-timeframe"+(this.working?"":"-non")+"-working"];this.classes&&(e=e.concat(this.classes));for(var n=0,i=e.length;n<i;n++)this.$element.toggleClass(e[n],!0)}},e.prototype.getDuration=function(){if(void 0!==this.end&&void 0!==this.start)return this.end.diff(this.start,"milliseconds")},e.prototype.clone=function(){return new e(this)};var n=function(t){this.func=t};n.prototype.getTimeFrames=function(t){var e=this.func(t);return e instanceof Array||(e=[e]),e},n.prototype.clone=function(){return new n(this.func)};var i=function(t){this.evaluator=t.evaluator,t.date?(this.start=(0,a.default)(t.date).startOf("day"),this.end=(0,a.default)(t.date).endOf("day")):(this.start=t.start,this.end=t.end),t.targets instanceof Array?this.targets=t.targets:this.targets=[t.targets],this.default=t.default};i.prototype.dateMatch=function(t){return this.evaluator?this.evaluator(t):!(!this.start||!this.end)&&(t>=this.start&&t<=this.end)},i.prototype.clone=function(){return new i(this)};var r=function(){this.timeFrames={},this.timeFrameMappings={},this.dateFrames={}};r.prototype.clear=function(){this.timeFrames={},this.timeFrameMappings={},this.dateFrames={}},r.prototype.registerTimeFrames=function(t){o.default.forEach(t,function(t,n){this.timeFrames[n]=new e(t)},this)},r.prototype.removeTimeFrames=function(t){o.default.forEach(t,function(t){delete this.timeFrames[t]},this)},r.prototype.clearTimeFrames=function(){this.timeFrames={}},r.prototype.registerTimeFrameMappings=function(t){o.default.forEach(t,function(t,e){this.timeFrameMappings[e]=new n(t)},this)},r.prototype.removeTimeFrameMappings=function(t){o.default.forEach(t,function(t){delete this.timeFrameMappings[t]},this)},r.prototype.clearTimeFrameMappings=function(){this.timeFrameMappings={}},r.prototype.registerDateFrames=function(t){o.default.forEach(t,function(t,e){this.dateFrames[e]=new i(t)},this)},r.prototype.removeDateFrames=function(t){o.default.forEach(t,function(t){delete this.dateFrames[t]},this)},r.prototype.clearDateFrames=function(){this.dateFrames={}};var s=function(t,e){var n=[];return o.default.forEach(t,function(t){t.dateMatch(e)&&n.push(t)}),0===n.length&&o.default.forEach(t,function(t){t.default&&n.push(t)}),n};return r.prototype.getTimeFrames=function(t){for(var e=[],n=s(this.dateFrames,t),i=0;i<n.length;i++)if(void 0!==n[i])for(var r=n[i].targets,l=0;l<r.length;l++){var u=this.timeFrameMappings[r[l]];if(void 0!==u)e.push(u.getTimeFrames());else{var d=this.timeFrames[r[l]];void 0!==d&&e.push(d)}}var c=t.year(),h=t.month(),f=t.date(),g=[];0===e.length&&o.default.forEach(this.timeFrames,function(t){t.default&&e.push(t)});for(var p=0;p<e.length;p++){var m=e[p].clone();void 0!==m.start&&(m.start.year(c),m.start.month(h),m.start.date(f)),void 0!==m.end&&(m.end.year(c),m.end.month(h),m.end.date(f),(0,a.default)(m.end).startOf("day")===m.end&&m.end.add(1,"day")),g.push(m)}return g},r.prototype.solve=function(n,i,r){for(var o=void 0,s=void 0,l=void 0,u=void 0,d=0;d<n.length;d++){var c=n[d];(void 0===l||l>c.start)&&(l=c.start),(void 0===u||u<c.end)&&(u=c.end),void 0===o&&c.color&&(o=c.color),void 0!==c.classes&&(void 0===s&&(s=[]),s=s.concat(c.classes))}void 0===i&&(i=l),void 0===r&&(r=u);var h=[new e({start:i,end:r,internal:!0})];n=t("filter")(n,function(t){return(void 0===t.start||t.start<r)&&(void 0===t.end||t.end>i)});for(var f=0;f<n.length;f++){var g=n[f];g.start||(g.start=i),g.end||(g.end=r)}for(var p=t("orderBy")(n,function(t){return-t.getDuration()}),m=void 0,v=0;v<p.length;v++){var y=p[v],w=h.slice();m=0;for(var b=!1,M=!1,k=0;k<h.length;k++){var C=h[k];if(!M){if(y.end||y.start)if(y.end>C.start&&y.start<C.end){var $=C.clone();C.end=(0,a.default)(y.start),$.start=(0,a.default)(y.end),w.splice(m+1,0,y.clone(),$),M=!0,b=!1}else!b&&y.start<C.end?(C.end=(0,a.default)(y.start),w.splice(m+1,0,y.clone()),b=!0):b&&y.end>C.start&&(C.start=(0,a.default)(y.end),b=!1,M=!0);else w.splice(m,0,y),M=!0,b=!1;m++}}h=w}return h=t("filter")(h,function(t){return!t.internal&&(void 0===t.start||t.start<r)&&(void 0===t.end||t.end>i)})},r}];var r=n(0),o=i(r),s=n(1),a=i(s)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function(t){var e=this;this.gantt=t,this.date=void 0,this.position=void 0,this.currentDateColumn=void 0,this.gantt.$scope.simplifyMoment=function(t){return r.default.isMoment(t)?t.unix():t},this.gantt.$scope.$watchGroup(["currentDate","simplifyMoment(currentDateValue)"],function(t,n){t!==n&&e.setCurrentDate(e.gantt.options.value("currentDateValue"))})};return t.prototype.setCurrentDate=function(t){this.date=t;var e=this.currentDateColumn,n=void 0;void 0!==this.date&&"column"===this.gantt.options.value("currentDate")&&(n=this.gantt.columnsManager.getColumnByDate(this.date,!0)),this.currentDateColumn=n,e!==n&&(void 0!==e&&(e.currentDate=!1,e.updateView()),void 0!==n&&(n.currentDate=!0,n.updateView())),this.position=this.gantt.getPositionByDate(this.date,!0)},t};var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function(t,e,n,i,r,o,s){this.date=t,this.endDate=e,this.left=n,this.width=i,this.calendar=r,this.duration=this.endDate.diff(this.date,"milliseconds"),this.timeFramesWorkingMode=o,this.timeFramesNonWorkingMode=s,this.timeFrames=[],this.currentDate=!1,this.visibleTimeFrames=[],this.daysTimeFrames={},this.cropped=!1,this.originalSize={left:this.left,width:this.width},this.updateTimeFrames()},e=function(t){return t.year()+"-"+t.month()+"-"+t.date()};return t.prototype.updateView=function(){if(this.$element){this.currentDate?this.$element.addClass("gantt-foreground-col-current-date"):this.$element.removeClass("gantt-foreground-col-current-date"),this.$element.css({left:this.left+"px",width:this.width+"px"});for(var t=0,e=this.timeFrames.length;t<e;t++)this.timeFrames[t].updateView()}},t.prototype.updateTimeFrames=function(){var t=this;if(void 0!==t.calendar&&("hidden"!==t.timeFramesNonWorkingMode||"hidden"!==t.timeFramesWorkingMode)){for(var n=t.date,i=(0,r.default)(n).startOf("day"),o=i.add(1,"day"),s=void 0;n<t.endDate;){var a=t.calendar.getTimeFrames(n),l=r.default.min(o,t.endDate);a=t.calendar.solve(a,n,l);var u=[];for(s=0;s<a.length;s++){var d=a[s],c=d.start;void 0===c&&(c=n);var h=d.end;void 0===h&&(h=l),c<t.date&&(c=t.date),h>t.endDate&&(h=t.endDate),d=d.clone(),d.start=(0,r.default)(c),d.end=(0,r.default)(h),u.push(d)}t.timeFrames=t.timeFrames.concat(u);var f=e(n);t.daysTimeFrames[f]=u,n=l,i=(0,r.default)(n).startOf("day"),o=i.add(1,"day")}for(s=0;s<t.timeFrames.length;s++){var g=t.timeFrames[s],p=g.start.diff(t.date,"milliseconds"),m=p/t.duration*t.width,v=g.end.diff(g.start,"milliseconds"),y=v/t.duration*t.width,w=!1;g.working&&"visible"!==t.timeFramesWorkingMode?w=!0:g.working||"visible"===t.timeFramesNonWorkingMode||(w=!0),w||t.visibleTimeFrames.push(g),g.hidden=w,g.left=m,g.width=y,g.originalSize={left:g.left,width:g.width}}if("cropped"===t.timeFramesNonWorkingMode||"cropped"===t.timeFramesWorkingMode){for(var b=0,M=0;M<t.timeFrames.length;M++){var k=t.timeFrames[M];(!k.working&&"cropped"!==t.timeFramesNonWorkingMode||k.working&&"cropped"!==t.timeFramesWorkingMode)&&(b+=k.width)}if(b!==t.width){for(var C=t.width/b,$=0,_=0,F=!0,O=0;O<t.timeFrames.length;O++){var T=t.timeFrames[O];!T.working&&"cropped"!==t.timeFramesNonWorkingMode||T.working&&"cropped"!==t.timeFramesWorkingMode?(T.left=(T.left-$)*C,T.width=T.width*C,T.originalSize.left=(T.originalSize.left-_)*C,T.originalSize.width=T.originalSize.width*C,T.cropped=!1,F=!1):($+=T.width,_+=T.originalSize.width,T.left=void 0,T.width=0,T.originalSize={left:void 0,width:0},T.cropped=!0)}t.cropped=F}else t.cropped=!1}}},t.prototype.clone=function(){return new t((0,r.default)(this.date),(0,r.default)(this.endDate),this.left,this.width,this.calendar)},t.prototype.containsDate=function(t){return t>this.date&&t<=this.endDate},t.prototype.equals=function(t){return this.date===t.date},t.prototype.roundTo=function(t,e,n,i){"day"===e&&(e="date"),n=n||1;var r=t.get(e);switch(i){case"up":r=Math.ceil(r/n);break;case"down":r=Math.floor(r/n);break;default:r=Math.round(r/n)}var o=["millisecond","second","minute","hour","date","month","year"];t.set(e,r*n);for(var s=o.indexOf(e),a=0;a<s;a++)t.set(o[a],0);return t},t.prototype.getMagnetDate=function(t,e,n,i){if(e>0&&void 0!==n){var o=t;if(t=(0,r.default)(t),"column"===n){t=this.getPositionByDate(t)<this.width/2?(0,r.default)(this.date):(0,r.default)(this.endDate)}else t=this.roundTo(t,n,e),t<this.date?t=(0,r.default)(this.date):t>this.endDate&&(t=(0,r.default)(this.endDate));if(i)for(var s=Math.abs(o.diff(t,"milliseconds")),a=void 0,l=0;l<this.timeFrames.length;l++){var u=this.timeFrames[l];if(u.magnet){var d=this.timeFrames[l-1],c=this.timeFrames[l+1],h=void 0;void 0!==d&&d.working===u.working||(h=Math.abs(o.diff(u.start,"milliseconds")))<s&&(void 0===a||h<a)&&(a=h,t=u.start),void 0!==c&&c.working===u.working||(h=Math.abs(o.diff(u.end,"milliseconds")))<s&&(void 0===a||h<a)&&(a=h,t=u.end)}}}return t},t.prototype.getDateByPositionUsingTimeFrames=function(t){for(var e=0,n=this.timeFrames.length;e<n;e++){var i=this.timeFrames[e];if(!i.cropped&&t>=i.left&&t<=i.left+i.width){var o=i.getDuration()/i.width*(t-i.left);return(0,r.default)(i.start).add(o,"milliseconds")}}},t.prototype.getDateByPosition=function(t,e,n,i){var o=void 0,s=void 0;return t<0&&(t=0),t>this.width&&(t=this.width),"cropped"!==this.timeFramesNonWorkingMode&&"cropped"!==this.timeFramesWorkingMode||(s=this.getDateByPositionUsingTimeFrames(t)),void 0===s&&(o=this.duration/this.width*t,s=(0,r.default)(this.date).add(o,"milliseconds")),s=this.getMagnetDate(s,e,n,i)},t.prototype.getDayTimeFrame=function(t){var n=this.daysTimeFrames[e(t)];return void 0===n?[]:n},t.prototype.getPositionByDate=function(t){var e=void 0,n=void 0,i=t;if("cropped"===this.timeFramesNonWorkingMode||"cropped"===this.timeFramesWorkingMode)for(var r=this.getDayTimeFrame(i),o=0;o<r.length;o++){var s=r[o];if(i>=s.start&&i<=s.end){if(!s.cropped)return e=i.diff(s.start,"milliseconds"),n=e/s.getDuration()*s.width,this.left+s.left+n;i=r.length>o+1?r[o+1].start:s.end}}return e=i.diff(this.date,"milliseconds"),n=e/this.duration*this.width,n<0&&(n=0),n>this.width&&(n=this.width),this.left+n},t};var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttColumn",function(t){"ngInject";var e=function(t){this.columnsManager=t};return e.prototype.newColumn=function(e,n,i,r){var o=this.columnsManager.gantt.calendar,s=this.columnsManager.gantt.options.value("timeFramesWorkingMode"),a=this.columnsManager.gantt.options.value("timeFramesNonWorkingMode");return new t(e,n,i,r,o,s,a)},e}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function(t,e,n){return(0,r.default)(t).add(e,n).startOf(n)===t},e=function(t){if(["hour","minute","second","millisecond"].indexOf(t)>=0)return 0},n=function(t,n,i){var r=n.get(t),o=i.get(t),s=e(t);void 0!==s&&o!==s&&o<r&&i.set(t,s)};this.generate=function(e,i,o,s,a,l,u,d){if(!o&&!l)throw"to or maximumWidth must be defined";s=s.trim(),"s"===s.charAt(s.length-1)&&(s=s.substring(0,s.length-1));var c=void 0,h=void 0,f=void 0;s&&(f=s.split(" ")),f&&f.length>1?(c=parseFloat(f[0]),h=f[f.length-1]):(c=1,h=s);var g=!1;i=(0,r.default)(i).startOf(h),o&&(g=t(o,c,h),o=(0,r.default)(o).startOf(h));var p=0,m=(0,r.default)(i).startOf(h);d&&(m.add(-c,h),p-=a);for(var v=[];;){if(l&&Math.abs(p)>l+a)break;var y=(0,r.default)(m),w=(0,r.default)(y).add(c,h);n(h,y,w);var b=e.newColumn(y,w,u?p+u:p,a);if(b.cropped||(v.push(b),d?p-=a:p+=a),o)if(d){if(g&&m<o||!g&&m<=o)break}else if(g&&m>o||!g&&m>=o)break;d?(m.add(-c,h),n(h,m,y)):(m.add(c,h),n(h,y,m))}return d&&(t(i,c,h)&&v.shift(),v.reverse()),v}};var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttColumn",function(t){"ngInject";return function(e,n,i,r,s,l,u){e=(0,a.default)(e),n=(0,a.default)(n);var d=new t(e,n,r,s);return d.name=u,d.unit=i,d.label=o.default.isFunction(l)?l(d):e.format(l),d}}];var r=n(0),o=i(r),s=n(1),a=i(s)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttColumnGenerator","GanttColumnBuilder","GanttHeadersGenerator","$filter","$timeout","ganttLayout","ganttBinarySearch",function(t,e,n,i,o,s,a){"ngInject";var l=function(t){var n=this;this.gantt=t,this.from=void 0,this.to=void 0,this.columns=[],this.visibleColumns=[],this.previousColumns=[],this.nextColumns=[],this.headers=[],this.visibleHeaders=[],this.scrollAnchor=void 0,this.columnBuilder=new e(this),this.gantt.$scope.$watchGroup(["viewScale","columnWidth","timeFramesWorkingMode","timeFramesNonWorkingMode","fromDate","toDate","autoExpand","taskOutOfRange"],function(t,e){t!==e&&n.gantt.rendered&&n.generateColumns()}),this.gantt.$scope.$watchCollection("headers",function(t,e){t!==e&&n.gantt.rendered&&n.generateColumns()}),this.gantt.$scope.$watchCollection("headersFormats",function(t,e){t!==e&&n.gantt.rendered&&n.generateColumns()}),this.gantt.$scope.$watchGroup(["ganttElementWidth","showSide","sideWidth","maxHeight","daily"],function(t,e){t!==e&&n.gantt.rendered&&n.updateColumnsMeta()}),this.gantt.api.data.on.load(this.gantt.$scope,function(){(void 0===n.from||void 0===n.to||n.from>n.gantt.rowsManager.getDefaultFrom()||n.to<n.gantt.rowsManager.getDefaultTo())&&n.gantt.rendered&&n.generateColumns(),n.gantt.rowsManager.sortRows()}),this.gantt.api.data.on.remove(this.gantt.$scope,function(){n.gantt.rowsManager.sortRows()}),this.gantt.api.registerMethod("columns","clear",this.clearColumns,this),this.gantt.api.registerMethod("columns","generate",this.generateColumns,this),this.gantt.api.registerMethod("columns","refresh",this.updateColumnsMeta,this),this.gantt.api.registerMethod("columns","getColumnsWidth",this.getColumnsWidth,this),this.gantt.api.registerMethod("columns","getColumnsWidthToFit",this.getColumnsWidthToFit,this),this.gantt.api.registerMethod("columns","getDateRange",this.getDateRange,this),this.gantt.api.registerEvent("columns","clear"),this.gantt.api.registerEvent("columns","generate"),this.gantt.api.registerEvent("columns","refresh")};l.prototype.setScrollAnchor=function(){if(this.gantt.scroll.$element&&this.columns.length>0){var t=this.gantt.scroll.$element[0],e=t.scrollLeft+t.offsetWidth/2;this.scrollAnchor=this.gantt.getDateByPosition(e)}},l.prototype.scrollToScrollAnchor=function(){var t=this;this.columns.length>0&&void 0!==this.scrollAnchor&&this.gantt.$scope.$$postDigest(function(){t.gantt.api.scroll.toDate(t.scrollAnchor)})},l.prototype.clearColumns=function(){this.setScrollAnchor(),this.from=void 0,this.to=void 0,this.columns=[],this.visibleColumns=[],this.previousColumns=[],this.nextColumns=[],this.headers=[],this.visibleHeaders=[],this.gantt.api.columns.raise.clear()},l.prototype.generateColumns=function(e,i){return e||(e=this.gantt.options.value("fromDate")),i||(i=this.gantt.options.value("toDate")),!((!e||r.default.isMoment(e)&&!e.isValid())&&!(e=this.gantt.rowsManager.getDefaultFrom()))&&(!((!i||r.default.isMoment(i)&&!i.isValid())&&!(i=this.gantt.rowsManager.getDefaultTo()))&&(void 0===e||r.default.isMoment(e)||(e=(0,r.default)(e)),void 0===i||r.default.isMoment(i)||(i=(0,r.default)(i)),"expand"===this.gantt.options.value("taskOutOfRange")&&(e=this.gantt.rowsManager.getExpandedFrom(e),i=this.gantt.rowsManager.getExpandedTo(i)),this.setScrollAnchor(),this.from=e,this.to=i,this.columns=t.generate(this.columnBuilder,e,i,this.gantt.options.value("viewScale"),this.getColumnsWidth()),this.headers=n.generate(this),this.previousColumns=[],this.nextColumns=[],this.updateColumnsMeta(),this.scrollToScrollAnchor(),void this.gantt.api.columns.raise.generate(this.columns,this.headers)))},l.prototype.updateColumnsMeta=function(){this.gantt.isRefreshingColumns=!0;var t=this.getLastColumn();this.gantt.originalWidth=void 0!==t?t.originalSize.left+t.originalSize.width:0;var e=this.updateColumnsWidths(this.columns,this.headers,this.previousColumns,this.nextColumns);this.gantt.width=void 0!==t?t.left+t.width:0;var n=this.gantt.options.value("showSide"),i=this.gantt.side.isShown(),r=n!==i;r&&!n&&this.gantt.side.show(!1),this.gantt.rowsManager.updateTasksPosAndSize(),this.gantt.timespansManager.updateTimespansPosAndSize(),this.updateVisibleColumns(e),this.gantt.rowsManager.updateVisibleObjects();var o=this.gantt.options.value("currentDateValue");this.gantt.currentDateManager.setCurrentDate(o),r&&n&&this.gantt.side.show(!0),this.gantt.isRefreshingColumns=!1,this.gantt.api.columns.raise.refresh(this.columns,this.headers)},l.prototype.getLastColumn=function(t){var e=this.columns;return t&&(e=this.nextColumns),e&&e.length>0?e[e.length-1]:void 0},l.prototype.getFirstColumn=function(t){var e=this.columns;return t&&(e=this.previousColumns),e&&e.length>0?e[0]:void 0},l.prototype.getColumnByDate=function(t,e){e||this.expandExtendedColumnsForDate(t);var n=this.previousColumns.concat(this.columns,this.nextColumns),i=a.get(n,t,function(t){return t.date},!0);return void 0===i[0]?i[1]:i[0]},l.prototype.getColumnByPosition=function(t,e){e||this.expandExtendedColumnsForPosition(t);var n=this.previousColumns.concat(this.columns,this.nextColumns),i=a.get(n,t,function(t){return t.left},!0);return void 0===i[0]?i[1]:i[0]},l.prototype.updateColumnsWidths=function(t,e,n,i){var r=this.gantt.options.value("columnWidth"),o=this.gantt.options.value("expandToFit"),a=this.gantt.options.value("shrinkToFit");if(void 0===r||o||a){var l=this.gantt.getBodyAvailableWidth(),u=this.gantt.columnsManager.getLastColumn(!1);if(void 0!==u){var d=u.originalSize.left+u.originalSize.width;if(o&&d<l||a&&d>l||void 0===r){var c=l/d;s.setColumnsWidthFactor(t,c);for(var h=0;h<e.length;h++)s.setColumnsWidthFactor(e[h],c);return n.splice(0,this.previousColumns.length),i.splice(0,this.nextColumns.length),!0}}}return!1},l.prototype.getColumnsWidth=function(){var t=this.gantt.options.value("columnWidth");return void 0===t&&(t=!this.gantt.width||this.gantt.width<=0?20:this.gantt.width/this.columns.length),t},l.prototype.getColumnsWidthToFit=function(){return this.gantt.getBodyAvailableWidth()/this.columns.length},l.prototype.expandExtendedColumnsForPosition=function(e){var n=void 0;if(e<0){var i=this.getFirstColumn(),r=i.date,o=this.getFirstColumn(!0);return(!o||o.left>e)&&(n=this.gantt.options.value("viewScale"),this.previousColumns=t.generate(this.columnBuilder,r,void 0,n,this.getColumnsWidth(),-e,0,!0)),!0}if(e>this.gantt.width){var s=this.getLastColumn(),a=s.getDateByPosition(s.width),l=this.getLastColumn(!0);return(!l||l.left+l.width<e)&&(n=this.gantt.options.value("viewScale"),this.nextColumns=t.generate(this.columnBuilder,a,void 0,n,this.getColumnsWidth(),e-this.gantt.width,this.gantt.width,!1)),!0}return!1},l.prototype.expandExtendedColumnsForDate=function(e){var n=this.getFirstColumn(),i=void 0;n&&(i=n.date);var r=this.getLastColumn(),o=void 0;r&&(o=r.endDate);var s=void 0;if(i&&e<i){var a=this.getFirstColumn(!0);return(!a||a.date>e)&&(s=this.gantt.options.value("viewScale"),this.previousColumns=t.generate(this.columnBuilder,i,e,s,this.getColumnsWidth(),void 0,0,!0)),!0}if(o&&e>=o){var l=this.getLastColumn(!0);return(!l||l.date<o)&&(s=this.gantt.options.value("viewScale"),this.nextColumns=t.generate(this.columnBuilder,o,e,s,this.getColumnsWidth(),void 0,this.gantt.width,!1)),!0}return!1},l.prototype.getActiveHeadersCount=function(){return this.headers.length},l.prototype.updateVisibleColumns=function(t){var e=this.gantt.options.value("columnLimitThreshold"),n=void 0;if(void 0===e||e>0&&this.columns.length>=e)for(this.visibleColumns=i("ganttColumnLimit")(this.columns,this.gantt),this.visibleHeaders=[],n=0;n<this.headers.length;n++)this.visibleHeaders.push(i("ganttColumnLimit")(this.headers[n],this.gantt));else this.visibleColumns=this.columns,this.visibleHeaders=this.headers;if(t){for(n=0;n<this.visibleColumns.length;n++)this.visibleColumns[n].updateView();for(n=0;n<this.visibleHeaders.length;n++)for(var r=this.visibleHeaders[n],o=0;o<r.length;o++)r[o].updateView()}var s=this.gantt.options.value("currentDateValue");this.gantt.currentDateManager.setCurrentDate(s)};var u={year:"YYYY",quarter:"[Q]Q YYYY",month:"MMMM YYYY",week:"w",day:"D",hour:"H",minute:"H:mm",second:"H:mm:ss",millisecond:"H:mm:ss:SSS"},d={day:"LL",hour:"H",minute:"H:mm",second:"H:mm:ss",millisecond:"H:mm:ss:SSS"},c={year:"YYYY",quarter:"[Q]Q",month:"MMMM"};return l.prototype.getHeaderFormat=function(t){var e=void 0,n=this.gantt.options.value("headersFormats");if(void 0!==n&&(e=n[t]),void 0===e){var i=this.gantt.options.value("viewScale");i=i.trim(),"s"===i.charAt(i.length-1)&&(i=i.substring(0,i.length-1));var r=void 0,o=void 0;i&&(o=i.split(" ")),r=o&&o.length>1?o[o.length-1]:i,["millisecond","second","minute","hour"].indexOf(r)>-1?e=d[t]:["month","quarter","year"].indexOf(r)>-1&&(e=c[t]),void 0===e&&(e=u[t])}return e},l.prototype.getHeaderScale=function(t){var e=void 0,n=this.gantt.options.value("headersScales");return void 0!==n&&(e=n[t]),void 0===e&&(e=t),-1===["millisecond","second","minute","hour","day","week","month","quarter","year"].indexOf(e)&&(e="day"),e},l.prototype.getDateRange=function(t){var e=void 0,n=void 0;return t?this.visibleColumns&&this.visibleColumns.length>0&&(e=this.visibleColumns[0],n=this.visibleColumns[this.visibleColumns.length-1]):(e=this.getFirstColumn(),n=this.getLastColumn()),e&&n?[e.date,n.endDate]:void 0},l}];var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttColumnHeader",function(t){"ngInject";var e=function(e,n){var i=[],o=void 0,s=e.getHeaderScale(n),a=void 0,l=void 0,u=void 0;if(s&&(u=s.split(" ")),u&&u.length>1?(a=parseFloat(u[0]),l=u[u.length-1]):(a=1,l=s),e.columns.length>0)for(var d=e.columns[0],c=(0,r.default)(d.date).startOf(l),h=(0,r.default)(e.columns[e.columns.length-1].endDate);;){var f=d.getPositionByDate(c),g=r.default.min((0,r.default)(c).add(a,l),h),p=e.getColumnByDate(g),m=p.getPositionByDate(g),v=m-f;if(v>0){var y=e.getHeaderFormat(n);o=new t(c,g,l,f,v,y,n),i.push(o)}if(g.isSame(h)||g.isAfter(h))break;d=p,c=g}return i};this.generate=function(t){var n=[];if(void 0===t.gantt.options.value("headers")){var i=t.gantt.options.value("viewScale");i=i.trim(),"s"===i.charAt(i.length-1)&&(i=i.substring(0,i.length-1));var r=void 0,o=void 0;i&&(o=i.split(" ")),r=o&&o.length>1?o[o.length-1]:i,["quarter","month"].indexOf(r)>-1&&n.push("year"),["day","week"].indexOf(r)>-1&&n.push("month"),["day"].indexOf(r)>-1&&n.push("week"),["hour"].indexOf(r)>-1&&n.push("day"),["minute","second","millisecond"].indexOf(r)>-1&&n.push("hour"),["second","millisecond"].indexOf(r)>-1&&n.push("minute"),["millisecond"].indexOf(r)>-1&&n.push("second"),n.push(i)}else n=t.gantt.options.value("headers");for(var s=[],a=0;a<n.length;a++)s.push(e(t,n[a]));return s}}];var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttApi","GanttOptions","GanttCalendar","GanttScroll","GanttBody","GanttRowHeader","GanttHeader","GanttSide","GanttObjectModel","GanttRowsManager","GanttColumnsManager","GanttTimespansManager","GanttCurrentDateManager","ganttArrays","$document","$timeout",function(t,e,n,i,r,s,l,u,d,c,h,f,g,p,m,v){"ngInject";var y=function(s,v){var y=this;this.$scope=s,this.$element=v,this.options=new e(s,{api:o.default.noop,data:[],timespans:[],viewScale:"day",columnMagnet:"15 minutes",timeFramesMagnet:!0,showSide:!0,allowSideResizing:!0,currentDate:"line",currentDateValue:a.default,autoExpand:"none",taskOutOfRange:"truncate",taskContent:"{{task.model.name}}",rowContent:"{{row.model.name}}",maxHeight:0,timeFrames:[],dateFrames:[],timeFramesWorkingMode:"hidden",timeFramesNonWorkingMode:"visible",taskLimitThreshold:100,columnLimitThreshold:500}),this.api=new t(this),this.api.registerEvent("core","ready"),this.api.registerEvent("core","rendered"),this.api.registerEvent("directives","controller"),this.api.registerEvent("directives","preLink"),this.api.registerEvent("directives","postLink"),this.api.registerEvent("directives","new"),this.api.registerEvent("directives","destroy"),this.api.registerEvent("data","change"),this.api.registerEvent("data","load"),this.api.registerEvent("data","remove"),this.api.registerEvent("data","clear"),this.api.registerMethod("core","getDateByPosition",this.getDateByPosition,this),this.api.registerMethod("core","getPositionByDate",this.getPositionByDate,this),this.api.registerMethod("data","load",this.loadData,this),this.api.registerMethod("data","remove",this.removeData,this),this.api.registerMethod("data","clear",this.clearData,this),this.api.registerMethod("data","get",this.getData,this),this.calendar=new n(this),this.calendar.registerTimeFrames(this.options.value("timeFrames")),this.calendar.registerDateFrames(this.options.value("dateFrames")),this.api.registerMethod("timeframes","registerTimeFrames",this.calendar.registerTimeFrames,this.calendar),this.api.registerMethod("timeframes","clearTimeframes",this.calendar.clearTimeFrames,this.calendar),this.api.registerMethod("timeframes","registerDateFrames",this.calendar.registerDateFrames,this.calendar),this.api.registerMethod("timeframes","clearDateFrames",this.calendar.clearDateFrames,this.calendar),this.api.registerMethod("timeframes","registerTimeFrameMappings",this.calendar.registerTimeFrameMappings,this.calendar),this.api.registerMethod("timeframes","clearTimeFrameMappings",this.calendar.clearTimeFrameMappings,this.calendar),s.$watchGroup(["timeFrames","dateFrames"],function(t,e){if(t!==e){var n=t[0],i=t[1],r=e[0],s=e[1],a=!1;o.default.equals(n,r)||(y.calendar.clearTimeFrames(),y.calendar.registerTimeFrames(n),a=!0),o.default.equals(i,s)||(y.calendar.clearDateFrames(),y.calendar.registerDateFrames(i),a=!0),a&&y.columnsManager.generateColumns()}}),s.$watch("columnMagnet",function(){var t=void 0,e=y.options.value("columnMagnet");e&&(t=e.trim().split(" ")),t&&t.length>1?(y.columnMagnetValue=parseFloat(t[0]),y.columnMagnetUnit=a.default.normalizeUnits(t[t.length-1])):(y.columnMagnetValue=1,y.columnMagnetUnit=a.default.normalizeUnits(e))}),s.$watchGroup(["shiftColumnMagnet","viewScale"],function(){var t=void 0,e=y.options.value("shiftColumnMagnet");e&&(t=e.trim().split(" ")),void 0!==t&&t.length>1?(y.shiftColumnMagnetValue=parseFloat(t[0]),y.shiftColumnMagnetUnit=a.default.normalizeUnits(t[t.length-1])):(y.shiftColumnMagnetValue=1,y.shiftColumnMagnetUnit=a.default.normalizeUnits(e))});var w=function(t){return y.shiftKey=t.shiftKey,!0};m.on("keyup keydown",w),s.$on("$destroy",function(){m.off("keyup keydown",w)}),this.scroll=new i(this),this.body=new r(this),this.header=new l(this),this.side=new u(this),this.objectModel=new d(this.api),this.rowsManager=new c(this),this.columnsManager=new h(this),this.timespansManager=new f(this),this.currentDateManager=new g(this),this.originalWidth=0,this.width=0,o.default.isFunction(this.$scope.api)&&this.$scope.api(this.api);var b=function(t,e){if(void 0===e||t.length!==e.length)return!0;for(var n=0,i=t.length;n<i;n++)if(t[n].id!==e[n].id)return!0;return!1};s.$watchCollection("data",function(t,e){if(void 0!==e){var n=p.getRemovedIds(t,e);if(n.length===e.length)y.rowsManager.removeAll(),y.api.data.raise.clear();else{for(var i=0,r=n.length;i<r;i++){var o=n[i];y.rowsManager.removeRow(o)}for(var s=[],a=0,l=e.length;a<l;a++)n.indexOf(e[a].id)>-1&&s.push(e[a]);y.api.data.raise.remove(s)}}if(void 0!==t){var u=b(t,e);u&&y.rowsManager.resetNonModelLists();for(var d=0,c=t.length;d<c;d++){var h=t[d];y.rowsManager.addRow(h,u)}y.api.data.raise.change(t,e),y.api.data.raise.load(t)}})};return y.prototype.getMagnetValueAndUnit=function(){if(this.shiftKey){if(void 0!==this.shiftColumnMagnetValue&&void 0!==this.shiftColumnMagnetUnit)return[this.shiftColumnMagnetValue,this.shiftColumnMagnetUnit];var t=this.options.value("viewScale");t=t.trim();var e=void 0,n=void 0,i=void 0;return t&&(i=t.split(" ")),i&&i.length>1?(e=parseFloat(i[0]),n=a.default.normalizeUnits(i[i.length-1])):(e=1,n=a.default.normalizeUnits(t)),[.25*e,n]}return[this.columnMagnetValue,this.columnMagnetUnit]},y.prototype.getMagnetDate=function(t,e){if(void 0!==t){a.default.isMoment(a.default)||(t=(0,a.default)(t));var n=this.columnsManager.getColumnByDate(t,e),i=this.getMagnetValueAndUnit(),r=i[0],o=i[1];return n.getMagnetDate(t,r,o,this.options.value("timeFramesMagnet"))}},y.prototype.getDateByPosition=function(t,e,n){var i=this.columnsManager.getColumnByPosition(t,n);if(void 0!==i){var r=void 0,o=void 0;if(e){var s=this.getMagnetValueAndUnit();r=s[0],o=s[1]}return i.getDateByPosition(t-i.left,r,o,this.options.value("timeFramesMagnet"))}},y.prototype.getBodyAvailableWidth=function(){var t=this.getWidth()-this.side.getWidth(),e=this.scroll.getBordersWidth(),n=t-(void 0!==e?this.scroll.getBordersWidth():0);return n-=1},y.prototype.getPositionByDate=function(t,e){if(void 0!==t){a.default.isMoment(a.default)||(t=(0,a.default)(t));var n=this.columnsManager.getColumnByDate(t,e);return void 0!==n?n.getPositionByDate(t):void 0}},y.prototype.loadData=function(t){if(o.default.isArray(t)||(t=void 0!==t?[t]:[]),void 0===this.$scope.data)this.$scope.data=t;else for(var e=0,n=t.length;e<n;e++){var i=t[e],r=p.indexOfId(this.$scope.data,i.id);r>-1?this.$scope.data[r]=i:this.$scope.data.push(i)}var s=this.side.getWidth();s>0&&this.options.set("sideWidth",s)},y.prototype.getData=function(){return this.$scope.data},y.prototype.removeData=function(t){if(o.default.isArray(t)||(t=void 0!==t?[t]:[]),void 0!==this.$scope.data)for(var e=0,n=t.length;e<n;e++){var i=t[e],r=p.indexOfId(this.$scope.data,i.id);if(r>-1)if(void 0===i.tasks||0===i.tasks.length)this.$scope.data.splice(r,1);else for(var s=this.$scope.data[r],a=0,l=i.tasks.length;a<l;a++){var u=i.tasks[a],d=p.indexOfId(s.tasks,u.id);d>-1&&s.tasks.splice(d,1)}}},y.prototype.clearData=function(){this.$scope.data=void 0},y.prototype.getWidth=function(){return this.$scope.ganttElementWidth},y.prototype.getHeight=function(){return this.$scope.ganttElementHeight},y.prototype.getContainerWidth=function(){return this.$scope.ganttContainerWidth},y.prototype.getContainerHeight=function(){return this.$scope.ganttContainerHeight},y.prototype.initialized=function(){this.api.core.raise.ready(this.api),this.rendered=!0,this.columnsManager.generateColumns();var t=this;v(function(){var e=t.side.getWidth();e>0&&t.options.set("sideWidth",e),t.api.core.raise.rendered(t.api)})},y}];var r=n(0),o=i(r),s=n(1),a=i(s)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["ganttUtils",function(t){"ngInject";var e=function(t){this.api=t,this.api.registerEvent("tasks","clean"),this.api.registerEvent("rows","clean"),this.api.registerEvent("timespans","clean")};return e.prototype.cleanTask=function(e){void 0===e.id&&(e.id=t.randomUuid()),void 0===e.from||r.default.isMoment(e.from)||(e.from=(0,r.default)(e.from)),void 0===e.to||r.default.isMoment(e.to)||(e.to=(0,r.default)(e.to)),this.api.tasks.raise.clean(e)},e.prototype.cleanRow=function(e){void 0===e.id&&(e.id=t.randomUuid()),void 0===e.from||r.default.isMoment(e.from)||(e.from=(0,r.default)(e.from)),void 0===e.to||r.default.isMoment(e.to)||(e.to=(0,r.default)(e.to)),this.api.rows.raise.clean(e)},e.prototype.cleanTimespan=function(e){void 0===e.id&&(e.id=t.randomUuid()),void 0===e.from||r.default.isMoment(e.from)||(e.from=(0,r.default)(e.from)),void 0===e.to||r.default.isMoment(e.to)||(e.to=(0,r.default)(e.to)),this.api.timespans.raise.clean(e)},e}];var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0});var r=n(2),o=i(r);e.default=["GanttTask","$filter",function(t,e){"ngInject";var n=function(t,e){this.rowsManager=t,this.model=e,this.from=void 0,this.to=void 0,this.tasksMap={},this.tasks=[],this.filteredTasks=[],this.visibleTasks=[]};return n.prototype.addTaskImpl=function(t,e){this.tasksMap[t.model.id]=t,this.tasks.push(t),e||(void 0===this.model.tasks&&(this.model.tasks=[]),-1===this.model.tasks.indexOf(t.model)&&this.model.tasks.push(t.model))},n.prototype.addTask=function(e,n){var i=void 0,r=!1;if(this.rowsManager.gantt.objectModel.cleanTask(e),e.id in this.tasksMap){if(i=this.tasksMap[e.id],i.model===e)return i;i.model=e,r=!0}else i=new t(this,e),this.addTaskImpl(i,n);return this.sortTasks(),this.setFromToByTask(i),n||(r?this.rowsManager.gantt.api.tasks.raise.change(i):this.rowsManager.gantt.api.tasks.raise.add(i)),i},n.prototype.moveTaskToRow=function(t,e){this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(t,this),e||this.rowsManager.gantt.api.tasks.raise.beforeRowChange(t,this);var n=t.row;n.removeTask(t.model.id,e,!0),t.row=this,this.addTaskImpl(t,e),this.sortTasks(),this.setFromToByTask(t),t.updatePosAndSize(),this.updateVisibleTasks(),n.$scope.$digest(),t.row.$scope.$digest(),this.rowsManager.gantt.api.tasks.raise.viewRowChange(t,n),e||this.rowsManager.gantt.api.tasks.raise.rowChange(t,n)},n.prototype.updateVisibleTasks=function(){var t=this.rowsManager.gantt.options.value("filterTask");if(t){"object"===(void 0===t?"undefined":(0,o.default)(t))&&(t={model:t});var n=this.rowsManager.gantt.options.value("filterTaskComparator");"function"==typeof n&&(n=function(t,e){return n(t.model,e.model)}),this.filteredTasks=e("filter")(this.tasks,t,n)}else this.filteredTasks=this.tasks.slice(0);var i=this.rowsManager.gantt.options.value("taskLimitThreshold");void 0===i||i>0&&this.filteredTasks.length>=i?this.visibleTasks=e("ganttTaskLimit")(this.filteredTasks,this.rowsManager.gantt):this.visibleTasks=this.filteredTasks},n.prototype.updateTasksPosAndSize=function(){for(var t=0,e=this.tasks.length;t<e;t++)this.tasks[t].updatePosAndSize()},n.prototype.removeTask=function(t,e,n){if(t in this.tasksMap){var i=this.tasksMap[t],r=void 0,o=void 0;for(o=this.tasks.length-1;o>=0;o--)if(r=this.tasks[o],r.model.id===t){this.tasks.splice(o,1),this.from-r.model.from!=0&&this.to-r.model.to!=0||this.setFromTo();break}for(o=this.filteredTasks.length-1;o>=0;o--)if(r=this.filteredTasks[o],r.model.id===t){this.filteredTasks.splice(o,1);break}for(o=this.visibleTasks.length-1;o>=0;o--)if(r=this.visibleTasks[o],r.model.id===t){this.visibleTasks.splice(o,1);break}if(!e){if(delete this.tasksMap[t],void 0!==this.model.tasks){var s=this.model.tasks.indexOf(i.model);s>-1&&this.model.tasks.splice(s,1)}n||this.rowsManager.gantt.api.tasks.raise.remove(i)}return i}},n.prototype.removeAllTasks=function(){this.from=void 0,this.to=void 0,this.tasksMap={},this.tasks=[],this.filteredTasks=[],this.visibleTasks=[]},n.prototype.setFromTo=function(){this.from=void 0,this.to=void 0;for(var t=0,e=this.tasks.length;t<e;t++)this.setFromToByTask(this.tasks[t])},n.prototype.setFromToByTask=function(t){this.setFromToByValues(t.model.from,t.model.to)},n.prototype.setFromToByValues=function(t,e){void 0!==t&&(void 0===this.from?this.from=(0,u.default)(t):t<this.from&&(this.from=(0,u.default)(t))),void 0!==e&&(void 0===this.to?this.to=(0,u.default)(e):e>this.to&&(this.to=(0,u.default)(e)))},n.prototype.sortTasks=function(){this.tasks.sort(function(t,e){return t.left-e.left})},n.prototype.clone=function(){for(var t=new n(this.rowsManager,a.default.copy(this)),e=0,i=this.tasks.length;e<i;e++)t.addTask(this.tasks[e].model);return t},n}];var s=n(0),a=i(s),l=n(1),u=i(l)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t){this.gantt=t}}},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0});var r=n(2),o=i(r);e.default=["GanttRow","ganttArrays","$filter","$timeout",function(t,e,n,i){"ngInject";var r=function t(e){var r=this;this.gantt=e,this.rowsMap={},this.rows=[],this.sortedRows=[],this.filteredRows=[],this.customFilteredRows=[],this.visibleRows=[],this.rowsTaskWatchers=[],this._defaultFilterImpl=function(t,e,i){return n("filter")(t,e,i)},this.filterImpl=this._defaultFilterImpl,this.customRowSorters=[],this.customRowFilters=[],this.gantt.$scope.$watchGroup(["filterTask","filterTaskComparator"],function(t,e){t!==e&&r.updateVisibleTasks()}),this.gantt.$scope.$watchGroup(["filterRow","filterRowComparator"],function(t,e){t!==e&&r.updateVisibleRows()}),this.gantt.$scope.$watch("sortMode",function(t,e){t!==e&&r.sortRows()});var o=this.gantt.scroll.isVScrollbarVisible();this.gantt.$scope.$watchGroup(["maxHeight","gantt.rowsManager.visibleRows.length"],function(t,e){t!==e&&i(function(){var t=r.gantt.scroll.isVScrollbarVisible();t!==o&&(o=t,r.gantt.columnsManager.updateColumnsMeta())})}),this.gantt.api.registerMethod("rows","sort",t.prototype.sortRows,this),this.gantt.api.registerMethod("rows","applySort",t.prototype.applySort,this),this.gantt.api.registerMethod("rows","refresh",t.prototype.updateVisibleObjects,this),this.gantt.api.registerMethod("rows","removeRowSorter",t.prototype.removeCustomRowSorter,this),this.gantt.api.registerMethod("rows","addRowSorter",t.prototype.addCustomRowSorter,this),this.gantt.api.registerMethod("rows","removeRowFilter",t.prototype.removeCustomRowFilter,this),this.gantt.api.registerMethod("rows","addRowFilter",t.prototype.addCustomRowFilter,this),this.gantt.api.registerMethod("rows","setFilterImpl",t.prototype.setFilterImpl,this),this.gantt.api.registerEvent("tasks","add"),this.gantt.api.registerEvent("tasks","change"),this.gantt.api.registerEvent("tasks","viewChange"),this.gantt.api.registerEvent("tasks","beforeRowChange"),this.gantt.api.registerEvent("tasks","beforeViewRowChange"),this.gantt.api.registerEvent("tasks","rowChange"),this.gantt.api.registerEvent("tasks","viewRowChange"),this.gantt.api.registerEvent("tasks","remove"),this.gantt.api.registerEvent("tasks","filter"),this.gantt.api.registerEvent("tasks","displayed"),this.gantt.api.registerEvent("rows","add"),this.gantt.api.registerEvent("rows","change"),this.gantt.api.registerEvent("rows","remove"),this.gantt.api.registerEvent("rows","move"),this.gantt.api.registerEvent("rows","displayed"),this.gantt.api.registerEvent("rows","filter"),this.updateVisibleObjects()};return r.prototype.resetNonModelLists=function(){this.rows=[],this.sortedRows=[],this.filteredRows=[],this.customFilteredRows=[],this.visibleRows=[]},r.prototype.addRow=function(n,i){var r=void 0,o=void 0,s=void 0,a=!1;if(this.gantt.objectModel.cleanRow(n),n.id in this.rowsMap){if(r=this.rowsMap[n.id],i&&(this.rows.push(r),this.sortedRows.push(r),this.filteredRows.push(r),this.customFilteredRows.push(r),this.visibleRows.push(r)),r.model===n)return;var l=e.getRemovedIds(n.tasks,r.model.tasks);for(o=0,s=l.length;o<s;o++){var u=l[o];r.removeTask(u)}r.model=n,a=!0}else r=new t(this,n),this.rowsMap[n.id]=r,this.rows.push(r),this.sortedRows.push(r),this.filteredRows.push(r),this.customFilteredRows.push(r),this.visibleRows.push(r);if(void 0!==n.tasks&&n.tasks.length>0){for(o=0,s=n.tasks.length;o<s;o++){var d=n.tasks[o];r.addTask(d)}r.updateVisibleTasks()}if(a?this.gantt.api.rows.raise.change(r):this.gantt.api.rows.raise.add(r),!a){var c=this.gantt.$scope.$watchCollection(function(){return n.tasks},function(t,n){if(t!==n){var i=void 0,o=void 0,s=e.getRemovedIds(t,n);for(i=0,o=s.length;i<o;i++){var a=s[i];r.removeTask(a)}if(void 0!==t){for(i=0,o=t.length;i<o;i++){var l=t[i];r.addTask(l)}r.updateVisibleTasks()}}});this.rowsTaskWatchers.push(c)}return a},r.prototype.removeRow=function(t){if(t in this.rowsMap){delete this.rowsMap[t];var n=void 0,i=e.indexOfId(this.rows,t,["model","id"]);if(i>-1){n=this.rows.splice(i,1)[0];var r=this.rowsTaskWatchers.splice(i,1)[0];r&&r()}return e.removeId(this.sortedRows,t,["model","id"]),e.removeId(this.filteredRows,t,["model","id"]),e.removeId(this.customFilteredRows,t,["model","id"]),e.removeId(this.visibleRows,t,["model","id"]),void this.gantt.api.rows.raise.remove(n)}},r.prototype.removeAll=function(){this.rowsMap={},this.rows=[],this.sortedRows=[],this.filteredRows=[],this.customFilteredRows=[],this.visibleRows=[];for(var t=0,e=this.rowsTaskWatchers.length;t<e;t++){(0,this.rowsTaskWatchers[t])()}this.rowsTaskWatchers=[]},r.prototype.sortRows=function(){var t=this.gantt.options.value("sortMode");if(void 0!==t){var e=!1;a.default.isString(t)&&"-"===t.charAt(0)&&(e=!0,t=t.substr(1));var i=n("orderBy");this.sortedRows=i(this.rows,t,e)}else this.sortedRows=this.rows.slice();this.sortedRows=this.applyCustomRowSorters(this.sortedRows),this.updateVisibleRows()},r.prototype.removeCustomRowSorter=function(t){var e=this.customRowSorters.indexOf(t);e>-1&&this.customRowSorters.splice(e,1)},r.prototype.addCustomRowSorter=function(t){this.customRowSorters.push(t)},r.prototype.applyCustomRowSorters=function(t){for(var e=0;e<this.customRowSorters.length;e++)t=this.customRowSorters[e](t);return t},r.prototype.applySort=function(){var t=this.gantt.$scope.data;t.splice(0,t.length);for(var e=[],n=0,i=this.sortedRows.length;n<i;n++)t.push(this.sortedRows[n].model),e.push(this.sortedRows[n]);this.rows=e},r.prototype.moveRow=function(t,n){void 0!==this.gantt.options.value("sortMode")&&(this.applySort(),this.gantt.options.set("sortMode",void 0));var i=this.rows.indexOf(n),r=this.rows.indexOf(t);i>-1&&r>-1&&i!==r&&(e.moveToIndex(this.rows,r,i),e.moveToIndex(this.rowsTaskWatchers,r,i),e.moveToIndex(this.gantt.$scope.data,r,i),this.gantt.api.rows.raise.change(t),this.gantt.api.rows.raise.move(t,r,i),this.updateVisibleObjects(),this.sortRows())},r.prototype.updateVisibleObjects=function(){this.updateVisibleRows(),this.updateVisibleTasks()},r.prototype.updateVisibleRows=function(){var t=this.filteredRows,e=this.gantt.options.value("filterRow");if(e){"object"===(void 0===e?"undefined":(0,o.default)(e))&&(e={model:e});var n=this.gantt.options.value("filterRowComparator");if("function"==typeof n){var i=this.gantt;n=function(t,e){return i.options.value("filterRowComparator")(t,e)}}this.filteredRows=this.filterImpl(this.sortedRows,e,n)}else this.filteredRows=this.sortedRows.slice(0);var r=!a.default.equals(t,this.filteredRows);this.customFilteredRows=this.applyCustomRowFilters(this.filteredRows),this.visibleRows=this.customFilteredRows,this.gantt.api.rows.raise.displayed(this.sortedRows,this.filteredRows,this.visibleRows),r&&this.gantt.api.rows.raise.filter(this.sortedRows,this.filteredRows)},r.prototype.removeCustomRowFilter=function(t){var e=this.customRowFilters.indexOf(t);e>-1&&this.customRowFilters.splice(e,1)},r.prototype.addCustomRowFilter=function(t){this.customRowFilters.push(t)},r.prototype.applyCustomRowFilters=function(t){for(var e=0;e<this.customRowFilters.length;e++)t=this.customRowFilters[e](t);return t},r.prototype.setFilterImpl=function(t){this.filterImpl=t||this._defaultFilterImpl},r.prototype.updateVisibleTasks=function(){for(var t=[],e=[],n=[],i=[],r=0;r<this.rows.length;r++){var o=this.rows[r];t=t.concat(o.filteredTasks),o.updateVisibleTasks(),e=e.concat(o.filteredTasks),i=i.concat(o.visibleTasks),n=n.concat(o.tasks)}this.gantt.api.tasks.raise.displayed(n,e,i),!a.default.equals(t,e)&&this.gantt.api.tasks.raise.filter(n,e,i)},r.prototype.updateTasksPosAndSize=function(){for(var t=0,e=this.rows.length;t<e;t++)this.rows[t].updateTasksPosAndSize()},r.prototype.getExpandedFrom=function(t){t=t?(0,u.default)(t):t;for(var e=t,n=0;n<this.rows.length;n++)(void 0===e||e>this.rows[n].from)&&(e=this.rows[n]);return e&&(!t||e<t)?e:t},r.prototype.getExpandedTo=function(t){t=t?(0,u.default)(t):t;for(var e=t,n=0;n<this.rows.length;n++)(void 0===e||e<this.rows[n].to)&&(e=this.rows[n].to);var i=this.gantt.options.value("toDate");return e&&(!i||e>i)?e:t},r.prototype.getDefaultFrom=function(){for(var t=void 0,e=0;e<this.rows.length;e++)(void 0===t||this.rows[e].from<t)&&(t=this.rows[e].from);return t},r.prototype.getDefaultTo=function(){for(var t=void 0,e=0;e<this.rows.length;e++)(void 0===t||this.rows[e].to>t)&&(t=this.rows[e].to);return t},r}];var s=n(0),a=i(s),l=n(1),u=i(l)},function(t,e,n){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function(t,e){this.rowsManager=t.rowsManager,this.row=t,this.model=e,this.truncatedLeft=!1,this.truncatedRight=!1};return t.prototype.isMilestone=function(){return!this.model.to||this.model.from-this.model.to==0},t.prototype.isOutOfRange=function(){var t=this.rowsManager.gantt.columnsManager.getFirstColumn(),e=this.rowsManager.gantt.columnsManager.getLastColumn();return void 0===t||this.model.to<t.date||void 0===e||this.model.from>e.endDate},t.prototype.updatePosAndSize=function(){var t=this.left,e=this.width,n=this.truncatedRight,i=this.truncatedLeft;!this.isMoving&&this.isOutOfRange()?(this.modelLeft=void 0,this.modelWidth=void 0):(this.modelLeft=this.rowsManager.gantt.getPositionByDate(this.model.from),this.modelWidth=this.rowsManager.gantt.getPositionByDate(this.model.to)-this.modelLeft);var r=this.rowsManager.gantt.columnsManager.getLastColumn(),o=r?r.left+r.width:0,s=this.modelLeft,l=this.modelWidth;this.rowsManager.gantt.options.value("daily")&&(s=this.rowsManager.gantt.getPositionByDate((0,a.default)(this.model.from).startOf("day")),l=this.rowsManager.gantt.getPositionByDate((0,a.default)(this.model.to).endOf("day"))-s);var u=-l;s<u&&(s=u),s>o&&(s=o),void 0===s||void 0===l?(this.left=void 0,this.width=void 0):(this.left=s,this.width=l,s<0?(this.truncatedLeft=!0,this.truncatedLeftOffset=-s,this.truncatedRight=!1,this.truncatedRightOffset=void 0):l+s>this.rowsManager.gantt.width?(this.truncatedRight=!0,this.truncatedRightOffset=l+s-this.rowsManager.gantt.width,this.truncatedLeft=!1,this.truncatedLeftOffset=void 0):(this.truncatedLeft=!1,this.truncatedLeftOffset=void 0,this.truncatedRight=!1,this.truncatedRightOffset=l+s-this.rowsManager.gantt.width),this.width<0&&(this.left=this.left+this.width,this.width=-this.width)),this.updateView(),this.rowsManager.gantt.isRefreshingColumns||t===this.left&&e===this.width&&n===this.truncatedRight&&i===this.truncatedLeft||this.rowsManager.gantt.api.tasks.raise.viewChange(this)},t.prototype.updateView=function(){if(this.$element)if(void 0===this.left||void 0===this.width)this.$element.css("display","none");else{if(this.$element.css({left:this.left+"px",width:this.width+"px",display:""}),this.model.priority>0)for(var t=this.model.priority,e=this.$element.children(),n=0;n<e.length;n++)o.default.element(e[n]).css("z-index",t);this.$element.toggleClass("gantt-task-milestone",this.isMilestone())}},t.prototype.getBackgroundElement=function(){if(void 0!==this.$element){var t=this.$element[0].querySelector(".gantt-task-background");return void 0!==t&&(t=o.default.element(t)),t}},t.prototype.getContentElement=function(){if(void 0!==this.$element){var t=this.$element[0].querySelector(".gantt-task-content");return void 0!==t&&(t=o.default.element(t)),t}},t.prototype.getForegroundElement=function(){if(void 0!==this.$element){var t=this.$element[0].querySelector(".gantt-task-foreground");return void 0!==t&&(t=o.default.element(t)),t}},t.prototype.setFrom=function(t,e){this.model.from=this.rowsManager.gantt.getDateByPosition(t,e),this.row.setFromTo(),this.updatePosAndSize()},t.prototype.setTo=function(t,e){this.model.to=this.rowsManager.gantt.getDateByPosition(t,e),this.row.setFromTo(),this.updatePosAndSize()},t.prototype.moveTo=function(t,e){var n=void 0,i=void 0;t>this.modelLeft?(this.model.to=this.rowsManager.gantt.getDateByPosition(t+this.modelWidth,e),n=this.rowsManager.gantt.getPositionByDate(this.model.to),i=n-this.modelWidth,this.model.from=this.rowsManager.gantt.getDateByPosition(i,!1)):(this.model.from=this.rowsManager.gantt.getDateByPosition(t,e),i=this.rowsManager.gantt.getPositionByDate(this.model.from),n=i+this.modelWidth,this.model.to=this.rowsManager.gantt.getDateByPosition(n,!1)),this.row.setFromTo(),this.updatePosAndSize()},t.prototype.clone=function(){return new t(this.row,o.default.copy(this.model))},t};var r=n(0),o=i(r),s=n(1),a=i(s)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttBodyColumns","GanttBodyRows","GanttBodyBackground","GanttBodyForeground",function(t,e,n,i){"ngInject";return function(r){this.gantt=r,this.background=new n(this),this.foreground=new i(this),this.columns=new t(this),this.rows=new e(this)}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t){this.body=t}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t){this.body=t}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t){this.body=t}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t){this.body=t}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttHeaderColumns",function(t){"ngInject";return function(e){this.gantt=e,this.columns=new t(this),this.getHeight=function(){return this.$element[0].offsetHeight}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t){this.$element=t}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function t(e){this.gantt=e,this.gantt.api.registerEvent("scroll","scroll"),this.gantt.api.registerMethod("scroll","to",t.prototype.scrollTo,this),this.gantt.api.registerMethod("scroll","toDate",t.prototype.scrollToDate,this),this.gantt.api.registerMethod("scroll","left",t.prototype.scrollToLeft,this),this.gantt.api.registerMethod("scroll","right",t.prototype.scrollToRight,this),this.gantt.api.registerMethod("scroll","setWidth",t.prototype.setWidth,this)};return t.prototype.getScrollLeft=function(){return void 0===this.$element?void 0:(void 0===this.cachedScrollLeft&&(this.cachedScrollLeft=this.$element[0].scrollLeft),this.cachedScrollLeft)},t.prototype.getScrollWidth=function(){return void 0===this.$element?void 0:this.$element[0].scrollWidth},t.prototype.getWidth=function(){return void 0===this.$element?void 0:this.$element[0].offsetWidth},t.prototype.setWidth=function(t){this.$element[0]&&(this.$element[0].offsetWidth=t)},t.prototype.getBordersWidth=function(){if(void 0!==this.$element){if(this.$element[0].clientWidth)return this.$element[0].offsetWidth-this.$element[0].clientWidth;var t=window.getComputedStyle(this.$element[0]).getPropertyValue("border-left-width")?window.getComputedStyle(this.$element[0]).getPropertyValue("border-left-width").match(/\d+/)[0]:"0",e=window.getComputedStyle(this.$element[0]).getPropertyValue("border-right-width")?window.getComputedStyle(this.$element[0]).getPropertyValue("border-right-width").match(/\d+/)[0]:"0";return parseInt(t,10)+parseInt(e,10)}},t.prototype.getBordersHeight=function(){return void 0===this.$element?void 0:this.$element[0].offsetHeight-this.$element[0].clientHeight},t.prototype.isVScrollbarVisible=function(){if(void 0!==this.$element)return this.$element[0].scrollHeight>this.$element[0].offsetHeight},t.prototype.isHScrollbarVisible=function(){if(void 0!==this.$element)return this.$element[0].scrollWidth>this.$element[0].offsetWidth},t.prototype.scrollTo=function(t){this.$element[0].scrollLeft=t,this.$element.triggerHandler("scroll")},t.prototype.scrollToLeft=function(t){this.$element[0].scrollLeft-=t,this.$element.triggerHandler("scroll")},t.prototype.scrollToRight=function(t){this.$element[0].scrollLeft+=t,this.$element.triggerHandler("scroll")},t.prototype.scrollToDate=function(t){var e=this.gantt.getPositionByDate(t);void 0!==e&&(this.$element[0].scrollLeft=e-this.$element[0].offsetWidth/2)},t}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function(t){this.gantt=t};return t.prototype.getWidth=function(){if(this.gantt.options.value("showSide")){var t=this.gantt.options.value("sideWidth");if(void 0===t&&void 0!==this.$element&&void 0!==this.$element.css("width")&&this.$element.css("width",""),void 0!==this.$element&&(t=this.$element[0].offsetWidth),void 0!==t)return t}return 0},t.prototype.show=function(t){void 0!==this.$element&&this.$element.toggleClass("ng-hide",!t)},t.prototype.isShown=function(){if(void 0!==this.$element)return!this.$element.hasClass("ng-hide")},t}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";var t=function(t,e){this.gantt=t,this.model=e};return t.prototype.updatePosAndSize=function(){this.modelLeft=this.gantt.getPositionByDate(this.model.from),this.modelWidth=this.gantt.getPositionByDate(this.model.to)-this.modelLeft;var t=this.gantt.columnsManager.getLastColumn(),e=t?t.left+t.width:0,n=this.modelLeft,i=this.modelWidth,r=-i;n<r&&(n=r),n>e&&(n=e),void 0===n||void 0===i?(this.left=void 0,this.width=void 0):(this.left=n,this.width=i,n<0?(this.truncatedLeft=!0,this.truncatedLeftOffset=-n,this.truncatedRight=!1,this.truncatedRightOffset=void 0):i+n>this.gantt.width?(this.truncatedRight=!0,this.truncatedRightOffset=i+n-this.gantt.width,this.truncatedLeft=!1,this.truncatedLeftOffset=void 0):(this.truncatedLeft=!1,this.truncatedLeftOffset=void 0,this.truncatedRight=!1,this.truncatedRightOffset=i+n-this.gantt.width),this.width<0&&(this.left=this.left+this.width,this.width=-this.width)),this.updateView()},t.prototype.updateView=function(){this.$element&&(void 0===this.left||void 0===this.width?this.$element.css("display","none"):(this.$element.css("display",""),this.$element.css("left",this.left+"px"),this.$element.css("width",this.width+"px")))},t.prototype.setFrom=function(t){this.from=this.gantt.getDateByPosition(t),this.updatePosAndSize()},t.prototype.setTo=function(t){this.to=this.gantt.getDateByPosition(t),this.updatePosAndSize()},t.prototype.moveTo=function(t){this.from=this.gantt.getDateByPosition(t),this.to=this.gantt.getDateByPosition(t+this.width),this.updatePosAndSize()},t.prototype.clone=function(){return new t(this.gantt,r.default.copy(this.model))},t};var i=n(0),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttTimespan",function(t){"ngInject";var e=function(t){var e=this;this.gantt=t,this.timespansMap={},this.timespans=[],this.gantt.$scope.$watchCollection("timespans",function(t){e.clearTimespans(),e.loadTimespans(t)}),this.gantt.api.registerMethod("timespans","load",this.loadTimespans,this),this.gantt.api.registerMethod("timespans","remove",this.removeTimespans,this),this.gantt.api.registerMethod("timespans","clear",this.clearTimespans,this),this.gantt.api.registerEvent("timespans","add"),this.gantt.api.registerEvent("timespans","remove"),this.gantt.api.registerEvent("timespans","change")};return e.prototype.loadTimespans=function(t){r.default.isArray(t)||(t=void 0!==t?[t]:[]),this.gantt.$scope.timespans=t;for(var e=0,n=t.length;e<n;e++){var i=t[e];this.gantt.objectModel.cleanTimespan(i),this.loadTimespan(i)}},e.prototype.loadTimespan=function(e){var n=void 0,i=!1;return e.id in this.timespansMap?(n=this.timespansMap[e.id],n.model=e,i=!0,this.gantt.api.timespans.raise.change(n)):(n=new t(this.gantt,e),this.timespansMap[e.id]=n,this.timespans.push(n),this.gantt.api.timespans.raise.add(n)),n.updatePosAndSize(),i},e.prototype.removeTimespans=function(t){r.default.isArray(t)||(t=[t]);for(var e=0,n=t.length;e<n;e++){var i=t[e];this.removeTimespan(i.id)}this.updateVisibleObjects()},e.prototype.removeTimespan=function(t){if(t in this.timespansMap){delete this.timespansMap[t];for(var e=void 0,n=void 0,i=this.timespans.length-1;i>=0;i--)if(n=this.timespans[i],n.model.id===t){e=n,this.timespans.splice(i,1);break}return this.gantt.api.timespans.raise.remove(e),e}},e.prototype.clearTimespans=function(){this.timespansMap={},this.timespans=[]},e.prototype.updateTimespansPosAndSize=function(){for(var t=0,e=this.timespans.length;t<e;t++)this.timespans[t].updatePosAndSize()},e}];var i=n(0),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{moveToIndex:function(t,e,n){if(n>=t.length)for(var i=n-t.length;1+i--;)t.push(void 0);return t.splice(n,0,t.splice(e,1)[0]),t},getRemovedIds:function(t,e,n){void 0===n&&(n="id");var i=void 0,r=void 0,o=[];if(void 0!==e)for(i=0,r=e.length;i<r;i++)o.push(e[i][n]);if(void 0!==t)for(i=0,r=t.length;i<r;i++){var s=t[i];if(void 0!==s[n]){var a=o.indexOf(s[n]);a>-1&&o.splice(a,1)}}return o},indexOfId:function(t,e,n){var i=void 0;if(void 0===n)n="id";else if(n instanceof Array){for(i=t.length-1;i>=0;i--){for(var r=t[i],o=0,s=n.length;o<s;o++)r=r[n[o]];if(r===e)return i}return-1}for(i=t.length-1;i>=0;i--)if(t[i][n]===e)return i;return-1},removeId:function(t,e,n){var i=this.indexOfId(t,e,n);if(i>-1)return t.splice(i,1)[0]},remove:function(t,e){var n=t.indexOf(e);return n>-1&&(t.splice(n,1),!0)}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{getIndicesOnly:function(t,e,n,i){for(var r=-1,o=t.length;o-r>1;){var s=Math.floor((r+o)/2);(i?n(t[s])<e:n(t[s])<=e)?r=s:o=s}return i||void 0===t[r]||n(t[r])!==e||(o=r),[r,o]},get:function(t,e,n,i){var r=this.getIndicesOnly(t,e,n,i);return[t[r[0]],t[r[1]]]}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(){var t=this,e={},n={},i={},r={},o={},s={},a=function(t,e){if(void 0!==e){var n=i[t.model.name];void 0===n&&(n=[],i[t.model.name]=n),n.push(e);var a=r[t.model.id];void 0===a&&(a=[],r[t.model.id]=a),a.push(e),o[e.model.name]=t,s[e.model.id]=t}};this.refresh=function(l){e={},n={},i={},r={},o={},s={};for(var u=void 0,d=0;d<l.length;d++)u=l[d],e[u.model.name]=u,n[u.model.id]=u;for(var c=0;c<l.length;c++){if(u=l[c],void 0!==u.model.parent){var h=e[u.model.parent];void 0===h&&(h=n[u.model.parent]),void 0!==h&&a(h,u)}if(void 0!==u.model.children)for(var f=u.model.children,g=0;g<f.length;g++){var p=f[g],m=e[p];void 0===m&&(m=n[p]),void 0!==m&&a(u,m)}}for(var v=[],y=0;y<l.length;y++)u=l[y],void 0===t.parent(u)&&v.push(u);return v},this.children=function(t){return r[t.model.id]},this.descendants=function(e){var n=[],i=t.children(e);if(n.push.apply(n,i),void 0!==i)for(var r=0;r<i.length;r++){var o=t.descendants(i[r]);n.push.apply(n,o)}return n},this.parent=function(t){return s[t.model.id]},this.ancestors=function(e){for(var n=[],i=t.parent(e);void 0!==i;)n.push(i),i=t.parent(i);return n}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{createBoundedWrapper:function(t,e){return function(){return e.apply(t,arguments)}},firstProperty:function(t,e,n){for(var i=0,r=t.length;i<r;i++){var o=t[i];if(void 0!==o&&e in o&&void 0!==o[e])return o[e]}return n},angularIndexOf:function(t,e){for(var n=0;n<t.length;n++)if(r.default.equals(t[n],e))return n;return-1},random4:function(){return Math.floor(65536*(1+Math.random())).toString(16).substring(1)},randomUuid:function(){return this.random4()+this.random4()+"-"+this.random4()+"-"+this.random4()+"-"+this.random4()+"-"+this.random4()+this.random4()+this.random4()},newId:function(){var t=(new Date).getTime();return function(){return t+=1}}()}};var i=n(0),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["ganttBinarySearch",function(t){"ngInject";var e=function(t){return t.left};return function(n,i){var r=i.scroll.getScrollLeft(),o=i.getWidth()-i.side.getWidth();if(o>0){var s=t.getIndicesOnly(n,r,e)[0],a=t.getIndicesOnly(n,r+o,e)[1];return n.slice(s,a)}return n.slice()}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return function(t,e){var n=e.columnsManager.getFirstColumn(),i=e.columnsManager.getLastColumn();if(void 0!==n&&void 0!==i){for(var r=n.date,o=i.endDate,s=[],a=e.scroll.getScrollLeft(),l=e.getWidth()-e.side.getWidth(),u=0,d=t.length;u<d;u++){var c=t[u];c.active?s.push(c):c.model.to>=r&&c.model.from<=o&&(void 0===c.left&&c.updatePosAndSize(),(!l||c.left>=a&&c.left<=a+l||c.left+c.width>=a&&c.left+c.width<=a+l||c.left<a&&c.left+c.width>a+l)&&s.push(c))}return s}return t.splice()}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$document","$parse","$timeout","ganttMouseOffset",function(t,e,n,i){"ngInject";return{restrict:"A",require:"^gantt",scope:{targetElement:"=ganttResizer",enabled:"@?ganttResizerEnabled"},link:function(r,o,s,a){function l(){return a.gantt.options.value(s.resizerWidth)}function u(t){t!==l()&&(a.gantt.options.set(s.resizerWidth,t),void 0!==p&&g[p].raise.resize(t),n(function(){a.gantt.columnsManager.updateColumnsMeta()}))}function d(t){t.preventDefault(),u(void 0)}function c(t){r.$evalAsync(function(){var e=i.getOffsetForElement(r.targetElement[0],t),n=a.gantt.getWidth()-a.gantt.scroll.getBordersWidth();u(Math.min(Math.max(e.x,0),n))})}function h(){void 0!==p&&g[p].raise.resizeEnd(l()),t.unbind("mousemove",c),t.unbind("mouseup",h)}function f(e){e.preventDefault(),void 0!==p&&g[p].raise.resizeBegin(l()),t.on("mousemove",c),t.on("mouseup",h)}var g=a.gantt.api,p=s.ganttResizerEventTopic;void 0===r.enabled&&(r.enabled=!0),s.$observe("ganttResizerEnabled",function(t){r.enabled=e(t)()}),r.$watch("enabled",function(t){void 0===t&&(t=!0),o.toggleClass("gantt-resizer-enabled",t),t?(o.on("dblclick",d),o.on("mousedown",f)):(o.off("dblclick",d),o.off("mousedown",f))}),r.$watch(function(){return l()},function(t,e){t!==e&&(r.targetElement.css("width",t+"px"),r.targetElement[0].offsetWidth>0&&u(r.targetElement[0].offsetWidth))}),p&&(g.registerEvent(p,"resize"),g.registerEvent(p,"resizeBegin"),g.registerEvent(p,"resizeEnd"),g.registerMethod(p,"setWidth",u,this),g.registerMethod(p,"getWidth",l,this))}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",require:"^ganttScrollManager",link:function(t,e,n,i){i.registerHorizontalReceiver(e)}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",scope:{},controller:["$scope",function(t){t.horizontal=[],t.vertical=[],this.registerVerticalReceiver=function(e){e.css("position","relative"),t.vertical.push(e[0])},this.registerHorizontalReceiver=function(e){e.css("position","relative"),t.horizontal.push(e[0])},this.getHorizontalRecievers=function(){return t.horizontal},this.getVerticalRecievers=function(){return t.vertical}}]}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",require:["^gantt","^ganttScrollManager"],link:function(t,e,n,i){var r=e[0],o=function(){var t=void 0,e=void 0,n=i[1].getVerticalRecievers();for(t=0,e=n.length;t<e;t++){var o=n[t];o.parentNode.scrollTop!==r.scrollTop&&(o.parentNode.scrollTop=r.scrollTop)}var s=i[1].getHorizontalRecievers();for(t=0,e=s.length;t<e;t++){var a=s[t];a.parentNode.scrollLeft!==r.scrollLeft&&(a.parentNode.scrollLeft=r.scrollLeft)}};e.bind("scroll",o),t.$watch(function(){return i[0].gantt.width},function(t,e){if(t!==e)for(var n=i[1].getHorizontalRecievers(),r=0,o=n.length;r<o;r++){var s=n[r];s.style.width=t+"px"}})}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder","$timeout","ganttDebounce",function(t,e,n){"ngInject";var i=new t("ganttScrollable");return i.controller=function(t,i){t.gantt.scroll.$element=i;var o=void 0,s=void 0,a=function(e,n,i){var o=t.gantt.options.value("autoExpand");if("both"===o||!0===o||o===i){var s=void 0,a=void 0,l=t.gantt.options.value("viewScale");l=l.trim(),"s"===l.charAt(l.length-1)&&(l=l.substring(0,l.length-1));var u=void 0,d=void 0,c=void 0;l&&(c=l.split(" ")),c&&c.length>1?(u=parseFloat(c[0]),d=c[c.length-1]):(u=1,d=l),"left"===i?(s=(0,r.default)(n).add(-5*u,d),t.fromDate=s):(a=(0,r.default)(n).add(5*u,d),t.toDate=a),t.gantt.api.scroll.raise.scroll(e.scrollLeft,n,i)}};i.bind("scroll",n(function(){var n=i[0],r=n.scrollLeft,l=void 0,u=void 0;t.gantt.scroll.cachedScrollLeft=r,t.gantt.columnsManager.updateVisibleColumns(),t.gantt.rowsManager.updateVisibleObjects(),r<o&&0===r?(l="left",u=t.gantt.columnsManager.from):r>o&&n.offsetWidth+r>=n.scrollWidth-1&&(l="right",u=t.gantt.columnsManager.to),o=r,void 0!==u?(s&&e.cancel(s),s=e(function(){a(n,u,l)},300)):t.gantt.api.scroll.raise.scroll(r)},5)),t.getScrollableCss=function(){var e={},n=t.gantt.options.value("maxHeight");n||(n=t.gantt.getContainerHeight()),n>0&&(e["max-height"]=n-t.gantt.header.getHeight()+"px",e["overflow-y"]="auto",t.gantt.scroll.isVScrollbarVisible()&&(e["border-right"]="none"));var i=this.gantt.options.value("columnWidth"),r=0!==t.gantt.width&&t.gantt.width<t.gantt.getWidth()-t.gantt.side.getWidth();return void 0!==i&&r&&(e.width=t.gantt.width+this.gantt.scroll.getBordersWidth()+"px"),e}},i.build()}];var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",require:"^ganttScrollManager",link:function(t,e,n,i){i.registerVerticalReceiver(e)}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",controller:["$scope","$element","$attrs",function(t,e,n){var i=n.ganttContainerHeightListener;""===i&&(i="ganttContainerHeight");for(var r=t;0===i.indexOf("$parent.");)i=i.substring("$parent.".length),r=r.$parent;r.$watch(function(){var t=e[0].parentElement?e[0].parentElement.parentElement:void 0;if(t){var n=t.offsetHeight,i=getComputedStyle(t);return n=n-parseInt(i.marginTop,10)-parseInt(i.marginBottom,10)}return 0},function(t){t>0&&(r[i]=t)})}]}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",controller:["$scope","$element","$attrs",function(t,e,n){var i=n.ganttContainerWidthListener;""===i&&(i="ganttContainerWidth");for(var r=t;0===i.indexOf("$parent.");)i=i.substring("$parent.".length),r=r.$parent;r.$watch(function(){var t=e[0].parentElement?e[0].parentElement.parentElement:void 0;if(t){var n=t.offsetWidth,i=getComputedStyle(t);return n=n-parseInt(i.marginLeft,10)-parseInt(i.marginRight,10)}return 0},function(t){t>0&&(r[i]=t)})}]}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",controller:["$scope","$element","$attrs",function(t,e,n){var i=n.ganttElementHeightListener;""===i&&(i="ganttElementHeight");for(var r=e[0],o=t;0===i.indexOf("$parent.");)i=i.substring("$parent.".length),o=o.$parent;o.$watch(function(){return r.clientHeight},function(t){t>0&&(o[i]=t)})}]}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{restrict:"A",controller:["$scope","$element","$attrs",function(t,e,n){var i=n.ganttElementWidthListener;""===i&&(i="ganttElementWidth");for(var r=e[0],o=t;0===i.indexOf("$parent.");)i=i.substring("$parent.".length),o=o.$parent;o.$watch(function(){return r.clientWidth},function(t){t>0&&(o[i]=t)})}]}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttBody");return e.controller=function(t,e){t.gantt.body.$element=e,t.gantt.body.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttBodyBackground");return e.controller=function(t,e){t.gantt.body.background.$element=e,t.gantt.body.background.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttBodyColumns");return e.controller=function(t,e){t.gantt.body.columns.$element=e,t.gantt.body.background.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttBodyForeground");return e.controller=function(t,e){t.gantt.body.foreground.$element=e,t.gantt.body.foreground.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttBodyRows");return e.controller=function(t,e){t.gantt.body.rows.$element=e,t.gantt.body.rows.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttColumn");return e.controller=function(t,e){t.column.$element=e,t.column.$scope=t,t.column.updateView()},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttColumnHeader");return e.controller=function(t,e){t.column.$element=e,t.column.$scope=t,t.column.updateView()},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttHeader");return e.controller=function(t,e){t.gantt.header.$element=e,t.gantt.header.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttHeaderColumns");return e.controller=function(t,e){t.gantt.header.columns.$element=e,t.gantt.header.columns.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttRow");return e.controller=function(t,e){t.row.$element=e,t.row.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";return new t("ganttRowBackground").build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttRowLabel");return e.restrict="A",e.templateUrl=void 0,e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder","ganttLayout",function(t,e){"ngInject";var n=new t("ganttScrollableHeader");return n.controller=function(t){var n=e.getScrollBarWidth();t.getScrollableHeaderCss=function(){var e={},i=t.gantt.scroll.isVScrollbarVisible(),r=i?n:0,o=this.gantt.options.value("columnWidth"),s=0!==t.gantt.width&&t.gantt.width<t.gantt.getWidth()-t.gantt.side.getWidth();return void 0!==o&&s?e.width=t.gantt.width-r+this.gantt.scroll.getBordersWidth()+"px":i&&(e.width=t.gantt.getWidth()-t.gantt.side.getWidth()-r+"px"),e}},n.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttSide");return e.controller=function(t,e){t.gantt.side.$element=e,t.gantt.side.$scope=t},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder","ganttLayout",function(t,e){"ngInject";var n=new t("ganttSideBackground");return n.controller=function(t){var n=e.getScrollBarHeight();t.getMaxHeightCss=function(){var e={},i=t.maxHeight;i||(i=t.gantt.getContainerHeight());var r=t.gantt.scroll.isHScrollbarVisible()?n:0;return e["max-height"]=i-r-t.gantt.header.getHeight()+"px",e}},n.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";return new t("ganttSideContent").build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttTask");return e.controller=function(t,e){t.task.$element=e,t.task.$scope=t,t.getTaskContent=function(){return void 0!==t.task.model.content?t.task.model.content:t.task.rowsManager.gantt.options.value("taskContent")},t.simplifyMoment=function(t){return r.default.isMoment(t)?t.unix():t},t.$watchGroup(["simplifyMoment(task.model.from)","simplifyMoment(task.model.to)"],function(){t.task.updatePosAndSize()})},e.build()}];var i=n(1),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";return new t("ganttTaskBackground").build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";return new t("ganttTaskContent").build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";return new t("ganttTaskForeground").build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttTimeFrame");return e.controller=function(t,e){t.timeFrame.$element=e,t.timeFrame.$scope=t,t.timeFrame.updateView()},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["GanttDirectiveBuilder",function(t){"ngInject";var e=new t("ganttTimespan");return e.controller=function(t,e){t.timespan.$element=e,t.timespan.$scope=t,t.timespan.updateView()},e.build()}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$timeout",function(t){"ngInject";function e(e,n,i){var r=0;return function(){var o=this,s=arguments;r++;var a=function(t){return function(){if(t===r)return e.apply(o,s)}}(r);return t(a,n,void 0===i||i)}}return e}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$templateCache",function(t){"ngInject";return function(e,n,i,r){var o=this;this.directiveName=e,this.templateUrl=void 0===n?"template/"+e+".tmpl.html":n,this.require=void 0===i?"^gantt":i,this.restrict=void 0===r?"E":r,this.scope=!1,this.transclude=!0,this.replace=!0,this.build=function(){var e=o.directiveName,n=o.templateUrl,i=o.controller,r={restrict:o.restrict,require:o.require,transclude:o.transclude,replace:o.replace,scope:o.scope,templateUrl:function(e,i){return void 0!==i.templateUrl&&(n=i.templateUrl),void 0!==i.template&&t.put(n,i.template),n},compile:function(){return{pre:function(t,n,i,r){t.gantt.api.directives.raise.preLink(e,t,n,i,r)},post:function(t,n,i,r){t.gantt.api.directives.raise.postLink(e,t,n,i,r)}}},controller:["$scope","$element","$attrs",function(t,n,r){var o=this;void 0!==i&&i(t,n,r,o),t.gantt.api.directives.raise.controller(e,t,n,r,o),t.$on("$destroy",function(){t.gantt.api.directives.raise.destroy(e,t,n,r,o)}),t.$applyAsync(function(){t.gantt.api.directives.raise.new(e,t,n,r,o)})}]};return n||(delete r.templateUrl,delete r.replace,delete r.transclude),r}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$document",function(t){"ngInject";return{elementFromPoint:function(e,n){return t[0].elementFromPoint(e,n)},elementsFromPoint:function(t,e,n){for(var i=[],r=[],o=0,s=void 0,a=void 0,l=void 0,u=void 0;(s=this.elementFromPoint(t,e))&&-1===i.indexOf(s)&&null!==s&&(void 0===n||o<n);)i.push(s),r.push({value:s.style.getPropertyValue("visibility"),priority:s.style.getPropertyPriority("visibility")}),s.style.setProperty("visibility","hidden","important"),o++;for(a=0,l=r.length;a<l;a++)u=r[a],i[a].style.setProperty("visibility",u.value?u.value:"",u.priority);return i},findElementFromPoint:function(t,e,n){for(var i=[],r=[],o=0,s=void 0,a=void 0,l=void 0,u=void 0,d=void 0;(s=this.elementFromPoint(t,e))&&-1===i.indexOf(s)&&null!==s;)if(i.push(s),r.push({value:s.style.getPropertyValue("visibility"),priority:s.style.getPropertyPriority("visibility")}),s.style.setProperty("visibility","hidden","important"),o++,n(s)){a=s;break}for(l=0,u=r.length;l<u;l++)d=r[l],i[l].style.setProperty("visibility",d.value?d.value:"",d.priority);return a},isElementVisible:function(t){return void 0!==t.offsetParent&&null!==t.offsetParent}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$injector",function(t){"ngInject";var e=void 0;try{e=t.get("$animate")}catch(t){}return void 0!==e?function(t,n){r.default.version.major>=1&&r.default.version.minor>=4?e.enabled(t,n):e.enabled(n,t)}:r.default.noop}];var i=n(0),r=function(t){return t&&t.__esModule?t:{default:t}}(i)},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$compile",function(t){"ngInject";return{restrict:"A",require:"^gantt",link:function(e,n,i,r){e.scope=r.gantt.$scope.$parent,e.$watch(function(){return e.$eval(i.ganttBindCompileHtml)},function(i){n.html(i),t(n.contents())(e)})}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=["$document",function(t){"ngInject";return{getScrollBarWidth:function(){var e=t[0].createElement("p");e.style.width="100%",e.style.height="200px";var n=t[0].createElement("div");n.style.position="absolute",n.style.top="0px",n.style.left="0px",n.style.visibility="hidden",n.style.width="200px",n.style.height="150px",n.style.overflow="hidden",n.appendChild(e),t[0].body.appendChild(n);var i=e.offsetWidth;n.style.overflow="scroll";var r=e.offsetWidth;return i===r&&(r=n.clientWidth),t[0].body.removeChild(n),i-r},getScrollBarHeight:function(){var e=t[0].createElement("p");e.style.width="200px;",e.style.height="100%";var n=t[0].createElement("div");n.style.position="absolute",n.style.top="0px",n.style.left="0px",n.style.visibility="hidden",n.style.width="150px",n.style.height="200px",n.style.overflow="hidden",n.appendChild(e),t[0].body.appendChild(n);var i=e.offsetHeight;n.style.overflow="scroll";var r=e.offsetHeight;return i===r&&(r=n.clientHeight),t[0].body.removeChild(n),i-r},setColumnsWidthFactor:function(t,e,n){if(t){n||(n=0);for(var i=0;i<t.length;i++){var r=t[i];r.left=e*(r.originalSize.left+n)-n,r.width=e*r.originalSize.width;for(var o=0;o<r.timeFrames.length;o++){var s=r.timeFrames[o];s.left=e*s.originalSize.left,s.width=e*s.originalSize.width}}}}}}]},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{getButton:function(t){return t=t||window.event,t.which?t.which:void 0===t.button?1:t.button<2?1:4===t.button?2:3}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";return{getTouch:function(t){return void 0!==t.touches?t.touches[0]:t},getOffset:function(t){return t.offsetX&&t.offsetY?{x:t.offsetX,y:t.offsetY}:t.layerX&&t.layerY?{x:t.layerX,y:t.layerY}:this.getOffsetForElement(t.target,t)},getOffsetForElement:function(t,e){var n=t.getBoundingClientRect();return{x:e.clientX-n.left,y:e.clientY-n.top}}}}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(){"ngInject";function t(t,e,n,i){return t.$on("$destroy",function(){e.unbind(n,i)}),{bindOnce:function(){e.one(n,i)},bind:function(){e.bind(n,i)},unbind:function(){e.unbind(n,i)}}}return t}},function(t,e){var n="template/gantt.tmpl.html";window.angular.module("ng").run(["$templateCache",function(t){t.put(n,'<div class="gantt unselectable" ng-cloak gantt-scroll-manager gantt-container-height-listener=ganttContainerHeight gantt-container-width-listener=ganttContainerWidth gantt-element-height-listener=ganttElementHeight gantt-element-width-listener=ganttElementWidth> <gantt-side> <gantt-side-background> </gantt-side-background> <gantt-side-content> </gantt-side-content> <div gantt-resizer=gantt.side.$element gantt-resizer-event-topic=side gantt-resizer-enabled="{{$parent.gantt.options.value(\'allowSideResizing\')}}" resizer-width=sideWidth class=gantt-resizer> <div ng-show="$parent.gantt.options.value(\'allowSideResizing\')" class=gantt-resizer-display></div> </div> </gantt-side> <gantt-scrollable-header> <gantt-header gantt-element-height-listener=$parent.ganttHeaderHeight> <gantt-header-columns> <div ng-repeat="header in gantt.columnsManager.visibleHeaders track by $index"> <div class=gantt-header-row ng-class="{\'gantt-header-row-last\': $last, \'gantt-header-row-first\': $first}"> <gantt-column-header ng-repeat="column in header"></gantt-column-header> </div> </div> </gantt-header-columns> </gantt-header> </gantt-scrollable-header> <gantt-scrollable> <gantt-body> <gantt-body-background> <gantt-row-background ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"></gantt-row-background> </gantt-body-background> <gantt-body-foreground> <div class=gantt-current-date-line ng-show="currentDate === \'line\' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{\'left\': gantt.currentDateManager.position + \'px\' }"></div> </gantt-body-foreground> <gantt-body-columns> <gantt-column ng-repeat="column in gantt.columnsManager.visibleColumns"> <gantt-time-frame ng-repeat="timeFrame in column.visibleTimeFrames"></gantt-time-frame> </gantt-column> </gantt-body-columns> <div ng-if="gantt.columnsManager.visibleColumns == 0" style=background-color:grey></div> <gantt-body-rows> <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan> <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"> <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id"> </gantt-task> </gantt-row> </gantt-body-rows> </gantt-body> </gantt-scrollable> <ng-transclude></ng-transclude> <script type=text/ng-template id=template/ganttBody.tmpl.html> <div ng-transclude class="gantt-body" ng-style="{\'width\': gantt.width > 0 ? gantt.width +\'px\' : undefined}"></div> <\/script> <script type=text/ng-template id=template/ganttHeader.tmpl.html> <div ng-transclude class="gantt-header"\n             ng-show="gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0"></div> <\/script> <script type=text/ng-template id=template/ganttSide.tmpl.html> <div ng-transclude class="gantt-side" style="width: auto;"></div> <\/script> <script type=text/ng-template id=template/ganttSideContent.tmpl.html> <div class="gantt-side-content" ng-style="getSideCss()">\n        </div> <\/script> <script type=text/ng-template id=template/ganttHeaderColumns.tmpl.html> <div ng-transclude class="gantt-header-columns"\n              gantt-horizontal-scroll-receiver></div> <\/script> <script type=text/ng-template id=template/ganttColumnHeader.tmpl.html> <div class="gantt-column-header" ng-class="{\'gantt-column-header-last\': $last, \'gantt-column-header-first\': $first}">{{::column.label}}</div> <\/script> <script type=text/ng-template id=template/ganttBodyBackground.tmpl.html> <div ng-transclude class="gantt-body-background"></div> <\/script> <script type=text/ng-template id=template/ganttBodyForeground.tmpl.html> <div ng-transclude class="gantt-body-foreground"></div> <\/script> <script type=text/ng-template id=template/ganttBodyColumns.tmpl.html> <div ng-transclude class="gantt-body-columns"></div> <\/script> <script type=text/ng-template id=template/ganttColumn.tmpl.html> <div ng-transclude class="gantt-column gantt-foreground-col" ng-class="{\'gantt-column-last\': $last, \'gantt-column-first\': $first}"></div> <\/script> <script type=text/ng-template id=template/ganttTimeFrame.tmpl.html> <div class="gantt-timeframe"></div> <\/script> <script type=text/ng-template id=template/ganttScrollable.tmpl.html> <div ng-transclude class="gantt-scrollable" gantt-scroll-sender ng-style="getScrollableCss()"></div> <\/script> <script type=text/ng-template id=template/ganttScrollableHeader.tmpl.html> <div ng-transclude class="gantt-scrollable-header" ng-style="getScrollableHeaderCss()"></div> <\/script> <script type=text/ng-template id=template/ganttBodyRows.tmpl.html> <div ng-transclude class="gantt-body-rows"></div> <\/script> <script type=text/ng-template id=template/ganttTimespan.tmpl.html> <div class="gantt-timespan" ng-class="timespan.model.classes">\n        </div> <\/script> <script type=text/ng-template id=template/ganttTask.tmpl.html> <div class="gantt-task" ng-class="task.model.classes">\n            <gantt-task-background></gantt-task-background>\n            <gantt-task-foreground></gantt-task-foreground>\n            <gantt-task-content></gantt-task-content>\n        </div> <\/script> <script type=text/ng-template id=template/ganttTaskBackground.tmpl.html> <div class="gantt-task-background" ng-style="{\'background-color\': task.model.color}"></div> <\/script> <script type=text/ng-template id=template/ganttTaskForeground.tmpl.html> <div class="gantt-task-foreground">\n            <div ng-if="task.truncatedRight" class="gantt-task-truncated-right" ng-style="{\'padding-right\': task.truncatedRightOffset + \'px\'}">&gt;</div>\n            <div ng-if="task.truncatedLeft" class="gantt-task-truncated-left" ng-style="{\'padding-left\': task.truncatedLeftOffset + \'px\'}">&lt;</div>\n        </div> <\/script> <script type=text/ng-template id=template/ganttTaskContent.tmpl.html> <div class="gantt-task-content" unselectable="on"><span unselectable="on" gantt-bind-compile-html="getTaskContent()"/></div> <\/script> <script type=text/ng-template id=template/ganttRowBackground.tmpl.html> <div class="gantt-row gantt-row-height"\n             ng-class="row.model.classes"\n             ng-class-odd="\'gantt-row-odd\'"\n             ng-class-even="\'gantt-row-even\'"\n             ng-style="{\'height\': row.model.height}">\n            <div class="gantt-row-background"\n                 ng-style="{\'background-color\': row.model.color}">\n            </div>\n        </div> <\/script> <script type=text/ng-template id=template/ganttRow.tmpl.html> <div class="gantt-row gantt-row-height"\n             ng-class="row.model.classes"\n             ng-class-odd="\'gantt-row-odd\'"\n             ng-class-even="\'gantt-row-even\'"\n             ng-style="{\'height\': row.model.height}">\n            <div ng-transclude class="gantt-row-content"></div>\n        </div> <\/script> <script type=text/ng-template id=template/ganttSideBackground.tmpl.html> <div class="gantt-side-background">\n            <div class="gantt-side-background-header" ng-style="{height: $parent.ganttHeaderHeight + \'px\'}">\n                <div ng-show="$parent.ganttHeaderHeight" class="gantt-header-row gantt-side-header-row"></div>\n            </div>\n            <div class="gantt-side-background-body" ng-style="getMaxHeightCss()">\n                <div gantt-vertical-scroll-receiver>\n                    <div class="gantt-row gantt-row-height "\n                         ng-class-odd="\'gantt-row-odd\'"\n                         ng-class-even="\'gantt-row-even\'"\n                         ng-class="row.model.classes"\n                         ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"\n                         ng-style="{\'height\': row.model.height}">\n                        <div class="gantt-row-label gantt-row-background"\n                             ng-style="{\'background-color\': row.model.color}">\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div> <\/script> </div> ')}]),t.exports=n},function(t,e,n){t.exports={default:n(119),__esModule:!0}},function(t,e,n){t.exports={default:n(120),__esModule:!0}},function(t,e,n){n(144),n(142),n(145),n(146),t.exports=n(17).Symbol},function(t,e,n){n(143),n(147),t.exports=n(29).f("iterator")},function(t,e){t.exports=function(t){if("function"!=typeof t)throw TypeError(t+" is not a function!");return t}},function(t,e){t.exports=function(){}},function(t,e,n){var i=n(6),r=n(139),o=n(138);t.exports=function(t){return function(e,n,s){var a,l=i(e),u=r(l.length),d=o(s,u);if(t&&n!=n){for(;u>d;)if((a=l[d++])!=a)return!0}else for(;u>d;d++)if((t||d in l)&&l[d]===n)return t||d||0;return!t&&-1}}},function(t,e,n){var i=n(121);t.exports=function(t,e,n){if(i(t),void 0===e)return t;switch(n){case 1:return function(n){return t.call(e,n)};case 2:return function(n,i){return t.call(e,n,i)};case 3:return function(n,i,r){return t.call(e,n,i,r)}}return function(){return t.apply(e,arguments)}}},function(t,e,n){var i=n(14),r=n(37),o=n(22);t.exports=function(t){var e=i(t),n=r.f;if(n)for(var s,a=n(t),l=o.f,u=0;a.length>u;)l.call(t,s=a[u++])&&e.push(s);return e}},function(t,e,n){t.exports=n(4).document&&document.documentElement},function(t,e,n){var i=n(30);t.exports=Object("z").propertyIsEnumerable(0)?Object:function(t){return"String"==i(t)?t.split(""):Object(t)}},function(t,e,n){var i=n(30);t.exports=Array.isArray||function(t){return"Array"==i(t)}},function(t,e,n){"use strict";var i=n(35),r=n(15),o=n(23),s={};n(8)(s,n(10)("iterator"),function(){return this}),t.exports=function(t,e,n){t.prototype=i(s,{next:r(1,n)}),o(t,e+" Iterator")}},function(t,e){t.exports=function(t,e){return{value:e,done:!!t}}},function(t,e,n){var i=n(14),r=n(6);t.exports=function(t,e){for(var n,o=r(t),s=i(o),a=s.length,l=0;a>l;)if(o[n=s[l++]]===e)return n}},function(t,e,n){var i=n(16)("meta"),r=n(13),o=n(5),s=n(9).f,a=0,l=Object.isExtensible||function(){return!0},u=!n(12)(function(){return l(Object.preventExtensions({}))}),d=function(t){s(t,i,{value:{i:"O"+ ++a,w:{}}})},c=function(t,e){if(!r(t))return"symbol"==typeof t?t:("string"==typeof t?"S":"P")+t;if(!o(t,i)){if(!l(t))return"F";if(!e)return"E";d(t)}return t[i].i},h=function(t,e){if(!o(t,i)){if(!l(t))return!0;if(!e)return!1;d(t)}return t[i].w},f=function(t){return u&&g.NEED&&l(t)&&!o(t,i)&&d(t),t},g=t.exports={KEY:i,NEED:!1,fastKey:c,getWeak:h,onFreeze:f}},function(t,e,n){var i=n(9),r=n(11),o=n(14);t.exports=n(7)?Object.defineProperties:function(t,e){r(t);for(var n,s=o(e),a=s.length,l=0;a>l;)i.f(t,n=s[l++],e[n]);return t}},function(t,e,n){var i=n(22),r=n(15),o=n(6),s=n(27),a=n(5),l=n(33),u=Object.getOwnPropertyDescriptor;e.f=n(7)?u:function(t,e){if(t=o(t),e=s(e,!0),l)try{return u(t,e)}catch(t){}if(a(t,e))return r(!i.f.call(t,e),t[e])}},function(t,e,n){var i=n(6),r=n(36).f,o={}.toString,s="object"==typeof window&&window&&Object.getOwnPropertyNames?Object.getOwnPropertyNames(window):[],a=function(t){try{return r(t)}catch(t){return s.slice()}};t.exports.f=function(t){return s&&"[object Window]"==o.call(t)?a(t):r(i(t))}},function(t,e,n){var i=n(5),r=n(140),o=n(24)("IE_PROTO"),s=Object.prototype;t.exports=Object.getPrototypeOf||function(t){return t=r(t),i(t,o)?t[o]:"function"==typeof t.constructor&&t instanceof t.constructor?t.constructor.prototype:t instanceof Object?s:null}},function(t,e,n){var i=n(26),r=n(18);t.exports=function(t){return function(e,n){var o,s,a=String(r(e)),l=i(n),u=a.length;return l<0||l>=u?t?"":void 0:(o=a.charCodeAt(l),o<55296||o>56319||l+1===u||(s=a.charCodeAt(l+1))<56320||s>57343?t?a.charAt(l):o:t?a.slice(l,l+2):s-56320+(o-55296<<10)+65536)}}},function(t,e,n){var i=n(26),r=Math.max,o=Math.min;t.exports=function(t,e){return t=i(t),t<0?r(t+e,0):o(t,e)}},function(t,e,n){var i=n(26),r=Math.min;t.exports=function(t){return t>0?r(i(t),9007199254740991):0}},function(t,e,n){var i=n(18);t.exports=function(t){return Object(i(t))}},function(t,e,n){"use strict";var i=n(122),r=n(130),o=n(20),s=n(6);t.exports=n(34)(Array,"Array",function(t,e){this._t=s(t),this._i=0,this._k=e},function(){var t=this._t,e=this._k,n=this._i++;return!t||n>=t.length?(this._t=void 0,r(1)):"keys"==e?r(0,n):"values"==e?r(0,t[n]):r(0,[n,t[n]])},"values"),o.Arguments=o.Array,i("keys"),i("values"),i("entries")},function(t,e){},function(t,e,n){"use strict";var i=n(137)(!0);n(34)(String,"String",function(t){this._t=String(t),this._i=0},function(){var t,e=this._t,n=this._i;return n>=e.length?{value:void 0,done:!0}:(t=i(e,n),this._i+=t.length,{value:t,done:!1})})},function(t,e,n){"use strict";var i=n(4),r=n(5),o=n(7),s=n(32),a=n(39),l=n(132).KEY,u=n(12),d=n(25),c=n(23),h=n(16),f=n(10),g=n(29),p=n(28),m=n(131),v=n(125),y=n(128),w=n(11),b=n(6),M=n(27),k=n(15),C=n(35),$=n(135),_=n(134),F=n(9),O=n(14),T=_.f,x=F.f,j=$.f,S=i.Symbol,P=i.JSON,R=P&&P.stringify,D=f("_hidden"),B=f("toPrimitive"),W={}.propertyIsEnumerable,E=d("symbol-registry"),I=d("symbols"),H=d("op-symbols"),G=Object.prototype,L="function"==typeof S,A=i.QObject,V=!A||!A.prototype||!A.prototype.findChild,z=o&&u(function(){return 7!=C(x({},"a",{get:function(){return x(this,"a",{value:7}).a}})).a})?function(t,e,n){var i=T(G,e);i&&delete G[e],x(t,e,n),i&&t!==G&&x(G,e,i)}:x,U=function(t){var e=I[t]=C(S.prototype);return e._k=t,e},N=L&&"symbol"==typeof S.iterator?function(t){return"symbol"==typeof t}:function(t){return t instanceof S},q=function(t,e,n){return t===G&&q(H,e,n),w(t),e=M(e,!0),w(n),r(I,e)?(n.enumerable?(r(t,D)&&t[D][e]&&(t[D][e]=!1),n=C(n,{enumerable:k(0,!1)})):(r(t,D)||x(t,D,k(1,{})),t[D][e]=!0),z(t,e,n)):x(t,e,n)},Y=function(t,e){w(t);for(var n,i=v(e=b(e)),r=0,o=i.length;o>r;)q(t,n=i[r++],e[n]);return t},K=function(t,e){return void 0===e?C(t):Y(C(t),e)},Q=function(t){var e=W.call(this,t=M(t,!0));return!(this===G&&r(I,t)&&!r(H,t))&&(!(e||!r(this,t)||!r(I,t)||r(this,D)&&this[D][t])||e)},X=function(t,e){if(t=b(t),e=M(e,!0),t!==G||!r(I,e)||r(H,e)){var n=T(t,e);return!n||!r(I,e)||r(t,D)&&t[D][e]||(n.enumerable=!0),n}},J=function(t){for(var e,n=j(b(t)),i=[],o=0;n.length>o;)r(I,e=n[o++])||e==D||e==l||i.push(e);return i},Z=function(t){for(var e,n=t===G,i=j(n?H:b(t)),o=[],s=0;i.length>s;)!r(I,e=i[s++])||n&&!r(G,e)||o.push(I[e]);return o};L||(S=function(){if(this instanceof S)throw TypeError("Symbol is not a constructor!");var t=h(arguments.length>0?arguments[0]:void 0),e=function(n){this===G&&e.call(H,n),r(this,D)&&r(this[D],t)&&(this[D][t]=!1),z(this,t,k(1,n))};return o&&V&&z(G,t,{configurable:!0,set:e}),U(t)},a(S.prototype,"toString",function(){return this._k}),_.f=X,F.f=q,n(36).f=$.f=J,n(22).f=Q,n(37).f=Z,o&&!n(21)&&a(G,"propertyIsEnumerable",Q,!0),g.f=function(t){return U(f(t))}),s(s.G+s.W+s.F*!L,{Symbol:S});for(var tt="hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","),et=0;tt.length>et;)f(tt[et++]);for(var tt=O(f.store),et=0;tt.length>et;)p(tt[et++]);s(s.S+s.F*!L,"Symbol",{for:function(t){return r(E,t+="")?E[t]:E[t]=S(t)},keyFor:function(t){if(N(t))return m(E,t);throw TypeError(t+" is not a symbol!")},useSetter:function(){V=!0},useSimple:function(){V=!1}}),s(s.S+s.F*!L,"Object",{create:K,defineProperty:q,defineProperties:Y,getOwnPropertyDescriptor:X,getOwnPropertyNames:J,getOwnPropertySymbols:Z}),P&&s(s.S+s.F*(!L||u(function(){var t=S();return"[null]"!=R([t])||"{}"!=R({a:t})||"{}"!=R(Object(t))})),"JSON",{stringify:function(t){if(void 0!==t&&!N(t)){for(var e,n,i=[t],r=1;arguments.length>r;)i.push(arguments[r++]);return e=i[1],"function"==typeof e&&(n=e),!n&&y(e)||(e=function(t,e){if(n&&(e=n.call(this,t,e)),!N(e))return e}),i[1]=e,R.apply(P,i)}}}),S.prototype[B]||n(8)(S.prototype,B,S.prototype.valueOf),c(S,"Symbol"),c(Math,"Math",!0),c(i.JSON,"JSON",!0)},function(t,e,n){n(28)("asyncIterator")},function(t,e,n){n(28)("observable")},function(t,e,n){n(141);for(var i=n(4),r=n(8),o=n(20),s=n(10)("toStringTag"),a=["NodeList","DOMTokenList","MediaList","StyleSheetList","CSSRuleList"],l=0;l<5;l++){var u=a[l],d=i[u],c=d&&d.prototype;c&&!c[s]&&r(c,s,u),o[u]=o.Array}}])});
+/*!
+ * Project: angular-gantt v1.3.2 - Gantt chart component for AngularJS
+ * Authors: Rémi Alvergnat <toilal.dev@gmail.com> (https://www.pragmasphere.com), Marco Schweighauser
+ * License: MIT
+ * Homepage: https://www.angular-gantt.com
+ * Github: https://github.com/angular-gantt/angular-gantt.git
+ */
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("angular"), require("moment"));
+	else if(typeof define === 'function' && define.amd)
+		define("angular-gantt-core", ["angular", "moment"], factory);
+	else if(typeof exports === 'object')
+		exports["angular-gantt-core"] = factory(require("angular"), require("moment"));
+	else
+		root["angular-gantt-core"] = factory(root["angular"], root["moment"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _iterator = __webpack_require__(118);
+
+var _iterator2 = _interopRequireDefault(_iterator);
+
+var _symbol = __webpack_require__(117);
+
+var _symbol2 = _interopRequireDefault(_symbol);
+
+var _typeof = typeof _symbol2.default === "function" && typeof _iterator2.default === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.default) === "symbol" ? function (obj) {
+  return typeof obj === "undefined" ? "undefined" : _typeof(obj);
+} : function (obj) {
+  return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _gantt = __webpack_require__(41);
+
+var _gantt2 = _interopRequireDefault(_gantt);
+
+var _resizer = __webpack_require__(75);
+
+var _resizer2 = _interopRequireDefault(_resizer);
+
+var _containerHeightListener = __webpack_require__(81);
+
+var _containerHeightListener2 = _interopRequireDefault(_containerHeightListener);
+
+var _containerWidthListener = __webpack_require__(82);
+
+var _containerWidthListener2 = _interopRequireDefault(_containerWidthListener);
+
+var _elementHeightListener = __webpack_require__(83);
+
+var _elementHeightListener2 = _interopRequireDefault(_elementHeightListener);
+
+var _elementWidthListener = __webpack_require__(84);
+
+var _elementWidthListener2 = _interopRequireDefault(_elementWidthListener);
+
+var _horizontalScrollReceiver = __webpack_require__(76);
+
+var _horizontalScrollReceiver2 = _interopRequireDefault(_horizontalScrollReceiver);
+
+var _scrollable = __webpack_require__(79);
+
+var _scrollable2 = _interopRequireDefault(_scrollable);
+
+var _scrollManager = __webpack_require__(77);
+
+var _scrollManager2 = _interopRequireDefault(_scrollManager);
+
+var _scrollSender = __webpack_require__(78);
+
+var _scrollSender2 = _interopRequireDefault(_scrollSender);
+
+var _verticalScrollReceiver = __webpack_require__(80);
+
+var _verticalScrollReceiver2 = _interopRequireDefault(_verticalScrollReceiver);
+
+var _body = __webpack_require__(85);
+
+var _body2 = _interopRequireDefault(_body);
+
+var _bodyBackground = __webpack_require__(86);
+
+var _bodyBackground2 = _interopRequireDefault(_bodyBackground);
+
+var _bodyColumns = __webpack_require__(87);
+
+var _bodyColumns2 = _interopRequireDefault(_bodyColumns);
+
+var _bodyForeground = __webpack_require__(88);
+
+var _bodyForeground2 = _interopRequireDefault(_bodyForeground);
+
+var _bodyRows = __webpack_require__(89);
+
+var _bodyRows2 = _interopRequireDefault(_bodyRows);
+
+var _column = __webpack_require__(90);
+
+var _column2 = _interopRequireDefault(_column);
+
+var _columnHeader = __webpack_require__(91);
+
+var _columnHeader2 = _interopRequireDefault(_columnHeader);
+
+var _header = __webpack_require__(92);
+
+var _header2 = _interopRequireDefault(_header);
+
+var _headerColumns = __webpack_require__(93);
+
+var _headerColumns2 = _interopRequireDefault(_headerColumns);
+
+var _row = __webpack_require__(94);
+
+var _row2 = _interopRequireDefault(_row);
+
+var _rowBackground = __webpack_require__(95);
+
+var _rowBackground2 = _interopRequireDefault(_rowBackground);
+
+var _rowLabel = __webpack_require__(96);
+
+var _rowLabel2 = _interopRequireDefault(_rowLabel);
+
+var _scrollableHeader = __webpack_require__(97);
+
+var _scrollableHeader2 = _interopRequireDefault(_scrollableHeader);
+
+var _side = __webpack_require__(98);
+
+var _side2 = _interopRequireDefault(_side);
+
+var _sideBackground = __webpack_require__(99);
+
+var _sideBackground2 = _interopRequireDefault(_sideBackground);
+
+var _sideContent = __webpack_require__(100);
+
+var _sideContent2 = _interopRequireDefault(_sideContent);
+
+var _task = __webpack_require__(101);
+
+var _task2 = _interopRequireDefault(_task);
+
+var _taskBackground = __webpack_require__(102);
+
+var _taskBackground2 = _interopRequireDefault(_taskBackground);
+
+var _taskContent = __webpack_require__(103);
+
+var _taskContent2 = _interopRequireDefault(_taskContent);
+
+var _taskForeground = __webpack_require__(104);
+
+var _taskForeground2 = _interopRequireDefault(_taskForeground);
+
+var _timeFrame = __webpack_require__(105);
+
+var _timeFrame2 = _interopRequireDefault(_timeFrame);
+
+var _timespan = __webpack_require__(106);
+
+var _timespan2 = _interopRequireDefault(_timespan);
+
+var _ganttBindCompileHtml = __webpack_require__(111);
+
+var _ganttBindCompileHtml2 = _interopRequireDefault(_ganttBindCompileHtml);
+
+var _gantt3 = __webpack_require__(52);
+
+var _gantt4 = _interopRequireDefault(_gantt3);
+
+var _api = __webpack_require__(42);
+
+var _api2 = _interopRequireDefault(_api);
+
+var _options = __webpack_require__(43);
+
+var _options2 = _interopRequireDefault(_options);
+
+var _calendar = __webpack_require__(44);
+
+var _calendar2 = _interopRequireDefault(_calendar);
+
+var _scroll = __webpack_require__(65);
+
+var _scroll2 = _interopRequireDefault(_scroll);
+
+var _body3 = __webpack_require__(58);
+
+var _body4 = _interopRequireDefault(_body3);
+
+var _bodyColumns3 = __webpack_require__(60);
+
+var _bodyColumns4 = _interopRequireDefault(_bodyColumns3);
+
+var _bodyRows3 = __webpack_require__(62);
+
+var _bodyRows4 = _interopRequireDefault(_bodyRows3);
+
+var _bodyBackground3 = __webpack_require__(59);
+
+var _bodyBackground4 = _interopRequireDefault(_bodyBackground3);
+
+var _bodyForeground3 = __webpack_require__(61);
+
+var _bodyForeground4 = _interopRequireDefault(_bodyForeground3);
+
+var _rowHeader = __webpack_require__(55);
+
+var _rowHeader2 = _interopRequireDefault(_rowHeader);
+
+var _header3 = __webpack_require__(63);
+
+var _header4 = _interopRequireDefault(_header3);
+
+var _headerColumns3 = __webpack_require__(64);
+
+var _headerColumns4 = _interopRequireDefault(_headerColumns3);
+
+var _side3 = __webpack_require__(66);
+
+var _side4 = _interopRequireDefault(_side3);
+
+var _objectModel = __webpack_require__(53);
+
+var _objectModel2 = _interopRequireDefault(_objectModel);
+
+var _task3 = __webpack_require__(57);
+
+var _task4 = _interopRequireDefault(_task3);
+
+var _row3 = __webpack_require__(54);
+
+var _row4 = _interopRequireDefault(_row3);
+
+var _rowsManager = __webpack_require__(56);
+
+var _rowsManager2 = _interopRequireDefault(_rowsManager);
+
+var _column3 = __webpack_require__(46);
+
+var _column4 = _interopRequireDefault(_column3);
+
+var _columnHeader3 = __webpack_require__(49);
+
+var _columnHeader4 = _interopRequireDefault(_columnHeader3);
+
+var _columnBuilder = __webpack_require__(47);
+
+var _columnBuilder2 = _interopRequireDefault(_columnBuilder);
+
+var _columnsManager = __webpack_require__(50);
+
+var _columnsManager2 = _interopRequireDefault(_columnsManager);
+
+var _timespan3 = __webpack_require__(67);
+
+var _timespan4 = _interopRequireDefault(_timespan3);
+
+var _timespansManager = __webpack_require__(68);
+
+var _timespansManager2 = _interopRequireDefault(_timespansManager);
+
+var _currentDateManager = __webpack_require__(45);
+
+var _currentDateManager2 = _interopRequireDefault(_currentDateManager);
+
+var _hierarchy = __webpack_require__(71);
+
+var _hierarchy2 = _interopRequireDefault(_hierarchy);
+
+var _debounce = __webpack_require__(107);
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
+var _smartEvent = __webpack_require__(115);
+
+var _smartEvent2 = _interopRequireDefault(_smartEvent);
+
+var _enableNgAnimate = __webpack_require__(110);
+
+var _enableNgAnimate2 = _interopRequireDefault(_enableNgAnimate);
+
+var _utils = __webpack_require__(72);
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _arrays = __webpack_require__(69);
+
+var _arrays2 = _interopRequireDefault(_arrays);
+
+var _directiveBuilder = __webpack_require__(108);
+
+var _directiveBuilder2 = _interopRequireDefault(_directiveBuilder);
+
+var _binarySearch = __webpack_require__(70);
+
+var _binarySearch2 = _interopRequireDefault(_binarySearch);
+
+var _layout = __webpack_require__(112);
+
+var _layout2 = _interopRequireDefault(_layout);
+
+var _headersGenerator = __webpack_require__(51);
+
+var _headersGenerator2 = _interopRequireDefault(_headersGenerator);
+
+var _columnGenerator = __webpack_require__(48);
+
+var _columnGenerator2 = _interopRequireDefault(_columnGenerator);
+
+var _dom = __webpack_require__(109);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _mouseButton = __webpack_require__(113);
+
+var _mouseButton2 = _interopRequireDefault(_mouseButton);
+
+var _mouseOffset = __webpack_require__(114);
+
+var _mouseOffset2 = _interopRequireDefault(_mouseOffset);
+
+var _columnLimit = __webpack_require__(73);
+
+var _columnLimit2 = _interopRequireDefault(_columnLimit);
+
+var _taskLimit = __webpack_require__(74);
+
+var _taskLimit2 = _interopRequireDefault(_taskLimit);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+__webpack_require__(116);
+__webpack_require__(40);
+
+var _module = 'gantt';
+_angular2.default.module(_module, []).directive('gantt', _gantt2.default).directive('ganttResizer', _resizer2.default).directive('ganttContainerWidthListener', _containerWidthListener2.default).directive('ganttContainerHeightListener', _containerHeightListener2.default).directive('ganttElementWidthListener', _elementWidthListener2.default).directive('ganttElementHeightListener', _elementHeightListener2.default).directive('ganttHorizontalScrollReceiver', _horizontalScrollReceiver2.default).directive('ganttScrollable', _scrollable2.default).directive('ganttScrollManager', _scrollManager2.default).directive('ganttScrollSender', _scrollSender2.default).directive('ganttVerticalScrollReceiver', _verticalScrollReceiver2.default).directive('ganttBindCompileHtml', _ganttBindCompileHtml2.default).directive('ganttBody', _body2.default).directive('ganttBodyBackground', _bodyBackground2.default).directive('ganttBodyColumns', _bodyColumns2.default).directive('ganttBodyForeground', _bodyForeground2.default).directive('ganttBodyRows', _bodyRows2.default).directive('ganttColumn', _column2.default).directive('ganttColumnHeader', _columnHeader2.default).directive('ganttHeader', _header2.default).directive('ganttHeaderColumns', _headerColumns2.default).directive('ganttRow', _row2.default).directive('ganttRowBackground', _rowBackground2.default).directive('ganttRowLabel', _rowLabel2.default).directive('ganttScrollableHeader', _scrollableHeader2.default).directive('ganttSide', _side2.default).directive('ganttSideBackground', _sideBackground2.default).directive('ganttSideContent', _sideContent2.default).directive('ganttTask', _task2.default).directive('ganttTaskBackground', _taskBackground2.default).directive('ganttTaskContent', _taskContent2.default).directive('ganttTaskForeground', _taskForeground2.default).directive('ganttTimeFrame', _timeFrame2.default).directive('ganttTimespan', _timespan2.default).factory('Gantt', _gantt4.default).factory('GanttApi', _api2.default).factory('GanttOptions', _options2.default).factory('GanttCalendar', _calendar2.default).factory('GanttScroll', _scroll2.default).factory('GanttBody', _body4.default).factory('GanttBodyColumns', _bodyColumns4.default).factory('GanttBodyRows', _bodyRows4.default).factory('GanttBodyBackground', _bodyBackground4.default).factory('GanttBodyForeground', _bodyForeground4.default).factory('GanttRowHeader', _rowHeader2.default).factory('GanttHeader', _header4.default).factory('GanttHeaderColumns', _headerColumns4.default).factory('GanttSide', _side4.default).factory('GanttObjectModel', _objectModel2.default).factory('GanttTask', _task4.default).factory('GanttRow', _row4.default).factory('GanttRowsManager', _rowsManager2.default).factory('GanttColumn', _column4.default).factory('GanttColumnHeader', _columnHeader4.default).factory('GanttColumnBuilder', _columnBuilder2.default).factory('GanttColumnsManager', _columnsManager2.default).factory('GanttTimespan', _timespan4.default).factory('GanttTimespansManager', _timespansManager2.default).factory('GanttCurrentDateManager', _currentDateManager2.default).factory('GanttHierarchy', _hierarchy2.default).factory('ganttDebounce', _debounce2.default).factory('ganttSmartEvent', _smartEvent2.default).service('ganttEnableNgAnimate', _enableNgAnimate2.default).service('ganttUtils', _utils2.default).service('ganttArrays', _arrays2.default).service('GanttDirectiveBuilder', _directiveBuilder2.default).service('ganttBinarySearch', _binarySearch2.default).service('ganttLayout', _layout2.default).service('GanttHeadersGenerator', _headersGenerator2.default).service('GanttColumnGenerator', _columnGenerator2.default).service('ganttDom', _dom2.default).service('ganttMouseButton', _mouseButton2.default).service('ganttMouseOffset', _mouseOffset2.default).filter('ganttColumnLimit', _columnLimit2.default).filter('ganttTaskLimit', _taskLimit2.default);
+exports.default = _module;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+var global = module.exports = typeof window != 'undefined' && window.Math == Math
+  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
+if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+var hasOwnProperty = {}.hasOwnProperty;
+module.exports = function(it, key){
+  return hasOwnProperty.call(it, key);
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// to indexed object, toObject with fallback for non-array-like ES3 strings
+var IObject = __webpack_require__(127)
+  , defined = __webpack_require__(18);
+module.exports = function(it){
+  return IObject(defined(it));
+};
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Thank's IE8 for his funny defineProperty
+module.exports = !__webpack_require__(12)(function(){
+  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
+});
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var dP         = __webpack_require__(9)
+  , createDesc = __webpack_require__(15);
+module.exports = __webpack_require__(7) ? function(object, key, value){
+  return dP.f(object, key, createDesc(1, value));
+} : function(object, key, value){
+  object[key] = value;
+  return object;
+};
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var anObject       = __webpack_require__(11)
+  , IE8_DOM_DEFINE = __webpack_require__(33)
+  , toPrimitive    = __webpack_require__(27)
+  , dP             = Object.defineProperty;
+
+exports.f = __webpack_require__(7) ? Object.defineProperty : function defineProperty(O, P, Attributes){
+  anObject(O);
+  P = toPrimitive(P, true);
+  anObject(Attributes);
+  if(IE8_DOM_DEFINE)try {
+    return dP(O, P, Attributes);
+  } catch(e){ /* empty */ }
+  if('get' in Attributes || 'set' in Attributes)throw TypeError('Accessors not supported!');
+  if('value' in Attributes)O[P] = Attributes.value;
+  return O;
+};
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var store      = __webpack_require__(25)('wks')
+  , uid        = __webpack_require__(16)
+  , Symbol     = __webpack_require__(4).Symbol
+  , USE_SYMBOL = typeof Symbol == 'function';
+
+var $exports = module.exports = function(name){
+  return store[name] || (store[name] =
+    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
+};
+
+$exports.store = store;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isObject = __webpack_require__(13);
+module.exports = function(it){
+  if(!isObject(it))throw TypeError(it + ' is not an object!');
+  return it;
+};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+module.exports = function(exec){
+  try {
+    return !!exec();
+  } catch(e){
+    return true;
+  }
+};
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+module.exports = function(it){
+  return typeof it === 'object' ? it !== null : typeof it === 'function';
+};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+var $keys       = __webpack_require__(38)
+  , enumBugKeys = __webpack_require__(19);
+
+module.exports = Object.keys || function keys(O){
+  return $keys(O, enumBugKeys);
+};
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports) {
+
+module.exports = function(bitmap, value){
+  return {
+    enumerable  : !(bitmap & 1),
+    configurable: !(bitmap & 2),
+    writable    : !(bitmap & 4),
+    value       : value
+  };
+};
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+var id = 0
+  , px = Math.random();
+module.exports = function(key){
+  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+var core = module.exports = {version: '2.4.0'};
+if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+// 7.2.1 RequireObjectCoercible(argument)
+module.exports = function(it){
+  if(it == undefined)throw TypeError("Can't call method on  " + it);
+  return it;
+};
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+// IE 8- don't enum bug keys
+module.exports = (
+  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+).split(',');
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+module.exports = {};
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+module.exports = true;
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+exports.f = {}.propertyIsEnumerable;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var def = __webpack_require__(9).f
+  , has = __webpack_require__(5)
+  , TAG = __webpack_require__(10)('toStringTag');
+
+module.exports = function(it, tag, stat){
+  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
+};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var shared = __webpack_require__(25)('keys')
+  , uid    = __webpack_require__(16);
+module.exports = function(key){
+  return shared[key] || (shared[key] = uid(key));
+};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__(4)
+  , SHARED = '__core-js_shared__'
+  , store  = global[SHARED] || (global[SHARED] = {});
+module.exports = function(key){
+  return store[key] || (store[key] = {});
+};
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+// 7.1.4 ToInteger
+var ceil  = Math.ceil
+  , floor = Math.floor;
+module.exports = function(it){
+  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
+};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 7.1.1 ToPrimitive(input [, PreferredType])
+var isObject = __webpack_require__(13);
+// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+// and the second argument - flag - preferred type is a string
+module.exports = function(it, S){
+  if(!isObject(it))return it;
+  var fn, val;
+  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
+  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+  throw TypeError("Can't convert object to primitive value");
+};
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global         = __webpack_require__(4)
+  , core           = __webpack_require__(17)
+  , LIBRARY        = __webpack_require__(21)
+  , wksExt         = __webpack_require__(29)
+  , defineProperty = __webpack_require__(9).f;
+module.exports = function(name){
+  var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
+  if(name.charAt(0) != '_' && !(name in $Symbol))defineProperty($Symbol, name, {value: wksExt.f(name)});
+};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports.f = __webpack_require__(10);
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports) {
+
+var toString = {}.toString;
+
+module.exports = function(it){
+  return toString.call(it).slice(8, -1);
+};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isObject = __webpack_require__(13)
+  , document = __webpack_require__(4).document
+  // in old IE typeof document.createElement is 'object'
+  , is = isObject(document) && isObject(document.createElement);
+module.exports = function(it){
+  return is ? document.createElement(it) : {};
+};
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global    = __webpack_require__(4)
+  , core      = __webpack_require__(17)
+  , ctx       = __webpack_require__(124)
+  , hide      = __webpack_require__(8)
+  , PROTOTYPE = 'prototype';
+
+var $export = function(type, name, source){
+  var IS_FORCED = type & $export.F
+    , IS_GLOBAL = type & $export.G
+    , IS_STATIC = type & $export.S
+    , IS_PROTO  = type & $export.P
+    , IS_BIND   = type & $export.B
+    , IS_WRAP   = type & $export.W
+    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
+    , expProto  = exports[PROTOTYPE]
+    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
+    , key, own, out;
+  if(IS_GLOBAL)source = name;
+  for(key in source){
+    // contains in native
+    own = !IS_FORCED && target && target[key] !== undefined;
+    if(own && key in exports)continue;
+    // export native or passed
+    out = own ? target[key] : source[key];
+    // prevent global pollution for namespaces
+    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
+    // bind timers to global for call from export context
+    : IS_BIND && own ? ctx(out, global)
+    // wrap global constructors for prevent change them in library
+    : IS_WRAP && target[key] == out ? (function(C){
+      var F = function(a, b, c){
+        if(this instanceof C){
+          switch(arguments.length){
+            case 0: return new C;
+            case 1: return new C(a);
+            case 2: return new C(a, b);
+          } return new C(a, b, c);
+        } return C.apply(this, arguments);
+      };
+      F[PROTOTYPE] = C[PROTOTYPE];
+      return F;
+    // make static versions for prototype methods
+    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
+    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
+    if(IS_PROTO){
+      (exports.virtual || (exports.virtual = {}))[key] = out;
+      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
+      if(type & $export.R && expProto && !expProto[key])hide(expProto, key, out);
+    }
+  }
+};
+// type bitmap
+$export.F = 1;   // forced
+$export.G = 2;   // global
+$export.S = 4;   // static
+$export.P = 8;   // proto
+$export.B = 16;  // bind
+$export.W = 32;  // wrap
+$export.U = 64;  // safe
+$export.R = 128; // real proto method for `library` 
+module.exports = $export;
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = !__webpack_require__(7) && !__webpack_require__(12)(function(){
+  return Object.defineProperty(__webpack_require__(31)('div'), 'a', {get: function(){ return 7; }}).a != 7;
+});
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var LIBRARY        = __webpack_require__(21)
+  , $export        = __webpack_require__(32)
+  , redefine       = __webpack_require__(39)
+  , hide           = __webpack_require__(8)
+  , has            = __webpack_require__(5)
+  , Iterators      = __webpack_require__(20)
+  , $iterCreate    = __webpack_require__(129)
+  , setToStringTag = __webpack_require__(23)
+  , getPrototypeOf = __webpack_require__(136)
+  , ITERATOR       = __webpack_require__(10)('iterator')
+  , BUGGY          = !([].keys && 'next' in [].keys()) // Safari has buggy iterators w/o `next`
+  , FF_ITERATOR    = '@@iterator'
+  , KEYS           = 'keys'
+  , VALUES         = 'values';
+
+var returnThis = function(){ return this; };
+
+module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED){
+  $iterCreate(Constructor, NAME, next);
+  var getMethod = function(kind){
+    if(!BUGGY && kind in proto)return proto[kind];
+    switch(kind){
+      case KEYS: return function keys(){ return new Constructor(this, kind); };
+      case VALUES: return function values(){ return new Constructor(this, kind); };
+    } return function entries(){ return new Constructor(this, kind); };
+  };
+  var TAG        = NAME + ' Iterator'
+    , DEF_VALUES = DEFAULT == VALUES
+    , VALUES_BUG = false
+    , proto      = Base.prototype
+    , $native    = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT]
+    , $default   = $native || getMethod(DEFAULT)
+    , $entries   = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined
+    , $anyNative = NAME == 'Array' ? proto.entries || $native : $native
+    , methods, key, IteratorPrototype;
+  // Fix native
+  if($anyNative){
+    IteratorPrototype = getPrototypeOf($anyNative.call(new Base));
+    if(IteratorPrototype !== Object.prototype){
+      // Set @@toStringTag to native iterators
+      setToStringTag(IteratorPrototype, TAG, true);
+      // fix for some old engines
+      if(!LIBRARY && !has(IteratorPrototype, ITERATOR))hide(IteratorPrototype, ITERATOR, returnThis);
+    }
+  }
+  // fix Array#{values, @@iterator}.name in V8 / FF
+  if(DEF_VALUES && $native && $native.name !== VALUES){
+    VALUES_BUG = true;
+    $default = function values(){ return $native.call(this); };
+  }
+  // Define iterator
+  if((!LIBRARY || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])){
+    hide(proto, ITERATOR, $default);
+  }
+  // Plug for library
+  Iterators[NAME] = $default;
+  Iterators[TAG]  = returnThis;
+  if(DEFAULT){
+    methods = {
+      values:  DEF_VALUES ? $default : getMethod(VALUES),
+      keys:    IS_SET     ? $default : getMethod(KEYS),
+      entries: $entries
+    };
+    if(FORCED)for(key in methods){
+      if(!(key in proto))redefine(proto, key, methods[key]);
+    } else $export($export.P + $export.F * (BUGGY || VALUES_BUG), NAME, methods);
+  }
+  return methods;
+};
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+var anObject    = __webpack_require__(11)
+  , dPs         = __webpack_require__(133)
+  , enumBugKeys = __webpack_require__(19)
+  , IE_PROTO    = __webpack_require__(24)('IE_PROTO')
+  , Empty       = function(){ /* empty */ }
+  , PROTOTYPE   = 'prototype';
+
+// Create object with fake `null` prototype: use iframe Object with cleared prototype
+var createDict = function(){
+  // Thrash, waste and sodomy: IE GC bug
+  var iframe = __webpack_require__(31)('iframe')
+    , i      = enumBugKeys.length
+    , lt     = '<'
+    , gt     = '>'
+    , iframeDocument;
+  iframe.style.display = 'none';
+  __webpack_require__(126).appendChild(iframe);
+  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
+  // createDict = iframe.contentWindow.Object;
+  // html.removeChild(iframe);
+  iframeDocument = iframe.contentWindow.document;
+  iframeDocument.open();
+  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
+  iframeDocument.close();
+  createDict = iframeDocument.F;
+  while(i--)delete createDict[PROTOTYPE][enumBugKeys[i]];
+  return createDict();
+};
+
+module.exports = Object.create || function create(O, Properties){
+  var result;
+  if(O !== null){
+    Empty[PROTOTYPE] = anObject(O);
+    result = new Empty;
+    Empty[PROTOTYPE] = null;
+    // add "__proto__" for Object.getPrototypeOf polyfill
+    result[IE_PROTO] = O;
+  } else result = createDict();
+  return Properties === undefined ? result : dPs(result, Properties);
+};
+
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
+var $keys      = __webpack_require__(38)
+  , hiddenKeys = __webpack_require__(19).concat('length', 'prototype');
+
+exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
+  return $keys(O, hiddenKeys);
+};
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports) {
+
+exports.f = Object.getOwnPropertySymbols;
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var has          = __webpack_require__(5)
+  , toIObject    = __webpack_require__(6)
+  , arrayIndexOf = __webpack_require__(123)(false)
+  , IE_PROTO     = __webpack_require__(24)('IE_PROTO');
+
+module.exports = function(object, names){
+  var O      = toIObject(object)
+    , i      = 0
+    , result = []
+    , key;
+  for(key in O)if(key != IE_PROTO)has(O, key) && result.push(key);
+  // Don't enum bug & hidden keys
+  while(names.length > i)if(has(O, key = names[i++])){
+    ~arrayIndexOf(result, key) || result.push(key);
+  }
+  return result;
+};
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(8);
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["Gantt", "ganttEnableNgAnimate", "$timeout", "$templateCache", function (Gantt, ganttEnableNgAnimate, $timeout, $templateCache) {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        transclude: true,
+        templateUrl: function templateUrl(tElement, tAttrs) {
+            var templateUrl = void 0;
+            if (tAttrs.templateUrl === undefined) {
+                templateUrl = 'template/gantt.tmpl.html';
+            } else {
+                templateUrl = tAttrs.templateUrl;
+            }
+            if (tAttrs.template !== undefined) {
+                $templateCache.put(templateUrl, tAttrs.template);
+            }
+            return templateUrl;
+        },
+        scope: {
+            sortMode: '=?',
+            filterTask: '=?',
+            filterTaskComparator: '=?',
+            filterRow: '=?',
+            filterRowComparator: '=?',
+            viewScale: '=?',
+            columnWidth: '=?',
+            expandToFit: '=?',
+            shrinkToFit: '=?',
+            showSide: '=?',
+            allowSideResizing: '=?',
+            fromDate: '=?',
+            toDate: '=?',
+            currentDateValue: '=?',
+            currentDate: '=?',
+            daily: '=?',
+            autoExpand: '=?',
+            taskOutOfRange: '=?',
+            taskContent: '=?',
+            rowContent: '=?',
+            maxHeight: '=?',
+            sideWidth: '=?',
+            headers: '=?',
+            headersFormats: '=?',
+            headersScales: '=?',
+            timeFrames: '=?',
+            dateFrames: '=?',
+            timeFramesWorkingMode: '=?',
+            timeFramesNonWorkingMode: '=?',
+            timespans: '=?',
+            columnMagnet: '=?',
+            shiftColumnMagnet: '=?',
+            timeFramesMagnet: '=?',
+            data: '=?',
+            api: '=?',
+            options: '=?'
+        },
+        controller: ['$scope', '$element', function ($scope, $element) {
+            for (var option in $scope.options) {
+                $scope[option] = $scope.options[option];
+            }
+
+            ganttEnableNgAnimate($element, false);
+            $scope.gantt = new Gantt($scope, $element);
+            this.gantt = $scope.gantt;
+        }],
+        link: function link(scope, element) {
+            scope.gantt.api.directives.raise.new('gantt', scope, element);
+            scope.$on('$destroy', function () {
+                scope.gantt.api.directives.raise.destroy('gantt', scope, element);
+            });
+            $timeout(function () {
+                scope.gantt.initialized();
+            });
+        }
+    };
+}];
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, ganttUtils) {
+    'ngInject';
+
+    var GanttApi = function GanttApi(gantt) {
+        this.gantt = gantt;
+        this.listeners = [];
+        this.apiId = ganttUtils.newId();
+    };
+    function registerEventWithAngular(eventId, handler, gantt, _this) {
+        return $rootScope.$on(eventId, function () {
+            var args = Array.prototype.slice.call(arguments);
+            args.splice(0, 1);
+            handler.apply(_this ? _this : gantt.api, args);
+        });
+    }
+
+    GanttApi.prototype.suppressEvents = function (listenerFuncs, callBackFn) {
+        var self = this;
+        var listeners = _angular2.default.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+
+        var foundListeners = [];
+        listeners.forEach(function (l) {
+            foundListeners = self.listeners.filter(function (lstnr) {
+                return l === lstnr.handler;
+            });
+        });
+
+        foundListeners.forEach(function (l) {
+            l.dereg();
+        });
+        callBackFn();
+
+        foundListeners.forEach(function (l) {
+            l.dereg = registerEventWithAngular(l.eventId, l.handler, self.gantt, l._this);
+        });
+    };
+
+    GanttApi.prototype.registerEvent = function (featureName, eventName) {
+        var self = this;
+        if (!self[featureName]) {
+            self[featureName] = {};
+        }
+        var feature = self[featureName];
+        if (!feature.on) {
+            feature.on = {};
+            feature.raise = {};
+        }
+        var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
+
+        feature.raise[eventName] = function () {
+            $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+        };
+
+        feature.on[eventName] = function (scope, handler, _this) {
+            var deregAngularOn = registerEventWithAngular(eventId, handler, self.gantt, _this);
+
+            var listener = {
+                handler: handler,
+                dereg: deregAngularOn,
+                eventId: eventId,
+                scope: scope,
+                _this: _this
+            };
+            self.listeners.push(listener);
+            var removeListener = function removeListener() {
+                listener.dereg();
+                var index = self.listeners.indexOf(listener);
+                self.listeners.splice(index, 1);
+            };
+
+            scope.$on('$destroy', function () {
+                removeListener();
+            });
+            return removeListener;
+        };
+    };
+
+    GanttApi.prototype.registerEventsFromObject = function (eventObjectMap) {
+        var self = this;
+        var features = [];
+        _angular2.default.forEach(eventObjectMap, function (featProp, featPropName) {
+            var feature = { name: featPropName, events: [] };
+            _angular2.default.forEach(featProp, function (prop, propName) {
+                feature.events.push(propName);
+            });
+            features.push(feature);
+        });
+        features.forEach(function (feature) {
+            feature.events.forEach(function (event) {
+                self.registerEvent(feature.name, event);
+            });
+        });
+    };
+
+    GanttApi.prototype.registerMethod = function (featureName, methodName, callBackFn, _this) {
+        if (!this[featureName]) {
+            this[featureName] = {};
+        }
+        var feature = this[featureName];
+        feature[methodName] = ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn);
+    };
+
+    GanttApi.prototype.registerMethodsFromObject = function (methodMap, _this) {
+        var self = this;
+        var features = [];
+        _angular2.default.forEach(methodMap, function (featProp, featPropName) {
+            var feature = { name: featPropName, methods: [] };
+            _angular2.default.forEach(featProp, function (prop, propName) {
+                feature.methods.push({ name: propName, fn: prop });
+            });
+            features.push(feature);
+        });
+        features.forEach(function (feature) {
+            feature.methods.forEach(function (method) {
+                self.registerMethod(feature.name, method.name, method.fn, _this);
+            });
+        });
+    };
+    return GanttApi;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var GanttOptions = function GanttOptions(values, defaultValues) {
+        this.defaultValues = defaultValues;
+        this.values = values;
+        this.defaultValue = function (optionName) {
+            var defaultValue = this.defaultValues[optionName];
+            if (_angular2.default.isFunction(defaultValue)) {
+                defaultValue = defaultValue();
+            }
+            return defaultValue;
+        };
+        this.sanitize = function (optionName, optionValue) {
+            if (!optionValue) {
+                var defaultValue = this.defaultValue(optionName);
+                if (defaultValue !== undefined) {
+                    if (optionValue !== undefined && typeof defaultValue === 'boolean') {
+                        return optionValue;
+                    }
+                    return defaultValue;
+                }
+            }
+            return optionValue;
+        };
+        this.value = function (optionName) {
+            return this.sanitize(optionName, this.values[optionName]);
+        };
+        this.set = function (optionName, optionValue) {
+            this.values[optionName] = optionValue;
+        };
+        this.initialize = function () {
+            for (var optionName in this.values) {
+                var optionValue = this.values[optionName];
+                if (this.values.hasOwnProperty(optionName)) {
+                    this.values[optionName] = this.value(optionName, optionValue);
+                }
+            }
+            return this.values;
+        };
+    };
+    return GanttOptions;
+};
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$filter", function ($filter) {
+    'ngInject';
+
+    var TimeFrame = function TimeFrame(options) {
+        if (options === undefined) {
+            options = {};
+        }
+        this.start = options.start;
+        this.end = options.end;
+        this.working = options.working;
+        this.magnet = options.magnet !== undefined ? options.magnet : true;
+        this.default = options.default;
+        this.color = options.color;
+        this.classes = options.classes;
+        this.internal = options.internal;
+    };
+    TimeFrame.prototype.updateView = function () {
+        if (this.$element) {
+            var cssStyles = {};
+            if (this.left !== undefined) {
+                cssStyles['left'] = this.left + 'px';
+            } else {
+                cssStyles['left'] = '';
+            }
+            if (this.width !== undefined) {
+                cssStyles['width'] = this.width + 'px';
+            } else {
+                cssStyles['width'] = '';
+            }
+            if (this.color !== undefined) {
+                cssStyles['background-color'] = this.color;
+            } else {
+                cssStyles['background-color'] = '';
+            }
+            this.$element.css(cssStyles);
+            var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
+            if (this.classes) {
+                classes = classes.concat(this.classes);
+            }
+
+            for (var i = 0, l = classes.length; i < l; i++) {
+                this.$element.toggleClass(classes[i], true);
+            }
+        }
+    };
+    TimeFrame.prototype.getDuration = function () {
+        if (this.end !== undefined && this.start !== undefined) {
+            return this.end.diff(this.start, 'milliseconds');
+        }
+    };
+    TimeFrame.prototype.clone = function () {
+        return new TimeFrame(this);
+    };
+
+    var TimeFrameMapping = function TimeFrameMapping(func) {
+        this.func = func;
+    };
+    TimeFrameMapping.prototype.getTimeFrames = function (date) {
+        var ret = this.func(date);
+        if (!(ret instanceof Array)) {
+            ret = [ret];
+        }
+        return ret;
+    };
+    TimeFrameMapping.prototype.clone = function () {
+        return new TimeFrameMapping(this.func);
+    };
+
+    var DateFrame = function DateFrame(options) {
+        this.evaluator = options.evaluator;
+        if (options.date) {
+            this.start = (0, _moment2.default)(options.date).startOf('day');
+            this.end = (0, _moment2.default)(options.date).endOf('day');
+        } else {
+            this.start = options.start;
+            this.end = options.end;
+        }
+        if (options.targets instanceof Array) {
+            this.targets = options.targets;
+        } else {
+            this.targets = [options.targets];
+        }
+        this.default = options.default;
+    };
+    DateFrame.prototype.dateMatch = function (date) {
+        if (this.evaluator) {
+            return this.evaluator(date);
+        } else if (this.start && this.end) {
+            return date >= this.start && date <= this.end;
+        } else {
+            return false;
+        }
+    };
+    DateFrame.prototype.clone = function () {
+        return new DateFrame(this);
+    };
+
+    var Calendar = function Calendar() {
+        this.timeFrames = {};
+        this.timeFrameMappings = {};
+        this.dateFrames = {};
+    };
+
+    Calendar.prototype.clear = function () {
+        this.timeFrames = {};
+        this.timeFrameMappings = {};
+        this.dateFrames = {};
+    };
+
+    Calendar.prototype.registerTimeFrames = function (timeFrames) {
+        _angular2.default.forEach(timeFrames, function (timeFrame, name) {
+            this.timeFrames[name] = new TimeFrame(timeFrame);
+        }, this);
+    };
+
+    Calendar.prototype.removeTimeFrames = function (timeFrames) {
+        _angular2.default.forEach(timeFrames, function (name) {
+            delete this.timeFrames[name];
+        }, this);
+    };
+
+    Calendar.prototype.clearTimeFrames = function () {
+        this.timeFrames = {};
+    };
+
+    Calendar.prototype.registerTimeFrameMappings = function (mappings) {
+        _angular2.default.forEach(mappings, function (timeFrameMapping, name) {
+            this.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
+        }, this);
+    };
+
+    Calendar.prototype.removeTimeFrameMappings = function (mappings) {
+        _angular2.default.forEach(mappings, function (name) {
+            delete this.timeFrameMappings[name];
+        }, this);
+    };
+
+    Calendar.prototype.clearTimeFrameMappings = function () {
+        this.timeFrameMappings = {};
+    };
+
+    Calendar.prototype.registerDateFrames = function (dateFrames) {
+        _angular2.default.forEach(dateFrames, function (dateFrame, name) {
+            this.dateFrames[name] = new DateFrame(dateFrame);
+        }, this);
+    };
+
+    Calendar.prototype.removeDateFrames = function (dateFrames) {
+        _angular2.default.forEach(dateFrames, function (name) {
+            delete this.dateFrames[name];
+        }, this);
+    };
+
+    Calendar.prototype.clearDateFrames = function () {
+        this.dateFrames = {};
+    };
+    var filterDateFrames = function filterDateFrames(inputDateFrames, date) {
+        var dateFrames = [];
+        _angular2.default.forEach(inputDateFrames, function (dateFrame) {
+            if (dateFrame.dateMatch(date)) {
+                dateFrames.push(dateFrame);
+            }
+        });
+        if (dateFrames.length === 0) {
+            _angular2.default.forEach(inputDateFrames, function (dateFrame) {
+                if (dateFrame.default) {
+                    dateFrames.push(dateFrame);
+                }
+            });
+        }
+        return dateFrames;
+    };
+
+    Calendar.prototype.getTimeFrames = function (date) {
+        var timeFrames = [];
+        var dateFrames = filterDateFrames(this.dateFrames, date);
+        for (var i = 0; i < dateFrames.length; i++) {
+            if (dateFrames[i] !== undefined) {
+                var targets = dateFrames[i].targets;
+                for (var j = 0; j < targets.length; j++) {
+                    var timeFrameMapping = this.timeFrameMappings[targets[j]];
+                    if (timeFrameMapping !== undefined) {
+                        timeFrames.push(timeFrameMapping.getTimeFrames());
+                    } else {
+                        var timeFrame = this.timeFrames[targets[j]];
+                        if (timeFrame !== undefined) {
+                            timeFrames.push(timeFrame);
+                        }
+                    }
+                }
+            }
+        }
+        var dateYear = date.year();
+        var dateMonth = date.month();
+        var dateDate = date.date();
+        var validatedTimeFrames = [];
+        if (timeFrames.length === 0) {
+            _angular2.default.forEach(this.timeFrames, function (timeFrame) {
+                if (timeFrame.default) {
+                    timeFrames.push(timeFrame);
+                }
+            });
+        }
+        for (var _i = 0; _i < timeFrames.length; _i++) {
+            var cTimeFrame = timeFrames[_i].clone();
+            if (cTimeFrame.start !== undefined) {
+                cTimeFrame.start.year(dateYear);
+                cTimeFrame.start.month(dateMonth);
+                cTimeFrame.start.date(dateDate);
+            }
+            if (cTimeFrame.end !== undefined) {
+                cTimeFrame.end.year(dateYear);
+                cTimeFrame.end.month(dateMonth);
+                cTimeFrame.end.date(dateDate);
+                if ((0, _moment2.default)(cTimeFrame.end).startOf('day') === cTimeFrame.end) {
+                    cTimeFrame.end.add(1, 'day');
+                }
+            }
+            validatedTimeFrames.push(cTimeFrame);
+        }
+        return validatedTimeFrames;
+    };
+
+    Calendar.prototype.solve = function (timeFrames, startDate, endDate) {
+        var color = void 0;
+        var classes = void 0;
+        var minDate = void 0;
+        var maxDate = void 0;
+        for (var i = 0; i < timeFrames.length; i++) {
+            var timeFrame = timeFrames[i];
+            if (minDate === undefined || minDate > timeFrame.start) {
+                minDate = timeFrame.start;
+            }
+            if (maxDate === undefined || maxDate < timeFrame.end) {
+                maxDate = timeFrame.end;
+            }
+            if (color === undefined && timeFrame.color) {
+                color = timeFrame.color;
+            }
+            if (timeFrame.classes !== undefined) {
+                if (classes === undefined) {
+                    classes = [];
+                }
+                classes = classes.concat(timeFrame.classes);
+            }
+        }
+        if (startDate === undefined) {
+            startDate = minDate;
+        }
+        if (endDate === undefined) {
+            endDate = maxDate;
+        }
+        var solvedTimeFrames = [new TimeFrame({ start: startDate, end: endDate, internal: true })];
+        timeFrames = $filter('filter')(timeFrames, function (timeFrame) {
+            return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+        });
+        for (var _i2 = 0; _i2 < timeFrames.length; _i2++) {
+            var cTimeFrame = timeFrames[_i2];
+            if (!cTimeFrame.start) {
+                cTimeFrame.start = startDate;
+            }
+            if (!cTimeFrame.end) {
+                cTimeFrame.end = endDate;
+            }
+        }
+        var orderedTimeFrames = $filter('orderBy')(timeFrames, function (timeFrame) {
+            return -timeFrame.getDuration();
+        });
+        var k = void 0;
+        for (var _i3 = 0; _i3 < orderedTimeFrames.length; _i3++) {
+            var oTimeFrame = orderedTimeFrames[_i3];
+            var tmpSolvedTimeFrames = solvedTimeFrames.slice();
+            k = 0;
+            var dispatched = false;
+            var treated = false;
+            for (var j = 0; j < solvedTimeFrames.length; j++) {
+                var sTimeFrame = solvedTimeFrames[j];
+                if (!treated) {
+                    if (!oTimeFrame.end && !oTimeFrame.start) {
+                        tmpSolvedTimeFrames.splice(k, 0, oTimeFrame);
+                        treated = true;
+                        dispatched = false;
+                    } else if (oTimeFrame.end > sTimeFrame.start && oTimeFrame.start < sTimeFrame.end) {
+                        var newSolvedTimeFrame = sTimeFrame.clone();
+                        sTimeFrame.end = (0, _moment2.default)(oTimeFrame.start);
+                        newSolvedTimeFrame.start = (0, _moment2.default)(oTimeFrame.end);
+                        tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone(), newSolvedTimeFrame);
+                        treated = true;
+                        dispatched = false;
+                    } else if (!dispatched && oTimeFrame.start < sTimeFrame.end) {
+                        sTimeFrame.end = (0, _moment2.default)(oTimeFrame.start);
+                        tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone());
+                        dispatched = true;
+                    } else if (dispatched && oTimeFrame.end > sTimeFrame.start) {
+                        sTimeFrame.start = (0, _moment2.default)(oTimeFrame.end);
+                        dispatched = false;
+                        treated = true;
+                    }
+                    k++;
+                }
+            }
+            solvedTimeFrames = tmpSolvedTimeFrames;
+        }
+        solvedTimeFrames = $filter('filter')(solvedTimeFrames, function (timeFrame) {
+            return !timeFrame.internal && (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+        });
+        return solvedTimeFrames;
+    };
+    return Calendar;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var GanttCurrentDateManager = function GanttCurrentDateManager(gantt) {
+        var self = this;
+        this.gantt = gantt;
+        this.date = undefined;
+        this.position = undefined;
+        this.currentDateColumn = undefined;
+        this.gantt.$scope.simplifyMoment = function (d) {
+            return _moment2.default.isMoment(d) ? d.unix() : d;
+        };
+        this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                self.setCurrentDate(self.gantt.options.value('currentDateValue'));
+            }
+        });
+    };
+    GanttCurrentDateManager.prototype.setCurrentDate = function (currentDate) {
+        this.date = currentDate;
+        var oldColumn = this.currentDateColumn;
+        var newColumn = void 0;
+        if (this.date !== undefined && this.gantt.options.value('currentDate') === 'column') {
+            newColumn = this.gantt.columnsManager.getColumnByDate(this.date, true);
+        }
+        this.currentDateColumn = newColumn;
+        if (oldColumn !== newColumn) {
+            if (oldColumn !== undefined) {
+                oldColumn.currentDate = false;
+                oldColumn.updateView();
+            }
+            if (newColumn !== undefined) {
+                newColumn.currentDate = true;
+                newColumn.updateView();
+            }
+        }
+        this.position = this.gantt.getPositionByDate(this.date, true);
+    };
+    return GanttCurrentDateManager;
+};
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var Column = function Column(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode) {
+        this.date = date;
+        this.endDate = endDate;
+        this.left = left;
+        this.width = width;
+        this.calendar = calendar;
+        this.duration = this.endDate.diff(this.date, 'milliseconds');
+        this.timeFramesWorkingMode = timeFramesWorkingMode;
+        this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
+        this.timeFrames = [];
+        this.currentDate = false;
+        this.visibleTimeFrames = [];
+        this.daysTimeFrames = {};
+        this.cropped = false;
+        this.originalSize = { left: this.left, width: this.width };
+        this.updateTimeFrames();
+    };
+    var getDateKey = function getDateKey(date) {
+        return date.year() + '-' + date.month() + '-' + date.date();
+    };
+    Column.prototype.updateView = function () {
+        if (this.$element) {
+            if (this.currentDate) {
+                this.$element.addClass('gantt-foreground-col-current-date');
+            } else {
+                this.$element.removeClass('gantt-foreground-col-current-date');
+            }
+            this.$element.css({ 'left': this.left + 'px', 'width': this.width + 'px' });
+
+            for (var i = 0, l = this.timeFrames.length; i < l; i++) {
+                this.timeFrames[i].updateView();
+            }
+        }
+    };
+    Column.prototype.updateTimeFrames = function () {
+        var self = this;
+        if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
+            var cDate = self.date;
+            var cDateStartOfDay = (0, _moment2.default)(cDate).startOf('day');
+            var cDateNextDay = cDateStartOfDay.add(1, 'day');
+            var i = void 0;
+            while (cDate < self.endDate) {
+                var timeFrames = self.calendar.getTimeFrames(cDate);
+                var nextCDate = _moment2.default.min(cDateNextDay, self.endDate);
+                timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
+                var cTimeFrames = [];
+                for (i = 0; i < timeFrames.length; i++) {
+                    var cTimeFrame = timeFrames[i];
+                    var start = cTimeFrame.start;
+                    if (start === undefined) {
+                        start = cDate;
+                    }
+                    var end = cTimeFrame.end;
+                    if (end === undefined) {
+                        end = nextCDate;
+                    }
+                    if (start < self.date) {
+                        start = self.date;
+                    }
+                    if (end > self.endDate) {
+                        end = self.endDate;
+                    }
+                    cTimeFrame = cTimeFrame.clone();
+                    cTimeFrame.start = (0, _moment2.default)(start);
+                    cTimeFrame.end = (0, _moment2.default)(end);
+                    cTimeFrames.push(cTimeFrame);
+                }
+                self.timeFrames = self.timeFrames.concat(cTimeFrames);
+                var cDateKey = getDateKey(cDate);
+                self.daysTimeFrames[cDateKey] = cTimeFrames;
+                cDate = nextCDate;
+                cDateStartOfDay = (0, _moment2.default)(cDate).startOf('day');
+                cDateNextDay = cDateStartOfDay.add(1, 'day');
+            }
+            for (i = 0; i < self.timeFrames.length; i++) {
+                var timeFrame = self.timeFrames[i];
+                var positionDuration = timeFrame.start.diff(self.date, 'milliseconds');
+                var position = positionDuration / self.duration * self.width;
+                var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
+                var timeFramePosition = timeFrameDuration / self.duration * self.width;
+                var hidden = false;
+                if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
+                    hidden = true;
+                } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
+                    hidden = true;
+                }
+                if (!hidden) {
+                    self.visibleTimeFrames.push(timeFrame);
+                }
+                timeFrame.hidden = hidden;
+                timeFrame.left = position;
+                timeFrame.width = timeFramePosition;
+                timeFrame.originalSize = { left: timeFrame.left, width: timeFrame.width };
+            }
+            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
+                var timeFramesWidth = 0;
+                for (var j = 0; j < self.timeFrames.length; j++) {
+                    var aTimeFrame = self.timeFrames[j];
+                    if (!aTimeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' || aTimeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                        timeFramesWidth += aTimeFrame.width;
+                    }
+                }
+                if (timeFramesWidth !== self.width) {
+                    var croppedRatio = self.width / timeFramesWidth;
+                    var croppedWidth = 0;
+                    var originalCroppedWidth = 0;
+                    var allCropped = true;
+                    for (var _j = 0; _j < self.timeFrames.length; _j++) {
+                        var bTimeFrame = self.timeFrames[_j];
+                        if (!bTimeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' || bTimeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
+                            bTimeFrame.left = (bTimeFrame.left - croppedWidth) * croppedRatio;
+                            bTimeFrame.width = bTimeFrame.width * croppedRatio;
+                            bTimeFrame.originalSize.left = (bTimeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
+                            bTimeFrame.originalSize.width = bTimeFrame.originalSize.width * croppedRatio;
+                            bTimeFrame.cropped = false;
+                            allCropped = false;
+                        } else {
+                            croppedWidth += bTimeFrame.width;
+                            originalCroppedWidth += bTimeFrame.originalSize.width;
+                            bTimeFrame.left = undefined;
+                            bTimeFrame.width = 0;
+                            bTimeFrame.originalSize = { left: undefined, width: 0 };
+                            bTimeFrame.cropped = true;
+                        }
+                    }
+                    self.cropped = allCropped;
+                } else {
+                    self.cropped = false;
+                }
+            }
+        }
+    };
+    Column.prototype.clone = function () {
+        return new Column((0, _moment2.default)(this.date), (0, _moment2.default)(this.endDate), this.left, this.width, this.calendar);
+    };
+    Column.prototype.containsDate = function (date) {
+        return date > this.date && date <= this.endDate;
+    };
+    Column.prototype.equals = function (other) {
+        return this.date === other.date;
+    };
+    Column.prototype.roundTo = function (date, unit, offset, midpoint) {
+        if (unit === 'day') {
+            unit = 'date';
+        }
+        offset = offset || 1;
+        var value = date.get(unit);
+        switch (midpoint) {
+            case 'up':
+                value = Math.ceil(value / offset);
+                break;
+            case 'down':
+                value = Math.floor(value / offset);
+                break;
+            default:
+                value = Math.round(value / offset);
+                break;
+        }
+        var units = ['millisecond', 'second', 'minute', 'hour', 'date', 'month', 'year'];
+        date.set(unit, value * offset);
+        var indexOf = units.indexOf(unit);
+        for (var i = 0; i < indexOf; i++) {
+            date.set(units[i], 0);
+        }
+        return date;
+    };
+    Column.prototype.getMagnetDate = function (date, magnetValue, magnetUnit, timeFramesMagnet) {
+        if (magnetValue > 0 && magnetUnit !== undefined) {
+            var initialDate = date;
+            date = (0, _moment2.default)(date);
+            if (magnetUnit === 'column') {
+                var position = this.getPositionByDate(date);
+                if (position < this.width / 2) {
+                    date = (0, _moment2.default)(this.date);
+                } else {
+                    date = (0, _moment2.default)(this.endDate);
+                }
+            } else {
+                date = this.roundTo(date, magnetUnit, magnetValue);
+
+                if (date < this.date) {
+                    date = (0, _moment2.default)(this.date);
+                } else if (date > this.endDate) {
+                    date = (0, _moment2.default)(this.endDate);
+                }
+            }
+            if (timeFramesMagnet) {
+                var maxTimeFrameDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
+                var currentTimeFrameDiff = void 0;
+                for (var i = 0; i < this.timeFrames.length; i++) {
+                    var timeFrame = this.timeFrames[i];
+                    if (timeFrame.magnet) {
+                        var previousTimeFrame = this.timeFrames[i - 1];
+                        var nextTimeFrame = this.timeFrames[i + 1];
+                        var timeFrameDiff = void 0;
+                        if (previousTimeFrame === undefined || previousTimeFrame.working !== timeFrame.working) {
+                            timeFrameDiff = Math.abs(initialDate.diff(timeFrame.start, 'milliseconds'));
+                            if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
+                                currentTimeFrameDiff = timeFrameDiff;
+                                date = timeFrame.start;
+                            }
+                        }
+                        if (nextTimeFrame === undefined || nextTimeFrame.working !== timeFrame.working) {
+                            timeFrameDiff = Math.abs(initialDate.diff(timeFrame.end, 'milliseconds'));
+                            if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
+                                currentTimeFrameDiff = timeFrameDiff;
+                                date = timeFrame.end;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return date;
+    };
+    Column.prototype.getDateByPositionUsingTimeFrames = function (position) {
+        for (var i = 0, l = this.timeFrames.length; i < l; i++) {
+            var timeFrame = this.timeFrames[i];
+            if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
+                var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
+                var date = (0, _moment2.default)(timeFrame.start).add(positionDuration, 'milliseconds');
+                return date;
+            }
+        }
+    };
+    Column.prototype.getDateByPosition = function (position, magnetValue, magnetUnit, timeFramesMagnet) {
+        var positionDuration = void 0;
+        var date = void 0;
+        if (position < 0) {
+            position = 0;
+        }
+        if (position > this.width) {
+            position = this.width;
+        }
+        if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+            date = this.getDateByPositionUsingTimeFrames(position);
+        }
+        if (date === undefined) {
+            positionDuration = this.duration / this.width * position;
+            date = (0, _moment2.default)(this.date).add(positionDuration, 'milliseconds');
+        }
+        date = this.getMagnetDate(date, magnetValue, magnetUnit, timeFramesMagnet);
+        return date;
+    };
+    Column.prototype.getDayTimeFrame = function (date) {
+        var dtf = this.daysTimeFrames[getDateKey(date)];
+        if (dtf === undefined) {
+            return [];
+        }
+        return dtf;
+    };
+    Column.prototype.getPositionByDate = function (date) {
+        var positionDuration = void 0;
+        var position = void 0;
+        var croppedDate = date;
+        if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+            var timeFrames = this.getDayTimeFrame(croppedDate);
+            for (var i = 0; i < timeFrames.length; i++) {
+                var timeFrame = timeFrames[i];
+                if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
+                    if (timeFrame.cropped) {
+                        if (timeFrames.length > i + 1) {
+                            croppedDate = timeFrames[i + 1].start;
+                        } else {
+                            croppedDate = timeFrame.end;
+                        }
+                    } else {
+                        positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
+                        position = positionDuration / timeFrame.getDuration() * timeFrame.width;
+                        return this.left + timeFrame.left + position;
+                    }
+                }
+            }
+        }
+        positionDuration = croppedDate.diff(this.date, 'milliseconds');
+        position = positionDuration / this.duration * this.width;
+        if (position < 0) {
+            position = 0;
+        }
+        if (position > this.width) {
+            position = this.width;
+        }
+        return this.left + position;
+    };
+    return Column;
+};
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttColumn", function (GanttColumn) {
+    'ngInject';
+
+    var ColumnBuilder = function ColumnBuilder(columnsManager) {
+        this.columnsManager = columnsManager;
+    };
+    ColumnBuilder.prototype.newColumn = function (date, endDate, left, width) {
+        var calendar = this.columnsManager.gantt.calendar;
+        var timeFramesWorkingMode = this.columnsManager.gantt.options.value('timeFramesWorkingMode');
+        var timeFramesNonWorkingMode = this.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
+        return new GanttColumn(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
+    };
+    return ColumnBuilder;
+}];
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var isToDateToExclude = function isToDateToExclude(to, value, unit) {
+        return (0, _moment2.default)(to).add(value, unit).startOf(unit) === to;
+    };
+    var getFirstValue = function getFirstValue(unit) {
+        if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+            return 0;
+        }
+    };
+    var ensureNoUnitOverflow = function ensureNoUnitOverflow(unit, startDate, endDate) {
+        var v1 = startDate.get(unit);
+        var v2 = endDate.get(unit);
+        var firstValue = getFirstValue(unit);
+        if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+            endDate.set(unit, firstValue);
+        }
+    };
+
+    this.generate = function (builder, from, to, viewScale, columnWidth, maximumWidth, leftOffset, reverse) {
+        if (!to && !maximumWidth) {
+            throw 'to or maximumWidth must be defined';
+        }
+        viewScale = viewScale.trim();
+        if (viewScale.charAt(viewScale.length - 1) === 's') {
+            viewScale = viewScale.substring(0, viewScale.length - 1);
+        }
+        var viewScaleValue = void 0;
+        var viewScaleUnit = void 0;
+        var splittedViewScale = void 0;
+        if (viewScale) {
+            splittedViewScale = viewScale.split(' ');
+        }
+        if (splittedViewScale && splittedViewScale.length > 1) {
+            viewScaleValue = parseFloat(splittedViewScale[0]);
+            viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+        } else {
+            viewScaleValue = 1;
+            viewScaleUnit = viewScale;
+        }
+        var excludeTo = false;
+        from = (0, _moment2.default)(from).startOf(viewScaleUnit);
+        if (to) {
+            excludeTo = isToDateToExclude(to, viewScaleValue, viewScaleUnit);
+            to = (0, _moment2.default)(to).startOf(viewScaleUnit);
+        }
+        var left = 0;
+        var date = (0, _moment2.default)(from).startOf(viewScaleUnit);
+        if (reverse) {
+            date.add(-viewScaleValue, viewScaleUnit);
+            left -= columnWidth;
+        }
+        var generatedCols = [];
+        while (true) {
+            if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                break;
+            }
+            var startDate = (0, _moment2.default)(date);
+            var endDate = (0, _moment2.default)(startDate).add(viewScaleValue, viewScaleUnit);
+            ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
+            var column = builder.newColumn(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth);
+            if (!column.cropped) {
+                generatedCols.push(column);
+                if (reverse) {
+                    left -= columnWidth;
+                } else {
+                    left += columnWidth;
+                }
+            }
+            if (to) {
+                if (reverse) {
+                    if (excludeTo && date < to || !excludeTo && date <= to) {
+                        break;
+                    }
+                } else {
+                    if (excludeTo && date > to || !excludeTo && date >= to) {
+                        break;
+                    }
+                }
+            }
+            if (reverse) {
+                date.add(-viewScaleValue, viewScaleUnit);
+                ensureNoUnitOverflow(viewScaleUnit, date, startDate);
+            } else {
+                date.add(viewScaleValue, viewScaleUnit);
+                ensureNoUnitOverflow(viewScaleUnit, startDate, date);
+            }
+        }
+        if (reverse) {
+            if (isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
+                generatedCols.shift();
+            }
+            generatedCols.reverse();
+        }
+        return generatedCols;
+    };
+};
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttColumn", function (GanttColumn) {
+    'ngInject';
+
+    var ColumnHeader = function ColumnHeader(startDate, endDate, viewScaleUnit, left, width, labelFormat, name) {
+        startDate = (0, _moment2.default)(startDate);
+        endDate = (0, _moment2.default)(endDate);
+        var column = new GanttColumn(startDate, endDate, left, width);
+        column.name = name;
+        column.unit = viewScaleUnit;
+        column.label = _angular2.default.isFunction(labelFormat) ? labelFormat(column) : startDate.format(labelFormat);
+        return column;
+    };
+    return ColumnHeader;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttColumnGenerator", "GanttColumnBuilder", "GanttHeadersGenerator", "$filter", "$timeout", "ganttLayout", "ganttBinarySearch", function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersGenerator, $filter, $timeout, ganttLayout, ganttBinarySearch) {
+    'ngInject';
+
+    var ColumnsManager = function ColumnsManager(gantt) {
+        var self = this;
+        this.gantt = gantt;
+        this.from = undefined;
+        this.to = undefined;
+        this.columns = [];
+        this.visibleColumns = [];
+        this.previousColumns = [];
+        this.nextColumns = [];
+        this.headers = [];
+        this.visibleHeaders = [];
+        this.scrollAnchor = undefined;
+        this.columnBuilder = new GanttColumnBuilder(this);
+
+        this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function (newValues, oldValues) {
+            if (newValues !== oldValues && self.gantt.rendered) {
+                self.generateColumns();
+            }
+        });
+        this.gantt.$scope.$watchCollection('headers', function (newValues, oldValues) {
+            if (newValues !== oldValues && self.gantt.rendered) {
+                self.generateColumns();
+            }
+        });
+        this.gantt.$scope.$watchCollection('headersFormats', function (newValues, oldValues) {
+            if (newValues !== oldValues && self.gantt.rendered) {
+                self.generateColumns();
+            }
+        });
+        this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], function (newValues, oldValues) {
+            if (newValues !== oldValues && self.gantt.rendered) {
+                self.updateColumnsMeta();
+            }
+        });
+        this.gantt.api.data.on.load(this.gantt.$scope, function () {
+            if ((self.from === undefined || self.to === undefined || self.from > self.gantt.rowsManager.getDefaultFrom() || self.to < self.gantt.rowsManager.getDefaultTo()) && self.gantt.rendered) {
+                self.generateColumns();
+            }
+            self.gantt.rowsManager.sortRows();
+        });
+        this.gantt.api.data.on.remove(this.gantt.$scope, function () {
+            self.gantt.rowsManager.sortRows();
+        });
+        this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
+        this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
+        this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
+        this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
+        this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
+        this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
+        this.gantt.api.registerEvent('columns', 'clear');
+        this.gantt.api.registerEvent('columns', 'generate');
+        this.gantt.api.registerEvent('columns', 'refresh');
+    };
+    ColumnsManager.prototype.setScrollAnchor = function () {
+        if (this.gantt.scroll.$element && this.columns.length > 0) {
+            var el = this.gantt.scroll.$element[0];
+            var center = el.scrollLeft + el.offsetWidth / 2;
+            this.scrollAnchor = this.gantt.getDateByPosition(center);
+        }
+    };
+    ColumnsManager.prototype.scrollToScrollAnchor = function () {
+        var self = this;
+        if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+            this.gantt.$scope.$$postDigest(function () {
+                self.gantt.api.scroll.toDate(self.scrollAnchor);
+            });
+        }
+    };
+    ColumnsManager.prototype.clearColumns = function () {
+        this.setScrollAnchor();
+        this.from = undefined;
+        this.to = undefined;
+        this.columns = [];
+        this.visibleColumns = [];
+        this.previousColumns = [];
+        this.nextColumns = [];
+        this.headers = [];
+        this.visibleHeaders = [];
+        this.gantt.api.columns.raise.clear();
+    };
+    ColumnsManager.prototype.generateColumns = function (from, to) {
+        if (!from) {
+            from = this.gantt.options.value('fromDate');
+        }
+        if (!to) {
+            to = this.gantt.options.value('toDate');
+        }
+        if (!from || _moment2.default.isMoment(from) && !from.isValid()) {
+            from = this.gantt.rowsManager.getDefaultFrom();
+            if (!from) {
+                return false;
+            }
+        }
+        if (!to || _moment2.default.isMoment(to) && !to.isValid()) {
+            to = this.gantt.rowsManager.getDefaultTo();
+            if (!to) {
+                return false;
+            }
+        }
+        if (from !== undefined && !_moment2.default.isMoment(from)) {
+            from = (0, _moment2.default)(from);
+        }
+        if (to !== undefined && !_moment2.default.isMoment(to)) {
+            to = (0, _moment2.default)(to);
+        }
+        if (this.gantt.options.value('taskOutOfRange') === 'expand') {
+            from = this.gantt.rowsManager.getExpandedFrom(from);
+            to = this.gantt.rowsManager.getExpandedTo(to);
+        }
+        this.setScrollAnchor();
+        this.from = from;
+        this.to = to;
+        this.columns = GanttColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
+        this.headers = GanttHeadersGenerator.generate(this);
+        this.previousColumns = [];
+        this.nextColumns = [];
+        this.updateColumnsMeta();
+        this.scrollToScrollAnchor();
+        this.gantt.api.columns.raise.generate(this.columns, this.headers);
+    };
+    ColumnsManager.prototype.updateColumnsMeta = function () {
+        this.gantt.isRefreshingColumns = true;
+        var lastColumn = this.getLastColumn();
+        this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
+        var columnsWidthChanged = this.updateColumnsWidths(this.columns, this.headers, this.previousColumns, this.nextColumns);
+        this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+        var showSide = this.gantt.options.value('showSide');
+        var sideShown = this.gantt.side.isShown();
+        var sideVisibilityChanged = showSide !== sideShown;
+        if (sideVisibilityChanged && !showSide) {
+            this.gantt.side.show(false);
+        }
+        this.gantt.rowsManager.updateTasksPosAndSize();
+        this.gantt.timespansManager.updateTimespansPosAndSize();
+        this.updateVisibleColumns(columnsWidthChanged);
+        this.gantt.rowsManager.updateVisibleObjects();
+        var currentDateValue = this.gantt.options.value('currentDateValue');
+        this.gantt.currentDateManager.setCurrentDate(currentDateValue);
+        if (sideVisibilityChanged && showSide) {
+            this.gantt.side.show(true);
+        }
+        this.gantt.isRefreshingColumns = false;
+        this.gantt.api.columns.raise.refresh(this.columns, this.headers);
+    };
+
+    ColumnsManager.prototype.getLastColumn = function (extended) {
+        var columns = this.columns;
+        if (extended) {
+            columns = this.nextColumns;
+        }
+        if (columns && columns.length > 0) {
+            return columns[columns.length - 1];
+        } else {
+            return undefined;
+        }
+    };
+
+    ColumnsManager.prototype.getFirstColumn = function (extended) {
+        var columns = this.columns;
+        if (extended) {
+            columns = this.previousColumns;
+        }
+        if (columns && columns.length > 0) {
+            return columns[0];
+        } else {
+            return undefined;
+        }
+    };
+
+    ColumnsManager.prototype.getColumnByDate = function (date, disableExpand) {
+        if (!disableExpand) {
+            this.expandExtendedColumnsForDate(date);
+        }
+        var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
+        var columns = ganttBinarySearch.get(extendedColumns, date, function (c) {
+            return c.date;
+        }, true);
+        return columns[0] === undefined ? columns[1] : columns[0];
+    };
+
+    ColumnsManager.prototype.getColumnByPosition = function (x, disableExpand) {
+        if (!disableExpand) {
+            this.expandExtendedColumnsForPosition(x);
+        }
+        var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
+        var columns = ganttBinarySearch.get(extendedColumns, x, function (c) {
+            return c.left;
+        }, true);
+        return columns[0] === undefined ? columns[1] : columns[0];
+    };
+    ColumnsManager.prototype.updateColumnsWidths = function (columns, headers, previousColumns, nextColumns) {
+        var columnWidth = this.gantt.options.value('columnWidth');
+        var expandToFit = this.gantt.options.value('expandToFit');
+        var shrinkToFit = this.gantt.options.value('shrinkToFit');
+        if (columnWidth === undefined || expandToFit || shrinkToFit) {
+            var newWidth = this.gantt.getBodyAvailableWidth();
+            var lastColumn = this.gantt.columnsManager.getLastColumn(false);
+            if (lastColumn !== undefined) {
+                var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
+                if (expandToFit && currentWidth < newWidth || shrinkToFit && currentWidth > newWidth || columnWidth === undefined) {
+                    var widthFactor = newWidth / currentWidth;
+                    ganttLayout.setColumnsWidthFactor(columns, widthFactor);
+                    for (var i = 0; i < headers.length; i++) {
+                        ganttLayout.setColumnsWidthFactor(headers[i], widthFactor);
+                    }
+
+                    previousColumns.splice(0, this.previousColumns.length);
+                    nextColumns.splice(0, this.nextColumns.length);
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    ColumnsManager.prototype.getColumnsWidth = function () {
+        var columnWidth = this.gantt.options.value('columnWidth');
+        if (columnWidth === undefined) {
+            if (!this.gantt.width || this.gantt.width <= 0) {
+                columnWidth = 20;
+            } else {
+                columnWidth = this.gantt.width / this.columns.length;
+            }
+        }
+        return columnWidth;
+    };
+    ColumnsManager.prototype.getColumnsWidthToFit = function () {
+        return this.gantt.getBodyAvailableWidth() / this.columns.length;
+    };
+    ColumnsManager.prototype.expandExtendedColumnsForPosition = function (x) {
+        var viewScale = void 0;
+        if (x < 0) {
+            var firstColumn = this.getFirstColumn();
+            var from = firstColumn.date;
+            var firstExtendedColumn = this.getFirstColumn(true);
+            if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                viewScale = this.gantt.options.value('viewScale');
+                this.previousColumns = GanttColumnGenerator.generate(this.columnBuilder, from, undefined, viewScale, this.getColumnsWidth(), -x, 0, true);
+            }
+            return true;
+        } else if (x > this.gantt.width) {
+            var lastColumn = this.getLastColumn();
+            var endDate = lastColumn.getDateByPosition(lastColumn.width);
+            var lastExtendedColumn = this.getLastColumn(true);
+            if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                viewScale = this.gantt.options.value('viewScale');
+                this.nextColumns = GanttColumnGenerator.generate(this.columnBuilder, endDate, undefined, viewScale, this.getColumnsWidth(), x - this.gantt.width, this.gantt.width, false);
+            }
+            return true;
+        }
+        return false;
+    };
+    ColumnsManager.prototype.expandExtendedColumnsForDate = function (date) {
+        var firstColumn = this.getFirstColumn();
+        var from = void 0;
+        if (firstColumn) {
+            from = firstColumn.date;
+        }
+        var lastColumn = this.getLastColumn();
+        var endDate = void 0;
+        if (lastColumn) {
+            endDate = lastColumn.endDate;
+        }
+        var viewScale = void 0;
+        if (from && date < from) {
+            var firstExtendedColumn = this.getFirstColumn(true);
+            if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                viewScale = this.gantt.options.value('viewScale');
+                this.previousColumns = GanttColumnGenerator.generate(this.columnBuilder, from, date, viewScale, this.getColumnsWidth(), undefined, 0, true);
+            }
+            return true;
+        } else if (endDate && date >= endDate) {
+            var lastExtendedColumn = this.getLastColumn(true);
+            if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
+                viewScale = this.gantt.options.value('viewScale');
+                this.nextColumns = GanttColumnGenerator.generate(this.columnBuilder, endDate, date, viewScale, this.getColumnsWidth(), undefined, this.gantt.width, false);
+            }
+            return true;
+        }
+        return false;
+    };
+
+    ColumnsManager.prototype.getActiveHeadersCount = function () {
+        return this.headers.length;
+    };
+    ColumnsManager.prototype.updateVisibleColumns = function (includeViews) {
+        var limitThreshold = this.gantt.options.value('columnLimitThreshold');
+        var i = void 0;
+        if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
+            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+            this.visibleHeaders = [];
+            for (i = 0; i < this.headers.length; i++) {
+                this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+            }
+        } else {
+            this.visibleColumns = this.columns;
+            this.visibleHeaders = this.headers;
+        }
+        if (includeViews) {
+            for (i = 0; i < this.visibleColumns.length; i++) {
+                this.visibleColumns[i].updateView();
+            }
+            for (i = 0; i < this.visibleHeaders.length; i++) {
+                var headerRow = this.visibleHeaders[i];
+                for (var j = 0; j < headerRow.length; j++) {
+                    headerRow[j].updateView();
+                }
+            }
+        }
+        var currentDateValue = this.gantt.options.value('currentDateValue');
+        this.gantt.currentDateManager.setCurrentDate(currentDateValue);
+    };
+    var defaultHeadersFormats = {
+        year: 'YYYY',
+        quarter: '[Q]Q YYYY',
+        month: 'MMMM YYYY',
+        week: 'w',
+        day: 'D',
+        hour: 'H',
+        minute: 'H:mm',
+        second: 'H:mm:ss',
+        millisecond: 'H:mm:ss:SSS'
+    };
+    var defaultDayHeadersFormats = { day: 'LL', hour: 'H', minute: 'H:mm', second: 'H:mm:ss', millisecond: 'H:mm:ss:SSS' };
+    var defaultYearHeadersFormats = { 'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM' };
+    ColumnsManager.prototype.getHeaderFormat = function (unit) {
+        var format = void 0;
+        var headersFormats = this.gantt.options.value('headersFormats');
+        if (headersFormats !== undefined) {
+            format = headersFormats[unit];
+        }
+        if (format === undefined) {
+            var viewScale = this.gantt.options.value('viewScale');
+            viewScale = viewScale.trim();
+            if (viewScale.charAt(viewScale.length - 1) === 's') {
+                viewScale = viewScale.substring(0, viewScale.length - 1);
+            }
+            var viewScaleUnit = void 0;
+            var splittedViewScale = void 0;
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleUnit = viewScale;
+            }
+            if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
+                format = defaultDayHeadersFormats[unit];
+            } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
+                format = defaultYearHeadersFormats[unit];
+            }
+            if (format === undefined) {
+                format = defaultHeadersFormats[unit];
+            }
+        }
+        return format;
+    };
+    ColumnsManager.prototype.getHeaderScale = function (header) {
+        var scale = void 0;
+        var headersScales = this.gantt.options.value('headersScales');
+        if (headersScales !== undefined) {
+            scale = headersScales[header];
+        }
+        if (scale === undefined) {
+            scale = header;
+        }
+        if (['millisecond', 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
+            scale = 'day';
+        }
+        return scale;
+    };
+    ColumnsManager.prototype.getDateRange = function (visibleOnly) {
+        var firstColumn = void 0;
+        var lastColumn = void 0;
+        if (visibleOnly) {
+            if (this.visibleColumns && this.visibleColumns.length > 0) {
+                firstColumn = this.visibleColumns[0];
+                lastColumn = this.visibleColumns[this.visibleColumns.length - 1];
+            }
+        } else {
+            firstColumn = this.getFirstColumn();
+            lastColumn = this.getLastColumn();
+        }
+        return firstColumn && lastColumn ? [firstColumn.date, lastColumn.endDate] : undefined;
+    };
+    return ColumnsManager;
+}];
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttColumnHeader", function (GanttColumnHeader) {
+    'ngInject';
+
+    var generateHeader = function generateHeader(columnsManager, headerName) {
+        var generatedHeaders = [];
+        var header = void 0;
+        var viewScale = columnsManager.getHeaderScale(headerName);
+        var viewScaleValue = void 0;
+        var viewScaleUnit = void 0;
+        var splittedViewScale = void 0;
+        if (viewScale) {
+            splittedViewScale = viewScale.split(' ');
+        }
+        if (splittedViewScale && splittedViewScale.length > 1) {
+            viewScaleValue = parseFloat(splittedViewScale[0]);
+            viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+        } else {
+            viewScaleValue = 1;
+            viewScaleUnit = viewScale;
+        }
+        if (columnsManager.columns.length > 0) {
+            var currentColumn = columnsManager.columns[0];
+            var currentDate = (0, _moment2.default)(currentColumn.date).startOf(viewScaleUnit);
+            var maximumDate = (0, _moment2.default)(columnsManager.columns[columnsManager.columns.length - 1].endDate);
+            while (true) {
+                var currentPosition = currentColumn.getPositionByDate(currentDate);
+                var endDate = _moment2.default.min((0, _moment2.default)(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
+                var column = columnsManager.getColumnByDate(endDate);
+                var left = column.getPositionByDate(endDate);
+                var width = left - currentPosition;
+                if (width > 0) {
+                    var labelFormat = columnsManager.getHeaderFormat(headerName);
+                    header = new GanttColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat, headerName);
+                    generatedHeaders.push(header);
+                }
+                if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
+                    break;
+                }
+                currentColumn = column;
+                currentDate = endDate;
+            }
+        }
+        return generatedHeaders;
+    };
+    this.generate = function (columnsManager) {
+        var headerNames = [];
+        if (columnsManager.gantt.options.value('headers') === undefined) {
+            var viewScale = columnsManager.gantt.options.value('viewScale');
+            viewScale = viewScale.trim();
+            if (viewScale.charAt(viewScale.length - 1) === 's') {
+                viewScale = viewScale.substring(0, viewScale.length - 1);
+            }
+            var viewScaleUnit = void 0;
+            var splittedViewScale = void 0;
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleUnit = viewScale;
+            }
+            if (['quarter', 'month'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('year');
+            }
+            if (['day', 'week'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('month');
+            }
+            if (['day'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('week');
+            }
+            if (['hour'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('day');
+            }
+            if (['minute', 'second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('hour');
+            }
+            if (['second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('minute');
+            }
+            if (['millisecond'].indexOf(viewScaleUnit) > -1) {
+                headerNames.push('second');
+            }
+            headerNames.push(viewScale);
+        } else {
+            headerNames = columnsManager.gantt.options.value('headers');
+        }
+        var headers = [];
+        for (var i = 0; i < headerNames.length; i++) {
+            headers.push(generateHeader(columnsManager, headerNames[i]));
+        }
+        return headers;
+    };
+}];
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "GanttBody", "GanttRowHeader", "GanttHeader", "GanttSide", "GanttObjectModel", "GanttRowsManager", "GanttColumnsManager", "GanttTimespansManager", "GanttCurrentDateManager", "ganttArrays", "$document", "$timeout", function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, GanttBody, GanttRowHeader, GanttHeader, GanttSide, GanttObjectModel, GanttRowsManager, GanttColumnsManager, GanttTimespansManager, GanttCurrentDateManager, ganttArrays, $document, $timeout) {
+    'ngInject';
+
+    var Gantt = function Gantt($scope, $element) {
+        var self = this;
+        this.$scope = $scope;
+        this.$element = $element;
+        this.options = new GanttOptions($scope, {
+            'api': _angular2.default.noop,
+            'data': [],
+            'timespans': [],
+            'viewScale': 'day',
+            'columnMagnet': '15 minutes',
+            'timeFramesMagnet': true,
+            'showSide': true,
+            'allowSideResizing': true,
+            'currentDate': 'line',
+            'currentDateValue': _moment2.default,
+            'autoExpand': 'none',
+            'taskOutOfRange': 'truncate',
+            'taskContent': '{{task.model.name}}',
+            'rowContent': '{{row.model.name}}',
+            'maxHeight': 0,
+            'timeFrames': [],
+            'dateFrames': [],
+            'timeFramesWorkingMode': 'hidden',
+            'timeFramesNonWorkingMode': 'visible',
+            'taskLimitThreshold': 100,
+            'columnLimitThreshold': 500
+        });
+        this.api = new GanttApi(this);
+        this.api.registerEvent('core', 'ready');
+        this.api.registerEvent('core', 'rendered');
+        this.api.registerEvent('directives', 'controller');
+        this.api.registerEvent('directives', 'preLink');
+        this.api.registerEvent('directives', 'postLink');
+        this.api.registerEvent('directives', 'new');
+        this.api.registerEvent('directives', 'destroy');
+        this.api.registerEvent('data', 'change');
+        this.api.registerEvent('data', 'load');
+        this.api.registerEvent('data', 'remove');
+        this.api.registerEvent('data', 'clear');
+        this.api.registerMethod('core', 'getDateByPosition', this.getDateByPosition, this);
+        this.api.registerMethod('core', 'getPositionByDate', this.getPositionByDate, this);
+        this.api.registerMethod('data', 'load', this.loadData, this);
+        this.api.registerMethod('data', 'remove', this.removeData, this);
+        this.api.registerMethod('data', 'clear', this.clearData, this);
+        this.api.registerMethod('data', 'get', this.getData, this);
+        this.calendar = new GanttCalendar(this);
+        this.calendar.registerTimeFrames(this.options.value('timeFrames'));
+        this.calendar.registerDateFrames(this.options.value('dateFrames'));
+        this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
+        this.api.registerMethod('timeframes', 'clearTimeframes', this.calendar.clearTimeFrames, this.calendar);
+        this.api.registerMethod('timeframes', 'registerDateFrames', this.calendar.registerDateFrames, this.calendar);
+        this.api.registerMethod('timeframes', 'clearDateFrames', this.calendar.clearDateFrames, this.calendar);
+        this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
+        this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
+        $scope.$watchGroup(['timeFrames', 'dateFrames'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                var timeFrames = newValues[0];
+                var dateFrames = newValues[1];
+                var oldTimeFrames = oldValues[0];
+                var oldDateFrames = oldValues[1];
+                var framesChanged = false;
+                if (!_angular2.default.equals(timeFrames, oldTimeFrames)) {
+                    self.calendar.clearTimeFrames();
+                    self.calendar.registerTimeFrames(timeFrames);
+                    framesChanged = true;
+                }
+                if (!_angular2.default.equals(dateFrames, oldDateFrames)) {
+                    self.calendar.clearDateFrames();
+                    self.calendar.registerDateFrames(dateFrames);
+                    framesChanged = true;
+                }
+                if (framesChanged) {
+                    self.columnsManager.generateColumns();
+                }
+            }
+        });
+        $scope.$watch('columnMagnet', function () {
+            var splittedColumnMagnet = void 0;
+            var columnMagnet = self.options.value('columnMagnet');
+            if (columnMagnet) {
+                splittedColumnMagnet = columnMagnet.trim().split(' ');
+            }
+            if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
+                self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                self.columnMagnetUnit = _moment2.default.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+            } else {
+                self.columnMagnetValue = 1;
+                self.columnMagnetUnit = _moment2.default.normalizeUnits(columnMagnet);
+            }
+        });
+        $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function () {
+            var splittedColumnMagnet = void 0;
+            var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+            if (shiftColumnMagnet) {
+                splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
+            }
+            if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
+                self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                self.shiftColumnMagnetUnit = _moment2.default.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+            } else {
+                self.shiftColumnMagnetValue = 1;
+                self.shiftColumnMagnetUnit = _moment2.default.normalizeUnits(shiftColumnMagnet);
+            }
+        });
+        var keyHandler = function keyHandler(e) {
+            self.shiftKey = e.shiftKey;
+            return true;
+        };
+        $document.on('keyup keydown', keyHandler);
+        $scope.$on('$destroy', function () {
+            $document.off('keyup keydown', keyHandler);
+        });
+        this.scroll = new GanttScroll(this);
+        this.body = new GanttBody(this);
+        this.header = new GanttHeader(this);
+        this.side = new GanttSide(this);
+        this.objectModel = new GanttObjectModel(this.api);
+        this.rowsManager = new GanttRowsManager(this);
+        this.columnsManager = new GanttColumnsManager(this);
+        this.timespansManager = new GanttTimespansManager(this);
+        this.currentDateManager = new GanttCurrentDateManager(this);
+        this.originalWidth = 0;
+        this.width = 0;
+        if (_angular2.default.isFunction(this.$scope.api)) {
+            this.$scope.api(this.api);
+        }
+        var hasRowModelOrderChanged = function hasRowModelOrderChanged(data1, data2) {
+            if (data2 === undefined || data1.length !== data2.length) {
+                return true;
+            }
+
+            for (var i = 0, l = data1.length; i < l; i++) {
+                if (data1[i].id !== data2[i].id) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        $scope.$watchCollection('data', function (newData, oldData) {
+            if (oldData !== undefined) {
+                var toRemoveIds = ganttArrays.getRemovedIds(newData, oldData);
+                if (toRemoveIds.length === oldData.length) {
+                    self.rowsManager.removeAll();
+
+                    self.api.data.raise.clear();
+                } else {
+                    for (var i = 0, l = toRemoveIds.length; i < l; i++) {
+                        var toRemoveId = toRemoveIds[i];
+                        self.rowsManager.removeRow(toRemoveId);
+                    }
+
+                    var removedRows = [];
+                    for (var _i = 0, _l = oldData.length; _i < _l; _i++) {
+                        if (toRemoveIds.indexOf(oldData[_i].id) > -1) {
+                            removedRows.push(oldData[_i]);
+                        }
+                    }
+                    self.api.data.raise.remove(removedRows);
+                }
+            }
+            if (newData !== undefined) {
+                var modelOrderChanged = hasRowModelOrderChanged(newData, oldData);
+                if (modelOrderChanged) {
+                    self.rowsManager.resetNonModelLists();
+                }
+                for (var j = 0, k = newData.length; j < k; j++) {
+                    var rowData = newData[j];
+                    self.rowsManager.addRow(rowData, modelOrderChanged);
+                }
+                self.api.data.raise.change(newData, oldData);
+
+                self.api.data.raise.load(newData);
+            }
+        });
+    };
+
+    Gantt.prototype.getMagnetValueAndUnit = function () {
+        if (this.shiftKey) {
+            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
+            } else {
+                var viewScale = this.options.value('viewScale');
+                viewScale = viewScale.trim();
+                var viewScaleValue = void 0;
+                var viewScaleUnit = void 0;
+                var splittedViewScale = void 0;
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleValue = parseFloat(splittedViewScale[0]);
+                    viewScaleUnit = _moment2.default.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
+                } else {
+                    viewScaleValue = 1;
+                    viewScaleUnit = _moment2.default.normalizeUnits(viewScale);
+                }
+                return [viewScaleValue * 0.25, viewScaleUnit];
+            }
+        } else {
+            return [this.columnMagnetValue, this.columnMagnetUnit];
+        }
+    };
+
+    Gantt.prototype.getMagnetDate = function (date, disableExpand) {
+        if (date === undefined) {
+            return undefined;
+        }
+        if (!_moment2.default.isMoment(_moment2.default)) {
+            date = (0, _moment2.default)(date);
+        }
+        var column = this.columnsManager.getColumnByDate(date, disableExpand);
+        var magnetValueAndUnit = this.getMagnetValueAndUnit();
+        var magnetValue = magnetValueAndUnit[0];
+        var magnetUnit = magnetValueAndUnit[1];
+        return column.getMagnetDate(date, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+    };
+
+    Gantt.prototype.getDateByPosition = function (x, magnet, disableExpand) {
+        var column = this.columnsManager.getColumnByPosition(x, disableExpand);
+        if (column !== undefined) {
+            var magnetValue = void 0;
+            var magnetUnit = void 0;
+            if (magnet) {
+                var magnetValueAndUnit = this.getMagnetValueAndUnit();
+                magnetValue = magnetValueAndUnit[0];
+                magnetUnit = magnetValueAndUnit[1];
+            }
+            return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+        } else {
+            return undefined;
+        }
+    };
+    Gantt.prototype.getBodyAvailableWidth = function () {
+        var scrollWidth = this.getWidth() - this.side.getWidth();
+        var borderWidth = this.scroll.getBordersWidth();
+        var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
+
+        availableWidth = availableWidth - 1;
+        return availableWidth;
+    };
+
+    Gantt.prototype.getPositionByDate = function (date, disableExpand) {
+        if (date === undefined) {
+            return undefined;
+        }
+        if (!_moment2.default.isMoment(_moment2.default)) {
+            date = (0, _moment2.default)(date);
+        }
+        var column = this.columnsManager.getColumnByDate(date, disableExpand);
+        if (column !== undefined) {
+            return column.getPositionByDate(date);
+        } else {
+            return undefined;
+        }
+    };
+
+    Gantt.prototype.loadData = function (data) {
+        if (!_angular2.default.isArray(data)) {
+            data = data !== undefined ? [data] : [];
+        }
+        if (this.$scope.data === undefined) {
+            this.$scope.data = data;
+        } else {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var row = data[i];
+                var j = ganttArrays.indexOfId(this.$scope.data, row.id);
+                if (j > -1) {
+                    this.$scope.data[j] = row;
+                } else {
+                    this.$scope.data.push(row);
+                }
+            }
+        }
+        var w = this.side.getWidth();
+        if (w > 0) {
+            this.options.set('sideWidth', w);
+        }
+    };
+    Gantt.prototype.getData = function () {
+        return this.$scope.data;
+    };
+
+    Gantt.prototype.removeData = function (data) {
+        if (!_angular2.default.isArray(data)) {
+            data = data !== undefined ? [data] : [];
+        }
+        if (this.$scope.data !== undefined) {
+            for (var i = 0, l = data.length; i < l; i++) {
+                var rowToRemove = data[i];
+                var j = ganttArrays.indexOfId(this.$scope.data, rowToRemove.id);
+                if (j > -1) {
+                    if (rowToRemove.tasks === undefined || rowToRemove.tasks.length === 0) {
+                        this.$scope.data.splice(j, 1);
+                    } else {
+                        var row = this.$scope.data[j];
+                        for (var ti = 0, tl = rowToRemove.tasks.length; ti < tl; ti++) {
+                            var taskToRemove = rowToRemove.tasks[ti];
+                            var tj = ganttArrays.indexOfId(row.tasks, taskToRemove.id);
+                            if (tj > -1) {
+                                row.tasks.splice(tj, 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    Gantt.prototype.clearData = function () {
+        this.$scope.data = undefined;
+    };
+    Gantt.prototype.getWidth = function () {
+        return this.$scope.ganttElementWidth;
+    };
+    Gantt.prototype.getHeight = function () {
+        return this.$scope.ganttElementHeight;
+    };
+    Gantt.prototype.getContainerWidth = function () {
+        return this.$scope.ganttContainerWidth;
+    };
+    Gantt.prototype.getContainerHeight = function () {
+        return this.$scope.ganttContainerHeight;
+    };
+    Gantt.prototype.initialized = function () {
+        this.api.core.raise.ready(this.api);
+        this.rendered = true;
+        this.columnsManager.generateColumns();
+        var gantt = this;
+        var renderedFunction = function renderedFunction() {
+            var w = gantt.side.getWidth();
+            if (w > 0) {
+                gantt.options.set('sideWidth', w);
+            }
+            gantt.api.core.raise.rendered(gantt.api);
+        };
+        $timeout(renderedFunction);
+    };
+    return Gantt;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["ganttUtils", function (ganttUtils) {
+    'ngInject';
+
+    var ObjectModel = function ObjectModel(api) {
+        this.api = api;
+        this.api.registerEvent('tasks', 'clean');
+        this.api.registerEvent('rows', 'clean');
+        this.api.registerEvent('timespans', 'clean');
+    };
+    ObjectModel.prototype.cleanTask = function (model) {
+        if (model.id === undefined) {
+            model.id = ganttUtils.randomUuid();
+        }
+        if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
+            model.from = (0, _moment2.default)(model.from);
+        }
+        if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
+            model.to = (0, _moment2.default)(model.to);
+        }
+        this.api.tasks.raise.clean(model);
+    };
+    ObjectModel.prototype.cleanRow = function (model) {
+        if (model.id === undefined) {
+            model.id = ganttUtils.randomUuid();
+        }
+        if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
+            model.from = (0, _moment2.default)(model.from);
+        }
+        if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
+            model.to = (0, _moment2.default)(model.to);
+        }
+        this.api.rows.raise.clean(model);
+    };
+    ObjectModel.prototype.cleanTimespan = function (model) {
+        if (model.id === undefined) {
+            model.id = ganttUtils.randomUuid();
+        }
+        if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
+            model.from = (0, _moment2.default)(model.from);
+        }
+        if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
+            model.to = (0, _moment2.default)(model.to);
+        }
+        this.api.timespans.raise.clean(model);
+    };
+    return ObjectModel;
+}];
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof2 = __webpack_require__(2);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+exports.default = ["GanttTask", "$filter", function (GanttTask, $filter) {
+    'ngInject';
+
+    var Row = function Row(rowsManager, model) {
+        this.rowsManager = rowsManager;
+        this.model = model;
+        this.from = undefined;
+        this.to = undefined;
+        this.tasksMap = {};
+        this.tasks = [];
+        this.filteredTasks = [];
+        this.visibleTasks = [];
+    };
+    Row.prototype.addTaskImpl = function (task, viewOnly) {
+        this.tasksMap[task.model.id] = task;
+        this.tasks.push(task);
+        if (!viewOnly) {
+            if (this.model.tasks === undefined) {
+                this.model.tasks = [];
+            }
+            if (this.model.tasks.indexOf(task.model) === -1) {
+                this.model.tasks.push(task.model);
+            }
+        }
+    };
+
+    Row.prototype.addTask = function (taskModel, viewOnly) {
+        var task = void 0;
+        var isUpdate = false;
+        this.rowsManager.gantt.objectModel.cleanTask(taskModel);
+        if (taskModel.id in this.tasksMap) {
+            task = this.tasksMap[taskModel.id];
+            if (task.model === taskModel) {
+                return task;
+            }
+            task.model = taskModel;
+            isUpdate = true;
+        } else {
+            task = new GanttTask(this, taskModel);
+            this.addTaskImpl(task, viewOnly);
+        }
+        this.sortTasks();
+        this.setFromToByTask(task);
+        if (!viewOnly) {
+            if (isUpdate) {
+                this.rowsManager.gantt.api.tasks.raise.change(task);
+            } else {
+                this.rowsManager.gantt.api.tasks.raise.add(task);
+            }
+        }
+        return task;
+    };
+
+    Row.prototype.moveTaskToRow = function (task, viewOnly) {
+        this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(task, this);
+        if (!viewOnly) {
+            this.rowsManager.gantt.api.tasks.raise.beforeRowChange(task, this);
+        }
+        var oldRow = task.row;
+        oldRow.removeTask(task.model.id, viewOnly, true);
+        task.row = this;
+        this.addTaskImpl(task, viewOnly);
+        this.sortTasks();
+        this.setFromToByTask(task);
+        task.updatePosAndSize();
+        this.updateVisibleTasks();
+        oldRow.$scope.$digest();
+        task.row.$scope.$digest();
+        this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
+        if (!viewOnly) {
+            this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
+        }
+    };
+    Row.prototype.updateVisibleTasks = function () {
+        var filterTask = this.rowsManager.gantt.options.value('filterTask');
+        if (filterTask) {
+            if ((typeof filterTask === 'undefined' ? 'undefined' : (0, _typeof3.default)(filterTask)) === 'object') {
+                filterTask = { model: filterTask };
+            }
+            var _filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
+            if (typeof _filterTaskComparator === 'function') {
+                _filterTaskComparator = function filterTaskComparator(actual, expected) {
+                    return _filterTaskComparator(actual.model, expected.model);
+                };
+            }
+            this.filteredTasks = $filter('filter')(this.tasks, filterTask, _filterTaskComparator);
+        } else {
+            this.filteredTasks = this.tasks.slice(0);
+        }
+        var limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
+        if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
+            this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+        } else {
+            this.visibleTasks = this.filteredTasks;
+        }
+    };
+    Row.prototype.updateTasksPosAndSize = function () {
+        for (var j = 0, k = this.tasks.length; j < k; j++) {
+            this.tasks[j].updatePosAndSize();
+        }
+    };
+
+    Row.prototype.removeTask = function (taskId, viewOnly, silent) {
+        if (taskId in this.tasksMap) {
+            var removedTask = this.tasksMap[taskId];
+            var task = void 0;
+            var i = void 0;
+            for (i = this.tasks.length - 1; i >= 0; i--) {
+                task = this.tasks[i];
+                if (task.model.id === taskId) {
+                    this.tasks.splice(i, 1);
+                    if (this.from - task.model.from === 0 || this.to - task.model.to === 0) {
+                        this.setFromTo();
+                    }
+                    break;
+                }
+            }
+            for (i = this.filteredTasks.length - 1; i >= 0; i--) {
+                task = this.filteredTasks[i];
+                if (task.model.id === taskId) {
+                    this.filteredTasks.splice(i, 1);
+                    break;
+                }
+            }
+            for (i = this.visibleTasks.length - 1; i >= 0; i--) {
+                task = this.visibleTasks[i];
+                if (task.model.id === taskId) {
+                    this.visibleTasks.splice(i, 1);
+                    break;
+                }
+            }
+            if (!viewOnly) {
+                delete this.tasksMap[taskId];
+                if (this.model.tasks !== undefined) {
+                    var taskIndex = this.model.tasks.indexOf(removedTask.model);
+                    if (taskIndex > -1) {
+                        this.model.tasks.splice(taskIndex, 1);
+                    }
+                }
+                if (!silent) {
+                    this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                }
+            }
+            return removedTask;
+        }
+    };
+    Row.prototype.removeAllTasks = function () {
+        this.from = undefined;
+        this.to = undefined;
+        this.tasksMap = {};
+        this.tasks = [];
+        this.filteredTasks = [];
+        this.visibleTasks = [];
+    };
+
+    Row.prototype.setFromTo = function () {
+        this.from = undefined;
+        this.to = undefined;
+        for (var j = 0, k = this.tasks.length; j < k; j++) {
+            this.setFromToByTask(this.tasks[j]);
+        }
+    };
+    Row.prototype.setFromToByTask = function (task) {
+        this.setFromToByValues(task.model.from, task.model.to);
+    };
+    Row.prototype.setFromToByValues = function (from, to) {
+        if (from !== undefined) {
+            if (this.from === undefined) {
+                this.from = (0, _moment2.default)(from);
+            } else if (from < this.from) {
+                this.from = (0, _moment2.default)(from);
+            }
+        }
+        if (to !== undefined) {
+            if (this.to === undefined) {
+                this.to = (0, _moment2.default)(to);
+            } else if (to > this.to) {
+                this.to = (0, _moment2.default)(to);
+            }
+        }
+    };
+    Row.prototype.sortTasks = function () {
+        this.tasks.sort(function (t1, t2) {
+            return t1.left - t2.left;
+        });
+    };
+    Row.prototype.clone = function () {
+        var clone = new Row(this.rowsManager, _angular2.default.copy(this));
+        for (var i = 0, l = this.tasks.length; i < l; i++) {
+            clone.addTask(this.tasks[i].model);
+        }
+        return clone;
+    };
+    return Row;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var RowHeader = function RowHeader(gantt) {
+        this.gantt = gantt;
+    };
+    return RowHeader;
+};
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof2 = __webpack_require__(2);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+exports.default = ["GanttRow", "ganttArrays", "$filter", "$timeout", function (GanttRow, ganttArrays, $filter, $timeout) {
+    'ngInject';
+
+    var RowsManager = function RowsManager(gantt) {
+        var self = this;
+        this.gantt = gantt;
+        this.rowsMap = {};
+        this.rows = [];
+        this.sortedRows = [];
+        this.filteredRows = [];
+        this.customFilteredRows = [];
+        this.visibleRows = [];
+        this.rowsTaskWatchers = [];
+        this._defaultFilterImpl = function (sortedRows, filterRow, filterRowComparator) {
+            return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+        };
+        this.filterImpl = this._defaultFilterImpl;
+        this.customRowSorters = [];
+        this.customRowFilters = [];
+        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                self.updateVisibleTasks();
+            }
+        });
+        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                self.updateVisibleRows();
+            }
+        });
+        this.gantt.$scope.$watch('sortMode', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                self.sortRows();
+            }
+        });
+
+        var _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
+        this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $timeout(function () {
+                    var newVScrollbarVisible = self.gantt.scroll.isVScrollbarVisible();
+                    if (newVScrollbarVisible !== _oldVScrollbarVisible) {
+                        _oldVScrollbarVisible = newVScrollbarVisible;
+                        self.gantt.columnsManager.updateColumnsMeta();
+                    }
+                });
+            }
+        });
+        this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
+        this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
+        this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
+        this.gantt.api.registerMethod('rows', 'removeRowSorter', RowsManager.prototype.removeCustomRowSorter, this);
+        this.gantt.api.registerMethod('rows', 'addRowSorter', RowsManager.prototype.addCustomRowSorter, this);
+        this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
+        this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+        this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
+        this.gantt.api.registerEvent('tasks', 'add');
+        this.gantt.api.registerEvent('tasks', 'change');
+        this.gantt.api.registerEvent('tasks', 'viewChange');
+        this.gantt.api.registerEvent('tasks', 'beforeRowChange');
+        this.gantt.api.registerEvent('tasks', 'beforeViewRowChange');
+        this.gantt.api.registerEvent('tasks', 'rowChange');
+        this.gantt.api.registerEvent('tasks', 'viewRowChange');
+        this.gantt.api.registerEvent('tasks', 'remove');
+        this.gantt.api.registerEvent('tasks', 'filter');
+        this.gantt.api.registerEvent('tasks', 'displayed');
+        this.gantt.api.registerEvent('rows', 'add');
+        this.gantt.api.registerEvent('rows', 'change');
+        this.gantt.api.registerEvent('rows', 'remove');
+        this.gantt.api.registerEvent('rows', 'move');
+        this.gantt.api.registerEvent('rows', 'displayed');
+        this.gantt.api.registerEvent('rows', 'filter');
+        this.updateVisibleObjects();
+    };
+    RowsManager.prototype.resetNonModelLists = function () {
+        this.rows = [];
+        this.sortedRows = [];
+        this.filteredRows = [];
+        this.customFilteredRows = [];
+        this.visibleRows = [];
+    };
+    RowsManager.prototype.addRow = function (rowModel, modelOrderChanged) {
+        var row = void 0;
+        var i = void 0;
+        var l = void 0;
+        var isUpdate = false;
+        this.gantt.objectModel.cleanRow(rowModel);
+        if (rowModel.id in this.rowsMap) {
+            row = this.rowsMap[rowModel.id];
+            if (modelOrderChanged) {
+                this.rows.push(row);
+                this.sortedRows.push(row);
+                this.filteredRows.push(row);
+                this.customFilteredRows.push(row);
+                this.visibleRows.push(row);
+            }
+            if (row.model === rowModel) {
+                return;
+            }
+            var toRemoveIds = ganttArrays.getRemovedIds(rowModel.tasks, row.model.tasks);
+            for (i = 0, l = toRemoveIds.length; i < l; i++) {
+                var toRemoveId = toRemoveIds[i];
+                row.removeTask(toRemoveId);
+            }
+            row.model = rowModel;
+            isUpdate = true;
+        } else {
+            row = new GanttRow(this, rowModel);
+            this.rowsMap[rowModel.id] = row;
+            this.rows.push(row);
+            this.sortedRows.push(row);
+            this.filteredRows.push(row);
+            this.customFilteredRows.push(row);
+            this.visibleRows.push(row);
+        }
+        if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
+            for (i = 0, l = rowModel.tasks.length; i < l; i++) {
+                var taskModel = rowModel.tasks[i];
+                row.addTask(taskModel);
+            }
+            row.updateVisibleTasks();
+        }
+        if (isUpdate) {
+            this.gantt.api.rows.raise.change(row);
+        } else {
+            this.gantt.api.rows.raise.add(row);
+        }
+        if (!isUpdate) {
+            var watcher = this.gantt.$scope.$watchCollection(function () {
+                return rowModel.tasks;
+            }, function (newTasks, oldTasks) {
+                if (newTasks !== oldTasks) {
+                    var _i = void 0;
+                    var _l = void 0;
+                    var _toRemoveIds = ganttArrays.getRemovedIds(newTasks, oldTasks);
+                    for (_i = 0, _l = _toRemoveIds.length; _i < _l; _i++) {
+                        var toRemove = _toRemoveIds[_i];
+                        row.removeTask(toRemove);
+                    }
+                    if (newTasks !== undefined) {
+                        for (_i = 0, _l = newTasks.length; _i < _l; _i++) {
+                            var toAdd = newTasks[_i];
+                            row.addTask(toAdd);
+                        }
+                        row.updateVisibleTasks();
+                    }
+                }
+            });
+            this.rowsTaskWatchers.push(watcher);
+        }
+        return isUpdate;
+    };
+    RowsManager.prototype.removeRow = function (rowId) {
+        if (rowId in this.rowsMap) {
+            delete this.rowsMap[rowId];
+            var removedRow = void 0;
+            var row = void 0;
+            var indexOf = ganttArrays.indexOfId(this.rows, rowId, ['model', 'id']);
+            if (indexOf > -1) {
+                removedRow = this.rows.splice(indexOf, 1)[0];
+                var unregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0];
+                if (unregisterFunction) {
+                    unregisterFunction();
+                }
+            }
+            ganttArrays.removeId(this.sortedRows, rowId, ['model', 'id']);
+            ganttArrays.removeId(this.filteredRows, rowId, ['model', 'id']);
+            ganttArrays.removeId(this.customFilteredRows, rowId, ['model', 'id']);
+            ganttArrays.removeId(this.visibleRows, rowId, ['model', 'id']);
+            this.gantt.api.rows.raise.remove(removedRow);
+            return row;
+        }
+        return undefined;
+    };
+    RowsManager.prototype.removeAll = function () {
+        this.rowsMap = {};
+        this.rows = [];
+        this.sortedRows = [];
+        this.filteredRows = [];
+        this.customFilteredRows = [];
+        this.visibleRows = [];
+
+        for (var i = 0, l = this.rowsTaskWatchers.length; i < l; i++) {
+            var unregisterFunction = this.rowsTaskWatchers[i];
+            unregisterFunction();
+        }
+        this.rowsTaskWatchers = [];
+    };
+    RowsManager.prototype.sortRows = function () {
+        var expression = this.gantt.options.value('sortMode');
+        if (expression !== undefined) {
+            var reverse = false;
+            if (_angular2.default.isString(expression) && expression.charAt(0) === '-') {
+                reverse = true;
+                expression = expression.substr(1);
+            }
+            var angularOrderBy = $filter('orderBy');
+            this.sortedRows = angularOrderBy(this.rows, expression, reverse);
+        } else {
+            this.sortedRows = this.rows.slice();
+        }
+        this.sortedRows = this.applyCustomRowSorters(this.sortedRows);
+        this.updateVisibleRows();
+    };
+    RowsManager.prototype.removeCustomRowSorter = function (sorterFunction) {
+        var i = this.customRowSorters.indexOf(sorterFunction);
+        if (i > -1) {
+            this.customRowSorters.splice(i, 1);
+        }
+    };
+    RowsManager.prototype.addCustomRowSorter = function (sorterFunction) {
+        this.customRowSorters.push(sorterFunction);
+    };
+    RowsManager.prototype.applyCustomRowSorters = function (sortedRows) {
+        for (var i = 0; i < this.customRowSorters.length; i++) {
+            sortedRows = this.customRowSorters[i](sortedRows);
+        }
+        return sortedRows;
+    };
+
+    RowsManager.prototype.applySort = function () {
+        var data = this.gantt.$scope.data;
+        data.splice(0, data.length);
+        var rows = [];
+        for (var i = 0, l = this.sortedRows.length; i < l; i++) {
+            data.push(this.sortedRows[i].model);
+            rows.push(this.sortedRows[i]);
+        }
+        this.rows = rows;
+    };
+    RowsManager.prototype.moveRow = function (row, targetRow) {
+        var sortMode = this.gantt.options.value('sortMode');
+        if (sortMode !== undefined) {
+            this.applySort();
+            this.gantt.options.set('sortMode', undefined);
+        }
+        var targetRowIndex = this.rows.indexOf(targetRow);
+        var rowIndex = this.rows.indexOf(row);
+        if (targetRowIndex > -1 && rowIndex > -1 && targetRowIndex !== rowIndex) {
+            ganttArrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
+            ganttArrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
+            ganttArrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
+            this.gantt.api.rows.raise.change(row);
+            this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
+            this.updateVisibleObjects();
+            this.sortRows();
+        }
+    };
+    RowsManager.prototype.updateVisibleObjects = function () {
+        this.updateVisibleRows();
+        this.updateVisibleTasks();
+    };
+    RowsManager.prototype.updateVisibleRows = function () {
+        var oldFilteredRows = this.filteredRows;
+        var filterRow = this.gantt.options.value('filterRow');
+        if (filterRow) {
+            if ((typeof filterRow === 'undefined' ? 'undefined' : (0, _typeof3.default)(filterRow)) === 'object') {
+                filterRow = { model: filterRow };
+            }
+            var filterRowComparator = this.gantt.options.value('filterRowComparator');
+            if (typeof filterRowComparator === 'function') {
+                var gantt = this.gantt;
+                filterRowComparator = function filterRowComparator(actual, expected) {
+                    return gantt.options.value('filterRowComparator')(actual, expected);
+                };
+            }
+            this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
+        } else {
+            this.filteredRows = this.sortedRows.slice(0);
+        }
+        var raiseEvent = !_angular2.default.equals(oldFilteredRows, this.filteredRows);
+        this.customFilteredRows = this.applyCustomRowFilters(this.filteredRows);
+
+        this.visibleRows = this.customFilteredRows;
+        this.gantt.api.rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
+        if (raiseEvent) {
+            this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
+        }
+    };
+    RowsManager.prototype.removeCustomRowFilter = function (filterFunction) {
+        var i = this.customRowFilters.indexOf(filterFunction);
+        if (i > -1) {
+            this.customRowFilters.splice(i, 1);
+        }
+    };
+    RowsManager.prototype.addCustomRowFilter = function (filterFunction) {
+        this.customRowFilters.push(filterFunction);
+    };
+    RowsManager.prototype.applyCustomRowFilters = function (filteredRows) {
+        for (var i = 0; i < this.customRowFilters.length; i++) {
+            filteredRows = this.customRowFilters[i](filteredRows);
+        }
+        return filteredRows;
+    };
+    RowsManager.prototype.setFilterImpl = function (filterImpl) {
+        if (!filterImpl) {
+            this.filterImpl = this._defaultFilterImpl;
+        } else {
+            this.filterImpl = filterImpl;
+        }
+    };
+    RowsManager.prototype.updateVisibleTasks = function () {
+        var oldFilteredTasks = [];
+        var filteredTasks = [];
+        var tasks = [];
+        var visibleTasks = [];
+        for (var i = 0; i < this.rows.length; i++) {
+            var row = this.rows[i];
+            oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
+            row.updateVisibleTasks();
+            filteredTasks = filteredTasks.concat(row.filteredTasks);
+            visibleTasks = visibleTasks.concat(row.visibleTasks);
+            tasks = tasks.concat(row.tasks);
+        }
+        this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
+        var filterEvent = !_angular2.default.equals(oldFilteredTasks, filteredTasks);
+        if (filterEvent) {
+            this.gantt.api.tasks.raise.filter(tasks, filteredTasks, visibleTasks);
+        }
+    };
+
+    RowsManager.prototype.updateTasksPosAndSize = function () {
+        for (var i = 0, l = this.rows.length; i < l; i++) {
+            this.rows[i].updateTasksPosAndSize();
+        }
+    };
+    RowsManager.prototype.getExpandedFrom = function (from) {
+        from = from ? (0, _moment2.default)(from) : from;
+        var minRowFrom = from;
+        for (var i = 0; i < this.rows.length; i++) {
+            if (minRowFrom === undefined || minRowFrom > this.rows[i].from) {
+                minRowFrom = this.rows[i];
+            }
+        }
+        if (minRowFrom && (!from || minRowFrom < from)) {
+            return minRowFrom;
+        }
+        return from;
+    };
+    RowsManager.prototype.getExpandedTo = function (to) {
+        to = to ? (0, _moment2.default)(to) : to;
+        var maxRowTo = to;
+        for (var i = 0; i < this.rows.length; i++) {
+            if (maxRowTo === undefined || maxRowTo < this.rows[i].to) {
+                maxRowTo = this.rows[i].to;
+            }
+        }
+        var toDate = this.gantt.options.value('toDate');
+        if (maxRowTo && (!toDate || maxRowTo > toDate)) {
+            return maxRowTo;
+        }
+        return to;
+    };
+    RowsManager.prototype.getDefaultFrom = function () {
+        var defaultFrom = void 0;
+        for (var i = 0; i < this.rows.length; i++) {
+            if (defaultFrom === undefined || this.rows[i].from < defaultFrom) {
+                defaultFrom = this.rows[i].from;
+            }
+        }
+        return defaultFrom;
+    };
+    RowsManager.prototype.getDefaultTo = function () {
+        var defaultTo = void 0;
+        for (var i = 0; i < this.rows.length; i++) {
+            if (defaultTo === undefined || this.rows[i].to > defaultTo) {
+                defaultTo = this.rows[i].to;
+            }
+        }
+        return defaultTo;
+    };
+    return RowsManager;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var Task = function Task(row, model) {
+        this.rowsManager = row.rowsManager;
+        this.row = row;
+        this.model = model;
+        this.truncatedLeft = false;
+        this.truncatedRight = false;
+    };
+    Task.prototype.isMilestone = function () {
+        return !this.model.to || this.model.from - this.model.to === 0;
+    };
+    Task.prototype.isOutOfRange = function () {
+        var firstColumn = this.rowsManager.gantt.columnsManager.getFirstColumn();
+        var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+        return firstColumn === undefined || this.model.to < firstColumn.date || lastColumn === undefined || this.model.from > lastColumn.endDate;
+    };
+
+    Task.prototype.updatePosAndSize = function () {
+        var oldViewLeft = this.left;
+        var oldViewWidth = this.width;
+        var oldTruncatedRight = this.truncatedRight;
+        var oldTruncatedLeft = this.truncatedLeft;
+        if (!this.isMoving && this.isOutOfRange()) {
+            this.modelLeft = undefined;
+            this.modelWidth = undefined;
+        } else {
+            this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+            this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+        }
+        var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+        var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
+        var modelLeft = this.modelLeft;
+        var modelWidth = this.modelWidth;
+        if (this.rowsManager.gantt.options.value('daily')) {
+            modelLeft = this.rowsManager.gantt.getPositionByDate((0, _moment2.default)(this.model.from).startOf('day'));
+            modelWidth = this.rowsManager.gantt.getPositionByDate((0, _moment2.default)(this.model.to).endOf('day')) - modelLeft;
+        }
+        var minModelLeft = -modelWidth;
+        if (modelLeft < minModelLeft) {
+            modelLeft = minModelLeft;
+        }
+        if (modelLeft > maxModelLeft) {
+            modelLeft = maxModelLeft;
+        }
+        if (modelLeft === undefined || modelWidth === undefined) {
+            this.left = undefined;
+            this.width = undefined;
+        } else {
+            this.left = modelLeft;
+            this.width = modelWidth;
+            if (modelLeft < 0) {
+                this.truncatedLeft = true;
+                this.truncatedLeftOffset = -modelLeft;
+                this.truncatedRight = false;
+                this.truncatedRightOffset = undefined;
+            } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
+                this.truncatedRight = true;
+                this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
+                this.truncatedLeft = false;
+                this.truncatedLeftOffset = undefined;
+            } else {
+                this.truncatedLeft = false;
+                this.truncatedLeftOffset = undefined;
+                this.truncatedRight = false;
+                this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
+            }
+            if (this.width < 0) {
+                this.left = this.left + this.width;
+                this.width = -this.width;
+            }
+        }
+        this.updateView();
+        if (!this.rowsManager.gantt.isRefreshingColumns && (oldViewLeft !== this.left || oldViewWidth !== this.width || oldTruncatedRight !== this.truncatedRight || oldTruncatedLeft !== this.truncatedLeft)) {
+            this.rowsManager.gantt.api.tasks.raise.viewChange(this);
+        }
+    };
+    Task.prototype.updateView = function () {
+        if (this.$element) {
+            if (this.left === undefined || this.width === undefined) {
+                this.$element.css('display', 'none');
+            } else {
+                this.$element.css({ 'left': this.left + 'px', 'width': this.width + 'px', 'display': '' });
+                if (this.model.priority > 0) {
+                    var priority = this.model.priority;
+                    var children = this.$element.children();
+                    for (var i = 0; i < children.length; i++) {
+                        _angular2.default.element(children[i]).css('z-index', priority);
+                    }
+                }
+                this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
+            }
+        }
+    };
+    Task.prototype.getBackgroundElement = function () {
+        if (this.$element !== undefined) {
+            var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
+            if (backgroundElement !== undefined) {
+                backgroundElement = _angular2.default.element(backgroundElement);
+            }
+            return backgroundElement;
+        }
+    };
+    Task.prototype.getContentElement = function () {
+        if (this.$element !== undefined) {
+            var contentElement = this.$element[0].querySelector('.gantt-task-content');
+            if (contentElement !== undefined) {
+                contentElement = _angular2.default.element(contentElement);
+            }
+            return contentElement;
+        }
+    };
+    Task.prototype.getForegroundElement = function () {
+        if (this.$element !== undefined) {
+            var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
+            if (foregroundElement !== undefined) {
+                foregroundElement = _angular2.default.element(foregroundElement);
+            }
+            return foregroundElement;
+        }
+    };
+
+    Task.prototype.setFrom = function (x, magnetEnabled) {
+        this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+        this.row.setFromTo();
+        this.updatePosAndSize();
+    };
+
+    Task.prototype.setTo = function (x, magnetEnabled) {
+        this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+        this.row.setFromTo();
+        this.updatePosAndSize();
+    };
+
+    Task.prototype.moveTo = function (x, magnetEnabled) {
+        var newTaskRight = void 0;
+        var newTaskLeft = void 0;
+        if (x > this.modelLeft) {
+            this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
+            newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
+            newTaskLeft = newTaskRight - this.modelWidth;
+            this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskLeft, false);
+        } else {
+            this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+            newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+            newTaskRight = newTaskLeft + this.modelWidth;
+            this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskRight, false);
+        }
+        this.row.setFromTo();
+        this.updatePosAndSize();
+    };
+    Task.prototype.clone = function () {
+        return new Task(this.row, _angular2.default.copy(this.model));
+    };
+    return Task;
+};
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttBodyColumns", "GanttBodyRows", "GanttBodyBackground", "GanttBodyForeground", function (GanttBodyColumns, GanttBodyRows, GanttBodyBackground, GanttBodyForeground) {
+    'ngInject';
+
+    var Body = function Body(gantt) {
+        this.gantt = gantt;
+        this.background = new GanttBodyBackground(this);
+        this.foreground = new GanttBodyForeground(this);
+        this.columns = new GanttBodyColumns(this);
+        this.rows = new GanttBodyRows(this);
+    };
+    return Body;
+}];
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var GanttBodyBackground = function GanttBodyBackground(body) {
+        this.body = body;
+    };
+    return GanttBodyBackground;
+};
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var BodyColumns = function BodyColumns(body) {
+        this.body = body;
+    };
+    return BodyColumns;
+};
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var GanttBodyForeground = function GanttBodyForeground(body) {
+        this.body = body;
+    };
+    return GanttBodyForeground;
+};
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var BodyRows = function BodyRows(body) {
+        this.body = body;
+    };
+    return BodyRows;
+};
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttHeaderColumns", function (GanttHeaderColumns) {
+    'ngInject';
+
+    var Header = function Header(gantt) {
+        this.gantt = gantt;
+        this.columns = new GanttHeaderColumns(this);
+        this.getHeight = function () {
+            return this.$element[0].offsetHeight;
+        };
+    };
+    return Header;
+}];
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var HeaderColumns = function HeaderColumns($element) {
+        this.$element = $element;
+    };
+    return HeaderColumns;
+};
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var Scroll = function Scroll(gantt) {
+        this.gantt = gantt;
+        this.gantt.api.registerEvent('scroll', 'scroll');
+        this.gantt.api.registerMethod('scroll', 'to', Scroll.prototype.scrollTo, this);
+        this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
+        this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
+        this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
+        this.gantt.api.registerMethod('scroll', 'setWidth', Scroll.prototype.setWidth, this);
+    };
+    Scroll.prototype.getScrollLeft = function () {
+        if (this.$element === undefined) {
+            return undefined;
+        } else {
+            if (this.cachedScrollLeft === undefined) {
+                this.cachedScrollLeft = this.$element[0].scrollLeft;
+            }
+            return this.cachedScrollLeft;
+        }
+    };
+    Scroll.prototype.getScrollWidth = function () {
+        return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
+    };
+    Scroll.prototype.getWidth = function () {
+        return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+    };
+    Scroll.prototype.setWidth = function (width) {
+        if (this.$element[0]) {
+            this.$element[0].offsetWidth = width;
+        }
+    };
+    Scroll.prototype.getBordersWidth = function () {
+        if (this.$element === undefined) {
+            return undefined;
+        }
+        if (this.$element[0].clientWidth) {
+            return this.$element[0].offsetWidth - this.$element[0].clientWidth;
+        } else {
+            var borderLeft = window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width').match(/\d+/)[0] : '0';
+            var borderRight = window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width').match(/\d+/)[0] : '0';
+            return parseInt(borderLeft, 10) + parseInt(borderRight, 10);
+        }
+    };
+    Scroll.prototype.getBordersHeight = function () {
+        return this.$element === undefined ? undefined : this.$element[0].offsetHeight - this.$element[0].clientHeight;
+    };
+    Scroll.prototype.isVScrollbarVisible = function () {
+        if (this.$element !== undefined) {
+            return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
+        }
+    };
+    Scroll.prototype.isHScrollbarVisible = function () {
+        if (this.$element !== undefined) {
+            return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
+        }
+    };
+
+    Scroll.prototype.scrollTo = function (position) {
+        this.$element[0].scrollLeft = position;
+        this.$element.triggerHandler('scroll');
+    };
+
+    Scroll.prototype.scrollToLeft = function (offset) {
+        this.$element[0].scrollLeft -= offset;
+        this.$element.triggerHandler('scroll');
+    };
+
+    Scroll.prototype.scrollToRight = function (offset) {
+        this.$element[0].scrollLeft += offset;
+        this.$element.triggerHandler('scroll');
+    };
+
+    Scroll.prototype.scrollToDate = function (date) {
+        var position = this.gantt.getPositionByDate(date);
+        if (position !== undefined) {
+            this.$element[0].scrollLeft = position - this.$element[0].offsetWidth / 2;
+        }
+    };
+    return Scroll;
+};
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var Side = function Side(gantt) {
+        this.gantt = gantt;
+    };
+    Side.prototype.getWidth = function () {
+        if (this.gantt.options.value('showSide')) {
+            var width = this.gantt.options.value('sideWidth');
+            if (width === undefined && this.$element !== undefined) {
+                if (this.$element.css('width') !== undefined) {
+                    this.$element.css('width', '');
+                }
+            }
+            if (this.$element !== undefined) {
+                width = this.$element[0].offsetWidth;
+            }
+            if (width !== undefined) {
+                return width;
+            }
+        }
+        return 0;
+    };
+    Side.prototype.show = function (value) {
+        if (this.$element !== undefined) {
+            this.$element.toggleClass('ng-hide', !value);
+        }
+    };
+    Side.prototype.isShown = function () {
+        if (this.$element !== undefined) {
+            return !this.$element.hasClass('ng-hide');
+        }
+    };
+    return Side;
+};
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var Timespan = function Timespan(gantt, model) {
+        this.gantt = gantt;
+        this.model = model;
+    };
+
+    Timespan.prototype.updatePosAndSize = function () {
+        this.modelLeft = this.gantt.getPositionByDate(this.model.from);
+        this.modelWidth = this.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+        var lastColumn = this.gantt.columnsManager.getLastColumn();
+        var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
+        var modelLeft = this.modelLeft;
+        var modelWidth = this.modelWidth;
+        var minModelLeft = -modelWidth;
+        if (modelLeft < minModelLeft) {
+            modelLeft = minModelLeft;
+        }
+        if (modelLeft > maxModelLeft) {
+            modelLeft = maxModelLeft;
+        }
+        if (modelLeft === undefined || modelWidth === undefined) {
+            this.left = undefined;
+            this.width = undefined;
+        } else {
+            this.left = modelLeft;
+            this.width = modelWidth;
+            if (modelLeft < 0) {
+                this.truncatedLeft = true;
+                this.truncatedLeftOffset = -modelLeft;
+                this.truncatedRight = false;
+                this.truncatedRightOffset = undefined;
+            } else if (modelWidth + modelLeft > this.gantt.width) {
+                this.truncatedRight = true;
+                this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
+                this.truncatedLeft = false;
+                this.truncatedLeftOffset = undefined;
+            } else {
+                this.truncatedLeft = false;
+                this.truncatedLeftOffset = undefined;
+                this.truncatedRight = false;
+                this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
+            }
+            if (this.width < 0) {
+                this.left = this.left + this.width;
+                this.width = -this.width;
+            }
+        }
+        this.updateView();
+    };
+    Timespan.prototype.updateView = function () {
+        if (this.$element) {
+            if (this.left === undefined || this.width === undefined) {
+                this.$element.css('display', 'none');
+            } else {
+                this.$element.css('display', '');
+                this.$element.css('left', this.left + 'px');
+                this.$element.css('width', this.width + 'px');
+            }
+        }
+    };
+
+    Timespan.prototype.setFrom = function (x) {
+        this.from = this.gantt.getDateByPosition(x);
+        this.updatePosAndSize();
+    };
+
+    Timespan.prototype.setTo = function (x) {
+        this.to = this.gantt.getDateByPosition(x);
+        this.updatePosAndSize();
+    };
+
+    Timespan.prototype.moveTo = function (x) {
+        this.from = this.gantt.getDateByPosition(x);
+        this.to = this.gantt.getDateByPosition(x + this.width);
+        this.updatePosAndSize();
+    };
+    Timespan.prototype.clone = function () {
+        return new Timespan(this.gantt, _angular2.default.copy(this.model));
+    };
+    return Timespan;
+};
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttTimespan", function (GanttTimespan) {
+    'ngInject';
+
+    var GanttTimespansManager = function GanttTimespansManager(gantt) {
+        var self = this;
+        this.gantt = gantt;
+        this.timespansMap = {};
+        this.timespans = [];
+        this.gantt.$scope.$watchCollection('timespans', function (newValue) {
+            self.clearTimespans();
+            self.loadTimespans(newValue);
+        });
+        this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'remove', this.removeTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
+        this.gantt.api.registerEvent('timespans', 'add');
+        this.gantt.api.registerEvent('timespans', 'remove');
+        this.gantt.api.registerEvent('timespans', 'change');
+    };
+
+    GanttTimespansManager.prototype.loadTimespans = function (timespans) {
+        if (!_angular2.default.isArray(timespans)) {
+            timespans = timespans !== undefined ? [timespans] : [];
+        }
+        this.gantt.$scope.timespans = timespans;
+
+        for (var i = 0, l = timespans.length; i < l; i++) {
+            var timespanModel = timespans[i];
+            this.gantt.objectModel.cleanTimespan(timespanModel);
+            this.loadTimespan(timespanModel);
+        }
+    };
+
+    GanttTimespansManager.prototype.loadTimespan = function (timespanModel) {
+        var timespan = void 0;
+        var isUpdate = false;
+        if (timespanModel.id in this.timespansMap) {
+            timespan = this.timespansMap[timespanModel.id];
+            timespan.model = timespanModel;
+            isUpdate = true;
+            this.gantt.api.timespans.raise.change(timespan);
+        } else {
+            timespan = new GanttTimespan(this.gantt, timespanModel);
+            this.timespansMap[timespanModel.id] = timespan;
+            this.timespans.push(timespan);
+            this.gantt.api.timespans.raise.add(timespan);
+        }
+        timespan.updatePosAndSize();
+        return isUpdate;
+    };
+    GanttTimespansManager.prototype.removeTimespans = function (timespans) {
+        if (!_angular2.default.isArray(timespans)) {
+            timespans = [timespans];
+        }
+        for (var i = 0, l = timespans.length; i < l; i++) {
+            var timespanData = timespans[i];
+
+            this.removeTimespan(timespanData.id);
+        }
+        this.updateVisibleObjects();
+    };
+    GanttTimespansManager.prototype.removeTimespan = function (timespanId) {
+        if (timespanId in this.timespansMap) {
+            delete this.timespansMap[timespanId];
+            var removedTimespan = void 0;
+            var timespan = void 0;
+            for (var i = this.timespans.length - 1; i >= 0; i--) {
+                timespan = this.timespans[i];
+                if (timespan.model.id === timespanId) {
+                    removedTimespan = timespan;
+                    this.timespans.splice(i, 1);
+                    break;
+                }
+            }
+            this.gantt.api.timespans.raise.remove(removedTimespan);
+            return removedTimespan;
+        }
+        return undefined;
+    };
+
+    GanttTimespansManager.prototype.clearTimespans = function () {
+        this.timespansMap = {};
+        this.timespans = [];
+    };
+    GanttTimespansManager.prototype.updateTimespansPosAndSize = function () {
+        for (var i = 0, l = this.timespans.length; i < l; i++) {
+            this.timespans[i].updatePosAndSize();
+        }
+    };
+    return GanttTimespansManager;
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        moveToIndex: function moveToIndex(array, oldIndex, newIndex) {
+            if (newIndex >= array.length) {
+                var k = newIndex - array.length;
+                while (k-- + 1) {
+                    array.push(undefined);
+                }
+            }
+            array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+            return array;
+        },
+        getRemovedIds: function getRemovedIds(newArray, oldArray, idProperty) {
+            if (idProperty === undefined) {
+                idProperty = 'id';
+            }
+            var i = void 0;
+            var l = void 0;
+            var removedIds = [];
+            if (oldArray !== undefined) {
+                for (i = 0, l = oldArray.length; i < l; i++) {
+                    removedIds.push(oldArray[i][idProperty]);
+                }
+            }
+            if (newArray !== undefined) {
+                for (i = 0, l = newArray.length; i < l; i++) {
+                    var newObject = newArray[i];
+                    if (newObject[idProperty] !== undefined) {
+                        var newObjectIndex = removedIds.indexOf(newObject[idProperty]);
+                        if (newObjectIndex > -1) {
+                            removedIds.splice(newObjectIndex, 1);
+                        }
+                    }
+                }
+            }
+            return removedIds;
+        },
+        indexOfId: function indexOfId(array, value, idProperties) {
+            var i = void 0;
+            if (idProperties === undefined) {
+                idProperties = 'id';
+            } else if (idProperties instanceof Array) {
+                for (i = array.length - 1; i >= 0; i--) {
+                    var arrayValue = array[i];
+
+                    for (var k = 0, l = idProperties.length; k < l; k++) {
+                        arrayValue = arrayValue[idProperties[k]];
+                    }
+                    if (arrayValue === value) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+            for (i = array.length - 1; i >= 0; i--) {
+                if (array[i][idProperties] === value) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+        removeId: function removeId(array, value, idProperties) {
+            var indexOf = this.indexOfId(array, value, idProperties);
+            if (indexOf > -1) {
+                return array.splice(indexOf, 1)[0];
+            }
+        },
+        remove: function remove(array, value) {
+            var index = array.indexOf(value);
+            if (index > -1) {
+                array.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+    };
+};
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        getIndicesOnly: function getIndicesOnly(input, value, comparer, strict) {
+            var lo = -1;
+            var hi = input.length;
+            while (hi - lo > 1) {
+                var mid = Math.floor((lo + hi) / 2);
+                if (strict ? comparer(input[mid]) < value : comparer(input[mid]) <= value) {
+                    lo = mid;
+                } else {
+                    hi = mid;
+                }
+            }
+            if (!strict && input[lo] !== undefined && comparer(input[lo]) === value) {
+                hi = lo;
+            }
+            return [lo, hi];
+        },
+        get: function get(input, value, comparer, strict) {
+            var res = this.getIndicesOnly(input, value, comparer, strict);
+            return [input[res[0]], input[res[1]]];
+        }
+    };
+};
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    var Hierarchy = function Hierarchy() {
+        var self = this;
+        var nameToRow = {};
+        var idToRow = {};
+        var nameToChildren = {};
+        var idToChildren = {};
+        var nameToParent = {};
+        var idToParent = {};
+        var registerChildRow = function registerChildRow(row, childRow) {
+            if (childRow !== undefined) {
+                var nameChildren = nameToChildren[row.model.name];
+                if (nameChildren === undefined) {
+                    nameChildren = [];
+                    nameToChildren[row.model.name] = nameChildren;
+                }
+                nameChildren.push(childRow);
+                var idChildren = idToChildren[row.model.id];
+                if (idChildren === undefined) {
+                    idChildren = [];
+                    idToChildren[row.model.id] = idChildren;
+                }
+                idChildren.push(childRow);
+                nameToParent[childRow.model.name] = row;
+                idToParent[childRow.model.id] = row;
+            }
+        };
+        this.refresh = function (rows) {
+            nameToRow = {};
+            idToRow = {};
+            nameToChildren = {};
+            idToChildren = {};
+            nameToParent = {};
+            idToParent = {};
+            var row = void 0;
+            for (var i = 0; i < rows.length; i++) {
+                row = rows[i];
+                nameToRow[row.model.name] = row;
+                idToRow[row.model.id] = row;
+            }
+            for (var _i = 0; _i < rows.length; _i++) {
+                row = rows[_i];
+                if (row.model.parent !== undefined) {
+                    var parentRow = nameToRow[row.model.parent];
+                    if (parentRow === undefined) {
+                        parentRow = idToRow[row.model.parent];
+                    }
+                    if (parentRow !== undefined) {
+                        registerChildRow(parentRow, row);
+                    }
+                }
+                if (row.model.children !== undefined) {
+                    var children = row.model.children;
+                    for (var j = 0; j < children.length; j++) {
+                        var childRowNameOrId = children[j];
+                        var childRow = nameToRow[childRowNameOrId];
+                        if (childRow === undefined) {
+                            childRow = idToRow[childRowNameOrId];
+                        }
+                        if (childRow !== undefined) {
+                            registerChildRow(row, childRow);
+                        }
+                    }
+                }
+            }
+            var rootRows = [];
+            for (var _i2 = 0; _i2 < rows.length; _i2++) {
+                row = rows[_i2];
+                if (self.parent(row) === undefined) {
+                    rootRows.push(row);
+                }
+            }
+            return rootRows;
+        };
+        this.children = function (row) {
+            var children = idToChildren[row.model.id];
+            return children;
+        };
+        this.descendants = function (row) {
+            var descendants = [];
+            var children = self.children(row);
+            descendants.push.apply(descendants, children);
+            if (children !== undefined) {
+                for (var i = 0; i < children.length; i++) {
+                    var childDescendants = self.descendants(children[i]);
+                    descendants.push.apply(descendants, childDescendants);
+                }
+            }
+            return descendants;
+        };
+        this.parent = function (row) {
+            var parent = idToParent[row.model.id];
+            return parent;
+        };
+        this.ancestors = function (row) {
+            var ancestors = [];
+            var parent = self.parent(row);
+            while (parent !== undefined) {
+                ancestors.push(parent);
+                parent = self.parent(parent);
+            }
+            return ancestors;
+        };
+    };
+    return Hierarchy;
+};
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        createBoundedWrapper: function createBoundedWrapper(object, method) {
+            return function () {
+                return method.apply(object, arguments);
+            };
+        },
+        firstProperty: function firstProperty(objects, propertyName, defaultValue) {
+            for (var i = 0, l = objects.length; i < l; i++) {
+                var object = objects[i];
+                if (object !== undefined && propertyName in object) {
+                    if (object[propertyName] !== undefined) {
+                        return object[propertyName];
+                    }
+                }
+            }
+            return defaultValue;
+        },
+        angularIndexOf: function angularIndexOf(arr, obj) {
+            for (var i = 0; i < arr.length; i++) {
+                if (_angular2.default.equals(arr[i], obj)) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+        random4: function random4() {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        },
+        randomUuid: function randomUuid() {
+            return this.random4() + this.random4() + '-' + this.random4() + '-' + this.random4() + '-' + this.random4() + '-' + this.random4() + this.random4() + this.random4();
+        },
+        newId: function () {
+            var seedId = new Date().getTime();
+            return function () {
+                return seedId += 1;
+            };
+        }()
+    };
+};
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["ganttBinarySearch", function (ganttBinarySearch) {
+    'ngInject';
+
+    var leftComparator = function leftComparator(c) {
+        return c.left;
+    };
+    return function (input, gantt) {
+        var scrollLeft = gantt.scroll.getScrollLeft();
+        var scrollContainerWidth = gantt.getWidth() - gantt.side.getWidth();
+        if (scrollContainerWidth > 0) {
+            var start = ganttBinarySearch.getIndicesOnly(input, scrollLeft, leftComparator)[0];
+            var end = ganttBinarySearch.getIndicesOnly(input, scrollLeft + scrollContainerWidth, leftComparator)[1];
+            return input.slice(start, end);
+        } else {
+            return input.slice();
+        }
+    };
+}];
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return function (input, gantt) {
+        var firstColumn = gantt.columnsManager.getFirstColumn();
+        var lastColumn = gantt.columnsManager.getLastColumn();
+        if (firstColumn !== undefined && lastColumn !== undefined) {
+            var fromDate = firstColumn.date;
+            var toDate = lastColumn.endDate;
+            var res = [];
+            var scrollLeft = gantt.scroll.getScrollLeft();
+            var scrollContainerWidth = gantt.getWidth() - gantt.side.getWidth();
+
+            for (var i = 0, l = input.length; i < l; i++) {
+                var task = input[i];
+                if (task.active) {
+                    res.push(task);
+                } else {
+                    if (task.model.to >= fromDate && task.model.from <= toDate) {
+                        if (task.left === undefined) {
+                            task.updatePosAndSize();
+                        }
+
+                        if (!scrollContainerWidth || task.left >= scrollLeft && task.left <= scrollLeft + scrollContainerWidth || task.left + task.width >= scrollLeft && task.left + task.width <= scrollLeft + scrollContainerWidth || task.left < scrollLeft && task.left + task.width > scrollLeft + scrollContainerWidth) {
+                            res.push(task);
+                        }
+                    }
+                }
+            }
+            return res;
+        } else {
+            return input.splice();
+        }
+    };
+};
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$document", "$parse", "$timeout", "ganttMouseOffset", function ($document, $parse, $timeout, ganttMouseOffset) {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        require: '^gantt',
+        scope: {
+            targetElement: '=ganttResizer',
+            enabled: '@?ganttResizerEnabled'
+        },
+        link: function link($scope, $element, $attrs, ganttCtrl) {
+            var api = ganttCtrl.gantt.api;
+            var eventTopic = $attrs.ganttResizerEventTopic;
+            if ($scope.enabled === undefined) {
+                $scope.enabled = true;
+            }
+            function getWidth() {
+                return ganttCtrl.gantt.options.value($attrs.resizerWidth);
+            }
+            function setWidth(width) {
+                if (width !== getWidth()) {
+                    ganttCtrl.gantt.options.set($attrs.resizerWidth, width);
+                    if (eventTopic !== undefined) {
+                        api[eventTopic].raise.resize(width);
+                    }
+                    $timeout(function () {
+                        ganttCtrl.gantt.columnsManager.updateColumnsMeta();
+                    });
+                }
+            }
+            function dblclick(event) {
+                event.preventDefault();
+                setWidth(undefined);
+            }
+            function mousemove(event) {
+                $scope.$evalAsync(function () {
+                    var offset = ganttMouseOffset.getOffsetForElement($scope.targetElement[0], event);
+                    var maxWidth = ganttCtrl.gantt.getWidth() - ganttCtrl.gantt.scroll.getBordersWidth();
+                    var width = Math.min(Math.max(offset.x, 0), maxWidth);
+                    setWidth(width);
+                });
+            }
+            function mouseup() {
+                if (eventTopic !== undefined) {
+                    api[eventTopic].raise.resizeEnd(getWidth());
+                }
+                $document.unbind('mousemove', mousemove);
+                $document.unbind('mouseup', mouseup);
+            }
+            function mousedown(event) {
+                event.preventDefault();
+                if (eventTopic !== undefined) {
+                    api[eventTopic].raise.resizeBegin(getWidth());
+                }
+                $document.on('mousemove', mousemove);
+                $document.on('mouseup', mouseup);
+            }
+            $attrs.$observe('ganttResizerEnabled', function (value) {
+                $scope.enabled = $parse(value)();
+            });
+            $scope.$watch('enabled', function (value) {
+                if (value === undefined) {
+                    value = true;
+                }
+                $element.toggleClass('gantt-resizer-enabled', value);
+                if (value) {
+                    $element.on('dblclick', dblclick);
+                    $element.on('mousedown', mousedown);
+                } else {
+                    $element.off('dblclick', dblclick);
+                    $element.off('mousedown', mousedown);
+                }
+            });
+            $scope.$watch(function () {
+                return getWidth();
+            }, function (newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    $scope.targetElement.css('width', newValue + 'px');
+
+                    if ($scope.targetElement[0].offsetWidth > 0) {
+                        setWidth($scope.targetElement[0].offsetWidth);
+                    }
+                }
+            });
+            if (eventTopic) {
+                api.registerEvent(eventTopic, 'resize');
+                api.registerEvent(eventTopic, 'resizeBegin');
+                api.registerEvent(eventTopic, 'resizeEnd');
+                api.registerMethod(eventTopic, 'setWidth', setWidth, this);
+                api.registerMethod(eventTopic, 'getWidth', getWidth, this);
+            }
+        }
+    };
+}];
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        require: '^ganttScrollManager',
+        link: function link(scope, element, attrs, ganttScrollManagerCtrl) {
+            ganttScrollManagerCtrl.registerHorizontalReceiver(element);
+        }
+    };
+};
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        scope: {},
+        controller: ['$scope', function ($scope) {
+            $scope.horizontal = [];
+            $scope.vertical = [];
+            this.registerVerticalReceiver = function (element) {
+                element.css('position', 'relative');
+                $scope.vertical.push(element[0]);
+            };
+            this.registerHorizontalReceiver = function (element) {
+                element.css('position', 'relative');
+                $scope.horizontal.push(element[0]);
+            };
+            this.getHorizontalRecievers = function () {
+                return $scope.horizontal;
+            };
+            this.getVerticalRecievers = function () {
+                return $scope.vertical;
+            };
+        }]
+    };
+};
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        require: ['^gantt', '^ganttScrollManager'],
+        link: function link(scope, element, attrs, controllers) {
+            var el = element[0];
+            var updateListeners = function updateListeners() {
+                var i = void 0;
+                var l = void 0;
+                var vertical = controllers[1].getVerticalRecievers();
+                for (i = 0, l = vertical.length; i < l; i++) {
+                    var vElement = vertical[i];
+                    if (vElement.parentNode.scrollTop !== el.scrollTop) {
+                        vElement.parentNode.scrollTop = el.scrollTop;
+                    }
+                }
+                var horizontal = controllers[1].getHorizontalRecievers();
+                for (i = 0, l = horizontal.length; i < l; i++) {
+                    var hElement = horizontal[i];
+                    if (hElement.parentNode.scrollLeft !== el.scrollLeft) {
+                        hElement.parentNode.scrollLeft = el.scrollLeft;
+                    }
+                }
+            };
+            element.bind('scroll', updateListeners);
+            scope.$watch(function () {
+                return controllers[0].gantt.width;
+            }, function (newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    var horizontal = controllers[1].getHorizontalRecievers();
+
+                    for (var i = 0, l = horizontal.length; i < l; i++) {
+                        var hElement = horizontal[i];
+                        hElement.style.width = newValue + 'px';
+                    }
+                }
+            });
+        }
+    };
+};
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", "$timeout", "ganttDebounce", function (GanttDirectiveBuilder, $timeout, ganttDebounce) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttScrollable');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.scroll.$element = $element;
+        var lastScrollLeft = void 0;
+        var autoExpandTimer = void 0;
+        var autoExpandColumns = function autoExpandColumns(el, date, direction) {
+            var autoExpand = $scope.gantt.options.value('autoExpand');
+            if (autoExpand !== 'both' && autoExpand !== true && autoExpand !== direction) {
+                return;
+            }
+            var from = void 0;
+            var to = void 0;
+            var viewScale = $scope.gantt.options.value('viewScale');
+            viewScale = viewScale.trim();
+            if (viewScale.charAt(viewScale.length - 1) === 's') {
+                viewScale = viewScale.substring(0, viewScale.length - 1);
+            }
+            var viewScaleValue = void 0;
+            var viewScaleUnit = void 0;
+            var splittedViewScale = void 0;
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+            if (direction === 'left') {
+                from = (0, _moment2.default)(date).add(-5 * viewScaleValue, viewScaleUnit);
+                $scope.fromDate = from;
+            } else {
+                to = (0, _moment2.default)(date).add(5 * viewScaleValue, viewScaleUnit);
+                $scope.toDate = to;
+            }
+            $scope.gantt.api.scroll.raise.scroll(el.scrollLeft, date, direction);
+        };
+        $element.bind('scroll', ganttDebounce(function () {
+            var el = $element[0];
+            var currentScrollLeft = el.scrollLeft;
+            var direction = void 0;
+            var date = void 0;
+            $scope.gantt.scroll.cachedScrollLeft = currentScrollLeft;
+            $scope.gantt.columnsManager.updateVisibleColumns();
+            $scope.gantt.rowsManager.updateVisibleObjects();
+            if (currentScrollLeft < lastScrollLeft && currentScrollLeft === 0) {
+                direction = 'left';
+                date = $scope.gantt.columnsManager.from;
+            } else if (currentScrollLeft > lastScrollLeft && el.offsetWidth + currentScrollLeft >= el.scrollWidth - 1) {
+                direction = 'right';
+                date = $scope.gantt.columnsManager.to;
+            }
+            lastScrollLeft = currentScrollLeft;
+            if (date !== undefined) {
+                if (autoExpandTimer) {
+                    $timeout.cancel(autoExpandTimer);
+                }
+                autoExpandTimer = $timeout(function () {
+                    autoExpandColumns(el, date, direction);
+                }, 300);
+            } else {
+                $scope.gantt.api.scroll.raise.scroll(currentScrollLeft);
+            }
+        }, 5));
+        $scope.getScrollableCss = function () {
+            var css = {};
+            var maxHeight = $scope.gantt.options.value('maxHeight');
+            if (!maxHeight) {
+                maxHeight = $scope.gantt.getContainerHeight();
+            }
+            if (maxHeight > 0) {
+                css['max-height'] = maxHeight - $scope.gantt.header.getHeight() + 'px';
+                css['overflow-y'] = 'auto';
+                if ($scope.gantt.scroll.isVScrollbarVisible()) {
+                    css['border-right'] = 'none';
+                }
+            }
+            var columnWidth = this.gantt.options.value('columnWidth');
+            var bodySmallerThanGantt = $scope.gantt.width === 0 ? false : $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+            if (columnWidth !== undefined && bodySmallerThanGantt) {
+                css['width'] = $scope.gantt.width + this.gantt.scroll.getBordersWidth() + 'px';
+            }
+            return css;
+        };
+    };
+    return builder.build();
+}];
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        require: '^ganttScrollManager',
+        link: function link(scope, element, attrs, ganttScrollManagerCtrl) {
+            ganttScrollManagerCtrl.registerVerticalReceiver(element);
+        }
+    };
+};
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+            var scopeVariable = $attrs.ganttContainerHeightListener;
+            if (scopeVariable === '') {
+                scopeVariable = 'ganttContainerHeight';
+            }
+            var effectiveScope = $scope;
+            while (scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = effectiveScope.$parent;
+            }
+            effectiveScope.$watch(function () {
+                var el = $element[0].parentElement ? $element[0].parentElement.parentElement : undefined;
+                if (el) {
+                    var height = el.offsetHeight;
+                    var style = getComputedStyle(el);
+                    height = height - parseInt(style.marginTop, 10) - parseInt(style.marginBottom, 10);
+                    return height;
+                }
+                return 0;
+            }, function (newValue) {
+                if (newValue > 0) {
+                    effectiveScope[scopeVariable] = newValue;
+                }
+            });
+        }]
+    };
+};
+
+/***/ }),
+/* 82 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+            var scopeVariable = $attrs.ganttContainerWidthListener;
+            if (scopeVariable === '') {
+                scopeVariable = 'ganttContainerWidth';
+            }
+            var effectiveScope = $scope;
+            while (scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = effectiveScope.$parent;
+            }
+            effectiveScope.$watch(function () {
+                var el = $element[0].parentElement ? $element[0].parentElement.parentElement : undefined;
+                if (el) {
+                    var width = el.offsetWidth;
+                    var style = getComputedStyle(el);
+                    width = width - parseInt(style.marginLeft, 10) - parseInt(style.marginRight, 10);
+                    return width;
+                }
+                return 0;
+            }, function (newValue) {
+                if (newValue > 0) {
+                    effectiveScope[scopeVariable] = newValue;
+                }
+            });
+        }]
+    };
+};
+
+/***/ }),
+/* 83 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+            var scopeVariable = $attrs.ganttElementHeightListener;
+            if (scopeVariable === '') {
+                scopeVariable = 'ganttElementHeight';
+            }
+            var el = $element[0];
+            var effectiveScope = $scope;
+            while (scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = effectiveScope.$parent;
+            }
+            effectiveScope.$watch(function () {
+                return el.clientHeight;
+            }, function (newValue) {
+                if (newValue > 0) {
+                    effectiveScope[scopeVariable] = newValue;
+                }
+            });
+        }]
+    };
+};
+
+/***/ }),
+/* 84 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+            var scopeVariable = $attrs.ganttElementWidthListener;
+            if (scopeVariable === '') {
+                scopeVariable = 'ganttElementWidth';
+            }
+            var el = $element[0];
+            var effectiveScope = $scope;
+            while (scopeVariable.indexOf('$parent.') === 0) {
+                scopeVariable = scopeVariable.substring('$parent.'.length);
+                effectiveScope = effectiveScope.$parent;
+            }
+            effectiveScope.$watch(function () {
+                return el.clientWidth;
+            }, function (newValue) {
+                if (newValue > 0) {
+                    effectiveScope[scopeVariable] = newValue;
+                }
+            });
+        }]
+    };
+};
+
+/***/ }),
+/* 85 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttBody');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.body.$element = $element;
+        $scope.gantt.body.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 86 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttBodyBackground');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.body.background.$element = $element;
+        $scope.gantt.body.background.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 87 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttBodyColumns');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.body.columns.$element = $element;
+        $scope.gantt.body.background.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 88 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttBodyForeground');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.body.foreground.$element = $element;
+        $scope.gantt.body.foreground.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 89 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttBodyRows');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.body.rows.$element = $element;
+        $scope.gantt.body.rows.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 90 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttColumn');
+    builder.controller = function ($scope, $element) {
+        $scope.column.$element = $element;
+        $scope.column.$scope = $scope;
+        $scope.column.updateView();
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 91 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttColumnHeader');
+    builder.controller = function ($scope, $element) {
+        $scope.column.$element = $element;
+        $scope.column.$scope = $scope;
+        $scope.column.updateView();
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 92 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttHeader');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.header.$element = $element;
+        $scope.gantt.header.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 93 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttHeaderColumns');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.header.columns.$element = $element;
+        $scope.gantt.header.columns.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 94 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttRow');
+    builder.controller = function ($scope, $element) {
+        $scope.row.$element = $element;
+        $scope.row.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 95 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttRowBackground');
+    return builder.build();
+}];
+
+/***/ }),
+/* 96 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttRowLabel');
+    builder.restrict = 'A';
+    builder.templateUrl = undefined;
+    return builder.build();
+}];
+
+/***/ }),
+/* 97 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", "ganttLayout", function (GanttDirectiveBuilder, ganttLayout) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttScrollableHeader');
+    builder.controller = function ($scope) {
+        var scrollBarWidth = ganttLayout.getScrollBarWidth();
+        $scope.getScrollableHeaderCss = function () {
+            var css = {};
+            var maxHeightActivated = $scope.gantt.scroll.isVScrollbarVisible();
+            var vScrollbarWidth = maxHeightActivated ? scrollBarWidth : 0;
+            var columnWidth = this.gantt.options.value('columnWidth');
+            var bodySmallerThanGantt = $scope.gantt.width === 0 ? false : $scope.gantt.width < $scope.gantt.getWidth() - $scope.gantt.side.getWidth();
+            if (columnWidth !== undefined && bodySmallerThanGantt) {
+                css['width'] = $scope.gantt.width - vScrollbarWidth + this.gantt.scroll.getBordersWidth() + 'px';
+            } else if (maxHeightActivated) {
+                css['width'] = $scope.gantt.getWidth() - $scope.gantt.side.getWidth() - vScrollbarWidth + 'px';
+            }
+
+            return css;
+        };
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttSide');
+    builder.controller = function ($scope, $element) {
+        $scope.gantt.side.$element = $element;
+        $scope.gantt.side.$scope = $scope;
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 99 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", "ganttLayout", function (GanttDirectiveBuilder, ganttLayout) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttSideBackground');
+    builder.controller = function ($scope) {
+        var hScrollBarHeight = ganttLayout.getScrollBarHeight();
+        $scope.getMaxHeightCss = function () {
+            var css = {};
+            var maxHeight = $scope.maxHeight;
+            if (!maxHeight) {
+                maxHeight = $scope.gantt.getContainerHeight();
+            }
+            var bodyScrollBarHeight = $scope.gantt.scroll.isHScrollbarVisible() ? hScrollBarHeight : 0;
+            css['max-height'] = maxHeight - bodyScrollBarHeight - $scope.gantt.header.getHeight() + 'px';
+            return css;
+        };
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 100 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttSideContent');
+    return builder.build();
+}];
+
+/***/ }),
+/* 101 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttTask');
+    builder.controller = function ($scope, $element) {
+        $scope.task.$element = $element;
+        $scope.task.$scope = $scope;
+        $scope.getTaskContent = function () {
+            if ($scope.task.model.content !== undefined) {
+                return $scope.task.model.content;
+            }
+            return $scope.task.rowsManager.gantt.options.value('taskContent');
+        };
+        $scope.simplifyMoment = function (d) {
+            return _moment2.default.isMoment(d) ? d.unix() : d;
+        };
+        $scope.$watchGroup(['simplifyMoment(task.model.from)', 'simplifyMoment(task.model.to)'], function () {
+            $scope.task.updatePosAndSize();
+        });
+    };
+    return builder.build();
+}];
+
+var _moment = __webpack_require__(1);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 102 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttTaskBackground');
+    return builder.build();
+}];
+
+/***/ }),
+/* 103 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttTaskContent');
+    return builder.build();
+}];
+
+/***/ }),
+/* 104 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttTaskForeground');
+    return builder.build();
+}];
+
+/***/ }),
+/* 105 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttTimeFrame');
+    builder.controller = function ($scope, $element) {
+        $scope.timeFrame.$element = $element;
+        $scope.timeFrame.$scope = $scope;
+        $scope.timeFrame.updateView();
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 106 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
+    'ngInject';
+
+    var builder = new GanttDirectiveBuilder('ganttTimespan');
+    builder.controller = function ($scope, $element) {
+        $scope.timespan.$element = $element;
+        $scope.timespan.$scope = $scope;
+        $scope.timespan.updateView();
+    };
+    return builder.build();
+}];
+
+/***/ }),
+/* 107 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$timeout", function ($timeout) {
+    'ngInject';
+
+    function debounce(fn, timeout, invokeApply) {
+        var nthCall = 0;
+        return function () {
+            var self = this;
+            var argz = arguments;
+            nthCall++;
+            var later = function (version) {
+                return function () {
+                    if (version === nthCall) {
+                        return fn.apply(self, argz);
+                    }
+                };
+            }(nthCall);
+            return $timeout(later, timeout, invokeApply === undefined ? true : invokeApply);
+        };
+    }
+    return debounce;
+}];
+
+/***/ }),
+/* 108 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$templateCache", function ($templateCache) {
+    'ngInject';
+
+    var DirectiveBuilder = function DirectiveBuilder(directiveName, templateUrl, require, restrict) {
+        var self = this;
+        this.directiveName = directiveName;
+        this.templateUrl = templateUrl === undefined ? 'template/' + directiveName + '.tmpl.html' : templateUrl;
+        this.require = require === undefined ? '^gantt' : require;
+        this.restrict = restrict === undefined ? 'E' : restrict;
+        this.scope = false;
+        this.transclude = true;
+        this.replace = true;
+        this.build = function () {
+            var directiveName = self.directiveName;
+            var _templateUrl = self.templateUrl;
+            var controllerFunction = self.controller;
+            var directive = {
+                restrict: self.restrict,
+                require: self.require,
+                transclude: self.transclude,
+                replace: self.replace,
+                scope: self.scope,
+                templateUrl: function templateUrl(tElement, tAttrs) {
+                    if (tAttrs.templateUrl !== undefined) {
+                        _templateUrl = tAttrs.templateUrl;
+                    }
+                    if (tAttrs.template !== undefined) {
+                        $templateCache.put(_templateUrl, tAttrs.template);
+                    }
+                    return _templateUrl;
+                },
+                compile: function compile() {
+                    return {
+                        pre: function preLink(scope, iElement, iAttrs, controller) {
+                            scope.gantt.api.directives.raise.preLink(directiveName, scope, iElement, iAttrs, controller);
+                        },
+                        post: function postLink(scope, iElement, iAttrs, controller) {
+                            scope.gantt.api.directives.raise.postLink(directiveName, scope, iElement, iAttrs, controller);
+                        }
+                    };
+                },
+                controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+                    var controller = this;
+                    if (controllerFunction !== undefined) {
+                        controllerFunction($scope, $element, $attrs, controller);
+                    }
+                    $scope.gantt.api.directives.raise.controller(directiveName, $scope, $element, $attrs, controller);
+                    $scope.$on('$destroy', function () {
+                        $scope.gantt.api.directives.raise.destroy(directiveName, $scope, $element, $attrs, controller);
+                    });
+                    $scope.$applyAsync(function () {
+                        $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
+                    });
+                }]
+            };
+            if (!_templateUrl) {
+                delete directive.templateUrl;
+                delete directive.replace;
+                delete directive.transclude;
+            }
+            return directive;
+        };
+    };
+    return DirectiveBuilder;
+}];
+
+/***/ }),
+/* 109 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$document", function ($document) {
+    'ngInject';
+
+    return {
+        elementFromPoint: function elementFromPoint(x, y) {
+            return $document[0].elementFromPoint(x, y);
+        },
+        elementsFromPoint: function elementsFromPoint(x, y, depth) {
+            var elements = [];
+            var previousPointerEvents = [];
+            var cDepth = 0;
+            var current = void 0;
+            var i = void 0;
+            var l = void 0;
+            var d = void 0;
+
+            while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null && (depth === undefined || cDepth < depth)) {
+                elements.push(current);
+                previousPointerEvents.push({
+                    value: current.style.getPropertyValue('visibility'),
+                    priority: current.style.getPropertyPriority('visibility')
+                });
+
+                current.style.setProperty('visibility', 'hidden', 'important');
+                cDepth++;
+            }
+
+            for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                d = previousPointerEvents[i];
+                elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
+            }
+            return elements;
+        },
+        findElementFromPoint: function findElementFromPoint(x, y, checkFunction) {
+            var elements = [];
+            var previousPointerEvents = [];
+            var cDepth = 0;
+            var current = void 0;
+            var found = void 0;
+            var i = void 0;
+            var l = void 0;
+            var d = void 0;
+
+            while ((current = this.elementFromPoint(x, y)) && elements.indexOf(current) === -1 && current !== null) {
+                elements.push(current);
+                previousPointerEvents.push({
+                    value: current.style.getPropertyValue('visibility'),
+                    priority: current.style.getPropertyPriority('visibility')
+                });
+
+                current.style.setProperty('visibility', 'hidden', 'important');
+                cDepth++;
+                if (checkFunction(current)) {
+                    found = current;
+                    break;
+                }
+            }
+
+            for (i = 0, l = previousPointerEvents.length; i < l; i++) {
+                d = previousPointerEvents[i];
+                elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
+            }
+            return found;
+        },
+        isElementVisible: function isElementVisible(element) {
+            return element.offsetParent !== undefined && element.offsetParent !== null;
+        }
+    };
+}];
+
+/***/ }),
+/* 110 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$injector", function ($injector) {
+    'ngInject';
+
+    var ngAnimate = void 0;
+    try {
+        ngAnimate = $injector.get('$animate');
+    } catch (e) {}
+    if (ngAnimate !== undefined) {
+        return function (element, enabled) {
+            if (_angular2.default.version.major >= 1 && _angular2.default.version.minor >= 4) {
+                ngAnimate.enabled(element, enabled);
+            } else {
+                ngAnimate.enabled(enabled, element);
+            }
+        };
+    } else {
+        return _angular2.default.noop;
+    }
+}];
+
+var _angular = __webpack_require__(0);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 111 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$compile", function ($compile) {
+    'ngInject';
+
+    return {
+        restrict: 'A',
+        require: '^gantt',
+        link: function link(scope, element, attrs, ganttCtrl) {
+            scope.scope = ganttCtrl.gantt.$scope.$parent;
+            scope.$watch(function () {
+                return scope.$eval(attrs.ganttBindCompileHtml);
+            }, function (value) {
+                element.html(value);
+                $compile(element.contents())(scope);
+            });
+        }
+    };
+}];
+
+/***/ }),
+/* 112 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = ["$document", function ($document) {
+    'ngInject';
+
+    return {
+        getScrollBarWidth: function getScrollBarWidth() {
+            var inner = $document[0].createElement('p');
+            inner.style.width = '100%';
+            inner.style.height = '200px';
+            var outer = $document[0].createElement('div');
+            outer.style.position = 'absolute';
+            outer.style.top = '0px';
+            outer.style.left = '0px';
+            outer.style.visibility = 'hidden';
+            outer.style.width = '200px';
+            outer.style.height = '150px';
+            outer.style.overflow = 'hidden';
+            outer.appendChild(inner);
+            $document[0].body.appendChild(outer);
+            var w1 = inner.offsetWidth;
+            outer.style.overflow = 'scroll';
+            var w2 = inner.offsetWidth;
+            if (w1 === w2) {
+                w2 = outer.clientWidth;
+            }
+            $document[0].body.removeChild(outer);
+            return w1 - w2;
+        },
+
+        getScrollBarHeight: function getScrollBarHeight() {
+            var inner = $document[0].createElement('p');
+            inner.style.width = '200px;';
+            inner.style.height = '100%';
+            var outer = $document[0].createElement('div');
+            outer.style.position = 'absolute';
+            outer.style.top = '0px';
+            outer.style.left = '0px';
+            outer.style.visibility = 'hidden';
+            outer.style.width = '150px';
+            outer.style.height = '200px';
+            outer.style.overflow = 'hidden';
+            outer.appendChild(inner);
+            $document[0].body.appendChild(outer);
+            var h1 = inner.offsetHeight;
+            outer.style.overflow = 'scroll';
+            var h2 = inner.offsetHeight;
+            if (h1 === h2) {
+                h2 = outer.clientHeight;
+            }
+            $document[0].body.removeChild(outer);
+            return h1 - h2;
+        },
+        setColumnsWidthFactor: function setColumnsWidthFactor(columns, widthFactor, originalLeftOffset) {
+            if (!columns) {
+                return;
+            }
+            if (!originalLeftOffset) {
+                originalLeftOffset = 0;
+            }
+            for (var i = 0; i < columns.length; i++) {
+                var column = columns[i];
+                column.left = widthFactor * (column.originalSize.left + originalLeftOffset) - originalLeftOffset;
+                column.width = widthFactor * column.originalSize.width;
+                for (var j = 0; j < column.timeFrames.length; j++) {
+                    var timeFrame = column.timeFrames[j];
+                    timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                    timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                }
+            }
+        }
+    };
+}];
+
+/***/ }),
+/* 113 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        getButton: function getButton(e) {
+            e = e || window.event;
+            if (!e.which) {
+                if (e.button === undefined) {
+                    return 1;
+                }
+                return e.button < 2 ? 1 : e.button === 4 ? 2 : 3;
+            } else {
+                return e.which;
+            }
+        }
+    };
+};
+
+/***/ }),
+/* 114 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    return {
+        getTouch: function getTouch(evt) {
+            if (evt.touches !== undefined) {
+                return evt.touches[0];
+            }
+            return evt;
+        },
+        getOffset: function getOffset(evt) {
+            if (evt.offsetX && evt.offsetY) {
+                return { x: evt.offsetX, y: evt.offsetY };
+            }
+            if (evt.layerX && evt.layerY) {
+                return { x: evt.layerX, y: evt.layerY };
+            }
+            return this.getOffsetForElement(evt.target, evt);
+        },
+        getOffsetForElement: function getOffsetForElement(el, evt) {
+            var bb = el.getBoundingClientRect();
+            return { x: evt.clientX - bb.left, y: evt.clientY - bb.top };
+        }
+    };
+};
+
+/***/ }),
+/* 115 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    'ngInject';
+
+    function ganttSmartEvent($scope, $element, event, fn) {
+        $scope.$on('$destroy', function () {
+            $element.unbind(event, fn);
+        });
+        return {
+            bindOnce: function bindOnce() {
+                $element.one(event, fn);
+            },
+            bind: function bind() {
+                $element.bind(event, fn);
+            },
+            unbind: function unbind() {
+                $element.unbind(event, fn);
+            }
+        };
+    }
+    return ganttSmartEvent;
+};
+
+/***/ }),
+/* 116 */
+/***/ (function(module, exports) {
+
+var path = 'template/gantt.tmpl.html';
+var html = "<div class=\"gantt unselectable\" ng-cloak gantt-scroll-manager gantt-container-height-listener=ganttContainerHeight gantt-container-width-listener=ganttContainerWidth gantt-element-height-listener=ganttElementHeight gantt-element-width-listener=ganttElementWidth> <gantt-side> <gantt-side-background> </gantt-side-background> <gantt-side-content> </gantt-side-content> <div gantt-resizer=gantt.side.$element gantt-resizer-event-topic=side gantt-resizer-enabled=\"{{$parent.gantt.options.value('allowSideResizing')}}\" resizer-width=sideWidth class=gantt-resizer> <div ng-show=\"$parent.gantt.options.value('allowSideResizing')\" class=gantt-resizer-display></div> </div> </gantt-side> <gantt-scrollable-header> <gantt-header gantt-element-height-listener=$parent.ganttHeaderHeight> <gantt-header-columns> <div ng-repeat=\"header in gantt.columnsManager.visibleHeaders track by $index\"> <div class=gantt-header-row ng-class=\"{'gantt-header-row-last': $last, 'gantt-header-row-first': $first}\"> <gantt-column-header ng-repeat=\"column in header\"></gantt-column-header> </div> </div> </gantt-header-columns> </gantt-header> </gantt-scrollable-header> <gantt-scrollable> <gantt-body> <gantt-body-background> <gantt-row-background ng-repeat=\"row in gantt.rowsManager.visibleRows track by row.model.id\"></gantt-row-background> </gantt-body-background> <gantt-body-foreground> <div class=gantt-current-date-line ng-show=\"currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width\" ng-style=\"{'left': gantt.currentDateManager.position + 'px' }\"></div> </gantt-body-foreground> <gantt-body-columns> <gantt-column ng-repeat=\"column in gantt.columnsManager.visibleColumns\"> <gantt-time-frame ng-repeat=\"timeFrame in column.visibleTimeFrames\"></gantt-time-frame> </gantt-column> </gantt-body-columns> <div ng-if=\"gantt.columnsManager.visibleColumns == 0\" style=background-color:grey></div> <gantt-body-rows> <gantt-timespan ng-repeat=\"timespan in gantt.timespansManager.timespans track by timespan.model.id\"></gantt-timespan> <gantt-row ng-repeat=\"row in gantt.rowsManager.visibleRows track by row.model.id\"> <gantt-task ng-repeat=\"task in row.visibleTasks track by task.model.id\"> </gantt-task> </gantt-row> </gantt-body-rows> </gantt-body> </gantt-scrollable> <ng-transclude></ng-transclude> <script type=text/ng-template id=template/ganttBody.tmpl.html> <div ng-transclude class=\"gantt-body\" ng-style=\"{'width': gantt.width > 0 ? gantt.width +'px' : undefined}\"></div> </script> <script type=text/ng-template id=template/ganttHeader.tmpl.html> <div ng-transclude class=\"gantt-header\"\n             ng-show=\"gantt.columnsManager.columns.length > 0 && gantt.columnsManager.headers.length > 0\"></div> </script> <script type=text/ng-template id=template/ganttSide.tmpl.html> <div ng-transclude class=\"gantt-side\" style=\"width: auto;\"></div> </script> <script type=text/ng-template id=template/ganttSideContent.tmpl.html> <div class=\"gantt-side-content\" ng-style=\"getSideCss()\">\n        </div> </script> <script type=text/ng-template id=template/ganttHeaderColumns.tmpl.html> <div ng-transclude class=\"gantt-header-columns\"\n              gantt-horizontal-scroll-receiver></div> </script> <script type=text/ng-template id=template/ganttColumnHeader.tmpl.html> <div class=\"gantt-column-header\" ng-class=\"{'gantt-column-header-last': $last, 'gantt-column-header-first': $first}\">{{::column.label}}</div> </script> <script type=text/ng-template id=template/ganttBodyBackground.tmpl.html> <div ng-transclude class=\"gantt-body-background\"></div> </script> <script type=text/ng-template id=template/ganttBodyForeground.tmpl.html> <div ng-transclude class=\"gantt-body-foreground\"></div> </script> <script type=text/ng-template id=template/ganttBodyColumns.tmpl.html> <div ng-transclude class=\"gantt-body-columns\"></div> </script> <script type=text/ng-template id=template/ganttColumn.tmpl.html> <div ng-transclude class=\"gantt-column gantt-foreground-col\" ng-class=\"{'gantt-column-last': $last, 'gantt-column-first': $first}\"></div> </script> <script type=text/ng-template id=template/ganttTimeFrame.tmpl.html> <div class=\"gantt-timeframe\"></div> </script> <script type=text/ng-template id=template/ganttScrollable.tmpl.html> <div ng-transclude class=\"gantt-scrollable\" gantt-scroll-sender ng-style=\"getScrollableCss()\"></div> </script> <script type=text/ng-template id=template/ganttScrollableHeader.tmpl.html> <div ng-transclude class=\"gantt-scrollable-header\" ng-style=\"getScrollableHeaderCss()\"></div> </script> <script type=text/ng-template id=template/ganttBodyRows.tmpl.html> <div ng-transclude class=\"gantt-body-rows\"></div> </script> <script type=text/ng-template id=template/ganttTimespan.tmpl.html> <div class=\"gantt-timespan\" ng-class=\"timespan.model.classes\">\n        </div> </script> <script type=text/ng-template id=template/ganttTask.tmpl.html> <div class=\"gantt-task\" ng-class=\"task.model.classes\">\n            <gantt-task-background></gantt-task-background>\n            <gantt-task-foreground></gantt-task-foreground>\n            <gantt-task-content></gantt-task-content>\n        </div> </script> <script type=text/ng-template id=template/ganttTaskBackground.tmpl.html> <div class=\"gantt-task-background\" ng-style=\"{'background-color': task.model.color}\"></div> </script> <script type=text/ng-template id=template/ganttTaskForeground.tmpl.html> <div class=\"gantt-task-foreground\">\n            <div ng-if=\"task.truncatedRight\" class=\"gantt-task-truncated-right\" ng-style=\"{'padding-right': task.truncatedRightOffset + 'px'}\">&gt;</div>\n            <div ng-if=\"task.truncatedLeft\" class=\"gantt-task-truncated-left\" ng-style=\"{'padding-left': task.truncatedLeftOffset + 'px'}\">&lt;</div>\n        </div> </script> <script type=text/ng-template id=template/ganttTaskContent.tmpl.html> <div class=\"gantt-task-content\" unselectable=\"on\"><span unselectable=\"on\" gantt-bind-compile-html=\"getTaskContent()\"/></div> </script> <script type=text/ng-template id=template/ganttRowBackground.tmpl.html> <div class=\"gantt-row gantt-row-height\"\n             ng-class=\"row.model.classes\"\n             ng-class-odd=\"'gantt-row-odd'\"\n             ng-class-even=\"'gantt-row-even'\"\n             ng-style=\"{'height': row.model.height}\">\n            <div class=\"gantt-row-background\"\n                 ng-style=\"{'background-color': row.model.color}\">\n            </div>\n        </div> </script> <script type=text/ng-template id=template/ganttRow.tmpl.html> <div class=\"gantt-row gantt-row-height\"\n             ng-class=\"row.model.classes\"\n             ng-class-odd=\"'gantt-row-odd'\"\n             ng-class-even=\"'gantt-row-even'\"\n             ng-style=\"{'height': row.model.height}\">\n            <div ng-transclude class=\"gantt-row-content\"></div>\n        </div> </script> <script type=text/ng-template id=template/ganttSideBackground.tmpl.html> <div class=\"gantt-side-background\">\n            <div class=\"gantt-side-background-header\" ng-style=\"{height: $parent.ganttHeaderHeight + 'px'}\">\n                <div ng-show=\"$parent.ganttHeaderHeight\" class=\"gantt-header-row gantt-side-header-row\"></div>\n            </div>\n            <div class=\"gantt-side-background-body\" ng-style=\"getMaxHeightCss()\">\n                <div gantt-vertical-scroll-receiver>\n                    <div class=\"gantt-row gantt-row-height \"\n                         ng-class-odd=\"'gantt-row-odd'\"\n                         ng-class-even=\"'gantt-row-even'\"\n                         ng-class=\"row.model.classes\"\n                         ng-repeat=\"row in gantt.rowsManager.visibleRows track by row.model.id\"\n                         ng-style=\"{'height': row.model.height}\">\n                        <div class=\"gantt-row-label gantt-row-background\"\n                             ng-style=\"{'background-color': row.model.color}\">\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div> </script> </div> ";
+window.angular.module('ng').run(['$templateCache', function(c) { c.put(path, html) }]);
+module.exports = path;
+
+/***/ }),
+/* 117 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(119), __esModule: true };
+
+/***/ }),
+/* 118 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(120), __esModule: true };
+
+/***/ }),
+/* 119 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(144);
+__webpack_require__(142);
+__webpack_require__(145);
+__webpack_require__(146);
+module.exports = __webpack_require__(17).Symbol;
+
+/***/ }),
+/* 120 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(143);
+__webpack_require__(147);
+module.exports = __webpack_require__(29).f('iterator');
+
+/***/ }),
+/* 121 */
+/***/ (function(module, exports) {
+
+module.exports = function(it){
+  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
+  return it;
+};
+
+/***/ }),
+/* 122 */
+/***/ (function(module, exports) {
+
+module.exports = function(){ /* empty */ };
+
+/***/ }),
+/* 123 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// false -> Array#indexOf
+// true  -> Array#includes
+var toIObject = __webpack_require__(6)
+  , toLength  = __webpack_require__(139)
+  , toIndex   = __webpack_require__(138);
+module.exports = function(IS_INCLUDES){
+  return function($this, el, fromIndex){
+    var O      = toIObject($this)
+      , length = toLength(O.length)
+      , index  = toIndex(fromIndex, length)
+      , value;
+    // Array#includes uses SameValueZero equality algorithm
+    if(IS_INCLUDES && el != el)while(length > index){
+      value = O[index++];
+      if(value != value)return true;
+    // Array#toIndex ignores holes, Array#includes - not
+    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
+      if(O[index] === el)return IS_INCLUDES || index || 0;
+    } return !IS_INCLUDES && -1;
+  };
+};
+
+/***/ }),
+/* 124 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// optional / simple context binding
+var aFunction = __webpack_require__(121);
+module.exports = function(fn, that, length){
+  aFunction(fn);
+  if(that === undefined)return fn;
+  switch(length){
+    case 1: return function(a){
+      return fn.call(that, a);
+    };
+    case 2: return function(a, b){
+      return fn.call(that, a, b);
+    };
+    case 3: return function(a, b, c){
+      return fn.call(that, a, b, c);
+    };
+  }
+  return function(/* ...args */){
+    return fn.apply(that, arguments);
+  };
+};
+
+/***/ }),
+/* 125 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// all enumerable object keys, includes symbols
+var getKeys = __webpack_require__(14)
+  , gOPS    = __webpack_require__(37)
+  , pIE     = __webpack_require__(22);
+module.exports = function(it){
+  var result     = getKeys(it)
+    , getSymbols = gOPS.f;
+  if(getSymbols){
+    var symbols = getSymbols(it)
+      , isEnum  = pIE.f
+      , i       = 0
+      , key;
+    while(symbols.length > i)if(isEnum.call(it, key = symbols[i++]))result.push(key);
+  } return result;
+};
+
+/***/ }),
+/* 126 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(4).document && document.documentElement;
+
+/***/ }),
+/* 127 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// fallback for non-array-like ES3 and non-enumerable old V8 strings
+var cof = __webpack_require__(30);
+module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
+  return cof(it) == 'String' ? it.split('') : Object(it);
+};
+
+/***/ }),
+/* 128 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 7.2.2 IsArray(argument)
+var cof = __webpack_require__(30);
+module.exports = Array.isArray || function isArray(arg){
+  return cof(arg) == 'Array';
+};
+
+/***/ }),
+/* 129 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var create         = __webpack_require__(35)
+  , descriptor     = __webpack_require__(15)
+  , setToStringTag = __webpack_require__(23)
+  , IteratorPrototype = {};
+
+// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
+__webpack_require__(8)(IteratorPrototype, __webpack_require__(10)('iterator'), function(){ return this; });
+
+module.exports = function(Constructor, NAME, next){
+  Constructor.prototype = create(IteratorPrototype, {next: descriptor(1, next)});
+  setToStringTag(Constructor, NAME + ' Iterator');
+};
+
+/***/ }),
+/* 130 */
+/***/ (function(module, exports) {
+
+module.exports = function(done, value){
+  return {value: value, done: !!done};
+};
+
+/***/ }),
+/* 131 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var getKeys   = __webpack_require__(14)
+  , toIObject = __webpack_require__(6);
+module.exports = function(object, el){
+  var O      = toIObject(object)
+    , keys   = getKeys(O)
+    , length = keys.length
+    , index  = 0
+    , key;
+  while(length > index)if(O[key = keys[index++]] === el)return key;
+};
+
+/***/ }),
+/* 132 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var META     = __webpack_require__(16)('meta')
+  , isObject = __webpack_require__(13)
+  , has      = __webpack_require__(5)
+  , setDesc  = __webpack_require__(9).f
+  , id       = 0;
+var isExtensible = Object.isExtensible || function(){
+  return true;
+};
+var FREEZE = !__webpack_require__(12)(function(){
+  return isExtensible(Object.preventExtensions({}));
+});
+var setMeta = function(it){
+  setDesc(it, META, {value: {
+    i: 'O' + ++id, // object ID
+    w: {}          // weak collections IDs
+  }});
+};
+var fastKey = function(it, create){
+  // return primitive with prefix
+  if(!isObject(it))return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+  if(!has(it, META)){
+    // can't set metadata to uncaught frozen object
+    if(!isExtensible(it))return 'F';
+    // not necessary to add metadata
+    if(!create)return 'E';
+    // add missing metadata
+    setMeta(it);
+  // return object ID
+  } return it[META].i;
+};
+var getWeak = function(it, create){
+  if(!has(it, META)){
+    // can't set metadata to uncaught frozen object
+    if(!isExtensible(it))return true;
+    // not necessary to add metadata
+    if(!create)return false;
+    // add missing metadata
+    setMeta(it);
+  // return hash weak collections IDs
+  } return it[META].w;
+};
+// add metadata on freeze-family methods calling
+var onFreeze = function(it){
+  if(FREEZE && meta.NEED && isExtensible(it) && !has(it, META))setMeta(it);
+  return it;
+};
+var meta = module.exports = {
+  KEY:      META,
+  NEED:     false,
+  fastKey:  fastKey,
+  getWeak:  getWeak,
+  onFreeze: onFreeze
+};
+
+/***/ }),
+/* 133 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var dP       = __webpack_require__(9)
+  , anObject = __webpack_require__(11)
+  , getKeys  = __webpack_require__(14);
+
+module.exports = __webpack_require__(7) ? Object.defineProperties : function defineProperties(O, Properties){
+  anObject(O);
+  var keys   = getKeys(Properties)
+    , length = keys.length
+    , i = 0
+    , P;
+  while(length > i)dP.f(O, P = keys[i++], Properties[P]);
+  return O;
+};
+
+/***/ }),
+/* 134 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var pIE            = __webpack_require__(22)
+  , createDesc     = __webpack_require__(15)
+  , toIObject      = __webpack_require__(6)
+  , toPrimitive    = __webpack_require__(27)
+  , has            = __webpack_require__(5)
+  , IE8_DOM_DEFINE = __webpack_require__(33)
+  , gOPD           = Object.getOwnPropertyDescriptor;
+
+exports.f = __webpack_require__(7) ? gOPD : function getOwnPropertyDescriptor(O, P){
+  O = toIObject(O);
+  P = toPrimitive(P, true);
+  if(IE8_DOM_DEFINE)try {
+    return gOPD(O, P);
+  } catch(e){ /* empty */ }
+  if(has(O, P))return createDesc(!pIE.f.call(O, P), O[P]);
+};
+
+/***/ }),
+/* 135 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+var toIObject = __webpack_require__(6)
+  , gOPN      = __webpack_require__(36).f
+  , toString  = {}.toString;
+
+var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
+  ? Object.getOwnPropertyNames(window) : [];
+
+var getWindowNames = function(it){
+  try {
+    return gOPN(it);
+  } catch(e){
+    return windowNames.slice();
+  }
+};
+
+module.exports.f = function getOwnPropertyNames(it){
+  return windowNames && toString.call(it) == '[object Window]' ? getWindowNames(it) : gOPN(toIObject(it));
+};
+
+
+/***/ }),
+/* 136 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+var has         = __webpack_require__(5)
+  , toObject    = __webpack_require__(140)
+  , IE_PROTO    = __webpack_require__(24)('IE_PROTO')
+  , ObjectProto = Object.prototype;
+
+module.exports = Object.getPrototypeOf || function(O){
+  O = toObject(O);
+  if(has(O, IE_PROTO))return O[IE_PROTO];
+  if(typeof O.constructor == 'function' && O instanceof O.constructor){
+    return O.constructor.prototype;
+  } return O instanceof Object ? ObjectProto : null;
+};
+
+/***/ }),
+/* 137 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var toInteger = __webpack_require__(26)
+  , defined   = __webpack_require__(18);
+// true  -> String#at
+// false -> String#codePointAt
+module.exports = function(TO_STRING){
+  return function(that, pos){
+    var s = String(defined(that))
+      , i = toInteger(pos)
+      , l = s.length
+      , a, b;
+    if(i < 0 || i >= l)return TO_STRING ? '' : undefined;
+    a = s.charCodeAt(i);
+    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+      ? TO_STRING ? s.charAt(i) : a
+      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+  };
+};
+
+/***/ }),
+/* 138 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var toInteger = __webpack_require__(26)
+  , max       = Math.max
+  , min       = Math.min;
+module.exports = function(index, length){
+  index = toInteger(index);
+  return index < 0 ? max(index + length, 0) : min(index, length);
+};
+
+/***/ }),
+/* 139 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 7.1.15 ToLength
+var toInteger = __webpack_require__(26)
+  , min       = Math.min;
+module.exports = function(it){
+  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
+};
+
+/***/ }),
+/* 140 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 7.1.13 ToObject(argument)
+var defined = __webpack_require__(18);
+module.exports = function(it){
+  return Object(defined(it));
+};
+
+/***/ }),
+/* 141 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var addToUnscopables = __webpack_require__(122)
+  , step             = __webpack_require__(130)
+  , Iterators        = __webpack_require__(20)
+  , toIObject        = __webpack_require__(6);
+
+// 22.1.3.4 Array.prototype.entries()
+// 22.1.3.13 Array.prototype.keys()
+// 22.1.3.29 Array.prototype.values()
+// 22.1.3.30 Array.prototype[@@iterator]()
+module.exports = __webpack_require__(34)(Array, 'Array', function(iterated, kind){
+  this._t = toIObject(iterated); // target
+  this._i = 0;                   // next index
+  this._k = kind;                // kind
+// 22.1.5.2.1 %ArrayIteratorPrototype%.next()
+}, function(){
+  var O     = this._t
+    , kind  = this._k
+    , index = this._i++;
+  if(!O || index >= O.length){
+    this._t = undefined;
+    return step(1);
+  }
+  if(kind == 'keys'  )return step(0, index);
+  if(kind == 'values')return step(0, O[index]);
+  return step(0, [index, O[index]]);
+}, 'values');
+
+// argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
+Iterators.Arguments = Iterators.Array;
+
+addToUnscopables('keys');
+addToUnscopables('values');
+addToUnscopables('entries');
+
+/***/ }),
+/* 142 */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+/* 143 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $at  = __webpack_require__(137)(true);
+
+// 21.1.3.27 String.prototype[@@iterator]()
+__webpack_require__(34)(String, 'String', function(iterated){
+  this._t = String(iterated); // target
+  this._i = 0;                // next index
+// 21.1.5.2.1 %StringIteratorPrototype%.next()
+}, function(){
+  var O     = this._t
+    , index = this._i
+    , point;
+  if(index >= O.length)return {value: undefined, done: true};
+  point = $at(O, index);
+  this._i += point.length;
+  return {value: point, done: false};
+});
+
+/***/ }),
+/* 144 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// ECMAScript 6 symbols shim
+var global         = __webpack_require__(4)
+  , has            = __webpack_require__(5)
+  , DESCRIPTORS    = __webpack_require__(7)
+  , $export        = __webpack_require__(32)
+  , redefine       = __webpack_require__(39)
+  , META           = __webpack_require__(132).KEY
+  , $fails         = __webpack_require__(12)
+  , shared         = __webpack_require__(25)
+  , setToStringTag = __webpack_require__(23)
+  , uid            = __webpack_require__(16)
+  , wks            = __webpack_require__(10)
+  , wksExt         = __webpack_require__(29)
+  , wksDefine      = __webpack_require__(28)
+  , keyOf          = __webpack_require__(131)
+  , enumKeys       = __webpack_require__(125)
+  , isArray        = __webpack_require__(128)
+  , anObject       = __webpack_require__(11)
+  , toIObject      = __webpack_require__(6)
+  , toPrimitive    = __webpack_require__(27)
+  , createDesc     = __webpack_require__(15)
+  , _create        = __webpack_require__(35)
+  , gOPNExt        = __webpack_require__(135)
+  , $GOPD          = __webpack_require__(134)
+  , $DP            = __webpack_require__(9)
+  , $keys          = __webpack_require__(14)
+  , gOPD           = $GOPD.f
+  , dP             = $DP.f
+  , gOPN           = gOPNExt.f
+  , $Symbol        = global.Symbol
+  , $JSON          = global.JSON
+  , _stringify     = $JSON && $JSON.stringify
+  , PROTOTYPE      = 'prototype'
+  , HIDDEN         = wks('_hidden')
+  , TO_PRIMITIVE   = wks('toPrimitive')
+  , isEnum         = {}.propertyIsEnumerable
+  , SymbolRegistry = shared('symbol-registry')
+  , AllSymbols     = shared('symbols')
+  , OPSymbols      = shared('op-symbols')
+  , ObjectProto    = Object[PROTOTYPE]
+  , USE_NATIVE     = typeof $Symbol == 'function'
+  , QObject        = global.QObject;
+// Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
+var setter = !QObject || !QObject[PROTOTYPE] || !QObject[PROTOTYPE].findChild;
+
+// fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
+var setSymbolDesc = DESCRIPTORS && $fails(function(){
+  return _create(dP({}, 'a', {
+    get: function(){ return dP(this, 'a', {value: 7}).a; }
+  })).a != 7;
+}) ? function(it, key, D){
+  var protoDesc = gOPD(ObjectProto, key);
+  if(protoDesc)delete ObjectProto[key];
+  dP(it, key, D);
+  if(protoDesc && it !== ObjectProto)dP(ObjectProto, key, protoDesc);
+} : dP;
+
+var wrap = function(tag){
+  var sym = AllSymbols[tag] = _create($Symbol[PROTOTYPE]);
+  sym._k = tag;
+  return sym;
+};
+
+var isSymbol = USE_NATIVE && typeof $Symbol.iterator == 'symbol' ? function(it){
+  return typeof it == 'symbol';
+} : function(it){
+  return it instanceof $Symbol;
+};
+
+var $defineProperty = function defineProperty(it, key, D){
+  if(it === ObjectProto)$defineProperty(OPSymbols, key, D);
+  anObject(it);
+  key = toPrimitive(key, true);
+  anObject(D);
+  if(has(AllSymbols, key)){
+    if(!D.enumerable){
+      if(!has(it, HIDDEN))dP(it, HIDDEN, createDesc(1, {}));
+      it[HIDDEN][key] = true;
+    } else {
+      if(has(it, HIDDEN) && it[HIDDEN][key])it[HIDDEN][key] = false;
+      D = _create(D, {enumerable: createDesc(0, false)});
+    } return setSymbolDesc(it, key, D);
+  } return dP(it, key, D);
+};
+var $defineProperties = function defineProperties(it, P){
+  anObject(it);
+  var keys = enumKeys(P = toIObject(P))
+    , i    = 0
+    , l = keys.length
+    , key;
+  while(l > i)$defineProperty(it, key = keys[i++], P[key]);
+  return it;
+};
+var $create = function create(it, P){
+  return P === undefined ? _create(it) : $defineProperties(_create(it), P);
+};
+var $propertyIsEnumerable = function propertyIsEnumerable(key){
+  var E = isEnum.call(this, key = toPrimitive(key, true));
+  if(this === ObjectProto && has(AllSymbols, key) && !has(OPSymbols, key))return false;
+  return E || !has(this, key) || !has(AllSymbols, key) || has(this, HIDDEN) && this[HIDDEN][key] ? E : true;
+};
+var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key){
+  it  = toIObject(it);
+  key = toPrimitive(key, true);
+  if(it === ObjectProto && has(AllSymbols, key) && !has(OPSymbols, key))return;
+  var D = gOPD(it, key);
+  if(D && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key]))D.enumerable = true;
+  return D;
+};
+var $getOwnPropertyNames = function getOwnPropertyNames(it){
+  var names  = gOPN(toIObject(it))
+    , result = []
+    , i      = 0
+    , key;
+  while(names.length > i){
+    if(!has(AllSymbols, key = names[i++]) && key != HIDDEN && key != META)result.push(key);
+  } return result;
+};
+var $getOwnPropertySymbols = function getOwnPropertySymbols(it){
+  var IS_OP  = it === ObjectProto
+    , names  = gOPN(IS_OP ? OPSymbols : toIObject(it))
+    , result = []
+    , i      = 0
+    , key;
+  while(names.length > i){
+    if(has(AllSymbols, key = names[i++]) && (IS_OP ? has(ObjectProto, key) : true))result.push(AllSymbols[key]);
+  } return result;
+};
+
+// 19.4.1.1 Symbol([description])
+if(!USE_NATIVE){
+  $Symbol = function Symbol(){
+    if(this instanceof $Symbol)throw TypeError('Symbol is not a constructor!');
+    var tag = uid(arguments.length > 0 ? arguments[0] : undefined);
+    var $set = function(value){
+      if(this === ObjectProto)$set.call(OPSymbols, value);
+      if(has(this, HIDDEN) && has(this[HIDDEN], tag))this[HIDDEN][tag] = false;
+      setSymbolDesc(this, tag, createDesc(1, value));
+    };
+    if(DESCRIPTORS && setter)setSymbolDesc(ObjectProto, tag, {configurable: true, set: $set});
+    return wrap(tag);
+  };
+  redefine($Symbol[PROTOTYPE], 'toString', function toString(){
+    return this._k;
+  });
+
+  $GOPD.f = $getOwnPropertyDescriptor;
+  $DP.f   = $defineProperty;
+  __webpack_require__(36).f = gOPNExt.f = $getOwnPropertyNames;
+  __webpack_require__(22).f  = $propertyIsEnumerable;
+  __webpack_require__(37).f = $getOwnPropertySymbols;
+
+  if(DESCRIPTORS && !__webpack_require__(21)){
+    redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
+  }
+
+  wksExt.f = function(name){
+    return wrap(wks(name));
+  }
+}
+
+$export($export.G + $export.W + $export.F * !USE_NATIVE, {Symbol: $Symbol});
+
+for(var symbols = (
+  // 19.4.2.2, 19.4.2.3, 19.4.2.4, 19.4.2.6, 19.4.2.8, 19.4.2.9, 19.4.2.10, 19.4.2.11, 19.4.2.12, 19.4.2.13, 19.4.2.14
+  'hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables'
+).split(','), i = 0; symbols.length > i; )wks(symbols[i++]);
+
+for(var symbols = $keys(wks.store), i = 0; symbols.length > i; )wksDefine(symbols[i++]);
+
+$export($export.S + $export.F * !USE_NATIVE, 'Symbol', {
+  // 19.4.2.1 Symbol.for(key)
+  'for': function(key){
+    return has(SymbolRegistry, key += '')
+      ? SymbolRegistry[key]
+      : SymbolRegistry[key] = $Symbol(key);
+  },
+  // 19.4.2.5 Symbol.keyFor(sym)
+  keyFor: function keyFor(key){
+    if(isSymbol(key))return keyOf(SymbolRegistry, key);
+    throw TypeError(key + ' is not a symbol!');
+  },
+  useSetter: function(){ setter = true; },
+  useSimple: function(){ setter = false; }
+});
+
+$export($export.S + $export.F * !USE_NATIVE, 'Object', {
+  // 19.1.2.2 Object.create(O [, Properties])
+  create: $create,
+  // 19.1.2.4 Object.defineProperty(O, P, Attributes)
+  defineProperty: $defineProperty,
+  // 19.1.2.3 Object.defineProperties(O, Properties)
+  defineProperties: $defineProperties,
+  // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+  getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+  // 19.1.2.7 Object.getOwnPropertyNames(O)
+  getOwnPropertyNames: $getOwnPropertyNames,
+  // 19.1.2.8 Object.getOwnPropertySymbols(O)
+  getOwnPropertySymbols: $getOwnPropertySymbols
+});
+
+// 24.3.2 JSON.stringify(value [, replacer [, space]])
+$JSON && $export($export.S + $export.F * (!USE_NATIVE || $fails(function(){
+  var S = $Symbol();
+  // MS Edge converts symbol values to JSON as {}
+  // WebKit converts symbol values to JSON as null
+  // V8 throws on boxed symbols
+  return _stringify([S]) != '[null]' || _stringify({a: S}) != '{}' || _stringify(Object(S)) != '{}';
+})), 'JSON', {
+  stringify: function stringify(it){
+    if(it === undefined || isSymbol(it))return; // IE8 returns string on undefined
+    var args = [it]
+      , i    = 1
+      , replacer, $replacer;
+    while(arguments.length > i)args.push(arguments[i++]);
+    replacer = args[1];
+    if(typeof replacer == 'function')$replacer = replacer;
+    if($replacer || !isArray(replacer))replacer = function(key, value){
+      if($replacer)value = $replacer.call(this, key, value);
+      if(!isSymbol(value))return value;
+    };
+    args[1] = replacer;
+    return _stringify.apply($JSON, args);
+  }
+});
+
+// 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
+$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(8)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
+// 19.4.3.5 Symbol.prototype[@@toStringTag]
+setToStringTag($Symbol, 'Symbol');
+// 20.2.1.9 Math[@@toStringTag]
+setToStringTag(Math, 'Math', true);
+// 24.3.3 JSON[@@toStringTag]
+setToStringTag(global.JSON, 'JSON', true);
+
+/***/ }),
+/* 145 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(28)('asyncIterator');
+
+/***/ }),
+/* 146 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(28)('observable');
+
+/***/ }),
+/* 147 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(141);
+var global        = __webpack_require__(4)
+  , hide          = __webpack_require__(8)
+  , Iterators     = __webpack_require__(20)
+  , TO_STRING_TAG = __webpack_require__(10)('toStringTag');
+
+for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList', 'CSSRuleList'], i = 0; i < 5; i++){
+  var NAME       = collections[i]
+    , Collection = global[NAME]
+    , proto      = Collection && Collection.prototype;
+  if(proto && !proto[TO_STRING_TAG])hide(proto, TO_STRING_TAG, NAME);
+  Iterators[NAME] = Iterators.Array;
+}
+
+/***/ })
+/******/ ]);
+});
 //# sourceMappingURL=angular-gantt-core.js.map

@@ -3,10 +3,12 @@ var utils = require('./utils');
 var webpack = require('webpack');
 var config = require('../config');
 var merge = require('webpack-merge');
+var banner = require('./banner');
 var baseWebpackConfig = require('./webpack.base.conf');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
+
 
 var env = process.env.NODE_ENV === 'testing'
   ? require('../config/test.env')
@@ -45,10 +47,23 @@ webpackConfig = merge(baseWebpackConfig, {
   },
   devtool: config.build.productionSourceMap ? '#source-map' : false,
   plugins: [
-    // http://vuejs.github.io/vue-loader/en/workflow/production.html
+    new webpack.BannerPlugin({banner:banner, entryOnly: true}),
     new webpack.DefinePlugin({
       'process.env': env
     }),
+    // extract css into its own file
+    new ExtractTextPlugin({
+      filename: utils.assetsPath('[name].css')
+    })
+  ]
+});
+
+webpackMinifiedConfig = merge(webpackConfig, {
+  output: {
+    filename: utils.assetsPath('[name].min.js'),
+    chunkFilename: utils.assetsPath('[id].min.js')
+  },
+  plugins: [
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
@@ -57,7 +72,7 @@ webpackConfig = merge(baseWebpackConfig, {
     }),
     // extract css into its own file
     new ExtractTextPlugin({
-      filename: utils.assetsPath('[name].css')
+      filename: utils.assetsPath('[name].min.css')
     }),
     // Compress extracted CSS. We are using this plugin so that possible
     // duplicated CSS from different components can be deduped.
@@ -67,12 +82,12 @@ webpackConfig = merge(baseWebpackConfig, {
       }
     })
   ]
-});
+})
 
 if (config.build.productionGzip) {
   var CompressionWebpackPlugin = require('compression-webpack-plugin');
 
-  webpackConfig.plugins.push(
+  webpackMinifiedConfig.plugins.push(
     new CompressionWebpackPlugin({
       asset: '[path].gz[query]',
       algorithm: 'gzip',
@@ -89,7 +104,7 @@ if (config.build.productionGzip) {
 
 if (config.build.bundleAnalyzerReport) {
   var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-  webpackConfig.plugins.push(new BundleAnalyzerPlugin());
+  webpackMinifiedConfig.plugins.push(new BundleAnalyzerPlugin());
 }
 
-module.exports = webpackConfig;
+module.exports = [webpackConfig, webpackMinifiedConfig];
