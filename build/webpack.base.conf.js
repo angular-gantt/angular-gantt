@@ -7,12 +7,6 @@ function resolve(dir) {
 }
 
 module.exports = {
-  entry: {
-    'angular-gantt': ['./src/index.ts', './src/plugins/index.ts'],
-    'angular-gantt-core': './src/index.ts',
-    'angular-gantt-demo': './demo/index.ts',
-    'angular-gantt-plugins': './src/plugins/index.ts'
-  },
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',

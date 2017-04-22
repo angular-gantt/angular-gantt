@@ -2,8 +2,9 @@ import angular from 'angular';
 
 import moment from 'moment';
 
-/** @ngInject */
 export default function ($scope, $timeout, $log, ganttUtils, GanttObjectModel, DemoService, ganttMouseOffset, ganttDebounce) {
+  'ngInject';
+
   let objectModel;
   let dataToRemove;
 

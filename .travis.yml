@@ -18,3 +18,4 @@ script:
   - 'yarn tslint'
   - 'yarn test'
   - 'yarn build'
+  - 'yarn build-demo'

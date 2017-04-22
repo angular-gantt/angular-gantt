@@ -1,4 +1,6 @@
 export default function () {
+  'ngInject';
+
   return {
     getSampleData: function () {
       return [

@@ -11,12 +11,11 @@ function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
-// add hot-reload related code to entry chunks
-Object.keys(baseWebpackConfig.entry).forEach(function (name) {
-  baseWebpackConfig.entry[name] = ['./build/dev-client'].concat(baseWebpackConfig.entry[name])
-})
-
 module.exports = merge(baseWebpackConfig, {
+  entry: {
+    // add hot-reload related code to entry chunks
+    'angular-gantt-demo': ['./build/dev-client', './demo/index.ts']
+  },
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
   },
