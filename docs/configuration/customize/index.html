@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.angular-gantt.com/configuration/customize/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+        <title>Customize - angular-gantt</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">angular-gantt</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../../get-started">Get Started</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../data">Data</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../timespans">Timespans</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../attributes">Attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../plugins">Plugins</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href=".">Customize</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../api">API</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../write_plugin">Write a Plugin</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../../plugins/labels">Labels</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/table">Table</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tree">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/corner">Corner</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/groups">Groups</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/dependencies">Dependencies</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sortable">Sortable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/movable">Movable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/drawtask">Draw Task</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tooltips">Tooltips</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sections">Sections</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/progress">Progress</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/overlap">Overlap</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../sources">Sources</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../contribute">Contribute</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../faq">FAQ</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../about">About</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../plugins">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../api">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/angular-gantt/angular-gantt">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#customize">Customize</a></li>
+        
+            <li><a href="#default-template">Default Template</a></li>
+        
+            <li><a href="#custom-template">Custom Template</a></li>
+        
+            <li><a href="#template-hooks">Template Hooks</a></li>
+        
+            <li><a href="#examples">Examples</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="customize">Customize</h1>
+<p>angular-gantt is highly customizable, using either <a href="#custom-template">Custom Template</a> or <a href="#template-hooks">Template Hooks</a>.</p>
+<p>It uses a template located in <code>src/template/gantt.tmpl.html</code>. This template is
+compiled when <code>gantt</code> directive is found in your application. It contains custom <code>gantt-*</code> directives that represents
+each object type you can find in the component.</p>
+<h2 id="default-template">Default Template</h2>
+<p>The default template located in <code>src/template/gantt.tmpl.html</code> use many <code>gantt-*</code> directives that
+gives a readable structure to the component. </p>
+<p>Lets review the major directives that compose this template.</p>
+<ul>
+<li>
+<p><strong>gantt-labels</strong> Left area of the component, containing rows labels and upper-left corner.</p>
+</li>
+<li>
+<p><strong>gantt-header</strong> Top area of the components, with all columns headers.</p>
+</li>
+<li>
+<p><strong>gantt-body</strong> Main area of the component, contains rows and columns, labels and headers excluded.</p>
+</li>
+<li>
+<p><strong>gantt-body-background</strong> Background of <code>gantt-body</code>. It contains background of rows.</p>
+</li>
+<li>
+<p><strong>gantt-row-background</strong> Background of a row.</p>
+</li>
+<li>
+<p><strong>gantt-body-foreground</strong> Foreground of <code>gantt-body</code>. It contains the current date line.</p>
+</li>
+<li>
+<p><strong>gantt-body-columns</strong> Container for all columns.</p>
+</li>
+<li>
+<p><strong>gantt-column</strong> Column. It can contain timeFrames.</p>
+</li>
+<li>
+<p><strong>gantt-time-frame</strong> TimeFrame.</p>
+</li>
+<li>
+<p><strong>gantt-body-rows</strong> Container of all rows.</p>
+</li>
+<li>
+<p><strong>gantt-timespan</strong> Timespan.</p>
+</li>
+<li>
+<p><strong>gantt-row</strong> Row.</p>
+</li>
+<li>
+<p><strong>gantt-task</strong> Task.</p>
+</li>
+</ul>
+<h2 id="custom-template">Custom Template</h2>
+<p>You can use a custom template by copying the default template to your application and define <code>templateUrl</code>
+attribute to the URL of this copy.</p>
+<p>This is the easiest method to customize angular-gantt, but keep in mind you will have to update your custom template
+when upgrading to a new version.</p>
+<h2 id="template-hooks">Template Hooks</h2>
+<p>Template Hooks can be registered on any template directive.</p>
+<p>It allows to fully customize angular-gantt without having to change the default template, making upgrade process of
+easier than with a custom template.</p>
+<p>Hooks can be installed using <a href="../api#directives">api.directives.on.new</a> event and uninstalled
+using <a href="../api#directives">api.directives.on.destroy</a> event. Those events are raised when any template <code>gantt-*</code>
+directive is added/removed from the DOM by AngularJS. They are entry points for <a href="../write_plugin">writing a Plugin</a>.</p>
+<pre><code>&lt;div gantt api=registerApi&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.registerApi = function(api) {
+
+  api.directives.on.new($scope, function(dName, dScope, dElement, dAttrs, dController) {
+    if (dName === 'xxxxxx') { // 'xxxxxx' is the 'gantt*' directive name in camelCase.
+      // Use dScope, dElement, dAttrs and dController to do what you want.
+    }
+  });
+
+}
+</code></pre>
+<h2 id="examples">Examples</h2>
+<h3 id="dom-event-listener">DOM Event Listener</h3>
+<p>Any DOM Event Listener (<code>click</code>, <code>dblclick</code>, ...) can be added on any <code>gantt-*</code> directive.</p>
+<pre><code>api.directives.on.new($scope, function(dName, dScope, dElement, dAttrs, dController) {
+  if (dName === 'ganttTask') {
+    dElement.bind('click', function(event) {
+        $log.info('task-click: ' + dScope.task.model);
+    });
+  }
+});
+</code></pre>
+<h3 id="plugins">Plugins</h3>
+<p>Standard plugins are good examples of what can be done using <a href="#template-hooks">Template Hooks</a> and the <a href="../api">API</a>. </p>
+<p>See sources located in <code>src/plugins</code>.</p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../skeletons/plugin.js"></script>
+    </body>
+</html>

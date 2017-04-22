@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.angular-gantt.com/plugins/tree/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+        <title>Tree - angular-gantt</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">angular-gantt</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../../get-started">Get Started</a>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../../configuration/data">Data</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/timespans">Timespans</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/attributes">Attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/plugins">Plugins</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/customize">Customize</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/api">API</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../configuration/write_plugin">Write a Plugin</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../labels">Labels</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../table">Table</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href=".">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../corner">Corner</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../groups">Groups</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../dependencies">Dependencies</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../sortable">Sortable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../movable">Movable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../drawtask">Draw Task</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../tooltips">Tooltips</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../sections">Sections</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../progress">Progress</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../overlap">Overlap</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../resizeSensor">Resize Sensor</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../sources">Sources</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../contribute">Contribute</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../faq">FAQ</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../about">About</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../table">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../corner">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/angular-gantt/angular-gantt">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#tree">Tree</a></li>
+        
+            <li><a href="#dependency">Dependency</a></li>
+        
+            <li><a href="#usage">Usage</a></li>
+        
+            <li><a href="#model">Model</a></li>
+        
+            <li><a href="#attributes">Attributes</a></li>
+        
+            <li><a href="#api">API</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="tree">Tree</h1>
+<p>Display a tree hierarchy of labels on the side.</p>
+<h2 id="dependency">Dependency</h2>
+<p><a href="https://github.com/angular-ui-tree/angular-ui-tree">angular-ui-tree</a> &gt;= 2.15.0</p>
+<h2 id="usage">Usage</h2>
+<pre><code>angular.module('myApp', ['gantt', 'gantt.tree']);
+</code></pre>
+<!-- -->
+
+<pre><code>&lt;div gantt&gt;
+  &lt;gantt-tree enabled="..." header="..."&gt;
+  &lt;/gantt-tree&gt;
+&lt;/div&gt;
+</code></pre>
+<h2 id="model">Model</h2>
+<p>Rows can specify a list of children using <code>children</code> property and/or a parent using <code>parent</code> property. Name and id
+can be used to define the hierarchy.</p>
+<pre><code>var data = [
+  {name: 'Parent', children: ['One', 'Two', 'Three']},
+  {name: 'One', tasks: [...]},
+  {name: 'Two', tasks: [...]},
+  {name: 'Three', tasks: [...]},
+]
+</code></pre>
+<!-- -->
+
+<pre><code>var data = [
+  {name: 'Parent'},
+  {name: 'One', parent: 'Parent', tasks: [...]},
+  {name: 'Two', parent: 'Parent', tasks: [...]},
+  {name: 'Three', parent: 'Parent', tasks: [...]},
+]
+</code></pre>
+<p>Take care to define a non-recursive hierarchy model, and check that a row is attached to a maximum of one parent.</p>
+<h2 id="attributes">Attributes</h2>
+<ul>
+<li>
+<h4 id="enabled">enabled</h4>
+<p>Enable display of labels tree.</p>
+<p>default: <code>true</code></p>
+</li>
+<li>
+<h4 id="header">header</h4>
+<p>Column header for the labels.</p>
+<p>default: <code>Name</code></p>
+</li>
+<li>
+<h4 id="content">content</h4>
+<p>Template of the content of each row. It can contain HTML and will be automatically compiled.</p>
+<p>It can be modified for a specific row using <a href="../../configuration/data">Row model</a> <code>content</code> property.</p>
+<p>default: <code>{{row.model.name}}</code></p>
+</li>
+<li>
+<h4 id="header-content">header-content</h4>
+<p>Template of the content of header. It can contain HTML and will be automatically compiled.</p>
+<p>default: <code>{{getHeader()}}</code></p>
+</li>
+<li>
+<h4 id="keep-ancestor-on-filter-row">keep-ancestor-on-filter-row</h4>
+<p>If true, ancestor will be keeped in the gantt when any of its descendant remains after the 
+<a href="../../configuration/attributes">filter-row</a> filter process.</p>
+<p>default: <code>false</code></p>
+</li>
+</ul>
+<h2 id="api">API</h2>
+<h3 id="methods">Methods</h3>
+<ul>
+<li>
+<p><strong>api.tree.refresh()</strong></p>
+<p>Refresh hierarchy of rows based on model.</p>
+</li>
+<li>
+<p><strong>api.tree.isCollapsed(rowId)</strong></p>
+<p>Check if a row is collapsed.</p>
+</li>
+<li>
+<p><strong>api.tree.getHierarchy()</strong></p>
+<p>Get a Hierarchy object. Hierarchy object contains functions to retrieve hierarchical structure from loaded model. </p>
+<p><code>children(row)</code>, <code>descendants(row)</code> and <code>ancestors(row)</code> returns a list of <a href="../../configuration/data">Row model</a> 
+object.</p>
+<p><code>parent(row)</code> returns a <a href="../../configuration/data">Row model</a> object.</p>
+</li>
+<li>
+<p><strong>api.tree.collapse(rowId)</strong></p>
+<p>Collapse a row.</p>
+</li>
+<li>
+<p><strong>api.tree.expand(rowId)</strong></p>
+<p>Expand a row.</p>
+</li>
+<li>
+<p><strong>api.tree.collapseAll()</strong></p>
+<p>Collapse all rows.</p>
+</li>
+<li>
+<p><strong>api.tree.expandAll()</strong></p>
+<p>Expand all rows.</p>
+</li>
+</ul>
+<h3 id="events">Events</h3>
+<ul>
+<li>
+<p><strong>api.tree.on.collapsed(row, collapsed)</strong></p>
+<p>A row has collapsed or expanded</p>
+</li>
+</ul>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../skeletons/plugin.js"></script>
+    </body>
+</html>

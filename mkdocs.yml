@@ -7,6 +7,9 @@ repo_url: https://github.com/angular-gantt/angular-gantt
 
 theme: spacelab
 
+docs_dir: mkdocs
+site_dir: docs
+
 pages:
 - [index.md, Home]
 - [get-started.md, Get Started]

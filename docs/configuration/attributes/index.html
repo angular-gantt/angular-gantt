@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.angular-gantt.com/configuration/attributes/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+        <title>Attributes - angular-gantt</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">angular-gantt</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../../get-started">Get Started</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../data">Data</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../timespans">Timespans</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href=".">Attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../plugins">Plugins</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../customize">Customize</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../api">API</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../write_plugin">Write a Plugin</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../../plugins/labels">Labels</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/table">Table</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tree">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/corner">Corner</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/groups">Groups</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/dependencies">Dependencies</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sortable">Sortable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/movable">Movable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/drawtask">Draw Task</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tooltips">Tooltips</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sections">Sections</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/progress">Progress</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/overlap">Overlap</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../sources">Sources</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../contribute">Contribute</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../faq">FAQ</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../about">About</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../timespans">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../plugins">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/angular-gantt/angular-gantt">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#attributes">Attributes</a></li>
+        
+            <li><a href="#api">api</a></li>
+        
+            <li><a href="#auto-expand">auto-expand</a></li>
+        
+            <li><a href="#allow-side-resizing">allow-side-resizing</a></li>
+        
+            <li><a href="#current-date">current-date</a></li>
+        
+            <li><a href="#current-date-value">current-date-value</a></li>
+        
+            <li><a href="#column-width">column-width</a></li>
+        
+            <li><a href="#expand-to-fit-shrink-to-fit">expand-to-fit, shrink-to-fit</a></li>
+        
+            <li><a href="#column-magnet">column-magnet</a></li>
+        
+            <li><a href="#shift-column-magnet">shift-column-magnet</a></li>
+        
+            <li><a href="#time-frames-magnet">time-frames-magnet</a></li>
+        
+            <li><a href="#daily">daily</a></li>
+        
+            <li><a href="#data">data</a></li>
+        
+            <li><a href="#filter-task-filter-task-comparator">filter-task, filter-task-comparator</a></li>
+        
+            <li><a href="#filter-row-filter-row-comparator">filter-row, filter-row-comparator</a></li>
+        
+            <li><a href="#from-date">from-date</a></li>
+        
+            <li><a href="#to-date">to-date</a></li>
+        
+            <li><a href="#headers">headers</a></li>
+        
+            <li><a href="#headers-formats">headers-formats</a></li>
+        
+            <li><a href="#headers-scales">headers-scales</a></li>
+        
+            <li><a href="#time-frames-date-frames">time-frames, date-frames</a></li>
+        
+            <li><a href="#time-frames-working-mode">time-frames-working-mode</a></li>
+        
+            <li><a href="#time-frames-non-working-mode">time-frames-non-working-mode</a></li>
+        
+            <li><a href="#timespans">timespans</a></li>
+        
+            <li><a href="#max-height">max-height</a></li>
+        
+            <li><a href="#options">options</a></li>
+        
+            <li><a href="#show-side">show-side</a></li>
+        
+            <li><a href="#side-width">side-width</a></li>
+        
+            <li><a href="#sort-mode">sort-mode</a></li>
+        
+            <li><a href="#row-content">row-content</a></li>
+        
+            <li><a href="#task-out-of-range">task-out-of-range</a></li>
+        
+            <li><a href="#task-content">task-content</a></li>
+        
+            <li><a href="#template">template</a></li>
+        
+            <li><a href="#template-url">template-url</a></li>
+        
+            <li><a href="#view-scale">view-scale</a></li>
+        
+            <li><a href="#tasklimitthreshold">taskLimitThreshold</a></li>
+        
+            <li><a href="#columnlimitthreshold">columnLimitThreshold</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="attributes">Attributes</h1>
+<p><code>gantt</code> directive can be configured using attributes. Each attribute is interpreted as 
+<a href="https://docs.angularjs.org/guide/expression">AngularJS Expression</a>.</p>
+<ul>
+<li>
+<h3 id="api">api</h3>
+<p>Registers an API Object to call methods of the component and listen or raise events.</p>
+<p>See <a href="#api">API</a> for more details.</p>
+<pre><code>&lt;div gantt api="registerApi"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.registerApi = function(api) {
+  api.core.on.ready() {
+    // Call API methods and register events.
+  }
+}
+</code></pre>
+</li>
+<li>
+<h3 id="auto-expand">auto-expand</h3>
+<p>Define if the date range will be extended when the user scroll to the left or right edge.</p>
+<ul>
+<li><code>both</code></li>
+<li><code>left</code></li>
+<li><code>right</code></li>
+<li><code>none</code></li>
+</ul>
+</li>
+<li>
+<h3 id="allow-side-resizing">allow-side-resizing</h3>
+<p>Side section can be resized.</p>
+<p>default: <code>true</code></p>
+</li>
+<li>
+<h3 id="current-date">current-date</h3>
+<p>How current date is displayed.</p>
+<ul>
+<li><code>none</code></li>
+<li><code>line</code></li>
+<li><code>column</code></li>
+</ul>
+<p>default: <code>line</code></p>
+</li>
+<li>
+<h3 id="current-date-value">current-date-value</h3>
+<p>Current date in the chart.</p>
+<pre><code>&lt;div gantt current-date="getToday"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.getToday = new Date();
+</code></pre>
+<p>default: <code>new Date()</code></p>
+</li>
+<li>
+<h3 id="column-width">column-width</h3>
+<p>The width of each column in <code>px</code>. This allows you add logic like <code>column-width="viewScale == 'day' ?  50 : 20"</code> to 
+have wider columns for days than for other column scales.</p>
+<p>If <code>undefined</code>, gantt will always fit available width.</p>
+</li>
+<li>
+<h3 id="expand-to-fit-shrink-to-fit">expand-to-fit, shrink-to-fit</h3>
+<p>Ensure that gantt is expanded/shrinked to fit the available width, even if <code>column-width</code> value is defined.</p>
+</li>
+<li>
+<h3 id="column-magnet">column-magnet</h3>
+<p>Precision of the column. All date and time computation will be rounded using this precision. It will also snap
+to borders of timeFrames and columns is <code>time-frames-magnet</code> is <code>true</code>.</p>
+<p>Format is <code>&lt;integer&gt; &lt;momentjs-unit&gt;</code>. See <a href="http://momentjs.com/docs/#/manipulating/add/">momentJS#add()</a> for 
+a list of supported unit.</p>
+<p>If <code>column-magnet</code> value is greater than <code>view-scale</code> or defined to <code>column</code> value, it will apply magnets to 
+column borders. You can't defined a <code>column-magnet</code> value that covers multiple columns.</p>
+<p>Examples:</p>
+<ul>
+<li><code>column</code></li>
+<li><code>1 minute</code></li>
+<li><code>30 minutes</code></li>
+<li><code>1 hour</code></li>
+<li><code>3 hours</code></li>
+</ul>
+<p>default: <code>15 minutes</code></p>
+</li>
+<li>
+<h3 id="shift-column-magnet">shift-column-magnet</h3>
+<p>Precision of the column when holding down SHIFT key.</p>
+<p>If undefined, it will use 0.25 viewScale.</p>
+</li>
+<li>
+<h3 id="time-frames-magnet">time-frames-magnet</h3>
+<p>Make timeFrame borders snap. Columns magnet must be enabled too.</p>
+<p>default: <code>true</code></p>
+</li>
+<li>
+<h3 id="daily">daily</h3>
+<p>Fill up view of tasks by rounding their <code>from</code>/<code>to</code> date to the start/end of day.</p>
+</li>
+<li>
+<h3 id="data">data</h3>
+<p>The <a href="../data">data</a> model for the gantt chart. </p>
+<p>See <a href="../data">Data</a> for more information.</p>
+</li>
+<li>
+<h3 id="filter-task-filter-task-comparator">filter-task, filter-task-comparator</h3>
+<p>Expression to filter on visible tasks using angularJS <code>$filter('filter')</code>.</p>
+<p>Value of <code>filter-task</code> is <code>expression</code> (<code>string</code>|<code>Object</code>|<code>function(value, index)</code>)),
+and <code>filter-task-comparator</code> is <code>comparator</code> (<code>function(actual, expected)</code>|<code>boolean</code>|<code>undefined</code>)
+as defined in <a href="https://docs.angularjs.org/api/ng/filter/filter">angularJS filter filter</a>.</p>
+<p>When using a function, call <a href="#api-rows-refresh">api.rows.refresh()</a> to refresh filtering when required.</p>
+</li>
+<li>
+<h3 id="filter-row-filter-row-comparator">filter-row, filter-row-comparator</h3>
+<p>Expression to filter on visible rows using angularJS <code>$filter('filter')</code>.</p>
+<p>Value of <code>filter-row</code> is <code>expression</code> (<code>string</code>|<code>Object</code>|<code>function(value, index)</code>)), 
+and <code>filter-row-comparator</code> is <code>comparator</code> (<code>function(actual, expected)</code>|<code>boolean</code>|<code>undefined</code>)
+as defined in  <a href="https://docs.angularjs.org/api/ng/filter/filter">angularJS filter filter</a>).</p>
+<p>When using a function, call <a href="#api-rows-refresh">api.rows.refresh()</a> to refresh filtering when required.</p>
+</li>
+<li>
+<h3 id="from-date">from-date</h3>
+<p>Ensures that the chart rendering starts at this date. This is useful for showing the chart even without any tasks, or 
+empty time before the first task, or truncate previous tasks.</p>
+</li>
+<li>
+<h3 id="to-date">to-date</h3>
+<p>Ensures that the chart rendering goes at least to this date. This is useful for showing the chart even without any 
+tasks, or empty time after the last task, or truncate next tasks.</p>
+</li>
+<li>
+<h3 id="headers">headers</h3>
+<p>Array of headers to display.</p>
+<ul>
+<li><code>millisecond</code></li>
+<li><code>second</code></li>
+<li><code>minute</code></li>
+<li><code>hour</code></li>
+<li><code>day</code></li>
+<li><code>week</code></li>
+<li><code>month</code></li>
+<li><code>quarter</code></li>
+<li><code>year</code></li>
+</ul>
+<!-- -->
+
+<pre><code>&lt;div gantt headers="['month', 'week', 'day']"&gt;&lt;/div&gt;
+</code></pre>
+</li>
+<li>
+<h3 id="headers-formats">headers-formats</h3>
+<p>Associative object of headers format. Key is the header, and value is the format.</p>
+<p>See <a href="http://momentjs.com/docs/#/displaying/format/">momentJS#format()</a></p>
+<pre><code>&lt;div gantt headers-formats="headersFormats"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.headersFormats = { 
+  'year': 'YYYY', 
+  'quarter': '[Q]Q YYYY', 
+  month: 'MMMM YYYY', 
+  week: 'w', 
+  day: 'D', 
+  hour: 'H', 
+  minute:'H:mm',
+  second:'H:mm:ss',
+  millisecond:'H:mm:ss:SSS'
+};
+</code></pre>
+<p>It is also possible to specify a function to format the header label.</p>
+<pre><code>$scope.headersFormats = { 
+  week: function(column) {
+    return column.date.format('Do [-]') + column.endDate.format('Do') + column.date.format(' [(W]w[)]');
+  }
+};
+</code></pre>
+</li>
+<li>
+<h3 id="headers-scales">headers-scales</h3>
+<p>Associative object of headers view scales, indicating which scale each header should use. Key is the header, and value is the view scale.</p>
+<p>Scale can be any <a href="http://momentjs.com/docs/#/manipulating/add/">momentJS#add()</a> supported unit.</p>
+<pre><code>&lt;div gantt headers="['dayLetter', 'day']" headers-formats="{dayLetter: 'dd'}" headers-scales="{dayLetter: 'day'}"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.headersScales = {
+  dayLetter: 'day'
+};
+</code></pre>
+</li>
+<li>
+<h3 id="time-frames-date-frames">time-frames, date-frames</h3>
+<p>TimeFrames and DateFrames are used to configure global calendar in the gantt.</p>
+<p>A TimeFrame is a part of day, for example 8H00-20H00 or 12H00-13H30. Each TimeFrame can be marked as working or not.
+A TimeFrame can also be marked as default to be used for every day displayed in the gantt.</p>
+<p>A DateFrame is a configuration object that will reference one or many TimeFrame names for specific days in the
+calendar. Using DateFrame configurations, it's possible to setup holidays, weekends and other special days that will
+have different time schedules than usual.</p>
+<pre><code>&lt;div gantt time-frames="timeFrames" date-frames="dateFrames"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.timeFrames = {
+                    day: {
+                        start: moment('8:00', 'HH:mm'),
+                            end: moment('20:00', 'HH:mm'),
+                            working: true, // This is a working period
+                            default: true // It will be used for each day
+                        },
+                    noon: {
+                        start: moment('12:00', 'HH:mm'),
+                        end: moment('13:30', 'HH:mm'),
+                        magnet: false, // This will disable magnet snapping
+                        working: false, // This is a resting period
+                        default: true // It will be used for each day
+                    },
+                    closed: {
+                        magnet: false, // This will disable magnet snapping
+                        working: false // We don't work when it's closed
+                    }
+};
+
+$scope.dateFrames = {
+                    halloween:{
+                        date: moment('2014-10-31', 'YYYY-MM-DD'), // A specific date
+                        targets: ['day'] // Use timeFrame named day for halloween. We won't close for noon.
+                    },
+                    holidays: {
+                         start: moment('2014-08-15', 'YYYY-MM-DD'), // A date range
+                         end: moment('2014-08-30', 'YYYY-MM-DD'),
+                         targets: ['closed'] // use timeFrame named closed for this date range.
+                    }, 
+                    weekend: {
+                         evaluator: function(date) { // A custom function evaluated for each day in the gantt
+                             return date.isoWeekday() === 6 || date.isoWeekday() === 7;
+                         },
+                         targets: ['closed'] // Use timeFrame named closed for saturday and sunday.
+                    }
+};
+</code></pre>
+<p>In this example, three TimeFrames (<code>day</code>, <code>noon</code>, <code>closed</code>) and three DateFrames (<code>halloween</code>, <code>holidays</code>, <code>weekend</code>) 
+are defined.</p>
+<p>If a day match at least one DateFrame, it will apply TimeFrames defined in <code>targets</code> property of each matching
+DateFrame. If no DateFrame at all match the day, it will use <code>default</code> TimeFrames (<code>day</code> and <code>noon</code>).</p>
+<p>When multiple TimeFrames are found for a day, smaller ones have priority and bigger ones will be split or shrinked.</p>
+<p>After resolution of TimeFrame for each day, TimeFrame can be displayed or cropped from the gantt using
+<code>time-frames-working-mode</code> and <code>time-frames-non-working-mode</code>.</p>
+<p>You can also add <code>color</code> and <code>classes</code> properties on TimeFrame object to define custom style on displayed timeFrames.</p>
+<pre><code>closed: {
+     working: false // We don't work when it's closed
+     color: 'green' // Display in green because green is a nice color :)
+     classes: ['gantt-closed-timeframe'] // Give one or many class names to customize using CSS.       
+ }
+</code></pre>
+</li>
+<li>
+<h3 id="time-frames-working-mode">time-frames-working-mode</h3>
+<p>How working TimeFrames are displayed.</p>
+<ul>
+<li><code>visible</code></li>
+<li><code>hidden</code></li>
+<li><code>cropped</code></li>
+</ul>
+<p>default: <code>hidden</code></p>
+</li>
+<li>
+<h3 id="time-frames-non-working-mode">time-frames-non-working-mode</h3>
+<p>How non-working TimeFrames are displayed.</p>
+<ul>
+<li><code>visible</code></li>
+<li><code>hidden</code></li>
+<li><code>cropped</code></li>
+</ul>
+<p>default: <code>visible</code></p>
+</li>
+<li>
+<h3 id="timespans">timespans</h3>
+<p>The <a href="../timespans">timespans</a> model for the gantt chart. </p>
+<p>See <a href="../timespans">Timespans</a> for more information.</p>
+</li>
+<li>
+<h3 id="max-height">max-height</h3>
+<p>Maximum height of the Gantt. It will show a vertical scroll bar if the content does not fit inside.</p>
+</li>
+<li>
+<h3 id="options">options</h3>
+<p>Configure the gantt using as a plain old javascript object, keys of <code>options</code> representing the configuration
+attributes. camelCased version of attributes must be used as key (<code>autoExpand</code> instead of <code>auto-expand</code>).</p>
+<pre><code>&lt;div gantt options="options"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.options = {
+  data: [...],
+  api: function(api) {
+    ...
+  },
+  ...
+}
+</code></pre>
+</li>
+<li>
+<h3 id="show-side">show-side</h3>
+<p>Show the side section. Make sure that a side section plugin (e.g. <a href="../../plugins/tree">Tree</a> or <a href="../../plugins/table">Table</a>) 
+is activated otherwise the side section is not shown.</p>
+<p>default: <code>true</code></p>
+</li>
+<li>
+<h3 id="side-width">side-width</h3>
+<p>Width of the side section. You can also set side <code>width</code>, <code>min-width</code> and <code>max-width</code> using 
+<code>.gantt-side</code> CSS selector.</p>
+</li>
+<li>
+<h3 id="sort-mode">sort-mode</h3>
+<p>Sorts the rows by given expression.</p>
+<ul>
+<li><code>model.name</code>: Sort by row name</li>
+<li><code>from</code>: Sort by the earliest task from date of each row</li>
+<li><code>to</code>: Sort by the latest task to date of each row</li>
+<li><code>&lt;expression&gt;</code>: Sort using an angularJS expression (see <a href="https://docs.angularjs.org/api/ng/filter/orderBy">angularJS orderBy filter</a>).</li>
+</ul>
+<p>Prepend a <code>-</code> in front to sort descending. E.g. <code>-from</code></p>
+</li>
+<li>
+<h3 id="row-content">row-content</h3>
+<p>Content used to display each row. It can contain HTML and will be automatically compiled and linked against Row
+object scope. Main user scope is available with <code>scope</code>.</p>
+<p>It can be modified for a specific row using <a href="../data">Row model</a> <code>content</code> property</p>
+<p>default: <code>{{row.model.name}}</code></p>
+<p>example: <code>&lt;i class="fa fa-align-justify" ng-click="scope.handleRowIconClick(row.model)"&gt;&lt;/i&gt; {{row.model.name}}</code></p>
+</li>
+<li>
+<h3 id="task-out-of-range">task-out-of-range</h3>
+<p>Behavior when tasks are defined out of the Gantt rendering range (see <code>from-date</code> and <code>to-date</code>).</p>
+<ul>
+<li><code>expand</code>: rendering range will be expanded to display the tasks entirely.</li>
+<li><code>truncate</code>: tasks will be truncated, or even totally hidden if they are not in rendering range at all.</li>
+</ul>
+<p>default: <code>expand</code></p>
+</li>
+<li>
+<h3 id="task-content">task-content</h3>
+<p>Content used to display each task. It can contain HTML and will be automatically compiled and linked against Task
+object scope. Main user scope is available with <code>scope</code>.</p>
+<p>It can be modified for a specific task using <a href="../data">Task model</a> <code>content</code> property</p>
+<p>default: <code>{{task.model.name}}</code></p>
+<p>example: <code>&lt;i class="fa fa-cog" ng-click="scope.handleTaskIconClick(task.model)"&gt;&lt;/i&gt; {{task.model.name}}</code></p>
+</li>
+<li>
+<h3 id="template">template</h3>
+<p>Custom Gantt HTML template. If you want to customize the default Gantt HTML template, copy the content of
+template file <code>src/template/gantt.tmpl.html</code> to a variable and set this parameter. </p>
+<p>Compared to <code>template-url</code>, this will avoid an additional request to load the template from an URL.</p>
+<p>This attribute is not observed and not evaluated as an expression.</p>
+</li>
+<li>
+<h3 id="template-url">template-url</h3>
+<p>URL of custom Gantt HTML template. If you want to customize the default Gantt HTML template, make a copy of default
+template file <code>src/template/gantt.tmpl.html</code> to your own project, and set the URL of copied file to this
+attribute. </p>
+<p>If <code>undefined</code> or <code>template/gantt.tmpl.html</code>, default template will be used.   </p>
+<p>This attribute is not observed and not evaluated as an expression.</p>
+<p><em>note: template-url must be different than <code>template/gantt.tmpl.html</code>, or it will use default
+template included in <code>angular-gantt.js</code>.</em></p>
+</li>
+<li>
+<h3 id="view-scale">view-scale</h3>
+<p>Column scale using any of <a href="http://momentjs.com/docs/#/manipulating/add/">momentJS#add()</a> supported unit.</p>
+<ul>
+<li><code>second</code></li>
+<li><code>minute</code></li>
+<li><code>hour</code></li>
+<li><code>day</code></li>
+<li><code>week</code></li>
+<li><code>month</code></li>
+<li><code>quarter</code></li>
+<li><code>year</code></li>
+</ul>
+<p>An optional number value can be prepended to this scale, like <code>5 minutes</code>, <code>3 hours</code> or <code>6 months</code>.</p>
+<p>default: <code>day</code></p>
+</li>
+<li>
+<h3 id="tasklimitthreshold">taskLimitThreshold</h3>
+<p>The threshold tasks count for <code>ganttTaskLimiter</code>.</p>
+<p>For performance reasons, when more than 100 tasks are loaded in the gantt chart, tasks outside of the visible 
+scrollable viewport are removed from the DOM by the <code>ganttTaskLimiter</code> filter .</p>
+<p>It enhance global performance when <code>ganttTaskLimiter</code> is enabled on a heavy-loaded data model, but tasks may appear 
+with a small delay when scrolling the viewport.</p>
+<p>Set to a negative number like <code>-1</code> to disable it, or set to <code>null</code> to force it regardless the tasks count.</p>
+<p>default: <code>100</code></p>
+</li>
+<li>
+<h3 id="columnlimitthreshold">columnLimitThreshold</h3>
+<p>The threshold columns count for <code>ganttColumnLimiter</code>.</p>
+<p>For performance reasons, when more than 500 columns are loaded in the gantt chart, columns outside of the visible 
+scrollable viewport are removed from the DOM by the <code>ganttColumnLimiter</code> filter.</p>
+<p>It enhance global performance when <code>ganttColumnLimiter</code> is enabled on a heavy-loaded data model, but columns may 
+appear with a small delay when scrolling the viewport.</p>
+<p>Set to a negative number like <code>-1</code> to disable it, or set to <code>null</code> to force it regardless the columns count.</p>
+<p>default: <code>500</code></p>
+</li>
+</ul>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../skeletons/plugin.js"></script>
+    </body>
+</html>

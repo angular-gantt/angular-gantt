@@ -9,5 +9,4 @@ test/e2e/reports
 selenium-debug.log
 *.log
 *.map
-/docs/_build/
-/site/
+/src/docs/_build/

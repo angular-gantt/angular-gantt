@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.angular-gantt.com/configuration/api/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+        <title>API - angular-gantt</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">angular-gantt</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../../get-started">Get Started</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../data">Data</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../timespans">Timespans</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../attributes">Attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../plugins">Plugins</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../customize">Customize</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href=".">API</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../write_plugin">Write a Plugin</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../../plugins/labels">Labels</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/table">Table</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tree">Tree</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/corner">Corner</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/groups">Groups</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/dependencies">Dependencies</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sortable">Sortable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/movable">Movable</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/drawtask">Draw Task</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/tooltips">Tooltips</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/bounds">Bounds</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/sections">Sections</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/progress">Progress</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/overlap">Overlap</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../../plugins/resizeSensor">Resize Sensor</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../sources">Sources</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../contribute">Contribute</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../faq">FAQ</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../../about">About</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../customize">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../write_plugin">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/angular-gantt/angular-gantt">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#api">API</a></li>
+        
+            <li><a href="#events">Events</a></li>
+        
+            <li><a href="#methods">Methods</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="api">API</h1>
+<p>angular-gantt has an API to call methods of the component and listen or raise events.</p>
+<p>Register the API Object using <code>api</code> attribute.</p>
+<pre><code>&lt;div gantt api="registerApi"&gt;&lt;/div&gt;
+</code></pre>
+<!-- -->
+
+<pre><code>$scope.registerApi = function(api) {
+  api.core.on.ready($scope, function () {
+    // Call API methods and register events.
+  });
+}
+</code></pre>
+<p>API Object contains features, like <code>api.core</code>, <code>api.data</code>, <code>api.rows</code> or <code>api.columns</code>.</p>
+<p>Each feature has attached methods, like <code>api.data.load(data)</code> or <code>api.core.getDateByPosition(position)</code>.</p>
+<p>On each feature, <code>on</code> object is used to register listeners, and <code>raise</code> object to fire events manually.</p>
+<pre><code>// Listen an event called 'eventName' of a feature called 'featureName'.
+api.featureName.on.eventName($scope, function(data) {
+    // Called when 'eventName' is raised.
+});
+
+// Raise an event called 'eventName' of a feature called 'featureName'.
+api.featureName.raise.eventName(data);
+
+// Call method called 'methodName' of a feature called 'featureName'.
+api.featureName.methodName();
+</code></pre>
+<h2 id="events">Events</h2>
+<h4 id="core">core</h4>
+<ul>
+<li>
+<p><strong>api.core.on.ready(api)</strong></p>
+<p>Gantt is initialized and ready to load data.</p>
+</li>
+<li>
+<p><strong>api.core.on.rendered(api)</strong></p>
+<p>Gantt is fully rendered in browser.</p>
+</li>
+</ul>
+<h4 id="data">data</h4>
+<ul>
+<li>
+<p><strong>api.data.on.change(newData, oldData)</strong></p>
+<p>Data has changed.</p>
+</li>
+<li>
+<p><strong>api.data.on.load(data)</strong></p>
+<p><em>DEPRECATED - Use <code>change</code> event instead</em></p>
+<p>Data has been loaded.</p>
+</li>
+<li>
+<p><strong>api.data.on.remove(data)</strong></p>
+<p><em>DEPRECATED - Use <code>change</code> event instead</em></p>
+<p>Data has been removed.</p>
+</li>
+<li>
+<p><strong>api.data.on.clear()</strong></p>
+<p><em>DEPRECATED - Use <code>change</code> event instead</em></p>
+<p>Data has been cleared.</p>
+</li>
+</ul>
+<h4 id="directives">directives</h4>
+<p>Directives events are entry points to build <a href="../customize#template-hooks">Template Hooks</a> and <a href="../write_plugin">Plugins</a>.</p>
+<ul>
+<li>
+<p><strong>api.directives.on.new(directiveName, scope, iElement, iAttrs, controller)</strong></p>
+<p>A directive instance controller will be created. It can be used to register
+<a href="../customize#dom-event-listener">DOM Event Listener</a> (<code>click</code>, <code>dblclick</code>, ...) on any directive.</p>
+</li>
+<li>
+<p><strong>api.directives.on.controller(directiveName, scope, iElement, iAttrs, controller)</strong></p>
+<p>A directive instance is in controller phase.</p>
+</li>
+<li>
+<p><strong>api.directives.on.preLink(directiveName, scope, iElement, iAttrs, controller)</strong></p>
+<p>A directive instance is in preLink phase.</p>
+</li>
+<li>
+<p><strong>api.directives.on.postLink(directiveName, scope, iElement, iAttrs, controller)</strong></p>
+<p>A directive instance is in postLink phase.</p>
+</li>
+<li>
+<p><strong>api.directives.on.destroy(directiveName, scope, iElement, iAttrs, controller)</strong></p>
+<p>A directive instance scope has been destroyed.</p>
+</li>
+</ul>
+<h4 id="tasks">tasks</h4>
+<ul>
+<li>
+<p><strong>api.tasks.on.add(task)</strong>, <strong>api.tasks.on.change(task)</strong>, <strong>api.tasks.on.remove(task)</strong></p>
+<p>A task has been added, changed or removed</p>
+</li>
+<li>
+<p><strong>api.tasks.on.viewChange(task)</strong></p>
+<p>A task view has been changed and displayed.</p>
+</li>
+<li>
+<p><strong>api.tasks.on.rowChange(task, oldRow)</strong>, <strong>api.tasks.on.beforeRowChange(task, newRow)</strong></p>
+<p>A task has been (or will be) moved from one row to another.</p>
+</li>
+<li>
+<p><strong>api.tasks.on.viewRowChange(task, oldRow)</strong>, <strong>api.tasks.on.beforeViewRowChange(task, newRow)</strong></p>
+<p>A task view has been (or will be) moved from one row to another.</p>
+</li>
+<li>
+<p><strong>api.tasks.on.displayed(tasks, filteredTasks, visibleTasks)</strong></p>
+<p>Tasks have been displayed.</p>
+</li>
+<li>
+<p><strong>api.tasks.on.filter(tasks, filteredTasks, visibleTasks)</strong></p>
+<p>Tasks have been filtered out.</p>
+</li>
+<li>
+<p><strong>api.tasks.on.clean(taskModel)</strong></p>
+<p>Model of a task has been cleaned and will be loaded.</p>
+</li>
+</ul>
+<h4 id="timespans">timespans</h4>
+<ul>
+<li>
+<p><strong>api.timespans.on.add(timespan)</strong>, <strong>api.timespans.on.change(timespan)</strong>, <strong>api.timespans.on.remove(timespan)</strong></p>
+<p>A timespan has been added, changed or removed.</p>
+</li>
+<li>
+<p><strong>api.timespans.on.clean(timespanModel)</strong></p>
+<p>Model of a timespans has been cleaned and will be loaded.</p>
+</li>
+</ul>
+<h4 id="rows">rows</h4>
+<ul>
+<li>
+<p><strong>api.rows.on.add(row)</strong>, <strong>api.rows.on.change(row)</strong>, <strong>api.rows.on.remove(row)</strong></p>
+<p>A row has been added, changed or removed.</p>
+</li>
+<li>
+<p><strong>api.rows.on.move(row, oldIndex, newIndex)</strong></p>
+<p>A row has been moved.</p>
+</li>
+<li>
+<p><strong>api.rows.on.displayed(rows, filteredRows, visibleRows)</strong></p>
+<p>Rows have been displayed.</p>
+</li>
+<li>
+<p><strong>api.rows.on.filter(rows, filteredRows)</strong></p>
+<p>Rows have been filtered out.</p>
+</li>
+<li>
+<p><strong>api.rows.on.clean(row)</strong></p>
+<p>Model of a row has been cleaned and will be loaded.</p>
+</li>
+</ul>
+<h4 id="columns">columns</h4>
+<ul>
+<li>
+<p><strong>api.columns.on.generate(columns, headers)</strong></p>
+<p>Columns have been generated.</p>
+</li>
+<li>
+<p><strong>api.columns.on.clear()</strong></p>
+<p>Columns have been cleared.</p>
+</li>
+</ul>
+<h4 id="side">side</h4>
+<ul>
+<li>
+<p><strong>api.side.on.resizeBegin(width)</strong>, <strong>api.side.on.resize(width)</strong>, <strong>api.side.on.resizeEnd(width)</strong></p>
+<p>Side area is starting to resize, resizing or has stopped resizing.</p>
+</li>
+</ul>
+<h4 id="scroll">scroll</h4>
+<ul>
+<li>
+<p><strong>api.scroll.on.scroll(left, date, direction)</strong></p>
+<p>The user scrolls to the left or right side of the chart. Use this event to load more data on the fly.</p>
+</li>
+</ul>
+<h2 id="methods">Methods</h2>
+<h4 id="core_1">core</h4>
+<ul>
+<li>
+<p><strong>api.core.getDateByPosition(position)</strong></p>
+<p>Retrieves the date from position in gantt.</p>
+</li>
+<li>
+<p><strong>api.core.getPositionByDate(date)</strong></p>
+<p>Retrieves the position in gantt from date.</p>
+</li>
+</ul>
+<h4 id="data_1">data</h4>
+<ul>
+<li>
+<p><strong>api.data.load(data)</strong></p>
+<p><em>DEPRECATED - Use <code>data</code> attribute instead</em></p>
+<p>Loads more data to the Gantt.</p>
+<p>See <a href="../data">Data</a> for more information.</p>
+</li>
+<li>
+<p><strong>api.data.remove(data)</strong></p>
+<p><em>DEPRECATED - Use <code>data</code> attribute instead</em></p>
+<p>Removes data from the Gantt.</p>
+<p>It is possible to remove complete rows or specific tasks</p>
+</li>
+<li>
+<p><strong>api.data.clear()</strong></p>
+<p><em>DEPRECATED - Use <code>data</code> attribute instead</em></p>
+<p>Removes all rows and tasks at once.</p>
+</li>
+<li>
+<p><strong>api.data.get()</strong></p>
+<p>Get the data model bound to the gantt.</p>
+</li>
+</ul>
+<h4 id="timespans_1">timespans</h4>
+<ul>
+<li>
+<p><strong>api.timespans.load(timespans)</strong></p>
+<p>Loads timespans to the Gantt.</p>
+<p>See <a href="../timespans">Timespans</a> for more information.</p>
+</li>
+<li>
+<p><strong>api.timespans.remove(timespans)</strong></p>
+<p>Removes timespans from the Gantt.</p>
+</li>
+<li>
+<p><strong>api.timespans.clear()</strong></p>
+<p>Removes all timespans at once.</p>
+</li>
+</ul>
+<h4 id="columns_1">columns</h4>
+<ul>
+<li>
+<p><strong>api.columns.clear()</strong></p>
+<p>Removes all columns.</p>
+</li>
+<li>
+<p><strong>api.columns.generate()</strong></p>
+<p>Generates all columns and display them.</p>
+</li>
+<li>
+<p><strong>api.columns.getColumnsWidth()</strong></p>
+<p>Get the actual width of the columns.</p>
+</li>
+<li>
+<p><strong>api.columns.getColumnsWidthToFit()</strong></p>
+<p>Get the width of the columns that would fit the gantt available width.</p>
+</li>
+<li>
+<p><strong>api.columns.getDateRange(visibleOnly)</strong></p>
+<p>Get the column date range. If <code>visibleOnly=true</code> then only the current visible range will be returned.
+Returns an array of two dates <code>[dateOfFirstColumn, endDateOfLastColumn]</code> or <code>undefined</code> if there are no columns.</p>
+</li>
+<li>
+<p><strong>api.columns.refresh()</strong></p>
+<p>Refresh columns and current date. It will also apply filters, and may be required if you use 
+<a href="../attributes#filter-task-filter-task-comparator">filter-task</a> or <a href="../attributes##filter-row-filter-row-comparator">filter-row</a> with a function.</p>
+</li>
+</ul>
+<h4 id="side_1">side</h4>
+<ul>
+<li>
+<p><strong>api.side.setWidth(width)</strong></p>
+<p>Set side area width. If given <code>width</code> is <code>undefined</code>, it will be computed automatically based on content.</p>
+<p>Calling this function after setting or updating gantt data may lead to unexpected results. Wrap the call in 
+<code>$timeout</code> function if the computed width doesn't seem to use the new data to compute the width.</p>
+</li>
+<li>
+<p><strong>api.side.getWidth()</strong></p>
+<p>Get side area width.</p>
+</li>
+</ul>
+<h4 id="rows_1">rows</h4>
+<ul>
+<li>
+<p><strong>api.rows.sort()</strong></p>
+<p>Sort rows based on <code>sort-mode</code> value.</p>
+</li>
+<li>
+<p><strong>api.rows.applySort()</strong></p>
+<p>Apply the actual sort provided by <code>sort-mode</code> to gantt model data.</p>
+</li>
+<li>
+<p><strong>api.rows.refresh()</strong></p>
+<p>Refresh rows. It will also apply filters, and may be required if you use <a href="../attributes#filter-task-filter-task-comparator">filter-task</a> or
+<a href="../attributes##filter-row-filter-row-comparator">filter-row</a> with a function.</p>
+</li>
+<li>
+<p><strong>api.rows.addRowSorter(sorter)</strong>, <strong>api.rows.removeRowSorter(sorter)</strong></p>
+<p>Register a function that will be called to customize sorting of rows.</p>
+<pre><code>sorter = function(rows) {
+  return rows.reverse();
+}
+
+api.rows.addRowSorter(sorter);
+
+$scope.$on('$destroy', function() {
+  api.rows.removeRowSorter(sorter);
+};
+</code></pre>
+</li>
+<li>
+<p><strong>api.rows.addRowFilter(filter)</strong>, <strong>api.rows.removeRowFilter(filter)</strong></p>
+<p>Register a function that will be called to customize filtering of rows.</p>
+<pre><code>filter = function(rows) {
+  rows.pop();
+  return rows;
+}
+
+api.rows.addRowFilter(filter);
+
+$scope.$on('$destroy', function() {
+  api.rows.removeRowFilter(filter);
+};
+</code></pre>
+</li>
+<li>
+<p><strong>api.rows.setFilterImpl(func)</strong></p>
+<p>Register a function to use for filtering.</p>
+<p>The default filtering function is based on AngularJS <a href="https://docs.angularjs.org/api/ng/filter/filter">$filter('filter')</a>.</p>
+<pre><code>function(sortedRows, filterRow, filterRowComparator) {
+  return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+};
+</code></pre>
+</li>
+</ul>
+<h4 id="timeframes">timeframes</h4>
+<ul>
+<li>
+<p><strong>api.timeframes.registerTimeFrames(timeframes)</strong></p>
+<p>Register an array of TimeFrame objects.</p>
+</li>
+<li>
+<p><strong>api.timeframes.clearTimeframes()</strong></p>
+<p>Removes all registered TimeFrame objects.</p>
+</li>
+<li>
+<p><strong>api.timeframes.registerDateFrames(timeframes)</strong></p>
+<p>Register an array of DateFrame objects.</p>
+</li>
+<li>
+<p><strong>api.timeframes.clearDateFrames()</strong></p>
+<p>Removes all registered DateFrame objects.</p>
+</li>
+<li>
+<p><strong>api.timeframes.registerTimeFrameMappings(timeframes)</strong></p>
+<p>Register an array of TimeFrameMapping objects.</p>
+</li>
+<li>
+<p><strong>api.timeframes.clearTimeFrameMappings()</strong></p>
+<p>Removes all registered TimeFrameMapping objects.</p>
+</li>
+</ul>
+<h4 id="scroll_1">scroll</h4>
+<ul>
+<li>
+<p><strong>api.scroll.to(position)</strong></p>
+<p>Scrolls to position.</p>
+</li>
+<li>
+<p><strong>api.scroll.toDate(date)</strong></p>
+<p>Scrolls to date.</p>
+</li>
+<li>
+<p><strong>api.scroll.left(offset)</strong></p>
+<p>Moves scroll to left by offset.</p>
+</li>
+<li>
+<p><strong>api.scroll.right(offset)</strong></p>
+<p>Moves scroll to right by offset.</p>
+</li>
+</ul>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../skeletons/plugin.js"></script>
+    </body>
+</html>

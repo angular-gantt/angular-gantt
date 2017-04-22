@@ -18,12 +18,12 @@
 
 Try angular-gantt now using the [Demo Application](http://www.angular-gantt.com/demo).
 
-[Unstable Demo Application](http://rawgit.com/angular-gantt/angular-gantt/master/demo/dist/index.html) is also available.
-It is build against [github master](https://github.com/angular-gantt/angular-gantt) branch, and allows to preview 
+[Unstable Demo Application](http://rawgit.com/angular-gantt/angular-gantt/develop/demo.dist/index.html) is also available.
+It is build against [github develop](https://github.com/angular-gantt/angular-gantt) branch, and allows to preview 
 bleeding edge features, but may be very unstable.
 
 You can even try the API using Plunker sandbox, with [XYYkD8tf5b2LQs5kL5nx](http://plnkr.co/XYYkD8tf5b2LQs5kL5nx) 
-(latest release) and [cNqoyX](http://plnkr.co/cNqoyX) (master branch).
+(latest release) and [cNqoyX](http://plnkr.co/cNqoyX) (develop branch).
 
 ## Features
 - Two-way data binding between model and view.
@@ -37,20 +37,20 @@ You can even try the API using Plunker sandbox, with [XYYkD8tf5b2LQs5kL5nx](http
 
 Docs are built using [MkDocs](http://www.mkdocs.org/) and available at
 [angular-gantt website](http://www.angular-gantt.com) (stable) and [ReadTheDocs](http://angular-gantt.readthedocs.org/en/latest/)
-(master).
+(develop).
 
 ## Bower
 
 angular-gantt is available through [bower](http://bower.io/) and [npm](https://www.npmjs.org/package/angular-gantt).
 
-    bower install angular-gantt
     npm install angular-gantt
+    bower install angular-gantt
     
 or
 
-    bower install angular-gantt#master
-    npm install https://github.com/angular-gantt/angular-gantt/tarball/master
-    
+    npm install https://github.com/angular-gantt/angular-gantt/tarball/develop
+    bower install angular-gantt#develop
+
 ## CDNs
 
 You can find released version on CDNs.
@@ -58,29 +58,29 @@ You can find released version on CDNs.
 [jsDelivr](http://www.jsdelivr.com/)
 
     //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js
-    //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
+    //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css
 
 [CDNjs](http://www.cdnjs.com/) (Replace `<version>` with latest github tag)
 
     //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt.min.js
-    //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
+    //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt.min.css
 
 ## Download
 
 [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
 [download](https://github.com/angular-gantt/angular-gantt/releases/latest) on Github and is the recommended and stable version.
 
-[Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
+[Develop branch version](https://github.com/angular-gantt/angular-gantt/tree/develop) contains bleeding edge features, but may be very unstable.
 
 ## Dependencies
 - [AngularJS](https://angularjs.org) >= 1.3
-- [angular-moment](https://github.com/urish/angular-moment) ([momentJS](http://momentjs.com/) wrapper)
+- [momentJS](http://momentjs.com/)
 
 Note: Some plugins require additional dependencies.
 
 ## The MIT License
 
-Copyright (c) 2015 Marco Schweighauser, Rémi Alvergnat
+Copyright (c) 2017 Marco Schweighauser, Rémi Alvergnat
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

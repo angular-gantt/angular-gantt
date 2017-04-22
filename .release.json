@@ -3,12 +3,14 @@
     "dry-run": false,
     "verbose": true,
     "force": false,
-    "pkgFiles": ["package.json", "bower.json", "demo/package.json", "demo/bower.json"],
+    "pkgFiles": ["package.json", "bower.json"],
     "increment": "patch",
-    "commitMessage": "chore(release): Release v%s",
-    "tagName": "v%s",
-    "tagAnnotation": "v%s",
-    "buildCommand": "grunt dist",
+    "buildCommand": "npm run dist",
+    "src": {
+      "commitMessage": "chore(release): Release v%s",
+      "tagName": "v%s",
+      "tagAnnotation": "v%s"
+    },
     "dist": {
         "repo": false,
         "stageDir": ".stage",
@@ -18,5 +20,11 @@
     "npm": {
         "publish": true,
         "publishPath": "."
+    },
+    "prompt": {
+      "src": {
+      },
+      "dist": {
+      }
     }
 }
