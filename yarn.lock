@@ -2,7 +2,13 @@
 # yarn lockfile v1
 
 
-"@types/angular@^1.6.14":
+"@types/angular-mocks@^1.5.9":
+  version "1.5.9"
+  resolved "https://registry.yarnpkg.com/@types/angular-mocks/-/angular-mocks-1.5.9.tgz#4d91bb71a5cfb000d02b02133bc98c20f57101fd"
+  dependencies:
+    "@types/angular" "*"
+
+"@types/angular@*", "@types/angular@^1.6.14":
   version "1.6.14"
   resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.14.tgz#6923ba9f325b80fd9546c856d147782b551f637a"
   dependencies:
@@ -3445,6 +3451,10 @@ jodid25519@^1.0.0:
   resolved "https://registry.yarnpkg.com/jodid25519/-/jodid25519-1.0.2.tgz#06d4912255093419477d425633606e0e90782967"
   dependencies:
     jsbn "~0.1.0"
+
+jquery@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
 
 js-base64@^2.1.9:
   version "2.1.9"
