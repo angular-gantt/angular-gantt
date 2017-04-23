@@ -8,8 +8,8 @@
   ],
   "description": "Gantt chart component for AngularJS",
   "main": [
-    "./assets/angular-gantt.js",
-    "./assets/angular-gantt.css"
+    "./dist/angular-gantt.js",
+    "./dist/angular-gantt.css"
   ],
   "keywords": [
     "gantt",

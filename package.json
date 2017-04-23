@@ -18,7 +18,8 @@
     "chart",
     "angularjs"
   ],
-  "main": "./assets/angular-gantt.js",
+  "main": "./dist/angular-gantt.js",
+  "style": "./dist/angular-gantt.css",
   "scripts": {
     "release": "release-it",
     "dev": "node build/dev-server.js",
