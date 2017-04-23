@@ -26,7 +26,7 @@ export default function ($templateCache) {
       index: '=',
       options: '=?'
     },
-    controller: ['$scope', '$element', 'ganttUtils', function ($scope, $element, utils) {
+    controller: function ($scope, $element, ganttUtils) {
       let fromTask = moment($scope.section.from).isSame(moment($scope.task.model.from));
       let toTask = moment($scope.section.to).isSame(moment($scope.task.model.to));
 
@@ -66,11 +66,11 @@ export default function ($templateCache) {
 
         let from;
 
-        let disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+        let disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
 
         from = disableMagnet ? $scope.section.from : gantt.getMagnetDate($scope.section.from);
 
-        let disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
+        let disableDaily = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
         if (!disableDaily && gantt.options.value('daily')) {
           from = moment(from).startOf('day');
         }
@@ -81,7 +81,7 @@ export default function ($templateCache) {
       };
 
       let getRight = function () {
-        let keepProportions = utils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
+        let keepProportions = ganttUtils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
         if (toTask && keepProportions) {
           return $scope.task.width;
         }
@@ -89,10 +89,10 @@ export default function ($templateCache) {
         let gantt = $scope.task.rowsManager.gantt;
         let taskLeft = $scope.task.left;
 
-        let disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+        let disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
         let to = disableMagnet ? $scope.section.to : gantt.getMagnetDate($scope.section.to);
 
-        let disableDaily = utils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
+        let disableDaily = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
         if (!disableDaily && gantt.options.value('daily')) {
           to = moment(to).startOf('day');
         }
@@ -110,7 +110,7 @@ export default function ($templateCache) {
         let sectionLeft = getLeft();
         let sectionWidth = getRight() - sectionLeft;
 
-        let keepProportions = utils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
+        let keepProportions = ganttUtils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
         if (keepProportions) {
           // Setting left and width as to keep proportions when changing task size.
           // This may somewhat break the magnet feature, but it seems acceptable
@@ -143,7 +143,7 @@ export default function ($templateCache) {
 
           let sectionLeft = $element[0].offsetLeft;
 
-          let disableMagnet = utils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+          let disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
 
           let from;
           if (fromTask) {
@@ -204,6 +204,6 @@ export default function ($templateCache) {
       $scope.$on('$destroy', function () {
         $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSection', $scope, $element);
       });
-    }]
+    }
   };
 }

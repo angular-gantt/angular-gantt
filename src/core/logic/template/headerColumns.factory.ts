@@ -1,7 +1,15 @@
-export default function () {
-  'ngInject';
-  let HeaderColumns = function ($element) {
+import {IAugmentedJQuery} from 'angular';
+
+export class GanttHeaderColumns {
+  $element: IAugmentedJQuery;
+
+  constructor($element: IAugmentedJQuery) {
     this.$element = $element;
   };
-  return HeaderColumns;
+}
+
+export default function () {
+  'ngInject';
+
+  return GanttHeaderColumns;
 }

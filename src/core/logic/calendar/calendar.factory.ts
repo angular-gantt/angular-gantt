@@ -1,23 +1,52 @@
-import angular from 'angular';
+import angular, {IAugmentedJQuery, IFilterService} from 'angular';
 
-import moment from 'moment';
+import moment, {MomentInput} from 'moment';
 
-export default function ($filter) {
-  'ngInject';
-  /**
-   * TimeFrame represents time frame in any day. parameters are given using options object.
-   *
-   * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
-   * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
-   * @param {boolean} working is this timeFrame flagged as working.
-   * @param {boolean} magnet is this timeFrame will magnet.
-   * @param {boolean} default is this timeFrame will be used as default.
-   * @param {color} css color attached to this timeFrame.
-   * @param {string} classes css classes attached to this timeFrame.
-   *
-   * @constructor
-   */
-  let TimeFrame = function (options) {
+export type TimeFramesDisplayMode = 'visible' | 'cropped' | 'hidden';
+
+export interface TimeFrameOptions {
+  start?: moment.Moment;
+  end?: moment.Moment;
+  working?: boolean;
+  magnet?: boolean;
+  default?: boolean;
+  color?: string;
+  classes?: string[];
+  internal?: boolean;
+}
+
+/**
+ * TimeFrame represents time frame in any day. parameters are given using options object.
+ *
+ * @param {moment|string} start start of timeFrame. If a string is given, it will be parsed as a moment.
+ * @param {moment|string} end end of timeFrame. If a string is given, it will be parsed as a moment.
+ * @param {boolean} working is this timeFrame flagged as working.
+ * @param {boolean} magnet is this timeFrame will magnet.
+ * @param {boolean} default is this timeFrame will be used as default.
+ * @param {color} css color attached to this timeFrame.
+ * @param {string} classes css classes attached to this timeFrame.
+ *
+ * @constructor
+ */
+export class TimeFrame implements TimeFrameOptions {
+  start?: moment.Moment;
+  end?: moment.Moment;
+  working?: boolean;
+  magnet?: boolean;
+  default?: boolean;
+  color?: string;
+  classes?: string[];
+  internal?: boolean;
+
+  left: number;
+  width: number;
+  hidden: boolean;
+  originalSize: { left: number; width: number };
+  cropped: boolean;
+
+  $element: IAugmentedJQuery;
+
+  constructor(options: TimeFrameOptions) {
     if (options === undefined) {
       options = {};
     }
@@ -30,9 +59,9 @@ export default function ($filter) {
     this.color = options.color;
     this.classes = options.classes;
     this.internal = options.internal;
-  };
+  }
 
-  TimeFrame.prototype.updateView = function () {
+  updateView() {
     if (this.$element) {
       let cssStyles = {};
 
@@ -66,53 +95,76 @@ export default function ($filter) {
     }
   };
 
-  TimeFrame.prototype.getDuration = function () {
+  getDuration() {
     if (this.end !== undefined && this.start !== undefined) {
       return this.end.diff(this.start, 'milliseconds');
     }
   };
 
-  TimeFrame.prototype.clone = function () {
+  clone() {
     return new TimeFrame(this);
   };
+}
 
-  /**
-   * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
-   *
-   * @param {function} func a function with date parameter, that will be evaluated for each distinct day of the gantt.
-   *                        this function must return an array of timeFrame names to apply.
-   * @constructor
-   */
-  let TimeFrameMapping = function (func) {
+export interface TimeFrameMappingFunction {(date: moment.Moment): string[];}
+
+/**
+ * TimeFrameMapping defines how timeFrames will be placed for each days. parameters are given using options object.
+ *
+ * @param {function} func a function with date parameter, that will be evaluated for each distinct day of the gantt.
+ *                        this function must return an array of timeFrame names to apply.
+ * @constructor
+ */
+export class TimeFrameMapping {
+  private func: TimeFrameMappingFunction;
+
+  constructor(func: TimeFrameMappingFunction) {
     this.func = func;
   };
 
-  TimeFrameMapping.prototype.getTimeFrames = function (date) {
-    let ret = this.func(date);
+  getTimeFrames(date: moment.Moment): string[] {
+    let ret: string[] = this.func(date);
     if (!(ret instanceof Array)) {
       ret = [ret];
     }
     return ret;
   };
 
-  TimeFrameMapping.prototype.clone = function () {
+  clone() {
     return new TimeFrameMapping(this.func);
   };
+}
 
-  /**
-   * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
-   * a date (date) or a date range (start, end). parameters are given using options object.
-   *
-   * @param {function} evaluator a function with date parameter, that will be evaluated for each distinct day of the gantt.
-   *                   this function must return a boolean representing matching of this dateFrame or not.
-   * @param {moment} date date of dateFrame.
-   * @param {moment} start start of date frame.
-   * @param {moment} end end of date frame.
-   * @param {array} targets array of TimeFrameMappings/TimeFrames names to use for this date frame.
-   * @param {boolean} default is this dateFrame will be used as default.
-   * @constructor
-   */
-  let DateFrame = function (options) {
+interface DateFrameOptions {
+  evaluator: { (date: moment.Moment): boolean };
+  date?: MomentInput;
+  start?: moment.Moment;
+  end?: moment.Moment;
+  default?: boolean;
+  targets: any;
+}
+
+/**
+ * A DateFrame is date range that will use a specific TimeFrameMapping, configured using a function (evaluator),
+ * a date (date) or a date range (start, end). parameters are given using options object.
+ *
+ * @param {function} evaluator a function with date parameter, that will be evaluated for each distinct day of the gantt.
+ *                   this function must return a boolean representing matching of this dateFrame or not.
+ * @param {moment} date date of dateFrame.
+ * @param {moment} start start of date frame.
+ * @param {moment} end end of date frame.
+ * @param {array} targets array of TimeFrameMappings/TimeFrames names to use for this date frame.
+ * @param {boolean} default is this dateFrame will be used as default.
+ * @constructor
+ */
+export class DateFrame {
+  evaluator: { (date: moment.Moment): boolean };
+  start: moment.Moment;
+  end: moment.Moment;
+  default: boolean;
+  targets: string[];
+
+  constructor (options: DateFrameOptions) {
     this.evaluator = options.evaluator;
     if (options.date) {
       this.start = moment(options.date).startOf('day');
@@ -129,7 +181,7 @@ export default function ($filter) {
     this.default = options.default;
   };
 
-  DateFrame.prototype.dateMatch = function (date) {
+  dateMatch(date: moment.Moment) {
     if (this.evaluator) {
       return this.evaluator(date);
     } else if (this.start && this.end) {
@@ -139,26 +191,28 @@ export default function ($filter) {
     }
   };
 
-  DateFrame.prototype.clone = function () {
+  clone() {
     return new DateFrame(this);
   };
+}
 
-  /**
-   * Register TimeFrame, TimeFrameMapping and DateMapping objects into Calendar object,
-   * and use Calendar#getTimeFrames(date) function to retrieve effective timeFrames for a specific day.
-   *
-   * @constructor
-   */
-  let Calendar = function () {
-    this.timeFrames = {};
-    this.timeFrameMappings = {};
-    this.dateFrames = {};
-  };
+/**
+ * Register TimeFrame, TimeFrameMapping and DateMapping objects into Calendar object,
+ * and use Calendar#getTimeFrames(date) function to retrieve effective timeFrames for a specific day.
+ *
+ * @constructor
+ */
+export class GanttCalendar {
+  static $filter: IFilterService;
+
+  timeFrames: {[name: string]: TimeFrame} = {};
+  timeFrameMappings: {[name: string]: TimeFrameMapping} = {};
+  dateFrames: {[name: string]: DateFrame} = {};
 
   /**
    * Remove all objects.
    */
-  Calendar.prototype.clear = function () {
+  clear () {
     this.timeFrames = {};
     this.timeFrameMappings = {};
     this.dateFrames = {};
@@ -169,10 +223,11 @@ export default function ($filter) {
    *
    * @param {object} timeFrames with names of timeFrames for keys and TimeFrame objects for values.
    */
-  Calendar.prototype.registerTimeFrames = function (timeFrames) {
-    angular.forEach(timeFrames, function (timeFrame, name) {
+  registerTimeFrames (timeFrames: {[name: string]: TimeFrameOptions}) {
+    for (let name in timeFrames) {
+      let timeFrame = timeFrames[name];
       this.timeFrames[name] = new TimeFrame(timeFrame);
-    }, this);
+    }
   };
 
   /**
@@ -180,16 +235,16 @@ export default function ($filter) {
    *
    * @param {array} timeFrames names of timeFrames to remove.
    */
-  Calendar.prototype.removeTimeFrames = function (timeFrames) {
-    angular.forEach(timeFrames, function (name) {
+  removeTimeFrames(timeFrames: string[]) {
+    for (let name in timeFrames) {
       delete this.timeFrames[name];
-    }, this);
+    }
   };
 
   /**
    * Remove all TimeFrame objects.
    */
-  Calendar.prototype.clearTimeFrames = function () {
+  clearTimeFrames () {
     this.timeFrames = {};
   };
 
@@ -198,10 +253,11 @@ export default function ($filter) {
    *
    * @param {object} mappings object with names of timeFrames mappings for keys and TimeFrameMapping objects for values.
    */
-  Calendar.prototype.registerTimeFrameMappings = function (mappings) {
-    angular.forEach(mappings, function (timeFrameMapping, name) {
+  registerTimeFrameMappings(mappings: {(date: moment.Moment): TimeFrameMappingFunction}) {
+    for (let name in mappings) {
+      let timeFrameMapping = mappings[name];
       this.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
-    }, this);
+    }
   };
 
   /**
@@ -209,16 +265,16 @@ export default function ($filter) {
    *
    * @param {array} mappings names of timeFrame mappings to remove.
    */
-  Calendar.prototype.removeTimeFrameMappings = function (mappings) {
-    angular.forEach(mappings, function (name) {
+  removeTimeFrameMappings (mappings: string[]) {
+    for (let name in mappings) {
       delete this.timeFrameMappings[name];
-    }, this);
+    }
   };
 
   /**
    * Removes all TimeFrameMapping objects.
    */
-  Calendar.prototype.clearTimeFrameMappings = function () {
+  clearTimeFrameMappings () {
     this.timeFrameMappings = {};
   };
 
@@ -227,10 +283,11 @@ export default function ($filter) {
    *
    * @param {object} dateFrames object with names of dateFrames for keys and DateFrame objects for values.
    */
-  Calendar.prototype.registerDateFrames = function (dateFrames) {
-    angular.forEach(dateFrames, function (dateFrame, name) {
+  registerDateFrames (dateFrames: {[name: string]: DateFrameOptions}) {
+    for (let name in dateFrames) {
+      let dateFrame = dateFrames[name];
       this.dateFrames[name] = new DateFrame(dateFrame);
-    }, this);
+    }
   };
 
   /**
@@ -238,32 +295,34 @@ export default function ($filter) {
    *
    * @param {array} mappings names of date frames to remove.
    */
-  Calendar.prototype.removeDateFrames = function (dateFrames) {
-    angular.forEach(dateFrames, function (name) {
+  removeDateFrames(dateFrames: string[]) {
+    for (let name in dateFrames) {
       delete this.dateFrames[name];
-    }, this);
+    }
   };
 
   /**
    * Removes all DateFrame objects.
    */
-  Calendar.prototype.clearDateFrames = function () {
+  clearDateFrames () {
     this.dateFrames = {};
   };
 
-  let filterDateFrames = function (inputDateFrames, date) {
+  filterDateFrames(inputDateFrames: {[name: string]: DateFrame}, date: moment.Moment): DateFrame[] {
     let dateFrames = [];
-    angular.forEach(inputDateFrames, function (dateFrame) {
+    for (let name in inputDateFrames) {
+      let dateFrame = inputDateFrames[name];
       if (dateFrame.dateMatch(date)) {
         dateFrames.push(dateFrame);
       }
-    });
+    }
     if (dateFrames.length === 0) {
-      angular.forEach(inputDateFrames, function (dateFrame) {
+      for (let name in inputDateFrames) {
+        let dateFrame = inputDateFrames[name];
         if (dateFrame.default) {
           dateFrames.push(dateFrame);
         }
-      });
+      }
     }
     return dateFrames;
   };
@@ -275,22 +334,26 @@ export default function ($filter) {
    *
    * @return {array} an array of TimeFrame objects.
    */
-  Calendar.prototype.getTimeFrames = function (date) {
-    let timeFrames = [];
-    let dateFrames = filterDateFrames(this.dateFrames, date);
+  getTimeFrames (date: moment.Moment): TimeFrame[] {
+    let timeFrames: TimeFrame[] = [];
+    let dateFrames = this.filterDateFrames(this.dateFrames, date);
 
-    for (let i = 0; i < dateFrames.length; i++) {
-      if (dateFrames[i] !== undefined) {
-        let targets = dateFrames[i].targets;
+    for (let dateFrame of dateFrames) {
+      if (dateFrame !== undefined) {
+        let targets = dateFrame.targets;
 
-        for (let j = 0; j < targets.length; j++) {
-          let timeFrameMapping = this.timeFrameMappings[targets[j]];
+        for (let target of targets) {
+          let timeFrameMapping = this.timeFrameMappings[target];
           if (timeFrameMapping !== undefined) {
             // If a timeFrame mapping is found
-            timeFrames.push(timeFrameMapping.getTimeFrames());
+            let names = timeFrameMapping.getTimeFrames(date);
+            for (let name of names) {
+              let timeFrame = this.timeFrames[name];
+              timeFrames.push(timeFrame);
+            }
           } else {
             // If no timeFrame mapping is found, try using direct timeFrame
-            let timeFrame = this.timeFrames[targets[j]];
+            let timeFrame = this.timeFrames[target];
             if (timeFrame !== undefined) {
               timeFrames.push(timeFrame);
             }
@@ -305,15 +368,17 @@ export default function ($filter) {
 
     let validatedTimeFrames = [];
     if (timeFrames.length === 0) {
-      angular.forEach(this.timeFrames, function (timeFrame) {
+      for (let name in this.timeFrames) {
+        let timeFrame = this.timeFrames[name];
         if (timeFrame.default) {
           timeFrames.push(timeFrame);
         }
-      });
+      }
     }
 
-    for (let i = 0; i < timeFrames.length; i++) {
-      let cTimeFrame = timeFrames[i].clone();
+    for (let name in timeFrames) {
+      let timeFrame = timeFrames[name];
+      let cTimeFrame = timeFrame.clone();
 
       if (cTimeFrame.start !== undefined) {
         cTimeFrame.start.year(dateYear);
@@ -346,11 +411,11 @@ export default function ($filter) {
    * @param {moment} startDate
    * @param {moment} endDate
    */
-  Calendar.prototype.solve = function (timeFrames, startDate, endDate) {
-    let color;
-    let classes;
-    let minDate;
-    let maxDate;
+  solve (timeFrames: TimeFrame[], startDate, endDate) {
+    let color: string;
+    let classes: string[];
+    let minDate: moment.Moment;
+    let maxDate: moment.Moment;
 
     for (let i = 0; i < timeFrames.length; i++) {
       let timeFrame = timeFrames[i];
@@ -379,39 +444,34 @@ export default function ($filter) {
       endDate = maxDate;
     }
 
-    let solvedTimeFrames = [new TimeFrame({start: startDate, end: endDate, internal: true})];
+    let solvedTimeFrames: TimeFrame[] = [new TimeFrame({start: startDate, end: endDate, internal: true})];
 
-    timeFrames = $filter('filter')(timeFrames, function (timeFrame) {
+    timeFrames = GanttCalendar.$filter('filter')(timeFrames, (timeFrame) => {
       return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
     });
 
-    for (let i = 0; i < timeFrames.length; i++) {
-      let cTimeFrame = timeFrames[i];
-      if (!cTimeFrame.start) {
-        cTimeFrame.start = startDate;
+    for (let timeFrame of timeFrames) {
+      if (!timeFrame.start) {
+        timeFrame.start = startDate;
       }
-      if (!cTimeFrame.end) {
-        cTimeFrame.end = endDate;
+      if (!timeFrame.end) {
+        timeFrame.end = endDate;
       }
     }
 
-    let orderedTimeFrames = $filter('orderBy')(timeFrames, function (timeFrame) {
+    let orderedTimeFrames = GanttCalendar.$filter('orderBy')(timeFrames, (timeFrame) => {
       return -timeFrame.getDuration();
     });
 
     let k;
-    for (let i = 0; i < orderedTimeFrames.length; i++) {
-      let oTimeFrame = orderedTimeFrames[i];
-
+    for (let oTimeFrame of orderedTimeFrames) {
       let tmpSolvedTimeFrames = solvedTimeFrames.slice();
 
       k = 0;
       let dispatched = false;
       let treated = false;
 
-      for (let j = 0; j < solvedTimeFrames.length; j++) {
-        let sTimeFrame = solvedTimeFrames[j];
-
+      for (let sTimeFrame of solvedTimeFrames) {
         if (!treated) {
           if (!oTimeFrame.end && !oTimeFrame.start) {
             // timeFrame is infinite.
@@ -458,7 +518,7 @@ export default function ($filter) {
       solvedTimeFrames = tmpSolvedTimeFrames;
     }
 
-    solvedTimeFrames = $filter('filter')(solvedTimeFrames, function (timeFrame) {
+    solvedTimeFrames = GanttCalendar.$filter('filter')(solvedTimeFrames, (timeFrame) => {
       return !timeFrame.internal &&
         (timeFrame.start === undefined || timeFrame.start < endDate) &&
         (timeFrame.end === undefined || timeFrame.end > startDate);
@@ -467,6 +527,11 @@ export default function ($filter) {
     return solvedTimeFrames;
 
   };
+}
 
-  return Calendar;
+export default function ($filter: IFilterService) {
+  'ngInject';
+
+  GanttCalendar.$filter = $filter;
+  return GanttCalendar;
 }

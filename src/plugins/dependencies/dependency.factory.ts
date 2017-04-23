@@ -1,4 +1,6 @@
-export default function (ganttUtils, ganttDom) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
+export default function (ganttUtils: GanttUtilsService, ganttDom) {
   'ngInject';
   /**
    * Constructor of Dependency object.

@@ -1,6 +1,9 @@
 import angular from 'angular';
 
-export default function (ganttUtils, GanttHierarchy, $compile, $document) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+import {GanttHierarchy} from '../../core/logic/util/hierarchy.factory';
+
+export default function (ganttUtils: GanttUtilsService, GanttHierarchy: { new(): GanttHierarchy; }, $compile, $document) {
   'ngInject';
   // Provides the row sort functionality to any Gantt row
   // Uses the sortableState to share the current row

@@ -1,8 +1,10 @@
 import moment from 'moment';
 
-export default function (GanttColumnHeader) {
-  'ngInject';
-  let generateHeader = function (columnsManager, headerName) {
+import {GanttColumnHeader} from './columnHeader.factory';
+import {GanttColumnsManager} from './columnsManager.factory';
+
+export default class GanttHeadersGenerator {
+  generateHeaders(columnsManager: GanttColumnsManager, headerName: string) {
     let generatedHeaders = [];
     let header;
 
@@ -59,7 +61,7 @@ export default function (GanttColumnHeader) {
     return generatedHeaders;
   };
 
-  this.generate = function (columnsManager) {
+  generate(columnsManager: GanttColumnsManager) {
     let headerNames = [];
     if (columnsManager.gantt.options.value('headers') === undefined) {
       let viewScale = columnsManager.gantt.options.value('viewScale');
@@ -108,7 +110,7 @@ export default function (GanttColumnHeader) {
 
     let headers = [];
     for (let i = 0; i < headerNames.length; i++) {
-      headers.push(generateHeader(columnsManager, headerNames[i]));
+      headers.push(this.generateHeaders(columnsManager, headerNames[i]));
     }
 
     return headers;

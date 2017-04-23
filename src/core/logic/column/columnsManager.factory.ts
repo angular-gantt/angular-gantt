@@ -1,10 +1,56 @@
 import moment from 'moment';
 
-export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersGenerator, $filter, $timeout, ganttLayout, ganttBinarySearch) {
-  'ngInject';
-  let ColumnsManager = function (gantt) {
-    let self = this;
+import GanttBinarySearch from '../util/binarySearch.service';
+import GanttColumnGenerator from './columnGenerator.service';
+import {GanttColumnBuilder} from './columnBuilder.factory';
+import {GanttColumn} from './column.factory';
+import {GanttColumnHeader} from './columnHeader.factory';
+import GanttHeadersGenerator from './headersGenerator.service';
+import GanttLayout from '../../ui/util/layout.service';
+import {Gantt} from '../gantt.factory';
+import {IFilterService} from 'angular';
+import {IGanttFilterService} from '../../../index';
 
+export class GanttColumnsManager {
+  static GanttColumnGenerator: GanttColumnGenerator;
+  static GanttHeadersGenerator: GanttHeadersGenerator;
+  static GanttColumnBuilder: { new(columnsManager: GanttColumnsManager): GanttColumnBuilder };
+  static ganttBinarySearch: GanttBinarySearch;
+  static ganttLayout: GanttLayout;
+  static $filter: IGanttFilterService;
+
+  gantt: Gantt;
+
+  from: moment.Moment;
+  to: moment.Moment;
+
+  columns: GanttColumn[];
+  visibleColumns: GanttColumn[];
+  previousColumns: GanttColumn[];
+  nextColumns: GanttColumn[];
+
+  headers: GanttColumnHeader[][];
+  visibleHeaders: GanttColumnHeader[][];
+
+  columnBuilder: GanttColumnBuilder;
+  scrollAnchor: moment.Moment;
+
+  defaultHeadersFormats = {
+    year: 'YYYY',
+    quarter: '[Q]Q YYYY',
+    month: 'MMMM YYYY',
+    week: 'w',
+    day: 'D',
+    hour: 'H',
+    minute: 'H:mm',
+    second: 'H:mm:ss',
+    millisecond: 'H:mm:ss:SSS'
+  };
+
+  defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute: 'H:mm', second: 'H:mm:ss', millisecond: 'H:mm:ss:SSS'};
+  defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
+
+  constructor(gantt) {
     this.gantt = gantt;
 
     this.from = undefined;
@@ -20,46 +66,46 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
 
     this.scrollAnchor = undefined;
 
-    this.columnBuilder = new GanttColumnBuilder(this);
+    this.columnBuilder = new GanttColumnsManager.GanttColumnBuilder(this);
 
     // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
     // All those changes need a recalculation of the header columns
-    this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function (newValues, oldValues) {
-      if (newValues !== oldValues && self.gantt.rendered) {
-        self.generateColumns();
+    this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], (newValues, oldValues) => {
+      if (newValues !== oldValues && this.gantt.rendered) {
+        this.generateColumns();
       }
     });
 
-    this.gantt.$scope.$watchCollection('headers', function (newValues, oldValues) {
-      if (newValues !== oldValues && self.gantt.rendered) {
-        self.generateColumns();
+    this.gantt.$scope.$watchCollection('headers', (newValues, oldValues) => {
+      if (newValues !== oldValues && this.gantt.rendered) {
+        this.generateColumns();
       }
     });
 
-    this.gantt.$scope.$watchCollection('headersFormats', function (newValues, oldValues) {
-      if (newValues !== oldValues && self.gantt.rendered) {
-        self.generateColumns();
+    this.gantt.$scope.$watchCollection('headersFormats', (newValues, oldValues) => {
+      if (newValues !== oldValues && this.gantt.rendered) {
+        this.generateColumns();
       }
     });
 
-    this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], function (newValues, oldValues) {
-      if (newValues !== oldValues && self.gantt.rendered) {
-        self.updateColumnsMeta();
+    this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], (newValues, oldValues) => {
+      if (newValues !== oldValues && this.gantt.rendered) {
+        this.updateColumnsMeta();
       }
     });
 
-    this.gantt.api.data.on.load(this.gantt.$scope, function () {
-      if ((self.from === undefined || self.to === undefined ||
-        self.from > self.gantt.rowsManager.getDefaultFrom() ||
-        self.to < self.gantt.rowsManager.getDefaultTo()) && self.gantt.rendered) {
-        self.generateColumns();
+    (this.gantt.api as any).data.on.load(this.gantt.$scope, () => {
+      if ((this.from === undefined || this.to === undefined ||
+        this.from > this.gantt.rowsManager.getDefaultFrom() ||
+        this.to < this.gantt.rowsManager.getDefaultTo()) && this.gantt.rendered) {
+        this.generateColumns();
       }
 
-      self.gantt.rowsManager.sortRows();
+      this.gantt.rowsManager.sortRows();
     });
 
-    this.gantt.api.data.on.remove(this.gantt.$scope, function () {
-      self.gantt.rowsManager.sortRows();
+    (this.gantt.api as any).data.on.remove(this.gantt.$scope, () => {
+      this.gantt.rowsManager.sortRows();
     });
 
     this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
@@ -74,7 +120,7 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     this.gantt.api.registerEvent('columns', 'refresh');
   };
 
-  ColumnsManager.prototype.setScrollAnchor = function () {
+  setScrollAnchor() {
     if (this.gantt.scroll.$element && this.columns.length > 0) {
       let el = this.gantt.scroll.$element[0];
       let center = el.scrollLeft + el.offsetWidth / 2;
@@ -83,18 +129,16 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     }
   };
 
-  ColumnsManager.prototype.scrollToScrollAnchor = function () {
-    let self = this;
-
+  scrollToScrollAnchor() {
     if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
       // Ugly but prevents screen flickering (unlike $timeout)
-      this.gantt.$scope.$$postDigest(function () {
-        self.gantt.api.scroll.toDate(self.scrollAnchor);
+      this.gantt.$scope.$$postDigest(() => {
+        (this.gantt.api as any).scroll.toDate(this.scrollAnchor);
       });
     }
   };
 
-  ColumnsManager.prototype.clearColumns = function () {
+  clearColumns() {
     this.setScrollAnchor();
 
     this.from = undefined;
@@ -108,10 +152,10 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     this.headers = [];
     this.visibleHeaders = [];
 
-    this.gantt.api.columns.raise.clear();
+    (this.gantt.api as any).columns.raise.clear();
   };
 
-  ColumnsManager.prototype.generateColumns = function (from, to) {
+  generateColumns(from?: moment.Moment | Date, to?: moment.Moment | Date) {
     if (!from) {
       from = this.gantt.options.value('fromDate');
     }
@@ -143,27 +187,27 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     }
 
     if (this.gantt.options.value('taskOutOfRange') === 'expand') {
-      from = this.gantt.rowsManager.getExpandedFrom(from);
-      to = this.gantt.rowsManager.getExpandedTo(to);
+      from = this.gantt.rowsManager.getExpandedFrom(from as moment.Moment);
+      to = this.gantt.rowsManager.getExpandedTo(to as moment.Moment);
     }
 
     this.setScrollAnchor();
 
-    this.from = from;
-    this.to = to;
+    this.from = from as moment.Moment;
+    this.to = to as moment.Moment;
 
-    this.columns = GanttColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
-    this.headers = GanttHeadersGenerator.generate(this);
+    this.columns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, this.from, this.to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
+    this.headers = GanttColumnsManager.GanttHeadersGenerator.generate(this);
     this.previousColumns = [];
     this.nextColumns = [];
 
     this.updateColumnsMeta();
     this.scrollToScrollAnchor();
 
-    this.gantt.api.columns.raise.generate(this.columns, this.headers);
+    (this.gantt.api as any).columns.raise.generate(this.columns, this.headers);
   };
 
-  ColumnsManager.prototype.updateColumnsMeta = function () {
+  updateColumnsMeta() {
     this.gantt.isRefreshingColumns = true;
 
     let lastColumn = this.getLastColumn();
@@ -198,11 +242,15 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     }
 
     this.gantt.isRefreshingColumns = false;
-    this.gantt.api.columns.raise.refresh(this.columns, this.headers);
+    (this.gantt.api as any).columns.raise.refresh(this.columns, this.headers);
   };
 
-  // Returns the last Gantt column or undefined
-  ColumnsManager.prototype.getLastColumn = function (extended) {
+  /**
+   * Returns the last Gantt column or undefined
+   * @param extended
+   * @returns {any}
+   */
+  getLastColumn(extended: boolean = false) {
     let columns = this.columns;
     if (extended) {
       columns = this.nextColumns;
@@ -214,8 +262,13 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     }
   };
 
-  // Returns the first Gantt column or undefined
-  ColumnsManager.prototype.getFirstColumn = function (extended) {
+  /**
+   * Returns the first Gantt column or undefined
+   *
+   * @param extended
+   * @returns {any}
+   */
+  getFirstColumn(extended: boolean = false) {
     let columns = this.columns;
     if (extended) {
       columns = this.previousColumns;
@@ -228,34 +281,46 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     }
   };
 
-  // Returns the column at the given or next possible date
-  ColumnsManager.prototype.getColumnByDate = function (date, disableExpand) {
+  /**
+   * Returns the column at the given or next possible date
+   *
+   * @param date
+   * @param disableExpand
+   * @returns {GanttColumn}
+   */
+  getColumnByDate(date: moment.Moment, disableExpand?: boolean) {
     if (!disableExpand) {
       this.expandExtendedColumnsForDate(date);
     }
     let extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
-    let columns = ganttBinarySearch.get(extendedColumns, date, function (c) {
+    let columns = GanttColumnsManager.ganttBinarySearch.get(extendedColumns, date, function (c) {
       return c.date;
     }, true);
     return columns[0] === undefined ? columns[1] : columns[0];
   };
 
-  // Returns the column at the given position x (in em)
-  ColumnsManager.prototype.getColumnByPosition = function (x, disableExpand) {
+  /**
+   * Returns the column at the given position x (in em)
+   *
+   * @param x
+   * @param disableExpand
+   * @returns {GanttColumn}
+   */
+  getColumnByPosition(x: number, disableExpand?: boolean) {
     if (!disableExpand) {
       this.expandExtendedColumnsForPosition(x);
     }
     let extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
-    let columns = ganttBinarySearch.get(extendedColumns, x, function (c) {
+    let columns = GanttColumnsManager.ganttBinarySearch.get(extendedColumns, x, function (c) {
       return c.left;
     }, true);
     return columns[0] === undefined ? columns[1] : columns[0];
   };
 
-  ColumnsManager.prototype.updateColumnsWidths = function (columns, headers, previousColumns, nextColumns) {
-    let columnWidth = this.gantt.options.value('columnWidth');
-    let expandToFit = this.gantt.options.value('expandToFit');
-    let shrinkToFit = this.gantt.options.value('shrinkToFit');
+  updateColumnsWidths(columns, headers, previousColumns, nextColumns) {
+    let columnWidth: number = this.gantt.options.value('columnWidth');
+    let expandToFit: boolean = this.gantt.options.value('expandToFit');
+    let shrinkToFit: boolean = this.gantt.options.value('shrinkToFit');
 
     if (columnWidth === undefined || expandToFit || shrinkToFit) {
       let newWidth = this.gantt.getBodyAvailableWidth();
@@ -270,9 +335,9 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
         ) {
           let widthFactor = newWidth / currentWidth;
 
-          ganttLayout.setColumnsWidthFactor(columns, widthFactor);
+          GanttColumnsManager.ganttLayout.setColumnsWidthFactor(columns, widthFactor);
           for (let i = 0; i < headers.length; i++) {
-            ganttLayout.setColumnsWidthFactor(headers[i], widthFactor);
+            GanttColumnsManager.ganttLayout.setColumnsWidthFactor(headers[i], widthFactor);
           }
           // previous and next columns will be generated again on need.
           previousColumns.splice(0, this.previousColumns.length);
@@ -284,8 +349,8 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     return false;
   };
 
-  ColumnsManager.prototype.getColumnsWidth = function () {
-    let columnWidth = this.gantt.options.value('columnWidth');
+  getColumnsWidth() {
+    let columnWidth: number = this.gantt.options.value('columnWidth');
     if (columnWidth === undefined) {
       if (!this.gantt.width || this.gantt.width <= 0) {
         columnWidth = 20;
@@ -296,11 +361,11 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     return columnWidth;
   };
 
-  ColumnsManager.prototype.getColumnsWidthToFit = function () {
+  getColumnsWidthToFit() {
     return this.gantt.getBodyAvailableWidth() / this.columns.length;
   };
 
-  ColumnsManager.prototype.expandExtendedColumnsForPosition = function (x) {
+  expandExtendedColumnsForPosition(x) {
     let viewScale;
     if (x < 0) {
       let firstColumn = this.getFirstColumn();
@@ -308,7 +373,7 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
       let firstExtendedColumn = this.getFirstColumn(true);
       if (!firstExtendedColumn || firstExtendedColumn.left > x) {
         viewScale = this.gantt.options.value('viewScale');
-        this.previousColumns = GanttColumnGenerator.generate(this.columnBuilder, from, undefined, viewScale, this.getColumnsWidth(), -x, 0, true);
+        this.previousColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, from, undefined, viewScale, this.getColumnsWidth(), -x, 0, true);
       }
       return true;
     } else if (x > this.gantt.width) {
@@ -317,14 +382,14 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
       let lastExtendedColumn = this.getLastColumn(true);
       if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
         viewScale = this.gantt.options.value('viewScale');
-        this.nextColumns = GanttColumnGenerator.generate(this.columnBuilder, endDate, undefined, viewScale, this.getColumnsWidth(), x - this.gantt.width, this.gantt.width, false);
+        this.nextColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, endDate, undefined, viewScale, this.getColumnsWidth(), x - this.gantt.width, this.gantt.width, false);
       }
       return true;
     }
     return false;
   };
 
-  ColumnsManager.prototype.expandExtendedColumnsForDate = function (date) {
+  expandExtendedColumnsForDate(date) {
     let firstColumn = this.getFirstColumn();
     let from;
     if (firstColumn) {
@@ -342,35 +407,39 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
       let firstExtendedColumn = this.getFirstColumn(true);
       if (!firstExtendedColumn || firstExtendedColumn.date > date) {
         viewScale = this.gantt.options.value('viewScale');
-        this.previousColumns = GanttColumnGenerator.generate(this.columnBuilder, from, date, viewScale, this.getColumnsWidth(), undefined, 0, true);
+        this.previousColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, from, date, viewScale, this.getColumnsWidth(), undefined, 0, true);
       }
       return true;
     } else if (endDate && date >= endDate) {
       let lastExtendedColumn = this.getLastColumn(true);
       if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
         viewScale = this.gantt.options.value('viewScale');
-        this.nextColumns = GanttColumnGenerator.generate(this.columnBuilder, endDate, date, viewScale, this.getColumnsWidth(), undefined, this.gantt.width, false);
+        this.nextColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, endDate, date, viewScale, this.getColumnsWidth(), undefined, this.gantt.width, false);
       }
       return true;
     }
     return false;
   };
 
-  // Returns the number of active headers
-  ColumnsManager.prototype.getActiveHeadersCount = function () {
+  /**
+   *  Returns the number of active headers
+   *
+   * @returns {number}
+   */
+  getActiveHeadersCount() {
     return this.headers.length;
   };
 
-  ColumnsManager.prototype.updateVisibleColumns = function (includeViews) {
+  updateVisibleColumns(includeViews) {
     let limitThreshold = this.gantt.options.value('columnLimitThreshold');
 
     let i;
     if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
-      this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
+      this.visibleColumns = GanttColumnsManager.$filter('ganttColumnLimit')(this.columns, this.gantt);
 
       this.visibleHeaders = [];
       for (i = 0; i < this.headers.length; i++) {
-        this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
+        this.visibleHeaders.push.apply(this.visibleHeaders, GanttColumnsManager.$filter('ganttColumnLimit')(this.headers[i], this.gantt));
       }
     } else {
       this.visibleColumns = this.columns;
@@ -393,21 +462,7 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     this.gantt.currentDateManager.setCurrentDate(currentDateValue);
   };
 
-  let defaultHeadersFormats = {
-    year: 'YYYY',
-    quarter: '[Q]Q YYYY',
-    month: 'MMMM YYYY',
-    week: 'w',
-    day: 'D',
-    hour: 'H',
-    minute: 'H:mm',
-    second: 'H:mm:ss',
-    millisecond: 'H:mm:ss:SSS'
-  };
-  let defaultDayHeadersFormats = {day: 'LL', hour: 'H', minute: 'H:mm', second: 'H:mm:ss', millisecond: 'H:mm:ss:SSS'};
-  let defaultYearHeadersFormats = {'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM'};
-
-  ColumnsManager.prototype.getHeaderFormat = function (unit) {
+  getHeaderFormat(unit) {
     let format;
     let headersFormats = this.gantt.options.value('headersFormats');
     if (headersFormats !== undefined) {
@@ -433,18 +488,18 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
       }
 
       if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
-        format = defaultDayHeadersFormats[unit];
+        format = this.defaultDayHeadersFormats[unit];
       } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
-        format = defaultYearHeadersFormats[unit];
+        format = this.defaultYearHeadersFormats[unit];
       }
       if (format === undefined) {
-        format = defaultHeadersFormats[unit];
+        format = this.defaultHeadersFormats[unit];
       }
     }
     return format;
   };
 
-  ColumnsManager.prototype.getHeaderScale = function (header) {
+  getHeaderScale(header) {
     let scale;
     let headersScales = this.gantt.options.value('headersScales');
     if (headersScales !== undefined) {
@@ -459,7 +514,7 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
     return scale;
   };
 
-  ColumnsManager.prototype.getDateRange = function (visibleOnly) {
+  getDateRange(visibleOnly) {
     let firstColumn;
     let lastColumn;
 
@@ -475,6 +530,21 @@ export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersG
 
     return firstColumn && lastColumn ? [firstColumn.date, lastColumn.endDate] : undefined;
   };
+}
 
-  return ColumnsManager;
+export default function (GanttColumnGenerator: GanttColumnGenerator,
+                         GanttColumnBuilder: { new(columnsManager: GanttColumnsManager): GanttColumnBuilder },
+                         GanttHeadersGenerator: GanttHeadersGenerator,
+                         $filter: IGanttFilterService,
+                         ganttLayout: GanttLayout,
+                         ganttBinarySearch: GanttBinarySearch) {
+  'ngInject';
+
+  GanttColumnsManager.GanttColumnGenerator = GanttColumnGenerator;
+  GanttColumnsManager.GanttHeadersGenerator = GanttHeadersGenerator;
+  GanttColumnsManager.ganttBinarySearch = ganttBinarySearch;
+  GanttColumnsManager.GanttColumnBuilder = GanttColumnBuilder;
+  GanttColumnsManager.ganttLayout = ganttLayout;
+  GanttColumnsManager.$filter = $filter;
+  return GanttColumnsManager;
 }

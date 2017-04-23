@@ -1,8 +1,14 @@
 import moment from 'moment';
 
-export default function (ganttUtils) {
-  'ngInject';
-  let ObjectModel = function (api) {
+import {GanttApi} from '../api/api.factory';
+import GanttUtils from '../util/utils.service';
+
+export class GanttObjectModel {
+  static ganttUtils: GanttUtils;
+
+  private api: GanttApi;
+
+  constructor (api: GanttApi) {
     this.api = api;
 
     this.api.registerEvent('tasks', 'clean');
@@ -10,9 +16,9 @@ export default function (ganttUtils) {
     this.api.registerEvent('timespans', 'clean');
   };
 
-  ObjectModel.prototype.cleanTask = function (model) {
+  cleanTask (model) {
     if (model.id === undefined) {
-      model.id = ganttUtils.randomUuid();
+      model.id = GanttObjectModel.ganttUtils.randomUuid();
     }
 
     if (model.from !== undefined && !moment.isMoment(model.from)) {
@@ -23,12 +29,12 @@ export default function (ganttUtils) {
       model.to = moment(model.to);
     }
 
-    this.api.tasks.raise.clean(model);
+    (this.api as any).tasks.raise.clean(model);
   };
 
-  ObjectModel.prototype.cleanRow = function (model) {
+  cleanRow (model) {
     if (model.id === undefined) {
-      model.id = ganttUtils.randomUuid();
+      model.id = GanttObjectModel.ganttUtils.randomUuid();
     }
 
     if (model.from !== undefined && !moment.isMoment(model.from)) {
@@ -39,12 +45,12 @@ export default function (ganttUtils) {
       model.to = moment(model.to);
     }
 
-    this.api.rows.raise.clean(model);
+    (this.api as any).rows.raise.clean(model);
   };
 
-  ObjectModel.prototype.cleanTimespan = function (model) {
+  cleanTimespan (model) {
     if (model.id === undefined) {
-      model.id = ganttUtils.randomUuid();
+      model.id = GanttObjectModel.ganttUtils.randomUuid();
     }
 
     if (model.from !== undefined && !moment.isMoment(model.from)) {
@@ -55,8 +61,13 @@ export default function (ganttUtils) {
       model.to = moment(model.to);
     }
 
-    this.api.timespans.raise.clean(model);
+    (this.api as any).timespans.raise.clean(model);
   };
+}
 
-  return ObjectModel;
+export default function (ganttUtils: GanttUtils) {
+  'ngInject';
+
+  GanttObjectModel.ganttUtils = ganttUtils;
+  return GanttObjectModel;
 }

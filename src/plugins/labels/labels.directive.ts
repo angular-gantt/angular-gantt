@@ -1,6 +1,8 @@
 import angular from 'angular';
 
-export default function (ganttUtils, $compile, $document, $log) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
+export default function (ganttUtils: GanttUtilsService, $compile, $document, $log) {
   'ngInject';
   // Provides the row sort functionality to any Gantt row
   // Uses the sortableState to share the current row

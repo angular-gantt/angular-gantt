@@ -1,13 +1,60 @@
-import angular from 'angular';
+import angular, {IAugmentedJQuery, IDocumentService, IScope, ITimeoutService} from 'angular';
 
 import moment from 'moment';
 
-export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, GanttBody, GanttRowHeader, GanttHeader, GanttSide, GanttObjectModel, GanttRowsManager, GanttColumnsManager, GanttTimespansManager, GanttCurrentDateManager, ganttArrays, $document, $timeout) {
-  'ngInject';
-  // Gantt logic. Manages the columns, rows and sorting functionality.
-  let Gantt = function ($scope, $element) {
-    let self = this;
+import {GanttApi} from './api/api.factory';
+import {GanttOptions} from './api/options.factory';
+import {GanttCalendar} from './calendar/calendar.factory';
+import {GanttCurrentDateManager} from './calendar/currentDateManager.factory';
+import {GanttObjectModel} from './model/objectModel.factory';
+import {GanttRowsManager} from './row/rowsManager.factory';
+import {GanttColumnsManager} from './column/columnsManager.factory';
+import {GanttTimespansManager} from './timespan/timespansManager.factory';
+import GanttArrays from './util/arrays.service';
+import {GanttScroll} from './template/scroll.factory';
+import {GanttBody} from './template/body.factory';
+import {GanttHeader} from './template/header.factory';
+import {GanttSide} from './template/side.factory';
+import {GanttRow, GanttRowModel} from './row/row.factory';
 
+// Gantt logic. Manages the columns, rows and sorting functionality.
+export class Gantt {
+  static $document: IDocumentService;
+  static ganttArrays: GanttArrays;
+  static $timeout: ITimeoutService;
+
+  options: GanttOptions;
+
+  $scope: IScope;
+  $element: IAugmentedJQuery;
+
+  api: GanttApi;
+  calendar: GanttCalendar;
+  objectModel: GanttObjectModel;
+
+  columnMagnetValue: number;
+  columnMagnetUnit: string;
+  shiftColumnMagnetValue: number;
+  shiftColumnMagnetUnit: string;
+
+  shiftKey: boolean;
+
+  scroll: GanttScroll;
+  body: GanttBody;
+  header: GanttHeader;
+  side: GanttSide;
+
+  rowsManager: GanttRowsManager;
+  columnsManager: GanttColumnsManager;
+  timespansManager: GanttTimespansManager;
+  currentDateManager: GanttCurrentDateManager;
+
+  originalWidth: number;
+  width: number;
+  rendered: boolean = false;
+  isRefreshingColumns: boolean = false;
+
+  constructor($scope: IScope, $element: IAugmentedJQuery) {
     this.$scope = $scope;
     this.$element = $element;
 
@@ -59,7 +106,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
     this.api.registerMethod('data', 'clear', this.clearData, this);
     this.api.registerMethod('data', 'get', this.getData, this);
 
-    this.calendar = new GanttCalendar(this);
+    this.calendar = new GanttCalendar();
     this.calendar.registerTimeFrames(this.options.value('timeFrames'));
     this.calendar.registerDateFrames(this.options.value('dateFrames'));
 
@@ -70,7 +117,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
     this.api.registerMethod('timeframes', 'registerTimeFrameMappings', this.calendar.registerTimeFrameMappings, this.calendar);
     this.api.registerMethod('timeframes', 'clearTimeFrameMappings', this.calendar.clearTimeFrameMappings, this.calendar);
 
-    $scope.$watchGroup(['timeFrames', 'dateFrames'], function (newValues, oldValues) {
+    $scope.$watchGroup(['timeFrames', 'dateFrames'], (newValues, oldValues) => {
       if (newValues !== oldValues) {
         let timeFrames = newValues[0];
         let dateFrames = newValues[1];
@@ -81,62 +128,57 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
         let framesChanged = false;
 
         if (!angular.equals(timeFrames, oldTimeFrames)) {
-          self.calendar.clearTimeFrames();
-          self.calendar.registerTimeFrames(timeFrames);
+          this.calendar.clearTimeFrames();
+          this.calendar.registerTimeFrames(timeFrames);
           framesChanged = true;
         }
 
         if (!angular.equals(dateFrames, oldDateFrames)) {
-          self.calendar.clearDateFrames();
-          self.calendar.registerDateFrames(dateFrames);
+          this.calendar.clearDateFrames();
+          this.calendar.registerDateFrames(dateFrames);
           framesChanged = true;
         }
 
         if (framesChanged) {
-          self.columnsManager.generateColumns();
+          this.columnsManager.generateColumns();
         }
       }
     });
 
-    $scope.$watch('columnMagnet', function () {
+    $scope.$watch('columnMagnet', () => {
       let splittedColumnMagnet;
-      let columnMagnet = self.options.value('columnMagnet');
+      let columnMagnet = this.options.value('columnMagnet');
       if (columnMagnet) {
         splittedColumnMagnet = columnMagnet.trim().split(' ');
       }
       if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
-        self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-        self.columnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+        this.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+        this.columnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
       } else {
-        self.columnMagnetValue = 1;
-        self.columnMagnetUnit = moment.normalizeUnits(columnMagnet);
+        this.columnMagnetValue = 1;
+        this.columnMagnetUnit = moment.normalizeUnits(columnMagnet);
       }
     });
 
-    $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function () {
+    $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], () => {
       let splittedColumnMagnet;
-      let shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+      let shiftColumnMagnet = this.options.value('shiftColumnMagnet');
       if (shiftColumnMagnet) {
         splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
       }
       if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
-        self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-        self.shiftColumnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+        this.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+        this.shiftColumnMagnetUnit = moment.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
       } else {
-        self.shiftColumnMagnetValue = 1;
-        self.shiftColumnMagnetUnit = moment.normalizeUnits(shiftColumnMagnet);
+        this.shiftColumnMagnetValue = 1;
+        this.shiftColumnMagnetUnit = moment.normalizeUnits(shiftColumnMagnet);
       }
     });
 
-    let keyHandler = function (e) {
-      self.shiftKey = e.shiftKey;
-      return true;
-    };
+    Gantt.$document.on('keyup keydown', this.keyHandler);
 
-    $document.on('keyup keydown', keyHandler);
-
-    $scope.$on('$destroy', function () {
-      $document.off('keyup keydown', keyHandler);
+    $scope.$on('$destroy', () => {
+      Gantt.$document.off('keyup keydown', this.keyHandler);
     });
 
     this.scroll = new GanttScroll(this);
@@ -158,7 +200,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
       this.$scope.api(this.api);
     }
 
-    let hasRowModelOrderChanged = function (data1, data2) {
+    let hasRowModelOrderChanged = (data1, data2) => {
       if (data2 === undefined || data1.length !== data2.length) {
         return true;
       }
@@ -173,18 +215,18 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
       return false;
     };
 
-    $scope.$watchCollection('data', function (newData, oldData) {
+    $scope.$watchCollection('data', (newData: GanttRowModel[], oldData: GanttRowModel[]) => {
       if (oldData !== undefined) {
-        let toRemoveIds = ganttArrays.getRemovedIds(newData, oldData);
+        let toRemoveIds = Gantt.ganttArrays.getRemovedIds(newData, oldData);
         if (toRemoveIds.length === oldData.length) {
-          self.rowsManager.removeAll();
+          this.rowsManager.removeAll();
 
           // DEPRECATED
-          self.api.data.raise.clear();
+          (this.api as any).data.raise.clear();
         } else {
           for (let i = 0, l = toRemoveIds.length; i < l; i++) {
             let toRemoveId = toRemoveIds[i];
-            self.rowsManager.removeRow(toRemoveId);
+            this.rowsManager.removeRow(toRemoveId);
           }
 
           // DEPRECATED
@@ -194,7 +236,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
               removedRows.push(oldData[i]);
             }
           }
-          self.api.data.raise.remove(removedRows);
+          (this.api as any).data.raise.remove(removedRows);
         }
       }
 
@@ -202,20 +244,25 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
         let modelOrderChanged = hasRowModelOrderChanged(newData, oldData);
 
         if (modelOrderChanged) {
-          self.rowsManager.resetNonModelLists();
+          this.rowsManager.resetNonModelLists();
         }
 
         for (let j = 0, k = newData.length; j < k; j++) {
           let rowData = newData[j];
-          self.rowsManager.addRow(rowData, modelOrderChanged);
+          this.rowsManager.addRow(rowData, modelOrderChanged);
         }
 
-        self.api.data.raise.change(newData, oldData);
+        (this.api as any).data.raise.change(newData, oldData);
 
         // DEPRECATED
-        self.api.data.raise.load(newData);
+        (this.api as any).data.raise.load(newData);
       }
     });
+  };
+
+  private keyHandler(e) {
+    this.shiftKey = e.shiftKey;
+    return true;
   };
 
   /**
@@ -223,7 +270,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
    *
    * @returns {[*,*]}
    */
-  Gantt.prototype.getMagnetValueAndUnit = function () {
+  getMagnetValueAndUnit() {
     if (this.shiftKey) {
       if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
         return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
@@ -252,7 +299,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
   };
 
   // Get the date transformed by magnet feature.
-  Gantt.prototype.getMagnetDate = function (date, disableExpand) {
+  getMagnetDate(date, disableExpand) {
     if (date === undefined) {
       return undefined;
     }
@@ -271,7 +318,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
   };
 
   // Returns the exact column date at the given position x (in em)
-  Gantt.prototype.getDateByPosition = function (x, magnet, disableExpand) {
+  getDateByPosition(x: number, magnet?: boolean, disableExpand?: boolean) {
     let column = this.columnsManager.getColumnByPosition(x, disableExpand);
     if (column !== undefined) {
       let magnetValue;
@@ -287,7 +334,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
     }
   };
 
-  Gantt.prototype.getBodyAvailableWidth = function () {
+  getBodyAvailableWidth() {
     let scrollWidth = this.getWidth() - this.side.getWidth();
     let borderWidth = this.scroll.getBordersWidth();
     let availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
@@ -297,7 +344,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
   };
 
   // Returns the position inside the Gantt calculated by the given date
-  Gantt.prototype.getPositionByDate = function (date, disableExpand) {
+  getPositionByDate(date, disableExpand?: boolean) {
     if (date === undefined) {
       return undefined;
     }
@@ -315,7 +362,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
   };
 
   // DEPRECATED - Use $data instead.
-  Gantt.prototype.loadData = function (data) {
+  loadData(data: GanttRowModel | GanttRowModel[]) {
     if (!angular.isArray(data)) {
       data = data !== undefined ? [data] : [];
     }
@@ -326,7 +373,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
       for (let i = 0, l = data.length; i < l; i++) {
         let row = data[i];
 
-        let j = ganttArrays.indexOfId(this.$scope.data, row.id);
+        let j = Gantt.ganttArrays.indexOfId(this.$scope.data, row.id);
         if (j > -1) {
           this.$scope.data[j] = row;
         } else {
@@ -341,12 +388,12 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
     }
   };
 
-  Gantt.prototype.getData = function () {
+  getData() {
     return this.$scope.data;
   };
 
   // DEPRECATED - Use $data instead.
-  Gantt.prototype.removeData = function (data) {
+  removeData(data) {
     if (!angular.isArray(data)) {
       data = data !== undefined ? [data] : [];
     }
@@ -355,7 +402,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
       for (let i = 0, l = data.length; i < l; i++) {
         let rowToRemove = data[i];
 
-        let j = ganttArrays.indexOfId(this.$scope.data, rowToRemove.id);
+        let j = Gantt.ganttArrays.indexOfId(this.$scope.data, rowToRemove.id);
         if (j > -1) {
           if (rowToRemove.tasks === undefined || rowToRemove.tasks.length === 0) {
             // Remove complete row
@@ -366,7 +413,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
             for (let ti = 0, tl = rowToRemove.tasks.length; ti < tl; ti++) {
               let taskToRemove = rowToRemove.tasks[ti];
 
-              let tj = ganttArrays.indexOfId(row.tasks, taskToRemove.id);
+              let tj = Gantt.ganttArrays.indexOfId(row.tasks, taskToRemove.id);
               if (tj > -1) {
                 row.tasks.splice(tj, 1);
               }
@@ -378,43 +425,65 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
   };
 
   // DEPRECATED - Use $data instead.
-  Gantt.prototype.clearData = function () {
+  clearData() {
     this.$scope.data = undefined;
   };
 
-  Gantt.prototype.getWidth = function () {
+  getWidth() {
     return this.$scope.ganttElementWidth;
   };
 
-  Gantt.prototype.getHeight = function () {
+  getHeight() {
     return this.$scope.ganttElementHeight;
   };
 
-  Gantt.prototype.getContainerWidth = function () {
+  getContainerWidth() {
     return this.$scope.ganttContainerWidth;
   };
 
-  Gantt.prototype.getContainerHeight = function () {
+  getContainerHeight() {
     return this.$scope.ganttContainerHeight;
   };
 
-  Gantt.prototype.initialized = function () {
+  initialized() {
     // Gantt is initialized. Signal that the Gantt is ready.
-    this.api.core.raise.ready(this.api);
+    (this.api as any).core.raise.ready(this.api);
 
     this.rendered = true;
     this.columnsManager.generateColumns();
 
-    let gantt = this;
-    let renderedFunction = function () {
-      let w = gantt.side.getWidth();
+    Gantt.$timeout(() => {
+      let w = this.side.getWidth();
       if (w > 0) {
-        gantt.options.set('sideWidth', w);
+        this.options.set('sideWidth', w);
       }
-      gantt.api.core.raise.rendered(gantt.api);
-    };
-    $timeout(renderedFunction);
+      (this.api as any).core.raise.rendered(this.api);
+    });
   };
+}
 
+export default function (GanttApi: { new(gantt: Gantt): GanttApi },
+                         GanttOptions: {
+                           new(values: { [option: string]: any; },
+                               defaultValues: { [option: string]: any; }): GanttOptions
+                         },
+                         GanttCalendar: { new(): GanttCalendar },
+                         GanttScroll: { new(gantt: Gantt): GanttScroll },
+                         GanttBody: { new(gantt: Gantt): GanttBody },
+                         GanttHeader: { new(gantt: Gantt): GanttHeader },
+                         GanttSide: { new(gantt: Gantt): GanttSide },
+                         GanttObjectModel: { new(gantt: Gantt): GanttObjectModel },
+                         GanttRowsManager: { new(gantt: Gantt): GanttRowsManager },
+                         GanttColumnsManager: { new(gantt: Gantt): GanttColumnsManager },
+                         GanttTimespansManager: { new(gantt: Gantt): GanttTimespansManager },
+                         GanttCurrentDateManager: { new(gantt: Gantt): GanttCurrentDateManager },
+                         ganttArrays: GanttArrays,
+                         $document: IDocumentService,
+                         $timeout: ITimeoutService) {
+  'ngInject';
+
+  Gantt.ganttArrays = ganttArrays;
+  Gantt.$document = $document;
+  Gantt.$timeout = $timeout;
   return Gantt;
 }

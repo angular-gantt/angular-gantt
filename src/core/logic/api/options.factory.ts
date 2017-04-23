@@ -1,53 +1,58 @@
 import angular from 'angular';
 
-export default function () {
-  'ngInject';
-  let GanttOptions = function (values, defaultValues) {
+export class GanttOptions {
+  private defaultValues: { [option: string]: any; };
+  private values: { [option: string]: any; };
+
+  constructor(values: { [option: string]: any; }, defaultValues: { [option: string]: any; }) {
     this.defaultValues = defaultValues;
     this.values = values;
+  }
 
-    this.defaultValue = function (optionName) {
-      let defaultValue = this.defaultValues[optionName];
-      if (angular.isFunction(defaultValue)) {
-        defaultValue = defaultValue();
-      }
+  defaultValue(optionName: string) {
+    let defaultValue = this.defaultValues[optionName];
+    if (angular.isFunction(defaultValue)) {
+      defaultValue = defaultValue();
+    }
 
-      return defaultValue;
-    };
-
-    this.sanitize = function (optionName, optionValue) {
-      if (!optionValue) {
-        let defaultValue = this.defaultValue(optionName);
-        if (defaultValue !== undefined) {
-          if (optionValue !== undefined && typeof defaultValue === 'boolean') {
-            return optionValue;
-          }
-
-          return defaultValue;
-        }
-      }
-
-      return optionValue;
-    };
-
-    this.value = function (optionName) {
-      return this.sanitize(optionName, this.values[optionName]);
-    };
-
-    this.set = function (optionName, optionValue) {
-      this.values[optionName] = optionValue;
-    };
-
-    this.initialize = function () {
-      for (let optionName in this.values) {
-        let optionValue = this.values[optionName];
-        if (this.values.hasOwnProperty(optionName)) {
-          this.values[optionName] = this.value(optionName, optionValue);
-        }
-      }
-      return this.values;
-    };
+    return defaultValue;
   };
+
+  sanitize(optionName: string, optionValue: any) {
+    if (!optionValue) {
+      let defaultValue = this.defaultValue(optionName);
+      if (defaultValue !== undefined) {
+        if (optionValue !== undefined && typeof defaultValue === 'boolean') {
+          return optionValue;
+        }
+
+        return defaultValue;
+      }
+    }
+
+    return optionValue;
+  };
+
+  value(optionName: string) {
+    return this.sanitize(optionName, this.values[optionName]);
+  };
+
+  set(optionName: string, optionValue: any) {
+    this.values[optionName] = optionValue;
+  };
+
+  initialize() {
+    for (let optionName in this.values) {
+      if (this.values.hasOwnProperty(optionName)) {
+        this.values[optionName] = this.value(optionName);
+      }
+    }
+    return this.values;
+  };
+}
+
+export default function () {
+  'ngInject';
 
   return GanttOptions;
 }

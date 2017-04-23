@@ -1,14 +1,40 @@
-import angular from 'angular';
+import angular, {IAugmentedJQuery} from 'angular';
 
-export default function () {
-  'ngInject';
-  let Timespan = function (gantt, model) {
+import moment from 'moment';
+import {Gantt} from '../gantt.factory';
+
+export class TimespanModel {
+  id: string;
+  from: moment.Moment|Date;
+  to: moment.Moment|Date;
+}
+
+export class Timespan {
+  gantt: Gantt;
+  model: TimespanModel;
+
+  modelLeft: number;
+  modelWidth: number;
+  left: number;
+  width: number;
+  truncatedLeft: boolean;
+  truncatedLeftOffset: number;
+  truncatedRightOffset: number;
+  truncatedRight: boolean;
+  from: moment.Moment;
+  to: moment.Moment;
+
+  $element: IAugmentedJQuery;
+
+  constructor(gantt, model: TimespanModel) {
     this.gantt = gantt;
     this.model = model;
   };
 
-  // Updates the pos and size of the timespan according to the from - to date
-  Timespan.prototype.updatePosAndSize = function () {
+  /**
+   * Updates the pos and size of the timespan according to the from - to date
+   */
+  updatePosAndSize() {
     this.modelLeft = this.gantt.getPositionByDate(this.model.from);
     this.modelWidth = this.gantt.getPositionByDate(this.model.to) - this.modelLeft;
 
@@ -59,7 +85,7 @@ export default function () {
     this.updateView();
   };
 
-  Timespan.prototype.updateView = function () {
+  updateView() {
     if (this.$element) {
       if (this.left === undefined || this.width === undefined) {
         this.$element.css('display', 'none');
@@ -71,28 +97,42 @@ export default function () {
     }
   };
 
-  // Expands the start of the timespan to the specified position (in em)
-  Timespan.prototype.setFrom = function (x) {
+  /**
+   * Expands the start of the timespan to the specified position (in em)
+   * @param x
+   */
+  setFrom(x: number) {
     this.from = this.gantt.getDateByPosition(x);
     this.updatePosAndSize();
   };
 
-  // Expands the end of the timespan to the specified position (in em)
-  Timespan.prototype.setTo = function (x) {
+  /**
+   * Expands the end of the timespan to the specified position (in em)
+   * @param x
+   */
+  setTo(x: number) {
     this.to = this.gantt.getDateByPosition(x);
     this.updatePosAndSize();
   };
 
-  // Moves the timespan to the specified position (in em)
-  Timespan.prototype.moveTo = function (x) {
+  /**
+   * Moves the timespan to the specified position (in em)
+   *
+   * @param x
+   */
+  moveTo(x: number) {
     this.from = this.gantt.getDateByPosition(x);
     this.to = this.gantt.getDateByPosition(x + this.width);
     this.updatePosAndSize();
   };
 
-  Timespan.prototype.clone = function () {
+  clone() {
     return new Timespan(this.gantt, angular.copy(this.model));
   };
+}
+
+export default function () {
+  'ngInject';
 
   return Timespan;
 }

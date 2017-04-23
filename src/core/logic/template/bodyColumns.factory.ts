@@ -1,7 +1,15 @@
-export default function () {
-  'ngInject';
-  let BodyColumns = function (body) {
+import {GanttBody} from './body.factory';
+
+export class GanttBodyColumns {
+  private body: GanttBody;
+
+  constructor(body: GanttBody) {
     this.body = body;
   };
-  return BodyColumns;
+}
+
+export default function () {
+  'ngInject';
+
+  return GanttBodyColumns;
 }

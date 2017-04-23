@@ -1,73 +1,86 @@
-import angular from 'angular';
+import angular, {IFilterFilterComparatorFunc, ITimeoutService} from 'angular';
 
 import moment from 'moment';
 
-export default function (GanttRow, ganttArrays, $filter, $timeout) {
-  'ngInject';
-  let RowsManager = function (gantt) {
-    let self = this;
+import GanttArrays from '../util/arrays.service';
+import {GanttRow, GanttRowModel} from './row.factory';
+import {IGanttFilterService} from '../../../index';
+import {Gantt} from '../gantt.factory';
 
+export class GanttRowsManager {
+  static GanttRow: { new(rowsManager: GanttRowsManager, model: GanttRowModel): GanttRow };
+  static $filter: IGanttFilterService;
+  static $timeout: ITimeoutService;
+  static ganttArrays: GanttArrays;
+
+  gantt: Gantt;
+  rowsMap: { [id: string]: GanttRow } = {};
+  rows: GanttRow[] = [];
+  sortedRows: GanttRow[] = [];
+  filteredRows: GanttRow[] = [];
+  customFilteredRows: GanttRow[] = [];
+  visibleRows: GanttRow[] = [];
+  rowsTaskWatchers: { (): void }[] = [];
+  customRowSorters: { (rows: GanttRow[]): GanttRow[] }[] = [];
+  customRowFilters: { (rows: GanttRow[]): GanttRow[] }[] = [];
+
+  _defaultFilterImpl: { (sortedRows: GanttRow[], filterRow: GanttRow[], filterRowComparator: (IFilterFilterComparatorFunc<GanttRow> | boolean)): GanttRow[]};
+  filterImpl: { (sortedRows: GanttRow[], filterRow: GanttRow[], filterRowComparator: (IFilterFilterComparatorFunc<GanttRow> | boolean)): GanttRow[]};
+
+  constructor(gantt: Gantt) {
     this.gantt = gantt;
 
-    this.rowsMap = {};
-    this.rows = [];
-    this.sortedRows = [];
-    this.filteredRows = [];
-    this.customFilteredRows = [];
-    this.visibleRows = [];
-    this.rowsTaskWatchers = [];
-
-    this._defaultFilterImpl = function (sortedRows, filterRow, filterRowComparator) {
-      return $filter('filter')(sortedRows, filterRow, filterRowComparator);
+    this._defaultFilterImpl = (sortedRows: GanttRow[], filterRow: GanttRow[], filterRowComparator: IFilterFilterComparatorFunc<GanttRow>|boolean) => {
+      return GanttRowsManager.$filter('filter')(sortedRows, filterRow, filterRowComparator);
     };
     this.filterImpl = this._defaultFilterImpl;
 
     this.customRowSorters = [];
     this.customRowFilters = [];
 
-    this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function (newValues, oldValues) {
+    this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], (newValues, oldValues) => {
       if (newValues !== oldValues) {
-        self.updateVisibleTasks();
+        this.updateVisibleTasks();
       }
     });
 
-    this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function (newValues, oldValues) {
+    this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], (newValues, oldValues) => {
       if (newValues !== oldValues) {
-        self.updateVisibleRows();
+        this.updateVisibleRows();
       }
     });
 
-    this.gantt.$scope.$watch('sortMode', function (newValue, oldValue) {
+    this.gantt.$scope.$watch('sortMode', (newValue, oldValue) => {
       if (newValue !== oldValue) {
-        self.sortRows();
+        this.sortRows();
       }
     });
 
     // Listen to vertical scrollbar visibility changes to update columns width
     let _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
-    this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function (newValue, oldValue) {
+    this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], (newValue, oldValue) => {
       if (newValue !== oldValue) {
-        $timeout(function () {
-          let newVScrollbarVisible = self.gantt.scroll.isVScrollbarVisible();
+        GanttRowsManager.$timeout(() => {
+          let newVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
           if (newVScrollbarVisible !== _oldVScrollbarVisible) {
             _oldVScrollbarVisible = newVScrollbarVisible;
-            self.gantt.columnsManager.updateColumnsMeta();
+            this.gantt.columnsManager.updateColumnsMeta();
           }
         });
       }
     });
 
-    this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
-    this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
-    this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
+    this.gantt.api.registerMethod('rows', 'sort', GanttRowsManager.prototype.sortRows, this);
+    this.gantt.api.registerMethod('rows', 'applySort', GanttRowsManager.prototype.applySort, this);
+    this.gantt.api.registerMethod('rows', 'refresh', GanttRowsManager.prototype.updateVisibleObjects, this);
 
-    this.gantt.api.registerMethod('rows', 'removeRowSorter', RowsManager.prototype.removeCustomRowSorter, this);
-    this.gantt.api.registerMethod('rows', 'addRowSorter', RowsManager.prototype.addCustomRowSorter, this);
+    this.gantt.api.registerMethod('rows', 'removeRowSorter', GanttRowsManager.prototype.removeCustomRowSorter, this);
+    this.gantt.api.registerMethod('rows', 'addRowSorter', GanttRowsManager.prototype.addCustomRowSorter, this);
 
-    this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
-    this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
+    this.gantt.api.registerMethod('rows', 'removeRowFilter', GanttRowsManager.prototype.removeCustomRowFilter, this);
+    this.gantt.api.registerMethod('rows', 'addRowFilter', GanttRowsManager.prototype.addCustomRowFilter, this);
 
-    this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
+    this.gantt.api.registerMethod('rows', 'setFilterImpl', GanttRowsManager.prototype.setFilterImpl, this);
 
     this.gantt.api.registerEvent('tasks', 'add');
     this.gantt.api.registerEvent('tasks', 'change');
@@ -94,7 +107,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     this.updateVisibleObjects();
   };
 
-  RowsManager.prototype.resetNonModelLists = function () {
+  resetNonModelLists() {
     this.rows = [];
     this.sortedRows = [];
     this.filteredRows = [];
@@ -102,8 +115,14 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     this.visibleRows = [];
   };
 
-  RowsManager.prototype.addRow = function (rowModel, modelOrderChanged) {
-    // Copy to new row (add) or merge with existing (update)
+  /**
+   * Copy to new row (add) or merge with existing (update)
+   *
+   * @param rowModel
+   * @param modelOrderChanged
+   * @returns {boolean} true if updated, false if added.
+   */
+  addRow(rowModel: GanttRowModel, modelOrderChanged): boolean {
     let row;
     let i;
     let l;
@@ -126,7 +145,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
         return;
       }
 
-      let toRemoveIds = ganttArrays.getRemovedIds(rowModel.tasks, row.model.tasks);
+      let toRemoveIds = GanttRowsManager.ganttArrays.getRemovedIds(rowModel.tasks, row.model.tasks);
       for (i = 0, l = toRemoveIds.length; i < l; i++) {
         let toRemoveId = toRemoveIds[i];
         row.removeTask(toRemoveId);
@@ -135,7 +154,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
       row.model = rowModel;
       isUpdate = true;
     } else {
-      row = new GanttRow(this, rowModel);
+      row = new GanttRowsManager.GanttRow(this, rowModel);
       this.rowsMap[rowModel.id] = row;
       this.rows.push(row);
       this.sortedRows.push(row);
@@ -154,20 +173,20 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     }
 
     if (isUpdate) {
-      this.gantt.api.rows.raise.change(row);
+      (this.gantt.api as any).rows.raise.change(row);
     } else {
-      this.gantt.api.rows.raise.add(row);
+      (this.gantt.api as any).rows.raise.add(row);
     }
 
     if (!isUpdate) {
-      let watcher = this.gantt.$scope.$watchCollection(function () {
+      let watcher = this.gantt.$scope.$watchCollection(() => {
         return rowModel.tasks;
-      }, function (newTasks, oldTasks) {
+      }, (newTasks, oldTasks) => {
         if (newTasks !== oldTasks) {
           let i;
           let l;
 
-          let toRemoveIds = ganttArrays.getRemovedIds(newTasks, oldTasks);
+          let toRemoveIds = GanttRowsManager.ganttArrays.getRemovedIds(newTasks, oldTasks);
           for (i = 0, l = toRemoveIds.length; i < l; i++) {
             let toRemove = toRemoveIds[i];
             row.removeTask(toRemove);
@@ -190,14 +209,13 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     return isUpdate;
   };
 
-  RowsManager.prototype.removeRow = function (rowId) {
+  removeRow(rowId): GanttRow {
     if (rowId in this.rowsMap) {
-      delete this.rowsMap[rowId]; // Remove from map
+      delete this.rowsMap[rowId];
 
       let removedRow;
-      let row;
 
-      let indexOf = ganttArrays.indexOfId(this.rows, rowId, ['model', 'id']);
+      let indexOf = GanttRowsManager.ganttArrays.indexOfId(this.rows, rowId, ['model', 'id']);
       if (indexOf > -1) {
         removedRow = this.rows.splice(indexOf, 1)[0]; // Remove from array
         let unregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0]; // Remove watcher
@@ -206,19 +224,19 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
         }
       }
 
-      ganttArrays.removeId(this.sortedRows, rowId, ['model', 'id']);
-      ganttArrays.removeId(this.filteredRows, rowId, ['model', 'id']);
-      ganttArrays.removeId(this.customFilteredRows, rowId, ['model', 'id']);
-      ganttArrays.removeId(this.visibleRows, rowId, ['model', 'id']);
+      GanttRowsManager.ganttArrays.removeId(this.sortedRows, rowId, ['model', 'id']);
+      GanttRowsManager.ganttArrays.removeId(this.filteredRows, rowId, ['model', 'id']);
+      GanttRowsManager.ganttArrays.removeId(this.customFilteredRows, rowId, ['model', 'id']);
+      GanttRowsManager.ganttArrays.removeId(this.visibleRows, rowId, ['model', 'id']);
 
-      this.gantt.api.rows.raise.remove(removedRow);
-      return row;
+      (this.gantt.api as any).rows.raise.remove(removedRow);
+      return removedRow;
     }
 
     return undefined;
   };
 
-  RowsManager.prototype.removeAll = function () {
+  removeAll() {
     this.rowsMap = {};
     this.rows = [];
     this.sortedRows = [];
@@ -226,15 +244,13 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     this.customFilteredRows = [];
     this.visibleRows = [];
 
-    // tslint:disable:one-variable-per-declaration
-    for (let i = 0, l = this.rowsTaskWatchers.length; i < l; i++) {
-      let unregisterFunction = this.rowsTaskWatchers[i];
+    for (let unregisterFunction of this.rowsTaskWatchers) {
       unregisterFunction();
     }
     this.rowsTaskWatchers = [];
   };
 
-  RowsManager.prototype.sortRows = function () {
+  sortRows() {
     let expression = this.gantt.options.value('sortMode');
 
     if (expression !== undefined) {
@@ -244,7 +260,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
         expression = expression.substr(1);
       }
 
-      let angularOrderBy = $filter('orderBy');
+      let angularOrderBy = GanttRowsManager.$filter('orderBy');
       this.sortedRows = angularOrderBy(this.rows, expression, reverse);
     } else {
       this.sortedRows = this.rows.slice();
@@ -255,20 +271,21 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     this.updateVisibleRows();
   };
 
-  RowsManager.prototype.removeCustomRowSorter = function (sorterFunction) {
+  removeCustomRowSorter(sorterFunction: { (rows: GanttRow[]): GanttRow[] }) {
     let i = this.customRowSorters.indexOf(sorterFunction);
     if (i > -1) {
       this.customRowSorters.splice(i, 1);
     }
   };
 
-  RowsManager.prototype.addCustomRowSorter = function (sorterFunction) {
+  addCustomRowSorter(sorterFunction: { (rows: GanttRow[]): GanttRow[] }) {
     this.customRowSorters.push(sorterFunction);
   };
 
-  RowsManager.prototype.applyCustomRowSorters = function (sortedRows) {
-    for (let i = 0; i < this.customRowSorters.length; i++) {
-      sortedRows = this.customRowSorters[i](sortedRows);
+  applyCustomRowSorters(rows: GanttRow[]) {
+    let sortedRows = rows;
+    for (let customRowSorter of this.customRowSorters) {
+      sortedRows = customRowSorter(sortedRows);
     }
     return sortedRows;
   };
@@ -276,19 +293,19 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
   /**
    * Applies current view sort to data model.
    */
-  RowsManager.prototype.applySort = function () {
+  applySort() {
     let data = this.gantt.$scope.data;
     data.splice(0, data.length); // empty data.
     let rows = [];
-    for (let i = 0, l = this.sortedRows.length; i < l; i++) {
-      data.push(this.sortedRows[i].model);
-      rows.push(this.sortedRows[i]);
+    for (let row of this.sortedRows) {
+      data.push(row.model);
+      rows.push(row);
     }
 
     this.rows = rows;
   };
 
-  RowsManager.prototype.moveRow = function (row, targetRow) {
+  moveRow(row, targetRow) {
     let sortMode = this.gantt.options.value('sortMode');
     if (sortMode !== undefined) {
       // Apply current sort to model
@@ -300,24 +317,24 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     let rowIndex = this.rows.indexOf(row);
 
     if (targetRowIndex > -1 && rowIndex > -1 && targetRowIndex !== rowIndex) {
-      ganttArrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
-      ganttArrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
-      ganttArrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
+      GanttRowsManager.ganttArrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
+      GanttRowsManager.ganttArrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
+      GanttRowsManager.ganttArrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
 
-      this.gantt.api.rows.raise.change(row);
-      this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
+      (this.gantt.api as any).rows.raise.change(row);
+      (this.gantt.api as any).rows.raise.move(row, rowIndex, targetRowIndex);
 
       this.updateVisibleObjects();
       this.sortRows();
     }
   };
 
-  RowsManager.prototype.updateVisibleObjects = function () {
+  updateVisibleObjects() {
     this.updateVisibleRows();
     this.updateVisibleTasks();
   };
 
-  RowsManager.prototype.updateVisibleRows = function () {
+  updateVisibleRows() {
     let oldFilteredRows = this.filteredRows;
     let filterRow = this.gantt.options.value('filterRow');
     if (filterRow) {
@@ -330,7 +347,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
         // fix issue this.gantt is undefined
 
         let gantt = this.gantt;
-        filterRowComparator = function (actual, expected) {
+        filterRowComparator = (actual, expected) => {
           // fix actual.model is undefined
           return gantt.options.value('filterRowComparator')(actual, expected);
         };
@@ -347,32 +364,33 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     // TODO: Implement rowLimit like columnLimit to enhance performance for gantt with many rows
     this.visibleRows = this.customFilteredRows;
 
-    this.gantt.api.rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
+    (this.gantt.api as any).rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
 
     if (raiseEvent) {
-      this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
+      (this.gantt.api as any).rows.raise.filter(this.sortedRows, this.filteredRows);
     }
   };
 
-  RowsManager.prototype.removeCustomRowFilter = function (filterFunction) {
+  removeCustomRowFilter(filterFunction: { (rows: GanttRow[]): GanttRow[] }) {
     let i = this.customRowFilters.indexOf(filterFunction);
     if (i > -1) {
       this.customRowFilters.splice(i, 1);
     }
   };
 
-  RowsManager.prototype.addCustomRowFilter = function (filterFunction) {
+  addCustomRowFilter(filterFunction: { (rows: GanttRow[]): GanttRow[] }) {
     this.customRowFilters.push(filterFunction);
   };
 
-  RowsManager.prototype.applyCustomRowFilters = function (filteredRows) {
-    for (let i = 0; i < this.customRowFilters.length; i++) {
-      filteredRows = this.customRowFilters[i](filteredRows);
+  applyCustomRowFilters(rows: GanttRow[]) {
+    let filteredRows = rows;
+    for (let customRowFilter of this.customRowFilters) {
+      filteredRows = customRowFilter(filteredRows);
     }
     return filteredRows;
   };
 
-  RowsManager.prototype.setFilterImpl = function (filterImpl) {
+  setFilterImpl(filterImpl) {
     if (!filterImpl) {
       this.filterImpl = this._defaultFilterImpl;
     } else {
@@ -380,7 +398,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     }
   };
 
-  RowsManager.prototype.updateVisibleTasks = function () {
+  updateVisibleTasks() {
     let oldFilteredTasks = [];
     let filteredTasks = [];
     let tasks = [];
@@ -395,29 +413,31 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
       tasks = tasks.concat(row.tasks);
     }
 
-    this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
+    (this.gantt.api as any).tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
 
     let filterEvent = !angular.equals(oldFilteredTasks, filteredTasks);
 
     if (filterEvent) {
-      this.gantt.api.tasks.raise.filter(tasks, filteredTasks, visibleTasks);
+      (this.gantt.api as any).tasks.raise.filter(tasks, filteredTasks, visibleTasks);
     }
   };
 
-  // Update the position/size of all tasks in the Gantt
-  RowsManager.prototype.updateTasksPosAndSize = function () {
-    for (let i = 0, l = this.rows.length; i < l; i++) {
-      this.rows[i].updateTasksPosAndSize();
+  /**
+   * Update the position/size of all tasks in the Gantt
+   */
+  updateTasksPosAndSize() {
+    for (let row of this.rows) {
+      row.updateTasksPosAndSize();
     }
   };
 
-  RowsManager.prototype.getExpandedFrom = function (from) {
+  getExpandedFrom(from?: moment.Moment) {
     from = from ? moment(from) : from;
 
     let minRowFrom = from;
     for (let i = 0; i < this.rows.length; i++) {
       if (minRowFrom === undefined || minRowFrom > this.rows[i].from) {
-        minRowFrom = this.rows[i];
+        minRowFrom = this.rows[i].from; // TODO: Corriger la type dans la version 1.x
       }
     }
     if (minRowFrom && (!from || minRowFrom < from)) {
@@ -426,7 +446,7 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     return from;
   };
 
-  RowsManager.prototype.getExpandedTo = function (to) {
+  getExpandedTo(to?: moment.Moment) {
     to = to ? moment(to) : to;
 
     let maxRowTo = to;
@@ -442,25 +462,36 @@ export default function (GanttRow, ganttArrays, $filter, $timeout) {
     return to;
   };
 
-  RowsManager.prototype.getDefaultFrom = function () {
+  getDefaultFrom() {
     let defaultFrom;
-    for (let i = 0; i < this.rows.length; i++) {
-      if (defaultFrom === undefined || this.rows[i].from < defaultFrom) {
-        defaultFrom = this.rows[i].from;
+    for (let row of this.rows) {
+      if (defaultFrom === undefined || row.from < defaultFrom) {
+        defaultFrom = row.from;
       }
     }
     return defaultFrom;
   };
 
-  RowsManager.prototype.getDefaultTo = function () {
+  getDefaultTo() {
     let defaultTo;
-    for (let i = 0; i < this.rows.length; i++) {
-      if (defaultTo === undefined || this.rows[i].to > defaultTo) {
-        defaultTo = this.rows[i].to;
+    for (let row of this.rows) {
+      if (defaultTo === undefined || row.to > defaultTo) {
+        defaultTo = row.to;
       }
     }
     return defaultTo;
   };
+}
 
-  return RowsManager;
+export default function (GanttRow: { new(rowsManager: GanttRowsManager, model: GanttRowModel): GanttRow },
+                         ganttArrays: GanttArrays,
+                         $filter: IGanttFilterService,
+                         $timeout: ITimeoutService) {
+  'ngInject';
+
+  GanttRowsManager.GanttRow = GanttRow;
+  GanttRowsManager.$filter = $filter;
+  GanttRowsManager.$timeout = $timeout;
+  GanttRowsManager.ganttArrays = ganttArrays;
+  return GanttRowsManager;
 }

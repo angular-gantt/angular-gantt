@@ -1,6 +1,8 @@
 import angular from 'angular';
 
-export default function (ganttMouseButton, ganttMouseOffset, ganttSmartEvent, ganttMovableOptions, ganttUtils, ganttDom, $window, $document, $timeout) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
+export default function (ganttMouseButton, ganttMouseOffset, ganttSmartEvent, ganttMovableOptions, ganttUtils: GanttUtilsService, ganttDom, $window, $document, $timeout) {
   'ngInject';
   // Provides moving and resizing of tasks
   return {

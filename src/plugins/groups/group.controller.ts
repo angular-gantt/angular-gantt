@@ -1,4 +1,6 @@
-export default function ($scope, GanttTaskGroup, ganttUtils) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
+export default function ($scope, GanttTaskGroup, ganttUtils: GanttUtilsService) {
   'ngInject';
   let updateTaskGroup = function () {
     let rowGroups = $scope.row.model.groups;

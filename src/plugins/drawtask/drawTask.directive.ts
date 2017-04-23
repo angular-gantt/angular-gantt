@@ -2,7 +2,9 @@ import angular from 'angular';
 
 import moment from 'moment';
 
-export default function ($document, ganttMouseOffset, ganttUtils) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
+export default function ($document, ganttMouseOffset, ganttUtils: GanttUtilsService) {
   'ngInject';
   return {
     restrict: 'E',

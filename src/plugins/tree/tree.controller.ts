@@ -1,4 +1,6 @@
-export default function ($scope, $filter, GanttHierarchy) {
+import {GanttHierarchy} from '../../core/logic/util/hierarchy.factory';
+
+export default function ($scope, $filter, GanttHierarchy: { new(): GanttHierarchy; }) {
   'ngInject';
   $scope.rootRows = [];
 

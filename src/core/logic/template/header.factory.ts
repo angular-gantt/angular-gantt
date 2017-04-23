@@ -1,12 +1,28 @@
-export default function (GanttHeaderColumns) {
-  'ngInject';
-  let Header = function (gantt) {
-    this.gantt = gantt;
-    this.columns = new GanttHeaderColumns(this);
+import {IAugmentedJQuery} from 'angular';
+import {GanttHeaderColumns} from './headerColumns.factory';
+import {Gantt} from '../gantt.factory';
 
-    this.getHeight = function () {
-      return this.$element[0].offsetHeight;
-    };
+export class GanttHeader {
+  static GanttHeaderColumns: { new(gantt: Gantt): GanttHeaderColumns };
+
+  gantt: Gantt;
+  columns: GanttHeaderColumns;
+
+  $element: IAugmentedJQuery;
+
+  constructor(gantt: Gantt) {
+    this.gantt = gantt;
+    this.columns = new GanttHeader.GanttHeaderColumns(this.gantt);
   };
-  return Header;
+
+  getHeight() {
+    return this.$element[0].offsetHeight;
+  };
+}
+
+export default function (GanttHeaderColumns: { new(element: Gantt): GanttHeaderColumns }) {
+  'ngInject';
+
+  GanttHeader.GanttHeaderColumns = GanttHeaderColumns;
+  return GanttHeader;
 }

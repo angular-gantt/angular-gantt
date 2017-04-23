@@ -1,135 +1,133 @@
-export default function () {
-  'ngInject';
+export class GanttHierarchy {
+  private nameToRow = {};
 
-  let Hierarchy = function () {
-    let self = this;
+  private idToRow = {};
 
-    let nameToRow = {};
+  private nameToChildren = {};
+  private idToChildren = {};
 
-    let idToRow = {};
+  private nameToParent = {};
+  private idToParent = {};
 
-    let nameToChildren = {};
-    let idToChildren = {};
-
-    let nameToParent = {};
-    let idToParent = {};
-
-    let registerChildRow = function (row, childRow) {
-      if (childRow !== undefined) {
-        let nameChildren = nameToChildren[row.model.name];
-        if (nameChildren === undefined) {
-          nameChildren = [];
-          nameToChildren[row.model.name] = nameChildren;
-        }
-        nameChildren.push(childRow);
-
-        let idChildren = idToChildren[row.model.id];
-        if (idChildren === undefined) {
-          idChildren = [];
-          idToChildren[row.model.id] = idChildren;
-        }
-        idChildren.push(childRow);
-
-        nameToParent[childRow.model.name] = row;
-        idToParent[childRow.model.id] = row;
+  private registerChildRow (row, childRow) {
+    if (childRow !== undefined) {
+      let nameChildren = this.nameToChildren[row.model.name];
+      if (nameChildren === undefined) {
+        nameChildren = [];
+        this.nameToChildren[row.model.name] = nameChildren;
       }
-    };
+      nameChildren.push(childRow);
 
-    this.refresh = function (rows) {
-      nameToRow = {};
-      idToRow = {};
+      let idChildren = this.idToChildren[row.model.id];
+      if (idChildren === undefined) {
+        idChildren = [];
+        this.idToChildren[row.model.id] = idChildren;
+      }
+      idChildren.push(childRow);
 
-      nameToChildren = {};
-      idToChildren = {};
+      this.nameToParent[childRow.model.name] = row;
+      this.idToParent[childRow.model.id] = row;
+    }
+  }
 
-      nameToParent = {};
-      idToParent = {};
+  refresh (rows) {
+    this.nameToRow = {};
+    this.idToRow = {};
 
-      let row;
+    this.nameToChildren = {};
+    this.idToChildren = {};
 
-      for (let i = 0; i < rows.length; i++) {
-        row = rows[i];
-        nameToRow[row.model.name] = row;
-        idToRow[row.model.id] = row;
+    this.nameToParent = {};
+    this.idToParent = {};
+
+    let row;
+
+    for (let i = 0; i < rows.length; i++) {
+      row = rows[i];
+      this.nameToRow[row.model.name] = row;
+      this.idToRow[row.model.id] = row;
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+      row = rows[i];
+      if (row.model.parent !== undefined) {
+        let parentRow = this.nameToRow[row.model.parent];
+        if (parentRow === undefined) {
+          parentRow = this.idToRow[row.model.parent];
+        }
+
+        if (parentRow !== undefined) {
+          this.registerChildRow(parentRow, row);
+        }
       }
 
-      for (let i = 0; i < rows.length; i++) {
-        row = rows[i];
-        if (row.model.parent !== undefined) {
-          let parentRow = nameToRow[row.model.parent];
-          if (parentRow === undefined) {
-            parentRow = idToRow[row.model.parent];
+      if (row.model.children !== undefined) {
+        let children = row.model.children;
+        for (let j = 0; j < children.length; j++) {
+          let childRowNameOrId = children[j];
+          let childRow = this.nameToRow[childRowNameOrId];
+          if (childRow === undefined) {
+            childRow = this.idToRow[childRowNameOrId];
           }
 
-          if (parentRow !== undefined) {
-            registerChildRow(parentRow, row);
-          }
-        }
-
-        if (row.model.children !== undefined) {
-          let children = row.model.children;
-          for (let j = 0; j < children.length; j++) {
-            let childRowNameOrId = children[j];
-            let childRow = nameToRow[childRowNameOrId];
-            if (childRow === undefined) {
-              childRow = idToRow[childRowNameOrId];
-            }
-
-            if (childRow !== undefined) {
-              registerChildRow(row, childRow);
-            }
+          if (childRow !== undefined) {
+            this.registerChildRow(row, childRow);
           }
         }
       }
+    }
 
-      let rootRows = [];
-      for (let i = 0; i < rows.length; i++) {
-        row = rows[i];
-        if (self.parent(row) === undefined) {
-          rootRows.push(row);
-        }
+    let rootRows = [];
+    for (let i = 0; i < rows.length; i++) {
+      row = rows[i];
+      if (this.parent(row) === undefined) {
+        rootRows.push(row);
       }
+    }
 
-      return rootRows;
-    };
+    return rootRows;
+  }
 
-    this.children = function (row) {
-      let children = idToChildren[row.model.id];
-      return children;
-    };
+  children (row) {
+    let children = this.idToChildren[row.model.id];
+    return children;
+  }
 
-    this.descendants = function (row) {
-      let descendants = [];
+  descendants (row) {
+    let descendants = [];
 
-      let children = self.children(row);
-      descendants.push.apply(descendants, children);
-      if (children !== undefined) {
-        for (let i = 0; i < children.length; i++) {
-          let childDescendants = self.descendants(children[i]);
-          descendants.push.apply(descendants, childDescendants);
-        }
+    let children = this.children(row);
+    descendants.push.apply(descendants, children);
+    if (children !== undefined) {
+      for (let i = 0; i < children.length; i++) {
+        let childDescendants = this.descendants(children[i]);
+        descendants.push.apply(descendants, childDescendants);
       }
+    }
 
-      return descendants;
-    };
-
-    this.parent = function (row) {
-      let parent = idToParent[row.model.id];
-      return parent;
-    };
-
-    this.ancestors = function (row) {
-      let ancestors = [];
-
-      let parent = self.parent(row);
-      while (parent !== undefined) {
-        ancestors.push(parent);
-        parent = self.parent(parent);
-      }
-
-      return ancestors;
-    };
+    return descendants;
   };
 
-  return Hierarchy;
+  parent (row) {
+    let parent = this.idToParent[row.model.id];
+    return parent;
+  };
+
+  ancestors (row) {
+    let ancestors = [];
+
+    let parent = this.parent(row);
+    while (parent !== undefined) {
+      ancestors.push(parent);
+      parent = this.parent(parent);
+    }
+
+    return ancestors;
+  };
+}
+
+export default function GanttHierarchyFactory() {
+  'ngInject';
+
+  return GanttHierarchy;
 }

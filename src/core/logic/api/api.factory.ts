@@ -1,26 +1,35 @@
 // This file is adapted from Angular UI ngGrid project
 // MIT License
 // https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.20/src/js/core/factories/GridApi.js
-import angular from 'angular';
+import angular, {IQService, IRootScopeService} from 'angular';
 
-export default function ($q, $rootScope, ganttUtils) {
-  'ngInject';
+import GanttUtilsService from '../util/utils.service';
+import {Gantt} from '../gantt.factory';
 
-  /**
-   * @ngdoc function
-   * @name gantt.class:GanttApi
-   * @description GanttApi provides the ability to register public methods events inside the gantt and allow
-   * for other components to use the api via featureName.raise.methodName and featureName.on.eventName(function(args){}.
-   * @param {object} gantt gantt that owns api
-   */
-  let GanttApi = function (gantt) {
+/**
+ * @ngdoc function
+ * @name gantt.class:GanttApi
+ * @description GanttApi provides the ability to register public methods events inside the gantt and allow
+ * for other components to use the api via featureName.raise.methodName and featureName.on.eventName(function(args){}.
+ * @param {object} gantt gantt that owns api
+ */
+export class GanttApi {
+  static $q: IQService;
+  static $rootScope: IRootScopeService;
+  static ganttUtils: GanttUtilsService;
+
+  private gantt: Gantt;
+  private listeners: any[];
+  private apiId: number;
+
+  constructor(gantt) {
     this.gantt = gantt;
     this.listeners = [];
-    this.apiId = ganttUtils.newId();
-  };
+    this.apiId = GanttApi.ganttUtils.newId();
+  }
 
-  function registerEventWithAngular(eventId, handler, gantt, _this) {
-    return $rootScope.$on(eventId, function () {
+  private registerEventWithAngular(eventId, handler, gantt, _this) {
+    return GanttApi.$rootScope.$on(eventId, function () {
       let args = Array.prototype.slice.call(arguments);
       args.splice(0, 1); // remove evt argument
       handler.apply(_this ? _this : gantt.api, args);
@@ -54,28 +63,23 @@ export default function ($q, $rootScope, ganttUtils) {
    *
    * </pre>
    */
-  GanttApi.prototype.suppressEvents = function (listenerFuncs, callBackFn) {
-    let self = this;
+  suppressEvents(listenerFuncs, callBackFn) {
     let listeners = angular.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
 
     // find all registered listeners
     let foundListeners = [];
-    listeners.forEach(function (l) {
-      foundListeners = self.listeners.filter(function (lstnr) {
-        return l === lstnr.handler;
-      });
+    listeners.forEach((l) => {
+      foundListeners = this.listeners.filter((lstnr) => l === lstnr.handler);
     });
 
     // deregister all the listeners
-    foundListeners.forEach(function (l) {
-      l.dereg();
-    });
+    foundListeners.forEach((l) => l.dereg());
 
     callBackFn();
 
     // reregister all the listeners
-    foundListeners.forEach(function (l) {
-      l.dereg = registerEventWithAngular(l.eventId, l.handler, self.gantt, l._this);
+    foundListeners.forEach((l) => {
+      l.dereg = this.registerEventWithAngular(l.eventId, l.handler, this.gantt, l._this);
     });
 
   };
@@ -103,13 +107,12 @@ export default function ($q, $rootScope, ganttUtils) {
    * @param {string} featureName name of the feature that raises the event
    * @param {string} eventName  name of the event
    */
-  GanttApi.prototype.registerEvent = function (featureName, eventName) {
-    let self = this;
-    if (!self[featureName]) {
-      self[featureName] = {};
+  registerEvent(featureName, eventName) {
+    if (!this[featureName]) {
+      this[featureName] = {};
     }
 
-    let feature = self[featureName];
+    let feature = this[featureName];
     if (!feature.on) {
       feature.on = {};
       feature.raise = {};
@@ -119,12 +122,12 @@ export default function ($q, $rootScope, ganttUtils) {
 
     // Creating raise event method featureName.raise.eventName
     feature.raise[eventName] = function () {
-      $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+      GanttApi.$rootScope.$emit.apply(GanttApi.$rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
     };
 
     // Creating on event method featureName.oneventName
-    feature.on[eventName] = function (scope, handler, _this) {
-      let deregAngularOn = registerEventWithAngular(eventId, handler, self.gantt, _this);
+    feature.on[eventName] = (scope, handler, _this) => {
+      let deregAngularOn = this.registerEventWithAngular(eventId, handler, this.gantt, _this);
 
       // track our listener so we can turn off and on
       let listener = {
@@ -134,12 +137,12 @@ export default function ($q, $rootScope, ganttUtils) {
         scope: scope,
         _this: _this
       };
-      self.listeners.push(listener);
+      this.listeners.push(listener);
 
-      let removeListener = function () {
+      let removeListener = () => {
         listener.dereg();
-        let index = self.listeners.indexOf(listener);
-        self.listeners.splice(index, 1);
+        let index = this.listeners.indexOf(listener);
+        this.listeners.splice(index, 1);
       };
 
       // destroy tracking when scope is destroyed
@@ -167,8 +170,7 @@ export default function ($q, $rootScope, ganttUtils) {
    * </pre>
    * @param {object} eventObjectMap map of feature/event names
    */
-  GanttApi.prototype.registerEventsFromObject = function (eventObjectMap) {
-    let self = this;
+  registerEventsFromObject(eventObjectMap) {
     let features = [];
     angular.forEach(eventObjectMap, function (featProp, featPropName) {
       let feature = {name: featPropName, events: []};
@@ -178,9 +180,9 @@ export default function ($q, $rootScope, ganttUtils) {
       features.push(feature);
     });
 
-    features.forEach(function (feature) {
-      feature.events.forEach(function (event) {
-        self.registerEvent(feature.name, event);
+    features.forEach((feature) => {
+      feature.events.forEach((event) => {
+        this.registerEvent(feature.name, event);
       });
     });
 
@@ -196,14 +198,14 @@ export default function ($q, $rootScope, ganttUtils) {
    * @param {object} callBackFn function to execute
    * @param {object} _this binds callBackFn 'this' to _this.  Defaults to ganttApi.gantt
    */
-  GanttApi.prototype.registerMethod = function (featureName, methodName, callBackFn, _this) {
+  registerMethod(featureName, methodName, callBackFn, _this) {
     if (!this[featureName]) {
       this[featureName] = {};
     }
 
     let feature = this[featureName];
 
-    feature[methodName] = ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn);
+    feature[methodName] = GanttApi.ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn);
   };
 
   /**
@@ -221,8 +223,7 @@ export default function ($q, $rootScope, ganttUtils) {
    * @param {object} eventObjectMap map of feature/event names
    * @param {object} _this binds this to _this for all functions.  Defaults to ganttApi.gantt
    */
-  GanttApi.prototype.registerMethodsFromObject = function (methodMap, _this) {
-    let self = this;
+  registerMethodsFromObject(methodMap, _this) {
     let features = [];
     angular.forEach(methodMap, function (featProp, featPropName) {
       let feature = {name: featPropName, methods: []};
@@ -232,14 +233,20 @@ export default function ($q, $rootScope, ganttUtils) {
       features.push(feature);
     });
 
-    features.forEach(function (feature) {
-      feature.methods.forEach(function (method) {
-        self.registerMethod(feature.name, method.name, method.fn, _this);
+    features.forEach((feature) => {
+      feature.methods.forEach((method) => {
+        this.registerMethod(feature.name, method.name, method.fn, _this);
       });
     });
 
   };
+}
 
+export default function ($q: IQService, $rootScope: IRootScopeService, ganttUtils: GanttUtilsService) {
+  'ngInject';
+
+  GanttApi.$q = $q;
+  GanttApi.$rootScope = $rootScope;
+  GanttApi.ganttUtils = ganttUtils;
   return GanttApi;
-
 }

@@ -1,9 +1,16 @@
-export default function () {
-  'ngInject';
-  let Side = function (gantt) {
+import {IAugmentedJQuery} from 'angular';
+import {Gantt} from '../gantt.factory';
+
+export class GanttSide {
+  private $element: IAugmentedJQuery;
+
+  private gantt: Gantt;
+
+  constructor(gantt: Gantt) {
     this.gantt = gantt;
   };
-  Side.prototype.getWidth = function () {
+
+  getWidth() {
     if (this.gantt.options.value('showSide')) {
       let width = this.gantt.options.value('sideWidth');
       if (width === undefined && this.$element !== undefined) {
@@ -20,16 +27,22 @@ export default function () {
     }
     return 0;
   };
-  Side.prototype.show = function (value) {
+
+  show(value) {
     if (this.$element !== undefined) {
       this.$element.toggleClass('ng-hide', !value);
     }
   };
-  Side.prototype.isShown = function () {
+
+  isShown() {
     if (this.$element !== undefined) {
       return !this.$element.hasClass('ng-hide');
     }
   };
+}
 
-  return Side;
+export default function () {
+  'ngInject';
+
+  return GanttSide;
 }

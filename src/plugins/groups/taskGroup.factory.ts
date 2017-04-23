@@ -1,4 +1,6 @@
-export default function (ganttUtils, GanttTask) {
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
+export default function (ganttUtils: GanttUtilsService, GanttTask) {
   'ngInject';
   let TaskGroup = function (row, pluginScope) {
     let self = this;

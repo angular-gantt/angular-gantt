@@ -1,95 +1,99 @@
-export default function ($document) {
-  'ngInject';
-  return {
-    /**
-     * Compute the width of scrollbar.
-     *
-     * @returns {number} width of the scrollbar, in px.
-     */
-    getScrollBarWidth: function () {
-      let inner = $document[0].createElement('p');
-      inner.style.width = '100%';
-      inner.style.height = '200px';
+import {IDocumentService} from 'angular';
 
-      let outer = $document[0].createElement('div');
-      outer.style.position = 'absolute';
-      outer.style.top = '0px';
-      outer.style.left = '0px';
-      outer.style.visibility = 'hidden';
-      outer.style.width = '200px';
-      outer.style.height = '150px';
-      outer.style.overflow = 'hidden';
-      outer.appendChild(inner);
+import {GanttColumn} from '../../logic/column/column.factory';
 
-      $document[0].body.appendChild(outer);
+export default class GanttLayout {
+  private $document: IDocumentService;
 
-      let w1 = inner.offsetWidth;
-      outer.style.overflow = 'scroll';
+  constructor ($document: IDocumentService) {
+    'ngInject';
 
-      let w2 = inner.offsetWidth;
-      if (w1 === w2) {
-        w2 = outer.clientWidth;
-      }
+    this.$document = $document;
+  }
 
-      $document[0].body.removeChild(outer);
+  /**
+   * Compute the width of scrollbar.
+   *
+   * @returns {number} width of the scrollbar, in px.
+   */
+  getScrollBarWidth() {
+    let inner = this.$document[0].createElement('p');
+    inner.style.width = '100%';
+    inner.style.height = '200px';
 
-      return (w1 - w2);
-    },
-    /**
-     * Compute the height of scrollbar.
-     *
-     * @returns {number} height of the scrollbar, in px.
-     */
-    getScrollBarHeight: function () {
-      let inner = $document[0].createElement('p');
-      inner.style.width = '200px;';
-      inner.style.height = '100%';
+    let outer = this.$document[0].createElement('div');
+    outer.style.position = 'absolute';
+    outer.style.top = '0px';
+    outer.style.left = '0px';
+    outer.style.visibility = 'hidden';
+    outer.style.width = '200px';
+    outer.style.height = '150px';
+    outer.style.overflow = 'hidden';
+    outer.appendChild(inner);
 
-      let outer = $document[0].createElement('div');
-      outer.style.position = 'absolute';
-      outer.style.top = '0px';
-      outer.style.left = '0px';
-      outer.style.visibility = 'hidden';
-      outer.style.width = '150px';
-      outer.style.height = '200px';
-      outer.style.overflow = 'hidden';
-      outer.appendChild(inner);
+    this.$document[0].body.appendChild(outer);
 
-      $document[0].body.appendChild(outer);
+    let w1 = inner.offsetWidth;
+    outer.style.overflow = 'scroll';
 
-      let h1 = inner.offsetHeight;
-      outer.style.overflow = 'scroll';
+    let w2 = inner.offsetWidth;
+    if (w1 === w2) {
+      w2 = outer.clientWidth;
+    }
 
-      let h2 = inner.offsetHeight;
-      if (h1 === h2) {
-        h2 = outer.clientHeight;
-      }
+    this.$document[0].body.removeChild(outer);
 
-      $document[0].body.removeChild(outer);
+    return (w1 - w2);
+  }
 
-      return (h1 - h2);
-    },
+  /**
+   * Compute the height of scrollbar.
+   *
+   * @returns {number} height of the scrollbar, in px.
+   */
+  getScrollBarHeight() {
+    let inner = this.$document[0].createElement('p');
+    inner.style.width = '200px;';
+    inner.style.height = '100%';
 
-    setColumnsWidthFactor: function (columns, widthFactor, originalLeftOffset) {
-      if (!columns) {
-        return;
-      }
+    let outer = this.$document[0].createElement('div');
+    outer.style.position = 'absolute';
+    outer.style.top = '0px';
+    outer.style.left = '0px';
+    outer.style.visibility = 'hidden';
+    outer.style.width = '150px';
+    outer.style.height = '200px';
+    outer.style.overflow = 'hidden';
+    outer.appendChild(inner);
 
-      if (!originalLeftOffset) {
-        originalLeftOffset = 0;
-      }
+    this.$document[0].body.appendChild(outer);
 
-      for (let i = 0; i < columns.length; i++) {
-        let column = columns[i];
-        column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
-        column.width = widthFactor * column.originalSize.width;
+    let h1 = inner.offsetHeight;
+    outer.style.overflow = 'scroll';
 
-        for (let j = 0; j < column.timeFrames.length; j++) {
-          let timeFrame = column.timeFrames[j];
-          timeFrame.left = widthFactor * timeFrame.originalSize.left;
-          timeFrame.width = widthFactor * timeFrame.originalSize.width;
-        }
+    let h2 = inner.offsetHeight;
+    if (h1 === h2) {
+      h2 = outer.clientHeight;
+    }
+
+    this.$document[0].body.removeChild(outer);
+
+    return (h1 - h2);
+  }
+
+  setColumnsWidthFactor(columns: GanttColumn[], widthFactor: number, originalLeftOffset: number = 0) {
+    if (!columns) {
+      return;
+    }
+
+    for (let column of columns) {
+      column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
+      column.width = widthFactor * column.originalSize.width;
+
+      for (let timeFrame of column.timeFrames) {
+        timeFrame.left = widthFactor * timeFrame.originalSize.left;
+        timeFrame.width = widthFactor * timeFrame.originalSize.width;
       }
     }
-  };
+  }
 }

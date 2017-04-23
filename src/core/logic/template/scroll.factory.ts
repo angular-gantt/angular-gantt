@@ -1,19 +1,26 @@
-export default function () {
-  'ngInject';
-  let Scroll = function (gantt) {
+import {IAugmentedJQuery} from 'angular';
+import {Gantt} from '../gantt.factory';
+
+export class GanttScroll {
+  $element: IAugmentedJQuery;
+  gantt: Gantt;
+
+  cachedScrollLeft: number;
+
+  constructor (gantt: Gantt) {
     this.gantt = gantt;
 
     this.gantt.api.registerEvent('scroll', 'scroll');
 
-    this.gantt.api.registerMethod('scroll', 'to', Scroll.prototype.scrollTo, this);
-    this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
-    this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
-    this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
+    this.gantt.api.registerMethod('scroll', 'to', this.scrollTo, this);
+    this.gantt.api.registerMethod('scroll', 'toDate', this.scrollToDate, this);
+    this.gantt.api.registerMethod('scroll', 'left', this.scrollToLeft, this);
+    this.gantt.api.registerMethod('scroll', 'right', this.scrollToRight, this);
 
-    this.gantt.api.registerMethod('scroll', 'setWidth', Scroll.prototype.setWidth, this);
+    this.gantt.api.registerMethod('scroll', 'setWidth', this.setWidth, this);
   };
 
-  Scroll.prototype.getScrollLeft = function () {
+  getScrollLeft() {
     if (this.$element === undefined) {
       return undefined;
     } else {
@@ -25,21 +32,22 @@ export default function () {
     }
   };
 
-  Scroll.prototype.getScrollWidth = function () {
+  getScrollWidth() {
     return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
   };
 
-  Scroll.prototype.getWidth = function () {
+  getWidth() {
     return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
   };
 
-  Scroll.prototype.setWidth = function (width) {
+  setWidth(width) {
     if (this.$element[0]) {
-      this.$element[0].offsetWidth = width;
+      // TODO: Implement this properly
+      // this.$element[0].offsetWidth = width;
     }
   };
 
-  Scroll.prototype.getBordersWidth = function () {
+  getBordersWidth() {
     if (this.$element === undefined) {
       return undefined;
     }
@@ -55,17 +63,17 @@ export default function () {
     }
   };
 
-  Scroll.prototype.getBordersHeight = function () {
+  getBordersHeight() {
     return this.$element === undefined ? undefined : (this.$element[0].offsetHeight - this.$element[0].clientHeight);
   };
 
-  Scroll.prototype.isVScrollbarVisible = function () {
+  isVScrollbarVisible() {
     if (this.$element !== undefined) {
       return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
     }
   };
 
-  Scroll.prototype.isHScrollbarVisible = function () {
+  isHScrollbarVisible() {
     if (this.$element !== undefined) {
       return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
     }
@@ -76,7 +84,7 @@ export default function () {
    *
    * @param {number} position Position to scroll to.
    */
-  Scroll.prototype.scrollTo = function (position) {
+  scrollTo(position) {
     this.$element[0].scrollLeft = position;
     this.$element.triggerHandler('scroll');
   };
@@ -86,7 +94,7 @@ export default function () {
    *
    * @param {number} offset Offset to scroll.
    */
-  Scroll.prototype.scrollToLeft = function (offset) {
+  scrollToLeft(offset) {
     this.$element[0].scrollLeft -= offset;
     this.$element.triggerHandler('scroll');
   };
@@ -96,7 +104,7 @@ export default function () {
    *
    * @param {number} offset Offset to scroll.
    */
-  Scroll.prototype.scrollToRight = function (offset) {
+  scrollToRight(offset) {
     this.$element[0].scrollLeft += offset;
     this.$element.triggerHandler('scroll');
   };
@@ -106,13 +114,17 @@ export default function () {
    *
    * @param {moment} date moment to scroll to.
    */
-  Scroll.prototype.scrollToDate = function (date) {
+  scrollToDate(date) {
     let position = this.gantt.getPositionByDate(date);
 
     if (position !== undefined) {
       this.$element[0].scrollLeft = position - this.$element[0].offsetWidth / 2;
     }
   };
+}
 
-  return Scroll;
+export default function () {
+  'ngInject';
+
+  return GanttScroll;
 }

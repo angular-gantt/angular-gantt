@@ -1,8 +1,10 @@
 import angular from 'angular';
 
+import GanttUtilsService from '../../core/logic/util/utils.service';
+
 require('./corner.tmpl.html');
 
-export default function (ganttUtils, $compile, $document) {
+export default function (ganttUtils: GanttUtilsService, $compile, $document) {
   'ngInject';
   // Provides customization for corner area
 

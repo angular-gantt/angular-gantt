@@ -1,10 +1,38 @@
-import angular from 'angular';
+import angular, {IAugmentedJQuery} from 'angular';
 
 import moment from 'moment';
+import {GanttRow} from '../row/row.factory';
+import {GanttRowsManager} from '../row/rowsManager.factory';
 
-export default function () {
-  'ngInject';
-  let Task = function (row, model) {
+export class GanttTaskModel {
+  id: string;
+  priority: number;
+
+  from: moment.Moment;
+  to: moment.Moment;
+}
+
+export class GanttTask {
+  rowsManager: GanttRowsManager;
+
+  row: GanttRow;
+  model: GanttTaskModel;
+
+  truncatedLeft: boolean;
+  truncatedRight: boolean;
+
+  left: number;
+  width: number;
+  isMoving: boolean;
+  modelLeft: number;
+  modelWidth: number;
+  truncatedLeftOffset: number;
+  truncatedRightOffset: number;
+  $element: IAugmentedJQuery;
+
+  active: boolean;
+
+  constructor (row: GanttRow, model: GanttTaskModel) {
     this.rowsManager = row.rowsManager;
     this.row = row;
     this.model = model;
@@ -12,11 +40,11 @@ export default function () {
     this.truncatedRight = false;
   };
 
-  Task.prototype.isMilestone = function () {
-    return !this.model.to || this.model.from - this.model.to === 0;
+  isMilestone() {
+    return !this.model.to || this.model.to.isSame(this.model.from);
   };
 
-  Task.prototype.isOutOfRange = function () {
+  isOutOfRange() {
     let firstColumn = this.rowsManager.gantt.columnsManager.getFirstColumn();
     let lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
 
@@ -25,7 +53,7 @@ export default function () {
   };
 
   // Updates the pos and size of the task according to the from - to date
-  Task.prototype.updatePosAndSize = function () {
+  updatePosAndSize() {
     let oldViewLeft = this.left;
     let oldViewWidth = this.width;
     let oldTruncatedRight = this.truncatedRight;
@@ -94,11 +122,11 @@ export default function () {
       oldViewWidth !== this.width ||
       oldTruncatedRight !== this.truncatedRight ||
       oldTruncatedLeft !== this.truncatedLeft)) {
-      this.rowsManager.gantt.api.tasks.raise.viewChange(this);
+      (this.rowsManager.gantt.api as any).tasks.raise.viewChange(this);
     }
   };
 
-  Task.prototype.updateView = function () {
+  updateView() {
     if (this.$element) {
       if (this.left === undefined || this.width === undefined) {
         this.$element.css('display', 'none');
@@ -118,52 +146,52 @@ export default function () {
     }
   };
 
-  Task.prototype.getBackgroundElement = function () {
+  getBackgroundElement() {
     if (this.$element !== undefined) {
       let backgroundElement = this.$element[0].querySelector('.gantt-task-background');
       if (backgroundElement !== undefined) {
-        backgroundElement = angular.element(backgroundElement);
+        return angular.element(backgroundElement);
       }
-      return backgroundElement;
+      return undefined;
     }
   };
 
-  Task.prototype.getContentElement = function () {
+  getContentElement() {
     if (this.$element !== undefined) {
       let contentElement = this.$element[0].querySelector('.gantt-task-content');
       if (contentElement !== undefined) {
-        contentElement = angular.element(contentElement);
+        return angular.element(contentElement);
       }
-      return contentElement;
+      return undefined;
     }
   };
 
-  Task.prototype.getForegroundElement = function () {
+  getForegroundElement() {
     if (this.$element !== undefined) {
       let foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
       if (foregroundElement !== undefined) {
-        foregroundElement = angular.element(foregroundElement);
+        return angular.element(foregroundElement);
       }
       return foregroundElement;
     }
   };
 
   // Expands the start of the task to the specified position (in em)
-  Task.prototype.setFrom = function (x, magnetEnabled) {
+  setFrom(x: number, magnetEnabled: boolean) {
     this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
     this.row.setFromTo();
     this.updatePosAndSize();
   };
 
   // Expands the end of the task to the specified position (in em)
-  Task.prototype.setTo = function (x, magnetEnabled) {
+  setTo(x: number, magnetEnabled: boolean) {
     this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
     this.row.setFromTo();
     this.updatePosAndSize();
   };
 
   // Moves the task to the specified position (in em)
-  Task.prototype.moveTo = function (x, magnetEnabled) {
+  moveTo(x: number, magnetEnabled: boolean) {
     let newTaskRight;
     let newTaskLeft;
     if (x > this.modelLeft) {
@@ -184,9 +212,13 @@ export default function () {
     this.updatePosAndSize();
   };
 
-  Task.prototype.clone = function () {
-    return new Task(this.row, angular.copy(this.model));
+  clone() {
+    return new GanttTask(this.row, angular.copy(this.model));
   };
+}
 
-  return Task;
+export default function () {
+  'ngInject';
+
+  return GanttTask;
 }

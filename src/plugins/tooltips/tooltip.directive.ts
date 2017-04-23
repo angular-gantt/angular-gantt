@@ -22,7 +22,7 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
     },
     scope: true,
     replace: true,
-    controller: ['$scope', '$element', 'ganttUtils', function ($scope, $element, utils) {
+    controller: function ($scope, $element, ganttUtils) {
       let bodyElement = angular.element($document[0].body);
       let parentElement = $scope.task.$element;
       let showTooltipPromise;
@@ -91,9 +91,9 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
           rowTooltips = {enabled: rowTooltips};
         }
 
-        let enabled = utils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
+        let enabled = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
         if (enabled && !visible && mouseEnterX !== undefined && newValue) {
-          let content = utils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
+          let content = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
           $scope.content = content;
 
           if (showDelayed) {
@@ -142,7 +142,7 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
           rowTooltips = {enabled: rowTooltips};
         }
 
-        let dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+        let dateFormat = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
         return $scope.task.model.from.format(dateFormat);
       };
 
@@ -158,7 +158,7 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
           rowTooltips = {enabled: rowTooltips};
         }
 
-        let dateFormat = utils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
+        let dateFormat = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
         return $scope.task.model.to.format(dateFormat);
       };
 
@@ -210,6 +210,6 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
       $scope.$on('$destroy', function () {
         $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
       });
-    }]
+    }
   };
 }

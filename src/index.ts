@@ -1,4 +1,4 @@
-import angular from 'angular';
+import angular, {IFilterService} from 'angular';
 
 require('./template/gantt.tmpl.html');
 require('./gantt.css');
@@ -48,7 +48,6 @@ import ganttBodyColumnsFactory from './core/logic/template/bodyColumns.factory';
 import ganttBodyRowsFactory from './core/logic/template/bodyRows.factory';
 import ganttBodyBackgroundFactory from './core/logic/template/bodyBackground.factory';
 import ganttBodyForegroundFactory from './core/logic/template/bodyForeground.factory';
-import ganttRowHeaderFactory from './core/logic/row/rowHeader.factory';
 import ganttHeaderFactory from './core/logic/template/header.factory';
 import ganttHeaderColumnsFactory from './core/logic/template/headerColumns.factory';
 import ganttSideFactory from './core/logic/template/side.factory';
@@ -57,8 +56,8 @@ import ganttTaskFactory from './core/logic/task/task.factory';
 import ganttRowFactory from './core/logic/row/row.factory';
 import ganttRowsManagerFactory from './core/logic/row/rowsManager.factory';
 import ganttColumnFactory from './core/logic/column/column.factory';
-import ganttColumnHeaderFactory from './core/logic/column/columnHeader.factory';
 import ganttColumnBuilderFactory from './core/logic/column/columnBuilder.factory';
+import ganttColumnHeaderFactory from './core/logic/column/columnHeader.factory';
 import ganttColumnsManagerFactory from './core/logic/column/columnsManager.factory';
 import ganttTimespanFactory from './core/logic/timespan/timespan.factory';
 import ganttTimespansManagerFactory from './core/logic/timespan/timespansManager.factory';
@@ -79,8 +78,8 @@ import ganttDomService from './core/ui/util/dom.service';
 import ganttMouseButtonService from './core/ui/util/mouseButton.service';
 import ganttMouseOffsetService from './core/ui/util/mouseOffset.service';
 
-import ganttColumnLimitFilter from './core/ui/limit/columnLimit.filter';
-import ganttTaskLimitFilter from './core/ui/limit/taskLimit.filter';
+import ganttColumnLimitFilter, {IFilterGanttColumnLimit} from './core/ui/limit/columnLimit.filter';
+import ganttTaskLimitFilter, {IFilterGanttTaskLimit} from './core/ui/limit/taskLimit.filter';
 
 const module = 'gantt';
 
@@ -130,7 +129,6 @@ angular
   .factory('GanttBodyRows', ganttBodyRowsFactory)
   .factory('GanttBodyBackground', ganttBodyBackgroundFactory)
   .factory('GanttBodyForeground', ganttBodyForegroundFactory)
-  .factory('GanttRowHeader', ganttRowHeaderFactory)
   .factory('GanttHeader', ganttHeaderFactory)
   .factory('GanttHeaderColumns', ganttHeaderColumnsFactory)
   .factory('GanttSide', ganttSideFactory)
@@ -161,5 +159,10 @@ angular
   .service('ganttMouseOffset', ganttMouseOffsetService)
   .filter('ganttColumnLimit', ganttColumnLimitFilter)
   .filter('ganttTaskLimit', ganttTaskLimitFilter);
+
+export interface IGanttFilterService extends IFilterService {
+  (name: 'ganttTaskLimit'): IFilterGanttTaskLimit;
+  (name: 'ganttColumnLimit'): IFilterGanttColumnLimit;
+}
 
 export default module;
