@@ -65,11 +65,11 @@ import ganttCurrentDateManagerFactory from './core/logic/calendar/currentDateMan
 import ganttHierarchyFactory from './core/logic/util/hierarchy.factory';
 import ganttDebounceFactory from './core/ui/util/debounce.factory';
 import ganttSmartEventFactory from './core/ui/util/smartEvent.factory';
+import ganttDirectiveBuilderFactory from './core/ui/util/directiveBuilder.factory';
 
 import ganttEnableNgAnimateService from './core/ui/util/enableNgAnimate.service';
 import ganttUtilsService from './core/logic/util/utils.service';
 import ganttArraysService from './core/logic/util/arrays.service';
-import ganttDirectiveBuilderService from './core/ui/util/directiveBuilder.service';
 import ganttBinarySearchService from './core/logic/util/binarySearch.service';
 import ganttLayoutService from './core/ui/util/layout.service';
 import ganttHeadersGeneratorService from './core/logic/column/headersGenerator.service';
@@ -119,6 +119,7 @@ angular
   .directive('ganttTaskForeground', ganttTaskForegroundDirective)
   .directive('ganttTimeFrame', ganttTimeFrameDirective)
   .directive('ganttTimespan', ganttTimespanDirective)
+  .factory('GanttDirectiveBuilder', ganttDirectiveBuilderFactory)
   .factory('Gantt', ganttFactory)
   .factory('GanttApi', ganttApiFactory)
   .factory('GanttOptions', ganttOptionsFactory)
@@ -145,11 +146,10 @@ angular
   .factory('GanttCurrentDateManager', ganttCurrentDateManagerFactory)
   .factory('GanttHierarchy', ganttHierarchyFactory)
   .factory('ganttDebounce', ganttDebounceFactory)
-  .factory('ganttSmartEvent', ganttSmartEventFactory)
+  .factory('GanttSmartEvent', ganttSmartEventFactory)
   .service('ganttEnableNgAnimate', ganttEnableNgAnimateService)
   .service('ganttUtils', ganttUtilsService)
   .service('ganttArrays', ganttArraysService)
-  .service('GanttDirectiveBuilder', ganttDirectiveBuilderService)
   .service('ganttBinarySearch', ganttBinarySearchService)
   .service('ganttLayout', ganttLayoutService)
   .service('GanttHeadersGenerator', ganttHeadersGeneratorService)

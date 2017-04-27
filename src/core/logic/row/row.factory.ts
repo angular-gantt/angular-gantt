@@ -44,7 +44,7 @@ export class GanttRow {
     this.visibleTasks = [];
   };
 
-  addTaskImpl(task: GanttTask, viewOnly: boolean = false) {
+  addTaskImpl(task: GanttTask, viewOnly = false) {
     this.tasksMap[task.model.id] = task;
     this.tasks.push(task);
 
@@ -59,7 +59,7 @@ export class GanttRow {
   };
 
 // Adds a task to a specific row. Merges the task if there is already one with the same id
-  addTask(taskModel: GanttTaskModel, viewOnly: boolean = false) {
+  addTask(taskModel: GanttTaskModel, viewOnly = false) {
     // Copy to new task (add) or merge with existing (update)
     let task;
     let isUpdate = false;
@@ -92,7 +92,7 @@ export class GanttRow {
   };
 
 // Removes the task from the existing row and adds it to he current one
-  moveTaskToRow(task: GanttTask, viewOnly: boolean = false) {
+  moveTaskToRow(task: GanttTask, viewOnly = false) {
     (this.rowsManager.gantt.api as any).tasks.raise.beforeViewRowChange(task, this);
     if (!viewOnly) {
       (this.rowsManager.gantt.api as any).tasks.raise.beforeRowChange(task, this);

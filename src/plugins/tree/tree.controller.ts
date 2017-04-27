@@ -18,10 +18,10 @@ export default function ($scope, $filter, GanttHierarchy: { new(): GanttHierarch
         hierarchy.refresh(sortedRows);
 
         let leaves = [];
-        for (let i = 0; i < sortedRows.length; i++) {
-          let children = hierarchy.children(sortedRows[i]);
+        for (let sortedRow of sortedRows) {
+          let children = hierarchy.children(sortedRow);
           if (!children || children.length === 0) {
-            leaves.push(sortedRows[i]);
+            leaves.push(sortedRow);
           }
         }
 
@@ -34,8 +34,8 @@ export default function ($scope, $filter, GanttHierarchy: { new(): GanttHierarch
 
           let descendants = hierarchy.descendants(row);
 
-          for (let i = 0; i < descendants.length; i++) {
-            if (filteredLeaves.indexOf(descendants[i]) > -1) {
+          for (let descendant of descendants) {
+            if (filteredLeaves.indexOf(descendant) > -1) {
               return true;
             }
           }
@@ -74,10 +74,10 @@ export default function ($scope, $filter, GanttHierarchy: { new(): GanttHierarch
 
     let hasParent = false;
 
-    for (let i = 0; i < rows.length; i++) {
-      let rowParent = $scope.parent(rows[i]);
+    for (let row of rows) {
+      let rowParent = $scope.parent(row);
       if (rowParent === undefined) {
-        rootRows.push(rows[i]);
+        rootRows.push(row);
       } else {
         hasParent = true;
       }
@@ -92,14 +92,14 @@ export default function ($scope, $filter, GanttHierarchy: { new(): GanttHierarch
           return rows.indexOf(a) - rows.indexOf(b);
         });
 
-        for (let i = 0; i < sortedChildren.length; i++) {
-          handleChildren(sortedChildren[i]);
+        for (let sortedChild of sortedChildren) {
+          handleChildren(sortedChild);
         }
       }
     };
 
-    for (let i = 0; i < rootRows.length; i++) {
-      handleChildren(rootRows[i]);
+    for (let rootRow of rootRows) {
+      handleChildren(rootRow);
     }
 
     return sortedRows;

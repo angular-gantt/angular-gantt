@@ -1,5 +1,6 @@
 export default function ($compile) {
   'ngInject';
+
   return {
     restrict: 'A',
     require: '^gantt',

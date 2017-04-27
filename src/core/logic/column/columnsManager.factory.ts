@@ -250,7 +250,7 @@ export class GanttColumnsManager {
    * @param extended
    * @returns {any}
    */
-  getLastColumn(extended: boolean = false) {
+  getLastColumn(extended = false) {
     let columns = this.columns;
     if (extended) {
       columns = this.nextColumns;
@@ -268,7 +268,7 @@ export class GanttColumnsManager {
    * @param extended
    * @returns {any}
    */
-  getFirstColumn(extended: boolean = false) {
+  getFirstColumn(extended = false) {
     let columns = this.columns;
     if (extended) {
       columns = this.previousColumns;
@@ -336,8 +336,8 @@ export class GanttColumnsManager {
           let widthFactor = newWidth / currentWidth;
 
           GanttColumnsManager.ganttLayout.setColumnsWidthFactor(columns, widthFactor);
-          for (let i = 0; i < headers.length; i++) {
-            GanttColumnsManager.ganttLayout.setColumnsWidthFactor(headers[i], widthFactor);
+          for (let header of headers) {
+            GanttColumnsManager.ganttLayout.setColumnsWidthFactor(header, widthFactor);
           }
           // previous and next columns will be generated again on need.
           previousColumns.splice(0, this.previousColumns.length);
@@ -452,8 +452,8 @@ export class GanttColumnsManager {
       }
       for (i = 0; i < this.visibleHeaders.length; i++) {
         let headerRow = this.visibleHeaders[i];
-        for (let j = 0; j < headerRow.length; j++) {
-          headerRow[j].updateView();
+        for (let headerRowItem of headerRow) {
+          headerRowItem.updateView();
         }
       }
     }

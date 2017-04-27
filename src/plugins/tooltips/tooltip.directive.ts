@@ -1,8 +1,20 @@
-import angular from 'angular';
+import {
+  IAugmentedJQuery, ICompileService, IDocumentService, ILogService, IScope, ITemplateCacheService,
+  ITimeoutService
+} from 'angular';
+import {GanttDebounce} from '../../core/ui/util/debounce.factory';
+import {GanttSmartEvent} from '../../core/ui/util/smartEvent.factory';
+import * as angular from 'angular';
 
 require('./tooltip.tmpl.html');
 
-export default function ($log, $timeout, $compile, $document, $templateCache, ganttDebounce, ganttSmartEvent) {
+export default function ($log: ILogService,
+                         $timeout: ITimeoutService,
+                         $compile: ICompileService,
+                         $document: IDocumentService,
+                         $templateCache: ITemplateCacheService,
+                         ganttDebounce: GanttDebounce,
+                         GanttSmartEvent: { new($scope: IScope, $element: IAugmentedJQuery, event: string, fn: any): GanttSmartEvent }) {
   'ngInject';
   // This tooltip displays more information about a task
 
@@ -32,7 +44,7 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
 
       let getViewPortWidth = function () {
         let d = $document[0];
-        return d.documentElement.clientWidth || d.documentElement.getElementById('body')[0].clientWidth;
+        return d.documentElement.clientWidth || (d as Document).getElementById('body')[0].clientWidth;
       };
 
       let updateTooltip = function (x) {
@@ -110,7 +122,7 @@ export default function ($log, $timeout, $compile, $document, $templateCache, ga
         }
       };
 
-      mouseMoveHandler = ganttSmartEvent($scope, bodyElement, 'mousemove', ganttDebounce(function (e) {
+      mouseMoveHandler = new GanttSmartEvent($scope, bodyElement, 'mousemove', ganttDebounce(function (e) {
         if (!visible) {
           mouseEnterX = e.clientX;
           displayTooltip(true, false);

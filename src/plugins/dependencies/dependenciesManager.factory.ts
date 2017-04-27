@@ -82,11 +82,11 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
       let dependencies = this.getTaskDependencies(task);
 
       if (dependencies) {
-        for (let i = 0; i < dependencies.length; i++) {
+        for (let dependency of dependencies) {
           if (!keepConnection) {
-            dependencies[i].disconnect();
+            dependency.disconnect();
           }
-          self.removeDependency(dependencies[i]);
+          self.removeDependency(dependency);
         }
       }
     };
@@ -238,8 +238,8 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
       task.dependencies.endpoints = [];
 
       if (self.pluginScope.endpoints && task.$element) {
-        for (let i = 0; i < self.pluginScope.endpoints.length; i++) {
-          let endpointObject = self.plumb.addEndpoint(task.$element, self.pluginScope.endpoints[i]);
+        for (let endpoint of self.pluginScope.endpoints) {
+          let endpointObject = self.plumb.addEndpoint(task.$element, endpoint);
           endpointObject.setVisible(false, true, true); // hide endpoint
           endpointObject.$task = task;
           task.dependencies.endpoints.push(endpointObject);
@@ -250,8 +250,7 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
 
     let removeTaskEndpoint = function (task) {
       if (task.dependencies.endpoints) {
-        for (let i = 0; i < task.dependencies.endpoints.length; i++) {
-          let endpointObject = task.dependencies.endpoints[i];
+        for (let endpointObject of task.dependencies.endpoints) {
           self.plumb.deleteEndpoint(endpointObject);
           endpointObject.$task = undefined;
         }
@@ -291,8 +290,7 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
 
       let newTasks = {};
       let tasksList = [];
-      for (let i = 0; i < tasks.length; i++) {
-        let task = tasks[i];
+      for (let task of tasks) {
         if (isTaskEnabled(task)) {
           newTasks[task.model.id] = task;
           tasksList.push(task);
@@ -307,8 +305,8 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
     let disconnectTaskDependencies = function (task) {
       let dependencies = self.getTaskDependencies(task);
       if (dependencies) {
-        for (let i = 0; i < dependencies.length; i++) {
-          dependencies[i].disconnect();
+        for (let dependency of dependencies) {
+          dependency.disconnect();
         }
       }
       return dependencies;
@@ -317,8 +315,8 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
     let connectTaskDependencies = function (task) {
       let dependencies = self.getTaskDependencies(task);
       if (dependencies) {
-        for (let i = 0; i < dependencies.length; i++) {
-          dependencies[i].connect();
+        for (let dependency of dependencies) {
+          dependency.connect();
         }
       }
       return dependencies;
@@ -422,9 +420,9 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
       let allDependencies = [];
 
       angular.forEach(this.dependenciesFrom, function (dependencies) {
-        for (let i = 0; i < dependencies.length; i++) {
-          if (!(dependencies[i] in allDependencies)) {
-            allDependencies.push(dependencies[i]);
+        for (let dependency of dependencies) {
+          if (!(dependency in allDependencies)) {
+            allDependencies.push(dependency);
           }
         }
       });

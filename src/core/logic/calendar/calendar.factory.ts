@@ -417,8 +417,7 @@ export class GanttCalendar {
     let minDate: moment.Moment;
     let maxDate: moment.Moment;
 
-    for (let i = 0; i < timeFrames.length; i++) {
-      let timeFrame = timeFrames[i];
+    for (let timeFrame of timeFrames) {
       if (minDate === undefined || minDate > timeFrame.start) {
         minDate = timeFrame.start;
       }

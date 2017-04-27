@@ -404,8 +404,7 @@ export class GanttRowsManager {
     let tasks = [];
     let visibleTasks = [];
 
-    for (let i = 0; i < this.rows.length; i++) {
-      let row = this.rows[i];
+    for (let row of this.rows) {
       oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
       row.updateVisibleTasks();
       filteredTasks = filteredTasks.concat(row.filteredTasks);
@@ -435,9 +434,9 @@ export class GanttRowsManager {
     from = from ? moment(from) : from;
 
     let minRowFrom = from;
-    for (let i = 0; i < this.rows.length; i++) {
-      if (minRowFrom === undefined || minRowFrom > this.rows[i].from) {
-        minRowFrom = this.rows[i].from; // TODO: Corriger la type dans la version 1.x
+    for (let row of this.rows) {
+      if (minRowFrom === undefined || minRowFrom > row.from) {
+        minRowFrom = row.from;
       }
     }
     if (minRowFrom && (!from || minRowFrom < from)) {
@@ -450,9 +449,9 @@ export class GanttRowsManager {
     to = to ? moment(to) : to;
 
     let maxRowTo = to;
-    for (let i = 0; i < this.rows.length; i++) {
-      if (maxRowTo === undefined || maxRowTo < this.rows[i].to) {
-        maxRowTo = this.rows[i].to;
+    for (let row of this.rows) {
+      if (maxRowTo === undefined || maxRowTo < row.to) {
+        maxRowTo = row.to;
       }
     }
     let toDate = this.gantt.options.value('toDate');

@@ -1,6 +1,13 @@
-export default function ($timeout) {
+import {ITimeoutService} from 'angular';
+
+export interface GanttDebounce {
+  (fn: any, timeout?: number, invokeApply?: boolean): Function;
+}
+
+export default function ($timeout: ITimeoutService): GanttDebounce {
   'ngInject';
-  function debounce(fn, timeout, invokeApply) {
+
+  function debounce(fn: any, timeout: number, invokeApply = false): Function {
     let nthCall = 0;
     return function () {
       let self = this;

@@ -1,7 +1,11 @@
 import GanttUtilsService from '../../core/logic/util/utils.service';
+import {GanttTask, GanttTaskModel} from '../../core/logic/task/task.factory';
+import {GanttRow} from '../../core/logic/row/row.factory';
 
-export default function (ganttUtils: GanttUtilsService, GanttTask) {
+export default function (ganttUtils: GanttUtilsService,
+                         GanttTask: {new(row: GanttRow, model: GanttTaskModel): GanttTask}) {
   'ngInject';
+
   let TaskGroup = function (row, pluginScope) {
     let self = this;
 
@@ -39,12 +43,10 @@ export default function (ganttUtils: GanttUtilsService, GanttTask) {
       }
     };
 
-    for (let i = 0; i < self.descendants.length; i++) {
-      let tasks = self.descendants[i].tasks;
+    for (let descendant of self.descendants) {
+      let tasks = descendant.tasks;
 
-      for (let j = 0; j < tasks.length; j++) {
-        let task = tasks[j];
-
+      for (let task of tasks) {
         let taskDisplay = getTaskDisplay(task);
         if (taskDisplay !== undefined) {
           self.tasks.push(task);
@@ -66,9 +68,9 @@ export default function (ganttUtils: GanttUtilsService, GanttTask) {
       self.from = groupRowGroups.from;
     }
     if (self.from === undefined) {
-      for (let i = 0; i < self.tasks.length; i++) {
-        if (self.from === undefined || self.tasks[i].model.from < self.from) {
-          self.from = self.tasks[i].model.from;
+      for (let task of self.tasks) {
+        if (self.from === undefined || task.model.from < self.from) {
+          self.from = task.model.from;
         }
       }
     }
@@ -78,9 +80,9 @@ export default function (ganttUtils: GanttUtilsService, GanttTask) {
       self.to = groupRowGroups.to;
     }
     if (self.to === undefined) {
-      for (let i = 0; i < self.tasks.length; i++) {
-        if (self.to === undefined || self.tasks[i].model.to > self.to) {
-          self.to = self.tasks[i].model.to;
+      for (let task of self.tasks) {
+        if (self.to === undefined || task.model.to > self.to) {
+          self.to = task.model.to;
         }
       }
     }

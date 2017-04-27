@@ -1,5 +1,6 @@
 export default function () {
   'ngInject';
+
   /**
    * Creates a new DependenciesChecker object.
    *
@@ -32,12 +33,10 @@ export default function () {
       let allTasks = tasks.slice(0);
       let conflictsList = [];
 
-      for (let i = 0; i < tasks.length; i++) {
-        let taskDependencies = manager.getTaskDependencies(tasks[i]);
+      for (let task of tasks) {
+        let taskDependencies = manager.getTaskDependencies(task);
 
-        for (let j = 0; j < taskDependencies.length; j++) {
-          let dependency = taskDependencies[j];
-
+        for (let dependency of taskDependencies) {
           let fromTask = dependency.getFromTask();
           let toTask = dependency.getToTask();
 

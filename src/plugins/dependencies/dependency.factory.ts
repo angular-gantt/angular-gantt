@@ -2,6 +2,7 @@ import GanttUtilsService from '../../core/logic/util/utils.service';
 
 export default function (ganttUtils: GanttUtilsService, ganttDom) {
   'ngInject';
+
   /**
    * Constructor of Dependency object.
    *
@@ -51,8 +52,8 @@ export default function (ganttUtils: GanttUtilsService, ganttDom) {
 
     this.deleteFallbackEndpoints = function () {
       if (this.fallbackEndpoints) {
-        for (let i = 0; i < this.fallbackEndpoints.length; i++) {
-          self.manager.plumb.deleteEndpoint(this.fallbackEndpoints[i]);
+        for (let fallbackEndpoints of this.fallbackEndpoints) {
+          self.manager.plumb.deleteEndpoint(fallbackEndpoints);
         }
         this.fallbackEndpoints = [];
       }

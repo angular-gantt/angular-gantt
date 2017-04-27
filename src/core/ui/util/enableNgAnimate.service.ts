@@ -2,7 +2,8 @@ import angular from 'angular';
 
 export default function ($injector) {
   'ngInject';
-  let ngAnimate;
+
+  let ngAnimate: any;
   try {
     ngAnimate = $injector.get('$animate');
   } catch (e) {

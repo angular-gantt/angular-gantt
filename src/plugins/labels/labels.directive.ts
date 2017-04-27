@@ -54,8 +54,8 @@ export default function (ganttUtils: GanttUtilsService, $compile, $document, $lo
         let labels = ganttCtrl.gantt.side.$element[0].getElementsByClassName('gantt-row-label');
         let newSideWidth = 0;
 
-        for (let i = 0; i < labels.length; i++) {
-          let width = labels[i].children[0].offsetWidth;
+        for (let label of labels) {
+          let width = label.children[0].offsetWidth;
           newSideWidth = Math.max(newSideWidth, width);
         }
 

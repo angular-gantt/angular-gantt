@@ -109,8 +109,8 @@ export default class GanttHeadersGenerator {
     }
 
     let headers = [];
-    for (let i = 0; i < headerNames.length; i++) {
-      headers.push(this.generateHeaders(columnsManager, headerNames[i]));
+    for (let headerName of headerNames) {
+      headers.push(this.generateHeaders(columnsManager, headerName));
     }
 
     return headers;

@@ -51,8 +51,8 @@ export class Gantt {
 
   originalWidth: number;
   width: number;
-  rendered: boolean = false;
-  isRefreshingColumns: boolean = false;
+  rendered = false;
+  isRefreshingColumns = false;
 
   constructor($scope: IScope, $element: IAugmentedJQuery) {
     this.$scope = $scope;

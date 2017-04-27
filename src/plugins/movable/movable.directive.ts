@@ -1,8 +1,14 @@
-import angular from 'angular';
+import angular, {IAugmentedJQuery, IScope} from 'angular';
 
 import GanttUtilsService from '../../core/logic/util/utils.service';
+import GanttMouseButton from '../../core/ui/util/mouseButton.service';
+import GanttMouseOffset from '../../core/ui/util/mouseOffset.service';
+import {GanttSmartEvent} from '../../core/ui/util/smartEvent.factory';
 
-export default function (ganttMouseButton, ganttMouseOffset, ganttSmartEvent, ganttMovableOptions, ganttUtils: GanttUtilsService, ganttDom, $window, $document, $timeout) {
+export default function (ganttMouseButton: GanttMouseButton,
+                         ganttMouseOffset: GanttMouseOffset,
+                         GanttSmartEvent: {new($scope: IScope, $element: IAugmentedJQuery, event: string, fn: any): GanttSmartEvent},
+                         ganttMovableOptions, ganttUtils: GanttUtilsService, ganttDom, $window, $document, $timeout) {
   'ngInject';
   // Provides moving and resizing of tasks
   return {
@@ -382,11 +388,11 @@ export default function (ganttMouseButton, ganttMouseOffset, ganttSmartEvent, ga
 
               handleMove(evt);
             };
-            let moveSmartEvent = ganttSmartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
+            let moveSmartEvent = new GanttSmartEvent(taskScope, windowElement, _moveEvents, taskMoveHandler);
             moveSmartEvent.bind();
 
             // Remove move event handler on mouse up / touch end
-            ganttSmartEvent(taskScope, windowElement, _releaseEvents, function (evt) {
+            new GanttSmartEvent(taskScope, windowElement, _releaseEvents, function (evt) {
               if (_hasTouch) {
                 evt = ganttMouseOffset.getTouch(evt);
               }

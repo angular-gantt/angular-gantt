@@ -11,7 +11,7 @@ export default class GanttArrays {
     return array;
   }
 
-  getRemovedIds<T>(newArray: T[], oldArray: T[], idProperty: string = 'id') {
+  getRemovedIds<T>(newArray: T[], oldArray: T[], idProperty = 'id') {
     let i;
     let l;
     let removedIds = [];

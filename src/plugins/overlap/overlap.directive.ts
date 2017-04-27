@@ -105,8 +105,8 @@ export default function ($timeout) {
 
       function handleGlobalOverlaps(rows) {
         let globalTasks = [];
-        for (let i = 0; i < rows.length; i++) {
-          globalTasks.push.apply(globalTasks, rows[i].tasks);
+        for (let row of rows) {
+          globalTasks.push.apply(globalTasks, row.tasks);
         }
 
         globalTasks = sortOn(globalTasks, function (task) {
@@ -124,8 +124,8 @@ export default function ($timeout) {
             if (scope.global) {
               handleGlobalOverlaps(rows);
             } else {
-              for (let i = 0; i < rows.length; i++) {
-                handleOverlaps(rows[i].tasks);
+              for (let row of rows) {
+                handleOverlaps(row.tasks);
               }
             }
           });

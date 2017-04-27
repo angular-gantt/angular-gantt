@@ -2,14 +2,14 @@ import angular from 'angular';
 
 export default function (GanttDirectiveBuilder) {
   'ngInject';
+
   let builder = new GanttDirectiveBuilder('ganttCornerArea', 'plugins/corner/corner.tmpl.html');
   builder.controller = function ($scope) {
     let headers = $scope.gantt.columnsManager.headers;
 
     function updateModelWithHeaders(headers) {
       let scopeHeaders = [];
-      for (let i = 0; i < headers.length; i++) {
-        let columns = headers[i];
+      for (let columns of headers) {
         let name = columns[0].name;
         let unit = columns[0].unit;
         let scopeHeader = {columns: columns, unit: unit, name: name};

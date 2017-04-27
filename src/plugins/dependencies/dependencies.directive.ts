@@ -125,8 +125,8 @@ export default function ($timeout, $document, ganttDebounce, GanttDependenciesMa
         if (newValue !== oldValue) {
           let rows = ganttCtrl.gantt.rowsManager.rows;
           let allTasks = [];
-          for (let i = 0; i < rows.length; i++) {
-            allTasks.push.apply(allTasks, rows[i].tasks);
+          for (let row of rows) {
+            allTasks.push.apply(allTasks, row.tasks);
           }
           if (scope.conflictChecker && scope.enabled) {
             checker.refresh(allTasks);

@@ -81,7 +81,7 @@ export default class GanttLayout {
     return (h1 - h2);
   }
 
-  setColumnsWidthFactor(columns: GanttColumn[], widthFactor: number, originalLeftOffset: number = 0) {
+  setColumnsWidthFactor(columns: GanttColumn[], widthFactor: number, originalLeftOffset = 0) {
     if (!columns) {
       return;
     }

@@ -12,8 +12,7 @@ export default function ($scope) {
       let visibleRows = $scope.row.rowsManager.filteredRows;
 
       let filteredChildrenRows = [];
-      for (let i = 0; i < newValue.length; i++) {
-        let childRow = newValue[i];
+      for (let childRow of newValue) {
         if (visibleRows.indexOf(childRow) > -1) {
           filteredChildrenRows.push(childRow);
         }

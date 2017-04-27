@@ -22,8 +22,8 @@ export class GanttColumn {
   visibleTimeFrames: TimeFrame[] = [];
   daysTimeFrames: { [dateKey: string]: TimeFrame[] } = {};
 
-  currentDate: boolean = false;
-  cropped: boolean = false;
+  currentDate = false;
+  cropped = false;
 
   constructor(date: moment.Moment,
               endDate: moment.Moment,
@@ -141,8 +141,7 @@ export class GanttColumn {
 
       if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
         let timeFramesWidth = 0;
-        for (let j = 0; j < this.timeFrames.length; j++) {
-          let aTimeFrame = this.timeFrames[j];
+        for (let aTimeFrame of this.timeFrames) {
           if (!aTimeFrame.working && this.timeFramesNonWorkingMode !== 'cropped' ||
             aTimeFrame.working && this.timeFramesWorkingMode !== 'cropped') {
             timeFramesWidth += aTimeFrame.width;
@@ -156,9 +155,7 @@ export class GanttColumn {
 
           let allCropped = true;
 
-          for (let j = 0; j < this.timeFrames.length; j++) {
-            let bTimeFrame = this.timeFrames[j];
-
+          for (let bTimeFrame of this.timeFrames) {
             if (!bTimeFrame.working && this.timeFramesNonWorkingMode !== 'cropped' ||
               bTimeFrame.working && this.timeFramesWorkingMode !== 'cropped') {
               bTimeFrame.left = (bTimeFrame.left - croppedWidth) * croppedRatio;

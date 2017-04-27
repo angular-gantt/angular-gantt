@@ -63,8 +63,7 @@ export class GanttHierarchy {
 
       if (row.model.children !== undefined) {
         let children = row.model.children;
-        for (let j = 0; j < children.length; j++) {
-          let childRowNameOrId = children[j];
+        for (let childRowNameOrId of children) {
           let childRow = this.nameToRow[childRowNameOrId];
           if (childRow === undefined) {
             childRow = this.idToRow[childRowNameOrId];
@@ -99,8 +98,8 @@ export class GanttHierarchy {
     let children = this.children(row);
     descendants.push.apply(descendants, children);
     if (children !== undefined) {
-      for (let i = 0; i < children.length; i++) {
-        let childDescendants = this.descendants(children[i]);
+      for (let child of children) {
+        let childDescendants = this.descendants(child);
         descendants.push.apply(descendants, childDescendants);
       }
     }

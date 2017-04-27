@@ -1,7 +1,13 @@
 import moment from 'moment';
+import {ITimeoutService} from 'angular';
+import {GanttDebounce} from '../util/debounce.factory';
+import {GanttDirectiveBuilder} from '../util/directiveBuilder.factory';
 
-export default function (GanttDirectiveBuilder, $timeout, ganttDebounce) {
+export default function (GanttDirectiveBuilder: {new(directiveName: string, templateUrl?: string, require?: string | string[], restrict?: string): GanttDirectiveBuilder},
+                         $timeout: ITimeoutService,
+                         ganttDebounce: GanttDebounce) {
   'ngInject';
+
   let builder = new GanttDirectiveBuilder('ganttScrollable');
   builder.controller = function ($scope, $element) {
     $scope.gantt.scroll.$element = $element;
