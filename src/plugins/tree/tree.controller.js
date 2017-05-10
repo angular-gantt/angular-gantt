@@ -107,6 +107,10 @@
         $scope.gantt.api.rows.addRowSorter(sortRowsFunction);
         $scope.gantt.api.rows.addRowFilter(filterRowsFunction);
 
+        $scope.gantt.api.rows.on.remove($scope, function () {
+            refresh();
+        });
+
         $scope.$on('$destroy', function() {
             $scope.gantt.api.rows.removeRowSorter(sortRowsFunction);
             $scope.gantt.api.rows.removeRowFilter(filterRowsFunction);
