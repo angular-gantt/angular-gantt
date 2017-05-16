@@ -1590,10 +1590,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.from = from;
             this.to = to;
 
-            this.columns = ColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
-            this.headers = HeadersGenerator.generate(this);
             this.previousColumns = [];
             this.nextColumns = [];
+
+            this.columns = ColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
+            this.headers = HeadersGenerator.generate(this);
 
             this.updateColumnsMeta();
             this.scrollToScrollAnchor();
