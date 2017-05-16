@@ -196,10 +196,11 @@ export class GanttColumnsManager {
     this.from = from as moment.Moment;
     this.to = to as moment.Moment;
 
-    this.columns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, this.from, this.to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
-    this.headers = GanttColumnsManager.GanttHeadersGenerator.generate(this);
     this.previousColumns = [];
     this.nextColumns = [];
+
+    this.columns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, this.from, this.to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
+    this.headers = GanttColumnsManager.GanttHeadersGenerator.generate(this);
 
     this.updateColumnsMeta();
     this.scrollToScrollAnchor();
