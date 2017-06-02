@@ -20,6 +20,7 @@ export default function ($injector) {
       }
     };
   } else {
-    return angular.noop;
+    // tslint:disable:no-empty
+    return function () {};
   }
 }

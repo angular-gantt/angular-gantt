@@ -14,7 +14,7 @@
 		exports["angular-gantt-core"] = factory(require("angular"), require("moment"));
 	else
 		root["angular-gantt-core"] = factory(root["angular"], root["moment"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_3__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -100,12 +100,6 @@ exports.default = function (instance, Constructor) {
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -138,6 +132,12 @@ exports.default = function () {
 }();
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ }),
 /* 3 */
 /***/ (function(module, exports) {
 
@@ -145,12 +145,6 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(133), __esModule: true };
-
-/***/ }),
-/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -177,6 +171,12 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 };
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(133), __esModule: true };
+
+/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -187,7 +187,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -740,7 +740,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumn = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -748,7 +748,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -1325,7 +1325,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -1338,7 +1338,7 @@ exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, g
     return GanttApi;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -1367,7 +1367,7 @@ var GanttApi = exports.GanttApi = function () {
         value: function suppressEvents(listenerFuncs, callBackFn) {
             var _this2 = this;
 
-            var listeners = _angular2.default.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+            var listeners = Array.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
 
             var foundListeners = [];
             listeners.forEach(function (l) {
@@ -1494,761 +1494,67 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
-
-var cov_1030c89924 = function () {
-    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/api/options.factory.ts',
-        hash = '3b55f5a856cac60b6e3a3ecfcd287e1e41ec927d',
-        global = new Function('return this')(),
-        gcv = '__coverage__',
-        coverageData = {
-        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/api/options.factory.ts',
-        statementMap: {
-            '0': {
-                start: {
-                    line: 4,
-                    column: 8
-                },
-                end: {
-                    line: 4,
-                    column: 43
-                }
-            },
-            '1': {
-                start: {
-                    line: 5,
-                    column: 8
-                },
-                end: {
-                    line: 5,
-                    column: 29
-                }
-            },
-            '2': {
-                start: {
-                    line: 8,
-                    column: 27
-                },
-                end: {
-                    line: 8,
-                    column: 57
-                }
-            },
-            '3': {
-                start: {
-                    line: 9,
-                    column: 8
-                },
-                end: {
-                    line: 11,
-                    column: 9
-                }
-            },
-            '4': {
-                start: {
-                    line: 10,
-                    column: 12
-                },
-                end: {
-                    line: 10,
-                    column: 42
-                }
-            },
-            '5': {
-                start: {
-                    line: 12,
-                    column: 8
-                },
-                end: {
-                    line: 12,
-                    column: 28
-                }
-            },
-            '6': {
-                start: {
-                    line: 16,
-                    column: 8
-                },
-                end: {
-                    line: 24,
-                    column: 9
-                }
-            },
-            '7': {
-                start: {
-                    line: 17,
-                    column: 31
-                },
-                end: {
-                    line: 17,
-                    column: 60
-                }
-            },
-            '8': {
-                start: {
-                    line: 18,
-                    column: 12
-                },
-                end: {
-                    line: 23,
-                    column: 13
-                }
-            },
-            '9': {
-                start: {
-                    line: 19,
-                    column: 16
-                },
-                end: {
-                    line: 21,
-                    column: 17
-                }
-            },
-            '10': {
-                start: {
-                    line: 20,
-                    column: 20
-                },
-                end: {
-                    line: 20,
-                    column: 39
-                }
-            },
-            '11': {
-                start: {
-                    line: 22,
-                    column: 16
-                },
-                end: {
-                    line: 22,
-                    column: 36
-                }
-            },
-            '12': {
-                start: {
-                    line: 25,
-                    column: 8
-                },
-                end: {
-                    line: 25,
-                    column: 27
-                }
-            },
-            '13': {
-                start: {
-                    line: 29,
-                    column: 8
-                },
-                end: {
-                    line: 29,
-                    column: 66
-                }
-            },
-            '14': {
-                start: {
-                    line: 33,
-                    column: 8
-                },
-                end: {
-                    line: 33,
-                    column: 46
-                }
-            },
-            '15': {
-                start: {
-                    line: 37,
-                    column: 8
-                },
-                end: {
-                    line: 41,
-                    column: 9
-                }
-            },
-            '16': {
-                start: {
-                    line: 38,
-                    column: 12
-                },
-                end: {
-                    line: 40,
-                    column: 13
-                }
-            },
-            '17': {
-                start: {
-                    line: 39,
-                    column: 16
-                },
-                end: {
-                    line: 39,
-                    column: 65
-                }
-            },
-            '18': {
-                start: {
-                    line: 42,
-                    column: 8
-                },
-                end: {
-                    line: 42,
-                    column: 27
-                }
-            },
-            '19': {
-                start: {
-                    line: 48,
-                    column: 4
-                },
-                end: {
-                    line: 48,
-                    column: 24
-                }
-            }
-        },
-        fnMap: {
-            '0': {
-                name: '(anonymous_0)',
-                decl: {
-                    start: {
-                        line: 3,
-                        column: 4
-                    },
-                    end: {
-                        line: 3,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 3,
-                        column: 39
-                    },
-                    end: {
-                        line: 6,
-                        column: 5
-                    }
-                },
-                line: 3
-            },
-            '1': {
-                name: '(anonymous_1)',
-                decl: {
-                    start: {
-                        line: 7,
-                        column: 4
-                    },
-                    end: {
-                        line: 7,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 7,
-                        column: 29
-                    },
-                    end: {
-                        line: 13,
-                        column: 5
-                    }
-                },
-                line: 7
-            },
-            '2': {
-                name: '(anonymous_2)',
-                decl: {
-                    start: {
-                        line: 15,
-                        column: 4
-                    },
-                    end: {
-                        line: 15,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 15,
-                        column: 38
-                    },
-                    end: {
-                        line: 26,
-                        column: 5
-                    }
-                },
-                line: 15
-            },
-            '3': {
-                name: '(anonymous_3)',
-                decl: {
-                    start: {
-                        line: 28,
-                        column: 4
-                    },
-                    end: {
-                        line: 28,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 28,
-                        column: 22
-                    },
-                    end: {
-                        line: 30,
-                        column: 5
-                    }
-                },
-                line: 28
-            },
-            '4': {
-                name: '(anonymous_4)',
-                decl: {
-                    start: {
-                        line: 32,
-                        column: 4
-                    },
-                    end: {
-                        line: 32,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 32,
-                        column: 33
-                    },
-                    end: {
-                        line: 34,
-                        column: 5
-                    }
-                },
-                line: 32
-            },
-            '5': {
-                name: '(anonymous_5)',
-                decl: {
-                    start: {
-                        line: 36,
-                        column: 4
-                    },
-                    end: {
-                        line: 36,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 36,
-                        column: 17
-                    },
-                    end: {
-                        line: 43,
-                        column: 5
-                    }
-                },
-                line: 36
-            },
-            '6': {
-                name: '(anonymous_6)',
-                decl: {
-                    start: {
-                        line: 46,
-                        column: 15
-                    },
-                    end: {
-                        line: 46,
-                        column: 16
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 46,
-                        column: 27
-                    },
-                    end: {
-                        line: 49,
-                        column: 1
-                    }
-                },
-                line: 46
-            }
-        },
-        branchMap: {
-            '0': {
-                loc: {
-                    start: {
-                        line: 9,
-                        column: 8
-                    },
-                    end: {
-                        line: 11,
-                        column: 9
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 9,
-                        column: 8
-                    },
-                    end: {
-                        line: 11,
-                        column: 9
-                    }
-                }, {
-                    start: {
-                        line: 9,
-                        column: 8
-                    },
-                    end: {
-                        line: 11,
-                        column: 9
-                    }
-                }],
-                line: 9
-            },
-            '1': {
-                loc: {
-                    start: {
-                        line: 16,
-                        column: 8
-                    },
-                    end: {
-                        line: 24,
-                        column: 9
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 16,
-                        column: 8
-                    },
-                    end: {
-                        line: 24,
-                        column: 9
-                    }
-                }, {
-                    start: {
-                        line: 16,
-                        column: 8
-                    },
-                    end: {
-                        line: 24,
-                        column: 9
-                    }
-                }],
-                line: 16
-            },
-            '2': {
-                loc: {
-                    start: {
-                        line: 18,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 18,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 18,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                }],
-                line: 18
-            },
-            '3': {
-                loc: {
-                    start: {
-                        line: 19,
-                        column: 16
-                    },
-                    end: {
-                        line: 21,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 19,
-                        column: 16
-                    },
-                    end: {
-                        line: 21,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 19,
-                        column: 16
-                    },
-                    end: {
-                        line: 21,
-                        column: 17
-                    }
-                }],
-                line: 19
-            },
-            '4': {
-                loc: {
-                    start: {
-                        line: 19,
-                        column: 20
-                    },
-                    end: {
-                        line: 19,
-                        column: 82
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 19,
-                        column: 20
-                    },
-                    end: {
-                        line: 19,
-                        column: 45
-                    }
-                }, {
-                    start: {
-                        line: 19,
-                        column: 49
-                    },
-                    end: {
-                        line: 19,
-                        column: 82
-                    }
-                }],
-                line: 19
-            },
-            '5': {
-                loc: {
-                    start: {
-                        line: 38,
-                        column: 12
-                    },
-                    end: {
-                        line: 40,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 38,
-                        column: 12
-                    },
-                    end: {
-                        line: 40,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 38,
-                        column: 12
-                    },
-                    end: {
-                        line: 40,
-                        column: 13
-                    }
-                }],
-                line: 38
-            }
-        },
-        s: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0,
-            '14': 0,
-            '15': 0,
-            '16': 0,
-            '17': 0,
-            '18': 0,
-            '19': 0
-        },
-        f: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0
-        },
-        b: {
-            '0': [0, 0],
-            '1': [0, 0],
-            '2': [0, 0],
-            '3': [0, 0],
-            '4': [0, 0],
-            '5': [0, 0]
-        },
-        inputSourceMap: {
-            version: 3,
-            file: 'src/core/logic/api/options.factory.ts',
-            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
-            sources: ['src/core/logic/api/options.factory.ts'],
-            names: [],
-            mappings: 'AAAA,OAAO,OAAO,MAAM,SAAS,CAAC;AAE9B,MAAM;IAIJ,YAAY,MAAkC,EAAE,aAAyC;QACvF,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;QACnC,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACvB,CAAC;IAED,YAAY,CAAC,UAAkB;QAC7B,IAAI,YAAY,GAAG,IAAI,CAAC,aAAa,CAAC,UAAU,CAAC,CAAC;QAClD,EAAE,CAAC,CAAC,OAAO,CAAC,UAAU,CAAC,YAAY,CAAC,CAAC,CAAC,CAAC;YACrC,YAAY,GAAG,YAAY,EAAE,CAAC;QAChC,CAAC;QAED,MAAM,CAAC,YAAY,CAAC;IACtB,CAAC;IAAA,CAAC;IAEF,QAAQ,CAAC,UAAkB,EAAE,WAAgB;QAC3C,EAAE,CAAC,CAAC,CAAC,WAAW,CAAC,CAAC,CAAC;YACjB,IAAI,YAAY,GAAG,IAAI,CAAC,YAAY,CAAC,UAAU,CAAC,CAAC;YACjD,EAAE,CAAC,CAAC,YAAY,KAAK,SAAS,CAAC,CAAC,CAAC;gBAC/B,EAAE,CAAC,CAAC,WAAW,KAAK,SAAS,IAAI,OAAO,YAAY,KAAK,SAAS,CAAC,CAAC,CAAC;oBACnE,MAAM,CAAC,WAAW,CAAC;gBACrB,CAAC;gBAED,MAAM,CAAC,YAAY,CAAC;YACtB,CAAC;QACH,CAAC;QAED,MAAM,CAAC,WAAW,CAAC;IACrB,CAAC;IAAA,CAAC;IAEF,KAAK,CAAC,UAAkB;QACtB,MAAM,CAAC,IAAI,CAAC,QAAQ,CAAC,UAAU,EAAE,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC,CAAC;IAC5D,CAAC;IAAA,CAAC;IAEF,GAAG,CAAC,UAAkB,EAAE,WAAgB;QACtC,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,GAAG,WAAW,CAAC;IACxC,CAAC;IAAA,CAAC;IAEF,UAAU;QACR,GAAG,CAAC,CAAC,IAAI,UAAU,IAAI,IAAI,CAAC,MAAM,CAAC,CAAC,CAAC;YACnC,EAAE,CAAC,CAAC,IAAI,CAAC,MAAM,CAAC,cAAc,CAAC,UAAU,CAAC,CAAC,CAAC,CAAC;gBAC3C,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,GAAG,IAAI,CAAC,KAAK,CAAC,UAAU,CAAC,CAAC;YACnD,CAAC;QACH,CAAC;QACD,MAAM,CAAC,IAAI,CAAC,MAAM,CAAC;IACrB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,YAAY,CAAC;AACtB,CAAC',
-            sourcesContent: ['import angular from \'angular\';\n\nexport class GanttOptions {\n  private defaultValues: { [option: string]: any; };\n  private values: { [option: string]: any; };\n\n  constructor(values: { [option: string]: any; }, defaultValues: { [option: string]: any; }) {\n    this.defaultValues = defaultValues;\n    this.values = values;\n  }\n\n  defaultValue(optionName: string) {\n    let defaultValue = this.defaultValues[optionName];\n    if (angular.isFunction(defaultValue)) {\n      defaultValue = defaultValue();\n    }\n\n    return defaultValue;\n  };\n\n  sanitize(optionName: string, optionValue: any) {\n    if (!optionValue) {\n      let defaultValue = this.defaultValue(optionName);\n      if (defaultValue !== undefined) {\n        if (optionValue !== undefined && typeof defaultValue === \'boolean\') {\n          return optionValue;\n        }\n\n        return defaultValue;\n      }\n    }\n\n    return optionValue;\n  };\n\n  value(optionName: string) {\n    return this.sanitize(optionName, this.values[optionName]);\n  };\n\n  set(optionName: string, optionValue: any) {\n    this.values[optionName] = optionValue;\n  };\n\n  initialize() {\n    for (let optionName in this.values) {\n      if (this.values.hasOwnProperty(optionName)) {\n        this.values[optionName] = this.value(optionName);\n      }\n    }\n    return this.values;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttOptions;\n}\n']
-        },
-        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
-    },
-        coverage = global[gcv] || (global[gcv] = {});
-
-    if (coverage[path] && coverage[path].hash === hash) {
-        return coverage[path];
-    }
-
-    coverageData.hash = hash;
-    return coverage[path] = coverageData;
-}();
 
 exports.default = function () {
     'ngInject';
 
-    ++cov_1030c89924.f[6];
-    ++cov_1030c89924.s[19];
     return GanttOptions;
 };
-
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GanttOptions = exports.GanttOptions = function () {
     function GanttOptions(values, defaultValues) {
         (0, _classCallCheck3.default)(this, GanttOptions);
-        ++cov_1030c89924.f[0];
-        ++cov_1030c89924.s[0];
 
         this.defaultValues = defaultValues;
-        ++cov_1030c89924.s[1];
         this.values = values;
     }
 
     (0, _createClass3.default)(GanttOptions, [{
         key: 'defaultValue',
         value: function defaultValue(optionName) {
-            ++cov_1030c89924.f[1];
-
-            var defaultValue = (++cov_1030c89924.s[2], this.defaultValues[optionName]);
-            ++cov_1030c89924.s[3];
-            if (_angular2.default.isFunction(defaultValue)) {
-                ++cov_1030c89924.b[0][0];
-                ++cov_1030c89924.s[4];
-
+            var defaultValue = this.defaultValues[optionName];
+            if (typeof defaultValue === 'function') {
                 defaultValue = defaultValue();
-            } else {
-                ++cov_1030c89924.b[0][1];
             }
-            ++cov_1030c89924.s[5];
             return defaultValue;
         }
     }, {
         key: 'sanitize',
         value: function sanitize(optionName, optionValue) {
-            ++cov_1030c89924.f[2];
-            ++cov_1030c89924.s[6];
-
             if (!optionValue) {
-                ++cov_1030c89924.b[1][0];
-
-                var defaultValue = (++cov_1030c89924.s[7], this.defaultValue(optionName));
-                ++cov_1030c89924.s[8];
+                var defaultValue = this.defaultValue(optionName);
                 if (defaultValue !== undefined) {
-                    ++cov_1030c89924.b[2][0];
-                    ++cov_1030c89924.s[9];
-
-                    if ((++cov_1030c89924.b[4][0], optionValue !== undefined) && (++cov_1030c89924.b[4][1], typeof defaultValue === 'boolean')) {
-                        ++cov_1030c89924.b[3][0];
-                        ++cov_1030c89924.s[10];
-
+                    if (optionValue !== undefined && typeof defaultValue === 'boolean') {
                         return optionValue;
-                    } else {
-                        ++cov_1030c89924.b[3][1];
                     }
-                    ++cov_1030c89924.s[11];
                     return defaultValue;
-                } else {
-                    ++cov_1030c89924.b[2][1];
                 }
-            } else {
-                ++cov_1030c89924.b[1][1];
             }
-            ++cov_1030c89924.s[12];
             return optionValue;
         }
     }, {
         key: 'value',
         value: function value(optionName) {
-            ++cov_1030c89924.f[3];
-            ++cov_1030c89924.s[13];
-
             return this.sanitize(optionName, this.values[optionName]);
         }
     }, {
         key: 'set',
         value: function set(optionName, optionValue) {
-            ++cov_1030c89924.f[4];
-            ++cov_1030c89924.s[14];
-
             this.values[optionName] = optionValue;
         }
     }, {
         key: 'initialize',
         value: function initialize() {
-            ++cov_1030c89924.f[5];
-            ++cov_1030c89924.s[15];
-
             for (var optionName in this.values) {
-                ++cov_1030c89924.s[16];
-
                 if (this.values.hasOwnProperty(optionName)) {
-                    ++cov_1030c89924.b[5][0];
-                    ++cov_1030c89924.s[17];
-
                     this.values[optionName] = this.value(optionName);
-                } else {
-                    ++cov_1030c89924.b[5][1];
                 }
             }
-            ++cov_1030c89924.s[18];
             return this.values;
         }
     }]);
@@ -2267,7 +1573,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttCalendar = exports.DateFrame = exports.TimeFrameMapping = exports.TimeFrame = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -2275,7 +1581,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -2829,7 +2135,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -2925,10 +2231,6 @@ exports.default = function () {
     return GanttColumnHeader;
 };
 
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
-
 var _column = __webpack_require__(23);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -2943,7 +2245,7 @@ var GanttColumnHeader = exports.GanttColumnHeader = function (_GanttColumn) {
 
         _this.name = name;
         _this.unit = viewScaleUnit;
-        _this.label = _angular2.default.isFunction(labelFormat) ? labelFormat(_this) : date.format(labelFormat);
+        _this.label = typeof labelFormat === 'function' ? labelFormat(_this) : date.format(labelFormat);
         return _this;
     }
 
@@ -2962,7 +2264,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumnsManager = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -2970,7 +2272,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -3482,7 +2784,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -4610,11 +3912,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRowsManager = undefined;
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -4622,7 +3924,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -4636,7 +3938,7 @@ exports.default = ["GanttRow", "ganttArrays", "$filter", "$timeout", function (G
     return GanttRowsManager;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -4870,7 +4172,7 @@ var GanttRowsManager = exports.GanttRowsManager = function () {
             var expression = this.gantt.options.value('sortMode');
             if (expression !== undefined) {
                 var reverse = false;
-                if (_angular2.default.isString(expression) && expression.charAt(0) === '-') {
+                if ((typeof expression === 'string' || expression instanceof String) && expression.charAt(0) === '-') {
                     reverse = true;
                     expression = expression.substr(1);
                 }
@@ -5337,7 +4639,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5383,7 +4685,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5514,7 +4816,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5586,7 +4888,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5596,10 +4898,6 @@ exports.default = ["GanttTimespan", function (GanttTimespan) {
     GanttTimespansManager.GanttTimespan = GanttTimespan;
     return GanttTimespansManager;
 }];
-
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5627,7 +4925,7 @@ var GanttTimespansManager = exports.GanttTimespansManager = function () {
     (0, _createClass3.default)(GanttTimespansManager, [{
         key: 'loadTimespans',
         value: function loadTimespans(timespans) {
-            if (!_angular2.default.isArray(timespans)) {
+            if (!Array.isArray(timespans)) {
                 timespans = timespans !== undefined ? [timespans] : [];
             }
             this.gantt.$scope.timespans = timespans;
@@ -5660,7 +4958,7 @@ var GanttTimespansManager = exports.GanttTimespansManager = function () {
     }, {
         key: 'removeTimespans',
         value: function removeTimespans(timespans) {
-            if (!_angular2.default.isArray(timespans)) {
+            if (!Array.isArray(timespans)) {
                 timespans = [timespans];
             }
             for (var i = 0, l = timespans.length; i < l; i++) {
@@ -6072,7 +5370,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6121,7 +5419,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6254,7 +5552,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -6262,7 +5560,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6417,7 +5715,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6430,7 +5728,7 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
     return Gantt;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -6475,7 +5773,7 @@ var Gantt = exports.Gantt = function () {
         this.$scope = $scope;
         this.$element = $element;
         this.options = new _options.GanttOptions($scope, {
-            'api': _angular2.default.noop,
+            'api': function api() {},
             'data': [],
             'timespans': [],
             'viewScale': 'day',
@@ -6589,7 +5887,7 @@ var Gantt = exports.Gantt = function () {
         this.currentDateManager = new _currentDateManager.GanttCurrentDateManager(this);
         this.originalWidth = 0;
         this.width = 0;
-        if (_angular2.default.isFunction(this.$scope.api)) {
+        if (typeof this.$scope.api === 'function') {
             this.$scope.api(this.api);
         }
         var hasRowModelOrderChanged = function hasRowModelOrderChanged(data1, data2) {
@@ -6737,7 +6035,7 @@ var Gantt = exports.Gantt = function () {
     }, {
         key: 'loadData',
         value: function loadData(data) {
-            if (!_angular2.default.isArray(data)) {
+            if (!Array.isArray(data)) {
                 data = data !== undefined ? [data] : [];
             }
             if (this.$scope.data === undefined) {
@@ -6766,7 +6064,7 @@ var Gantt = exports.Gantt = function () {
     }, {
         key: 'removeData',
         value: function removeData(data) {
-            if (!_angular2.default.isArray(data)) {
+            if (!Array.isArray(data)) {
                 data = data !== undefined ? [data] : [];
             }
             if (this.$scope.data !== undefined) {
@@ -6847,15 +6145,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRow = exports.GanttRowModel = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6875,7 +6173,7 @@ var _moment = __webpack_require__(3);
 
 var _moment2 = _interopRequireDefault(_moment);
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var angular = _interopRequireWildcard(_angular);
 
@@ -7187,7 +6485,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttTask = exports.GanttTaskModel = undefined;
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -7201,7 +6499,7 @@ exports.default = function () {
     return GanttTask;
 };
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -8126,7 +7424,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Timespan = exports.TimespanModel = undefined;
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8140,7 +7438,7 @@ exports.default = function () {
     return Timespan;
 };
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -8259,7 +7557,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8373,7 +7671,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8426,7 +7724,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttHierarchy = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -8434,7 +7732,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8626,11 +7924,11 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -9846,7 +9144,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -9946,7 +9244,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10063,11 +9361,11 @@ exports.default = ["$injector", function ($injector) {
             }
         };
     } else {
-        return _angular2.default.noop;
+        return function () {};
     }
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -10113,7 +9411,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -10121,7 +9419,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10266,7 +9564,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10311,7 +9609,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10369,7 +9667,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10476,7 +9774,7 @@ var _create = __webpack_require__(125);
 
 var _create2 = _interopRequireDefault(_create);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -10507,7 +9805,7 @@ exports.default = function (subClass, superClass) {
 
 exports.__esModule = true;
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 

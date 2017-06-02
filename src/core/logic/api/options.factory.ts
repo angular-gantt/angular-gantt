@@ -1,5 +1,3 @@
-import angular from 'angular';
-
 export class GanttOptions {
   private defaultValues: { [option: string]: any; };
   private values: { [option: string]: any; };
@@ -11,7 +9,7 @@ export class GanttOptions {
 
   defaultValue(optionName: string) {
     let defaultValue = this.defaultValues[optionName];
-    if (angular.isFunction(defaultValue)) {
+    if (typeof(defaultValue) === 'function') {
       defaultValue = defaultValue();
     }
 

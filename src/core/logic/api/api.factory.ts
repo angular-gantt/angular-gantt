@@ -64,7 +64,7 @@ export class GanttApi {
    * </pre>
    */
   suppressEvents(listenerFuncs, callBackFn) {
-    let listeners = angular.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+    let listeners = Array.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
 
     // find all registered listeners
     let foundListeners = [];

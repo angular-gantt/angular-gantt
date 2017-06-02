@@ -59,7 +59,8 @@ export class Gantt {
     this.$element = $element;
 
     this.options = new GanttOptions($scope, {
-      'api': angular.noop,
+      // tslint:disable:no-empty
+      'api': function () {},
       'data': [],
       'timespans': [],
       'viewScale': 'day',
@@ -196,7 +197,7 @@ export class Gantt {
     this.originalWidth = 0;
     this.width = 0;
 
-    if (angular.isFunction(this.$scope.api)) {
+    if (typeof this.$scope.api === 'function') {
       this.$scope.api(this.api);
     }
 
@@ -363,7 +364,7 @@ export class Gantt {
 
   // DEPRECATED - Use $data instead.
   loadData(data: GanttRowModel | GanttRowModel[]) {
-    if (!angular.isArray(data)) {
+    if (!Array.isArray(data)) {
       data = data !== undefined ? [data] : [];
     }
 
@@ -394,7 +395,7 @@ export class Gantt {
 
   // DEPRECATED - Use $data instead.
   removeData(data) {
-    if (!angular.isArray(data)) {
+    if (!Array.isArray(data)) {
       data = data !== undefined ? [data] : [];
     }
 

@@ -1,5 +1,3 @@
-import angular from 'angular';
-
 export default function () {
   'ngInject';
   return {
@@ -7,7 +5,7 @@ export default function () {
       options.enabled = options.enabled !== undefined ? options.enabled : true;
       options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
       options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
-      if (!angular.isFunction(options.allowRowSwitching)) {
+      if (typeof(options.allowRowSwitching) !== 'function') {
         options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
       }
       return options;

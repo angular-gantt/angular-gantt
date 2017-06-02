@@ -255,7 +255,7 @@ export class GanttRowsManager {
 
     if (expression !== undefined) {
       let reverse = false;
-      if (angular.isString(expression) && expression.charAt(0) === '-') {
+      if ((typeof expression === 'string' || expression instanceof String) && expression.charAt(0) === '-') {
         reverse = true;
         expression = expression.substr(1);
       }

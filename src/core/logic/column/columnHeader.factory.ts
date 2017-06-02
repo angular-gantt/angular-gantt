@@ -1,5 +1,3 @@
-import angular from 'angular';
-
 import moment from 'moment';
 import {GanttColumn} from './column.factory';
 
@@ -19,7 +17,7 @@ export class GanttColumnHeader extends GanttColumn {
 
     this.name = name;
     this.unit = viewScaleUnit;
-    this.label = angular.isFunction(labelFormat) ? labelFormat(this) : date.format(labelFormat);
+    this.label = typeof(labelFormat) === 'function' ? labelFormat(this) : date.format(labelFormat);
   };
 }
 

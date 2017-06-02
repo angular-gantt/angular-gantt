@@ -43,7 +43,7 @@ export default function ($document, ganttMouseOffset, ganttUtils: GanttUtilsServ
       api.registerEvent('tasks', 'drawEnd');
 
       let newTaskModel = function (row) {
-        if (row.model.drawTask && angular.isFunction(row.model.drawTask.taskFactory)) {
+        if (row.model.drawTask && typeof(row.model.drawTask.taskFactory) === 'function') {
           return row.model.drawTask.taskFactory();
         } else {
           return scope.taskFactory();
@@ -107,12 +107,12 @@ export default function ($document, ganttMouseOffset, ganttUtils: GanttUtilsServ
 
             let rowDrawTask = directiveScope.row.model.drawTask;
 
-            if (typeof(rowDrawTask) === 'boolean' || angular.isFunction(rowDrawTask)) {
+            if (typeof(rowDrawTask) === 'boolean' || typeof(rowDrawTask) === 'function') {
               rowDrawTask = {enabled: rowDrawTask};
             }
 
             let enabledValue = ganttUtils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
-            let enabled = angular.isFunction(enabledValue) ? enabledValue(evt, directiveScope.row) : enabledValue;
+            let enabled = typeof(enabledValue) === 'function' ? enabledValue(evt, directiveScope.row) : enabledValue;
             if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
               let x = ganttMouseOffset.getOffset(evt).x;
 

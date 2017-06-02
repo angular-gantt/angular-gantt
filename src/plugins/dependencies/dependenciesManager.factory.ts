@@ -56,7 +56,7 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
         let taskDependencies = task.model.dependencies;
 
         if (taskDependencies !== undefined && taskDependencies) {
-          if (!angular.isArray(taskDependencies)) {
+          if (!Array.isArray(taskDependencies)) {
             taskDependencies = [taskDependencies];
             task.model.dependencies = taskDependencies;
           }
@@ -439,7 +439,7 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
       try {
         let tasksDependencies;
         let i;
-        if (tasks && !angular.isArray(tasks)) {
+        if (tasks && !Array.isArray(tasks)) {
           tasks = [tasks];
         }
 

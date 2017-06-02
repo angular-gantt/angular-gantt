@@ -14,7 +14,7 @@
 		exports["angular-gantt"] = factory(require("angular"), require("moment"), require("ElementQueries"), require("ResizeSensor"), require("angular-native-dragdrop"), require("jsPlumb"), require("ui.tree"));
 	else
 		root["angular-gantt"] = factory(root["angular"], root["moment"], root["ElementQueries"], root["ResizeSensor"], root["angular-native-dragdrop"], root["jsPlumb"], root["ui.tree"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_261__, __WEBPACK_EXTERNAL_MODULE_262__, __WEBPACK_EXTERNAL_MODULE_263__, __WEBPACK_EXTERNAL_MODULE_264__, __WEBPACK_EXTERNAL_MODULE_265__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_261__, __WEBPACK_EXTERNAL_MODULE_262__, __WEBPACK_EXTERNAL_MODULE_263__, __WEBPACK_EXTERNAL_MODULE_264__, __WEBPACK_EXTERNAL_MODULE_265__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -100,12 +100,6 @@ exports.default = function (instance, Constructor) {
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -138,6 +132,12 @@ exports.default = function () {
 }();
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ }),
 /* 3 */
 /***/ (function(module, exports) {
 
@@ -145,12 +145,6 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(133), __esModule: true };
-
-/***/ }),
-/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -177,6 +171,12 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 };
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(133), __esModule: true };
+
+/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -187,7 +187,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -740,7 +740,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumn = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -748,7 +748,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -1325,7 +1325,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -1338,7 +1338,7 @@ exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, g
     return GanttApi;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -1367,7 +1367,7 @@ var GanttApi = exports.GanttApi = function () {
         value: function suppressEvents(listenerFuncs, callBackFn) {
             var _this2 = this;
 
-            var listeners = _angular2.default.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+            var listeners = Array.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
 
             var foundListeners = [];
             listeners.forEach(function (l) {
@@ -1494,761 +1494,67 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
-
-var cov_1030c89924 = function () {
-    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/api/options.factory.ts',
-        hash = '3b55f5a856cac60b6e3a3ecfcd287e1e41ec927d',
-        global = new Function('return this')(),
-        gcv = '__coverage__',
-        coverageData = {
-        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/api/options.factory.ts',
-        statementMap: {
-            '0': {
-                start: {
-                    line: 4,
-                    column: 8
-                },
-                end: {
-                    line: 4,
-                    column: 43
-                }
-            },
-            '1': {
-                start: {
-                    line: 5,
-                    column: 8
-                },
-                end: {
-                    line: 5,
-                    column: 29
-                }
-            },
-            '2': {
-                start: {
-                    line: 8,
-                    column: 27
-                },
-                end: {
-                    line: 8,
-                    column: 57
-                }
-            },
-            '3': {
-                start: {
-                    line: 9,
-                    column: 8
-                },
-                end: {
-                    line: 11,
-                    column: 9
-                }
-            },
-            '4': {
-                start: {
-                    line: 10,
-                    column: 12
-                },
-                end: {
-                    line: 10,
-                    column: 42
-                }
-            },
-            '5': {
-                start: {
-                    line: 12,
-                    column: 8
-                },
-                end: {
-                    line: 12,
-                    column: 28
-                }
-            },
-            '6': {
-                start: {
-                    line: 16,
-                    column: 8
-                },
-                end: {
-                    line: 24,
-                    column: 9
-                }
-            },
-            '7': {
-                start: {
-                    line: 17,
-                    column: 31
-                },
-                end: {
-                    line: 17,
-                    column: 60
-                }
-            },
-            '8': {
-                start: {
-                    line: 18,
-                    column: 12
-                },
-                end: {
-                    line: 23,
-                    column: 13
-                }
-            },
-            '9': {
-                start: {
-                    line: 19,
-                    column: 16
-                },
-                end: {
-                    line: 21,
-                    column: 17
-                }
-            },
-            '10': {
-                start: {
-                    line: 20,
-                    column: 20
-                },
-                end: {
-                    line: 20,
-                    column: 39
-                }
-            },
-            '11': {
-                start: {
-                    line: 22,
-                    column: 16
-                },
-                end: {
-                    line: 22,
-                    column: 36
-                }
-            },
-            '12': {
-                start: {
-                    line: 25,
-                    column: 8
-                },
-                end: {
-                    line: 25,
-                    column: 27
-                }
-            },
-            '13': {
-                start: {
-                    line: 29,
-                    column: 8
-                },
-                end: {
-                    line: 29,
-                    column: 66
-                }
-            },
-            '14': {
-                start: {
-                    line: 33,
-                    column: 8
-                },
-                end: {
-                    line: 33,
-                    column: 46
-                }
-            },
-            '15': {
-                start: {
-                    line: 37,
-                    column: 8
-                },
-                end: {
-                    line: 41,
-                    column: 9
-                }
-            },
-            '16': {
-                start: {
-                    line: 38,
-                    column: 12
-                },
-                end: {
-                    line: 40,
-                    column: 13
-                }
-            },
-            '17': {
-                start: {
-                    line: 39,
-                    column: 16
-                },
-                end: {
-                    line: 39,
-                    column: 65
-                }
-            },
-            '18': {
-                start: {
-                    line: 42,
-                    column: 8
-                },
-                end: {
-                    line: 42,
-                    column: 27
-                }
-            },
-            '19': {
-                start: {
-                    line: 48,
-                    column: 4
-                },
-                end: {
-                    line: 48,
-                    column: 24
-                }
-            }
-        },
-        fnMap: {
-            '0': {
-                name: '(anonymous_0)',
-                decl: {
-                    start: {
-                        line: 3,
-                        column: 4
-                    },
-                    end: {
-                        line: 3,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 3,
-                        column: 39
-                    },
-                    end: {
-                        line: 6,
-                        column: 5
-                    }
-                },
-                line: 3
-            },
-            '1': {
-                name: '(anonymous_1)',
-                decl: {
-                    start: {
-                        line: 7,
-                        column: 4
-                    },
-                    end: {
-                        line: 7,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 7,
-                        column: 29
-                    },
-                    end: {
-                        line: 13,
-                        column: 5
-                    }
-                },
-                line: 7
-            },
-            '2': {
-                name: '(anonymous_2)',
-                decl: {
-                    start: {
-                        line: 15,
-                        column: 4
-                    },
-                    end: {
-                        line: 15,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 15,
-                        column: 38
-                    },
-                    end: {
-                        line: 26,
-                        column: 5
-                    }
-                },
-                line: 15
-            },
-            '3': {
-                name: '(anonymous_3)',
-                decl: {
-                    start: {
-                        line: 28,
-                        column: 4
-                    },
-                    end: {
-                        line: 28,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 28,
-                        column: 22
-                    },
-                    end: {
-                        line: 30,
-                        column: 5
-                    }
-                },
-                line: 28
-            },
-            '4': {
-                name: '(anonymous_4)',
-                decl: {
-                    start: {
-                        line: 32,
-                        column: 4
-                    },
-                    end: {
-                        line: 32,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 32,
-                        column: 33
-                    },
-                    end: {
-                        line: 34,
-                        column: 5
-                    }
-                },
-                line: 32
-            },
-            '5': {
-                name: '(anonymous_5)',
-                decl: {
-                    start: {
-                        line: 36,
-                        column: 4
-                    },
-                    end: {
-                        line: 36,
-                        column: 5
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 36,
-                        column: 17
-                    },
-                    end: {
-                        line: 43,
-                        column: 5
-                    }
-                },
-                line: 36
-            },
-            '6': {
-                name: '(anonymous_6)',
-                decl: {
-                    start: {
-                        line: 46,
-                        column: 15
-                    },
-                    end: {
-                        line: 46,
-                        column: 16
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 46,
-                        column: 27
-                    },
-                    end: {
-                        line: 49,
-                        column: 1
-                    }
-                },
-                line: 46
-            }
-        },
-        branchMap: {
-            '0': {
-                loc: {
-                    start: {
-                        line: 9,
-                        column: 8
-                    },
-                    end: {
-                        line: 11,
-                        column: 9
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 9,
-                        column: 8
-                    },
-                    end: {
-                        line: 11,
-                        column: 9
-                    }
-                }, {
-                    start: {
-                        line: 9,
-                        column: 8
-                    },
-                    end: {
-                        line: 11,
-                        column: 9
-                    }
-                }],
-                line: 9
-            },
-            '1': {
-                loc: {
-                    start: {
-                        line: 16,
-                        column: 8
-                    },
-                    end: {
-                        line: 24,
-                        column: 9
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 16,
-                        column: 8
-                    },
-                    end: {
-                        line: 24,
-                        column: 9
-                    }
-                }, {
-                    start: {
-                        line: 16,
-                        column: 8
-                    },
-                    end: {
-                        line: 24,
-                        column: 9
-                    }
-                }],
-                line: 16
-            },
-            '2': {
-                loc: {
-                    start: {
-                        line: 18,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 18,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 18,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                }],
-                line: 18
-            },
-            '3': {
-                loc: {
-                    start: {
-                        line: 19,
-                        column: 16
-                    },
-                    end: {
-                        line: 21,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 19,
-                        column: 16
-                    },
-                    end: {
-                        line: 21,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 19,
-                        column: 16
-                    },
-                    end: {
-                        line: 21,
-                        column: 17
-                    }
-                }],
-                line: 19
-            },
-            '4': {
-                loc: {
-                    start: {
-                        line: 19,
-                        column: 20
-                    },
-                    end: {
-                        line: 19,
-                        column: 82
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 19,
-                        column: 20
-                    },
-                    end: {
-                        line: 19,
-                        column: 45
-                    }
-                }, {
-                    start: {
-                        line: 19,
-                        column: 49
-                    },
-                    end: {
-                        line: 19,
-                        column: 82
-                    }
-                }],
-                line: 19
-            },
-            '5': {
-                loc: {
-                    start: {
-                        line: 38,
-                        column: 12
-                    },
-                    end: {
-                        line: 40,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 38,
-                        column: 12
-                    },
-                    end: {
-                        line: 40,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 38,
-                        column: 12
-                    },
-                    end: {
-                        line: 40,
-                        column: 13
-                    }
-                }],
-                line: 38
-            }
-        },
-        s: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0,
-            '14': 0,
-            '15': 0,
-            '16': 0,
-            '17': 0,
-            '18': 0,
-            '19': 0
-        },
-        f: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0
-        },
-        b: {
-            '0': [0, 0],
-            '1': [0, 0],
-            '2': [0, 0],
-            '3': [0, 0],
-            '4': [0, 0],
-            '5': [0, 0]
-        },
-        inputSourceMap: {
-            version: 3,
-            file: 'src/core/logic/api/options.factory.ts',
-            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
-            sources: ['src/core/logic/api/options.factory.ts'],
-            names: [],
-            mappings: 'AAAA,OAAO,OAAO,MAAM,SAAS,CAAC;AAE9B,MAAM;IAIJ,YAAY,MAAkC,EAAE,aAAyC;QACvF,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;QACnC,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACvB,CAAC;IAED,YAAY,CAAC,UAAkB;QAC7B,IAAI,YAAY,GAAG,IAAI,CAAC,aAAa,CAAC,UAAU,CAAC,CAAC;QAClD,EAAE,CAAC,CAAC,OAAO,CAAC,UAAU,CAAC,YAAY,CAAC,CAAC,CAAC,CAAC;YACrC,YAAY,GAAG,YAAY,EAAE,CAAC;QAChC,CAAC;QAED,MAAM,CAAC,YAAY,CAAC;IACtB,CAAC;IAAA,CAAC;IAEF,QAAQ,CAAC,UAAkB,EAAE,WAAgB;QAC3C,EAAE,CAAC,CAAC,CAAC,WAAW,CAAC,CAAC,CAAC;YACjB,IAAI,YAAY,GAAG,IAAI,CAAC,YAAY,CAAC,UAAU,CAAC,CAAC;YACjD,EAAE,CAAC,CAAC,YAAY,KAAK,SAAS,CAAC,CAAC,CAAC;gBAC/B,EAAE,CAAC,CAAC,WAAW,KAAK,SAAS,IAAI,OAAO,YAAY,KAAK,SAAS,CAAC,CAAC,CAAC;oBACnE,MAAM,CAAC,WAAW,CAAC;gBACrB,CAAC;gBAED,MAAM,CAAC,YAAY,CAAC;YACtB,CAAC;QACH,CAAC;QAED,MAAM,CAAC,WAAW,CAAC;IACrB,CAAC;IAAA,CAAC;IAEF,KAAK,CAAC,UAAkB;QACtB,MAAM,CAAC,IAAI,CAAC,QAAQ,CAAC,UAAU,EAAE,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC,CAAC;IAC5D,CAAC;IAAA,CAAC;IAEF,GAAG,CAAC,UAAkB,EAAE,WAAgB;QACtC,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,GAAG,WAAW,CAAC;IACxC,CAAC;IAAA,CAAC;IAEF,UAAU;QACR,GAAG,CAAC,CAAC,IAAI,UAAU,IAAI,IAAI,CAAC,MAAM,CAAC,CAAC,CAAC;YACnC,EAAE,CAAC,CAAC,IAAI,CAAC,MAAM,CAAC,cAAc,CAAC,UAAU,CAAC,CAAC,CAAC,CAAC;gBAC3C,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,GAAG,IAAI,CAAC,KAAK,CAAC,UAAU,CAAC,CAAC;YACnD,CAAC;QACH,CAAC;QACD,MAAM,CAAC,IAAI,CAAC,MAAM,CAAC;IACrB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,YAAY,CAAC;AACtB,CAAC',
-            sourcesContent: ['import angular from \'angular\';\n\nexport class GanttOptions {\n  private defaultValues: { [option: string]: any; };\n  private values: { [option: string]: any; };\n\n  constructor(values: { [option: string]: any; }, defaultValues: { [option: string]: any; }) {\n    this.defaultValues = defaultValues;\n    this.values = values;\n  }\n\n  defaultValue(optionName: string) {\n    let defaultValue = this.defaultValues[optionName];\n    if (angular.isFunction(defaultValue)) {\n      defaultValue = defaultValue();\n    }\n\n    return defaultValue;\n  };\n\n  sanitize(optionName: string, optionValue: any) {\n    if (!optionValue) {\n      let defaultValue = this.defaultValue(optionName);\n      if (defaultValue !== undefined) {\n        if (optionValue !== undefined && typeof defaultValue === \'boolean\') {\n          return optionValue;\n        }\n\n        return defaultValue;\n      }\n    }\n\n    return optionValue;\n  };\n\n  value(optionName: string) {\n    return this.sanitize(optionName, this.values[optionName]);\n  };\n\n  set(optionName: string, optionValue: any) {\n    this.values[optionName] = optionValue;\n  };\n\n  initialize() {\n    for (let optionName in this.values) {\n      if (this.values.hasOwnProperty(optionName)) {\n        this.values[optionName] = this.value(optionName);\n      }\n    }\n    return this.values;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttOptions;\n}\n']
-        },
-        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
-    },
-        coverage = global[gcv] || (global[gcv] = {});
-
-    if (coverage[path] && coverage[path].hash === hash) {
-        return coverage[path];
-    }
-
-    coverageData.hash = hash;
-    return coverage[path] = coverageData;
-}();
 
 exports.default = function () {
     'ngInject';
 
-    ++cov_1030c89924.f[6];
-    ++cov_1030c89924.s[19];
     return GanttOptions;
 };
-
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GanttOptions = exports.GanttOptions = function () {
     function GanttOptions(values, defaultValues) {
         (0, _classCallCheck3.default)(this, GanttOptions);
-        ++cov_1030c89924.f[0];
-        ++cov_1030c89924.s[0];
 
         this.defaultValues = defaultValues;
-        ++cov_1030c89924.s[1];
         this.values = values;
     }
 
     (0, _createClass3.default)(GanttOptions, [{
         key: 'defaultValue',
         value: function defaultValue(optionName) {
-            ++cov_1030c89924.f[1];
-
-            var defaultValue = (++cov_1030c89924.s[2], this.defaultValues[optionName]);
-            ++cov_1030c89924.s[3];
-            if (_angular2.default.isFunction(defaultValue)) {
-                ++cov_1030c89924.b[0][0];
-                ++cov_1030c89924.s[4];
-
+            var defaultValue = this.defaultValues[optionName];
+            if (typeof defaultValue === 'function') {
                 defaultValue = defaultValue();
-            } else {
-                ++cov_1030c89924.b[0][1];
             }
-            ++cov_1030c89924.s[5];
             return defaultValue;
         }
     }, {
         key: 'sanitize',
         value: function sanitize(optionName, optionValue) {
-            ++cov_1030c89924.f[2];
-            ++cov_1030c89924.s[6];
-
             if (!optionValue) {
-                ++cov_1030c89924.b[1][0];
-
-                var defaultValue = (++cov_1030c89924.s[7], this.defaultValue(optionName));
-                ++cov_1030c89924.s[8];
+                var defaultValue = this.defaultValue(optionName);
                 if (defaultValue !== undefined) {
-                    ++cov_1030c89924.b[2][0];
-                    ++cov_1030c89924.s[9];
-
-                    if ((++cov_1030c89924.b[4][0], optionValue !== undefined) && (++cov_1030c89924.b[4][1], typeof defaultValue === 'boolean')) {
-                        ++cov_1030c89924.b[3][0];
-                        ++cov_1030c89924.s[10];
-
+                    if (optionValue !== undefined && typeof defaultValue === 'boolean') {
                         return optionValue;
-                    } else {
-                        ++cov_1030c89924.b[3][1];
                     }
-                    ++cov_1030c89924.s[11];
                     return defaultValue;
-                } else {
-                    ++cov_1030c89924.b[2][1];
                 }
-            } else {
-                ++cov_1030c89924.b[1][1];
             }
-            ++cov_1030c89924.s[12];
             return optionValue;
         }
     }, {
         key: 'value',
         value: function value(optionName) {
-            ++cov_1030c89924.f[3];
-            ++cov_1030c89924.s[13];
-
             return this.sanitize(optionName, this.values[optionName]);
         }
     }, {
         key: 'set',
         value: function set(optionName, optionValue) {
-            ++cov_1030c89924.f[4];
-            ++cov_1030c89924.s[14];
-
             this.values[optionName] = optionValue;
         }
     }, {
         key: 'initialize',
         value: function initialize() {
-            ++cov_1030c89924.f[5];
-            ++cov_1030c89924.s[15];
-
             for (var optionName in this.values) {
-                ++cov_1030c89924.s[16];
-
                 if (this.values.hasOwnProperty(optionName)) {
-                    ++cov_1030c89924.b[5][0];
-                    ++cov_1030c89924.s[17];
-
                     this.values[optionName] = this.value(optionName);
-                } else {
-                    ++cov_1030c89924.b[5][1];
                 }
             }
-            ++cov_1030c89924.s[18];
             return this.values;
         }
     }]);
@@ -2267,7 +1573,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttCalendar = exports.DateFrame = exports.TimeFrameMapping = exports.TimeFrame = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -2275,7 +1581,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -2829,7 +2135,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -2925,10 +2231,6 @@ exports.default = function () {
     return GanttColumnHeader;
 };
 
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
-
 var _column = __webpack_require__(23);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -2943,7 +2245,7 @@ var GanttColumnHeader = exports.GanttColumnHeader = function (_GanttColumn) {
 
         _this.name = name;
         _this.unit = viewScaleUnit;
-        _this.label = _angular2.default.isFunction(labelFormat) ? labelFormat(_this) : date.format(labelFormat);
+        _this.label = typeof labelFormat === 'function' ? labelFormat(_this) : date.format(labelFormat);
         return _this;
     }
 
@@ -2962,7 +2264,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumnsManager = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -2970,7 +2272,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -3482,7 +2784,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -4610,11 +3912,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRowsManager = undefined;
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -4622,7 +3924,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -4636,7 +3938,7 @@ exports.default = ["GanttRow", "ganttArrays", "$filter", "$timeout", function (G
     return GanttRowsManager;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -4870,7 +4172,7 @@ var GanttRowsManager = exports.GanttRowsManager = function () {
             var expression = this.gantt.options.value('sortMode');
             if (expression !== undefined) {
                 var reverse = false;
-                if (_angular2.default.isString(expression) && expression.charAt(0) === '-') {
+                if ((typeof expression === 'string' || expression instanceof String) && expression.charAt(0) === '-') {
                     reverse = true;
                     expression = expression.substr(1);
                 }
@@ -5337,7 +4639,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5383,7 +4685,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5514,7 +4816,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5586,7 +4888,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -5596,10 +4898,6 @@ exports.default = ["GanttTimespan", function (GanttTimespan) {
     GanttTimespansManager.GanttTimespan = GanttTimespan;
     return GanttTimespansManager;
 }];
-
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5627,7 +4925,7 @@ var GanttTimespansManager = exports.GanttTimespansManager = function () {
     (0, _createClass3.default)(GanttTimespansManager, [{
         key: 'loadTimespans',
         value: function loadTimespans(timespans) {
-            if (!_angular2.default.isArray(timespans)) {
+            if (!Array.isArray(timespans)) {
                 timespans = timespans !== undefined ? [timespans] : [];
             }
             this.gantt.$scope.timespans = timespans;
@@ -5660,7 +4958,7 @@ var GanttTimespansManager = exports.GanttTimespansManager = function () {
     }, {
         key: 'removeTimespans',
         value: function removeTimespans(timespans) {
-            if (!_angular2.default.isArray(timespans)) {
+            if (!Array.isArray(timespans)) {
                 timespans = [timespans];
             }
             for (var i = 0, l = timespans.length; i < l; i++) {
@@ -6072,7 +5370,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6121,7 +5419,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6254,7 +5552,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -6262,7 +5560,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6417,7 +5715,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6430,7 +5728,7 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
     return Gantt;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -6475,7 +5773,7 @@ var Gantt = exports.Gantt = function () {
         this.$scope = $scope;
         this.$element = $element;
         this.options = new _options.GanttOptions($scope, {
-            'api': _angular2.default.noop,
+            'api': function api() {},
             'data': [],
             'timespans': [],
             'viewScale': 'day',
@@ -6589,7 +5887,7 @@ var Gantt = exports.Gantt = function () {
         this.currentDateManager = new _currentDateManager.GanttCurrentDateManager(this);
         this.originalWidth = 0;
         this.width = 0;
-        if (_angular2.default.isFunction(this.$scope.api)) {
+        if (typeof this.$scope.api === 'function') {
             this.$scope.api(this.api);
         }
         var hasRowModelOrderChanged = function hasRowModelOrderChanged(data1, data2) {
@@ -6737,7 +6035,7 @@ var Gantt = exports.Gantt = function () {
     }, {
         key: 'loadData',
         value: function loadData(data) {
-            if (!_angular2.default.isArray(data)) {
+            if (!Array.isArray(data)) {
                 data = data !== undefined ? [data] : [];
             }
             if (this.$scope.data === undefined) {
@@ -6766,7 +6064,7 @@ var Gantt = exports.Gantt = function () {
     }, {
         key: 'removeData',
         value: function removeData(data) {
-            if (!_angular2.default.isArray(data)) {
+            if (!Array.isArray(data)) {
                 data = data !== undefined ? [data] : [];
             }
             if (this.$scope.data !== undefined) {
@@ -6847,15 +6145,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRow = exports.GanttRowModel = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -6875,7 +6173,7 @@ var _moment = __webpack_require__(3);
 
 var _moment2 = _interopRequireDefault(_moment);
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var angular = _interopRequireWildcard(_angular);
 
@@ -7187,7 +6485,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttTask = exports.GanttTaskModel = undefined;
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -7201,7 +6499,7 @@ exports.default = function () {
     return GanttTask;
 };
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -8126,7 +7424,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Timespan = exports.TimespanModel = undefined;
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8140,7 +7438,7 @@ exports.default = function () {
     return Timespan;
 };
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -8259,7 +7557,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8373,7 +7671,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8426,7 +7724,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttHierarchy = undefined;
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -8434,7 +7732,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -8626,11 +7924,11 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -9846,7 +9144,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -9946,7 +9244,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10063,11 +9361,11 @@ exports.default = ["$injector", function ($injector) {
             }
         };
     } else {
-        return _angular2.default.noop;
+        return function () {};
     }
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -10113,7 +9411,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -10121,7 +9419,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10266,7 +9564,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10311,7 +9609,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10369,7 +9667,7 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(2);
+var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -10476,7 +9774,7 @@ var _create = __webpack_require__(125);
 
 var _create2 = _interopRequireDefault(_create);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -10507,7 +9805,7 @@ exports.default = function (subClass, superClass) {
 
 exports.__esModule = true;
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -11302,7 +10600,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11336,7 +10634,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11370,7 +10668,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11420,7 +10718,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11449,7 +10747,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11586,7 +10884,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11628,7 +10926,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11662,7 +10960,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11692,7 +10990,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11726,7 +11024,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11755,7 +11053,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11793,7 +11091,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11825,7 +11123,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11867,7 +11165,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -11901,7 +11199,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -12973,7 +12271,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -13026,7 +12324,7 @@ exports.default = ["$compile", "$document", function ($compile, $document) {
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -13121,7 +12419,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -13644,7 +12942,7 @@ exports.default = ["ganttUtils", "$compile", "$document", function (ganttUtils, 
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -13665,7 +12963,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(4);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -13712,10 +13014,10 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
             var label = header.name;
             if ($scope.pluginScope.headersLabels && header.name in $scope.pluginScope.headersLabels) {
                 label = $scope.pluginScope.headersLabels[header.name];
-                if (_angular2.default.isFunction(label)) {
+                if (typeof label === 'function') {
                     label = label(header.name, header.unit, header.columns);
                 }
-            } else if (_angular2.default.isFunction($scope.pluginScope.headersLabels)) {
+            } else if (typeof $scope.pluginScope.headersLabels === 'function') {
                 label = $scope.pluginScope.headersLabels(header.name, header.unit, header.columns);
             }
             return label;
@@ -13724,10 +13026,10 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
             var content = void 0;
             if (content === undefined && $scope.pluginScope.headersLabelsTemplates !== undefined) {
                 content = $scope.pluginScope.headersLabelsTemplates;
-                if (_angular2.default.isObject(content) && header.name in content) {
+                if (content !== null && (typeof content === 'undefined' ? 'undefined' : (0, _typeof3.default)(content)) === 'object' && header.name in content) {
                     content = content[header.name];
                 }
-                if (_angular2.default.isFunction(content)) {
+                if (typeof content === 'function') {
                     content = content(header.name, header.unit, header.columns);
                 }
             }
@@ -13743,10 +13045,6 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
     return builder.build();
 }];
 
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
@@ -13760,11 +13058,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -13961,7 +13259,7 @@ exports.default = ["$timeout", "$document", "ganttDebounce", "GanttDependenciesM
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -13978,7 +13276,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -14205,7 +13503,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -14249,7 +13547,7 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
             if (this.pluginScope.enabled) {
                 var taskDependencies = task.model.dependencies;
                 if (taskDependencies !== undefined && taskDependencies) {
-                    if (!_angular2.default.isArray(taskDependencies)) {
+                    if (!Array.isArray(taskDependencies)) {
                         taskDependencies = [taskDependencies];
                         task.model.dependencies = taskDependencies;
                     }
@@ -14685,7 +13983,7 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
             try {
                 var tasksDependencies = void 0;
                 var i = void 0;
-                if (tasks && !_angular2.default.isArray(tasks)) {
+                if (tasks && !Array.isArray(tasks)) {
                     tasks = [tasks];
                 }
                 if (tasks === undefined) {
@@ -14717,7 +14015,7 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
     return DependenciesManager;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -14738,7 +14036,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -14961,7 +14259,7 @@ exports.default = ["$timeout", function ($timeout) {
     return TaskMouseHandler;
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -14978,1753 +14276,13 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
-
-var cov_1k54aojcme = function () {
-    var path = '/home/toilal/idea-projects/angular-gantt/src/plugins/drawtask/drawTask.directive.ts',
-        hash = '1a40c21e88127327f7b8d37cbfff736f6b74649a',
-        global = new Function('return this')(),
-        gcv = '__coverage__',
-        coverageData = {
-        path: '/home/toilal/idea-projects/angular-gantt/src/plugins/drawtask/drawTask.directive.ts',
-        statementMap: {
-            '0': {
-                start: {
-                    line: 5,
-                    column: 4
-                },
-                end: {
-                    line: 113,
-                    column: 6
-                }
-            },
-            '1': {
-                start: {
-                    line: 14,
-                    column: 22
-                },
-                end: {
-                    line: 14,
-                    column: 41
-                }
-            },
-            '2': {
-                start: {
-                    line: 16,
-                    column: 12
-                },
-                end: {
-                    line: 20,
-                    column: 13
-                }
-            },
-            '3': {
-                start: {
-                    line: 17,
-                    column: 16
-                },
-                end: {
-                    line: 19,
-                    column: 17
-                }
-            },
-            '4': {
-                start: {
-                    line: 18,
-                    column: 20
-                },
-                end: {
-                    line: 18,
-                    column: 67
-                }
-            },
-            '5': {
-                start: {
-                    line: 21,
-                    column: 12
-                },
-                end: {
-                    line: 23,
-                    column: 13
-                }
-            },
-            '6': {
-                start: {
-                    line: 22,
-                    column: 16
-                },
-                end: {
-                    line: 22,
-                    column: 37
-                }
-            },
-            '7': {
-                start: {
-                    line: 24,
-                    column: 12
-                },
-                end: {
-                    line: 26,
-                    column: 13
-                }
-            },
-            '8': {
-                start: {
-                    line: 25,
-                    column: 16
-                },
-                end: {
-                    line: 25,
-                    column: 40
-                }
-            },
-            '9': {
-                start: {
-                    line: 27,
-                    column: 12
-                },
-                end: {
-                    line: 31,
-                    column: 13
-                }
-            },
-            '10': {
-                start: {
-                    line: 28,
-                    column: 16
-                },
-                end: {
-                    line: 30,
-                    column: 18
-                }
-            },
-            '11': {
-                start: {
-                    line: 29,
-                    column: 20
-                },
-                end: {
-                    line: 29,
-                    column: 30
-                }
-            },
-            '12': {
-                start: {
-                    line: 32,
-                    column: 12
-                },
-                end: {
-                    line: 32,
-                    column: 47
-                }
-            },
-            '13': {
-                start: {
-                    line: 33,
-                    column: 12
-                },
-                end: {
-                    line: 33,
-                    column: 52
-                }
-            },
-            '14': {
-                start: {
-                    line: 34,
-                    column: 12
-                },
-                end: {
-                    line: 34,
-                    column: 50
-                }
-            },
-            '15': {
-                start: {
-                    line: 35,
-                    column: 31
-                },
-                end: {
-                    line: 42,
-                    column: 13
-                }
-            },
-            '16': {
-                start: {
-                    line: 36,
-                    column: 16
-                },
-                end: {
-                    line: 41,
-                    column: 17
-                }
-            },
-            '17': {
-                start: {
-                    line: 37,
-                    column: 20
-                },
-                end: {
-                    line: 37,
-                    column: 60
-                }
-            },
-            '18': {
-                start: {
-                    line: 40,
-                    column: 20
-                },
-                end: {
-                    line: 40,
-                    column: 47
-                }
-            },
-            '19': {
-                start: {
-                    line: 43,
-                    column: 12
-                },
-                end: {
-                    line: 105,
-                    column: 15
-                }
-            },
-            '20': {
-                start: {
-                    line: 44,
-                    column: 16
-                },
-                end: {
-                    line: 104,
-                    column: 17
-                }
-            },
-            '21': {
-                start: {
-                    line: 45,
-                    column: 37
-                },
-                end: {
-                    line: 57,
-                    column: 21
-                }
-            },
-            '22': {
-                start: {
-                    line: 46,
-                    column: 40
-                },
-                end: {
-                    line: 46,
-                    column: 75
-                }
-            },
-            '23': {
-                start: {
-                    line: 47,
-                    column: 38
-                },
-                end: {
-                    line: 47,
-                    column: 55
-                }
-            },
-            '24': {
-                start: {
-                    line: 48,
-                    column: 40
-                },
-                end: {
-                    line: 48,
-                    column: 72
-                }
-            },
-            '25': {
-                start: {
-                    line: 49,
-                    column: 24
-                },
-                end: {
-                    line: 49,
-                    column: 51
-                }
-            },
-            '26': {
-                start: {
-                    line: 50,
-                    column: 24
-                },
-                end: {
-                    line: 50,
-                    column: 47
-                }
-            },
-            '27': {
-                start: {
-                    line: 51,
-                    column: 35
-                },
-                end: {
-                    line: 51,
-                    column: 72
-                }
-            },
-            '28': {
-                start: {
-                    line: 52,
-                    column: 24
-                },
-                end: {
-                    line: 52,
-                    column: 47
-                }
-            },
-            '29': {
-                start: {
-                    line: 53,
-                    column: 24
-                },
-                end: {
-                    line: 53,
-                    column: 48
-                }
-            },
-            '30': {
-                start: {
-                    line: 54,
-                    column: 24
-                },
-                end: {
-                    line: 54,
-                    column: 64
-                }
-            },
-            '31': {
-                start: {
-                    line: 55,
-                    column: 24
-                },
-                end: {
-                    line: 55,
-                    column: 60
-                }
-            },
-            '32': {
-                start: {
-                    line: 56,
-                    column: 24
-                },
-                end: {
-                    line: 56,
-                    column: 36
-                }
-            },
-            '33': {
-                start: {
-                    line: 58,
-                    column: 44
-                },
-                end: {
-                    line: 68,
-                    column: 21
-                }
-            },
-            '34': {
-                start: {
-                    line: 59,
-                    column: 45
-                },
-                end: {
-                    line: 61,
-                    column: 25
-                }
-            },
-            '35': {
-                start: {
-                    line: 60,
-                    column: 28
-                },
-                end: {
-                    line: 60,
-                    column: 92
-                }
-            },
-            '36': {
-                start: {
-                    line: 62,
-                    column: 24
-                },
-                end: {
-                    line: 62,
-                    column: 93
-                }
-            },
-            '37': {
-                start: {
-                    line: 63,
-                    column: 24
-                },
-                end: {
-                    line: 63,
-                    column: 66
-                }
-            },
-            '38': {
-                start: {
-                    line: 64,
-                    column: 24
-                },
-                end: {
-                    line: 67,
-                    column: 27
-                }
-            },
-            '39': {
-                start: {
-                    line: 65,
-                    column: 28
-                },
-                end: {
-                    line: 65,
-                    column: 95
-                }
-            },
-            '40': {
-                start: {
-                    line: 66,
-                    column: 28
-                },
-                end: {
-                    line: 66,
-                    column: 71
-                }
-            },
-            '41': {
-                start: {
-                    line: 69,
-                    column: 39
-                },
-                end: {
-                    line: 82,
-                    column: 21
-                }
-            },
-            '42': {
-                start: {
-                    line: 70,
-                    column: 42
-                },
-                end: {
-                    line: 77,
-                    column: 25
-                }
-            },
-            '43': {
-                start: {
-                    line: 71,
-                    column: 43
-                },
-                end: {
-                    line: 71,
-                    column: 76
-                }
-            },
-            '44': {
-                start: {
-                    line: 72,
-                    column: 28
-                },
-                end: {
-                    line: 76,
-                    column: 29
-                }
-            },
-            '45': {
-                start: {
-                    line: 73,
-                    column: 32
-                },
-                end: {
-                    line: 73,
-                    column: 70
-                }
-            },
-            '46': {
-                start: {
-                    line: 74,
-                    column: 43
-                },
-                end: {
-                    line: 74,
-                    column: 61
-                }
-            },
-            '47': {
-                start: {
-                    line: 75,
-                    column: 32
-                },
-                end: {
-                    line: 75,
-                    column: 56
-                }
-            },
-            '48': {
-                start: {
-                    line: 78,
-                    column: 24
-                },
-                end: {
-                    line: 78,
-                    column: 61
-                }
-            },
-            '49': {
-                start: {
-                    line: 79,
-                    column: 24
-                },
-                end: {
-                    line: 81,
-                    column: 27
-                }
-            },
-            '50': {
-                start: {
-                    line: 80,
-                    column: 28
-                },
-                end: {
-                    line: 80,
-                    column: 66
-                }
-            },
-            '51': {
-                start: {
-                    line: 83,
-                    column: 38
-                },
-                end: {
-                    line: 101,
-                    column: 21
-                }
-            },
-            '52': {
-                start: {
-                    line: 84,
-                    column: 41
-                },
-                end: {
-                    line: 84,
-                    column: 81
-                }
-            },
-            '53': {
-                start: {
-                    line: 85,
-                    column: 42
-                },
-                end: {
-                    line: 85,
-                    column: 75
-                }
-            },
-            '54': {
-                start: {
-                    line: 86,
-                    column: 24
-                },
-                end: {
-                    line: 88,
-                    column: 25
-                }
-            },
-            '55': {
-                start: {
-                    line: 87,
-                    column: 28
-                },
-                end: {
-                    line: 87,
-                    column: 67
-                }
-            },
-            '56': {
-                start: {
-                    line: 89,
-                    column: 43
-                },
-                end: {
-                    line: 89,
-                    column: 108
-                }
-            },
-            '57': {
-                start: {
-                    line: 90,
-                    column: 38
-                },
-                end: {
-                    line: 90,
-                    column: 125
-                }
-            },
-            '58': {
-                start: {
-                    line: 91,
-                    column: 24
-                },
-                end: {
-                    line: 100,
-                    column: 25
-                }
-            },
-            '59': {
-                start: {
-                    line: 92,
-                    column: 36
-                },
-                end: {
-                    line: 92,
-                    column: 69
-                }
-            },
-            '60': {
-                start: {
-                    line: 93,
-                    column: 28
-                },
-                end: {
-                    line: 99,
-                    column: 29
-                }
-            },
-            '61': {
-                start: {
-                    line: 94,
-                    column: 43
-                },
-                end: {
-                    line: 94,
-                    column: 56
-                }
-            },
-            '62': {
-                start: {
-                    line: 95,
-                    column: 32
-                },
-                end: {
-                    line: 95,
-                    column: 56
-                }
-            },
-            '63': {
-                start: {
-                    line: 98,
-                    column: 32
-                },
-                end: {
-                    line: 98,
-                    column: 48
-                }
-            },
-            '64': {
-                start: {
-                    line: 102,
-                    column: 20
-                },
-                end: {
-                    line: 102,
-                    column: 57
-                }
-            },
-            '65': {
-                start: {
-                    line: 103,
-                    column: 20
-                },
-                end: {
-                    line: 103,
-                    column: 65
-                }
-            },
-            '66': {
-                start: {
-                    line: 106,
-                    column: 12
-                },
-                end: {
-                    line: 111,
-                    column: 15
-                }
-            },
-            '67': {
-                start: {
-                    line: 107,
-                    column: 16
-                },
-                end: {
-                    line: 110,
-                    column: 17
-                }
-            },
-            '68': {
-                start: {
-                    line: 108,
-                    column: 20
-                },
-                end: {
-                    line: 108,
-                    column: 77
-                }
-            },
-            '69': {
-                start: {
-                    line: 109,
-                    column: 20
-                },
-                end: {
-                    line: 109,
-                    column: 58
-                }
-            }
-        },
-        fnMap: {
-            '0': {
-                name: '(anonymous_0)',
-                decl: {
-                    start: {
-                        line: 3,
-                        column: 15
-                    },
-                    end: {
-                        line: 3,
-                        column: 16
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 3,
-                        column: 66
-                    },
-                    end: {
-                        line: 114,
-                        column: 1
-                    }
-                },
-                line: 3
-            },
-            '1': {
-                name: '(anonymous_1)',
-                decl: {
-                    start: {
-                        line: 13,
-                        column: 14
-                    },
-                    end: {
-                        line: 13,
-                        column: 15
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 13,
-                        column: 58
-                    },
-                    end: {
-                        line: 112,
-                        column: 9
-                    }
-                },
-                line: 13
-            },
-            '2': {
-                name: '(anonymous_2)',
-                decl: {
-                    start: {
-                        line: 28,
-                        column: 36
-                    },
-                    end: {
-                        line: 28,
-                        column: 37
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 28,
-                        column: 48
-                    },
-                    end: {
-                        line: 30,
-                        column: 17
-                    }
-                },
-                line: 28
-            },
-            '3': {
-                name: '(anonymous_3)',
-                decl: {
-                    start: {
-                        line: 35,
-                        column: 31
-                    },
-                    end: {
-                        line: 35,
-                        column: 32
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 35,
-                        column: 46
-                    },
-                    end: {
-                        line: 42,
-                        column: 13
-                    }
-                },
-                line: 35
-            },
-            '4': {
-                name: '(anonymous_4)',
-                decl: {
-                    start: {
-                        line: 43,
-                        column: 41
-                    },
-                    end: {
-                        line: 43,
-                        column: 42
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 43,
-                        column: 91
-                    },
-                    end: {
-                        line: 105,
-                        column: 13
-                    }
-                },
-                line: 43
-            },
-            '5': {
-                name: '(anonymous_5)',
-                decl: {
-                    start: {
-                        line: 45,
-                        column: 37
-                    },
-                    end: {
-                        line: 45,
-                        column: 38
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 45,
-                        column: 50
-                    },
-                    end: {
-                        line: 57,
-                        column: 21
-                    }
-                },
-                line: 45
-            },
-            '6': {
-                name: '(anonymous_6)',
-                decl: {
-                    start: {
-                        line: 58,
-                        column: 44
-                    },
-                    end: {
-                        line: 58,
-                        column: 45
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 58,
-                        column: 60
-                    },
-                    end: {
-                        line: 68,
-                        column: 21
-                    }
-                },
-                line: 58
-            },
-            '7': {
-                name: '(anonymous_7)',
-                decl: {
-                    start: {
-                        line: 59,
-                        column: 45
-                    },
-                    end: {
-                        line: 59,
-                        column: 46
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 59,
-                        column: 57
-                    },
-                    end: {
-                        line: 61,
-                        column: 25
-                    }
-                },
-                line: 59
-            },
-            '8': {
-                name: '(anonymous_8)',
-                decl: {
-                    start: {
-                        line: 64,
-                        column: 49
-                    },
-                    end: {
-                        line: 64,
-                        column: 50
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 64,
-                        column: 61
-                    },
-                    end: {
-                        line: 67,
-                        column: 25
-                    }
-                },
-                line: 64
-            },
-            '9': {
-                name: '(anonymous_9)',
-                decl: {
-                    start: {
-                        line: 69,
-                        column: 39
-                    },
-                    end: {
-                        line: 69,
-                        column: 40
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 69,
-                        column: 57
-                    },
-                    end: {
-                        line: 82,
-                        column: 21
-                    }
-                },
-                line: 69
-            },
-            '10': {
-                name: '(anonymous_10)',
-                decl: {
-                    start: {
-                        line: 70,
-                        column: 42
-                    },
-                    end: {
-                        line: 70,
-                        column: 43
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 70,
-                        column: 57
-                    },
-                    end: {
-                        line: 77,
-                        column: 25
-                    }
-                },
-                line: 70
-            },
-            '11': {
-                name: '(anonymous_11)',
-                decl: {
-                    start: {
-                        line: 79,
-                        column: 49
-                    },
-                    end: {
-                        line: 79,
-                        column: 50
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 79,
-                        column: 61
-                    },
-                    end: {
-                        line: 81,
-                        column: 25
-                    }
-                },
-                line: 79
-            },
-            '12': {
-                name: '(anonymous_12)',
-                decl: {
-                    start: {
-                        line: 83,
-                        column: 38
-                    },
-                    end: {
-                        line: 83,
-                        column: 39
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 83,
-                        column: 53
-                    },
-                    end: {
-                        line: 101,
-                        column: 21
-                    }
-                },
-                line: 83
-            },
-            '13': {
-                name: '(anonymous_13)',
-                decl: {
-                    start: {
-                        line: 106,
-                        column: 45
-                    },
-                    end: {
-                        line: 106,
-                        column: 46
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 106,
-                        column: 95
-                    },
-                    end: {
-                        line: 111,
-                        column: 13
-                    }
-                },
-                line: 106
-            }
-        },
-        branchMap: {
-            '0': {
-                loc: {
-                    start: {
-                        line: 16,
-                        column: 12
-                    },
-                    end: {
-                        line: 20,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 16,
-                        column: 12
-                    },
-                    end: {
-                        line: 20,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 16,
-                        column: 12
-                    },
-                    end: {
-                        line: 20,
-                        column: 13
-                    }
-                }],
-                line: 16
-            },
-            '1': {
-                loc: {
-                    start: {
-                        line: 16,
-                        column: 16
-                    },
-                    end: {
-                        line: 16,
-                        column: 77
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 16,
-                        column: 16
-                    },
-                    end: {
-                        line: 16,
-                        column: 29
-                    }
-                }, {
-                    start: {
-                        line: 16,
-                        column: 33
-                    },
-                    end: {
-                        line: 16,
-                        column: 77
-                    }
-                }],
-                line: 16
-            },
-            '2': {
-                loc: {
-                    start: {
-                        line: 21,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 21,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 21,
-                        column: 12
-                    },
-                    end: {
-                        line: 23,
-                        column: 13
-                    }
-                }],
-                line: 21
-            },
-            '3': {
-                loc: {
-                    start: {
-                        line: 24,
-                        column: 12
-                    },
-                    end: {
-                        line: 26,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 24,
-                        column: 12
-                    },
-                    end: {
-                        line: 26,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 24,
-                        column: 12
-                    },
-                    end: {
-                        line: 26,
-                        column: 13
-                    }
-                }],
-                line: 24
-            },
-            '4': {
-                loc: {
-                    start: {
-                        line: 27,
-                        column: 12
-                    },
-                    end: {
-                        line: 31,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 27,
-                        column: 12
-                    },
-                    end: {
-                        line: 31,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 27,
-                        column: 12
-                    },
-                    end: {
-                        line: 31,
-                        column: 13
-                    }
-                }],
-                line: 27
-            },
-            '5': {
-                loc: {
-                    start: {
-                        line: 36,
-                        column: 16
-                    },
-                    end: {
-                        line: 41,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 36,
-                        column: 16
-                    },
-                    end: {
-                        line: 41,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 36,
-                        column: 16
-                    },
-                    end: {
-                        line: 41,
-                        column: 17
-                    }
-                }],
-                line: 36
-            },
-            '6': {
-                loc: {
-                    start: {
-                        line: 36,
-                        column: 20
-                    },
-                    end: {
-                        line: 36,
-                        column: 92
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 36,
-                        column: 20
-                    },
-                    end: {
-                        line: 36,
-                        column: 38
-                    }
-                }, {
-                    start: {
-                        line: 36,
-                        column: 42
-                    },
-                    end: {
-                        line: 36,
-                        column: 92
-                    }
-                }],
-                line: 36
-            },
-            '7': {
-                loc: {
-                    start: {
-                        line: 44,
-                        column: 16
-                    },
-                    end: {
-                        line: 104,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 44,
-                        column: 16
-                    },
-                    end: {
-                        line: 104,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 44,
-                        column: 16
-                    },
-                    end: {
-                        line: 104,
-                        column: 17
-                    }
-                }],
-                line: 44
-            },
-            '8': {
-                loc: {
-                    start: {
-                        line: 72,
-                        column: 28
-                    },
-                    end: {
-                        line: 76,
-                        column: 29
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 72,
-                        column: 28
-                    },
-                    end: {
-                        line: 76,
-                        column: 29
-                    }
-                }, {
-                    start: {
-                        line: 72,
-                        column: 28
-                    },
-                    end: {
-                        line: 76,
-                        column: 29
-                    }
-                }],
-                line: 72
-            },
-            '9': {
-                loc: {
-                    start: {
-                        line: 84,
-                        column: 41
-                    },
-                    end: {
-                        line: 84,
-                        column: 81
-                    }
-                },
-                type: 'cond-expr',
-                locations: [{
-                    start: {
-                        line: 84,
-                        column: 54
-                    },
-                    end: {
-                        line: 84,
-                        column: 64
-                    }
-                }, {
-                    start: {
-                        line: 84,
-                        column: 67
-                    },
-                    end: {
-                        line: 84,
-                        column: 81
-                    }
-                }],
-                line: 84
-            },
-            '10': {
-                loc: {
-                    start: {
-                        line: 86,
-                        column: 24
-                    },
-                    end: {
-                        line: 88,
-                        column: 25
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 86,
-                        column: 24
-                    },
-                    end: {
-                        line: 88,
-                        column: 25
-                    }
-                }, {
-                    start: {
-                        line: 86,
-                        column: 24
-                    },
-                    end: {
-                        line: 88,
-                        column: 25
-                    }
-                }],
-                line: 86
-            },
-            '11': {
-                loc: {
-                    start: {
-                        line: 86,
-                        column: 28
-                    },
-                    end: {
-                        line: 86,
-                        column: 97
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 86,
-                        column: 28
-                    },
-                    end: {
-                        line: 86,
-                        column: 62
-                    }
-                }, {
-                    start: {
-                        line: 86,
-                        column: 66
-                    },
-                    end: {
-                        line: 86,
-                        column: 97
-                    }
-                }],
-                line: 86
-            },
-            '12': {
-                loc: {
-                    start: {
-                        line: 90,
-                        column: 38
-                    },
-                    end: {
-                        line: 90,
-                        column: 125
-                    }
-                },
-                type: 'cond-expr',
-                locations: [{
-                    start: {
-                        line: 90,
-                        column: 73
-                    },
-                    end: {
-                        line: 90,
-                        column: 110
-                    }
-                }, {
-                    start: {
-                        line: 90,
-                        column: 113
-                    },
-                    end: {
-                        line: 90,
-                        column: 125
-                    }
-                }],
-                line: 90
-            },
-            '13': {
-                loc: {
-                    start: {
-                        line: 91,
-                        column: 24
-                    },
-                    end: {
-                        line: 100,
-                        column: 25
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 91,
-                        column: 24
-                    },
-                    end: {
-                        line: 100,
-                        column: 25
-                    }
-                }, {
-                    start: {
-                        line: 91,
-                        column: 24
-                    },
-                    end: {
-                        line: 100,
-                        column: 25
-                    }
-                }],
-                line: 91
-            },
-            '14': {
-                loc: {
-                    start: {
-                        line: 91,
-                        column: 28
-                    },
-                    end: {
-                        line: 91,
-                        column: 84
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 91,
-                        column: 28
-                    },
-                    end: {
-                        line: 91,
-                        column: 35
-                    }
-                }, {
-                    start: {
-                        line: 91,
-                        column: 39
-                    },
-                    end: {
-                        line: 91,
-                        column: 84
-                    }
-                }],
-                line: 91
-            },
-            '15': {
-                loc: {
-                    start: {
-                        line: 93,
-                        column: 28
-                    },
-                    end: {
-                        line: 99,
-                        column: 29
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 93,
-                        column: 28
-                    },
-                    end: {
-                        line: 99,
-                        column: 29
-                    }
-                }, {
-                    start: {
-                        line: 93,
-                        column: 28
-                    },
-                    end: {
-                        line: 99,
-                        column: 29
-                    }
-                }],
-                line: 93
-            },
-            '16': {
-                loc: {
-                    start: {
-                        line: 107,
-                        column: 16
-                    },
-                    end: {
-                        line: 110,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 107,
-                        column: 16
-                    },
-                    end: {
-                        line: 110,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 107,
-                        column: 16
-                    },
-                    end: {
-                        line: 110,
-                        column: 17
-                    }
-                }],
-                line: 107
-            }
-        },
-        s: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0,
-            '14': 0,
-            '15': 0,
-            '16': 0,
-            '17': 0,
-            '18': 0,
-            '19': 0,
-            '20': 0,
-            '21': 0,
-            '22': 0,
-            '23': 0,
-            '24': 0,
-            '25': 0,
-            '26': 0,
-            '27': 0,
-            '28': 0,
-            '29': 0,
-            '30': 0,
-            '31': 0,
-            '32': 0,
-            '33': 0,
-            '34': 0,
-            '35': 0,
-            '36': 0,
-            '37': 0,
-            '38': 0,
-            '39': 0,
-            '40': 0,
-            '41': 0,
-            '42': 0,
-            '43': 0,
-            '44': 0,
-            '45': 0,
-            '46': 0,
-            '47': 0,
-            '48': 0,
-            '49': 0,
-            '50': 0,
-            '51': 0,
-            '52': 0,
-            '53': 0,
-            '54': 0,
-            '55': 0,
-            '56': 0,
-            '57': 0,
-            '58': 0,
-            '59': 0,
-            '60': 0,
-            '61': 0,
-            '62': 0,
-            '63': 0,
-            '64': 0,
-            '65': 0,
-            '66': 0,
-            '67': 0,
-            '68': 0,
-            '69': 0
-        },
-        f: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0
-        },
-        b: {
-            '0': [0, 0],
-            '1': [0, 0],
-            '2': [0, 0],
-            '3': [0, 0],
-            '4': [0, 0],
-            '5': [0, 0],
-            '6': [0, 0],
-            '7': [0, 0],
-            '8': [0, 0],
-            '9': [0, 0],
-            '10': [0, 0],
-            '11': [0, 0],
-            '12': [0, 0],
-            '13': [0, 0],
-            '14': [0, 0],
-            '15': [0, 0],
-            '16': [0, 0]
-        },
-        inputSourceMap: {
-            version: 3,
-            file: 'src/plugins/drawtask/drawTask.directive.ts',
-            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
-            sources: ['src/plugins/drawtask/drawTask.directive.ts'],
-            names: [],
-            mappings: 'AAAA,OAAO,OAAO,MAAM,SAAS,CAAC;AAE9B,OAAO,MAAM,MAAM,QAAQ,CAAC;AAI5B,MAAM,CAAC,OAAO,WAAW,SAAS,EAAE,gBAAgB,EAAE,UAA6B;IACjF,UAAU,CAAC;IACX,MAAM,CAAC;QACL,QAAQ,EAAE,GAAG;QACb,OAAO,EAAE,QAAQ;QACjB,KAAK,EAAE;YACL,OAAO,EAAE,IAAI;YACb,aAAa,EAAE,IAAI;YACnB,WAAW,EAAE,IAAI;SAClB;QACD,IAAI,EAAE,UAAU,KAAK,EAAE,OAAO,EAAE,KAAK,EAAE,SAAS;YAC9C,IAAI,GAAG,GAAG,SAAS,CAAC,KAAK,CAAC,GAAG,CAAC;YAE9B,8CAA8C;YAC9C,EAAE,CAAC,CAAC,KAAK,CAAC,OAAO,IAAI,OAAM,CAAC,KAAK,CAAC,OAAO,CAAC,QAAQ,CAAC,KAAK,QAAQ,CAAC,CAAC,CAAC;gBACjE,GAAG,CAAC,CAAC,IAAI,MAAM,IAAI,KAAK,CAAC,OAAO,CAAC,QAAQ,CAAC,CAAC,CAAC;oBAC1C,KAAK,CAAC,MAAM,CAAC,GAAG,KAAK,CAAC,OAAO,CAAC,QAAQ,CAAC,MAAM,CAAC,CAAC;gBACjD,CAAC;YACH,CAAC;YAED,EAAE,CAAC,CAAC,KAAK,CAAC,OAAO,KAAK,SAAS,CAAC,CAAC,CAAC;gBAChC,KAAK,CAAC,OAAO,GAAG,IAAI,CAAC;YACvB,CAAC;YAED,EAAE,CAAC,CAAC,KAAK,CAAC,aAAa,KAAK,SAAS,CAAC,CAAC,CAAC;gBACtC,KAAK,CAAC,aAAa,GAAG,CAAC,CAAC;YAC1B,CAAC;YAED,EAAE,CAAC,CAAC,KAAK,CAAC,WAAW,KAAK,SAAS,CAAC,CAAC,CAAC;gBACpC,KAAK,CAAC,WAAW,GAAG;oBAClB,MAAM,CAAC,EAAE,CAAC,CAAC,kBAAkB;gBAC/B,CAAC,CAAC;YACJ,CAAC;YAED,GAAG,CAAC,aAAa,CAAC,OAAO,EAAE,MAAM,CAAC,CAAC;YACnC,GAAG,CAAC,aAAa,CAAC,OAAO,EAAE,WAAW,CAAC,CAAC;YACxC,GAAG,CAAC,aAAa,CAAC,OAAO,EAAE,SAAS,CAAC,CAAC;YAEtC,IAAI,YAAY,GAAG,UAAU,GAAG;gBAC9B,EAAE,CAAC,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,IAAI,OAAO,CAAC,UAAU,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,WAAW,CAAC,CAAC,CAAC,CAAC;oBAC7E,MAAM,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,WAAW,EAAE,CAAC;gBAC1C,CAAC;gBAAC,IAAI,CAAC,CAAC;oBACN,MAAM,CAAC,KAAK,CAAC,WAAW,EAAE,CAAC;gBAC7B,CAAC;YACH,CAAC,CAAC;YAEF,GAAG,CAAC,UAAU,CAAC,EAAE,CAAC,GAAG,CAAC,KAAK,EAAE,UAAU,aAAa,EAAE,cAAc,EAAE,OAAO;gBAC3E,EAAE,CAAC,CAAC,aAAa,KAAK,UAAU,CAAC,CAAC,CAAC;oBACjC,IAAI,UAAU,GAAG,UAAU,CAAC;wBAC1B,IAAI,SAAS,GAAG,GAAG,CAAC,IAAI,CAAC,iBAAiB,CAAC,CAAC,EAAE,IAAI,CAAC,CAAC;wBACpD,IAAI,OAAO,GAAG,MAAM,CAAC,SAAS,CAAC,CAAC;wBAEhC,IAAI,SAAS,GAAG,YAAY,CAAC,cAAc,CAAC,GAAG,CAAC,CAAC;wBACjD,SAAS,CAAC,IAAI,GAAG,SAAS,CAAC;wBAC3B,SAAS,CAAC,EAAE,GAAG,OAAO,CAAC;wBAEvB,IAAI,IAAI,GAAG,cAAc,CAAC,GAAG,CAAC,OAAO,CAAC,SAAS,CAAC,CAAC;wBACjD,IAAI,CAAC,UAAU,GAAG,IAAI,CAAC;wBACvB,IAAI,CAAC,gBAAgB,EAAE,CAAC;wBACxB,cAAc,CAAC,GAAG,CAAC,kBAAkB,EAAE,CAAC;wBAExC,cAAc,CAAC,GAAG,CAAC,MAAM,CAAC,OAAO,EAAE,CAAC;wBAEpC,MAAM,CAAC,IAAI,CAAC;oBACd,CAAC,CAAC;oBAEF,IAAI,iBAAiB,GAAG,UAAU,IAAI;wBACpC,IAAI,cAAc,GAAG;4BACnB,cAAc,CAAC,GAAG,CAAC,WAAW,CAAC,KAAK,CAAC,GAAG,CAAC,KAAK,CAAC,KAAK,CAAC,IAAI,CAAC,IAAI,CAAC,CAAC;wBAClE,CAAC,CAAC;wBAEF,cAAc,CAAC,GAAG,CAAC,WAAW,CAAC,KAAK,CAAC,GAAG,CAAC,KAAK,CAAC,KAAK,CAAC,SAAS,CAAC,IAAI,CAAC,CAAC;wBAErE,SAAS,CAAC,EAAE,CAAC,WAAW,EAAE,cAAc,CAAC,CAAC;wBAE1C,SAAS,CAAC,GAAG,CAAC,SAAS,EAAE;4BACvB,cAAc,CAAC,GAAG,CAAC,WAAW,CAAC,KAAK,CAAC,GAAG,CAAC,KAAK,CAAC,KAAK,CAAC,OAAO,CAAC,IAAI,CAAC,CAAC;4BACnE,SAAS,CAAC,GAAG,CAAC,WAAW,EAAE,cAAc,CAAC,CAAC;wBAC7C,CAAC,CAAC,CAAC;oBACL,CAAC,CAAC;oBAEF,IAAI,YAAY,GAAG,UAAU,MAAM;wBACjC,IAAI,WAAW,GAAG,UAAU,GAAG;4BAC7B,IAAI,QAAQ,GAAG,gBAAgB,CAAC,SAAS,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC;4BAEjD,EAAE,CAAC,CAAC,IAAI,CAAC,GAAG,CAAC,MAAM,GAAG,QAAQ,CAAC,IAAI,KAAK,CAAC,aAAa,CAAC,CAAC,CAAC;gCACvD,OAAO,CAAC,GAAG,CAAC,WAAW,EAAE,WAAW,CAAC,CAAC;gCACtC,IAAI,IAAI,GAAG,UAAU,CAAC,MAAM,CAAC,CAAC;gCAC9B,iBAAiB,CAAC,IAAI,CAAC,CAAC;4BAC1B,CAAC;wBACH,CAAC,CAAC;wBAEF,OAAO,CAAC,EAAE,CAAC,WAAW,EAAE,WAAW,CAAC,CAAC;wBACrC,SAAS,CAAC,GAAG,CAAC,SAAS,EAAE;4BACvB,OAAO,CAAC,GAAG,CAAC,WAAW,EAAE,WAAW,CAAC,CAAC;wBACxC,CAAC,CAAC,CAAC;oBACL,CAAC,CAAC;oBAEF,IAAI,WAAW,GAAG,UAAU,GAAG;wBAC7B,IAAI,SAAS,GAAG,CAAC,GAAG,CAAC,MAAM,GAAG,GAAG,CAAC,MAAM,GAAG,GAAG,CAAC,UAAU,CAAC,CAAC;wBAE3D,IAAI,WAAW,GAAG,cAAc,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC;wBAEpD,EAAE,CAAC,CAAC,OAAM,CAAC,WAAW,CAAC,KAAK,SAAS,IAAI,OAAO,CAAC,UAAU,CAAC,WAAW,CAAC,CAAC,CAAC,CAAC;4BACzE,WAAW,GAAG,EAAC,OAAO,EAAE,WAAW,EAAC,CAAC;wBACvC,CAAC;wBAED,IAAI,YAAY,GAAG,UAAU,CAAC,aAAa,CAAC,CAAC,WAAW,CAAC,EAAE,SAAS,EAAE,KAAK,CAAC,OAAO,CAAC,CAAC;wBACrF,IAAI,OAAO,GAAG,OAAO,CAAC,UAAU,CAAC,YAAY,CAAC,GAAG,YAAY,CAAC,GAAG,EAAE,cAAc,CAAC,GAAG,CAAC,GAAG,YAAY,CAAC;wBACtG,EAAE,CAAC,CAAC,OAAO,IAAI,SAAS,CAAC,SAAS,CAAC,OAAO,CAAC,WAAW,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,CAAC;4BAC7D,IAAI,CAAC,GAAG,gBAAgB,CAAC,SAAS,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC;4BAE1C,EAAE,CAAC,CAAC,KAAK,CAAC,aAAa,KAAK,CAAC,CAAC,CAAC,CAAC;gCAC9B,IAAI,IAAI,GAAG,UAAU,CAAC,CAAC,CAAC,CAAC;gCACzB,iBAAiB,CAAC,IAAI,CAAC,CAAC;4BAC1B,CAAC;4BAAC,IAAI,CAAC,CAAC;gCACN,YAAY,CAAC,CAAC,CAAC,CAAC;4BAClB,CAAC;wBACH,CAAC;oBACH,CAAC,CAAC;oBAEF,OAAO,CAAC,EAAE,CAAC,WAAW,EAAE,WAAW,CAAC,CAAC;oBACrC,cAAc,CAAC,eAAe,GAAG,WAAW,CAAC;gBAC/C,CAAC;YACH,CAAC,CAAC,CAAC;YAEH,GAAG,CAAC,UAAU,CAAC,EAAE,CAAC,OAAO,CAAC,KAAK,EAAE,UAAU,aAAa,EAAE,cAAc,EAAE,OAAO;gBAC/E,EAAE,CAAC,CAAC,aAAa,KAAK,UAAU,CAAC,CAAC,CAAC;oBACjC,OAAO,CAAC,GAAG,CAAC,WAAW,EAAE,cAAc,CAAC,eAAe,CAAC,CAAC;oBACzD,OAAO,cAAc,CAAC,eAAe,CAAC;gBACxC,CAAC;YACH,CAAC,CAAC,CAAC;QACL,CAAC;KACF,CAAC;AACJ,CAAC',
-            sourcesContent: ['import angular from \'angular\';\n\nimport moment from \'moment\';\n\nimport GanttUtilsService from \'../../core/logic/util/utils.service\';\n\nexport default function ($document, ganttMouseOffset, ganttUtils: GanttUtilsService) {\n  \'ngInject\';\n  return {\n    restrict: \'E\',\n    require: \'^gantt\',\n    scope: {\n      enabled: \'=?\',\n      moveThreshold: \'=?\',\n      taskFactory: \'=?\'\n    },\n    link: function (scope, element, attrs, ganttCtrl) {\n      let api = ganttCtrl.gantt.api;\n\n      // Load options from global options attribute.\n      if (scope.options && typeof(scope.options.drawtask) === \'object\') {\n        for (let option in scope.options.drawtask) {\n          scope[option] = scope.options.drawtask[option];\n        }\n      }\n\n      if (scope.enabled === undefined) {\n        scope.enabled = true;\n      }\n\n      if (scope.moveThreshold === undefined) {\n        scope.moveThreshold = 0;\n      }\n\n      if (scope.taskFactory === undefined) {\n        scope.taskFactory = function () {\n          return {}; // New empty task.\n        };\n      }\n\n      api.registerEvent(\'tasks\', \'draw\');\n      api.registerEvent(\'tasks\', \'drawBegin\');\n      api.registerEvent(\'tasks\', \'drawEnd\');\n\n      let newTaskModel = function (row) {\n        if (row.model.drawTask && angular.isFunction(row.model.drawTask.taskFactory)) {\n          return row.model.drawTask.taskFactory();\n        } else {\n          return scope.taskFactory();\n        }\n      };\n\n      api.directives.on.new(scope, function (directiveName, directiveScope, element) {\n        if (directiveName === \'ganttRow\') {\n          let addNewTask = function (x) {\n            let startDate = api.core.getDateByPosition(x, true);\n            let endDate = moment(startDate);\n\n            let taskModel = newTaskModel(directiveScope.row);\n            taskModel.from = startDate;\n            taskModel.to = endDate;\n\n            let task = directiveScope.row.addTask(taskModel);\n            task.isResizing = true;\n            task.updatePosAndSize();\n            directiveScope.row.updateVisibleTasks();\n\n            directiveScope.row.$scope.$digest();\n\n            return task;\n          };\n\n          let addEventListeners = function (task) {\n            let raiseDrawEvent = function () {\n              directiveScope.row.rowsManager.gantt.api.tasks.raise.draw(task);\n            };\n\n            directiveScope.row.rowsManager.gantt.api.tasks.raise.drawBegin(task);\n\n            $document.on(\'mousemove\', raiseDrawEvent);\n\n            $document.one(\'mouseup\', function () {\n              directiveScope.row.rowsManager.gantt.api.tasks.raise.drawEnd(task);\n              $document.off(\'mousemove\', raiseDrawEvent);\n            });\n          };\n\n          let deferDrawing = function (startX) {\n            let moveTrigger = function (evt) {\n              let currentX = ganttMouseOffset.getOffset(evt).x;\n\n              if (Math.abs(startX - currentX) >= scope.moveThreshold) {\n                element.off(\'mousemove\', moveTrigger);\n                let task = addNewTask(startX);\n                addEventListeners(task);\n              }\n            };\n\n            element.on(\'mousemove\', moveTrigger);\n            $document.one(\'mouseup\', function () {\n              element.off(\'mousemove\', moveTrigger);\n            });\n          };\n\n          let drawHandler = function (evt) {\n            let evtTarget = (evt.target ? evt.target : evt.srcElement);\n\n            let rowDrawTask = directiveScope.row.model.drawTask;\n\n            if (typeof(rowDrawTask) === \'boolean\' || angular.isFunction(rowDrawTask)) {\n              rowDrawTask = {enabled: rowDrawTask};\n            }\n\n            let enabledValue = ganttUtils.firstProperty([rowDrawTask], \'enabled\', scope.enabled);\n            let enabled = angular.isFunction(enabledValue) ? enabledValue(evt, directiveScope.row) : enabledValue;\n            if (enabled && evtTarget.className.indexOf(\'gantt-row\') > -1) {\n              let x = ganttMouseOffset.getOffset(evt).x;\n\n              if (scope.moveThreshold === 0) {\n                let task = addNewTask(x);\n                addEventListeners(task);\n              } else {\n                deferDrawing(x);\n              }\n            }\n          };\n\n          element.on(\'mousedown\', drawHandler);\n          directiveScope.drawTaskHandler = drawHandler;\n        }\n      });\n\n      api.directives.on.destroy(scope, function (directiveName, directiveScope, element) {\n        if (directiveName === \'ganttRow\') {\n          element.off(\'mousedown\', directiveScope.drawTaskHandler);\n          delete directiveScope.drawTaskHandler;\n        }\n      });\n    }\n  };\n}\n']
-        },
-        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
-    },
-        coverage = global[gcv] || (global[gcv] = {});
-
-    if (coverage[path] && coverage[path].hash === hash) {
-        return coverage[path];
-    }
-
-    coverageData.hash = hash;
-    return coverage[path] = coverageData;
-}();
 
 exports.default = ["$document", "ganttMouseOffset", "ganttUtils", function ($document, ganttMouseOffset, ganttUtils) {
     'ngInject';
 
-    ++cov_1k54aojcme.f[0];
-    ++cov_1k54aojcme.s[0];
     return {
         restrict: 'E',
         require: '^gantt',
@@ -16734,236 +14292,105 @@ exports.default = ["$document", "ganttMouseOffset", "ganttUtils", function ($doc
             taskFactory: '=?'
         },
         link: function link(scope, element, attrs, ganttCtrl) {
-            ++cov_1k54aojcme.f[1];
+            var api = ganttCtrl.gantt.api;
 
-            var api = (++cov_1k54aojcme.s[1], ganttCtrl.gantt.api);
-            ++cov_1k54aojcme.s[2];
-
-            if ((++cov_1k54aojcme.b[1][0], scope.options) && (++cov_1k54aojcme.b[1][1], (0, _typeof3.default)(scope.options.drawtask) === 'object')) {
-                ++cov_1k54aojcme.b[0][0];
-                ++cov_1k54aojcme.s[3];
-
+            if (scope.options && (0, _typeof3.default)(scope.options.drawtask) === 'object') {
                 for (var option in scope.options.drawtask) {
-                    ++cov_1k54aojcme.s[4];
-
                     scope[option] = scope.options.drawtask[option];
                 }
-            } else {
-                ++cov_1k54aojcme.b[0][1];
             }
-            ++cov_1k54aojcme.s[5];
             if (scope.enabled === undefined) {
-                ++cov_1k54aojcme.b[2][0];
-                ++cov_1k54aojcme.s[6];
-
                 scope.enabled = true;
-            } else {
-                ++cov_1k54aojcme.b[2][1];
             }
-            ++cov_1k54aojcme.s[7];
             if (scope.moveThreshold === undefined) {
-                ++cov_1k54aojcme.b[3][0];
-                ++cov_1k54aojcme.s[8];
-
                 scope.moveThreshold = 0;
-            } else {
-                ++cov_1k54aojcme.b[3][1];
             }
-            ++cov_1k54aojcme.s[9];
             if (scope.taskFactory === undefined) {
-                ++cov_1k54aojcme.b[4][0];
-                ++cov_1k54aojcme.s[10];
-
                 scope.taskFactory = function () {
-                    ++cov_1k54aojcme.f[2];
-                    ++cov_1k54aojcme.s[11];
-
                     return {};
                 };
-            } else {
-                ++cov_1k54aojcme.b[4][1];
             }
-            ++cov_1k54aojcme.s[12];
             api.registerEvent('tasks', 'draw');
-            ++cov_1k54aojcme.s[13];
             api.registerEvent('tasks', 'drawBegin');
-            ++cov_1k54aojcme.s[14];
             api.registerEvent('tasks', 'drawEnd');
-            ++cov_1k54aojcme.s[15];
             var newTaskModel = function newTaskModel(row) {
-                ++cov_1k54aojcme.f[3];
-                ++cov_1k54aojcme.s[16];
-
-                if ((++cov_1k54aojcme.b[6][0], row.model.drawTask) && (++cov_1k54aojcme.b[6][1], _angular2.default.isFunction(row.model.drawTask.taskFactory))) {
-                    ++cov_1k54aojcme.b[5][0];
-                    ++cov_1k54aojcme.s[17];
-
+                if (row.model.drawTask && typeof row.model.drawTask.taskFactory === 'function') {
                     return row.model.drawTask.taskFactory();
                 } else {
-                    ++cov_1k54aojcme.b[5][1];
-                    ++cov_1k54aojcme.s[18];
-
                     return scope.taskFactory();
                 }
             };
-            ++cov_1k54aojcme.s[19];
             api.directives.on.new(scope, function (directiveName, directiveScope, element) {
-                ++cov_1k54aojcme.f[4];
-                ++cov_1k54aojcme.s[20];
-
                 if (directiveName === 'ganttRow') {
-                    ++cov_1k54aojcme.b[7][0];
-                    ++cov_1k54aojcme.s[21];
-
                     var addNewTask = function addNewTask(x) {
-                        ++cov_1k54aojcme.f[5];
-
-                        var startDate = (++cov_1k54aojcme.s[22], api.core.getDateByPosition(x, true));
-                        var endDate = (++cov_1k54aojcme.s[23], (0, _moment2.default)(startDate));
-                        var taskModel = (++cov_1k54aojcme.s[24], newTaskModel(directiveScope.row));
-                        ++cov_1k54aojcme.s[25];
+                        var startDate = api.core.getDateByPosition(x, true);
+                        var endDate = (0, _moment2.default)(startDate);
+                        var taskModel = newTaskModel(directiveScope.row);
                         taskModel.from = startDate;
-                        ++cov_1k54aojcme.s[26];
                         taskModel.to = endDate;
-                        var task = (++cov_1k54aojcme.s[27], directiveScope.row.addTask(taskModel));
-                        ++cov_1k54aojcme.s[28];
+                        var task = directiveScope.row.addTask(taskModel);
                         task.isResizing = true;
-                        ++cov_1k54aojcme.s[29];
                         task.updatePosAndSize();
-                        ++cov_1k54aojcme.s[30];
                         directiveScope.row.updateVisibleTasks();
-                        ++cov_1k54aojcme.s[31];
                         directiveScope.row.$scope.$digest();
-                        ++cov_1k54aojcme.s[32];
                         return task;
                     };
-                    ++cov_1k54aojcme.s[33];
                     var addEventListeners = function addEventListeners(task) {
-                        ++cov_1k54aojcme.f[6];
-                        ++cov_1k54aojcme.s[34];
-
                         var raiseDrawEvent = function raiseDrawEvent() {
-                            ++cov_1k54aojcme.f[7];
-                            ++cov_1k54aojcme.s[35];
-
                             directiveScope.row.rowsManager.gantt.api.tasks.raise.draw(task);
                         };
-                        ++cov_1k54aojcme.s[36];
                         directiveScope.row.rowsManager.gantt.api.tasks.raise.drawBegin(task);
-                        ++cov_1k54aojcme.s[37];
                         $document.on('mousemove', raiseDrawEvent);
-                        ++cov_1k54aojcme.s[38];
                         $document.one('mouseup', function () {
-                            ++cov_1k54aojcme.f[8];
-                            ++cov_1k54aojcme.s[39];
-
                             directiveScope.row.rowsManager.gantt.api.tasks.raise.drawEnd(task);
-                            ++cov_1k54aojcme.s[40];
                             $document.off('mousemove', raiseDrawEvent);
                         });
                     };
-                    ++cov_1k54aojcme.s[41];
                     var deferDrawing = function deferDrawing(startX) {
-                        ++cov_1k54aojcme.f[9];
-                        ++cov_1k54aojcme.s[42];
-
                         var moveTrigger = function moveTrigger(evt) {
-                            ++cov_1k54aojcme.f[10];
-
-                            var currentX = (++cov_1k54aojcme.s[43], ganttMouseOffset.getOffset(evt).x);
-                            ++cov_1k54aojcme.s[44];
+                            var currentX = ganttMouseOffset.getOffset(evt).x;
                             if (Math.abs(startX - currentX) >= scope.moveThreshold) {
-                                ++cov_1k54aojcme.b[8][0];
-                                ++cov_1k54aojcme.s[45];
-
                                 element.off('mousemove', moveTrigger);
-                                var task = (++cov_1k54aojcme.s[46], addNewTask(startX));
-                                ++cov_1k54aojcme.s[47];
+                                var task = addNewTask(startX);
                                 addEventListeners(task);
-                            } else {
-                                ++cov_1k54aojcme.b[8][1];
                             }
                         };
-                        ++cov_1k54aojcme.s[48];
                         element.on('mousemove', moveTrigger);
-                        ++cov_1k54aojcme.s[49];
                         $document.one('mouseup', function () {
-                            ++cov_1k54aojcme.f[11];
-                            ++cov_1k54aojcme.s[50];
-
                             element.off('mousemove', moveTrigger);
                         });
                     };
-                    ++cov_1k54aojcme.s[51];
                     var drawHandler = function drawHandler(evt) {
-                        ++cov_1k54aojcme.f[12];
-
-                        var evtTarget = (++cov_1k54aojcme.s[52], evt.target ? (++cov_1k54aojcme.b[9][0], evt.target) : (++cov_1k54aojcme.b[9][1], evt.srcElement));
-                        var rowDrawTask = (++cov_1k54aojcme.s[53], directiveScope.row.model.drawTask);
-                        ++cov_1k54aojcme.s[54];
-                        if ((++cov_1k54aojcme.b[11][0], typeof rowDrawTask === 'boolean') || (++cov_1k54aojcme.b[11][1], _angular2.default.isFunction(rowDrawTask))) {
-                            ++cov_1k54aojcme.b[10][0];
-                            ++cov_1k54aojcme.s[55];
-
+                        var evtTarget = evt.target ? evt.target : evt.srcElement;
+                        var rowDrawTask = directiveScope.row.model.drawTask;
+                        if (typeof rowDrawTask === 'boolean' || typeof rowDrawTask === 'function') {
                             rowDrawTask = { enabled: rowDrawTask };
-                        } else {
-                            ++cov_1k54aojcme.b[10][1];
                         }
-                        var enabledValue = (++cov_1k54aojcme.s[56], ganttUtils.firstProperty([rowDrawTask], 'enabled', scope.enabled));
-                        var enabled = (++cov_1k54aojcme.s[57], _angular2.default.isFunction(enabledValue) ? (++cov_1k54aojcme.b[12][0], enabledValue(evt, directiveScope.row)) : (++cov_1k54aojcme.b[12][1], enabledValue));
-                        ++cov_1k54aojcme.s[58];
-                        if ((++cov_1k54aojcme.b[14][0], enabled) && (++cov_1k54aojcme.b[14][1], evtTarget.className.indexOf('gantt-row') > -1)) {
-                            ++cov_1k54aojcme.b[13][0];
-
-                            var x = (++cov_1k54aojcme.s[59], ganttMouseOffset.getOffset(evt).x);
-                            ++cov_1k54aojcme.s[60];
+                        var enabledValue = ganttUtils.firstProperty([rowDrawTask], 'enabled', scope.enabled);
+                        var enabled = typeof enabledValue === 'function' ? enabledValue(evt, directiveScope.row) : enabledValue;
+                        if (enabled && evtTarget.className.indexOf('gantt-row') > -1) {
+                            var x = ganttMouseOffset.getOffset(evt).x;
                             if (scope.moveThreshold === 0) {
-                                ++cov_1k54aojcme.b[15][0];
-
-                                var task = (++cov_1k54aojcme.s[61], addNewTask(x));
-                                ++cov_1k54aojcme.s[62];
+                                var task = addNewTask(x);
                                 addEventListeners(task);
                             } else {
-                                ++cov_1k54aojcme.b[15][1];
-                                ++cov_1k54aojcme.s[63];
-
                                 deferDrawing(x);
                             }
-                        } else {
-                            ++cov_1k54aojcme.b[13][1];
                         }
                     };
-                    ++cov_1k54aojcme.s[64];
                     element.on('mousedown', drawHandler);
-                    ++cov_1k54aojcme.s[65];
                     directiveScope.drawTaskHandler = drawHandler;
-                } else {
-                    ++cov_1k54aojcme.b[7][1];
                 }
             });
-            ++cov_1k54aojcme.s[66];
             api.directives.on.destroy(scope, function (directiveName, directiveScope, element) {
-                ++cov_1k54aojcme.f[13];
-                ++cov_1k54aojcme.s[67];
-
                 if (directiveName === 'ganttRow') {
-                    ++cov_1k54aojcme.b[16][0];
-                    ++cov_1k54aojcme.s[68];
-
                     element.off('mousedown', directiveScope.drawTaskHandler);
-                    ++cov_1k54aojcme.s[69];
                     delete directiveScope.drawTaskHandler;
-                } else {
-                    ++cov_1k54aojcme.b[16][1];
                 }
             });
         }
     };
 }];
-
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 var _moment = __webpack_require__(3);
 
@@ -17810,7 +15237,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -17867,7 +15294,7 @@ exports.default = ["ganttUtils", "GanttHierarchy", "$compile", "$document", func
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -17904,7 +15331,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -18109,11 +15536,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -18192,7 +15619,7 @@ exports.default = ["ganttUtils", "$compile", "$document", "$log", function (gant
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -18282,7 +15709,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -18344,14 +15771,14 @@ exports.default = ["ganttMouseButton", "ganttMouseOffset", "GanttSmartEvent", "g
                         }
                         var taskMovable = taskScope.task.model.movable;
                         var rowMovable = taskScope.task.row.model.movable;
-                        if (typeof taskMovable === 'boolean' || _angular2.default.isFunction(taskMovable)) {
+                        if (typeof taskMovable === 'boolean' || typeof taskMovable === 'function') {
                             taskMovable = { enabled: taskMovable };
                         }
-                        if (typeof rowMovable === 'boolean' || _angular2.default.isFunction(rowMovable)) {
+                        if (typeof rowMovable === 'boolean' || typeof rowMovable === 'function') {
                             rowMovable = { enabled: rowMovable };
                         }
                         var enabledValue = ganttUtils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-                        var enabled = _angular2.default.isFunction(enabledValue) ? enabledValue(evt, taskScope.task) : enabledValue;
+                        var enabled = typeof enabledValue === 'function' ? enabledValue(evt, taskScope.task) : enabledValue;
                         if (enabled) {
                             var taskOffsetX = ganttMouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                             var mode = getMoveMode(taskOffsetX);
@@ -18367,14 +15794,14 @@ exports.default = ["ganttMouseButton", "ganttMouseOffset", "GanttSmartEvent", "g
                     var onMousemove = function onMousemove(evt) {
                         var taskMovable = taskScope.task.model.movable;
                         var rowMovable = taskScope.task.row.model.movable;
-                        if (typeof taskMovable === 'boolean' || _angular2.default.isFunction(taskMovable)) {
+                        if (typeof taskMovable === 'boolean' || typeof taskMovable === 'function') {
                             taskMovable = { enabled: taskMovable };
                         }
-                        if (typeof rowMovable === 'boolean' || _angular2.default.isFunction(rowMovable)) {
+                        if (typeof rowMovable === 'boolean' || typeof rowMovable === 'function') {
                             rowMovable = { enabled: rowMovable };
                         }
                         var enabledValue = ganttUtils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-                        var enabled = _angular2.default.isFunction(enabledValue) ? enabledValue(evt, taskScope.task) : enabledValue;
+                        var enabled = typeof enabledValue === 'function' ? enabledValue(evt, taskScope.task) : enabledValue;
                         if (enabled && !taskScope.task.isMoving) {
                             var taskOffsetX = ganttMouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
                             var mode = getMoveMode(taskOffsetX);
@@ -18404,10 +15831,10 @@ exports.default = ["ganttMouseButton", "ganttMouseOffset", "GanttSmartEvent", "g
                         var taskOutOfRange = taskScope.task.row.rowsManager.gantt.options.value('taskOutOfRange');
                         var taskMovable = taskScope.task.model.movable;
                         var rowMovable = taskScope.task.row.model.movable;
-                        if (typeof taskMovable === 'boolean' || _angular2.default.isFunction(taskMovable)) {
+                        if (typeof taskMovable === 'boolean' || typeof taskMovable === 'function') {
                             taskMovable = { enabled: taskMovable };
                         }
-                        if (typeof rowMovable === 'boolean' || _angular2.default.isFunction(rowMovable)) {
+                        if (typeof rowMovable === 'boolean' || typeof rowMovable === 'function') {
                             rowMovable = { enabled: rowMovable };
                         }
                         if (taskScope.task.moveMode === 'M') {
@@ -18432,7 +15859,7 @@ exports.default = ["ganttMouseButton", "ganttMouseOffset", "GanttSmartEvent", "g
                                 }
                                 var sourceRow = taskScope.task.row;
                                 if (targetRow !== undefined && sourceRow !== targetRow) {
-                                    if (!_angular2.default.isFunction(allowRowSwitching) || allowRowSwitching(taskScope.task, targetRow)) {
+                                    if (typeof allowRowSwitching !== 'function' || allowRowSwitching(taskScope.task, targetRow)) {
                                         targetRow.moveTaskToRow(taskScope.task, true);
                                         taskHasBeenChanged = true;
                                     }
@@ -18677,7 +16104,7 @@ exports.default = ["ganttMouseButton", "ganttMouseOffset", "GanttSmartEvent", "g
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -18702,19 +16129,13 @@ exports.default = function () {
             options.enabled = options.enabled !== undefined ? options.enabled : true;
             options.allowMoving = options.allowMoving !== undefined ? !!options.allowMoving : true;
             options.allowResizing = options.allowResizing !== undefined ? !!options.allowResizing : true;
-            if (!_angular2.default.isFunction(options.allowRowSwitching)) {
+            if (typeof options.allowRowSwitching !== 'function') {
                 options.allowRowSwitching = options.allowRowSwitching !== undefined ? !!options.allowRowSwitching : true;
             }
             return options;
         }
     };
 };
-
-var _angular = __webpack_require__(1);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
 /* 223 */
@@ -18727,11 +16148,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -18934,7 +16355,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -18987,7 +16408,7 @@ exports.default = ["$compile", "$document", function ($compile, $document) {
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -19008,7 +16429,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -19083,7 +16504,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -19190,7 +16611,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -19243,7 +16664,7 @@ exports.default = ["$compile", "$document", function ($compile, $document) {
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -22087,7 +19508,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -22983,7 +20404,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -23890,7 +21311,7 @@ exports.default = ["ganttUtils", "$compile", "$document", function (ganttUtils, 
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -24163,7 +21584,7 @@ exports.default = ["$log", "$timeout", "$compile", "$document", "$templateCache"
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var angular = _interopRequireWildcard(_angular);
 
@@ -24182,7 +21603,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -24240,7 +21661,7 @@ exports.default = ["$compile", "$document", function ($compile, $document) {
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -24299,7 +21720,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -24596,7 +22017,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(5);
+var _typeof2 = __webpack_require__(4);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -25305,7 +22726,7 @@ exports.default = ["ganttUtils", "$compile", "$document", function (ganttUtils, 
     };
 }];
 
-var _angular = __webpack_require__(1);
+var _angular = __webpack_require__(2);
 
 var _angular2 = _interopRequireDefault(_angular);
 
@@ -25376,7 +22797,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(4);
+var _getIterator2 = __webpack_require__(5);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 

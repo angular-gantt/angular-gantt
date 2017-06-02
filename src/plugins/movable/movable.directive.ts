@@ -78,16 +78,16 @@ export default function (ganttMouseButton: GanttMouseButton,
             let taskMovable = taskScope.task.model.movable;
             let rowMovable = taskScope.task.row.model.movable;
 
-            if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
+            if (typeof(taskMovable) === 'boolean' || typeof(taskMovable) === 'function') {
               taskMovable = {enabled: taskMovable};
             }
 
-            if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
+            if (typeof(rowMovable) === 'boolean' || typeof(rowMovable) === 'function') {
               rowMovable = {enabled: rowMovable};
             }
 
             let enabledValue = ganttUtils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-            let enabled = angular.isFunction(enabledValue) ? enabledValue(evt, taskScope.task) : enabledValue;
+            let enabled = typeof(enabledValue) === 'function' ? enabledValue(evt, taskScope.task) : enabledValue;
             if (enabled) {
               let taskOffsetX = ganttMouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
               let mode = getMoveMode(taskOffsetX);
@@ -105,16 +105,16 @@ export default function (ganttMouseButton: GanttMouseButton,
             let taskMovable = taskScope.task.model.movable;
             let rowMovable = taskScope.task.row.model.movable;
 
-            if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
+            if (typeof(taskMovable) === 'boolean' || typeof(taskMovable) === 'function') {
               taskMovable = {enabled: taskMovable};
             }
 
-            if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
+            if (typeof(rowMovable) === 'boolean' || typeof(rowMovable) === 'function') {
               rowMovable = {enabled: rowMovable};
             }
 
             let enabledValue = ganttUtils.firstProperty([taskMovable, rowMovable], 'enabled', scope.enabled);
-            let enabled = angular.isFunction(enabledValue) ? enabledValue(evt, taskScope.task) : enabledValue;
+            let enabled = typeof(enabledValue) === 'function' ? enabledValue(evt, taskScope.task) : enabledValue;
             if (enabled && !taskScope.task.isMoving) {
               let taskOffsetX = ganttMouseOffset.getOffsetForElement(foregroundElement[0], evt).x;
               let mode = getMoveMode(taskOffsetX);
@@ -149,11 +149,11 @@ export default function (ganttMouseButton: GanttMouseButton,
             let taskMovable = taskScope.task.model.movable;
             let rowMovable = taskScope.task.row.model.movable;
 
-            if (typeof(taskMovable) === 'boolean' || angular.isFunction(taskMovable)) {
+            if (typeof(taskMovable) === 'boolean' || typeof(taskMovable) === 'function') {
               taskMovable = {enabled: taskMovable};
             }
 
-            if (typeof(rowMovable) === 'boolean' || angular.isFunction(rowMovable)) {
+            if (typeof(rowMovable) === 'boolean' || typeof(rowMovable) === 'function') {
               rowMovable = {enabled: rowMovable};
             }
 
@@ -183,7 +183,7 @@ export default function (ganttMouseButton: GanttMouseButton,
                 let sourceRow = taskScope.task.row;
 
                 if (targetRow !== undefined && sourceRow !== targetRow) {
-                  if (!angular.isFunction(allowRowSwitching) || allowRowSwitching(taskScope.task, targetRow)) {
+                  if (typeof(allowRowSwitching) !== 'function' || allowRowSwitching(taskScope.task, targetRow)) {
                     targetRow.moveTaskToRow(taskScope.task, true);
                     taskHasBeenChanged = true;
                   }

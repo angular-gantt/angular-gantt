@@ -26,10 +26,10 @@ export default function (GanttDirectiveBuilder) {
 
       if ($scope.pluginScope.headersLabels && header.name in $scope.pluginScope.headersLabels) {
         label = $scope.pluginScope.headersLabels[header.name];
-        if (angular.isFunction(label)) {
+        if (typeof(label) === 'function') {
           label = label(header.name, header.unit, header.columns);
         }
-      } else if (angular.isFunction($scope.pluginScope.headersLabels)) {
+      } else if (typeof($scope.pluginScope.headersLabels) === 'function') {
         label = $scope.pluginScope.headersLabels(header.name, header.unit, header.columns);
       }
 
@@ -41,11 +41,11 @@ export default function (GanttDirectiveBuilder) {
       if (content === undefined && $scope.pluginScope.headersLabelsTemplates !== undefined) {
         content = $scope.pluginScope.headersLabelsTemplates;
 
-        if (angular.isObject(content) && header.name in content) {
+        if (content !== null && typeof content === 'object' && header.name in content) {
           content = content[header.name];
         }
 
-        if (angular.isFunction(content)) {
+        if (typeof content === 'function') {
           content = content(header.name, header.unit, header.columns);
         }
       }

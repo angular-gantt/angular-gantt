@@ -32,7 +32,7 @@ export class GanttTimespansManager {
    * @param timespans
    */
   loadTimespans(timespans: TimespanModel | TimespanModel[]) {
-    if (!angular.isArray(timespans)) {
+    if (!Array.isArray(timespans)) {
       timespans = timespans !== undefined ? [timespans] : [];
     }
 
@@ -72,7 +72,7 @@ export class GanttTimespansManager {
   };
 
   removeTimespans(timespans: TimespanModel | TimespanModel[]) {
-    if (!angular.isArray(timespans)) {
+    if (!Array.isArray(timespans)) {
       timespans = [timespans];
     }
 
