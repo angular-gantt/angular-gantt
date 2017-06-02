@@ -27,6 +27,7 @@ export default function ($templateCache) {
       options: '=?'
     },
     controller: function ($scope, $element, ganttUtils) {
+      'ngInject';
       let fromTask = moment($scope.section.from).isSame(moment($scope.task.model.from));
       let toTask = moment($scope.section.to).isSame(moment($scope.task.model.to));
 

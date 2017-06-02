@@ -2,7 +2,8 @@ export default function () {
   'ngInject';
   return {
     restrict: 'A',
-    controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+    controller: function ($scope, $element, $attrs) {
+      'ngInject';
       let scopeVariable = $attrs.ganttElementHeightListener;
       if (scopeVariable === '') {
         scopeVariable = 'ganttElementHeight';
@@ -23,6 +24,6 @@ export default function () {
           effectiveScope[scopeVariable] = newValue;
         }
       });
-    }]
+    }
   };
 }

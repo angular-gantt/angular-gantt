@@ -53,7 +53,8 @@ export default function (Gantt, ganttEnableNgAnimate, $timeout, $templateCache) 
       api: '=?',
       options: '=?'
     },
-    controller: ['$scope', '$element', function ($scope, $element) {
+    controller: function ($scope, $element) {
+      'ngInject';
       for (let option in $scope.options) {
         $scope[option] = $scope.options[option];
       }
@@ -63,7 +64,7 @@ export default function (Gantt, ganttEnableNgAnimate, $timeout, $templateCache) 
 
       $scope.gantt = new Gantt($scope, $element);
       this.gantt = $scope.gantt;
-    }],
+    },
     link: function (scope, element) {
       scope.gantt.api.directives.raise.new('gantt', scope, element);
       scope.$on('$destroy', function () {

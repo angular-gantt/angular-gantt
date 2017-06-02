@@ -5,7 +5,8 @@ export default function () {
   return {
     restrict: 'A',
     scope: {},
-    controller: ['$scope', function ($scope) {
+    controller: function ($scope) {
+      'ngInject';
       $scope.horizontal = [];
       $scope.vertical = [];
 
@@ -26,6 +27,6 @@ export default function () {
       this.getVerticalRecievers = function () {
         return $scope.vertical;
       };
-    }]
+    }
   };
 }

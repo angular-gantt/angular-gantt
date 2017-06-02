@@ -5401,7 +5401,9 @@ exports.default = ["Gantt", "ganttEnableNgAnimate", "$timeout", "$templateCache"
             api: '=?',
             options: '=?'
         },
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ["$scope", "$element", function controller($scope, $element) {
+            'ngInject';
+
             for (var option in $scope.options) {
                 $scope[option] = $scope.options[option];
             }
@@ -8283,7 +8285,9 @@ exports.default = function () {
     return {
         restrict: 'A',
         scope: {},
-        controller: ['$scope', function ($scope) {
+        controller: ["$scope", function controller($scope) {
+            'ngInject';
+
             $scope.horizontal = [];
             $scope.vertical = [];
             this.registerVerticalReceiver = function (element) {
@@ -8507,7 +8511,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttContainerHeightListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttContainerHeight';
@@ -8551,7 +8557,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttContainerWidthListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttContainerWidth';
@@ -8595,7 +8603,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttElementHeightListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttElementHeight';
@@ -8633,7 +8643,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttElementWidthListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttElementWidth';
@@ -9272,7 +9284,9 @@ var GanttDirectiveBuilder = exports.GanttDirectiveBuilder = function () {
                         }
                     };
                 },
-                controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+                controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+                    'ngInject';
+
                     var controller = this;
                     if (controllerFunction !== undefined) {
                         controllerFunction($scope, $element, $attrs, controller);
@@ -9319,9 +9333,11 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GanttDom = function () {
+    GanttDom.$inject = ["$document"];
     function GanttDom($document) {
-        (0, _classCallCheck3.default)(this, GanttDom);
+        'ngInject';
 
+        (0, _classCallCheck3.default)(this, GanttDom);
         this.$document = $document;
     }
 
@@ -12432,7 +12448,9 @@ exports.default = ["$templateCache", function ($templateCache) {
         },
         replace: true,
         scope: true,
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ["$scope", "$element", function controller($scope, $element) {
+            'ngInject';
+
             $element.toggleClass('ng-hide', true);
             $scope.simplifyMoment = function (d) {
                 return _moment2.default.isMoment(d) ? d.unix() : d;
@@ -16681,7 +16699,9 @@ exports.default = ["$templateCache", function ($templateCache) {
         },
         replace: true,
         scope: true,
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ["$scope", "$element", function controller($scope, $element) {
+            'ngInject';
+
             $scope.getClasses = function () {
                 var classes = [];
                 if ((0, _typeof3.default)($scope.task.model.progress) === 'object') {
@@ -16909,2455 +16929,22 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var cov_11xmgbcuds = function () {
-    var path = '/home/toilal/idea-projects/angular-gantt/src/plugins/sections/taskSection.directive.ts',
-        hash = '61f97e4c78c582374715bfb51177b21aba6318e4',
-        global = new Function('return this')(),
-        gcv = '__coverage__',
-        coverageData = {
-        path: '/home/toilal/idea-projects/angular-gantt/src/plugins/sections/taskSection.directive.ts',
-        statementMap: {
-            '0': {
-                start: {
-                    line: 2,
-                    column: 0
-                },
-                end: {
-                    line: 2,
-                    column: 35
-                }
-            },
-            '1': {
-                start: {
-                    line: 5,
-                    column: 4
-                },
-                end: {
-                    line: 176,
-                    column: 6
-                }
-            },
-            '2': {
-                start: {
-                    line: 10,
-                    column: 12
-                },
-                end: {
-                    line: 15,
-                    column: 13
-                }
-            },
-            '3': {
-                start: {
-                    line: 11,
-                    column: 16
-                },
-                end: {
-                    line: 11,
-                    column: 71
-                }
-            },
-            '4': {
-                start: {
-                    line: 14,
-                    column: 16
-                },
-                end: {
-                    line: 14,
-                    column: 49
-                }
-            },
-            '5': {
-                start: {
-                    line: 16,
-                    column: 12
-                },
-                end: {
-                    line: 18,
-                    column: 13
-                }
-            },
-            '6': {
-                start: {
-                    line: 17,
-                    column: 16
-                },
-                end: {
-                    line: 17,
-                    column: 65
-                }
-            },
-            '7': {
-                start: {
-                    line: 19,
-                    column: 12
-                },
-                end: {
-                    line: 19,
-                    column: 31
-                }
-            },
-            '8': {
-                start: {
-                    line: 29,
-                    column: 27
-                },
-                end: {
-                    line: 29,
-                    column: 93
-                }
-            },
-            '9': {
-                start: {
-                    line: 30,
-                    column: 25
-                },
-                end: {
-                    line: 30,
-                    column: 87
-                }
-            },
-            '10': {
-                start: {
-                    line: 31,
-                    column: 36
-                },
-                end: {
-                    line: 52,
-                    column: 13
-                }
-            },
-            '11': {
-                start: {
-                    line: 32,
-                    column: 16
-                },
-                end: {
-                    line: 41,
-                    column: 17
-                }
-            },
-            '12': {
-                start: {
-                    line: 34,
-                    column: 40
-                },
-                end: {
-                    line: 34,
-                    column: 71
-                }
-            },
-            '13': {
-                start: {
-                    line: 35,
-                    column: 39
-                },
-                end: {
-                    line: 35,
-                    column: 79
-                }
-            },
-            '14': {
-                start: {
-                    line: 36,
-                    column: 20
-                },
-                end: {
-                    line: 36,
-                    column: 58
-                }
-            },
-            '15': {
-                start: {
-                    line: 37,
-                    column: 20
-                },
-                end: {
-                    line: 37,
-                    column: 64
-                }
-            },
-            '16': {
-                start: {
-                    line: 38,
-                    column: 20
-                },
-                end: {
-                    line: 38,
-                    column: 53
-                }
-            },
-            '17': {
-                start: {
-                    line: 39,
-                    column: 20
-                },
-                end: {
-                    line: 39,
-                    column: 49
-                }
-            },
-            '18': {
-                start: {
-                    line: 40,
-                    column: 20
-                },
-                end: {
-                    line: 40,
-                    column: 68
-                }
-            },
-            '19': {
-                start: {
-                    line: 42,
-                    column: 41
-                },
-                end: {
-                    line: 42,
-                    column: 45
-                }
-            },
-            '20': {
-                start: {
-                    line: 43,
-                    column: 16
-                },
-                end: {
-                    line: 48,
-                    column: 17
-                }
-            },
-            '21': {
-                start: {
-                    line: 44,
-                    column: 20
-                },
-                end: {
-                    line: 47,
-                    column: 21
-                }
-            },
-            '22': {
-                start: {
-                    line: 45,
-                    column: 24
-                },
-                end: {
-                    line: 45,
-                    column: 51
-                }
-            },
-            '23': {
-                start: {
-                    line: 46,
-                    column: 24
-                },
-                end: {
-                    line: 46,
-                    column: 30
-                }
-            },
-            '24': {
-                start: {
-                    line: 49,
-                    column: 16
-                },
-                end: {
-                    line: 51,
-                    column: 17
-                }
-            },
-            '25': {
-                start: {
-                    line: 50,
-                    column: 20
-                },
-                end: {
-                    line: 50,
-                    column: 59
-                }
-            },
-            '26': {
-                start: {
-                    line: 53,
-                    column: 12
-                },
-                end: {
-                    line: 53,
-                    column: 32
-                }
-            },
-            '27': {
-                start: {
-                    line: 54,
-                    column: 26
-                },
-                end: {
-                    line: 69,
-                    column: 13
-                }
-            },
-            '28': {
-                start: {
-                    line: 55,
-                    column: 16
-                },
-                end: {
-                    line: 57,
-                    column: 17
-                }
-            },
-            '29': {
-                start: {
-                    line: 56,
-                    column: 20
-                },
-                end: {
-                    line: 56,
-                    column: 29
-                }
-            },
-            '30': {
-                start: {
-                    line: 58,
-                    column: 28
-                },
-                end: {
-                    line: 58,
-                    column: 57
-                }
-            },
-            '31': {
-                start: {
-                    line: 59,
-                    column: 31
-                },
-                end: {
-                    line: 59,
-                    column: 47
-                }
-            },
-            '32': {
-                start: {
-                    line: 61,
-                    column: 36
-                },
-                end: {
-                    line: 61,
-                    column: 153
-                }
-            },
-            '33': {
-                start: {
-                    line: 62,
-                    column: 16
-                },
-                end: {
-                    line: 62,
-                    column: 102
-                }
-            },
-            '34': {
-                start: {
-                    line: 63,
-                    column: 35
-                },
-                end: {
-                    line: 63,
-                    column: 150
-                }
-            },
-            '35': {
-                start: {
-                    line: 64,
-                    column: 16
-                },
-                end: {
-                    line: 66,
-                    column: 17
-                }
-            },
-            '36': {
-                start: {
-                    line: 65,
-                    column: 20
-                },
-                end: {
-                    line: 65,
-                    column: 55
-                }
-            },
-            '37': {
-                start: {
-                    line: 67,
-                    column: 34
-                },
-                end: {
-                    line: 67,
-                    column: 63
-                }
-            },
-            '38': {
-                start: {
-                    line: 68,
-                    column: 16
-                },
-                end: {
-                    line: 68,
-                    column: 46
-                }
-            },
-            '39': {
-                start: {
-                    line: 70,
-                    column: 27
-                },
-                end: {
-                    line: 85,
-                    column: 13
-                }
-            },
-            '40': {
-                start: {
-                    line: 71,
-                    column: 38
-                },
-                end: {
-                    line: 71,
-                    column: 159
-                }
-            },
-            '41': {
-                start: {
-                    line: 72,
-                    column: 16
-                },
-                end: {
-                    line: 74,
-                    column: 17
-                }
-            },
-            '42': {
-                start: {
-                    line: 73,
-                    column: 20
-                },
-                end: {
-                    line: 73,
-                    column: 45
-                }
-            },
-            '43': {
-                start: {
-                    line: 75,
-                    column: 28
-                },
-                end: {
-                    line: 75,
-                    column: 57
-                }
-            },
-            '44': {
-                start: {
-                    line: 76,
-                    column: 31
-                },
-                end: {
-                    line: 76,
-                    column: 47
-                }
-            },
-            '45': {
-                start: {
-                    line: 77,
-                    column: 36
-                },
-                end: {
-                    line: 77,
-                    column: 153
-                }
-            },
-            '46': {
-                start: {
-                    line: 78,
-                    column: 25
-                },
-                end: {
-                    line: 78,
-                    column: 99
-                }
-            },
-            '47': {
-                start: {
-                    line: 79,
-                    column: 35
-                },
-                end: {
-                    line: 79,
-                    column: 150
-                }
-            },
-            '48': {
-                start: {
-                    line: 80,
-                    column: 16
-                },
-                end: {
-                    line: 82,
-                    column: 17
-                }
-            },
-            '49': {
-                start: {
-                    line: 81,
-                    column: 20
-                },
-                end: {
-                    line: 81,
-                    column: 51
-                }
-            },
-            '50': {
-                start: {
-                    line: 83,
-                    column: 35
-                },
-                end: {
-                    line: 83,
-                    column: 62
-                }
-            },
-            '51': {
-                start: {
-                    line: 84,
-                    column: 16
-                },
-                end: {
-                    line: 84,
-                    column: 47
-                }
-            },
-            '52': {
-                start: {
-                    line: 86,
-                    column: 30
-                },
-                end: {
-                    line: 88,
-                    column: 13
-                }
-            },
-            '53': {
-                start: {
-                    line: 87,
-                    column: 16
-                },
-                end: {
-                    line: 87,
-                    column: 58
-                }
-            },
-            '54': {
-                start: {
-                    line: 89,
-                    column: 33
-                },
-                end: {
-                    line: 103,
-                    column: 13
-                }
-            },
-            '55': {
-                start: {
-                    line: 90,
-                    column: 34
-                },
-                end: {
-                    line: 90,
-                    column: 43
-                }
-            },
-            '56': {
-                start: {
-                    line: 91,
-                    column: 35
-                },
-                end: {
-                    line: 91,
-                    column: 59
-                }
-            },
-            '57': {
-                start: {
-                    line: 92,
-                    column: 38
-                },
-                end: {
-                    line: 92,
-                    column: 159
-                }
-            },
-            '58': {
-                start: {
-                    line: 93,
-                    column: 16
-                },
-                end: {
-                    line: 102,
-                    column: 17
-                }
-            },
-            '59': {
-                start: {
-                    line: 96,
-                    column: 20
-                },
-                end: {
-                    line: 96,
-                    column: 76
-                }
-            },
-            '60': {
-                start: {
-                    line: 97,
-                    column: 20
-                },
-                end: {
-                    line: 97,
-                    column: 78
-                }
-            },
-            '61': {
-                start: {
-                    line: 100,
-                    column: 20
-                },
-                end: {
-                    line: 100,
-                    column: 64
-                }
-            },
-            '62': {
-                start: {
-                    line: 101,
-                    column: 20
-                },
-                end: {
-                    line: 101,
-                    column: 66
-                }
-            },
-            '63': {
-                start: {
-                    line: 104,
-                    column: 28
-                },
-                end: {
-                    line: 111,
-                    column: 13
-                }
-            },
-            '64': {
-                start: {
-                    line: 105,
-                    column: 16
-                },
-                end: {
-                    line: 110,
-                    column: 17
-                }
-            },
-            '65': {
-                start: {
-                    line: 106,
-                    column: 20
-                },
-                end: {
-                    line: 106,
-                    column: 81
-                }
-            },
-            '66': {
-                start: {
-                    line: 109,
-                    column: 20
-                },
-                end: {
-                    line: 109,
-                    column: 70
-                }
-            },
-            '67': {
-                start: {
-                    line: 112,
-                    column: 12
-                },
-                end: {
-                    line: 116,
-                    column: 13
-                }
-            },
-            '68': {
-                start: {
-                    line: 113,
-                    column: 16
-                },
-                end: {
-                    line: 113,
-                    column: 39
-                }
-            },
-            '69': {
-                start: {
-                    line: 114,
-                    column: 16
-                },
-                end: {
-                    line: 114,
-                    column: 33
-                }
-            },
-            '70': {
-                start: {
-                    line: 115,
-                    column: 16
-                },
-                end: {
-                    line: 115,
-                    column: 28
-                }
-            },
-            '71': {
-                start: {
-                    line: 117,
-                    column: 36
-                },
-                end: {
-                    line: 142,
-                    column: 13
-                }
-            },
-            '72': {
-                start: {
-                    line: 118,
-                    column: 16
-                },
-                end: {
-                    line: 141,
-                    column: 17
-                }
-            },
-            '73': {
-                start: {
-                    line: 120,
-                    column: 32
-                },
-                end: {
-                    line: 120,
-                    column: 61
-                }
-            },
-            '74': {
-                start: {
-                    line: 121,
-                    column: 38
-                },
-                end: {
-                    line: 121,
-                    column: 60
-                }
-            },
-            '75': {
-                start: {
-                    line: 122,
-                    column: 40
-                },
-                end: {
-                    line: 122,
-                    column: 157
-                }
-            },
-            '76': {
-                start: {
-                    line: 124,
-                    column: 20
-                },
-                end: {
-                    line: 129,
-                    column: 21
-                }
-            },
-            '77': {
-                start: {
-                    line: 125,
-                    column: 24
-                },
-                end: {
-                    line: 125,
-                    column: 54
-                }
-            },
-            '78': {
-                start: {
-                    line: 128,
-                    column: 24
-                },
-                end: {
-                    line: 128,
-                    column: 108
-                }
-            },
-            '79': {
-                start: {
-                    line: 131,
-                    column: 20
-                },
-                end: {
-                    line: 137,
-                    column: 21
-                }
-            },
-            '80': {
-                start: {
-                    line: 132,
-                    column: 24
-                },
-                end: {
-                    line: 132,
-                    column: 50
-                }
-            },
-            '81': {
-                start: {
-                    line: 135,
-                    column: 43
-                },
-                end: {
-                    line: 135,
-                    column: 80
-                }
-            },
-            '82': {
-                start: {
-                    line: 136,
-                    column: 24
-                },
-                end: {
-                    line: 136,
-                    column: 107
-                }
-            },
-            '83': {
-                start: {
-                    line: 138,
-                    column: 20
-                },
-                end: {
-                    line: 138,
-                    column: 47
-                }
-            },
-            '84': {
-                start: {
-                    line: 139,
-                    column: 20
-                },
-                end: {
-                    line: 139,
-                    column: 43
-                }
-            },
-            '85': {
-                start: {
-                    line: 140,
-                    column: 20
-                },
-                end: {
-                    line: 140,
-                    column: 37
-                }
-            },
-            '86': {
-                start: {
-                    line: 143,
-                    column: 35
-                },
-                end: {
-                    line: 153,
-                    column: 13
-                }
-            },
-            '87': {
-                start: {
-                    line: 144,
-                    column: 16
-                },
-                end: {
-                    line: 152,
-                    column: 17
-                }
-            },
-            '88': {
-                start: {
-                    line: 145,
-                    column: 32
-                },
-                end: {
-                    line: 145,
-                    column: 46
-                }
-            },
-            '89': {
-                start: {
-                    line: 146,
-                    column: 20
-                },
-                end: {
-                    line: 148,
-                    column: 21
-                }
-            },
-            '90': {
-                start: {
-                    line: 147,
-                    column: 24
-                },
-                end: {
-                    line: 147,
-                    column: 56
-                }
-            },
-            '91': {
-                start: {
-                    line: 149,
-                    column: 20
-                },
-                end: {
-                    line: 151,
-                    column: 21
-                }
-            },
-            '92': {
-                start: {
-                    line: 150,
-                    column: 24
-                },
-                end: {
-                    line: 150,
-                    column: 52
-                }
-            },
-            '93': {
-                start: {
-                    line: 154,
-                    column: 12
-                },
-                end: {
-                    line: 154,
-                    column: 48
-                }
-            },
-            '94': {
-                start: {
-                    line: 155,
-                    column: 12
-                },
-                end: {
-                    line: 155,
-                    column: 87
-                }
-            },
-            '95': {
-                start: {
-                    line: 156,
-                    column: 12
-                },
-                end: {
-                    line: 156,
-                    column: 89
-                }
-            },
-            '96': {
-                start: {
-                    line: 157,
-                    column: 45
-                },
-                end: {
-                    line: 169,
-                    column: 13
-                }
-            },
-            '97': {
-                start: {
-                    line: 158,
-                    column: 36
-                },
-                end: {
-                    line: 158,
-                    column: 60
-                }
-            },
-            '98': {
-                start: {
-                    line: 159,
-                    column: 16
-                },
-                end: {
-                    line: 162,
-                    column: 17
-                }
-            },
-            '99': {
-                start: {
-                    line: 160,
-                    column: 20
-                },
-                end: {
-                    line: 160,
-                    column: 39
-                }
-            },
-            '100': {
-                start: {
-                    line: 161,
-                    column: 20
-                },
-                end: {
-                    line: 161,
-                    column: 61
-                }
-            },
-            '101': {
-                start: {
-                    line: 163,
-                    column: 16
-                },
-                end: {
-                    line: 168,
-                    column: 18
-                }
-            },
-            '102': {
-                start: {
-                    line: 170,
-                    column: 12
-                },
-                end: {
-                    line: 170,
-                    column: 111
-                }
-            },
-            '103': {
-                start: {
-                    line: 171,
-                    column: 12
-                },
-                end: {
-                    line: 171,
-                    column: 105
-                }
-            },
-            '104': {
-                start: {
-                    line: 172,
-                    column: 12
-                },
-                end: {
-                    line: 174,
-                    column: 15
-                }
-            },
-            '105': {
-                start: {
-                    line: 173,
-                    column: 16
-                },
-                end: {
-                    line: 173,
-                    column: 113
-                }
-            }
-        },
-        fnMap: {
-            '0': {
-                name: '(anonymous_0)',
-                decl: {
-                    start: {
-                        line: 3,
-                        column: 15
-                    },
-                    end: {
-                        line: 3,
-                        column: 16
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 3,
-                        column: 41
-                    },
-                    end: {
-                        line: 177,
-                        column: 1
-                    }
-                },
-                line: 3
-            },
-            '1': {
-                name: '(anonymous_1)',
-                decl: {
-                    start: {
-                        line: 8,
-                        column: 21
-                    },
-                    end: {
-                        line: 8,
-                        column: 22
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 8,
-                        column: 49
-                    },
-                    end: {
-                        line: 20,
-                        column: 9
-                    }
-                },
-                line: 8
-            },
-            '2': {
-                name: '(anonymous_2)',
-                decl: {
-                    start: {
-                        line: 28,
-                        column: 20
-                    },
-                    end: {
-                        line: 28,
-                        column: 21
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 28,
-                        column: 60
-                    },
-                    end: {
-                        line: 175,
-                        column: 9
-                    }
-                },
-                line: 28
-            },
-            '3': {
-                name: '(anonymous_3)',
-                decl: {
-                    start: {
-                        line: 31,
-                        column: 36
-                    },
-                    end: {
-                        line: 31,
-                        column: 37
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 31,
-                        column: 48
-                    },
-                    end: {
-                        line: 52,
-                        column: 13
-                    }
-                },
-                line: 31
-            },
-            '4': {
-                name: '(anonymous_4)',
-                decl: {
-                    start: {
-                        line: 54,
-                        column: 26
-                    },
-                    end: {
-                        line: 54,
-                        column: 27
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 54,
-                        column: 38
-                    },
-                    end: {
-                        line: 69,
-                        column: 13
-                    }
-                },
-                line: 54
-            },
-            '5': {
-                name: '(anonymous_5)',
-                decl: {
-                    start: {
-                        line: 70,
-                        column: 27
-                    },
-                    end: {
-                        line: 70,
-                        column: 28
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 70,
-                        column: 39
-                    },
-                    end: {
-                        line: 85,
-                        column: 13
-                    }
-                },
-                line: 70
-            },
-            '6': {
-                name: '(anonymous_6)',
-                decl: {
-                    start: {
-                        line: 86,
-                        column: 30
-                    },
-                    end: {
-                        line: 86,
-                        column: 31
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 86,
-                        column: 50
-                    },
-                    end: {
-                        line: 88,
-                        column: 13
-                    }
-                },
-                line: 86
-            },
-            '7': {
-                name: '(anonymous_7)',
-                decl: {
-                    start: {
-                        line: 89,
-                        column: 33
-                    },
-                    end: {
-                        line: 89,
-                        column: 34
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 89,
-                        column: 45
-                    },
-                    end: {
-                        line: 103,
-                        column: 13
-                    }
-                },
-                line: 89
-            },
-            '8': {
-                name: '(anonymous_8)',
-                decl: {
-                    start: {
-                        line: 104,
-                        column: 28
-                    },
-                    end: {
-                        line: 104,
-                        column: 29
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 104,
-                        column: 40
-                    },
-                    end: {
-                        line: 111,
-                        column: 13
-                    }
-                },
-                line: 104
-            },
-            '9': {
-                name: '(anonymous_9)',
-                decl: {
-                    start: {
-                        line: 117,
-                        column: 36
-                    },
-                    end: {
-                        line: 117,
-                        column: 37
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 117,
-                        column: 52
-                    },
-                    end: {
-                        line: 142,
-                        column: 13
-                    }
-                },
-                line: 117
-            },
-            '10': {
-                name: '(anonymous_10)',
-                decl: {
-                    start: {
-                        line: 143,
-                        column: 35
-                    },
-                    end: {
-                        line: 143,
-                        column: 36
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 143,
-                        column: 56
-                    },
-                    end: {
-                        line: 153,
-                        column: 13
-                    }
-                },
-                line: 143
-            },
-            '11': {
-                name: '(anonymous_11)',
-                decl: {
-                    start: {
-                        line: 157,
-                        column: 45
-                    },
-                    end: {
-                        line: 157,
-                        column: 46
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 157,
-                        column: 61
-                    },
-                    end: {
-                        line: 169,
-                        column: 13
-                    }
-                },
-                line: 157
-            },
-            '12': {
-                name: '(anonymous_12)',
-                decl: {
-                    start: {
-                        line: 172,
-                        column: 35
-                    },
-                    end: {
-                        line: 172,
-                        column: 36
-                    }
-                },
-                loc: {
-                    start: {
-                        line: 172,
-                        column: 47
-                    },
-                    end: {
-                        line: 174,
-                        column: 13
-                    }
-                },
-                line: 172
-            }
-        },
-        branchMap: {
-            '0': {
-                loc: {
-                    start: {
-                        line: 10,
-                        column: 12
-                    },
-                    end: {
-                        line: 15,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 10,
-                        column: 12
-                    },
-                    end: {
-                        line: 15,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 10,
-                        column: 12
-                    },
-                    end: {
-                        line: 15,
-                        column: 13
-                    }
-                }],
-                line: 10
-            },
-            '1': {
-                loc: {
-                    start: {
-                        line: 16,
-                        column: 12
-                    },
-                    end: {
-                        line: 18,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 16,
-                        column: 12
-                    },
-                    end: {
-                        line: 18,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 16,
-                        column: 12
-                    },
-                    end: {
-                        line: 18,
-                        column: 13
-                    }
-                }],
-                line: 16
-            },
-            '2': {
-                loc: {
-                    start: {
-                        line: 32,
-                        column: 16
-                    },
-                    end: {
-                        line: 41,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 32,
-                        column: 16
-                    },
-                    end: {
-                        line: 41,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 32,
-                        column: 16
-                    },
-                    end: {
-                        line: 41,
-                        column: 17
-                    }
-                }],
-                line: 32
-            },
-            '3': {
-                loc: {
-                    start: {
-                        line: 44,
-                        column: 20
-                    },
-                    end: {
-                        line: 47,
-                        column: 21
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 44,
-                        column: 20
-                    },
-                    end: {
-                        line: 47,
-                        column: 21
-                    }
-                }, {
-                    start: {
-                        line: 44,
-                        column: 20
-                    },
-                    end: {
-                        line: 47,
-                        column: 21
-                    }
-                }],
-                line: 44
-            },
-            '4': {
-                loc: {
-                    start: {
-                        line: 49,
-                        column: 16
-                    },
-                    end: {
-                        line: 51,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 49,
-                        column: 16
-                    },
-                    end: {
-                        line: 51,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 49,
-                        column: 16
-                    },
-                    end: {
-                        line: 51,
-                        column: 17
-                    }
-                }],
-                line: 49
-            },
-            '5': {
-                loc: {
-                    start: {
-                        line: 55,
-                        column: 16
-                    },
-                    end: {
-                        line: 57,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 55,
-                        column: 16
-                    },
-                    end: {
-                        line: 57,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 55,
-                        column: 16
-                    },
-                    end: {
-                        line: 57,
-                        column: 17
-                    }
-                }],
-                line: 55
-            },
-            '6': {
-                loc: {
-                    start: {
-                        line: 62,
-                        column: 23
-                    },
-                    end: {
-                        line: 62,
-                        column: 101
-                    }
-                },
-                type: 'cond-expr',
-                locations: [{
-                    start: {
-                        line: 62,
-                        column: 39
-                    },
-                    end: {
-                        line: 62,
-                        column: 58
-                    }
-                }, {
-                    start: {
-                        line: 62,
-                        column: 61
-                    },
-                    end: {
-                        line: 62,
-                        column: 101
-                    }
-                }],
-                line: 62
-            },
-            '7': {
-                loc: {
-                    start: {
-                        line: 64,
-                        column: 16
-                    },
-                    end: {
-                        line: 66,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 64,
-                        column: 16
-                    },
-                    end: {
-                        line: 66,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 64,
-                        column: 16
-                    },
-                    end: {
-                        line: 66,
-                        column: 17
-                    }
-                }],
-                line: 64
-            },
-            '8': {
-                loc: {
-                    start: {
-                        line: 64,
-                        column: 20
-                    },
-                    end: {
-                        line: 64,
-                        column: 65
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 64,
-                        column: 20
-                    },
-                    end: {
-                        line: 64,
-                        column: 33
-                    }
-                }, {
-                    start: {
-                        line: 64,
-                        column: 37
-                    },
-                    end: {
-                        line: 64,
-                        column: 65
-                    }
-                }],
-                line: 64
-            },
-            '9': {
-                loc: {
-                    start: {
-                        line: 72,
-                        column: 16
-                    },
-                    end: {
-                        line: 74,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 72,
-                        column: 16
-                    },
-                    end: {
-                        line: 74,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 72,
-                        column: 16
-                    },
-                    end: {
-                        line: 74,
-                        column: 17
-                    }
-                }],
-                line: 72
-            },
-            '10': {
-                loc: {
-                    start: {
-                        line: 72,
-                        column: 20
-                    },
-                    end: {
-                        line: 72,
-                        column: 45
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 72,
-                        column: 20
-                    },
-                    end: {
-                        line: 72,
-                        column: 26
-                    }
-                }, {
-                    start: {
-                        line: 72,
-                        column: 30
-                    },
-                    end: {
-                        line: 72,
-                        column: 45
-                    }
-                }],
-                line: 72
-            },
-            '11': {
-                loc: {
-                    start: {
-                        line: 78,
-                        column: 25
-                    },
-                    end: {
-                        line: 78,
-                        column: 99
-                    }
-                },
-                type: 'cond-expr',
-                locations: [{
-                    start: {
-                        line: 78,
-                        column: 41
-                    },
-                    end: {
-                        line: 78,
-                        column: 58
-                    }
-                }, {
-                    start: {
-                        line: 78,
-                        column: 61
-                    },
-                    end: {
-                        line: 78,
-                        column: 99
-                    }
-                }],
-                line: 78
-            },
-            '12': {
-                loc: {
-                    start: {
-                        line: 80,
-                        column: 16
-                    },
-                    end: {
-                        line: 82,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 80,
-                        column: 16
-                    },
-                    end: {
-                        line: 82,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 80,
-                        column: 16
-                    },
-                    end: {
-                        line: 82,
-                        column: 17
-                    }
-                }],
-                line: 80
-            },
-            '13': {
-                loc: {
-                    start: {
-                        line: 80,
-                        column: 20
-                    },
-                    end: {
-                        line: 80,
-                        column: 65
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 80,
-                        column: 20
-                    },
-                    end: {
-                        line: 80,
-                        column: 33
-                    }
-                }, {
-                    start: {
-                        line: 80,
-                        column: 37
-                    },
-                    end: {
-                        line: 80,
-                        column: 65
-                    }
-                }],
-                line: 80
-            },
-            '14': {
-                loc: {
-                    start: {
-                        line: 93,
-                        column: 16
-                    },
-                    end: {
-                        line: 102,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 93,
-                        column: 16
-                    },
-                    end: {
-                        line: 102,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 93,
-                        column: 16
-                    },
-                    end: {
-                        line: 102,
-                        column: 17
-                    }
-                }],
-                line: 93
-            },
-            '15': {
-                loc: {
-                    start: {
-                        line: 105,
-                        column: 16
-                    },
-                    end: {
-                        line: 110,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 105,
-                        column: 16
-                    },
-                    end: {
-                        line: 110,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 105,
-                        column: 16
-                    },
-                    end: {
-                        line: 110,
-                        column: 17
-                    }
-                }],
-                line: 105
-            },
-            '16': {
-                loc: {
-                    start: {
-                        line: 112,
-                        column: 12
-                    },
-                    end: {
-                        line: 116,
-                        column: 13
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 112,
-                        column: 12
-                    },
-                    end: {
-                        line: 116,
-                        column: 13
-                    }
-                }, {
-                    start: {
-                        line: 112,
-                        column: 12
-                    },
-                    end: {
-                        line: 116,
-                        column: 13
-                    }
-                }],
-                line: 112
-            },
-            '17': {
-                loc: {
-                    start: {
-                        line: 118,
-                        column: 16
-                    },
-                    end: {
-                        line: 141,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 118,
-                        column: 16
-                    },
-                    end: {
-                        line: 141,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 118,
-                        column: 16
-                    },
-                    end: {
-                        line: 141,
-                        column: 17
-                    }
-                }],
-                line: 118
-            },
-            '18': {
-                loc: {
-                    start: {
-                        line: 124,
-                        column: 20
-                    },
-                    end: {
-                        line: 129,
-                        column: 21
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 124,
-                        column: 20
-                    },
-                    end: {
-                        line: 129,
-                        column: 21
-                    }
-                }, {
-                    start: {
-                        line: 124,
-                        column: 20
-                    },
-                    end: {
-                        line: 129,
-                        column: 21
-                    }
-                }],
-                line: 124
-            },
-            '19': {
-                loc: {
-                    start: {
-                        line: 131,
-                        column: 20
-                    },
-                    end: {
-                        line: 137,
-                        column: 21
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 131,
-                        column: 20
-                    },
-                    end: {
-                        line: 137,
-                        column: 21
-                    }
-                }, {
-                    start: {
-                        line: 131,
-                        column: 20
-                    },
-                    end: {
-                        line: 137,
-                        column: 21
-                    }
-                }],
-                line: 131
-            },
-            '20': {
-                loc: {
-                    start: {
-                        line: 144,
-                        column: 16
-                    },
-                    end: {
-                        line: 152,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 144,
-                        column: 16
-                    },
-                    end: {
-                        line: 152,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 144,
-                        column: 16
-                    },
-                    end: {
-                        line: 152,
-                        column: 17
-                    }
-                }],
-                line: 144
-            },
-            '21': {
-                loc: {
-                    start: {
-                        line: 146,
-                        column: 20
-                    },
-                    end: {
-                        line: 148,
-                        column: 21
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 146,
-                        column: 20
-                    },
-                    end: {
-                        line: 148,
-                        column: 21
-                    }
-                }, {
-                    start: {
-                        line: 146,
-                        column: 20
-                    },
-                    end: {
-                        line: 148,
-                        column: 21
-                    }
-                }],
-                line: 146
-            },
-            '22': {
-                loc: {
-                    start: {
-                        line: 146,
-                        column: 24
-                    },
-                    end: {
-                        line: 146,
-                        column: 80
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 146,
-                        column: 24
-                    },
-                    end: {
-                        line: 146,
-                        column: 48
-                    }
-                }, {
-                    start: {
-                        line: 146,
-                        column: 52
-                    },
-                    end: {
-                        line: 146,
-                        column: 80
-                    }
-                }],
-                line: 146
-            },
-            '23': {
-                loc: {
-                    start: {
-                        line: 149,
-                        column: 20
-                    },
-                    end: {
-                        line: 151,
-                        column: 21
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 149,
-                        column: 20
-                    },
-                    end: {
-                        line: 151,
-                        column: 21
-                    }
-                }, {
-                    start: {
-                        line: 149,
-                        column: 20
-                    },
-                    end: {
-                        line: 151,
-                        column: 21
-                    }
-                }],
-                line: 149
-            },
-            '24': {
-                loc: {
-                    start: {
-                        line: 149,
-                        column: 24
-                    },
-                    end: {
-                        line: 149,
-                        column: 76
-                    }
-                },
-                type: 'binary-expr',
-                locations: [{
-                    start: {
-                        line: 149,
-                        column: 24
-                    },
-                    end: {
-                        line: 149,
-                        column: 46
-                    }
-                }, {
-                    start: {
-                        line: 149,
-                        column: 50
-                    },
-                    end: {
-                        line: 149,
-                        column: 76
-                    }
-                }],
-                line: 149
-            },
-            '25': {
-                loc: {
-                    start: {
-                        line: 159,
-                        column: 16
-                    },
-                    end: {
-                        line: 162,
-                        column: 17
-                    }
-                },
-                type: 'if',
-                locations: [{
-                    start: {
-                        line: 159,
-                        column: 16
-                    },
-                    end: {
-                        line: 162,
-                        column: 17
-                    }
-                }, {
-                    start: {
-                        line: 159,
-                        column: 16
-                    },
-                    end: {
-                        line: 162,
-                        column: 17
-                    }
-                }],
-                line: 159
-            }
-        },
-        s: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0,
-            '14': 0,
-            '15': 0,
-            '16': 0,
-            '17': 0,
-            '18': 0,
-            '19': 0,
-            '20': 0,
-            '21': 0,
-            '22': 0,
-            '23': 0,
-            '24': 0,
-            '25': 0,
-            '26': 0,
-            '27': 0,
-            '28': 0,
-            '29': 0,
-            '30': 0,
-            '31': 0,
-            '32': 0,
-            '33': 0,
-            '34': 0,
-            '35': 0,
-            '36': 0,
-            '37': 0,
-            '38': 0,
-            '39': 0,
-            '40': 0,
-            '41': 0,
-            '42': 0,
-            '43': 0,
-            '44': 0,
-            '45': 0,
-            '46': 0,
-            '47': 0,
-            '48': 0,
-            '49': 0,
-            '50': 0,
-            '51': 0,
-            '52': 0,
-            '53': 0,
-            '54': 0,
-            '55': 0,
-            '56': 0,
-            '57': 0,
-            '58': 0,
-            '59': 0,
-            '60': 0,
-            '61': 0,
-            '62': 0,
-            '63': 0,
-            '64': 0,
-            '65': 0,
-            '66': 0,
-            '67': 0,
-            '68': 0,
-            '69': 0,
-            '70': 0,
-            '71': 0,
-            '72': 0,
-            '73': 0,
-            '74': 0,
-            '75': 0,
-            '76': 0,
-            '77': 0,
-            '78': 0,
-            '79': 0,
-            '80': 0,
-            '81': 0,
-            '82': 0,
-            '83': 0,
-            '84': 0,
-            '85': 0,
-            '86': 0,
-            '87': 0,
-            '88': 0,
-            '89': 0,
-            '90': 0,
-            '91': 0,
-            '92': 0,
-            '93': 0,
-            '94': 0,
-            '95': 0,
-            '96': 0,
-            '97': 0,
-            '98': 0,
-            '99': 0,
-            '100': 0,
-            '101': 0,
-            '102': 0,
-            '103': 0,
-            '104': 0,
-            '105': 0
-        },
-        f: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0
-        },
-        b: {
-            '0': [0, 0],
-            '1': [0, 0],
-            '2': [0, 0],
-            '3': [0, 0],
-            '4': [0, 0],
-            '5': [0, 0],
-            '6': [0, 0],
-            '7': [0, 0],
-            '8': [0, 0],
-            '9': [0, 0],
-            '10': [0, 0],
-            '11': [0, 0],
-            '12': [0, 0],
-            '13': [0, 0],
-            '14': [0, 0],
-            '15': [0, 0],
-            '16': [0, 0],
-            '17': [0, 0],
-            '18': [0, 0],
-            '19': [0, 0],
-            '20': [0, 0],
-            '21': [0, 0],
-            '22': [0, 0],
-            '23': [0, 0],
-            '24': [0, 0],
-            '25': [0, 0]
-        },
-        inputSourceMap: {
-            version: 3,
-            file: 'src/plugins/sections/taskSection.directive.ts',
-            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
-            sources: ['src/plugins/sections/taskSection.directive.ts'],
-            names: [],
-            mappings: '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',
-            sourcesContent: ['import moment from \'moment\';\n\nrequire(\'./taskSection.tmpl.html\');\n\nexport default function ($templateCache) {\n  \'ngInject\';\n  return {\n    restrict: \'E\',\n    requires: \'^ganttTaskSections\',\n    templateUrl: function (tElement, tAttrs) {\n      let templateUrl;\n      if (tAttrs.templateUrl === undefined) {\n        templateUrl = \'plugins/sections/taskSection.tmpl.html\';\n      } else {\n        templateUrl = tAttrs.templateUrl;\n      }\n      if (tAttrs.template !== undefined) {\n        $templateCache.put(templateUrl, tAttrs.template);\n      }\n      return templateUrl;\n    },\n    replace: true,\n    scope: {\n      section: \'=\',\n      task: \'=\',\n      index: \'=\',\n      options: \'=?\'\n    },\n    controller: function ($scope, $element, ganttUtils) {\n      let fromTask = moment($scope.section.from).isSame(moment($scope.task.model.from));\n      let toTask = moment($scope.section.to).isSame(moment($scope.task.model.to));\n\n      let loadPreviousScope = function () {\n        if ($scope.task._movingTaskSections) {\n          // We are coming from a task row change\n          let sectionScopes = $scope.task._movingTaskSections;\n          let sectionScope = sectionScopes[\'$$index_\' + $scope.index];\n          $scope.section = sectionScope.section;\n          $scope.sectionCss = sectionScope.sectionCss;\n          fromTask = sectionScope.fromTask;\n          toTask = sectionScope.toTask;\n          delete sectionScopes[\'$$index_\' + $scope.index];\n        }\n\n        let sectionScopesEmpty = true;\n        for (let property in $scope.task._movingTaskSections) {\n          if ($scope.task._movingTaskSections.hasOwnProperty(property)) {\n            sectionScopesEmpty = false;\n            break;\n          }\n        }\n\n        if (sectionScopesEmpty) {\n          delete $scope.task._movingTaskSections;\n        }\n      };\n      loadPreviousScope();\n\n      let getLeft = function () {\n        if (fromTask) {\n          return 0;\n        }\n\n        let gantt = $scope.task.rowsManager.gantt;\n        let taskLeft = $scope.task.left;\n\n        let from;\n\n        let disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], \'disableMagnet\', $scope.$parent.pluginScope.disableMagnet);\n\n        from = disableMagnet ? $scope.section.from : gantt.getMagnetDate($scope.section.from);\n\n        let disableDaily = ganttUtils.firstProperty([$scope.section, $scope.options], \'disableDaily\', $scope.$parent.pluginScope.disableDaily);\n        if (!disableDaily && gantt.options.value(\'daily\')) {\n          from = moment(from).startOf(\'day\');\n        }\n\n        let sectionLeft = gantt.getPositionByDate(from);\n\n        return sectionLeft - taskLeft;\n      };\n\n      let getRight = function () {\n        let keepProportions = ganttUtils.firstProperty([$scope.section, $scope.options], \'keepProportions\', $scope.$parent.pluginScope.keepProportions);\n        if (toTask && keepProportions) {\n          return $scope.task.width;\n        }\n\n        let gantt = $scope.task.rowsManager.gantt;\n        let taskLeft = $scope.task.left;\n\n        let disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], \'disableMagnet\', $scope.$parent.pluginScope.disableMagnet);\n        let to = disableMagnet ? $scope.section.to : gantt.getMagnetDate($scope.section.to);\n\n        let disableDaily = ganttUtils.firstProperty([$scope.section, $scope.options], \'disableDaily\', $scope.$parent.pluginScope.disableDaily);\n        if (!disableDaily && gantt.options.value(\'daily\')) {\n          to = moment(to).startOf(\'day\');\n        }\n\n        let sectionRight = gantt.getPositionByDate(to);\n\n        return sectionRight - taskLeft;\n      };\n\n      let getRelative = function (position) {\n        return position / $scope.task.width * 100;\n      };\n\n      let updatePosition = function () {\n        let sectionLeft = getLeft();\n        let sectionWidth = getRight() - sectionLeft;\n\n        let keepProportions = ganttUtils.firstProperty([$scope.section, $scope.options], \'keepProportions\', $scope.$parent.pluginScope.keepProportions);\n        if (keepProportions) {\n          // Setting left and width as to keep proportions when changing task size.\n          // This may somewhat break the magnet feature, but it seems acceptable\n          $scope.sectionCss.left = getRelative(sectionLeft) + \'%\';\n          $scope.sectionCss.width = getRelative(sectionWidth) + \'%\';\n        } else {\n          $scope.sectionCss.left = sectionLeft + \'px\';\n          $scope.sectionCss.width = sectionWidth + \'px\';\n        }\n      };\n\n      let updateCss = function () {\n        if ($scope.section.color) {\n          $scope.sectionCss[\'background-color\'] = $scope.section.color;\n        } else {\n          $scope.sectionCss[\'background-color\'] = undefined;\n        }\n      };\n\n      if ($scope.sectionCss === undefined) {\n        $scope.sectionCss = {};\n        updatePosition();\n        updateCss();\n      }\n\n      let taskChangeHandler = function (task) {\n        if (task === $scope.task) {\n          // Update from/to section model value based on position.\n          let gantt = $scope.task.rowsManager.gantt;\n\n          let sectionLeft = $element[0].offsetLeft;\n\n          let disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], \'disableMagnet\', $scope.$parent.pluginScope.disableMagnet);\n\n          let from;\n          if (fromTask) {\n            from = $scope.task.model.from;\n          } else {\n            from = gantt.getDateByPosition($scope.task.modelLeft + sectionLeft, !disableMagnet);\n          }\n\n          let to;\n          if (toTask) {\n            to = $scope.task.model.to;\n          } else {\n            let sectionRight = sectionLeft + $element[0].offsetWidth;\n            to = gantt.getDateByPosition($scope.task.modelLeft + sectionRight, !disableMagnet);\n          }\n\n          $scope.section.from = from;\n          $scope.section.to = to;\n\n          updatePosition();\n        }\n      };\n\n      let taskCleanHandler = function (taskModel) {\n        if (taskModel.id === $scope.task.model.id) {\n          let model = $scope.section;\n          if (model.from !== undefined && !moment.isMoment(model.from)) {\n            model.from = moment(model.from);\n          }\n\n          if (model.to !== undefined && !moment.isMoment(model.to)) {\n            model.to = moment(model.to);\n          }\n        }\n      };\n      taskCleanHandler($scope.task.model);\n\n      $scope.task.rowsManager.gantt.api.tasks.on.clean($scope, taskCleanHandler);\n      $scope.task.rowsManager.gantt.api.tasks.on.change($scope, taskChangeHandler);\n\n      let beforeViewRowChangeHandler = function (task) {\n        let sectionScopes = task._movingTaskSections;\n        if (!sectionScopes) {\n          sectionScopes = {};\n          task._movingTaskSections = sectionScopes;\n        }\n\n        sectionScopes[\'$$index_\' + $scope.index] = {\n          \'section\': $scope.section,\n          \'sectionCss\': $scope.sectionCss,\n          \'fromTask\': fromTask,\n          \'toTask\': toTask\n        };\n      };\n      $scope.task.rowsManager.gantt.api.tasks.on.beforeViewRowChange($scope, beforeViewRowChangeHandler);\n\n      $scope.task.rowsManager.gantt.api.directives.raise.new(\'ganttTaskSection\', $scope, $element);\n      $scope.$on(\'$destroy\', function () {\n        $scope.task.rowsManager.gantt.api.directives.raise.destroy(\'ganttTaskSection\', $scope, $element);\n      });\n    }\n  };\n}\n']
-        },
-        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
-    },
-        coverage = global[gcv] || (global[gcv] = {});
-
-    if (coverage[path] && coverage[path].hash === hash) {
-        return coverage[path];
-    }
-
-    coverageData.hash = hash;
-    return coverage[path] = coverageData;
-}();
-
 exports.default = ["$templateCache", function ($templateCache) {
     'ngInject';
 
-    ++cov_11xmgbcuds.f[0];
-    ++cov_11xmgbcuds.s[1];
     return {
         restrict: 'E',
         requires: '^ganttTaskSections',
         templateUrl: function templateUrl(tElement, tAttrs) {
-            ++cov_11xmgbcuds.f[1];
-
             var templateUrl = void 0;
-            ++cov_11xmgbcuds.s[2];
             if (tAttrs.templateUrl === undefined) {
-                ++cov_11xmgbcuds.b[0][0];
-                ++cov_11xmgbcuds.s[3];
-
                 templateUrl = 'plugins/sections/taskSection.tmpl.html';
             } else {
-                ++cov_11xmgbcuds.b[0][1];
-                ++cov_11xmgbcuds.s[4];
-
                 templateUrl = tAttrs.templateUrl;
             }
-            ++cov_11xmgbcuds.s[5];
             if (tAttrs.template !== undefined) {
-                ++cov_11xmgbcuds.b[1][0];
-                ++cov_11xmgbcuds.s[6];
-
                 $templateCache.put(templateUrl, tAttrs.template);
-            } else {
-                ++cov_11xmgbcuds.b[1][1];
             }
-            ++cov_11xmgbcuds.s[7];
             return templateUrl;
         },
         replace: true,
@@ -19367,290 +16954,135 @@ exports.default = ["$templateCache", function ($templateCache) {
             index: '=',
             options: '=?'
         },
-        controller: function controller($scope, $element, ganttUtils) {
-            ++cov_11xmgbcuds.f[2];
+        controller: ["$scope", "$element", "ganttUtils", function controller($scope, $element, ganttUtils) {
+            'ngInject';
 
-            var fromTask = (++cov_11xmgbcuds.s[8], (0, _moment2.default)($scope.section.from).isSame((0, _moment2.default)($scope.task.model.from)));
-            var toTask = (++cov_11xmgbcuds.s[9], (0, _moment2.default)($scope.section.to).isSame((0, _moment2.default)($scope.task.model.to)));
-            ++cov_11xmgbcuds.s[10];
+            var fromTask = (0, _moment2.default)($scope.section.from).isSame((0, _moment2.default)($scope.task.model.from));
+            var toTask = (0, _moment2.default)($scope.section.to).isSame((0, _moment2.default)($scope.task.model.to));
             var loadPreviousScope = function loadPreviousScope() {
-                ++cov_11xmgbcuds.f[3];
-                ++cov_11xmgbcuds.s[11];
-
                 if ($scope.task._movingTaskSections) {
-                    ++cov_11xmgbcuds.b[2][0];
-
-                    var sectionScopes = (++cov_11xmgbcuds.s[12], $scope.task._movingTaskSections);
-                    var sectionScope = (++cov_11xmgbcuds.s[13], sectionScopes['$$index_' + $scope.index]);
-                    ++cov_11xmgbcuds.s[14];
+                    var sectionScopes = $scope.task._movingTaskSections;
+                    var sectionScope = sectionScopes['$$index_' + $scope.index];
                     $scope.section = sectionScope.section;
-                    ++cov_11xmgbcuds.s[15];
                     $scope.sectionCss = sectionScope.sectionCss;
-                    ++cov_11xmgbcuds.s[16];
                     fromTask = sectionScope.fromTask;
-                    ++cov_11xmgbcuds.s[17];
                     toTask = sectionScope.toTask;
-                    ++cov_11xmgbcuds.s[18];
                     delete sectionScopes['$$index_' + $scope.index];
-                } else {
-                    ++cov_11xmgbcuds.b[2][1];
                 }
-                var sectionScopesEmpty = (++cov_11xmgbcuds.s[19], true);
-                ++cov_11xmgbcuds.s[20];
+                var sectionScopesEmpty = true;
                 for (var property in $scope.task._movingTaskSections) {
-                    ++cov_11xmgbcuds.s[21];
-
                     if ($scope.task._movingTaskSections.hasOwnProperty(property)) {
-                        ++cov_11xmgbcuds.b[3][0];
-                        ++cov_11xmgbcuds.s[22];
-
                         sectionScopesEmpty = false;
-                        ++cov_11xmgbcuds.s[23];
                         break;
-                    } else {
-                        ++cov_11xmgbcuds.b[3][1];
                     }
                 }
-                ++cov_11xmgbcuds.s[24];
                 if (sectionScopesEmpty) {
-                    ++cov_11xmgbcuds.b[4][0];
-                    ++cov_11xmgbcuds.s[25];
-
                     delete $scope.task._movingTaskSections;
-                } else {
-                    ++cov_11xmgbcuds.b[4][1];
                 }
             };
-            ++cov_11xmgbcuds.s[26];
             loadPreviousScope();
-            ++cov_11xmgbcuds.s[27];
             var getLeft = function getLeft() {
-                ++cov_11xmgbcuds.f[4];
-                ++cov_11xmgbcuds.s[28];
-
                 if (fromTask) {
-                    ++cov_11xmgbcuds.b[5][0];
-                    ++cov_11xmgbcuds.s[29];
-
                     return 0;
-                } else {
-                    ++cov_11xmgbcuds.b[5][1];
                 }
-                var gantt = (++cov_11xmgbcuds.s[30], $scope.task.rowsManager.gantt);
-                var taskLeft = (++cov_11xmgbcuds.s[31], $scope.task.left);
+                var gantt = $scope.task.rowsManager.gantt;
+                var taskLeft = $scope.task.left;
                 var from = void 0;
-                var disableMagnet = (++cov_11xmgbcuds.s[32], ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet));
-                ++cov_11xmgbcuds.s[33];
-                from = disableMagnet ? (++cov_11xmgbcuds.b[6][0], $scope.section.from) : (++cov_11xmgbcuds.b[6][1], gantt.getMagnetDate($scope.section.from));
-                var disableDaily = (++cov_11xmgbcuds.s[34], ganttUtils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily));
-                ++cov_11xmgbcuds.s[35];
-                if ((++cov_11xmgbcuds.b[8][0], !disableDaily) && (++cov_11xmgbcuds.b[8][1], gantt.options.value('daily'))) {
-                    ++cov_11xmgbcuds.b[7][0];
-                    ++cov_11xmgbcuds.s[36];
-
+                var disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+                from = disableMagnet ? $scope.section.from : gantt.getMagnetDate($scope.section.from);
+                var disableDaily = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
+                if (!disableDaily && gantt.options.value('daily')) {
                     from = (0, _moment2.default)(from).startOf('day');
-                } else {
-                    ++cov_11xmgbcuds.b[7][1];
                 }
-                var sectionLeft = (++cov_11xmgbcuds.s[37], gantt.getPositionByDate(from));
-                ++cov_11xmgbcuds.s[38];
+                var sectionLeft = gantt.getPositionByDate(from);
                 return sectionLeft - taskLeft;
             };
-            ++cov_11xmgbcuds.s[39];
             var getRight = function getRight() {
-                ++cov_11xmgbcuds.f[5];
-
-                var keepProportions = (++cov_11xmgbcuds.s[40], ganttUtils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions));
-                ++cov_11xmgbcuds.s[41];
-                if ((++cov_11xmgbcuds.b[10][0], toTask) && (++cov_11xmgbcuds.b[10][1], keepProportions)) {
-                    ++cov_11xmgbcuds.b[9][0];
-                    ++cov_11xmgbcuds.s[42];
-
+                var keepProportions = ganttUtils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
+                if (toTask && keepProportions) {
                     return $scope.task.width;
-                } else {
-                    ++cov_11xmgbcuds.b[9][1];
                 }
-                var gantt = (++cov_11xmgbcuds.s[43], $scope.task.rowsManager.gantt);
-                var taskLeft = (++cov_11xmgbcuds.s[44], $scope.task.left);
-                var disableMagnet = (++cov_11xmgbcuds.s[45], ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet));
-                var to = (++cov_11xmgbcuds.s[46], disableMagnet ? (++cov_11xmgbcuds.b[11][0], $scope.section.to) : (++cov_11xmgbcuds.b[11][1], gantt.getMagnetDate($scope.section.to)));
-                var disableDaily = (++cov_11xmgbcuds.s[47], ganttUtils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily));
-                ++cov_11xmgbcuds.s[48];
-                if ((++cov_11xmgbcuds.b[13][0], !disableDaily) && (++cov_11xmgbcuds.b[13][1], gantt.options.value('daily'))) {
-                    ++cov_11xmgbcuds.b[12][0];
-                    ++cov_11xmgbcuds.s[49];
-
+                var gantt = $scope.task.rowsManager.gantt;
+                var taskLeft = $scope.task.left;
+                var disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
+                var to = disableMagnet ? $scope.section.to : gantt.getMagnetDate($scope.section.to);
+                var disableDaily = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableDaily', $scope.$parent.pluginScope.disableDaily);
+                if (!disableDaily && gantt.options.value('daily')) {
                     to = (0, _moment2.default)(to).startOf('day');
-                } else {
-                    ++cov_11xmgbcuds.b[12][1];
                 }
-                var sectionRight = (++cov_11xmgbcuds.s[50], gantt.getPositionByDate(to));
-                ++cov_11xmgbcuds.s[51];
+                var sectionRight = gantt.getPositionByDate(to);
                 return sectionRight - taskLeft;
             };
-            ++cov_11xmgbcuds.s[52];
             var getRelative = function getRelative(position) {
-                ++cov_11xmgbcuds.f[6];
-                ++cov_11xmgbcuds.s[53];
-
                 return position / $scope.task.width * 100;
             };
-            ++cov_11xmgbcuds.s[54];
             var updatePosition = function updatePosition() {
-                ++cov_11xmgbcuds.f[7];
-
-                var sectionLeft = (++cov_11xmgbcuds.s[55], getLeft());
-                var sectionWidth = (++cov_11xmgbcuds.s[56], getRight() - sectionLeft);
-                var keepProportions = (++cov_11xmgbcuds.s[57], ganttUtils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions));
-                ++cov_11xmgbcuds.s[58];
+                var sectionLeft = getLeft();
+                var sectionWidth = getRight() - sectionLeft;
+                var keepProportions = ganttUtils.firstProperty([$scope.section, $scope.options], 'keepProportions', $scope.$parent.pluginScope.keepProportions);
                 if (keepProportions) {
-                    ++cov_11xmgbcuds.b[14][0];
-                    ++cov_11xmgbcuds.s[59];
-
                     $scope.sectionCss.left = getRelative(sectionLeft) + '%';
-                    ++cov_11xmgbcuds.s[60];
                     $scope.sectionCss.width = getRelative(sectionWidth) + '%';
                 } else {
-                    ++cov_11xmgbcuds.b[14][1];
-                    ++cov_11xmgbcuds.s[61];
-
                     $scope.sectionCss.left = sectionLeft + 'px';
-                    ++cov_11xmgbcuds.s[62];
                     $scope.sectionCss.width = sectionWidth + 'px';
                 }
             };
-            ++cov_11xmgbcuds.s[63];
             var updateCss = function updateCss() {
-                ++cov_11xmgbcuds.f[8];
-                ++cov_11xmgbcuds.s[64];
-
                 if ($scope.section.color) {
-                    ++cov_11xmgbcuds.b[15][0];
-                    ++cov_11xmgbcuds.s[65];
-
                     $scope.sectionCss['background-color'] = $scope.section.color;
                 } else {
-                    ++cov_11xmgbcuds.b[15][1];
-                    ++cov_11xmgbcuds.s[66];
-
                     $scope.sectionCss['background-color'] = undefined;
                 }
             };
-            ++cov_11xmgbcuds.s[67];
             if ($scope.sectionCss === undefined) {
-                ++cov_11xmgbcuds.b[16][0];
-                ++cov_11xmgbcuds.s[68];
-
                 $scope.sectionCss = {};
-                ++cov_11xmgbcuds.s[69];
                 updatePosition();
-                ++cov_11xmgbcuds.s[70];
                 updateCss();
-            } else {
-                ++cov_11xmgbcuds.b[16][1];
             }
-            ++cov_11xmgbcuds.s[71];
             var taskChangeHandler = function taskChangeHandler(task) {
-                ++cov_11xmgbcuds.f[9];
-                ++cov_11xmgbcuds.s[72];
-
                 if (task === $scope.task) {
-                    ++cov_11xmgbcuds.b[17][0];
-
-                    var gantt = (++cov_11xmgbcuds.s[73], $scope.task.rowsManager.gantt);
-                    var sectionLeft = (++cov_11xmgbcuds.s[74], $element[0].offsetLeft);
-                    var disableMagnet = (++cov_11xmgbcuds.s[75], ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet));
+                    var gantt = $scope.task.rowsManager.gantt;
+                    var sectionLeft = $element[0].offsetLeft;
+                    var disableMagnet = ganttUtils.firstProperty([$scope.section, $scope.options], 'disableMagnet', $scope.$parent.pluginScope.disableMagnet);
                     var from = void 0;
-                    ++cov_11xmgbcuds.s[76];
                     if (fromTask) {
-                        ++cov_11xmgbcuds.b[18][0];
-                        ++cov_11xmgbcuds.s[77];
-
                         from = $scope.task.model.from;
                     } else {
-                        ++cov_11xmgbcuds.b[18][1];
-                        ++cov_11xmgbcuds.s[78];
-
                         from = gantt.getDateByPosition($scope.task.modelLeft + sectionLeft, !disableMagnet);
                     }
                     var to = void 0;
-                    ++cov_11xmgbcuds.s[79];
                     if (toTask) {
-                        ++cov_11xmgbcuds.b[19][0];
-                        ++cov_11xmgbcuds.s[80];
-
                         to = $scope.task.model.to;
                     } else {
-                        ++cov_11xmgbcuds.b[19][1];
-
-                        var sectionRight = (++cov_11xmgbcuds.s[81], sectionLeft + $element[0].offsetWidth);
-                        ++cov_11xmgbcuds.s[82];
+                        var sectionRight = sectionLeft + $element[0].offsetWidth;
                         to = gantt.getDateByPosition($scope.task.modelLeft + sectionRight, !disableMagnet);
                     }
-                    ++cov_11xmgbcuds.s[83];
                     $scope.section.from = from;
-                    ++cov_11xmgbcuds.s[84];
                     $scope.section.to = to;
-                    ++cov_11xmgbcuds.s[85];
                     updatePosition();
-                } else {
-                    ++cov_11xmgbcuds.b[17][1];
                 }
             };
-            ++cov_11xmgbcuds.s[86];
             var taskCleanHandler = function taskCleanHandler(taskModel) {
-                ++cov_11xmgbcuds.f[10];
-                ++cov_11xmgbcuds.s[87];
-
                 if (taskModel.id === $scope.task.model.id) {
-                    ++cov_11xmgbcuds.b[20][0];
-
-                    var model = (++cov_11xmgbcuds.s[88], $scope.section);
-                    ++cov_11xmgbcuds.s[89];
-                    if ((++cov_11xmgbcuds.b[22][0], model.from !== undefined) && (++cov_11xmgbcuds.b[22][1], !_moment2.default.isMoment(model.from))) {
-                        ++cov_11xmgbcuds.b[21][0];
-                        ++cov_11xmgbcuds.s[90];
-
+                    var model = $scope.section;
+                    if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
                         model.from = (0, _moment2.default)(model.from);
-                    } else {
-                        ++cov_11xmgbcuds.b[21][1];
                     }
-                    ++cov_11xmgbcuds.s[91];
-                    if ((++cov_11xmgbcuds.b[24][0], model.to !== undefined) && (++cov_11xmgbcuds.b[24][1], !_moment2.default.isMoment(model.to))) {
-                        ++cov_11xmgbcuds.b[23][0];
-                        ++cov_11xmgbcuds.s[92];
-
+                    if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
                         model.to = (0, _moment2.default)(model.to);
-                    } else {
-                        ++cov_11xmgbcuds.b[23][1];
                     }
-                } else {
-                    ++cov_11xmgbcuds.b[20][1];
                 }
             };
-            ++cov_11xmgbcuds.s[93];
             taskCleanHandler($scope.task.model);
-            ++cov_11xmgbcuds.s[94];
             $scope.task.rowsManager.gantt.api.tasks.on.clean($scope, taskCleanHandler);
-            ++cov_11xmgbcuds.s[95];
             $scope.task.rowsManager.gantt.api.tasks.on.change($scope, taskChangeHandler);
-            ++cov_11xmgbcuds.s[96];
             var beforeViewRowChangeHandler = function beforeViewRowChangeHandler(task) {
-                ++cov_11xmgbcuds.f[11];
-
-                var sectionScopes = (++cov_11xmgbcuds.s[97], task._movingTaskSections);
-                ++cov_11xmgbcuds.s[98];
+                var sectionScopes = task._movingTaskSections;
                 if (!sectionScopes) {
-                    ++cov_11xmgbcuds.b[25][0];
-                    ++cov_11xmgbcuds.s[99];
-
                     sectionScopes = {};
-                    ++cov_11xmgbcuds.s[100];
                     task._movingTaskSections = sectionScopes;
-                } else {
-                    ++cov_11xmgbcuds.b[25][1];
                 }
-                ++cov_11xmgbcuds.s[101];
                 sectionScopes['$$index_' + $scope.index] = {
                     'section': $scope.section,
                     'sectionCss': $scope.sectionCss,
@@ -19658,18 +17090,12 @@ exports.default = ["$templateCache", function ($templateCache) {
                     'toTask': toTask
                 };
             };
-            ++cov_11xmgbcuds.s[102];
             $scope.task.rowsManager.gantt.api.tasks.on.beforeViewRowChange($scope, beforeViewRowChangeHandler);
-            ++cov_11xmgbcuds.s[103];
             $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSection', $scope, $element);
-            ++cov_11xmgbcuds.s[104];
             $scope.$on('$destroy', function () {
-                ++cov_11xmgbcuds.f[12];
-                ++cov_11xmgbcuds.s[105];
-
                 $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSection', $scope, $element);
             });
-        }
+        }]
     };
 }];
 
@@ -19678,8 +17104,6 @@ var _moment = __webpack_require__(3);
 var _moment2 = _interopRequireDefault(_moment);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-++cov_11xmgbcuds.s[0];
 
 __webpack_require__(253);
 
@@ -19714,7 +17138,9 @@ exports.default = ["$templateCache", function ($templateCache) {
         },
         replace: true,
         scope: true,
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ["$scope", "$element", function controller($scope, $element) {
+            'ngInject';
+
             $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSections', $scope, $element);
             $scope.$on('$destroy', function () {
                 $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSections', $scope, $element);
@@ -21660,7 +19086,9 @@ exports.default = ["$log", "$timeout", "$compile", "$document", "$templateCache"
         },
         scope: true,
         replace: true,
-        controller: function controller($scope, $element, ganttUtils) {
+        controller: ["$scope", "$element", "ganttUtils", function controller($scope, $element, ganttUtils) {
+            'ngInject';
+
             var bodyElement = angular.element($document[0].body);
             var parentElement = $scope.task.$element;
             var showTooltipPromise = void 0;
@@ -21808,7 +19236,7 @@ exports.default = ["$log", "$timeout", "$compile", "$document", "$templateCache"
             $scope.$on('$destroy', function () {
                 $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
             });
-        }
+        }]
     };
 }];
 

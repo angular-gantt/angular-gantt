@@ -19,7 +19,8 @@ export default function ($templateCache) {
     },
     replace: true,
     scope: true,
-    controller: ['$scope', '$element', function ($scope, $element) {
+    controller: function ($scope, $element) {
+      'ngInject';
       $scope.getClasses = function () {
         let classes = [];
 
@@ -59,6 +60,6 @@ export default function ($templateCache) {
       $scope.$on('$destroy', function () {
         $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
       });
-    }]
+    }
   };
 }

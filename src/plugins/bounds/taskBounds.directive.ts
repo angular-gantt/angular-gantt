@@ -22,7 +22,8 @@ export default function ($templateCache) {
     },
     replace: true,
     scope: true,
-    controller: ['$scope', '$element', function ($scope, $element) {
+    controller: function ($scope, $element) {
+      'ngInject';
       $element.toggleClass('ng-hide', true);
 
       $scope.simplifyMoment = function (d) {
@@ -61,6 +62,6 @@ export default function ($templateCache) {
       $scope.$on('$destroy', function () {
         $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttBounds', $scope, $element);
       });
-    }]
+    }
   };
 }

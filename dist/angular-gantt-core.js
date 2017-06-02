@@ -5401,7 +5401,9 @@ exports.default = ["Gantt", "ganttEnableNgAnimate", "$timeout", "$templateCache"
             api: '=?',
             options: '=?'
         },
-        controller: ['$scope', '$element', function ($scope, $element) {
+        controller: ["$scope", "$element", function controller($scope, $element) {
+            'ngInject';
+
             for (var option in $scope.options) {
                 $scope[option] = $scope.options[option];
             }
@@ -8283,7 +8285,9 @@ exports.default = function () {
     return {
         restrict: 'A',
         scope: {},
-        controller: ['$scope', function ($scope) {
+        controller: ["$scope", function controller($scope) {
+            'ngInject';
+
             $scope.horizontal = [];
             $scope.vertical = [];
             this.registerVerticalReceiver = function (element) {
@@ -8507,7 +8511,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttContainerHeightListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttContainerHeight';
@@ -8551,7 +8557,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttContainerWidthListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttContainerWidth';
@@ -8595,7 +8603,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttElementHeightListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttElementHeight';
@@ -8633,7 +8643,9 @@ exports.default = function () {
 
     return {
         restrict: 'A',
-        controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+        controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+            'ngInject';
+
             var scopeVariable = $attrs.ganttElementWidthListener;
             if (scopeVariable === '') {
                 scopeVariable = 'ganttElementWidth';
@@ -9272,7 +9284,9 @@ var GanttDirectiveBuilder = exports.GanttDirectiveBuilder = function () {
                         }
                     };
                 },
-                controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+                controller: ["$scope", "$element", "$attrs", function controller($scope, $element, $attrs) {
+                    'ngInject';
+
                     var controller = this;
                     if (controllerFunction !== undefined) {
                         controllerFunction($scope, $element, $attrs, controller);
@@ -9319,9 +9333,11 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GanttDom = function () {
+    GanttDom.$inject = ["$document"];
     function GanttDom($document) {
-        (0, _classCallCheck3.default)(this, GanttDom);
+        'ngInject';
 
+        (0, _classCallCheck3.default)(this, GanttDom);
         this.$document = $document;
     }
 

@@ -4,6 +4,7 @@ export default class GanttDom {
   $document: IDocumentService;
 
   constructor($document: IDocumentService) {
+    'ngInject';
     this.$document = $document;
   };
 

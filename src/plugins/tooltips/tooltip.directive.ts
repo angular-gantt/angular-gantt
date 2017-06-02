@@ -35,6 +35,7 @@ export default function ($log: ILogService,
     scope: true,
     replace: true,
     controller: function ($scope, $element, ganttUtils) {
+      'ngInject';
       let bodyElement = angular.element($document[0].body);
       let parentElement = $scope.task.$element;
       let showTooltipPromise;

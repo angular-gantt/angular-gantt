@@ -54,7 +54,8 @@ export class GanttDirectiveBuilder {
           }
         };
       },
-      controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+      controller: function ($scope, $element, $attrs) {
+        'ngInject';
         let controller = this;
 
         if (controllerFunction !== undefined) {
@@ -69,7 +70,7 @@ export class GanttDirectiveBuilder {
         $scope.$applyAsync(function () {
           $scope.gantt.api.directives.raise.new(directiveName, $scope, $element, $attrs, controller);
         });
-      }]
+      }
     };
 
     if (!templateUrl) {

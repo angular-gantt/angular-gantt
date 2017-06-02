@@ -19,11 +19,12 @@ export default function ($templateCache) {
     },
     replace: true,
     scope: true,
-    controller: ['$scope', '$element', function ($scope, $element) {
+    controller: function ($scope, $element) {
+      'ngInject';
       $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSections', $scope, $element);
       $scope.$on('$destroy', function () {
         $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSections', $scope, $element);
       });
-    }]
+    }
   };
 }
