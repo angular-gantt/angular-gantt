@@ -14,7 +14,7 @@
 		exports["angular-gantt-core"] = factory(require("angular"), require("moment"));
 	else
 		root["angular-gantt-core"] = factory(root["angular"], root["moment"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -80,14 +80,23 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
+"use strict";
+
+
+exports.__esModule = true;
+
+exports.default = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
 
 /***/ }),
 /* 1 */
@@ -104,11 +113,56 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
 
 exports.__esModule = true;
 
-var _iterator = __webpack_require__(118);
+var _defineProperty = __webpack_require__(126);
+
+var _defineProperty2 = _interopRequireDefault(_defineProperty);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      (0, _defineProperty2.default)(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(133), __esModule: true };
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _iterator = __webpack_require__(130);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
-var _symbol = __webpack_require__(117);
+var _symbol = __webpack_require__(129);
 
 var _symbol2 = _interopRequireDefault(_symbol);
 
@@ -123,7 +177,7 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 };
 
 /***/ }),
-/* 3 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -133,321 +187,324 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _angular = __webpack_require__(0);
+var _angular = __webpack_require__(1);
 
 var _angular2 = _interopRequireDefault(_angular);
 
-var _gantt = __webpack_require__(41);
+var _gantt = __webpack_require__(64);
 
 var _gantt2 = _interopRequireDefault(_gantt);
 
-var _resizer = __webpack_require__(75);
+var _resizer = __webpack_require__(83);
 
 var _resizer2 = _interopRequireDefault(_resizer);
 
-var _containerHeightListener = __webpack_require__(81);
+var _containerHeightListener = __webpack_require__(89);
 
 var _containerHeightListener2 = _interopRequireDefault(_containerHeightListener);
 
-var _containerWidthListener = __webpack_require__(82);
+var _containerWidthListener = __webpack_require__(90);
 
 var _containerWidthListener2 = _interopRequireDefault(_containerWidthListener);
 
-var _elementHeightListener = __webpack_require__(83);
+var _elementHeightListener = __webpack_require__(91);
 
 var _elementHeightListener2 = _interopRequireDefault(_elementHeightListener);
 
-var _elementWidthListener = __webpack_require__(84);
+var _elementWidthListener = __webpack_require__(92);
 
 var _elementWidthListener2 = _interopRequireDefault(_elementWidthListener);
 
-var _horizontalScrollReceiver = __webpack_require__(76);
+var _horizontalScrollReceiver = __webpack_require__(84);
 
 var _horizontalScrollReceiver2 = _interopRequireDefault(_horizontalScrollReceiver);
 
-var _scrollable = __webpack_require__(79);
+var _scrollable = __webpack_require__(87);
 
 var _scrollable2 = _interopRequireDefault(_scrollable);
 
-var _scrollManager = __webpack_require__(77);
+var _scrollManager = __webpack_require__(85);
 
 var _scrollManager2 = _interopRequireDefault(_scrollManager);
 
-var _scrollSender = __webpack_require__(78);
+var _scrollSender = __webpack_require__(86);
 
 var _scrollSender2 = _interopRequireDefault(_scrollSender);
 
-var _verticalScrollReceiver = __webpack_require__(80);
+var _verticalScrollReceiver = __webpack_require__(88);
 
 var _verticalScrollReceiver2 = _interopRequireDefault(_verticalScrollReceiver);
 
-var _body = __webpack_require__(85);
+var _body = __webpack_require__(93);
 
 var _body2 = _interopRequireDefault(_body);
 
-var _bodyBackground = __webpack_require__(86);
+var _bodyBackground = __webpack_require__(94);
 
 var _bodyBackground2 = _interopRequireDefault(_bodyBackground);
 
-var _bodyColumns = __webpack_require__(87);
+var _bodyColumns = __webpack_require__(95);
 
 var _bodyColumns2 = _interopRequireDefault(_bodyColumns);
 
-var _bodyForeground = __webpack_require__(88);
+var _bodyForeground = __webpack_require__(96);
 
 var _bodyForeground2 = _interopRequireDefault(_bodyForeground);
 
-var _bodyRows = __webpack_require__(89);
+var _bodyRows = __webpack_require__(97);
 
 var _bodyRows2 = _interopRequireDefault(_bodyRows);
 
-var _column = __webpack_require__(90);
+var _column = __webpack_require__(98);
 
 var _column2 = _interopRequireDefault(_column);
 
-var _columnHeader = __webpack_require__(91);
+var _columnHeader = __webpack_require__(99);
 
 var _columnHeader2 = _interopRequireDefault(_columnHeader);
 
-var _header = __webpack_require__(92);
+var _header = __webpack_require__(100);
 
 var _header2 = _interopRequireDefault(_header);
 
-var _headerColumns = __webpack_require__(93);
+var _headerColumns = __webpack_require__(101);
 
 var _headerColumns2 = _interopRequireDefault(_headerColumns);
 
-var _row = __webpack_require__(94);
+var _row = __webpack_require__(102);
 
 var _row2 = _interopRequireDefault(_row);
 
-var _rowBackground = __webpack_require__(95);
+var _rowBackground = __webpack_require__(103);
 
 var _rowBackground2 = _interopRequireDefault(_rowBackground);
 
-var _rowLabel = __webpack_require__(96);
+var _rowLabel = __webpack_require__(104);
 
 var _rowLabel2 = _interopRequireDefault(_rowLabel);
 
-var _scrollableHeader = __webpack_require__(97);
+var _scrollableHeader = __webpack_require__(105);
 
 var _scrollableHeader2 = _interopRequireDefault(_scrollableHeader);
 
-var _side = __webpack_require__(98);
+var _side = __webpack_require__(106);
 
 var _side2 = _interopRequireDefault(_side);
 
-var _sideBackground = __webpack_require__(99);
+var _sideBackground = __webpack_require__(107);
 
 var _sideBackground2 = _interopRequireDefault(_sideBackground);
 
-var _sideContent = __webpack_require__(100);
+var _sideContent = __webpack_require__(108);
 
 var _sideContent2 = _interopRequireDefault(_sideContent);
 
-var _task = __webpack_require__(101);
+var _task = __webpack_require__(109);
 
 var _task2 = _interopRequireDefault(_task);
 
-var _taskBackground = __webpack_require__(102);
+var _taskBackground = __webpack_require__(110);
 
 var _taskBackground2 = _interopRequireDefault(_taskBackground);
 
-var _taskContent = __webpack_require__(103);
+var _taskContent = __webpack_require__(111);
 
 var _taskContent2 = _interopRequireDefault(_taskContent);
 
-var _taskForeground = __webpack_require__(104);
+var _taskForeground = __webpack_require__(112);
 
 var _taskForeground2 = _interopRequireDefault(_taskForeground);
 
-var _timeFrame = __webpack_require__(105);
+var _timeFrame = __webpack_require__(113);
 
 var _timeFrame2 = _interopRequireDefault(_timeFrame);
 
-var _timespan = __webpack_require__(106);
+var _timespan = __webpack_require__(114);
 
 var _timespan2 = _interopRequireDefault(_timespan);
 
-var _ganttBindCompileHtml = __webpack_require__(111);
+var _ganttBindCompileHtml = __webpack_require__(119);
 
 var _ganttBindCompileHtml2 = _interopRequireDefault(_ganttBindCompileHtml);
 
-var _gantt3 = __webpack_require__(52);
+var _gantt3 = __webpack_require__(68);
 
 var _gantt4 = _interopRequireDefault(_gantt3);
 
-var _api = __webpack_require__(42);
+var _api = __webpack_require__(37);
 
 var _api2 = _interopRequireDefault(_api);
 
-var _options = __webpack_require__(43);
+var _options = __webpack_require__(38);
 
 var _options2 = _interopRequireDefault(_options);
 
-var _calendar = __webpack_require__(44);
+var _calendar = __webpack_require__(39);
 
 var _calendar2 = _interopRequireDefault(_calendar);
 
-var _scroll = __webpack_require__(65);
+var _scroll = __webpack_require__(47);
 
 var _scroll2 = _interopRequireDefault(_scroll);
 
-var _body3 = __webpack_require__(58);
+var _body3 = __webpack_require__(45);
 
 var _body4 = _interopRequireDefault(_body3);
 
-var _bodyColumns3 = __webpack_require__(60);
+var _bodyColumns3 = __webpack_require__(72);
 
 var _bodyColumns4 = _interopRequireDefault(_bodyColumns3);
 
-var _bodyRows3 = __webpack_require__(62);
+var _bodyRows3 = __webpack_require__(74);
 
 var _bodyRows4 = _interopRequireDefault(_bodyRows3);
 
-var _bodyBackground3 = __webpack_require__(59);
+var _bodyBackground3 = __webpack_require__(71);
 
 var _bodyBackground4 = _interopRequireDefault(_bodyBackground3);
 
-var _bodyForeground3 = __webpack_require__(61);
+var _bodyForeground3 = __webpack_require__(73);
 
 var _bodyForeground4 = _interopRequireDefault(_bodyForeground3);
 
-var _rowHeader = __webpack_require__(55);
-
-var _rowHeader2 = _interopRequireDefault(_rowHeader);
-
-var _header3 = __webpack_require__(63);
+var _header3 = __webpack_require__(46);
 
 var _header4 = _interopRequireDefault(_header3);
 
-var _headerColumns3 = __webpack_require__(64);
+var _headerColumns3 = __webpack_require__(75);
 
 var _headerColumns4 = _interopRequireDefault(_headerColumns3);
 
-var _side3 = __webpack_require__(66);
+var _side3 = __webpack_require__(48);
 
 var _side4 = _interopRequireDefault(_side3);
 
-var _objectModel = __webpack_require__(53);
+var _objectModel = __webpack_require__(43);
 
 var _objectModel2 = _interopRequireDefault(_objectModel);
 
-var _task3 = __webpack_require__(57);
+var _task3 = __webpack_require__(70);
 
 var _task4 = _interopRequireDefault(_task3);
 
-var _row3 = __webpack_require__(54);
+var _row3 = __webpack_require__(69);
 
 var _row4 = _interopRequireDefault(_row3);
 
-var _rowsManager = __webpack_require__(56);
+var _rowsManager = __webpack_require__(44);
 
 var _rowsManager2 = _interopRequireDefault(_rowsManager);
 
-var _column3 = __webpack_require__(46);
+var _column3 = __webpack_require__(23);
 
 var _column4 = _interopRequireDefault(_column3);
 
-var _columnHeader3 = __webpack_require__(49);
-
-var _columnHeader4 = _interopRequireDefault(_columnHeader3);
-
-var _columnBuilder = __webpack_require__(47);
+var _columnBuilder = __webpack_require__(65);
 
 var _columnBuilder2 = _interopRequireDefault(_columnBuilder);
 
-var _columnsManager = __webpack_require__(50);
+var _columnHeader3 = __webpack_require__(41);
+
+var _columnHeader4 = _interopRequireDefault(_columnHeader3);
+
+var _columnsManager = __webpack_require__(42);
 
 var _columnsManager2 = _interopRequireDefault(_columnsManager);
 
-var _timespan3 = __webpack_require__(67);
+var _timespan3 = __webpack_require__(76);
 
 var _timespan4 = _interopRequireDefault(_timespan3);
 
-var _timespansManager = __webpack_require__(68);
+var _timespansManager = __webpack_require__(49);
 
 var _timespansManager2 = _interopRequireDefault(_timespansManager);
 
-var _currentDateManager = __webpack_require__(45);
+var _currentDateManager = __webpack_require__(40);
 
 var _currentDateManager2 = _interopRequireDefault(_currentDateManager);
 
-var _hierarchy = __webpack_require__(71);
+var _hierarchy = __webpack_require__(79);
 
 var _hierarchy2 = _interopRequireDefault(_hierarchy);
 
-var _debounce = __webpack_require__(107);
+var _debounce = __webpack_require__(115);
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _smartEvent = __webpack_require__(115);
+var _smartEvent = __webpack_require__(123);
 
 var _smartEvent2 = _interopRequireDefault(_smartEvent);
 
-var _enableNgAnimate = __webpack_require__(110);
-
-var _enableNgAnimate2 = _interopRequireDefault(_enableNgAnimate);
-
-var _utils = __webpack_require__(72);
-
-var _utils2 = _interopRequireDefault(_utils);
-
-var _arrays = __webpack_require__(69);
-
-var _arrays2 = _interopRequireDefault(_arrays);
-
-var _directiveBuilder = __webpack_require__(108);
+var _directiveBuilder = __webpack_require__(116);
 
 var _directiveBuilder2 = _interopRequireDefault(_directiveBuilder);
 
-var _binarySearch = __webpack_require__(70);
+var _enableNgAnimate = __webpack_require__(118);
+
+var _enableNgAnimate2 = _interopRequireDefault(_enableNgAnimate);
+
+var _utils = __webpack_require__(80);
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _arrays = __webpack_require__(77);
+
+var _arrays2 = _interopRequireDefault(_arrays);
+
+var _binarySearch = __webpack_require__(78);
 
 var _binarySearch2 = _interopRequireDefault(_binarySearch);
 
-var _layout = __webpack_require__(112);
+var _layout = __webpack_require__(120);
 
 var _layout2 = _interopRequireDefault(_layout);
 
-var _headersGenerator = __webpack_require__(51);
+var _headersGenerator = __webpack_require__(67);
 
 var _headersGenerator2 = _interopRequireDefault(_headersGenerator);
 
-var _columnGenerator = __webpack_require__(48);
+var _columnGenerator = __webpack_require__(66);
 
 var _columnGenerator2 = _interopRequireDefault(_columnGenerator);
 
-var _dom = __webpack_require__(109);
+var _dom = __webpack_require__(117);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _mouseButton = __webpack_require__(113);
+var _mouseButton = __webpack_require__(121);
 
 var _mouseButton2 = _interopRequireDefault(_mouseButton);
 
-var _mouseOffset = __webpack_require__(114);
+var _mouseOffset = __webpack_require__(122);
 
 var _mouseOffset2 = _interopRequireDefault(_mouseOffset);
 
-var _columnLimit = __webpack_require__(73);
+var _columnLimit = __webpack_require__(81);
 
 var _columnLimit2 = _interopRequireDefault(_columnLimit);
 
-var _taskLimit = __webpack_require__(74);
+var _taskLimit = __webpack_require__(82);
 
 var _taskLimit2 = _interopRequireDefault(_taskLimit);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-__webpack_require__(116);
-__webpack_require__(40);
+__webpack_require__(124);
+__webpack_require__(63);
 
 var _module = 'gantt';
-_angular2.default.module(_module, []).directive('gantt', _gantt2.default).directive('ganttResizer', _resizer2.default).directive('ganttContainerWidthListener', _containerWidthListener2.default).directive('ganttContainerHeightListener', _containerHeightListener2.default).directive('ganttElementWidthListener', _elementWidthListener2.default).directive('ganttElementHeightListener', _elementHeightListener2.default).directive('ganttHorizontalScrollReceiver', _horizontalScrollReceiver2.default).directive('ganttScrollable', _scrollable2.default).directive('ganttScrollManager', _scrollManager2.default).directive('ganttScrollSender', _scrollSender2.default).directive('ganttVerticalScrollReceiver', _verticalScrollReceiver2.default).directive('ganttBindCompileHtml', _ganttBindCompileHtml2.default).directive('ganttBody', _body2.default).directive('ganttBodyBackground', _bodyBackground2.default).directive('ganttBodyColumns', _bodyColumns2.default).directive('ganttBodyForeground', _bodyForeground2.default).directive('ganttBodyRows', _bodyRows2.default).directive('ganttColumn', _column2.default).directive('ganttColumnHeader', _columnHeader2.default).directive('ganttHeader', _header2.default).directive('ganttHeaderColumns', _headerColumns2.default).directive('ganttRow', _row2.default).directive('ganttRowBackground', _rowBackground2.default).directive('ganttRowLabel', _rowLabel2.default).directive('ganttScrollableHeader', _scrollableHeader2.default).directive('ganttSide', _side2.default).directive('ganttSideBackground', _sideBackground2.default).directive('ganttSideContent', _sideContent2.default).directive('ganttTask', _task2.default).directive('ganttTaskBackground', _taskBackground2.default).directive('ganttTaskContent', _taskContent2.default).directive('ganttTaskForeground', _taskForeground2.default).directive('ganttTimeFrame', _timeFrame2.default).directive('ganttTimespan', _timespan2.default).factory('Gantt', _gantt4.default).factory('GanttApi', _api2.default).factory('GanttOptions', _options2.default).factory('GanttCalendar', _calendar2.default).factory('GanttScroll', _scroll2.default).factory('GanttBody', _body4.default).factory('GanttBodyColumns', _bodyColumns4.default).factory('GanttBodyRows', _bodyRows4.default).factory('GanttBodyBackground', _bodyBackground4.default).factory('GanttBodyForeground', _bodyForeground4.default).factory('GanttRowHeader', _rowHeader2.default).factory('GanttHeader', _header4.default).factory('GanttHeaderColumns', _headerColumns4.default).factory('GanttSide', _side4.default).factory('GanttObjectModel', _objectModel2.default).factory('GanttTask', _task4.default).factory('GanttRow', _row4.default).factory('GanttRowsManager', _rowsManager2.default).factory('GanttColumn', _column4.default).factory('GanttColumnHeader', _columnHeader4.default).factory('GanttColumnBuilder', _columnBuilder2.default).factory('GanttColumnsManager', _columnsManager2.default).factory('GanttTimespan', _timespan4.default).factory('GanttTimespansManager', _timespansManager2.default).factory('GanttCurrentDateManager', _currentDateManager2.default).factory('GanttHierarchy', _hierarchy2.default).factory('ganttDebounce', _debounce2.default).factory('ganttSmartEvent', _smartEvent2.default).service('ganttEnableNgAnimate', _enableNgAnimate2.default).service('ganttUtils', _utils2.default).service('ganttArrays', _arrays2.default).service('GanttDirectiveBuilder', _directiveBuilder2.default).service('ganttBinarySearch', _binarySearch2.default).service('ganttLayout', _layout2.default).service('GanttHeadersGenerator', _headersGenerator2.default).service('GanttColumnGenerator', _columnGenerator2.default).service('ganttDom', _dom2.default).service('ganttMouseButton', _mouseButton2.default).service('ganttMouseOffset', _mouseOffset2.default).filter('ganttColumnLimit', _columnLimit2.default).filter('ganttTaskLimit', _taskLimit2.default);
+_angular2.default.module(_module, []).directive('gantt', _gantt2.default).directive('ganttResizer', _resizer2.default).directive('ganttContainerWidthListener', _containerWidthListener2.default).directive('ganttContainerHeightListener', _containerHeightListener2.default).directive('ganttElementWidthListener', _elementWidthListener2.default).directive('ganttElementHeightListener', _elementHeightListener2.default).directive('ganttHorizontalScrollReceiver', _horizontalScrollReceiver2.default).directive('ganttScrollable', _scrollable2.default).directive('ganttScrollManager', _scrollManager2.default).directive('ganttScrollSender', _scrollSender2.default).directive('ganttVerticalScrollReceiver', _verticalScrollReceiver2.default).directive('ganttBindCompileHtml', _ganttBindCompileHtml2.default).directive('ganttBody', _body2.default).directive('ganttBodyBackground', _bodyBackground2.default).directive('ganttBodyColumns', _bodyColumns2.default).directive('ganttBodyForeground', _bodyForeground2.default).directive('ganttBodyRows', _bodyRows2.default).directive('ganttColumn', _column2.default).directive('ganttColumnHeader', _columnHeader2.default).directive('ganttHeader', _header2.default).directive('ganttHeaderColumns', _headerColumns2.default).directive('ganttRow', _row2.default).directive('ganttRowBackground', _rowBackground2.default).directive('ganttRowLabel', _rowLabel2.default).directive('ganttScrollableHeader', _scrollableHeader2.default).directive('ganttSide', _side2.default).directive('ganttSideBackground', _sideBackground2.default).directive('ganttSideContent', _sideContent2.default).directive('ganttTask', _task2.default).directive('ganttTaskBackground', _taskBackground2.default).directive('ganttTaskContent', _taskContent2.default).directive('ganttTaskForeground', _taskForeground2.default).directive('ganttTimeFrame', _timeFrame2.default).directive('ganttTimespan', _timespan2.default).factory('GanttDirectiveBuilder', _directiveBuilder2.default).factory('Gantt', _gantt4.default).factory('GanttApi', _api2.default).factory('GanttOptions', _options2.default).factory('GanttCalendar', _calendar2.default).factory('GanttScroll', _scroll2.default).factory('GanttBody', _body4.default).factory('GanttBodyColumns', _bodyColumns4.default).factory('GanttBodyRows', _bodyRows4.default).factory('GanttBodyBackground', _bodyBackground4.default).factory('GanttBodyForeground', _bodyForeground4.default).factory('GanttHeader', _header4.default).factory('GanttHeaderColumns', _headerColumns4.default).factory('GanttSide', _side4.default).factory('GanttObjectModel', _objectModel2.default).factory('GanttTask', _task4.default).factory('GanttRow', _row4.default).factory('GanttRowsManager', _rowsManager2.default).factory('GanttColumn', _column4.default).factory('GanttColumnHeader', _columnHeader4.default).factory('GanttColumnBuilder', _columnBuilder2.default).factory('GanttColumnsManager', _columnsManager2.default).factory('GanttTimespan', _timespan4.default).factory('GanttTimespansManager', _timespansManager2.default).factory('GanttCurrentDateManager', _currentDateManager2.default).factory('GanttHierarchy', _hierarchy2.default).factory('ganttDebounce', _debounce2.default).factory('GanttSmartEvent', _smartEvent2.default).service('ganttEnableNgAnimate', _enableNgAnimate2.default).service('ganttUtils', _utils2.default).service('ganttArrays', _arrays2.default).service('ganttBinarySearch', _binarySearch2.default).service('ganttLayout', _layout2.default).service('GanttHeadersGenerator', _headersGenerator2.default).service('GanttColumnGenerator', _columnGenerator2.default).service('ganttDom', _dom2.default).service('ganttMouseButton', _mouseButton2.default).service('ganttMouseOffset', _mouseOffset2.default).filter('ganttColumnLimit', _columnLimit2.default).filter('ganttTaskLimit', _taskLimit2.default);
 exports.default = _module;
 
 /***/ }),
-/* 4 */
+/* 7 */
+/***/ (function(module, exports) {
+
+var core = module.exports = {version: '2.4.0'};
+if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports) {
 
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -456,7 +513,32 @@ var global = module.exports = typeof window != 'undefined' && window.Math == Mat
 if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
 
 /***/ }),
-/* 5 */
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var store      = __webpack_require__(32)('wks')
+  , uid        = __webpack_require__(22)
+  , Symbol     = __webpack_require__(8).Symbol
+  , USE_SYMBOL = typeof Symbol == 'function';
+
+var $exports = module.exports = function(name){
+  return store[name] || (store[name] =
+    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
+};
+
+$exports.store = store;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Thank's IE8 for his funny defineProperty
+module.exports = !__webpack_require__(17)(function(){
+  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
+});
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports) {
 
 var hasOwnProperty = {}.hasOwnProperty;
@@ -465,48 +547,15 @@ module.exports = function(it, key){
 };
 
 /***/ }),
-/* 6 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// to indexed object, toObject with fallback for non-array-like ES3 strings
-var IObject = __webpack_require__(127)
-  , defined = __webpack_require__(18);
-module.exports = function(it){
-  return IObject(defined(it));
-};
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// Thank's IE8 for his funny defineProperty
-module.exports = !__webpack_require__(12)(function(){
-  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
-});
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var dP         = __webpack_require__(9)
-  , createDesc = __webpack_require__(15);
-module.exports = __webpack_require__(7) ? function(object, key, value){
-  return dP.f(object, key, createDesc(1, value));
-} : function(object, key, value){
-  object[key] = value;
-  return object;
-};
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var anObject       = __webpack_require__(11)
-  , IE8_DOM_DEFINE = __webpack_require__(33)
-  , toPrimitive    = __webpack_require__(27)
+var anObject       = __webpack_require__(14)
+  , IE8_DOM_DEFINE = __webpack_require__(52)
+  , toPrimitive    = __webpack_require__(34)
   , dP             = Object.defineProperty;
 
-exports.f = __webpack_require__(7) ? Object.defineProperty : function defineProperty(O, P, Attributes){
+exports.f = __webpack_require__(10) ? Object.defineProperty : function defineProperty(O, P, Attributes){
   anObject(O);
   P = toPrimitive(P, true);
   anObject(Attributes);
@@ -519,241 +568,34 @@ exports.f = __webpack_require__(7) ? Object.defineProperty : function defineProp
 };
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var store      = __webpack_require__(25)('wks')
-  , uid        = __webpack_require__(16)
-  , Symbol     = __webpack_require__(4).Symbol
-  , USE_SYMBOL = typeof Symbol == 'function';
-
-var $exports = module.exports = function(name){
-  return store[name] || (store[name] =
-    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
-};
-
-$exports.store = store;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(13);
-module.exports = function(it){
-  if(!isObject(it))throw TypeError(it + ' is not an object!');
-  return it;
-};
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-module.exports = function(exec){
-  try {
-    return !!exec();
-  } catch(e){
-    return true;
-  }
-};
-
-/***/ }),
 /* 13 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
+// to indexed object, toObject with fallback for non-array-like ES3 strings
+var IObject = __webpack_require__(146)
+  , defined = __webpack_require__(25);
 module.exports = function(it){
-  return typeof it === 'object' ? it !== null : typeof it === 'function';
+  return IObject(defined(it));
 };
 
 /***/ }),
 /* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// 19.1.2.14 / 15.2.3.14 Object.keys(O)
-var $keys       = __webpack_require__(38)
-  , enumBugKeys = __webpack_require__(19);
-
-module.exports = Object.keys || function keys(O){
-  return $keys(O, enumBugKeys);
-};
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports) {
-
-module.exports = function(bitmap, value){
-  return {
-    enumerable  : !(bitmap & 1),
-    configurable: !(bitmap & 2),
-    writable    : !(bitmap & 4),
-    value       : value
-  };
-};
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports) {
-
-var id = 0
-  , px = Math.random();
-module.exports = function(key){
-  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-};
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports) {
-
-var core = module.exports = {version: '2.4.0'};
-if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports) {
-
-// 7.2.1 RequireObjectCoercible(argument)
+var isObject = __webpack_require__(18);
 module.exports = function(it){
-  if(it == undefined)throw TypeError("Can't call method on  " + it);
+  if(!isObject(it))throw TypeError(it + ' is not an object!');
   return it;
 };
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports) {
-
-// IE 8- don't enum bug keys
-module.exports = (
-  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-).split(',');
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports) {
-
-module.exports = {};
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports) {
-
-module.exports = true;
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports) {
-
-exports.f = {}.propertyIsEnumerable;
-
-/***/ }),
-/* 23 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var def = __webpack_require__(9).f
-  , has = __webpack_require__(5)
-  , TAG = __webpack_require__(10)('toStringTag');
-
-module.exports = function(it, tag, stat){
-  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
-};
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var shared = __webpack_require__(25)('keys')
-  , uid    = __webpack_require__(16);
-module.exports = function(key){
-  return shared[key] || (shared[key] = uid(key));
-};
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global = __webpack_require__(4)
-  , SHARED = '__core-js_shared__'
-  , store  = global[SHARED] || (global[SHARED] = {});
-module.exports = function(key){
-  return store[key] || (store[key] = {});
-};
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports) {
-
-// 7.1.4 ToInteger
-var ceil  = Math.ceil
-  , floor = Math.floor;
-module.exports = function(it){
-  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-};
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 7.1.1 ToPrimitive(input [, PreferredType])
-var isObject = __webpack_require__(13);
-// instead of the ES6 spec version, we didn't implement @@toPrimitive case
-// and the second argument - flag - preferred type is a string
-module.exports = function(it, S){
-  if(!isObject(it))return it;
-  var fn, val;
-  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
-  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
-  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
-  throw TypeError("Can't convert object to primitive value");
-};
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global         = __webpack_require__(4)
-  , core           = __webpack_require__(17)
-  , LIBRARY        = __webpack_require__(21)
-  , wksExt         = __webpack_require__(29)
-  , defineProperty = __webpack_require__(9).f;
-module.exports = function(name){
-  var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
-  if(name.charAt(0) != '_' && !(name in $Symbol))defineProperty($Symbol, name, {value: wksExt.f(name)});
-};
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports.f = __webpack_require__(10);
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports) {
-
-var toString = {}.toString;
-
-module.exports = function(it){
-  return toString.call(it).slice(8, -1);
-};
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(13)
-  , document = __webpack_require__(4).document
-  // in old IE typeof document.createElement is 'object'
-  , is = isObject(document) && isObject(document.createElement);
-module.exports = function(it){
-  return is ? document.createElement(it) : {};
-};
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global    = __webpack_require__(4)
-  , core      = __webpack_require__(17)
-  , ctx       = __webpack_require__(124)
-  , hide      = __webpack_require__(8)
+var global    = __webpack_require__(8)
+  , core      = __webpack_require__(7)
+  , ctx       = __webpack_require__(50)
+  , hide      = __webpack_require__(16)
   , PROTOTYPE = 'prototype';
 
 var $export = function(type, name, source){
@@ -813,29 +655,5117 @@ $export.R = 128; // real proto method for `library`
 module.exports = $export;
 
 /***/ }),
-/* 33 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = !__webpack_require__(7) && !__webpack_require__(12)(function(){
-  return Object.defineProperty(__webpack_require__(31)('div'), 'a', {get: function(){ return 7; }}).a != 7;
+var dP         = __webpack_require__(12)
+  , createDesc = __webpack_require__(21);
+module.exports = __webpack_require__(10) ? function(object, key, value){
+  return dP.f(object, key, createDesc(1, value));
+} : function(object, key, value){
+  object[key] = value;
+  return object;
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+module.exports = function(exec){
+  try {
+    return !!exec();
+  } catch(e){
+    return true;
+  }
+};
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+module.exports = function(it){
+  return typeof it === 'object' ? it !== null : typeof it === 'function';
+};
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+module.exports = {};
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+var $keys       = __webpack_require__(58)
+  , enumBugKeys = __webpack_require__(26);
+
+module.exports = Object.keys || function keys(O){
+  return $keys(O, enumBugKeys);
+};
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+module.exports = function(bitmap, value){
+  return {
+    enumerable  : !(bitmap & 1),
+    configurable: !(bitmap & 2),
+    writable    : !(bitmap & 4),
+    value       : value
+  };
+};
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+var id = 0
+  , px = Math.random();
+module.exports = function(key){
+  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+};
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
 });
+exports.GanttColumn = undefined;
+
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = function () {
+    'ngInject';
+
+    return GanttColumn;
+};
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttColumn = exports.GanttColumn = function () {
+    function GanttColumn(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode) {
+        (0, _classCallCheck3.default)(this, GanttColumn);
+
+        this.timeFrames = [];
+        this.visibleTimeFrames = [];
+        this.daysTimeFrames = {};
+        this.currentDate = false;
+        this.cropped = false;
+        this.date = date;
+        this.endDate = endDate;
+        this.left = left;
+        this.width = width;
+        this.calendar = calendar;
+        this.duration = this.endDate.diff(this.date, 'milliseconds');
+        this.timeFramesWorkingMode = timeFramesWorkingMode;
+        this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
+        this.timeFrames = [];
+        this.visibleTimeFrames = [];
+        this.daysTimeFrames = {};
+        this.originalSize = { left: this.left, width: this.width };
+        this.updateTimeFrames();
+    }
+
+    (0, _createClass3.default)(GanttColumn, [{
+        key: 'getDateKey',
+        value: function getDateKey(date) {
+            return date.year() + '-' + date.month() + '-' + date.date();
+        }
+    }, {
+        key: 'updateView',
+        value: function updateView() {
+            if (this.$element) {
+                if (this.currentDate) {
+                    this.$element.addClass('gantt-foreground-col-current-date');
+                } else {
+                    this.$element.removeClass('gantt-foreground-col-current-date');
+                }
+                this.$element.css({ 'left': this.left + 'px', 'width': this.width + 'px' });
+                this.timeFrames.forEach(function (timeFrame) {
+                    return timeFrame.updateView();
+                });
+            }
+        }
+    }, {
+        key: 'updateTimeFrames',
+        value: function updateTimeFrames() {
+            if (this.calendar !== undefined && (this.timeFramesNonWorkingMode !== 'hidden' || this.timeFramesWorkingMode !== 'hidden')) {
+                var cDate = this.date;
+                var cDateStartOfDay = (0, _moment2.default)(cDate).startOf('day');
+                var cDateNextDay = cDateStartOfDay.add(1, 'day');
+                var i = void 0;
+                while (cDate < this.endDate) {
+                    var timeFrames = this.calendar.getTimeFrames(cDate);
+                    var nextCDate = _moment2.default.min(cDateNextDay, this.endDate);
+                    timeFrames = this.calendar.solve(timeFrames, cDate, nextCDate);
+                    var cTimeFrames = [];
+                    for (i = 0; i < timeFrames.length; i++) {
+                        var cTimeFrame = timeFrames[i];
+                        var start = cTimeFrame.start;
+                        if (start === undefined) {
+                            start = cDate;
+                        }
+                        var end = cTimeFrame.end;
+                        if (end === undefined) {
+                            end = nextCDate;
+                        }
+                        if (start < this.date) {
+                            start = this.date;
+                        }
+                        if (end > this.endDate) {
+                            end = this.endDate;
+                        }
+                        cTimeFrame = cTimeFrame.clone();
+                        cTimeFrame.start = (0, _moment2.default)(start);
+                        cTimeFrame.end = (0, _moment2.default)(end);
+                        cTimeFrames.push(cTimeFrame);
+                    }
+                    this.timeFrames = this.timeFrames.concat(cTimeFrames);
+                    var cDateKey = this.getDateKey(cDate);
+                    this.daysTimeFrames[cDateKey] = cTimeFrames;
+                    cDate = nextCDate;
+                    cDateStartOfDay = (0, _moment2.default)(cDate).startOf('day');
+                    cDateNextDay = cDateStartOfDay.add(1, 'day');
+                }
+                for (i = 0; i < this.timeFrames.length; i++) {
+                    var timeFrame = this.timeFrames[i];
+                    var positionDuration = timeFrame.start.diff(this.date, 'milliseconds');
+                    var position = positionDuration / this.duration * this.width;
+                    var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
+                    var timeFramePosition = timeFrameDuration / this.duration * this.width;
+                    var hidden = false;
+                    if (timeFrame.working && this.timeFramesWorkingMode !== 'visible') {
+                        hidden = true;
+                    } else if (!timeFrame.working && this.timeFramesNonWorkingMode !== 'visible') {
+                        hidden = true;
+                    }
+                    if (!hidden) {
+                        this.visibleTimeFrames.push(timeFrame);
+                    }
+                    timeFrame.hidden = hidden;
+                    timeFrame.left = position;
+                    timeFrame.width = timeFramePosition;
+                    timeFrame.originalSize = { left: timeFrame.left, width: timeFrame.width };
+                }
+                if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+                    var timeFramesWidth = 0;
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = (0, _getIterator3.default)(this.timeFrames), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var aTimeFrame = _step.value;
+
+                            if (!aTimeFrame.working && this.timeFramesNonWorkingMode !== 'cropped' || aTimeFrame.working && this.timeFramesWorkingMode !== 'cropped') {
+                                timeFramesWidth += aTimeFrame.width;
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+
+                    if (timeFramesWidth !== this.width) {
+                        var croppedRatio = this.width / timeFramesWidth;
+                        var croppedWidth = 0;
+                        var originalCroppedWidth = 0;
+                        var allCropped = true;
+                        var _iteratorNormalCompletion2 = true;
+                        var _didIteratorError2 = false;
+                        var _iteratorError2 = undefined;
+
+                        try {
+                            for (var _iterator2 = (0, _getIterator3.default)(this.timeFrames), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                var bTimeFrame = _step2.value;
+
+                                if (!bTimeFrame.working && this.timeFramesNonWorkingMode !== 'cropped' || bTimeFrame.working && this.timeFramesWorkingMode !== 'cropped') {
+                                    bTimeFrame.left = (bTimeFrame.left - croppedWidth) * croppedRatio;
+                                    bTimeFrame.width = bTimeFrame.width * croppedRatio;
+                                    bTimeFrame.originalSize.left = (bTimeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
+                                    bTimeFrame.originalSize.width = bTimeFrame.originalSize.width * croppedRatio;
+                                    bTimeFrame.cropped = false;
+                                    allCropped = false;
+                                } else {
+                                    croppedWidth += bTimeFrame.width;
+                                    originalCroppedWidth += bTimeFrame.originalSize.width;
+                                    bTimeFrame.left = undefined;
+                                    bTimeFrame.width = 0;
+                                    bTimeFrame.originalSize = { left: undefined, width: 0 };
+                                    bTimeFrame.cropped = true;
+                                }
+                            }
+                        } catch (err) {
+                            _didIteratorError2 = true;
+                            _iteratorError2 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                    _iterator2.return();
+                                }
+                            } finally {
+                                if (_didIteratorError2) {
+                                    throw _iteratorError2;
+                                }
+                            }
+                        }
+
+                        this.cropped = allCropped;
+                    } else {
+                        this.cropped = false;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            return new GanttColumn((0, _moment2.default)(this.date), (0, _moment2.default)(this.endDate), this.left, this.width, this.calendar);
+        }
+    }, {
+        key: 'containsDate',
+        value: function containsDate(date) {
+            return date > this.date && date <= this.endDate;
+        }
+    }, {
+        key: 'equals',
+        value: function equals(other) {
+            return this.date === other.date;
+        }
+    }, {
+        key: 'roundTo',
+        value: function roundTo(date, unit, offset, midpoint) {
+            if (unit === 'day') {
+                unit = 'date';
+            }
+            offset = offset || 1;
+            var value = date.get(unit);
+            switch (midpoint) {
+                case 'up':
+                    value = Math.ceil(value / offset);
+                    break;
+                case 'down':
+                    value = Math.floor(value / offset);
+                    break;
+                default:
+                    value = Math.round(value / offset);
+                    break;
+            }
+            var units = ['millisecond', 'second', 'minute', 'hour', 'date', 'month', 'year'];
+            date.set(unit, value * offset);
+            var indexOf = units.indexOf(unit);
+            for (var i = 0; i < indexOf; i++) {
+                date.set(units[i], 0);
+            }
+            return date;
+        }
+    }, {
+        key: 'getMagnetDate',
+        value: function getMagnetDate(date, magnetValue, magnetUnit, timeFramesMagnet) {
+            if (magnetValue > 0 && magnetUnit !== undefined) {
+                var initialDate = date;
+                date = (0, _moment2.default)(date);
+                if (magnetUnit === 'column') {
+                    var position = this.getPositionByDate(date);
+                    if (position < this.width / 2) {
+                        date = (0, _moment2.default)(this.date);
+                    } else {
+                        date = (0, _moment2.default)(this.endDate);
+                    }
+                } else {
+                    date = this.roundTo(date, magnetUnit, magnetValue);
+
+                    if (date < this.date) {
+                        date = (0, _moment2.default)(this.date);
+                    } else if (date > this.endDate) {
+                        date = (0, _moment2.default)(this.endDate);
+                    }
+                }
+                if (timeFramesMagnet) {
+                    var maxTimeFrameDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
+                    var currentTimeFrameDiff = void 0;
+                    for (var i = 0; i < this.timeFrames.length; i++) {
+                        var timeFrame = this.timeFrames[i];
+                        if (timeFrame.magnet) {
+                            var previousTimeFrame = this.timeFrames[i - 1];
+                            var nextTimeFrame = this.timeFrames[i + 1];
+                            var timeFrameDiff = void 0;
+                            if (previousTimeFrame === undefined || previousTimeFrame.working !== timeFrame.working) {
+                                timeFrameDiff = Math.abs(initialDate.diff(timeFrame.start, 'milliseconds'));
+                                if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
+                                    currentTimeFrameDiff = timeFrameDiff;
+                                    date = timeFrame.start;
+                                }
+                            }
+                            if (nextTimeFrame === undefined || nextTimeFrame.working !== timeFrame.working) {
+                                timeFrameDiff = Math.abs(initialDate.diff(timeFrame.end, 'milliseconds'));
+                                if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
+                                    currentTimeFrameDiff = timeFrameDiff;
+                                    date = timeFrame.end;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return date;
+        }
+    }, {
+        key: 'getDateByPositionUsingTimeFrames',
+        value: function getDateByPositionUsingTimeFrames(position) {
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = (0, _getIterator3.default)(this.timeFrames), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var timeFrame = _step3.value;
+
+                    if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
+                        var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
+                        var date = (0, _moment2.default)(timeFrame.start).add(positionDuration, 'milliseconds');
+                        return date;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'getDateByPosition',
+        value: function getDateByPosition(position, magnetValue, magnetUnit, timeFramesMagnet) {
+            var date = void 0;
+            if (position < 0) {
+                position = 0;
+            }
+            if (position > this.width) {
+                position = this.width;
+            }
+            if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+                date = this.getDateByPositionUsingTimeFrames(position);
+            }
+            if (date === undefined) {
+                var positionDuration = this.duration / this.width * position;
+                date = (0, _moment2.default)(this.date).add(positionDuration, 'milliseconds');
+            }
+            date = this.getMagnetDate(date, magnetValue, magnetUnit, timeFramesMagnet);
+            return date;
+        }
+    }, {
+        key: 'getDayTimeFrame',
+        value: function getDayTimeFrame(date) {
+            var dtf = this.daysTimeFrames[this.getDateKey(date)];
+            if (dtf === undefined) {
+                return [];
+            }
+            return dtf;
+        }
+    }, {
+        key: 'getPositionByDate',
+        value: function getPositionByDate(date) {
+            var croppedDate = date;
+            if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
+                var timeFrames = this.getDayTimeFrame(croppedDate);
+                for (var i = 0; i < timeFrames.length; i++) {
+                    var timeFrame = timeFrames[i];
+                    if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
+                        if (timeFrame.cropped) {
+                            if (timeFrames.length > i + 1) {
+                                croppedDate = timeFrames[i + 1].start;
+                            } else {
+                                croppedDate = timeFrame.end;
+                            }
+                        } else {
+                            var _positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
+                            var _position = _positionDuration / timeFrame.getDuration() * timeFrame.width;
+                            return this.left + timeFrame.left + _position;
+                        }
+                    }
+                }
+            }
+            var positionDuration = croppedDate.diff(this.date, 'milliseconds');
+            var position = positionDuration / this.duration * this.width;
+            if (position < 0) {
+                position = 0;
+            }
+            if (position > this.width) {
+                position = this.width;
+            }
+            return this.left + position;
+        }
+    }]);
+    return GanttColumn;
+}();
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+var toString = {}.toString;
+
+module.exports = function(it){
+  return toString.call(it).slice(8, -1);
+};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+// 7.2.1 RequireObjectCoercible(argument)
+module.exports = function(it){
+  if(it == undefined)throw TypeError("Can't call method on  " + it);
+  return it;
+};
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+// IE 8- don't enum bug keys
+module.exports = (
+  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+).split(',');
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+module.exports = true;
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+var anObject    = __webpack_require__(14)
+  , dPs         = __webpack_require__(152)
+  , enumBugKeys = __webpack_require__(26)
+  , IE_PROTO    = __webpack_require__(31)('IE_PROTO')
+  , Empty       = function(){ /* empty */ }
+  , PROTOTYPE   = 'prototype';
+
+// Create object with fake `null` prototype: use iframe Object with cleared prototype
+var createDict = function(){
+  // Thrash, waste and sodomy: IE GC bug
+  var iframe = __webpack_require__(51)('iframe')
+    , i      = enumBugKeys.length
+    , lt     = '<'
+    , gt     = '>'
+    , iframeDocument;
+  iframe.style.display = 'none';
+  __webpack_require__(145).appendChild(iframe);
+  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
+  // createDict = iframe.contentWindow.Object;
+  // html.removeChild(iframe);
+  iframeDocument = iframe.contentWindow.document;
+  iframeDocument.open();
+  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
+  iframeDocument.close();
+  createDict = iframeDocument.F;
+  while(i--)delete createDict[PROTOTYPE][enumBugKeys[i]];
+  return createDict();
+};
+
+module.exports = Object.create || function create(O, Properties){
+  var result;
+  if(O !== null){
+    Empty[PROTOTYPE] = anObject(O);
+    result = new Empty;
+    Empty[PROTOTYPE] = null;
+    // add "__proto__" for Object.getPrototypeOf polyfill
+    result[IE_PROTO] = O;
+  } else result = createDict();
+  return Properties === undefined ? result : dPs(result, Properties);
+};
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports) {
+
+exports.f = {}.propertyIsEnumerable;
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var def = __webpack_require__(12).f
+  , has = __webpack_require__(11)
+  , TAG = __webpack_require__(9)('toStringTag');
+
+module.exports = function(it, tag, stat){
+  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
+};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var shared = __webpack_require__(32)('keys')
+  , uid    = __webpack_require__(22);
+module.exports = function(key){
+  return shared[key] || (shared[key] = uid(key));
+};
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__(8)
+  , SHARED = '__core-js_shared__'
+  , store  = global[SHARED] || (global[SHARED] = {});
+module.exports = function(key){
+  return store[key] || (store[key] = {});
+};
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+// 7.1.4 ToInteger
+var ceil  = Math.ceil
+  , floor = Math.floor;
+module.exports = function(it){
+  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
+};
 
 /***/ }),
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
+// 7.1.1 ToPrimitive(input [, PreferredType])
+var isObject = __webpack_require__(18);
+// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+// and the second argument - flag - preferred type is a string
+module.exports = function(it, S){
+  if(!isObject(it))return it;
+  var fn, val;
+  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
+  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+  throw TypeError("Can't convert object to primitive value");
+};
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global         = __webpack_require__(8)
+  , core           = __webpack_require__(7)
+  , LIBRARY        = __webpack_require__(27)
+  , wksExt         = __webpack_require__(36)
+  , defineProperty = __webpack_require__(12).f;
+module.exports = function(name){
+  var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
+  if(name.charAt(0) != '_' && !(name in $Symbol))defineProperty($Symbol, name, {value: wksExt.f(name)});
+};
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports.f = __webpack_require__(9);
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
-var LIBRARY        = __webpack_require__(21)
-  , $export        = __webpack_require__(32)
-  , redefine       = __webpack_require__(39)
-  , hide           = __webpack_require__(8)
-  , has            = __webpack_require__(5)
-  , Iterators      = __webpack_require__(20)
-  , $iterCreate    = __webpack_require__(129)
-  , setToStringTag = __webpack_require__(23)
-  , getPrototypeOf = __webpack_require__(136)
-  , ITERATOR       = __webpack_require__(10)('iterator')
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttApi = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, ganttUtils) {
+    'ngInject';
+
+    GanttApi.$q = $q;
+    GanttApi.$rootScope = $rootScope;
+    GanttApi.ganttUtils = ganttUtils;
+    return GanttApi;
+}];
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttApi = exports.GanttApi = function () {
+    function GanttApi(gantt) {
+        (0, _classCallCheck3.default)(this, GanttApi);
+
+        this.gantt = gantt;
+        this.listeners = [];
+        this.apiId = GanttApi.ganttUtils.newId();
+    }
+
+    (0, _createClass3.default)(GanttApi, [{
+        key: 'registerEventWithAngular',
+        value: function registerEventWithAngular(eventId, handler, gantt, _this) {
+            return GanttApi.$rootScope.$on(eventId, function () {
+                var args = Array.prototype.slice.call(arguments);
+                args.splice(0, 1);
+                handler.apply(_this ? _this : gantt.api, args);
+            });
+        }
+    }, {
+        key: 'suppressEvents',
+        value: function suppressEvents(listenerFuncs, callBackFn) {
+            var _this2 = this;
+
+            var listeners = _angular2.default.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+
+            var foundListeners = [];
+            listeners.forEach(function (l) {
+                foundListeners = _this2.listeners.filter(function (lstnr) {
+                    return l === lstnr.handler;
+                });
+            });
+
+            foundListeners.forEach(function (l) {
+                return l.dereg();
+            });
+            callBackFn();
+
+            foundListeners.forEach(function (l) {
+                l.dereg = _this2.registerEventWithAngular(l.eventId, l.handler, _this2.gantt, l._this);
+            });
+        }
+    }, {
+        key: 'registerEvent',
+        value: function registerEvent(featureName, eventName) {
+            var _this3 = this;
+
+            if (!this[featureName]) {
+                this[featureName] = {};
+            }
+            var feature = this[featureName];
+            if (!feature.on) {
+                feature.on = {};
+                feature.raise = {};
+            }
+            var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
+
+            feature.raise[eventName] = function () {
+                GanttApi.$rootScope.$emit.apply(GanttApi.$rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+            };
+
+            feature.on[eventName] = function (scope, handler, _this) {
+                var deregAngularOn = _this3.registerEventWithAngular(eventId, handler, _this3.gantt, _this);
+
+                var listener = {
+                    handler: handler,
+                    dereg: deregAngularOn,
+                    eventId: eventId,
+                    scope: scope,
+                    _this: _this
+                };
+                _this3.listeners.push(listener);
+                var removeListener = function removeListener() {
+                    listener.dereg();
+                    var index = _this3.listeners.indexOf(listener);
+                    _this3.listeners.splice(index, 1);
+                };
+
+                scope.$on('$destroy', function () {
+                    removeListener();
+                });
+                return removeListener;
+            };
+        }
+    }, {
+        key: 'registerEventsFromObject',
+        value: function registerEventsFromObject(eventObjectMap) {
+            var _this4 = this;
+
+            var features = [];
+            _angular2.default.forEach(eventObjectMap, function (featProp, featPropName) {
+                var feature = { name: featPropName, events: [] };
+                _angular2.default.forEach(featProp, function (prop, propName) {
+                    feature.events.push(propName);
+                });
+                features.push(feature);
+            });
+            features.forEach(function (feature) {
+                feature.events.forEach(function (event) {
+                    _this4.registerEvent(feature.name, event);
+                });
+            });
+        }
+    }, {
+        key: 'registerMethod',
+        value: function registerMethod(featureName, methodName, callBackFn, _this) {
+            if (!this[featureName]) {
+                this[featureName] = {};
+            }
+            var feature = this[featureName];
+            feature[methodName] = GanttApi.ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn);
+        }
+    }, {
+        key: 'registerMethodsFromObject',
+        value: function registerMethodsFromObject(methodMap, _this) {
+            var _this5 = this;
+
+            var features = [];
+            _angular2.default.forEach(methodMap, function (featProp, featPropName) {
+                var feature = { name: featPropName, methods: [] };
+                _angular2.default.forEach(featProp, function (prop, propName) {
+                    feature.methods.push({ name: propName, fn: prop });
+                });
+                features.push(feature);
+            });
+            features.forEach(function (feature) {
+                feature.methods.forEach(function (method) {
+                    _this5.registerMethod(feature.name, method.name, method.fn, _this);
+                });
+            });
+        }
+    }]);
+    return GanttApi;
+}();
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttOptions = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var cov_1030c89924 = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/api/options.factory.ts',
+        hash = '3b55f5a856cac60b6e3a3ecfcd287e1e41ec927d',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/api/options.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 4,
+                    column: 8
+                },
+                end: {
+                    line: 4,
+                    column: 43
+                }
+            },
+            '1': {
+                start: {
+                    line: 5,
+                    column: 8
+                },
+                end: {
+                    line: 5,
+                    column: 29
+                }
+            },
+            '2': {
+                start: {
+                    line: 8,
+                    column: 27
+                },
+                end: {
+                    line: 8,
+                    column: 57
+                }
+            },
+            '3': {
+                start: {
+                    line: 9,
+                    column: 8
+                },
+                end: {
+                    line: 11,
+                    column: 9
+                }
+            },
+            '4': {
+                start: {
+                    line: 10,
+                    column: 12
+                },
+                end: {
+                    line: 10,
+                    column: 42
+                }
+            },
+            '5': {
+                start: {
+                    line: 12,
+                    column: 8
+                },
+                end: {
+                    line: 12,
+                    column: 28
+                }
+            },
+            '6': {
+                start: {
+                    line: 16,
+                    column: 8
+                },
+                end: {
+                    line: 24,
+                    column: 9
+                }
+            },
+            '7': {
+                start: {
+                    line: 17,
+                    column: 31
+                },
+                end: {
+                    line: 17,
+                    column: 60
+                }
+            },
+            '8': {
+                start: {
+                    line: 18,
+                    column: 12
+                },
+                end: {
+                    line: 23,
+                    column: 13
+                }
+            },
+            '9': {
+                start: {
+                    line: 19,
+                    column: 16
+                },
+                end: {
+                    line: 21,
+                    column: 17
+                }
+            },
+            '10': {
+                start: {
+                    line: 20,
+                    column: 20
+                },
+                end: {
+                    line: 20,
+                    column: 39
+                }
+            },
+            '11': {
+                start: {
+                    line: 22,
+                    column: 16
+                },
+                end: {
+                    line: 22,
+                    column: 36
+                }
+            },
+            '12': {
+                start: {
+                    line: 25,
+                    column: 8
+                },
+                end: {
+                    line: 25,
+                    column: 27
+                }
+            },
+            '13': {
+                start: {
+                    line: 29,
+                    column: 8
+                },
+                end: {
+                    line: 29,
+                    column: 66
+                }
+            },
+            '14': {
+                start: {
+                    line: 33,
+                    column: 8
+                },
+                end: {
+                    line: 33,
+                    column: 46
+                }
+            },
+            '15': {
+                start: {
+                    line: 37,
+                    column: 8
+                },
+                end: {
+                    line: 41,
+                    column: 9
+                }
+            },
+            '16': {
+                start: {
+                    line: 38,
+                    column: 12
+                },
+                end: {
+                    line: 40,
+                    column: 13
+                }
+            },
+            '17': {
+                start: {
+                    line: 39,
+                    column: 16
+                },
+                end: {
+                    line: 39,
+                    column: 65
+                }
+            },
+            '18': {
+                start: {
+                    line: 42,
+                    column: 8
+                },
+                end: {
+                    line: 42,
+                    column: 27
+                }
+            },
+            '19': {
+                start: {
+                    line: 48,
+                    column: 4
+                },
+                end: {
+                    line: 48,
+                    column: 24
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 3,
+                        column: 4
+                    },
+                    end: {
+                        line: 3,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 3,
+                        column: 39
+                    },
+                    end: {
+                        line: 6,
+                        column: 5
+                    }
+                },
+                line: 3
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 7,
+                        column: 4
+                    },
+                    end: {
+                        line: 7,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 7,
+                        column: 29
+                    },
+                    end: {
+                        line: 13,
+                        column: 5
+                    }
+                },
+                line: 7
+            },
+            '2': {
+                name: '(anonymous_2)',
+                decl: {
+                    start: {
+                        line: 15,
+                        column: 4
+                    },
+                    end: {
+                        line: 15,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 15,
+                        column: 38
+                    },
+                    end: {
+                        line: 26,
+                        column: 5
+                    }
+                },
+                line: 15
+            },
+            '3': {
+                name: '(anonymous_3)',
+                decl: {
+                    start: {
+                        line: 28,
+                        column: 4
+                    },
+                    end: {
+                        line: 28,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 28,
+                        column: 22
+                    },
+                    end: {
+                        line: 30,
+                        column: 5
+                    }
+                },
+                line: 28
+            },
+            '4': {
+                name: '(anonymous_4)',
+                decl: {
+                    start: {
+                        line: 32,
+                        column: 4
+                    },
+                    end: {
+                        line: 32,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 32,
+                        column: 33
+                    },
+                    end: {
+                        line: 34,
+                        column: 5
+                    }
+                },
+                line: 32
+            },
+            '5': {
+                name: '(anonymous_5)',
+                decl: {
+                    start: {
+                        line: 36,
+                        column: 4
+                    },
+                    end: {
+                        line: 36,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 36,
+                        column: 17
+                    },
+                    end: {
+                        line: 43,
+                        column: 5
+                    }
+                },
+                line: 36
+            },
+            '6': {
+                name: '(anonymous_6)',
+                decl: {
+                    start: {
+                        line: 46,
+                        column: 15
+                    },
+                    end: {
+                        line: 46,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 46,
+                        column: 27
+                    },
+                    end: {
+                        line: 49,
+                        column: 1
+                    }
+                },
+                line: 46
+            }
+        },
+        branchMap: {
+            '0': {
+                loc: {
+                    start: {
+                        line: 9,
+                        column: 8
+                    },
+                    end: {
+                        line: 11,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 9,
+                        column: 8
+                    },
+                    end: {
+                        line: 11,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 9,
+                        column: 8
+                    },
+                    end: {
+                        line: 11,
+                        column: 9
+                    }
+                }],
+                line: 9
+            },
+            '1': {
+                loc: {
+                    start: {
+                        line: 16,
+                        column: 8
+                    },
+                    end: {
+                        line: 24,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 16,
+                        column: 8
+                    },
+                    end: {
+                        line: 24,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 16,
+                        column: 8
+                    },
+                    end: {
+                        line: 24,
+                        column: 9
+                    }
+                }],
+                line: 16
+            },
+            '2': {
+                loc: {
+                    start: {
+                        line: 18,
+                        column: 12
+                    },
+                    end: {
+                        line: 23,
+                        column: 13
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 18,
+                        column: 12
+                    },
+                    end: {
+                        line: 23,
+                        column: 13
+                    }
+                }, {
+                    start: {
+                        line: 18,
+                        column: 12
+                    },
+                    end: {
+                        line: 23,
+                        column: 13
+                    }
+                }],
+                line: 18
+            },
+            '3': {
+                loc: {
+                    start: {
+                        line: 19,
+                        column: 16
+                    },
+                    end: {
+                        line: 21,
+                        column: 17
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 19,
+                        column: 16
+                    },
+                    end: {
+                        line: 21,
+                        column: 17
+                    }
+                }, {
+                    start: {
+                        line: 19,
+                        column: 16
+                    },
+                    end: {
+                        line: 21,
+                        column: 17
+                    }
+                }],
+                line: 19
+            },
+            '4': {
+                loc: {
+                    start: {
+                        line: 19,
+                        column: 20
+                    },
+                    end: {
+                        line: 19,
+                        column: 82
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 19,
+                        column: 20
+                    },
+                    end: {
+                        line: 19,
+                        column: 45
+                    }
+                }, {
+                    start: {
+                        line: 19,
+                        column: 49
+                    },
+                    end: {
+                        line: 19,
+                        column: 82
+                    }
+                }],
+                line: 19
+            },
+            '5': {
+                loc: {
+                    start: {
+                        line: 38,
+                        column: 12
+                    },
+                    end: {
+                        line: 40,
+                        column: 13
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 38,
+                        column: 12
+                    },
+                    end: {
+                        line: 40,
+                        column: 13
+                    }
+                }, {
+                    start: {
+                        line: 38,
+                        column: 12
+                    },
+                    end: {
+                        line: 40,
+                        column: 13
+                    }
+                }],
+                line: 38
+            }
+        },
+        s: {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
+            '10': 0,
+            '11': 0,
+            '12': 0,
+            '13': 0,
+            '14': 0,
+            '15': 0,
+            '16': 0,
+            '17': 0,
+            '18': 0,
+            '19': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0
+        },
+        b: {
+            '0': [0, 0],
+            '1': [0, 0],
+            '2': [0, 0],
+            '3': [0, 0],
+            '4': [0, 0],
+            '5': [0, 0]
+        },
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/api/options.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/api/options.factory.ts'],
+            names: [],
+            mappings: 'AAAA,OAAO,OAAO,MAAM,SAAS,CAAC;AAE9B,MAAM;IAIJ,YAAY,MAAkC,EAAE,aAAyC;QACvF,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;QACnC,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACvB,CAAC;IAED,YAAY,CAAC,UAAkB;QAC7B,IAAI,YAAY,GAAG,IAAI,CAAC,aAAa,CAAC,UAAU,CAAC,CAAC;QAClD,EAAE,CAAC,CAAC,OAAO,CAAC,UAAU,CAAC,YAAY,CAAC,CAAC,CAAC,CAAC;YACrC,YAAY,GAAG,YAAY,EAAE,CAAC;QAChC,CAAC;QAED,MAAM,CAAC,YAAY,CAAC;IACtB,CAAC;IAAA,CAAC;IAEF,QAAQ,CAAC,UAAkB,EAAE,WAAgB;QAC3C,EAAE,CAAC,CAAC,CAAC,WAAW,CAAC,CAAC,CAAC;YACjB,IAAI,YAAY,GAAG,IAAI,CAAC,YAAY,CAAC,UAAU,CAAC,CAAC;YACjD,EAAE,CAAC,CAAC,YAAY,KAAK,SAAS,CAAC,CAAC,CAAC;gBAC/B,EAAE,CAAC,CAAC,WAAW,KAAK,SAAS,IAAI,OAAO,YAAY,KAAK,SAAS,CAAC,CAAC,CAAC;oBACnE,MAAM,CAAC,WAAW,CAAC;gBACrB,CAAC;gBAED,MAAM,CAAC,YAAY,CAAC;YACtB,CAAC;QACH,CAAC;QAED,MAAM,CAAC,WAAW,CAAC;IACrB,CAAC;IAAA,CAAC;IAEF,KAAK,CAAC,UAAkB;QACtB,MAAM,CAAC,IAAI,CAAC,QAAQ,CAAC,UAAU,EAAE,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC,CAAC;IAC5D,CAAC;IAAA,CAAC;IAEF,GAAG,CAAC,UAAkB,EAAE,WAAgB;QACtC,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,GAAG,WAAW,CAAC;IACxC,CAAC;IAAA,CAAC;IAEF,UAAU;QACR,GAAG,CAAC,CAAC,IAAI,UAAU,IAAI,IAAI,CAAC,MAAM,CAAC,CAAC,CAAC;YACnC,EAAE,CAAC,CAAC,IAAI,CAAC,MAAM,CAAC,cAAc,CAAC,UAAU,CAAC,CAAC,CAAC,CAAC;gBAC3C,IAAI,CAAC,MAAM,CAAC,UAAU,CAAC,GAAG,IAAI,CAAC,KAAK,CAAC,UAAU,CAAC,CAAC;YACnD,CAAC;QACH,CAAC;QACD,MAAM,CAAC,IAAI,CAAC,MAAM,CAAC;IACrB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,YAAY,CAAC;AACtB,CAAC',
+            sourcesContent: ['import angular from \'angular\';\n\nexport class GanttOptions {\n  private defaultValues: { [option: string]: any; };\n  private values: { [option: string]: any; };\n\n  constructor(values: { [option: string]: any; }, defaultValues: { [option: string]: any; }) {\n    this.defaultValues = defaultValues;\n    this.values = values;\n  }\n\n  defaultValue(optionName: string) {\n    let defaultValue = this.defaultValues[optionName];\n    if (angular.isFunction(defaultValue)) {\n      defaultValue = defaultValue();\n    }\n\n    return defaultValue;\n  };\n\n  sanitize(optionName: string, optionValue: any) {\n    if (!optionValue) {\n      let defaultValue = this.defaultValue(optionName);\n      if (defaultValue !== undefined) {\n        if (optionValue !== undefined && typeof defaultValue === \'boolean\') {\n          return optionValue;\n        }\n\n        return defaultValue;\n      }\n    }\n\n    return optionValue;\n  };\n\n  value(optionName: string) {\n    return this.sanitize(optionName, this.values[optionName]);\n  };\n\n  set(optionName: string, optionValue: any) {\n    this.values[optionName] = optionValue;\n  };\n\n  initialize() {\n    for (let optionName in this.values) {\n      if (this.values.hasOwnProperty(optionName)) {\n        this.values[optionName] = this.value(optionName);\n      }\n    }\n    return this.values;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttOptions;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = function () {
+    'ngInject';
+
+    ++cov_1030c89924.f[6];
+    ++cov_1030c89924.s[19];
+    return GanttOptions;
+};
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttOptions = exports.GanttOptions = function () {
+    function GanttOptions(values, defaultValues) {
+        (0, _classCallCheck3.default)(this, GanttOptions);
+        ++cov_1030c89924.f[0];
+        ++cov_1030c89924.s[0];
+
+        this.defaultValues = defaultValues;
+        ++cov_1030c89924.s[1];
+        this.values = values;
+    }
+
+    (0, _createClass3.default)(GanttOptions, [{
+        key: 'defaultValue',
+        value: function defaultValue(optionName) {
+            ++cov_1030c89924.f[1];
+
+            var defaultValue = (++cov_1030c89924.s[2], this.defaultValues[optionName]);
+            ++cov_1030c89924.s[3];
+            if (_angular2.default.isFunction(defaultValue)) {
+                ++cov_1030c89924.b[0][0];
+                ++cov_1030c89924.s[4];
+
+                defaultValue = defaultValue();
+            } else {
+                ++cov_1030c89924.b[0][1];
+            }
+            ++cov_1030c89924.s[5];
+            return defaultValue;
+        }
+    }, {
+        key: 'sanitize',
+        value: function sanitize(optionName, optionValue) {
+            ++cov_1030c89924.f[2];
+            ++cov_1030c89924.s[6];
+
+            if (!optionValue) {
+                ++cov_1030c89924.b[1][0];
+
+                var defaultValue = (++cov_1030c89924.s[7], this.defaultValue(optionName));
+                ++cov_1030c89924.s[8];
+                if (defaultValue !== undefined) {
+                    ++cov_1030c89924.b[2][0];
+                    ++cov_1030c89924.s[9];
+
+                    if ((++cov_1030c89924.b[4][0], optionValue !== undefined) && (++cov_1030c89924.b[4][1], typeof defaultValue === 'boolean')) {
+                        ++cov_1030c89924.b[3][0];
+                        ++cov_1030c89924.s[10];
+
+                        return optionValue;
+                    } else {
+                        ++cov_1030c89924.b[3][1];
+                    }
+                    ++cov_1030c89924.s[11];
+                    return defaultValue;
+                } else {
+                    ++cov_1030c89924.b[2][1];
+                }
+            } else {
+                ++cov_1030c89924.b[1][1];
+            }
+            ++cov_1030c89924.s[12];
+            return optionValue;
+        }
+    }, {
+        key: 'value',
+        value: function value(optionName) {
+            ++cov_1030c89924.f[3];
+            ++cov_1030c89924.s[13];
+
+            return this.sanitize(optionName, this.values[optionName]);
+        }
+    }, {
+        key: 'set',
+        value: function set(optionName, optionValue) {
+            ++cov_1030c89924.f[4];
+            ++cov_1030c89924.s[14];
+
+            this.values[optionName] = optionValue;
+        }
+    }, {
+        key: 'initialize',
+        value: function initialize() {
+            ++cov_1030c89924.f[5];
+            ++cov_1030c89924.s[15];
+
+            for (var optionName in this.values) {
+                ++cov_1030c89924.s[16];
+
+                if (this.values.hasOwnProperty(optionName)) {
+                    ++cov_1030c89924.b[5][0];
+                    ++cov_1030c89924.s[17];
+
+                    this.values[optionName] = this.value(optionName);
+                } else {
+                    ++cov_1030c89924.b[5][1];
+                }
+            }
+            ++cov_1030c89924.s[18];
+            return this.values;
+        }
+    }]);
+    return GanttOptions;
+}();
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttCalendar = exports.DateFrame = exports.TimeFrameMapping = exports.TimeFrame = undefined;
+
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["$filter", function ($filter) {
+    'ngInject';
+
+    GanttCalendar.$filter = $filter;
+    return GanttCalendar;
+}];
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var TimeFrame = exports.TimeFrame = function () {
+    function TimeFrame(options) {
+        (0, _classCallCheck3.default)(this, TimeFrame);
+
+        if (options === undefined) {
+            options = {};
+        }
+        this.start = options.start;
+        this.end = options.end;
+        this.working = options.working;
+        this.magnet = options.magnet !== undefined ? options.magnet : true;
+        this.default = options.default;
+        this.color = options.color;
+        this.classes = options.classes;
+        this.internal = options.internal;
+    }
+
+    (0, _createClass3.default)(TimeFrame, [{
+        key: 'updateView',
+        value: function updateView() {
+            if (this.$element) {
+                var cssStyles = {};
+                if (this.left !== undefined) {
+                    cssStyles['left'] = this.left + 'px';
+                } else {
+                    cssStyles['left'] = '';
+                }
+                if (this.width !== undefined) {
+                    cssStyles['width'] = this.width + 'px';
+                } else {
+                    cssStyles['width'] = '';
+                }
+                if (this.color !== undefined) {
+                    cssStyles['background-color'] = this.color;
+                } else {
+                    cssStyles['background-color'] = '';
+                }
+                this.$element.css(cssStyles);
+                var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
+                if (this.classes) {
+                    classes = classes.concat(this.classes);
+                }
+
+                for (var i = 0, l = classes.length; i < l; i++) {
+                    this.$element.toggleClass(classes[i], true);
+                }
+            }
+        }
+    }, {
+        key: 'getDuration',
+        value: function getDuration() {
+            if (this.end !== undefined && this.start !== undefined) {
+                return this.end.diff(this.start, 'milliseconds');
+            }
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            return new TimeFrame(this);
+        }
+    }]);
+    return TimeFrame;
+}();
+
+var TimeFrameMapping = exports.TimeFrameMapping = function () {
+    function TimeFrameMapping(func) {
+        (0, _classCallCheck3.default)(this, TimeFrameMapping);
+
+        this.func = func;
+    }
+
+    (0, _createClass3.default)(TimeFrameMapping, [{
+        key: 'getTimeFrames',
+        value: function getTimeFrames(date) {
+            var ret = this.func(date);
+            if (!(ret instanceof Array)) {
+                ret = [ret];
+            }
+            return ret;
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            return new TimeFrameMapping(this.func);
+        }
+    }]);
+    return TimeFrameMapping;
+}();
+
+var DateFrame = exports.DateFrame = function () {
+    function DateFrame(options) {
+        (0, _classCallCheck3.default)(this, DateFrame);
+
+        this.evaluator = options.evaluator;
+        if (options.date) {
+            this.start = (0, _moment2.default)(options.date).startOf('day');
+            this.end = (0, _moment2.default)(options.date).endOf('day');
+        } else {
+            this.start = options.start;
+            this.end = options.end;
+        }
+        if (options.targets instanceof Array) {
+            this.targets = options.targets;
+        } else {
+            this.targets = [options.targets];
+        }
+        this.default = options.default;
+    }
+
+    (0, _createClass3.default)(DateFrame, [{
+        key: 'dateMatch',
+        value: function dateMatch(date) {
+            if (this.evaluator) {
+                return this.evaluator(date);
+            } else if (this.start && this.end) {
+                return date >= this.start && date <= this.end;
+            } else {
+                return false;
+            }
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            return new DateFrame(this);
+        }
+    }]);
+    return DateFrame;
+}();
+
+var GanttCalendar = exports.GanttCalendar = function () {
+    function GanttCalendar() {
+        (0, _classCallCheck3.default)(this, GanttCalendar);
+
+        this.timeFrames = {};
+        this.timeFrameMappings = {};
+        this.dateFrames = {};
+    }
+
+    (0, _createClass3.default)(GanttCalendar, [{
+        key: 'clear',
+        value: function clear() {
+            this.timeFrames = {};
+            this.timeFrameMappings = {};
+            this.dateFrames = {};
+        }
+    }, {
+        key: 'registerTimeFrames',
+        value: function registerTimeFrames(timeFrames) {
+            for (var name in timeFrames) {
+                var timeFrame = timeFrames[name];
+                this.timeFrames[name] = new TimeFrame(timeFrame);
+            }
+        }
+    }, {
+        key: 'removeTimeFrames',
+        value: function removeTimeFrames(timeFrames) {
+            for (var name in timeFrames) {
+                delete this.timeFrames[name];
+            }
+        }
+    }, {
+        key: 'clearTimeFrames',
+        value: function clearTimeFrames() {
+            this.timeFrames = {};
+        }
+    }, {
+        key: 'registerTimeFrameMappings',
+        value: function registerTimeFrameMappings(mappings) {
+            for (var name in mappings) {
+                var timeFrameMapping = mappings[name];
+                this.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
+            }
+        }
+    }, {
+        key: 'removeTimeFrameMappings',
+        value: function removeTimeFrameMappings(mappings) {
+            for (var name in mappings) {
+                delete this.timeFrameMappings[name];
+            }
+        }
+    }, {
+        key: 'clearTimeFrameMappings',
+        value: function clearTimeFrameMappings() {
+            this.timeFrameMappings = {};
+        }
+    }, {
+        key: 'registerDateFrames',
+        value: function registerDateFrames(dateFrames) {
+            for (var name in dateFrames) {
+                var dateFrame = dateFrames[name];
+                this.dateFrames[name] = new DateFrame(dateFrame);
+            }
+        }
+    }, {
+        key: 'removeDateFrames',
+        value: function removeDateFrames(dateFrames) {
+            for (var name in dateFrames) {
+                delete this.dateFrames[name];
+            }
+        }
+    }, {
+        key: 'clearDateFrames',
+        value: function clearDateFrames() {
+            this.dateFrames = {};
+        }
+    }, {
+        key: 'filterDateFrames',
+        value: function filterDateFrames(inputDateFrames, date) {
+            var dateFrames = [];
+            for (var name in inputDateFrames) {
+                var dateFrame = inputDateFrames[name];
+                if (dateFrame.dateMatch(date)) {
+                    dateFrames.push(dateFrame);
+                }
+            }
+            if (dateFrames.length === 0) {
+                for (var _name in inputDateFrames) {
+                    var _dateFrame = inputDateFrames[_name];
+                    if (_dateFrame.default) {
+                        dateFrames.push(_dateFrame);
+                    }
+                }
+            }
+            return dateFrames;
+        }
+    }, {
+        key: 'getTimeFrames',
+        value: function getTimeFrames(date) {
+            var timeFrames = [];
+            var dateFrames = this.filterDateFrames(this.dateFrames, date);
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(dateFrames), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var dateFrame = _step.value;
+
+                    if (dateFrame !== undefined) {
+                        var targets = dateFrame.targets;
+                        var _iteratorNormalCompletion2 = true;
+                        var _didIteratorError2 = false;
+                        var _iteratorError2 = undefined;
+
+                        try {
+                            for (var _iterator2 = (0, _getIterator3.default)(targets), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                var target = _step2.value;
+
+                                var timeFrameMapping = this.timeFrameMappings[target];
+                                if (timeFrameMapping !== undefined) {
+                                    var names = timeFrameMapping.getTimeFrames(date);
+                                    var _iteratorNormalCompletion3 = true;
+                                    var _didIteratorError3 = false;
+                                    var _iteratorError3 = undefined;
+
+                                    try {
+                                        for (var _iterator3 = (0, _getIterator3.default)(names), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                            var _name3 = _step3.value;
+
+                                            var _timeFrame2 = this.timeFrames[_name3];
+                                            timeFrames.push(_timeFrame2);
+                                        }
+                                    } catch (err) {
+                                        _didIteratorError3 = true;
+                                        _iteratorError3 = err;
+                                    } finally {
+                                        try {
+                                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                                _iterator3.return();
+                                            }
+                                        } finally {
+                                            if (_didIteratorError3) {
+                                                throw _iteratorError3;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    var _timeFrame3 = this.timeFrames[target];
+                                    if (_timeFrame3 !== undefined) {
+                                        timeFrames.push(_timeFrame3);
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            _didIteratorError2 = true;
+                            _iteratorError2 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                    _iterator2.return();
+                                }
+                            } finally {
+                                if (_didIteratorError2) {
+                                    throw _iteratorError2;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            var dateYear = date.year();
+            var dateMonth = date.month();
+            var dateDate = date.date();
+            var validatedTimeFrames = [];
+            if (timeFrames.length === 0) {
+                for (var name in this.timeFrames) {
+                    var timeFrame = this.timeFrames[name];
+                    if (timeFrame.default) {
+                        timeFrames.push(timeFrame);
+                    }
+                }
+            }
+            for (var _name2 in timeFrames) {
+                var _timeFrame = timeFrames[_name2];
+                var cTimeFrame = _timeFrame.clone();
+                if (cTimeFrame.start !== undefined) {
+                    cTimeFrame.start.year(dateYear);
+                    cTimeFrame.start.month(dateMonth);
+                    cTimeFrame.start.date(dateDate);
+                }
+                if (cTimeFrame.end !== undefined) {
+                    cTimeFrame.end.year(dateYear);
+                    cTimeFrame.end.month(dateMonth);
+                    cTimeFrame.end.date(dateDate);
+                    if ((0, _moment2.default)(cTimeFrame.end).startOf('day') === cTimeFrame.end) {
+                        cTimeFrame.end.add(1, 'day');
+                    }
+                }
+                validatedTimeFrames.push(cTimeFrame);
+            }
+            return validatedTimeFrames;
+        }
+    }, {
+        key: 'solve',
+        value: function solve(timeFrames, startDate, endDate) {
+            var color = void 0;
+            var classes = void 0;
+            var minDate = void 0;
+            var maxDate = void 0;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = (0, _getIterator3.default)(timeFrames), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var timeFrame = _step4.value;
+
+                    if (minDate === undefined || minDate > timeFrame.start) {
+                        minDate = timeFrame.start;
+                    }
+                    if (maxDate === undefined || maxDate < timeFrame.end) {
+                        maxDate = timeFrame.end;
+                    }
+                    if (color === undefined && timeFrame.color) {
+                        color = timeFrame.color;
+                    }
+                    if (timeFrame.classes !== undefined) {
+                        if (classes === undefined) {
+                            classes = [];
+                        }
+                        classes = classes.concat(timeFrame.classes);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            if (startDate === undefined) {
+                startDate = minDate;
+            }
+            if (endDate === undefined) {
+                endDate = maxDate;
+            }
+            var solvedTimeFrames = [new TimeFrame({ start: startDate, end: endDate, internal: true })];
+            timeFrames = GanttCalendar.$filter('filter')(timeFrames, function (timeFrame) {
+                return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+            });
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = (0, _getIterator3.default)(timeFrames), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var _timeFrame4 = _step5.value;
+
+                    if (!_timeFrame4.start) {
+                        _timeFrame4.start = startDate;
+                    }
+                    if (!_timeFrame4.end) {
+                        _timeFrame4.end = endDate;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
+                    }
+                }
+            }
+
+            var orderedTimeFrames = GanttCalendar.$filter('orderBy')(timeFrames, function (timeFrame) {
+                return -timeFrame.getDuration();
+            });
+            var k = void 0;
+            var _iteratorNormalCompletion6 = true;
+            var _didIteratorError6 = false;
+            var _iteratorError6 = undefined;
+
+            try {
+                for (var _iterator6 = (0, _getIterator3.default)(orderedTimeFrames), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                    var oTimeFrame = _step6.value;
+
+                    var tmpSolvedTimeFrames = solvedTimeFrames.slice();
+                    k = 0;
+                    var dispatched = false;
+                    var treated = false;
+                    var _iteratorNormalCompletion7 = true;
+                    var _didIteratorError7 = false;
+                    var _iteratorError7 = undefined;
+
+                    try {
+                        for (var _iterator7 = (0, _getIterator3.default)(solvedTimeFrames), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                            var sTimeFrame = _step7.value;
+
+                            if (!treated) {
+                                if (!oTimeFrame.end && !oTimeFrame.start) {
+                                    tmpSolvedTimeFrames.splice(k, 0, oTimeFrame);
+                                    treated = true;
+                                    dispatched = false;
+                                } else if (oTimeFrame.end > sTimeFrame.start && oTimeFrame.start < sTimeFrame.end) {
+                                    var newSolvedTimeFrame = sTimeFrame.clone();
+                                    sTimeFrame.end = (0, _moment2.default)(oTimeFrame.start);
+                                    newSolvedTimeFrame.start = (0, _moment2.default)(oTimeFrame.end);
+                                    tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone(), newSolvedTimeFrame);
+                                    treated = true;
+                                    dispatched = false;
+                                } else if (!dispatched && oTimeFrame.start < sTimeFrame.end) {
+                                    sTimeFrame.end = (0, _moment2.default)(oTimeFrame.start);
+                                    tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone());
+                                    dispatched = true;
+                                } else if (dispatched && oTimeFrame.end > sTimeFrame.start) {
+                                    sTimeFrame.start = (0, _moment2.default)(oTimeFrame.end);
+                                    dispatched = false;
+                                    treated = true;
+                                }
+                                k++;
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError7 = true;
+                        _iteratorError7 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                                _iterator7.return();
+                            }
+                        } finally {
+                            if (_didIteratorError7) {
+                                throw _iteratorError7;
+                            }
+                        }
+                    }
+
+                    solvedTimeFrames = tmpSolvedTimeFrames;
+                }
+            } catch (err) {
+                _didIteratorError6 = true;
+                _iteratorError6 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                        _iterator6.return();
+                    }
+                } finally {
+                    if (_didIteratorError6) {
+                        throw _iteratorError6;
+                    }
+                }
+            }
+
+            solvedTimeFrames = GanttCalendar.$filter('filter')(solvedTimeFrames, function (timeFrame) {
+                return !timeFrame.internal && (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
+            });
+            return solvedTimeFrames;
+        }
+    }]);
+    return GanttCalendar;
+}();
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttCurrentDateManager = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = function () {
+    'ngInject';
+
+    return GanttCurrentDateManager;
+};
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttCurrentDateManager = exports.GanttCurrentDateManager = function () {
+    function GanttCurrentDateManager(gantt) {
+        var _this = this;
+
+        (0, _classCallCheck3.default)(this, GanttCurrentDateManager);
+
+        this.gantt = gantt;
+        this.date = undefined;
+        this.position = undefined;
+        this.currentDateColumn = undefined;
+        this.gantt.$scope.simplifyMoment = function (d) {
+            return _moment2.default.isMoment(d) ? d.unix() : d;
+        };
+        this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                _this.setCurrentDate(_this.gantt.options.value('currentDateValue'));
+            }
+        });
+    }
+
+    (0, _createClass3.default)(GanttCurrentDateManager, [{
+        key: 'setCurrentDate',
+        value: function setCurrentDate(currentDate) {
+            this.date = currentDate;
+            var oldColumn = this.currentDateColumn;
+            var newColumn = void 0;
+            if (this.date !== undefined && this.gantt.options.value('currentDate') === 'column') {
+                newColumn = this.gantt.columnsManager.getColumnByDate(this.date, true);
+            }
+            this.currentDateColumn = newColumn;
+            if (oldColumn !== newColumn) {
+                if (oldColumn !== undefined) {
+                    oldColumn.currentDate = false;
+                    oldColumn.updateView();
+                }
+                if (newColumn !== undefined) {
+                    newColumn.currentDate = true;
+                    newColumn.updateView();
+                }
+            }
+            this.position = this.gantt.getPositionByDate(this.date, true);
+        }
+    }]);
+    return GanttCurrentDateManager;
+}();
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttColumnHeader = undefined;
+
+var _getPrototypeOf = __webpack_require__(127);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _possibleConstructorReturn2 = __webpack_require__(132);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(131);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+exports.default = function () {
+    'ngInject';
+
+    return GanttColumnHeader;
+};
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _column = __webpack_require__(23);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttColumnHeader = exports.GanttColumnHeader = function (_GanttColumn) {
+    (0, _inherits3.default)(GanttColumnHeader, _GanttColumn);
+
+    function GanttColumnHeader(date, endDate, viewScaleUnit, left, width, labelFormat, name) {
+        (0, _classCallCheck3.default)(this, GanttColumnHeader);
+
+        var _this = (0, _possibleConstructorReturn3.default)(this, (GanttColumnHeader.__proto__ || (0, _getPrototypeOf2.default)(GanttColumnHeader)).call(this, date, endDate, left, width));
+
+        _this.name = name;
+        _this.unit = viewScaleUnit;
+        _this.label = _angular2.default.isFunction(labelFormat) ? labelFormat(_this) : date.format(labelFormat);
+        return _this;
+    }
+
+    return GanttColumnHeader;
+}(_column.GanttColumn);
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttColumnsManager = undefined;
+
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["GanttColumnGenerator", "GanttColumnBuilder", "GanttHeadersGenerator", "$filter", "ganttLayout", "ganttBinarySearch", function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersGenerator, $filter, ganttLayout, ganttBinarySearch) {
+    'ngInject';
+
+    GanttColumnsManager.GanttColumnGenerator = GanttColumnGenerator;
+    GanttColumnsManager.GanttHeadersGenerator = GanttHeadersGenerator;
+    GanttColumnsManager.ganttBinarySearch = ganttBinarySearch;
+    GanttColumnsManager.GanttColumnBuilder = GanttColumnBuilder;
+    GanttColumnsManager.ganttLayout = ganttLayout;
+    GanttColumnsManager.$filter = $filter;
+    return GanttColumnsManager;
+}];
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttColumnsManager = exports.GanttColumnsManager = function () {
+    function GanttColumnsManager(gantt) {
+        var _this = this;
+
+        (0, _classCallCheck3.default)(this, GanttColumnsManager);
+
+        this.defaultHeadersFormats = {
+            year: 'YYYY',
+            quarter: '[Q]Q YYYY',
+            month: 'MMMM YYYY',
+            week: 'w',
+            day: 'D',
+            hour: 'H',
+            minute: 'H:mm',
+            second: 'H:mm:ss',
+            millisecond: 'H:mm:ss:SSS'
+        };
+        this.defaultDayHeadersFormats = { day: 'LL', hour: 'H', minute: 'H:mm', second: 'H:mm:ss', millisecond: 'H:mm:ss:SSS' };
+        this.defaultYearHeadersFormats = { 'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM' };
+        this.gantt = gantt;
+        this.from = undefined;
+        this.to = undefined;
+        this.columns = [];
+        this.visibleColumns = [];
+        this.previousColumns = [];
+        this.nextColumns = [];
+        this.headers = [];
+        this.visibleHeaders = [];
+        this.scrollAnchor = undefined;
+        this.columnBuilder = new GanttColumnsManager.GanttColumnBuilder(this);
+
+        this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function (newValues, oldValues) {
+            if (newValues !== oldValues && _this.gantt.rendered) {
+                _this.generateColumns();
+            }
+        });
+        this.gantt.$scope.$watchCollection('headers', function (newValues, oldValues) {
+            if (newValues !== oldValues && _this.gantt.rendered) {
+                _this.generateColumns();
+            }
+        });
+        this.gantt.$scope.$watchCollection('headersFormats', function (newValues, oldValues) {
+            if (newValues !== oldValues && _this.gantt.rendered) {
+                _this.generateColumns();
+            }
+        });
+        this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], function (newValues, oldValues) {
+            if (newValues !== oldValues && _this.gantt.rendered) {
+                _this.updateColumnsMeta();
+            }
+        });
+        this.gantt.api.data.on.load(this.gantt.$scope, function () {
+            if ((_this.from === undefined || _this.to === undefined || _this.from > _this.gantt.rowsManager.getDefaultFrom() || _this.to < _this.gantt.rowsManager.getDefaultTo()) && _this.gantt.rendered) {
+                _this.generateColumns();
+            }
+            _this.gantt.rowsManager.sortRows();
+        });
+        this.gantt.api.data.on.remove(this.gantt.$scope, function () {
+            _this.gantt.rowsManager.sortRows();
+        });
+        this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
+        this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
+        this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
+        this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
+        this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
+        this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
+        this.gantt.api.registerEvent('columns', 'clear');
+        this.gantt.api.registerEvent('columns', 'generate');
+        this.gantt.api.registerEvent('columns', 'refresh');
+    }
+
+    (0, _createClass3.default)(GanttColumnsManager, [{
+        key: 'setScrollAnchor',
+        value: function setScrollAnchor() {
+            if (this.gantt.scroll.$element && this.columns.length > 0) {
+                var el = this.gantt.scroll.$element[0];
+                var center = el.scrollLeft + el.offsetWidth / 2;
+                this.scrollAnchor = this.gantt.getDateByPosition(center);
+            }
+        }
+    }, {
+        key: 'scrollToScrollAnchor',
+        value: function scrollToScrollAnchor() {
+            var _this2 = this;
+
+            if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+                this.gantt.$scope.$$postDigest(function () {
+                    _this2.gantt.api.scroll.toDate(_this2.scrollAnchor);
+                });
+            }
+        }
+    }, {
+        key: 'clearColumns',
+        value: function clearColumns() {
+            this.setScrollAnchor();
+            this.from = undefined;
+            this.to = undefined;
+            this.columns = [];
+            this.visibleColumns = [];
+            this.previousColumns = [];
+            this.nextColumns = [];
+            this.headers = [];
+            this.visibleHeaders = [];
+            this.gantt.api.columns.raise.clear();
+        }
+    }, {
+        key: 'generateColumns',
+        value: function generateColumns(from, to) {
+            if (!from) {
+                from = this.gantt.options.value('fromDate');
+            }
+            if (!to) {
+                to = this.gantt.options.value('toDate');
+            }
+            if (!from || _moment2.default.isMoment(from) && !from.isValid()) {
+                from = this.gantt.rowsManager.getDefaultFrom();
+                if (!from) {
+                    return false;
+                }
+            }
+            if (!to || _moment2.default.isMoment(to) && !to.isValid()) {
+                to = this.gantt.rowsManager.getDefaultTo();
+                if (!to) {
+                    return false;
+                }
+            }
+            if (from !== undefined && !_moment2.default.isMoment(from)) {
+                from = (0, _moment2.default)(from);
+            }
+            if (to !== undefined && !_moment2.default.isMoment(to)) {
+                to = (0, _moment2.default)(to);
+            }
+            if (this.gantt.options.value('taskOutOfRange') === 'expand') {
+                from = this.gantt.rowsManager.getExpandedFrom(from);
+                to = this.gantt.rowsManager.getExpandedTo(to);
+            }
+            this.setScrollAnchor();
+            this.from = from;
+            this.to = to;
+            this.previousColumns = [];
+            this.nextColumns = [];
+            this.columns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, this.from, this.to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
+            this.headers = GanttColumnsManager.GanttHeadersGenerator.generate(this);
+            this.updateColumnsMeta();
+            this.scrollToScrollAnchor();
+            this.gantt.api.columns.raise.generate(this.columns, this.headers);
+        }
+    }, {
+        key: 'updateColumnsMeta',
+        value: function updateColumnsMeta() {
+            this.gantt.isRefreshingColumns = true;
+            var lastColumn = this.getLastColumn();
+            this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
+            var columnsWidthChanged = this.updateColumnsWidths(this.columns, this.headers, this.previousColumns, this.nextColumns);
+            this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
+            var showSide = this.gantt.options.value('showSide');
+            var sideShown = this.gantt.side.isShown();
+            var sideVisibilityChanged = showSide !== sideShown;
+            if (sideVisibilityChanged && !showSide) {
+                this.gantt.side.show(false);
+            }
+            this.gantt.rowsManager.updateTasksPosAndSize();
+            this.gantt.timespansManager.updateTimespansPosAndSize();
+            this.updateVisibleColumns(columnsWidthChanged);
+            this.gantt.rowsManager.updateVisibleObjects();
+            var currentDateValue = this.gantt.options.value('currentDateValue');
+            this.gantt.currentDateManager.setCurrentDate(currentDateValue);
+            if (sideVisibilityChanged && showSide) {
+                this.gantt.side.show(true);
+            }
+            this.gantt.isRefreshingColumns = false;
+            this.gantt.api.columns.raise.refresh(this.columns, this.headers);
+        }
+    }, {
+        key: 'getLastColumn',
+        value: function getLastColumn() {
+            var extended = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            var columns = this.columns;
+            if (extended) {
+                columns = this.nextColumns;
+            }
+            if (columns && columns.length > 0) {
+                return columns[columns.length - 1];
+            } else {
+                return undefined;
+            }
+        }
+    }, {
+        key: 'getFirstColumn',
+        value: function getFirstColumn() {
+            var extended = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            var columns = this.columns;
+            if (extended) {
+                columns = this.previousColumns;
+            }
+            if (columns && columns.length > 0) {
+                return columns[0];
+            } else {
+                return undefined;
+            }
+        }
+    }, {
+        key: 'getColumnByDate',
+        value: function getColumnByDate(date, disableExpand) {
+            if (!disableExpand) {
+                this.expandExtendedColumnsForDate(date);
+            }
+            var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
+            var columns = GanttColumnsManager.ganttBinarySearch.get(extendedColumns, date, function (c) {
+                return c.date;
+            }, true);
+            return columns[0] === undefined ? columns[1] : columns[0];
+        }
+    }, {
+        key: 'getColumnByPosition',
+        value: function getColumnByPosition(x, disableExpand) {
+            if (!disableExpand) {
+                this.expandExtendedColumnsForPosition(x);
+            }
+            var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
+            var columns = GanttColumnsManager.ganttBinarySearch.get(extendedColumns, x, function (c) {
+                return c.left;
+            }, true);
+            return columns[0] === undefined ? columns[1] : columns[0];
+        }
+    }, {
+        key: 'updateColumnsWidths',
+        value: function updateColumnsWidths(columns, headers, previousColumns, nextColumns) {
+            var columnWidth = this.gantt.options.value('columnWidth');
+            var expandToFit = this.gantt.options.value('expandToFit');
+            var shrinkToFit = this.gantt.options.value('shrinkToFit');
+            if (columnWidth === undefined || expandToFit || shrinkToFit) {
+                var newWidth = this.gantt.getBodyAvailableWidth();
+                var lastColumn = this.gantt.columnsManager.getLastColumn(false);
+                if (lastColumn !== undefined) {
+                    var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
+                    if (expandToFit && currentWidth < newWidth || shrinkToFit && currentWidth > newWidth || columnWidth === undefined) {
+                        var widthFactor = newWidth / currentWidth;
+                        GanttColumnsManager.ganttLayout.setColumnsWidthFactor(columns, widthFactor);
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
+
+                        try {
+                            for (var _iterator = (0, _getIterator3.default)(headers), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var header = _step.value;
+
+                                GanttColumnsManager.ganttLayout.setColumnsWidthFactor(header, widthFactor);
+                            }
+                        } catch (err) {
+                            _didIteratorError = true;
+                            _iteratorError = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion && _iterator.return) {
+                                    _iterator.return();
+                                }
+                            } finally {
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
+                                }
+                            }
+                        }
+
+                        previousColumns.splice(0, this.previousColumns.length);
+                        nextColumns.splice(0, this.nextColumns.length);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }, {
+        key: 'getColumnsWidth',
+        value: function getColumnsWidth() {
+            var columnWidth = this.gantt.options.value('columnWidth');
+            if (columnWidth === undefined) {
+                if (!this.gantt.width || this.gantt.width <= 0) {
+                    columnWidth = 20;
+                } else {
+                    columnWidth = this.gantt.width / this.columns.length;
+                }
+            }
+            return columnWidth;
+        }
+    }, {
+        key: 'getColumnsWidthToFit',
+        value: function getColumnsWidthToFit() {
+            return this.gantt.getBodyAvailableWidth() / this.columns.length;
+        }
+    }, {
+        key: 'expandExtendedColumnsForPosition',
+        value: function expandExtendedColumnsForPosition(x) {
+            var viewScale = void 0;
+            if (x < 0) {
+                var firstColumn = this.getFirstColumn();
+                var from = firstColumn.date;
+                var firstExtendedColumn = this.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.left > x) {
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.previousColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, from, undefined, viewScale, this.getColumnsWidth(), -x, 0, true);
+                }
+                return true;
+            } else if (x > this.gantt.width) {
+                var lastColumn = this.getLastColumn();
+                var endDate = lastColumn.getDateByPosition(lastColumn.width);
+                var lastExtendedColumn = this.getLastColumn(true);
+                if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.nextColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, endDate, undefined, viewScale, this.getColumnsWidth(), x - this.gantt.width, this.gantt.width, false);
+                }
+                return true;
+            }
+            return false;
+        }
+    }, {
+        key: 'expandExtendedColumnsForDate',
+        value: function expandExtendedColumnsForDate(date) {
+            var firstColumn = this.getFirstColumn();
+            var from = void 0;
+            if (firstColumn) {
+                from = firstColumn.date;
+            }
+            var lastColumn = this.getLastColumn();
+            var endDate = void 0;
+            if (lastColumn) {
+                endDate = lastColumn.endDate;
+            }
+            var viewScale = void 0;
+            if (from && date < from) {
+                var firstExtendedColumn = this.getFirstColumn(true);
+                if (!firstExtendedColumn || firstExtendedColumn.date > date) {
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.previousColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, from, date, viewScale, this.getColumnsWidth(), undefined, 0, true);
+                }
+                return true;
+            } else if (endDate && date >= endDate) {
+                var lastExtendedColumn = this.getLastColumn(true);
+                if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
+                    viewScale = this.gantt.options.value('viewScale');
+                    this.nextColumns = GanttColumnsManager.GanttColumnGenerator.generate(this.columnBuilder, endDate, date, viewScale, this.getColumnsWidth(), undefined, this.gantt.width, false);
+                }
+                return true;
+            }
+            return false;
+        }
+    }, {
+        key: 'getActiveHeadersCount',
+        value: function getActiveHeadersCount() {
+            return this.headers.length;
+        }
+    }, {
+        key: 'updateVisibleColumns',
+        value: function updateVisibleColumns(includeViews) {
+            var limitThreshold = this.gantt.options.value('columnLimitThreshold');
+            var i = void 0;
+            if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
+                this.visibleColumns = GanttColumnsManager.$filter('ganttColumnLimit')(this.columns, this.gantt);
+                this.visibleHeaders = [];
+                for (i = 0; i < this.headers.length; i++) {
+                    this.visibleHeaders.push.apply(this.visibleHeaders, GanttColumnsManager.$filter('ganttColumnLimit')(this.headers[i], this.gantt));
+                }
+            } else {
+                this.visibleColumns = this.columns;
+                this.visibleHeaders = this.headers;
+            }
+            if (includeViews) {
+                for (i = 0; i < this.visibleColumns.length; i++) {
+                    this.visibleColumns[i].updateView();
+                }
+                for (i = 0; i < this.visibleHeaders.length; i++) {
+                    var headerRow = this.visibleHeaders[i];
+                    var _iteratorNormalCompletion2 = true;
+                    var _didIteratorError2 = false;
+                    var _iteratorError2 = undefined;
+
+                    try {
+                        for (var _iterator2 = (0, _getIterator3.default)(headerRow), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                            var headerRowItem = _step2.value;
+
+                            headerRowItem.updateView();
+                        }
+                    } catch (err) {
+                        _didIteratorError2 = true;
+                        _iteratorError2 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
+                            }
+                        } finally {
+                            if (_didIteratorError2) {
+                                throw _iteratorError2;
+                            }
+                        }
+                    }
+                }
+            }
+            var currentDateValue = this.gantt.options.value('currentDateValue');
+            this.gantt.currentDateManager.setCurrentDate(currentDateValue);
+        }
+    }, {
+        key: 'getHeaderFormat',
+        value: function getHeaderFormat(unit) {
+            var format = void 0;
+            var headersFormats = this.gantt.options.value('headersFormats');
+            if (headersFormats !== undefined) {
+                format = headersFormats[unit];
+            }
+            if (format === undefined) {
+                var viewScale = this.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
+                var viewScaleUnit = void 0;
+                var splittedViewScale = void 0;
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleUnit = viewScale;
+                }
+                if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
+                    format = this.defaultDayHeadersFormats[unit];
+                } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
+                    format = this.defaultYearHeadersFormats[unit];
+                }
+                if (format === undefined) {
+                    format = this.defaultHeadersFormats[unit];
+                }
+            }
+            return format;
+        }
+    }, {
+        key: 'getHeaderScale',
+        value: function getHeaderScale(header) {
+            var scale = void 0;
+            var headersScales = this.gantt.options.value('headersScales');
+            if (headersScales !== undefined) {
+                scale = headersScales[header];
+            }
+            if (scale === undefined) {
+                scale = header;
+            }
+            if (['millisecond', 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
+                scale = 'day';
+            }
+            return scale;
+        }
+    }, {
+        key: 'getDateRange',
+        value: function getDateRange(visibleOnly) {
+            var firstColumn = void 0;
+            var lastColumn = void 0;
+            if (visibleOnly) {
+                if (this.visibleColumns && this.visibleColumns.length > 0) {
+                    firstColumn = this.visibleColumns[0];
+                    lastColumn = this.visibleColumns[this.visibleColumns.length - 1];
+                }
+            } else {
+                firstColumn = this.getFirstColumn();
+                lastColumn = this.getLastColumn();
+            }
+            return firstColumn && lastColumn ? [firstColumn.date, lastColumn.endDate] : undefined;
+        }
+    }]);
+    return GanttColumnsManager;
+}();
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttObjectModel = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var cov_1l8b4qpxlz = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/model/objectModel.factory.ts',
+        hash = 'e706d37f52d781334bed5c3ed608d06fe2dae196',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/model/objectModel.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 4,
+                    column: 8
+                },
+                end: {
+                    line: 4,
+                    column: 23
+                }
+            },
+            '1': {
+                start: {
+                    line: 5,
+                    column: 8
+                },
+                end: {
+                    line: 5,
+                    column: 49
+                }
+            },
+            '2': {
+                start: {
+                    line: 6,
+                    column: 8
+                },
+                end: {
+                    line: 6,
+                    column: 48
+                }
+            },
+            '3': {
+                start: {
+                    line: 7,
+                    column: 8
+                },
+                end: {
+                    line: 7,
+                    column: 53
+                }
+            },
+            '4': {
+                start: {
+                    line: 11,
+                    column: 8
+                },
+                end: {
+                    line: 13,
+                    column: 9
+                }
+            },
+            '5': {
+                start: {
+                    line: 12,
+                    column: 12
+                },
+                end: {
+                    line: 12,
+                    column: 64
+                }
+            },
+            '6': {
+                start: {
+                    line: 14,
+                    column: 8
+                },
+                end: {
+                    line: 16,
+                    column: 9
+                }
+            },
+            '7': {
+                start: {
+                    line: 15,
+                    column: 12
+                },
+                end: {
+                    line: 15,
+                    column: 44
+                }
+            },
+            '8': {
+                start: {
+                    line: 17,
+                    column: 8
+                },
+                end: {
+                    line: 19,
+                    column: 9
+                }
+            },
+            '9': {
+                start: {
+                    line: 18,
+                    column: 12
+                },
+                end: {
+                    line: 18,
+                    column: 40
+                }
+            },
+            '10': {
+                start: {
+                    line: 20,
+                    column: 8
+                },
+                end: {
+                    line: 20,
+                    column: 42
+                }
+            },
+            '11': {
+                start: {
+                    line: 24,
+                    column: 8
+                },
+                end: {
+                    line: 26,
+                    column: 9
+                }
+            },
+            '12': {
+                start: {
+                    line: 25,
+                    column: 12
+                },
+                end: {
+                    line: 25,
+                    column: 64
+                }
+            },
+            '13': {
+                start: {
+                    line: 27,
+                    column: 8
+                },
+                end: {
+                    line: 29,
+                    column: 9
+                }
+            },
+            '14': {
+                start: {
+                    line: 28,
+                    column: 12
+                },
+                end: {
+                    line: 28,
+                    column: 44
+                }
+            },
+            '15': {
+                start: {
+                    line: 30,
+                    column: 8
+                },
+                end: {
+                    line: 32,
+                    column: 9
+                }
+            },
+            '16': {
+                start: {
+                    line: 31,
+                    column: 12
+                },
+                end: {
+                    line: 31,
+                    column: 40
+                }
+            },
+            '17': {
+                start: {
+                    line: 33,
+                    column: 8
+                },
+                end: {
+                    line: 33,
+                    column: 41
+                }
+            },
+            '18': {
+                start: {
+                    line: 37,
+                    column: 8
+                },
+                end: {
+                    line: 39,
+                    column: 9
+                }
+            },
+            '19': {
+                start: {
+                    line: 38,
+                    column: 12
+                },
+                end: {
+                    line: 38,
+                    column: 64
+                }
+            },
+            '20': {
+                start: {
+                    line: 40,
+                    column: 8
+                },
+                end: {
+                    line: 42,
+                    column: 9
+                }
+            },
+            '21': {
+                start: {
+                    line: 41,
+                    column: 12
+                },
+                end: {
+                    line: 41,
+                    column: 44
+                }
+            },
+            '22': {
+                start: {
+                    line: 43,
+                    column: 8
+                },
+                end: {
+                    line: 45,
+                    column: 9
+                }
+            },
+            '23': {
+                start: {
+                    line: 44,
+                    column: 12
+                },
+                end: {
+                    line: 44,
+                    column: 40
+                }
+            },
+            '24': {
+                start: {
+                    line: 46,
+                    column: 8
+                },
+                end: {
+                    line: 46,
+                    column: 46
+                }
+            },
+            '25': {
+                start: {
+                    line: 52,
+                    column: 4
+                },
+                end: {
+                    line: 52,
+                    column: 45
+                }
+            },
+            '26': {
+                start: {
+                    line: 53,
+                    column: 4
+                },
+                end: {
+                    line: 53,
+                    column: 28
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 3,
+                        column: 4
+                    },
+                    end: {
+                        line: 3,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 3,
+                        column: 21
+                    },
+                    end: {
+                        line: 8,
+                        column: 5
+                    }
+                },
+                line: 3
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 10,
+                        column: 4
+                    },
+                    end: {
+                        line: 10,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 10,
+                        column: 21
+                    },
+                    end: {
+                        line: 21,
+                        column: 5
+                    }
+                },
+                line: 10
+            },
+            '2': {
+                name: '(anonymous_2)',
+                decl: {
+                    start: {
+                        line: 23,
+                        column: 4
+                    },
+                    end: {
+                        line: 23,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 23,
+                        column: 20
+                    },
+                    end: {
+                        line: 34,
+                        column: 5
+                    }
+                },
+                line: 23
+            },
+            '3': {
+                name: '(anonymous_3)',
+                decl: {
+                    start: {
+                        line: 36,
+                        column: 4
+                    },
+                    end: {
+                        line: 36,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 36,
+                        column: 25
+                    },
+                    end: {
+                        line: 47,
+                        column: 5
+                    }
+                },
+                line: 36
+            },
+            '4': {
+                name: '(anonymous_4)',
+                decl: {
+                    start: {
+                        line: 50,
+                        column: 15
+                    },
+                    end: {
+                        line: 50,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 50,
+                        column: 37
+                    },
+                    end: {
+                        line: 54,
+                        column: 1
+                    }
+                },
+                line: 50
+            }
+        },
+        branchMap: {
+            '0': {
+                loc: {
+                    start: {
+                        line: 11,
+                        column: 8
+                    },
+                    end: {
+                        line: 13,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 11,
+                        column: 8
+                    },
+                    end: {
+                        line: 13,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 11,
+                        column: 8
+                    },
+                    end: {
+                        line: 13,
+                        column: 9
+                    }
+                }],
+                line: 11
+            },
+            '1': {
+                loc: {
+                    start: {
+                        line: 14,
+                        column: 8
+                    },
+                    end: {
+                        line: 16,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 14,
+                        column: 8
+                    },
+                    end: {
+                        line: 16,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 14,
+                        column: 8
+                    },
+                    end: {
+                        line: 16,
+                        column: 9
+                    }
+                }],
+                line: 14
+            },
+            '2': {
+                loc: {
+                    start: {
+                        line: 14,
+                        column: 12
+                    },
+                    end: {
+                        line: 14,
+                        column: 68
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 14,
+                        column: 12
+                    },
+                    end: {
+                        line: 14,
+                        column: 36
+                    }
+                }, {
+                    start: {
+                        line: 14,
+                        column: 40
+                    },
+                    end: {
+                        line: 14,
+                        column: 68
+                    }
+                }],
+                line: 14
+            },
+            '3': {
+                loc: {
+                    start: {
+                        line: 17,
+                        column: 8
+                    },
+                    end: {
+                        line: 19,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 17,
+                        column: 8
+                    },
+                    end: {
+                        line: 19,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 17,
+                        column: 8
+                    },
+                    end: {
+                        line: 19,
+                        column: 9
+                    }
+                }],
+                line: 17
+            },
+            '4': {
+                loc: {
+                    start: {
+                        line: 17,
+                        column: 12
+                    },
+                    end: {
+                        line: 17,
+                        column: 64
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 17,
+                        column: 12
+                    },
+                    end: {
+                        line: 17,
+                        column: 34
+                    }
+                }, {
+                    start: {
+                        line: 17,
+                        column: 38
+                    },
+                    end: {
+                        line: 17,
+                        column: 64
+                    }
+                }],
+                line: 17
+            },
+            '5': {
+                loc: {
+                    start: {
+                        line: 24,
+                        column: 8
+                    },
+                    end: {
+                        line: 26,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 24,
+                        column: 8
+                    },
+                    end: {
+                        line: 26,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 24,
+                        column: 8
+                    },
+                    end: {
+                        line: 26,
+                        column: 9
+                    }
+                }],
+                line: 24
+            },
+            '6': {
+                loc: {
+                    start: {
+                        line: 27,
+                        column: 8
+                    },
+                    end: {
+                        line: 29,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 27,
+                        column: 8
+                    },
+                    end: {
+                        line: 29,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 27,
+                        column: 8
+                    },
+                    end: {
+                        line: 29,
+                        column: 9
+                    }
+                }],
+                line: 27
+            },
+            '7': {
+                loc: {
+                    start: {
+                        line: 27,
+                        column: 12
+                    },
+                    end: {
+                        line: 27,
+                        column: 68
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 27,
+                        column: 12
+                    },
+                    end: {
+                        line: 27,
+                        column: 36
+                    }
+                }, {
+                    start: {
+                        line: 27,
+                        column: 40
+                    },
+                    end: {
+                        line: 27,
+                        column: 68
+                    }
+                }],
+                line: 27
+            },
+            '8': {
+                loc: {
+                    start: {
+                        line: 30,
+                        column: 8
+                    },
+                    end: {
+                        line: 32,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 30,
+                        column: 8
+                    },
+                    end: {
+                        line: 32,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 30,
+                        column: 8
+                    },
+                    end: {
+                        line: 32,
+                        column: 9
+                    }
+                }],
+                line: 30
+            },
+            '9': {
+                loc: {
+                    start: {
+                        line: 30,
+                        column: 12
+                    },
+                    end: {
+                        line: 30,
+                        column: 64
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 30,
+                        column: 12
+                    },
+                    end: {
+                        line: 30,
+                        column: 34
+                    }
+                }, {
+                    start: {
+                        line: 30,
+                        column: 38
+                    },
+                    end: {
+                        line: 30,
+                        column: 64
+                    }
+                }],
+                line: 30
+            },
+            '10': {
+                loc: {
+                    start: {
+                        line: 37,
+                        column: 8
+                    },
+                    end: {
+                        line: 39,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 37,
+                        column: 8
+                    },
+                    end: {
+                        line: 39,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 37,
+                        column: 8
+                    },
+                    end: {
+                        line: 39,
+                        column: 9
+                    }
+                }],
+                line: 37
+            },
+            '11': {
+                loc: {
+                    start: {
+                        line: 40,
+                        column: 8
+                    },
+                    end: {
+                        line: 42,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 40,
+                        column: 8
+                    },
+                    end: {
+                        line: 42,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 40,
+                        column: 8
+                    },
+                    end: {
+                        line: 42,
+                        column: 9
+                    }
+                }],
+                line: 40
+            },
+            '12': {
+                loc: {
+                    start: {
+                        line: 40,
+                        column: 12
+                    },
+                    end: {
+                        line: 40,
+                        column: 68
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 40,
+                        column: 12
+                    },
+                    end: {
+                        line: 40,
+                        column: 36
+                    }
+                }, {
+                    start: {
+                        line: 40,
+                        column: 40
+                    },
+                    end: {
+                        line: 40,
+                        column: 68
+                    }
+                }],
+                line: 40
+            },
+            '13': {
+                loc: {
+                    start: {
+                        line: 43,
+                        column: 8
+                    },
+                    end: {
+                        line: 45,
+                        column: 9
+                    }
+                },
+                type: 'if',
+                locations: [{
+                    start: {
+                        line: 43,
+                        column: 8
+                    },
+                    end: {
+                        line: 45,
+                        column: 9
+                    }
+                }, {
+                    start: {
+                        line: 43,
+                        column: 8
+                    },
+                    end: {
+                        line: 45,
+                        column: 9
+                    }
+                }],
+                line: 43
+            },
+            '14': {
+                loc: {
+                    start: {
+                        line: 43,
+                        column: 12
+                    },
+                    end: {
+                        line: 43,
+                        column: 64
+                    }
+                },
+                type: 'binary-expr',
+                locations: [{
+                    start: {
+                        line: 43,
+                        column: 12
+                    },
+                    end: {
+                        line: 43,
+                        column: 34
+                    }
+                }, {
+                    start: {
+                        line: 43,
+                        column: 38
+                    },
+                    end: {
+                        line: 43,
+                        column: 64
+                    }
+                }],
+                line: 43
+            }
+        },
+        s: {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
+            '10': 0,
+            '11': 0,
+            '12': 0,
+            '13': 0,
+            '14': 0,
+            '15': 0,
+            '16': 0,
+            '17': 0,
+            '18': 0,
+            '19': 0,
+            '20': 0,
+            '21': 0,
+            '22': 0,
+            '23': 0,
+            '24': 0,
+            '25': 0,
+            '26': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0
+        },
+        b: {
+            '0': [0, 0],
+            '1': [0, 0],
+            '2': [0, 0],
+            '3': [0, 0],
+            '4': [0, 0],
+            '5': [0, 0],
+            '6': [0, 0],
+            '7': [0, 0],
+            '8': [0, 0],
+            '9': [0, 0],
+            '10': [0, 0],
+            '11': [0, 0],
+            '12': [0, 0],
+            '13': [0, 0],
+            '14': [0, 0]
+        },
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/model/objectModel.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/model/objectModel.factory.ts'],
+            names: [],
+            mappings: 'AAAA,OAAO,MAAM,MAAM,QAAQ,CAAC;AAK5B,MAAM;IAKJ,YAAa,GAAa;QACxB,IAAI,CAAC,GAAG,GAAG,GAAG,CAAC;QAEf,IAAI,CAAC,GAAG,CAAC,aAAa,CAAC,OAAO,EAAE,OAAO,CAAC,CAAC;QACzC,IAAI,CAAC,GAAG,CAAC,aAAa,CAAC,MAAM,EAAE,OAAO,CAAC,CAAC;QACxC,IAAI,CAAC,GAAG,CAAC,aAAa,CAAC,WAAW,EAAE,OAAO,CAAC,CAAC;IAC/C,CAAC;IAAA,CAAC;IAEF,SAAS,CAAE,KAAK;QACd,EAAE,CAAC,CAAC,KAAK,CAAC,EAAE,KAAK,SAAS,CAAC,CAAC,CAAC;YAC3B,KAAK,CAAC,EAAE,GAAG,gBAAgB,CAAC,UAAU,CAAC,UAAU,EAAE,CAAC;QACtD,CAAC;QAED,EAAE,CAAC,CAAC,KAAK,CAAC,IAAI,KAAK,SAAS,IAAI,CAAC,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC,CAAC,CAAC;YAC7D,KAAK,CAAC,IAAI,GAAG,MAAM,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;QAClC,CAAC;QAED,EAAE,CAAC,CAAC,KAAK,CAAC,EAAE,KAAK,SAAS,IAAI,CAAC,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,EAAE,CAAC,CAAC,CAAC,CAAC;YACzD,KAAK,CAAC,EAAE,GAAG,MAAM,CAAC,KAAK,CAAC,EAAE,CAAC,CAAC;QAC9B,CAAC;QAEA,IAAI,CAAC,GAAW,CAAC,KAAK,CAAC,KAAK,CAAC,KAAK,CAAC,KAAK,CAAC,CAAC;IAC7C,CAAC;IAAA,CAAC;IAEF,QAAQ,CAAE,KAAK;QACb,EAAE,CAAC,CAAC,KAAK,CAAC,EAAE,KAAK,SAAS,CAAC,CAAC,CAAC;YAC3B,KAAK,CAAC,EAAE,GAAG,gBAAgB,CAAC,UAAU,CAAC,UAAU,EAAE,CAAC;QACtD,CAAC;QAED,EAAE,CAAC,CAAC,KAAK,CAAC,IAAI,KAAK,SAAS,IAAI,CAAC,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC,CAAC,CAAC;YAC7D,KAAK,CAAC,IAAI,GAAG,MAAM,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;QAClC,CAAC;QAED,EAAE,CAAC,CAAC,KAAK,CAAC,EAAE,KAAK,SAAS,IAAI,CAAC,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,EAAE,CAAC,CAAC,CAAC,CAAC;YACzD,KAAK,CAAC,EAAE,GAAG,MAAM,CAAC,KAAK,CAAC,EAAE,CAAC,CAAC;QAC9B,CAAC;QAEA,IAAI,CAAC,GAAW,CAAC,IAAI,CAAC,KAAK,CAAC,KAAK,CAAC,KAAK,CAAC,CAAC;IAC5C,CAAC;IAAA,CAAC;IAEF,aAAa,CAAE,KAAK;QAClB,EAAE,CAAC,CAAC,KAAK,CAAC,EAAE,KAAK,SAAS,CAAC,CAAC,CAAC;YAC3B,KAAK,CAAC,EAAE,GAAG,gBAAgB,CAAC,UAAU,CAAC,UAAU,EAAE,CAAC;QACtD,CAAC;QAED,EAAE,CAAC,CAAC,KAAK,CAAC,IAAI,KAAK,SAAS,IAAI,CAAC,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC,CAAC,CAAC;YAC7D,KAAK,CAAC,IAAI,GAAG,MAAM,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;QAClC,CAAC;QAED,EAAE,CAAC,CAAC,KAAK,CAAC,EAAE,KAAK,SAAS,IAAI,CAAC,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,EAAE,CAAC,CAAC,CAAC,CAAC;YACzD,KAAK,CAAC,EAAE,GAAG,MAAM,CAAC,KAAK,CAAC,EAAE,CAAC,CAAC;QAC9B,CAAC;QAEA,IAAI,CAAC,GAAW,CAAC,SAAS,CAAC,KAAK,CAAC,KAAK,CAAC,KAAK,CAAC,CAAC;IACjD,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO,WAAW,UAAsB;IAC7C,UAAU,CAAC;IAEX,gBAAgB,CAAC,UAAU,GAAG,UAAU,CAAC;IACzC,MAAM,CAAC,gBAAgB,CAAC;AAC1B,CAAC',
+            sourcesContent: ['import moment from \'moment\';\n\nimport {GanttApi} from \'../api/api.factory\';\nimport GanttUtils from \'../util/utils.service\';\n\nexport class GanttObjectModel {\n  static ganttUtils: GanttUtils;\n\n  private api: GanttApi;\n\n  constructor (api: GanttApi) {\n    this.api = api;\n\n    this.api.registerEvent(\'tasks\', \'clean\');\n    this.api.registerEvent(\'rows\', \'clean\');\n    this.api.registerEvent(\'timespans\', \'clean\');\n  };\n\n  cleanTask (model) {\n    if (model.id === undefined) {\n      model.id = GanttObjectModel.ganttUtils.randomUuid();\n    }\n\n    if (model.from !== undefined && !moment.isMoment(model.from)) {\n      model.from = moment(model.from);\n    }\n\n    if (model.to !== undefined && !moment.isMoment(model.to)) {\n      model.to = moment(model.to);\n    }\n\n    (this.api as any).tasks.raise.clean(model);\n  };\n\n  cleanRow (model) {\n    if (model.id === undefined) {\n      model.id = GanttObjectModel.ganttUtils.randomUuid();\n    }\n\n    if (model.from !== undefined && !moment.isMoment(model.from)) {\n      model.from = moment(model.from);\n    }\n\n    if (model.to !== undefined && !moment.isMoment(model.to)) {\n      model.to = moment(model.to);\n    }\n\n    (this.api as any).rows.raise.clean(model);\n  };\n\n  cleanTimespan (model) {\n    if (model.id === undefined) {\n      model.id = GanttObjectModel.ganttUtils.randomUuid();\n    }\n\n    if (model.from !== undefined && !moment.isMoment(model.from)) {\n      model.from = moment(model.from);\n    }\n\n    if (model.to !== undefined && !moment.isMoment(model.to)) {\n      model.to = moment(model.to);\n    }\n\n    (this.api as any).timespans.raise.clean(model);\n  };\n}\n\nexport default function (ganttUtils: GanttUtils) {\n  \'ngInject\';\n\n  GanttObjectModel.ganttUtils = ganttUtils;\n  return GanttObjectModel;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = ["ganttUtils", function (ganttUtils) {
+    'ngInject';
+
+    ++cov_1l8b4qpxlz.f[4];
+    ++cov_1l8b4qpxlz.s[25];
+    GanttObjectModel.ganttUtils = ganttUtils;
+    ++cov_1l8b4qpxlz.s[26];
+    return GanttObjectModel;
+}];
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttObjectModel = exports.GanttObjectModel = function () {
+    function GanttObjectModel(api) {
+        (0, _classCallCheck3.default)(this, GanttObjectModel);
+        ++cov_1l8b4qpxlz.f[0];
+        ++cov_1l8b4qpxlz.s[0];
+
+        this.api = api;
+        ++cov_1l8b4qpxlz.s[1];
+        this.api.registerEvent('tasks', 'clean');
+        ++cov_1l8b4qpxlz.s[2];
+        this.api.registerEvent('rows', 'clean');
+        ++cov_1l8b4qpxlz.s[3];
+        this.api.registerEvent('timespans', 'clean');
+    }
+
+    (0, _createClass3.default)(GanttObjectModel, [{
+        key: 'cleanTask',
+        value: function cleanTask(model) {
+            ++cov_1l8b4qpxlz.f[1];
+            ++cov_1l8b4qpxlz.s[4];
+
+            if (model.id === undefined) {
+                ++cov_1l8b4qpxlz.b[0][0];
+                ++cov_1l8b4qpxlz.s[5];
+
+                model.id = GanttObjectModel.ganttUtils.randomUuid();
+            } else {
+                ++cov_1l8b4qpxlz.b[0][1];
+            }
+            ++cov_1l8b4qpxlz.s[6];
+            if ((++cov_1l8b4qpxlz.b[2][0], model.from !== undefined) && (++cov_1l8b4qpxlz.b[2][1], !_moment2.default.isMoment(model.from))) {
+                ++cov_1l8b4qpxlz.b[1][0];
+                ++cov_1l8b4qpxlz.s[7];
+
+                model.from = (0, _moment2.default)(model.from);
+            } else {
+                ++cov_1l8b4qpxlz.b[1][1];
+            }
+            ++cov_1l8b4qpxlz.s[8];
+            if ((++cov_1l8b4qpxlz.b[4][0], model.to !== undefined) && (++cov_1l8b4qpxlz.b[4][1], !_moment2.default.isMoment(model.to))) {
+                ++cov_1l8b4qpxlz.b[3][0];
+                ++cov_1l8b4qpxlz.s[9];
+
+                model.to = (0, _moment2.default)(model.to);
+            } else {
+                ++cov_1l8b4qpxlz.b[3][1];
+            }
+            ++cov_1l8b4qpxlz.s[10];
+            this.api.tasks.raise.clean(model);
+        }
+    }, {
+        key: 'cleanRow',
+        value: function cleanRow(model) {
+            ++cov_1l8b4qpxlz.f[2];
+            ++cov_1l8b4qpxlz.s[11];
+
+            if (model.id === undefined) {
+                ++cov_1l8b4qpxlz.b[5][0];
+                ++cov_1l8b4qpxlz.s[12];
+
+                model.id = GanttObjectModel.ganttUtils.randomUuid();
+            } else {
+                ++cov_1l8b4qpxlz.b[5][1];
+            }
+            ++cov_1l8b4qpxlz.s[13];
+            if ((++cov_1l8b4qpxlz.b[7][0], model.from !== undefined) && (++cov_1l8b4qpxlz.b[7][1], !_moment2.default.isMoment(model.from))) {
+                ++cov_1l8b4qpxlz.b[6][0];
+                ++cov_1l8b4qpxlz.s[14];
+
+                model.from = (0, _moment2.default)(model.from);
+            } else {
+                ++cov_1l8b4qpxlz.b[6][1];
+            }
+            ++cov_1l8b4qpxlz.s[15];
+            if ((++cov_1l8b4qpxlz.b[9][0], model.to !== undefined) && (++cov_1l8b4qpxlz.b[9][1], !_moment2.default.isMoment(model.to))) {
+                ++cov_1l8b4qpxlz.b[8][0];
+                ++cov_1l8b4qpxlz.s[16];
+
+                model.to = (0, _moment2.default)(model.to);
+            } else {
+                ++cov_1l8b4qpxlz.b[8][1];
+            }
+            ++cov_1l8b4qpxlz.s[17];
+            this.api.rows.raise.clean(model);
+        }
+    }, {
+        key: 'cleanTimespan',
+        value: function cleanTimespan(model) {
+            ++cov_1l8b4qpxlz.f[3];
+            ++cov_1l8b4qpxlz.s[18];
+
+            if (model.id === undefined) {
+                ++cov_1l8b4qpxlz.b[10][0];
+                ++cov_1l8b4qpxlz.s[19];
+
+                model.id = GanttObjectModel.ganttUtils.randomUuid();
+            } else {
+                ++cov_1l8b4qpxlz.b[10][1];
+            }
+            ++cov_1l8b4qpxlz.s[20];
+            if ((++cov_1l8b4qpxlz.b[12][0], model.from !== undefined) && (++cov_1l8b4qpxlz.b[12][1], !_moment2.default.isMoment(model.from))) {
+                ++cov_1l8b4qpxlz.b[11][0];
+                ++cov_1l8b4qpxlz.s[21];
+
+                model.from = (0, _moment2.default)(model.from);
+            } else {
+                ++cov_1l8b4qpxlz.b[11][1];
+            }
+            ++cov_1l8b4qpxlz.s[22];
+            if ((++cov_1l8b4qpxlz.b[14][0], model.to !== undefined) && (++cov_1l8b4qpxlz.b[14][1], !_moment2.default.isMoment(model.to))) {
+                ++cov_1l8b4qpxlz.b[13][0];
+                ++cov_1l8b4qpxlz.s[23];
+
+                model.to = (0, _moment2.default)(model.to);
+            } else {
+                ++cov_1l8b4qpxlz.b[13][1];
+            }
+            ++cov_1l8b4qpxlz.s[24];
+            this.api.timespans.raise.clean(model);
+        }
+    }]);
+    return GanttObjectModel;
+}();
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttRowsManager = undefined;
+
+var _typeof2 = __webpack_require__(5);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["GanttRow", "ganttArrays", "$filter", "$timeout", function (GanttRow, ganttArrays, $filter, $timeout) {
+    'ngInject';
+
+    GanttRowsManager.GanttRow = GanttRow;
+    GanttRowsManager.$filter = $filter;
+    GanttRowsManager.$timeout = $timeout;
+    GanttRowsManager.ganttArrays = ganttArrays;
+    return GanttRowsManager;
+}];
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttRowsManager = exports.GanttRowsManager = function () {
+    function GanttRowsManager(gantt) {
+        var _this = this;
+
+        (0, _classCallCheck3.default)(this, GanttRowsManager);
+
+        this.rowsMap = {};
+        this.rows = [];
+        this.sortedRows = [];
+        this.filteredRows = [];
+        this.customFilteredRows = [];
+        this.visibleRows = [];
+        this.rowsTaskWatchers = [];
+        this.customRowSorters = [];
+        this.customRowFilters = [];
+        this.gantt = gantt;
+        this._defaultFilterImpl = function (sortedRows, filterRow, filterRowComparator) {
+            return GanttRowsManager.$filter('filter')(sortedRows, filterRow, filterRowComparator);
+        };
+        this.filterImpl = this._defaultFilterImpl;
+        this.customRowSorters = [];
+        this.customRowFilters = [];
+        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                _this.updateVisibleTasks();
+            }
+        });
+        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function (newValues, oldValues) {
+            if (newValues !== oldValues) {
+                _this.updateVisibleRows();
+            }
+        });
+        this.gantt.$scope.$watch('sortMode', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                _this.sortRows();
+            }
+        });
+
+        var _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
+        this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                GanttRowsManager.$timeout(function () {
+                    var newVScrollbarVisible = _this.gantt.scroll.isVScrollbarVisible();
+                    if (newVScrollbarVisible !== _oldVScrollbarVisible) {
+                        _oldVScrollbarVisible = newVScrollbarVisible;
+                        _this.gantt.columnsManager.updateColumnsMeta();
+                    }
+                });
+            }
+        });
+        this.gantt.api.registerMethod('rows', 'sort', GanttRowsManager.prototype.sortRows, this);
+        this.gantt.api.registerMethod('rows', 'applySort', GanttRowsManager.prototype.applySort, this);
+        this.gantt.api.registerMethod('rows', 'refresh', GanttRowsManager.prototype.updateVisibleObjects, this);
+        this.gantt.api.registerMethod('rows', 'removeRowSorter', GanttRowsManager.prototype.removeCustomRowSorter, this);
+        this.gantt.api.registerMethod('rows', 'addRowSorter', GanttRowsManager.prototype.addCustomRowSorter, this);
+        this.gantt.api.registerMethod('rows', 'removeRowFilter', GanttRowsManager.prototype.removeCustomRowFilter, this);
+        this.gantt.api.registerMethod('rows', 'addRowFilter', GanttRowsManager.prototype.addCustomRowFilter, this);
+        this.gantt.api.registerMethod('rows', 'setFilterImpl', GanttRowsManager.prototype.setFilterImpl, this);
+        this.gantt.api.registerEvent('tasks', 'add');
+        this.gantt.api.registerEvent('tasks', 'change');
+        this.gantt.api.registerEvent('tasks', 'viewChange');
+        this.gantt.api.registerEvent('tasks', 'beforeRowChange');
+        this.gantt.api.registerEvent('tasks', 'beforeViewRowChange');
+        this.gantt.api.registerEvent('tasks', 'rowChange');
+        this.gantt.api.registerEvent('tasks', 'viewRowChange');
+        this.gantt.api.registerEvent('tasks', 'remove');
+        this.gantt.api.registerEvent('tasks', 'filter');
+        this.gantt.api.registerEvent('tasks', 'displayed');
+        this.gantt.api.registerEvent('rows', 'add');
+        this.gantt.api.registerEvent('rows', 'change');
+        this.gantt.api.registerEvent('rows', 'remove');
+        this.gantt.api.registerEvent('rows', 'move');
+        this.gantt.api.registerEvent('rows', 'displayed');
+        this.gantt.api.registerEvent('rows', 'filter');
+        this.updateVisibleObjects();
+    }
+
+    (0, _createClass3.default)(GanttRowsManager, [{
+        key: 'resetNonModelLists',
+        value: function resetNonModelLists() {
+            this.rows = [];
+            this.sortedRows = [];
+            this.filteredRows = [];
+            this.customFilteredRows = [];
+            this.visibleRows = [];
+        }
+    }, {
+        key: 'addRow',
+        value: function addRow(rowModel, modelOrderChanged) {
+            var row = void 0;
+            var i = void 0;
+            var l = void 0;
+            var isUpdate = false;
+            this.gantt.objectModel.cleanRow(rowModel);
+            if (rowModel.id in this.rowsMap) {
+                row = this.rowsMap[rowModel.id];
+                if (modelOrderChanged) {
+                    this.rows.push(row);
+                    this.sortedRows.push(row);
+                    this.filteredRows.push(row);
+                    this.customFilteredRows.push(row);
+                    this.visibleRows.push(row);
+                }
+                if (row.model === rowModel) {
+                    return;
+                }
+                var toRemoveIds = GanttRowsManager.ganttArrays.getRemovedIds(rowModel.tasks, row.model.tasks);
+                for (i = 0, l = toRemoveIds.length; i < l; i++) {
+                    var toRemoveId = toRemoveIds[i];
+                    row.removeTask(toRemoveId);
+                }
+                row.model = rowModel;
+                isUpdate = true;
+            } else {
+                row = new GanttRowsManager.GanttRow(this, rowModel);
+                this.rowsMap[rowModel.id] = row;
+                this.rows.push(row);
+                this.sortedRows.push(row);
+                this.filteredRows.push(row);
+                this.customFilteredRows.push(row);
+                this.visibleRows.push(row);
+            }
+            if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
+                for (i = 0, l = rowModel.tasks.length; i < l; i++) {
+                    var taskModel = rowModel.tasks[i];
+                    row.addTask(taskModel);
+                }
+                row.updateVisibleTasks();
+            }
+            if (isUpdate) {
+                this.gantt.api.rows.raise.change(row);
+            } else {
+                this.gantt.api.rows.raise.add(row);
+            }
+            if (!isUpdate) {
+                var watcher = this.gantt.$scope.$watchCollection(function () {
+                    return rowModel.tasks;
+                }, function (newTasks, oldTasks) {
+                    if (newTasks !== oldTasks) {
+                        var _i = void 0;
+                        var _l = void 0;
+                        var _toRemoveIds = GanttRowsManager.ganttArrays.getRemovedIds(newTasks, oldTasks);
+                        for (_i = 0, _l = _toRemoveIds.length; _i < _l; _i++) {
+                            var toRemove = _toRemoveIds[_i];
+                            row.removeTask(toRemove);
+                        }
+                        if (newTasks !== undefined) {
+                            for (_i = 0, _l = newTasks.length; _i < _l; _i++) {
+                                var toAdd = newTasks[_i];
+                                row.addTask(toAdd);
+                            }
+                            row.updateVisibleTasks();
+                        }
+                    }
+                });
+                this.rowsTaskWatchers.push(watcher);
+            }
+            return isUpdate;
+        }
+    }, {
+        key: 'removeRow',
+        value: function removeRow(rowId) {
+            if (rowId in this.rowsMap) {
+                delete this.rowsMap[rowId];
+                var removedRow = void 0;
+                var indexOf = GanttRowsManager.ganttArrays.indexOfId(this.rows, rowId, ['model', 'id']);
+                if (indexOf > -1) {
+                    removedRow = this.rows.splice(indexOf, 1)[0];
+                    var unregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0];
+                    if (unregisterFunction) {
+                        unregisterFunction();
+                    }
+                }
+                GanttRowsManager.ganttArrays.removeId(this.sortedRows, rowId, ['model', 'id']);
+                GanttRowsManager.ganttArrays.removeId(this.filteredRows, rowId, ['model', 'id']);
+                GanttRowsManager.ganttArrays.removeId(this.customFilteredRows, rowId, ['model', 'id']);
+                GanttRowsManager.ganttArrays.removeId(this.visibleRows, rowId, ['model', 'id']);
+                this.gantt.api.rows.raise.remove(removedRow);
+                return removedRow;
+            }
+            return undefined;
+        }
+    }, {
+        key: 'removeAll',
+        value: function removeAll() {
+            this.rowsMap = {};
+            this.rows = [];
+            this.sortedRows = [];
+            this.filteredRows = [];
+            this.customFilteredRows = [];
+            this.visibleRows = [];
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(this.rowsTaskWatchers), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var unregisterFunction = _step.value;
+
+                    unregisterFunction();
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            this.rowsTaskWatchers = [];
+        }
+    }, {
+        key: 'sortRows',
+        value: function sortRows() {
+            var expression = this.gantt.options.value('sortMode');
+            if (expression !== undefined) {
+                var reverse = false;
+                if (_angular2.default.isString(expression) && expression.charAt(0) === '-') {
+                    reverse = true;
+                    expression = expression.substr(1);
+                }
+                var angularOrderBy = GanttRowsManager.$filter('orderBy');
+                this.sortedRows = angularOrderBy(this.rows, expression, reverse);
+            } else {
+                this.sortedRows = this.rows.slice();
+            }
+            this.sortedRows = this.applyCustomRowSorters(this.sortedRows);
+            this.updateVisibleRows();
+        }
+    }, {
+        key: 'removeCustomRowSorter',
+        value: function removeCustomRowSorter(sorterFunction) {
+            var i = this.customRowSorters.indexOf(sorterFunction);
+            if (i > -1) {
+                this.customRowSorters.splice(i, 1);
+            }
+        }
+    }, {
+        key: 'addCustomRowSorter',
+        value: function addCustomRowSorter(sorterFunction) {
+            this.customRowSorters.push(sorterFunction);
+        }
+    }, {
+        key: 'applyCustomRowSorters',
+        value: function applyCustomRowSorters(rows) {
+            var sortedRows = rows;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = (0, _getIterator3.default)(this.customRowSorters), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var customRowSorter = _step2.value;
+
+                    sortedRows = customRowSorter(sortedRows);
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            return sortedRows;
+        }
+    }, {
+        key: 'applySort',
+        value: function applySort() {
+            var data = this.gantt.$scope.data;
+            data.splice(0, data.length);
+            var rows = [];
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = (0, _getIterator3.default)(this.sortedRows), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var row = _step3.value;
+
+                    data.push(row.model);
+                    rows.push(row);
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
+            }
+
+            this.rows = rows;
+        }
+    }, {
+        key: 'moveRow',
+        value: function moveRow(row, targetRow) {
+            var sortMode = this.gantt.options.value('sortMode');
+            if (sortMode !== undefined) {
+                this.applySort();
+                this.gantt.options.set('sortMode', undefined);
+            }
+            var targetRowIndex = this.rows.indexOf(targetRow);
+            var rowIndex = this.rows.indexOf(row);
+            if (targetRowIndex > -1 && rowIndex > -1 && targetRowIndex !== rowIndex) {
+                GanttRowsManager.ganttArrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
+                GanttRowsManager.ganttArrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
+                GanttRowsManager.ganttArrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
+                this.gantt.api.rows.raise.change(row);
+                this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
+                this.updateVisibleObjects();
+                this.sortRows();
+            }
+        }
+    }, {
+        key: 'updateVisibleObjects',
+        value: function updateVisibleObjects() {
+            this.updateVisibleRows();
+            this.updateVisibleTasks();
+        }
+    }, {
+        key: 'updateVisibleRows',
+        value: function updateVisibleRows() {
+            var oldFilteredRows = this.filteredRows;
+            var filterRow = this.gantt.options.value('filterRow');
+            if (filterRow) {
+                if ((typeof filterRow === 'undefined' ? 'undefined' : (0, _typeof3.default)(filterRow)) === 'object') {
+                    filterRow = { model: filterRow };
+                }
+                var filterRowComparator = this.gantt.options.value('filterRowComparator');
+                if (typeof filterRowComparator === 'function') {
+                    var gantt = this.gantt;
+                    filterRowComparator = function filterRowComparator(actual, expected) {
+                        return gantt.options.value('filterRowComparator')(actual, expected);
+                    };
+                }
+                this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
+            } else {
+                this.filteredRows = this.sortedRows.slice(0);
+            }
+            var raiseEvent = !_angular2.default.equals(oldFilteredRows, this.filteredRows);
+            this.customFilteredRows = this.applyCustomRowFilters(this.filteredRows);
+
+            this.visibleRows = this.customFilteredRows;
+            this.gantt.api.rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
+            if (raiseEvent) {
+                this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
+            }
+        }
+    }, {
+        key: 'removeCustomRowFilter',
+        value: function removeCustomRowFilter(filterFunction) {
+            var i = this.customRowFilters.indexOf(filterFunction);
+            if (i > -1) {
+                this.customRowFilters.splice(i, 1);
+            }
+        }
+    }, {
+        key: 'addCustomRowFilter',
+        value: function addCustomRowFilter(filterFunction) {
+            this.customRowFilters.push(filterFunction);
+        }
+    }, {
+        key: 'applyCustomRowFilters',
+        value: function applyCustomRowFilters(rows) {
+            var filteredRows = rows;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = (0, _getIterator3.default)(this.customRowFilters), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var customRowFilter = _step4.value;
+
+                    filteredRows = customRowFilter(filteredRows);
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            return filteredRows;
+        }
+    }, {
+        key: 'setFilterImpl',
+        value: function setFilterImpl(filterImpl) {
+            if (!filterImpl) {
+                this.filterImpl = this._defaultFilterImpl;
+            } else {
+                this.filterImpl = filterImpl;
+            }
+        }
+    }, {
+        key: 'updateVisibleTasks',
+        value: function updateVisibleTasks() {
+            var oldFilteredTasks = [];
+            var filteredTasks = [];
+            var tasks = [];
+            var visibleTasks = [];
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = (0, _getIterator3.default)(this.rows), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var row = _step5.value;
+
+                    oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
+                    row.updateVisibleTasks();
+                    filteredTasks = filteredTasks.concat(row.filteredTasks);
+                    visibleTasks = visibleTasks.concat(row.visibleTasks);
+                    tasks = tasks.concat(row.tasks);
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
+                    }
+                }
+            }
+
+            this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
+            var filterEvent = !_angular2.default.equals(oldFilteredTasks, filteredTasks);
+            if (filterEvent) {
+                this.gantt.api.tasks.raise.filter(tasks, filteredTasks, visibleTasks);
+            }
+        }
+    }, {
+        key: 'updateTasksPosAndSize',
+        value: function updateTasksPosAndSize() {
+            var _iteratorNormalCompletion6 = true;
+            var _didIteratorError6 = false;
+            var _iteratorError6 = undefined;
+
+            try {
+                for (var _iterator6 = (0, _getIterator3.default)(this.rows), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                    var row = _step6.value;
+
+                    row.updateTasksPosAndSize();
+                }
+            } catch (err) {
+                _didIteratorError6 = true;
+                _iteratorError6 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                        _iterator6.return();
+                    }
+                } finally {
+                    if (_didIteratorError6) {
+                        throw _iteratorError6;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'getExpandedFrom',
+        value: function getExpandedFrom(from) {
+            from = from ? (0, _moment2.default)(from) : from;
+            var minRowFrom = from;
+            var _iteratorNormalCompletion7 = true;
+            var _didIteratorError7 = false;
+            var _iteratorError7 = undefined;
+
+            try {
+                for (var _iterator7 = (0, _getIterator3.default)(this.rows), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var row = _step7.value;
+
+                    if (minRowFrom === undefined || minRowFrom > row.from) {
+                        minRowFrom = row.from;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError7 = true;
+                _iteratorError7 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                        _iterator7.return();
+                    }
+                } finally {
+                    if (_didIteratorError7) {
+                        throw _iteratorError7;
+                    }
+                }
+            }
+
+            if (minRowFrom && (!from || minRowFrom < from)) {
+                return minRowFrom;
+            }
+            return from;
+        }
+    }, {
+        key: 'getExpandedTo',
+        value: function getExpandedTo(to) {
+            to = to ? (0, _moment2.default)(to) : to;
+            var maxRowTo = to;
+            var _iteratorNormalCompletion8 = true;
+            var _didIteratorError8 = false;
+            var _iteratorError8 = undefined;
+
+            try {
+                for (var _iterator8 = (0, _getIterator3.default)(this.rows), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                    var row = _step8.value;
+
+                    if (maxRowTo === undefined || maxRowTo < row.to) {
+                        maxRowTo = row.to;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError8 = true;
+                _iteratorError8 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                        _iterator8.return();
+                    }
+                } finally {
+                    if (_didIteratorError8) {
+                        throw _iteratorError8;
+                    }
+                }
+            }
+
+            var toDate = this.gantt.options.value('toDate');
+            if (maxRowTo && (!toDate || maxRowTo > toDate)) {
+                return maxRowTo;
+            }
+            return to;
+        }
+    }, {
+        key: 'getDefaultFrom',
+        value: function getDefaultFrom() {
+            var defaultFrom = void 0;
+            var _iteratorNormalCompletion9 = true;
+            var _didIteratorError9 = false;
+            var _iteratorError9 = undefined;
+
+            try {
+                for (var _iterator9 = (0, _getIterator3.default)(this.rows), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                    var row = _step9.value;
+
+                    if (defaultFrom === undefined || row.from < defaultFrom) {
+                        defaultFrom = row.from;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError9 = true;
+                _iteratorError9 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                        _iterator9.return();
+                    }
+                } finally {
+                    if (_didIteratorError9) {
+                        throw _iteratorError9;
+                    }
+                }
+            }
+
+            return defaultFrom;
+        }
+    }, {
+        key: 'getDefaultTo',
+        value: function getDefaultTo() {
+            var defaultTo = void 0;
+            var _iteratorNormalCompletion10 = true;
+            var _didIteratorError10 = false;
+            var _iteratorError10 = undefined;
+
+            try {
+                for (var _iterator10 = (0, _getIterator3.default)(this.rows), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                    var row = _step10.value;
+
+                    if (defaultTo === undefined || row.to > defaultTo) {
+                        defaultTo = row.to;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError10 = true;
+                _iteratorError10 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                        _iterator10.return();
+                    }
+                } finally {
+                    if (_didIteratorError10) {
+                        throw _iteratorError10;
+                    }
+                }
+            }
+
+            return defaultTo;
+        }
+    }]);
+    return GanttRowsManager;
+}();
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttBody = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+exports.default = ["GanttBodyColumns", "GanttBodyRows", "GanttBodyBackground", "GanttBodyForeground", function (GanttBodyColumns, GanttBodyRows, GanttBodyBackground, GanttBodyForeground) {
+    'ngInject';
+
+    GanttBody.GanttBodyColumns = GanttBodyColumns;
+    GanttBody.GanttBodyRows = GanttBodyRows;
+    GanttBody.GanttBodyBackground = GanttBodyBackground;
+    GanttBody.GanttBodyForeground = GanttBodyForeground;
+    return GanttBody;
+}];
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttBody = exports.GanttBody = function GanttBody(gantt) {
+    (0, _classCallCheck3.default)(this, GanttBody);
+
+    this.gantt = gantt;
+    this.background = new GanttBody.GanttBodyBackground(this);
+    this.foreground = new GanttBody.GanttBodyForeground(this);
+    this.columns = new GanttBody.GanttBodyColumns(this);
+    this.rows = new GanttBody.GanttBodyRows(this);
+};
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttHeader = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["GanttHeaderColumns", function (GanttHeaderColumns) {
+    'ngInject';
+
+    GanttHeader.GanttHeaderColumns = GanttHeaderColumns;
+    return GanttHeader;
+}];
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttHeader = exports.GanttHeader = function () {
+    function GanttHeader(gantt) {
+        (0, _classCallCheck3.default)(this, GanttHeader);
+
+        this.gantt = gantt;
+        this.columns = new GanttHeader.GanttHeaderColumns(this.gantt);
+    }
+
+    (0, _createClass3.default)(GanttHeader, [{
+        key: 'getHeight',
+        value: function getHeight() {
+            return this.$element[0].offsetHeight;
+        }
+    }]);
+    return GanttHeader;
+}();
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttScroll = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = function () {
+    'ngInject';
+
+    return GanttScroll;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttScroll = exports.GanttScroll = function () {
+    function GanttScroll(gantt) {
+        (0, _classCallCheck3.default)(this, GanttScroll);
+
+        this.gantt = gantt;
+        this.gantt.api.registerEvent('scroll', 'scroll');
+        this.gantt.api.registerMethod('scroll', 'to', this.scrollTo, this);
+        this.gantt.api.registerMethod('scroll', 'toDate', this.scrollToDate, this);
+        this.gantt.api.registerMethod('scroll', 'left', this.scrollToLeft, this);
+        this.gantt.api.registerMethod('scroll', 'right', this.scrollToRight, this);
+        this.gantt.api.registerMethod('scroll', 'setWidth', this.setWidth, this);
+    }
+
+    (0, _createClass3.default)(GanttScroll, [{
+        key: 'getScrollLeft',
+        value: function getScrollLeft() {
+            if (this.$element === undefined) {
+                return undefined;
+            } else {
+                if (this.cachedScrollLeft === undefined) {
+                    this.cachedScrollLeft = this.$element[0].scrollLeft;
+                }
+                return this.cachedScrollLeft;
+            }
+        }
+    }, {
+        key: 'getScrollWidth',
+        value: function getScrollWidth() {
+            return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
+        }
+    }, {
+        key: 'getWidth',
+        value: function getWidth() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
+        }
+    }, {
+        key: 'setWidth',
+        value: function setWidth(width) {
+            if (this.$element[0]) {}
+        }
+    }, {
+        key: 'getBordersWidth',
+        value: function getBordersWidth() {
+            if (this.$element === undefined) {
+                return undefined;
+            }
+            if (this.$element[0].clientWidth) {
+                return this.$element[0].offsetWidth - this.$element[0].clientWidth;
+            } else {
+                var borderLeft = window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width').match(/\d+/)[0] : '0';
+                var borderRight = window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width').match(/\d+/)[0] : '0';
+                return parseInt(borderLeft, 10) + parseInt(borderRight, 10);
+            }
+        }
+    }, {
+        key: 'getBordersHeight',
+        value: function getBordersHeight() {
+            return this.$element === undefined ? undefined : this.$element[0].offsetHeight - this.$element[0].clientHeight;
+        }
+    }, {
+        key: 'isVScrollbarVisible',
+        value: function isVScrollbarVisible() {
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
+            }
+        }
+    }, {
+        key: 'isHScrollbarVisible',
+        value: function isHScrollbarVisible() {
+            if (this.$element !== undefined) {
+                return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
+            }
+        }
+    }, {
+        key: 'scrollTo',
+        value: function scrollTo(position) {
+            this.$element[0].scrollLeft = position;
+            this.$element.triggerHandler('scroll');
+        }
+    }, {
+        key: 'scrollToLeft',
+        value: function scrollToLeft(offset) {
+            this.$element[0].scrollLeft -= offset;
+            this.$element.triggerHandler('scroll');
+        }
+    }, {
+        key: 'scrollToRight',
+        value: function scrollToRight(offset) {
+            this.$element[0].scrollLeft += offset;
+            this.$element.triggerHandler('scroll');
+        }
+    }, {
+        key: 'scrollToDate',
+        value: function scrollToDate(date) {
+            var position = this.gantt.getPositionByDate(date);
+            if (position !== undefined) {
+                this.$element[0].scrollLeft = position - this.$element[0].offsetWidth / 2;
+            }
+        }
+    }]);
+    return GanttScroll;
+}();
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttSide = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = function () {
+    'ngInject';
+
+    return GanttSide;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttSide = exports.GanttSide = function () {
+    function GanttSide(gantt) {
+        (0, _classCallCheck3.default)(this, GanttSide);
+
+        this.gantt = gantt;
+    }
+
+    (0, _createClass3.default)(GanttSide, [{
+        key: 'getWidth',
+        value: function getWidth() {
+            if (this.gantt.options.value('showSide')) {
+                var width = this.gantt.options.value('sideWidth');
+                if (width === undefined && this.$element !== undefined) {
+                    if (this.$element.css('width') !== undefined) {
+                        this.$element.css('width', '');
+                    }
+                }
+                if (this.$element !== undefined) {
+                    width = this.$element[0].offsetWidth;
+                }
+                if (width !== undefined) {
+                    return width;
+                }
+            }
+            return 0;
+        }
+    }, {
+        key: 'show',
+        value: function show(value) {
+            if (this.$element !== undefined) {
+                this.$element.toggleClass('ng-hide', !value);
+            }
+        }
+    }, {
+        key: 'isShown',
+        value: function isShown() {
+            if (this.$element !== undefined) {
+                return !this.$element.hasClass('ng-hide');
+            }
+        }
+    }]);
+    return GanttSide;
+}();
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttTimespansManager = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["GanttTimespan", function (GanttTimespan) {
+    'ngInject';
+
+    GanttTimespansManager.GanttTimespan = GanttTimespan;
+    return GanttTimespansManager;
+}];
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttTimespansManager = exports.GanttTimespansManager = function () {
+    function GanttTimespansManager(gantt) {
+        var _this = this;
+
+        (0, _classCallCheck3.default)(this, GanttTimespansManager);
+
+        this.timespansMap = {};
+        this.timespans = [];
+        this.gantt = gantt;
+        this.gantt.$scope.$watchCollection('timespans', function (newValue) {
+            _this.clearTimespans();
+            _this.loadTimespans(newValue);
+        });
+        this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'remove', this.removeTimespans, this);
+        this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
+        this.gantt.api.registerEvent('timespans', 'add');
+        this.gantt.api.registerEvent('timespans', 'remove');
+        this.gantt.api.registerEvent('timespans', 'change');
+    }
+
+    (0, _createClass3.default)(GanttTimespansManager, [{
+        key: 'loadTimespans',
+        value: function loadTimespans(timespans) {
+            if (!_angular2.default.isArray(timespans)) {
+                timespans = timespans !== undefined ? [timespans] : [];
+            }
+            this.gantt.$scope.timespans = timespans;
+
+            for (var i = 0, l = timespans.length; i < l; i++) {
+                var timespanModel = timespans[i];
+                this.gantt.objectModel.cleanTimespan(timespanModel);
+                this.loadTimespan(timespanModel);
+            }
+        }
+    }, {
+        key: 'loadTimespan',
+        value: function loadTimespan(timespanModel) {
+            var timespan = void 0;
+            var isUpdate = false;
+            if (timespanModel.id in this.timespansMap) {
+                timespan = this.timespansMap[timespanModel.id];
+                timespan.model = timespanModel;
+                isUpdate = true;
+                this.gantt.api.timespans.raise.change(timespan);
+            } else {
+                timespan = new GanttTimespansManager.GanttTimespan(this.gantt, timespanModel);
+                this.timespansMap[timespanModel.id] = timespan;
+                this.timespans.push(timespan);
+                this.gantt.api.timespans.raise.add(timespan);
+            }
+            timespan.updatePosAndSize();
+            return isUpdate;
+        }
+    }, {
+        key: 'removeTimespans',
+        value: function removeTimespans(timespans) {
+            if (!_angular2.default.isArray(timespans)) {
+                timespans = [timespans];
+            }
+            for (var i = 0, l = timespans.length; i < l; i++) {
+                var timespanData = timespans[i];
+                this.removeTimespan(timespanData.id);
+            }
+        }
+    }, {
+        key: 'removeTimespan',
+        value: function removeTimespan(timespanId) {
+            if (timespanId in this.timespansMap) {
+                delete this.timespansMap[timespanId];
+                var removedTimespan = void 0;
+                var timespan = void 0;
+                for (var i = this.timespans.length - 1; i >= 0; i--) {
+                    timespan = this.timespans[i];
+                    if (timespan.model.id === timespanId) {
+                        removedTimespan = timespan;
+                        this.timespans.splice(i, 1);
+                        break;
+                    }
+                }
+                this.gantt.api.timespans.raise.remove(removedTimespan);
+                return removedTimespan;
+            }
+            return undefined;
+        }
+    }, {
+        key: 'clearTimespans',
+        value: function clearTimespans() {
+            this.timespansMap = {};
+            this.timespans = [];
+        }
+    }, {
+        key: 'updateTimespansPosAndSize',
+        value: function updateTimespansPosAndSize() {
+            for (var i = 0, l = this.timespans.length; i < l; i++) {
+                this.timespans[i].updatePosAndSize();
+            }
+        }
+    }]);
+    return GanttTimespansManager;
+}();
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// optional / simple context binding
+var aFunction = __webpack_require__(140);
+module.exports = function(fn, that, length){
+  aFunction(fn);
+  if(that === undefined)return fn;
+  switch(length){
+    case 1: return function(a){
+      return fn.call(that, a);
+    };
+    case 2: return function(a, b){
+      return fn.call(that, a, b);
+    };
+    case 3: return function(a, b, c){
+      return fn.call(that, a, b, c);
+    };
+  }
+  return function(/* ...args */){
+    return fn.apply(that, arguments);
+  };
+};
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isObject = __webpack_require__(18)
+  , document = __webpack_require__(8).document
+  // in old IE typeof document.createElement is 'object'
+  , is = isObject(document) && isObject(document.createElement);
+module.exports = function(it){
+  return is ? document.createElement(it) : {};
+};
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = !__webpack_require__(10) && !__webpack_require__(17)(function(){
+  return Object.defineProperty(__webpack_require__(51)('div'), 'a', {get: function(){ return 7; }}).a != 7;
+});
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var LIBRARY        = __webpack_require__(27)
+  , $export        = __webpack_require__(15)
+  , redefine       = __webpack_require__(59)
+  , hide           = __webpack_require__(16)
+  , has            = __webpack_require__(11)
+  , Iterators      = __webpack_require__(19)
+  , $iterCreate    = __webpack_require__(148)
+  , setToStringTag = __webpack_require__(30)
+  , getPrototypeOf = __webpack_require__(57)
+  , ITERATOR       = __webpack_require__(9)('iterator')
   , BUGGY          = !([].keys && 'next' in [].keys()) // Safari has buggy iterators w/o `next`
   , FF_ITERATOR    = '@@iterator'
   , KEYS           = 'keys'
@@ -897,78 +5827,70 @@ module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED
 };
 
 /***/ }),
-/* 35 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-var anObject    = __webpack_require__(11)
-  , dPs         = __webpack_require__(133)
-  , enumBugKeys = __webpack_require__(19)
-  , IE_PROTO    = __webpack_require__(24)('IE_PROTO')
-  , Empty       = function(){ /* empty */ }
-  , PROTOTYPE   = 'prototype';
+var pIE            = __webpack_require__(29)
+  , createDesc     = __webpack_require__(21)
+  , toIObject      = __webpack_require__(13)
+  , toPrimitive    = __webpack_require__(34)
+  , has            = __webpack_require__(11)
+  , IE8_DOM_DEFINE = __webpack_require__(52)
+  , gOPD           = Object.getOwnPropertyDescriptor;
 
-// Create object with fake `null` prototype: use iframe Object with cleared prototype
-var createDict = function(){
-  // Thrash, waste and sodomy: IE GC bug
-  var iframe = __webpack_require__(31)('iframe')
-    , i      = enumBugKeys.length
-    , lt     = '<'
-    , gt     = '>'
-    , iframeDocument;
-  iframe.style.display = 'none';
-  __webpack_require__(126).appendChild(iframe);
-  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
-  // createDict = iframe.contentWindow.Object;
-  // html.removeChild(iframe);
-  iframeDocument = iframe.contentWindow.document;
-  iframeDocument.open();
-  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
-  iframeDocument.close();
-  createDict = iframeDocument.F;
-  while(i--)delete createDict[PROTOTYPE][enumBugKeys[i]];
-  return createDict();
+exports.f = __webpack_require__(10) ? gOPD : function getOwnPropertyDescriptor(O, P){
+  O = toIObject(O);
+  P = toPrimitive(P, true);
+  if(IE8_DOM_DEFINE)try {
+    return gOPD(O, P);
+  } catch(e){ /* empty */ }
+  if(has(O, P))return createDesc(!pIE.f.call(O, P), O[P]);
 };
-
-module.exports = Object.create || function create(O, Properties){
-  var result;
-  if(O !== null){
-    Empty[PROTOTYPE] = anObject(O);
-    result = new Empty;
-    Empty[PROTOTYPE] = null;
-    // add "__proto__" for Object.getPrototypeOf polyfill
-    result[IE_PROTO] = O;
-  } else result = createDict();
-  return Properties === undefined ? result : dPs(result, Properties);
-};
-
 
 /***/ }),
-/* 36 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-var $keys      = __webpack_require__(38)
-  , hiddenKeys = __webpack_require__(19).concat('length', 'prototype');
+var $keys      = __webpack_require__(58)
+  , hiddenKeys = __webpack_require__(26).concat('length', 'prototype');
 
 exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
   return $keys(O, hiddenKeys);
 };
 
 /***/ }),
-/* 37 */
+/* 56 */
 /***/ (function(module, exports) {
 
 exports.f = Object.getOwnPropertySymbols;
 
 /***/ }),
-/* 38 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var has          = __webpack_require__(5)
-  , toIObject    = __webpack_require__(6)
-  , arrayIndexOf = __webpack_require__(123)(false)
-  , IE_PROTO     = __webpack_require__(24)('IE_PROTO');
+// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+var has         = __webpack_require__(11)
+  , toObject    = __webpack_require__(60)
+  , IE_PROTO    = __webpack_require__(31)('IE_PROTO')
+  , ObjectProto = Object.prototype;
+
+module.exports = Object.getPrototypeOf || function(O){
+  O = toObject(O);
+  if(has(O, IE_PROTO))return O[IE_PROTO];
+  if(typeof O.constructor == 'function' && O instanceof O.constructor){
+    return O.constructor.prototype;
+  } return O instanceof Object ? ObjectProto : null;
+};
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var has          = __webpack_require__(11)
+  , toIObject    = __webpack_require__(13)
+  , arrayIndexOf = __webpack_require__(142)(false)
+  , IE_PROTO     = __webpack_require__(31)('IE_PROTO');
 
 module.exports = function(object, names){
   var O      = toIObject(object)
@@ -984,19 +5906,70 @@ module.exports = function(object, names){
 };
 
 /***/ }),
-/* 39 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(8);
+module.exports = __webpack_require__(16);
 
 /***/ }),
-/* 40 */
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 7.1.13 ToObject(argument)
+var defined = __webpack_require__(25);
+module.exports = function(it){
+  return Object(defined(it));
+};
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $at  = __webpack_require__(156)(true);
+
+// 21.1.3.27 String.prototype[@@iterator]()
+__webpack_require__(53)(String, 'String', function(iterated){
+  this._t = String(iterated); // target
+  this._i = 0;                // next index
+// 21.1.5.2.1 %StringIteratorPrototype%.next()
+}, function(){
+  var O     = this._t
+    , index = this._i
+    , point;
+  if(index >= O.length)return {value: undefined, done: true};
+  point = $at(O, index);
+  this._i += point.length;
+  return {value: point, done: false};
+});
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(161);
+var global        = __webpack_require__(8)
+  , hide          = __webpack_require__(16)
+  , Iterators     = __webpack_require__(19)
+  , TO_STRING_TAG = __webpack_require__(9)('toStringTag');
+
+for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList', 'CSSRuleList'], i = 0; i < 5; i++){
+  var NAME       = collections[i]
+    , Collection = global[NAME]
+    , proto      = Collection && Collection.prototype;
+  if(proto && !proto[TO_STRING_TAG])hide(proto, TO_STRING_TAG, NAME);
+  Iterators[NAME] = Iterators.Array;
+}
+
+/***/ }),
+/* 63 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 41 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1084,7 +6057,7 @@ exports.default = ["Gantt", "ganttEnableNgAnimate", "$timeout", "$templateCache"
 }];
 
 /***/ }),
-/* 42 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1093,920 +6066,48 @@ exports.default = ["Gantt", "ganttEnableNgAnimate", "$timeout", "$templateCache"
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.GanttColumnBuilder = undefined;
 
-exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, ganttUtils) {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    var GanttApi = function GanttApi(gantt) {
-        this.gantt = gantt;
-        this.listeners = [];
-        this.apiId = ganttUtils.newId();
-    };
-    function registerEventWithAngular(eventId, handler, gantt, _this) {
-        return $rootScope.$on(eventId, function () {
-            var args = Array.prototype.slice.call(arguments);
-            args.splice(0, 1);
-            handler.apply(_this ? _this : gantt.api, args);
-        });
-    }
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-    GanttApi.prototype.suppressEvents = function (listenerFuncs, callBackFn) {
-        var self = this;
-        var listeners = _angular2.default.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+var _createClass2 = __webpack_require__(2);
 
-        var foundListeners = [];
-        listeners.forEach(function (l) {
-            foundListeners = self.listeners.filter(function (lstnr) {
-                return l === lstnr.handler;
-            });
-        });
-
-        foundListeners.forEach(function (l) {
-            l.dereg();
-        });
-        callBackFn();
-
-        foundListeners.forEach(function (l) {
-            l.dereg = registerEventWithAngular(l.eventId, l.handler, self.gantt, l._this);
-        });
-    };
-
-    GanttApi.prototype.registerEvent = function (featureName, eventName) {
-        var self = this;
-        if (!self[featureName]) {
-            self[featureName] = {};
-        }
-        var feature = self[featureName];
-        if (!feature.on) {
-            feature.on = {};
-            feature.raise = {};
-        }
-        var eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
-
-        feature.raise[eventName] = function () {
-            $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
-        };
-
-        feature.on[eventName] = function (scope, handler, _this) {
-            var deregAngularOn = registerEventWithAngular(eventId, handler, self.gantt, _this);
-
-            var listener = {
-                handler: handler,
-                dereg: deregAngularOn,
-                eventId: eventId,
-                scope: scope,
-                _this: _this
-            };
-            self.listeners.push(listener);
-            var removeListener = function removeListener() {
-                listener.dereg();
-                var index = self.listeners.indexOf(listener);
-                self.listeners.splice(index, 1);
-            };
-
-            scope.$on('$destroy', function () {
-                removeListener();
-            });
-            return removeListener;
-        };
-    };
-
-    GanttApi.prototype.registerEventsFromObject = function (eventObjectMap) {
-        var self = this;
-        var features = [];
-        _angular2.default.forEach(eventObjectMap, function (featProp, featPropName) {
-            var feature = { name: featPropName, events: [] };
-            _angular2.default.forEach(featProp, function (prop, propName) {
-                feature.events.push(propName);
-            });
-            features.push(feature);
-        });
-        features.forEach(function (feature) {
-            feature.events.forEach(function (event) {
-                self.registerEvent(feature.name, event);
-            });
-        });
-    };
-
-    GanttApi.prototype.registerMethod = function (featureName, methodName, callBackFn, _this) {
-        if (!this[featureName]) {
-            this[featureName] = {};
-        }
-        var feature = this[featureName];
-        feature[methodName] = ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn);
-    };
-
-    GanttApi.prototype.registerMethodsFromObject = function (methodMap, _this) {
-        var self = this;
-        var features = [];
-        _angular2.default.forEach(methodMap, function (featProp, featPropName) {
-            var feature = { name: featPropName, methods: [] };
-            _angular2.default.forEach(featProp, function (prop, propName) {
-                feature.methods.push({ name: propName, fn: prop });
-            });
-            features.push(feature);
-        });
-        features.forEach(function (feature) {
-            feature.methods.forEach(function (method) {
-                self.registerMethod(feature.name, method.name, method.fn, _this);
-            });
-        });
-    };
-    return GanttApi;
-}];
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var GanttOptions = function GanttOptions(values, defaultValues) {
-        this.defaultValues = defaultValues;
-        this.values = values;
-        this.defaultValue = function (optionName) {
-            var defaultValue = this.defaultValues[optionName];
-            if (_angular2.default.isFunction(defaultValue)) {
-                defaultValue = defaultValue();
-            }
-            return defaultValue;
-        };
-        this.sanitize = function (optionName, optionValue) {
-            if (!optionValue) {
-                var defaultValue = this.defaultValue(optionName);
-                if (defaultValue !== undefined) {
-                    if (optionValue !== undefined && typeof defaultValue === 'boolean') {
-                        return optionValue;
-                    }
-                    return defaultValue;
-                }
-            }
-            return optionValue;
-        };
-        this.value = function (optionName) {
-            return this.sanitize(optionName, this.values[optionName]);
-        };
-        this.set = function (optionName, optionValue) {
-            this.values[optionName] = optionValue;
-        };
-        this.initialize = function () {
-            for (var optionName in this.values) {
-                var optionValue = this.values[optionName];
-                if (this.values.hasOwnProperty(optionName)) {
-                    this.values[optionName] = this.value(optionName, optionValue);
-                }
-            }
-            return this.values;
-        };
-    };
-    return GanttOptions;
-};
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["$filter", function ($filter) {
-    'ngInject';
-
-    var TimeFrame = function TimeFrame(options) {
-        if (options === undefined) {
-            options = {};
-        }
-        this.start = options.start;
-        this.end = options.end;
-        this.working = options.working;
-        this.magnet = options.magnet !== undefined ? options.magnet : true;
-        this.default = options.default;
-        this.color = options.color;
-        this.classes = options.classes;
-        this.internal = options.internal;
-    };
-    TimeFrame.prototype.updateView = function () {
-        if (this.$element) {
-            var cssStyles = {};
-            if (this.left !== undefined) {
-                cssStyles['left'] = this.left + 'px';
-            } else {
-                cssStyles['left'] = '';
-            }
-            if (this.width !== undefined) {
-                cssStyles['width'] = this.width + 'px';
-            } else {
-                cssStyles['width'] = '';
-            }
-            if (this.color !== undefined) {
-                cssStyles['background-color'] = this.color;
-            } else {
-                cssStyles['background-color'] = '';
-            }
-            this.$element.css(cssStyles);
-            var classes = ['gantt-timeframe' + (this.working ? '' : '-non') + '-working'];
-            if (this.classes) {
-                classes = classes.concat(this.classes);
-            }
-
-            for (var i = 0, l = classes.length; i < l; i++) {
-                this.$element.toggleClass(classes[i], true);
-            }
-        }
-    };
-    TimeFrame.prototype.getDuration = function () {
-        if (this.end !== undefined && this.start !== undefined) {
-            return this.end.diff(this.start, 'milliseconds');
-        }
-    };
-    TimeFrame.prototype.clone = function () {
-        return new TimeFrame(this);
-    };
-
-    var TimeFrameMapping = function TimeFrameMapping(func) {
-        this.func = func;
-    };
-    TimeFrameMapping.prototype.getTimeFrames = function (date) {
-        var ret = this.func(date);
-        if (!(ret instanceof Array)) {
-            ret = [ret];
-        }
-        return ret;
-    };
-    TimeFrameMapping.prototype.clone = function () {
-        return new TimeFrameMapping(this.func);
-    };
-
-    var DateFrame = function DateFrame(options) {
-        this.evaluator = options.evaluator;
-        if (options.date) {
-            this.start = (0, _moment2.default)(options.date).startOf('day');
-            this.end = (0, _moment2.default)(options.date).endOf('day');
-        } else {
-            this.start = options.start;
-            this.end = options.end;
-        }
-        if (options.targets instanceof Array) {
-            this.targets = options.targets;
-        } else {
-            this.targets = [options.targets];
-        }
-        this.default = options.default;
-    };
-    DateFrame.prototype.dateMatch = function (date) {
-        if (this.evaluator) {
-            return this.evaluator(date);
-        } else if (this.start && this.end) {
-            return date >= this.start && date <= this.end;
-        } else {
-            return false;
-        }
-    };
-    DateFrame.prototype.clone = function () {
-        return new DateFrame(this);
-    };
-
-    var Calendar = function Calendar() {
-        this.timeFrames = {};
-        this.timeFrameMappings = {};
-        this.dateFrames = {};
-    };
-
-    Calendar.prototype.clear = function () {
-        this.timeFrames = {};
-        this.timeFrameMappings = {};
-        this.dateFrames = {};
-    };
-
-    Calendar.prototype.registerTimeFrames = function (timeFrames) {
-        _angular2.default.forEach(timeFrames, function (timeFrame, name) {
-            this.timeFrames[name] = new TimeFrame(timeFrame);
-        }, this);
-    };
-
-    Calendar.prototype.removeTimeFrames = function (timeFrames) {
-        _angular2.default.forEach(timeFrames, function (name) {
-            delete this.timeFrames[name];
-        }, this);
-    };
-
-    Calendar.prototype.clearTimeFrames = function () {
-        this.timeFrames = {};
-    };
-
-    Calendar.prototype.registerTimeFrameMappings = function (mappings) {
-        _angular2.default.forEach(mappings, function (timeFrameMapping, name) {
-            this.timeFrameMappings[name] = new TimeFrameMapping(timeFrameMapping);
-        }, this);
-    };
-
-    Calendar.prototype.removeTimeFrameMappings = function (mappings) {
-        _angular2.default.forEach(mappings, function (name) {
-            delete this.timeFrameMappings[name];
-        }, this);
-    };
-
-    Calendar.prototype.clearTimeFrameMappings = function () {
-        this.timeFrameMappings = {};
-    };
-
-    Calendar.prototype.registerDateFrames = function (dateFrames) {
-        _angular2.default.forEach(dateFrames, function (dateFrame, name) {
-            this.dateFrames[name] = new DateFrame(dateFrame);
-        }, this);
-    };
-
-    Calendar.prototype.removeDateFrames = function (dateFrames) {
-        _angular2.default.forEach(dateFrames, function (name) {
-            delete this.dateFrames[name];
-        }, this);
-    };
-
-    Calendar.prototype.clearDateFrames = function () {
-        this.dateFrames = {};
-    };
-    var filterDateFrames = function filterDateFrames(inputDateFrames, date) {
-        var dateFrames = [];
-        _angular2.default.forEach(inputDateFrames, function (dateFrame) {
-            if (dateFrame.dateMatch(date)) {
-                dateFrames.push(dateFrame);
-            }
-        });
-        if (dateFrames.length === 0) {
-            _angular2.default.forEach(inputDateFrames, function (dateFrame) {
-                if (dateFrame.default) {
-                    dateFrames.push(dateFrame);
-                }
-            });
-        }
-        return dateFrames;
-    };
-
-    Calendar.prototype.getTimeFrames = function (date) {
-        var timeFrames = [];
-        var dateFrames = filterDateFrames(this.dateFrames, date);
-        for (var i = 0; i < dateFrames.length; i++) {
-            if (dateFrames[i] !== undefined) {
-                var targets = dateFrames[i].targets;
-                for (var j = 0; j < targets.length; j++) {
-                    var timeFrameMapping = this.timeFrameMappings[targets[j]];
-                    if (timeFrameMapping !== undefined) {
-                        timeFrames.push(timeFrameMapping.getTimeFrames());
-                    } else {
-                        var timeFrame = this.timeFrames[targets[j]];
-                        if (timeFrame !== undefined) {
-                            timeFrames.push(timeFrame);
-                        }
-                    }
-                }
-            }
-        }
-        var dateYear = date.year();
-        var dateMonth = date.month();
-        var dateDate = date.date();
-        var validatedTimeFrames = [];
-        if (timeFrames.length === 0) {
-            _angular2.default.forEach(this.timeFrames, function (timeFrame) {
-                if (timeFrame.default) {
-                    timeFrames.push(timeFrame);
-                }
-            });
-        }
-        for (var _i = 0; _i < timeFrames.length; _i++) {
-            var cTimeFrame = timeFrames[_i].clone();
-            if (cTimeFrame.start !== undefined) {
-                cTimeFrame.start.year(dateYear);
-                cTimeFrame.start.month(dateMonth);
-                cTimeFrame.start.date(dateDate);
-            }
-            if (cTimeFrame.end !== undefined) {
-                cTimeFrame.end.year(dateYear);
-                cTimeFrame.end.month(dateMonth);
-                cTimeFrame.end.date(dateDate);
-                if ((0, _moment2.default)(cTimeFrame.end).startOf('day') === cTimeFrame.end) {
-                    cTimeFrame.end.add(1, 'day');
-                }
-            }
-            validatedTimeFrames.push(cTimeFrame);
-        }
-        return validatedTimeFrames;
-    };
-
-    Calendar.prototype.solve = function (timeFrames, startDate, endDate) {
-        var color = void 0;
-        var classes = void 0;
-        var minDate = void 0;
-        var maxDate = void 0;
-        for (var i = 0; i < timeFrames.length; i++) {
-            var timeFrame = timeFrames[i];
-            if (minDate === undefined || minDate > timeFrame.start) {
-                minDate = timeFrame.start;
-            }
-            if (maxDate === undefined || maxDate < timeFrame.end) {
-                maxDate = timeFrame.end;
-            }
-            if (color === undefined && timeFrame.color) {
-                color = timeFrame.color;
-            }
-            if (timeFrame.classes !== undefined) {
-                if (classes === undefined) {
-                    classes = [];
-                }
-                classes = classes.concat(timeFrame.classes);
-            }
-        }
-        if (startDate === undefined) {
-            startDate = minDate;
-        }
-        if (endDate === undefined) {
-            endDate = maxDate;
-        }
-        var solvedTimeFrames = [new TimeFrame({ start: startDate, end: endDate, internal: true })];
-        timeFrames = $filter('filter')(timeFrames, function (timeFrame) {
-            return (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
-        });
-        for (var _i2 = 0; _i2 < timeFrames.length; _i2++) {
-            var cTimeFrame = timeFrames[_i2];
-            if (!cTimeFrame.start) {
-                cTimeFrame.start = startDate;
-            }
-            if (!cTimeFrame.end) {
-                cTimeFrame.end = endDate;
-            }
-        }
-        var orderedTimeFrames = $filter('orderBy')(timeFrames, function (timeFrame) {
-            return -timeFrame.getDuration();
-        });
-        var k = void 0;
-        for (var _i3 = 0; _i3 < orderedTimeFrames.length; _i3++) {
-            var oTimeFrame = orderedTimeFrames[_i3];
-            var tmpSolvedTimeFrames = solvedTimeFrames.slice();
-            k = 0;
-            var dispatched = false;
-            var treated = false;
-            for (var j = 0; j < solvedTimeFrames.length; j++) {
-                var sTimeFrame = solvedTimeFrames[j];
-                if (!treated) {
-                    if (!oTimeFrame.end && !oTimeFrame.start) {
-                        tmpSolvedTimeFrames.splice(k, 0, oTimeFrame);
-                        treated = true;
-                        dispatched = false;
-                    } else if (oTimeFrame.end > sTimeFrame.start && oTimeFrame.start < sTimeFrame.end) {
-                        var newSolvedTimeFrame = sTimeFrame.clone();
-                        sTimeFrame.end = (0, _moment2.default)(oTimeFrame.start);
-                        newSolvedTimeFrame.start = (0, _moment2.default)(oTimeFrame.end);
-                        tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone(), newSolvedTimeFrame);
-                        treated = true;
-                        dispatched = false;
-                    } else if (!dispatched && oTimeFrame.start < sTimeFrame.end) {
-                        sTimeFrame.end = (0, _moment2.default)(oTimeFrame.start);
-                        tmpSolvedTimeFrames.splice(k + 1, 0, oTimeFrame.clone());
-                        dispatched = true;
-                    } else if (dispatched && oTimeFrame.end > sTimeFrame.start) {
-                        sTimeFrame.start = (0, _moment2.default)(oTimeFrame.end);
-                        dispatched = false;
-                        treated = true;
-                    }
-                    k++;
-                }
-            }
-            solvedTimeFrames = tmpSolvedTimeFrames;
-        }
-        solvedTimeFrames = $filter('filter')(solvedTimeFrames, function (timeFrame) {
-            return !timeFrame.internal && (timeFrame.start === undefined || timeFrame.start < endDate) && (timeFrame.end === undefined || timeFrame.end > startDate);
-        });
-        return solvedTimeFrames;
-    };
-    return Calendar;
-}];
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var GanttCurrentDateManager = function GanttCurrentDateManager(gantt) {
-        var self = this;
-        this.gantt = gantt;
-        this.date = undefined;
-        this.position = undefined;
-        this.currentDateColumn = undefined;
-        this.gantt.$scope.simplifyMoment = function (d) {
-            return _moment2.default.isMoment(d) ? d.unix() : d;
-        };
-        this.gantt.$scope.$watchGroup(['currentDate', 'simplifyMoment(currentDateValue)'], function (newValues, oldValues) {
-            if (newValues !== oldValues) {
-                self.setCurrentDate(self.gantt.options.value('currentDateValue'));
-            }
-        });
-    };
-    GanttCurrentDateManager.prototype.setCurrentDate = function (currentDate) {
-        this.date = currentDate;
-        var oldColumn = this.currentDateColumn;
-        var newColumn = void 0;
-        if (this.date !== undefined && this.gantt.options.value('currentDate') === 'column') {
-            newColumn = this.gantt.columnsManager.getColumnByDate(this.date, true);
-        }
-        this.currentDateColumn = newColumn;
-        if (oldColumn !== newColumn) {
-            if (oldColumn !== undefined) {
-                oldColumn.currentDate = false;
-                oldColumn.updateView();
-            }
-            if (newColumn !== undefined) {
-                newColumn.currentDate = true;
-                newColumn.updateView();
-            }
-        }
-        this.position = this.gantt.getPositionByDate(this.date, true);
-    };
-    return GanttCurrentDateManager;
-};
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var Column = function Column(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode) {
-        this.date = date;
-        this.endDate = endDate;
-        this.left = left;
-        this.width = width;
-        this.calendar = calendar;
-        this.duration = this.endDate.diff(this.date, 'milliseconds');
-        this.timeFramesWorkingMode = timeFramesWorkingMode;
-        this.timeFramesNonWorkingMode = timeFramesNonWorkingMode;
-        this.timeFrames = [];
-        this.currentDate = false;
-        this.visibleTimeFrames = [];
-        this.daysTimeFrames = {};
-        this.cropped = false;
-        this.originalSize = { left: this.left, width: this.width };
-        this.updateTimeFrames();
-    };
-    var getDateKey = function getDateKey(date) {
-        return date.year() + '-' + date.month() + '-' + date.date();
-    };
-    Column.prototype.updateView = function () {
-        if (this.$element) {
-            if (this.currentDate) {
-                this.$element.addClass('gantt-foreground-col-current-date');
-            } else {
-                this.$element.removeClass('gantt-foreground-col-current-date');
-            }
-            this.$element.css({ 'left': this.left + 'px', 'width': this.width + 'px' });
-
-            for (var i = 0, l = this.timeFrames.length; i < l; i++) {
-                this.timeFrames[i].updateView();
-            }
-        }
-    };
-    Column.prototype.updateTimeFrames = function () {
-        var self = this;
-        if (self.calendar !== undefined && (self.timeFramesNonWorkingMode !== 'hidden' || self.timeFramesWorkingMode !== 'hidden')) {
-            var cDate = self.date;
-            var cDateStartOfDay = (0, _moment2.default)(cDate).startOf('day');
-            var cDateNextDay = cDateStartOfDay.add(1, 'day');
-            var i = void 0;
-            while (cDate < self.endDate) {
-                var timeFrames = self.calendar.getTimeFrames(cDate);
-                var nextCDate = _moment2.default.min(cDateNextDay, self.endDate);
-                timeFrames = self.calendar.solve(timeFrames, cDate, nextCDate);
-                var cTimeFrames = [];
-                for (i = 0; i < timeFrames.length; i++) {
-                    var cTimeFrame = timeFrames[i];
-                    var start = cTimeFrame.start;
-                    if (start === undefined) {
-                        start = cDate;
-                    }
-                    var end = cTimeFrame.end;
-                    if (end === undefined) {
-                        end = nextCDate;
-                    }
-                    if (start < self.date) {
-                        start = self.date;
-                    }
-                    if (end > self.endDate) {
-                        end = self.endDate;
-                    }
-                    cTimeFrame = cTimeFrame.clone();
-                    cTimeFrame.start = (0, _moment2.default)(start);
-                    cTimeFrame.end = (0, _moment2.default)(end);
-                    cTimeFrames.push(cTimeFrame);
-                }
-                self.timeFrames = self.timeFrames.concat(cTimeFrames);
-                var cDateKey = getDateKey(cDate);
-                self.daysTimeFrames[cDateKey] = cTimeFrames;
-                cDate = nextCDate;
-                cDateStartOfDay = (0, _moment2.default)(cDate).startOf('day');
-                cDateNextDay = cDateStartOfDay.add(1, 'day');
-            }
-            for (i = 0; i < self.timeFrames.length; i++) {
-                var timeFrame = self.timeFrames[i];
-                var positionDuration = timeFrame.start.diff(self.date, 'milliseconds');
-                var position = positionDuration / self.duration * self.width;
-                var timeFrameDuration = timeFrame.end.diff(timeFrame.start, 'milliseconds');
-                var timeFramePosition = timeFrameDuration / self.duration * self.width;
-                var hidden = false;
-                if (timeFrame.working && self.timeFramesWorkingMode !== 'visible') {
-                    hidden = true;
-                } else if (!timeFrame.working && self.timeFramesNonWorkingMode !== 'visible') {
-                    hidden = true;
-                }
-                if (!hidden) {
-                    self.visibleTimeFrames.push(timeFrame);
-                }
-                timeFrame.hidden = hidden;
-                timeFrame.left = position;
-                timeFrame.width = timeFramePosition;
-                timeFrame.originalSize = { left: timeFrame.left, width: timeFrame.width };
-            }
-            if (self.timeFramesNonWorkingMode === 'cropped' || self.timeFramesWorkingMode === 'cropped') {
-                var timeFramesWidth = 0;
-                for (var j = 0; j < self.timeFrames.length; j++) {
-                    var aTimeFrame = self.timeFrames[j];
-                    if (!aTimeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' || aTimeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
-                        timeFramesWidth += aTimeFrame.width;
-                    }
-                }
-                if (timeFramesWidth !== self.width) {
-                    var croppedRatio = self.width / timeFramesWidth;
-                    var croppedWidth = 0;
-                    var originalCroppedWidth = 0;
-                    var allCropped = true;
-                    for (var _j = 0; _j < self.timeFrames.length; _j++) {
-                        var bTimeFrame = self.timeFrames[_j];
-                        if (!bTimeFrame.working && self.timeFramesNonWorkingMode !== 'cropped' || bTimeFrame.working && self.timeFramesWorkingMode !== 'cropped') {
-                            bTimeFrame.left = (bTimeFrame.left - croppedWidth) * croppedRatio;
-                            bTimeFrame.width = bTimeFrame.width * croppedRatio;
-                            bTimeFrame.originalSize.left = (bTimeFrame.originalSize.left - originalCroppedWidth) * croppedRatio;
-                            bTimeFrame.originalSize.width = bTimeFrame.originalSize.width * croppedRatio;
-                            bTimeFrame.cropped = false;
-                            allCropped = false;
-                        } else {
-                            croppedWidth += bTimeFrame.width;
-                            originalCroppedWidth += bTimeFrame.originalSize.width;
-                            bTimeFrame.left = undefined;
-                            bTimeFrame.width = 0;
-                            bTimeFrame.originalSize = { left: undefined, width: 0 };
-                            bTimeFrame.cropped = true;
-                        }
-                    }
-                    self.cropped = allCropped;
-                } else {
-                    self.cropped = false;
-                }
-            }
-        }
-    };
-    Column.prototype.clone = function () {
-        return new Column((0, _moment2.default)(this.date), (0, _moment2.default)(this.endDate), this.left, this.width, this.calendar);
-    };
-    Column.prototype.containsDate = function (date) {
-        return date > this.date && date <= this.endDate;
-    };
-    Column.prototype.equals = function (other) {
-        return this.date === other.date;
-    };
-    Column.prototype.roundTo = function (date, unit, offset, midpoint) {
-        if (unit === 'day') {
-            unit = 'date';
-        }
-        offset = offset || 1;
-        var value = date.get(unit);
-        switch (midpoint) {
-            case 'up':
-                value = Math.ceil(value / offset);
-                break;
-            case 'down':
-                value = Math.floor(value / offset);
-                break;
-            default:
-                value = Math.round(value / offset);
-                break;
-        }
-        var units = ['millisecond', 'second', 'minute', 'hour', 'date', 'month', 'year'];
-        date.set(unit, value * offset);
-        var indexOf = units.indexOf(unit);
-        for (var i = 0; i < indexOf; i++) {
-            date.set(units[i], 0);
-        }
-        return date;
-    };
-    Column.prototype.getMagnetDate = function (date, magnetValue, magnetUnit, timeFramesMagnet) {
-        if (magnetValue > 0 && magnetUnit !== undefined) {
-            var initialDate = date;
-            date = (0, _moment2.default)(date);
-            if (magnetUnit === 'column') {
-                var position = this.getPositionByDate(date);
-                if (position < this.width / 2) {
-                    date = (0, _moment2.default)(this.date);
-                } else {
-                    date = (0, _moment2.default)(this.endDate);
-                }
-            } else {
-                date = this.roundTo(date, magnetUnit, magnetValue);
-
-                if (date < this.date) {
-                    date = (0, _moment2.default)(this.date);
-                } else if (date > this.endDate) {
-                    date = (0, _moment2.default)(this.endDate);
-                }
-            }
-            if (timeFramesMagnet) {
-                var maxTimeFrameDiff = Math.abs(initialDate.diff(date, 'milliseconds'));
-                var currentTimeFrameDiff = void 0;
-                for (var i = 0; i < this.timeFrames.length; i++) {
-                    var timeFrame = this.timeFrames[i];
-                    if (timeFrame.magnet) {
-                        var previousTimeFrame = this.timeFrames[i - 1];
-                        var nextTimeFrame = this.timeFrames[i + 1];
-                        var timeFrameDiff = void 0;
-                        if (previousTimeFrame === undefined || previousTimeFrame.working !== timeFrame.working) {
-                            timeFrameDiff = Math.abs(initialDate.diff(timeFrame.start, 'milliseconds'));
-                            if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
-                                currentTimeFrameDiff = timeFrameDiff;
-                                date = timeFrame.start;
-                            }
-                        }
-                        if (nextTimeFrame === undefined || nextTimeFrame.working !== timeFrame.working) {
-                            timeFrameDiff = Math.abs(initialDate.diff(timeFrame.end, 'milliseconds'));
-                            if (timeFrameDiff < maxTimeFrameDiff && (currentTimeFrameDiff === undefined || timeFrameDiff < currentTimeFrameDiff)) {
-                                currentTimeFrameDiff = timeFrameDiff;
-                                date = timeFrame.end;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return date;
-    };
-    Column.prototype.getDateByPositionUsingTimeFrames = function (position) {
-        for (var i = 0, l = this.timeFrames.length; i < l; i++) {
-            var timeFrame = this.timeFrames[i];
-            if (!timeFrame.cropped && position >= timeFrame.left && position <= timeFrame.left + timeFrame.width) {
-                var positionDuration = timeFrame.getDuration() / timeFrame.width * (position - timeFrame.left);
-                var date = (0, _moment2.default)(timeFrame.start).add(positionDuration, 'milliseconds');
-                return date;
-            }
-        }
-    };
-    Column.prototype.getDateByPosition = function (position, magnetValue, magnetUnit, timeFramesMagnet) {
-        var positionDuration = void 0;
-        var date = void 0;
-        if (position < 0) {
-            position = 0;
-        }
-        if (position > this.width) {
-            position = this.width;
-        }
-        if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
-            date = this.getDateByPositionUsingTimeFrames(position);
-        }
-        if (date === undefined) {
-            positionDuration = this.duration / this.width * position;
-            date = (0, _moment2.default)(this.date).add(positionDuration, 'milliseconds');
-        }
-        date = this.getMagnetDate(date, magnetValue, magnetUnit, timeFramesMagnet);
-        return date;
-    };
-    Column.prototype.getDayTimeFrame = function (date) {
-        var dtf = this.daysTimeFrames[getDateKey(date)];
-        if (dtf === undefined) {
-            return [];
-        }
-        return dtf;
-    };
-    Column.prototype.getPositionByDate = function (date) {
-        var positionDuration = void 0;
-        var position = void 0;
-        var croppedDate = date;
-        if (this.timeFramesNonWorkingMode === 'cropped' || this.timeFramesWorkingMode === 'cropped') {
-            var timeFrames = this.getDayTimeFrame(croppedDate);
-            for (var i = 0; i < timeFrames.length; i++) {
-                var timeFrame = timeFrames[i];
-                if (croppedDate >= timeFrame.start && croppedDate <= timeFrame.end) {
-                    if (timeFrame.cropped) {
-                        if (timeFrames.length > i + 1) {
-                            croppedDate = timeFrames[i + 1].start;
-                        } else {
-                            croppedDate = timeFrame.end;
-                        }
-                    } else {
-                        positionDuration = croppedDate.diff(timeFrame.start, 'milliseconds');
-                        position = positionDuration / timeFrame.getDuration() * timeFrame.width;
-                        return this.left + timeFrame.left + position;
-                    }
-                }
-            }
-        }
-        positionDuration = croppedDate.diff(this.date, 'milliseconds');
-        position = positionDuration / this.duration * this.width;
-        if (position < 0) {
-            position = 0;
-        }
-        if (position > this.width) {
-            position = this.width;
-        }
-        return this.left + position;
-    };
-    return Column;
-};
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
+var _createClass3 = _interopRequireDefault(_createClass2);
 
 exports.default = ["GanttColumn", function (GanttColumn) {
     'ngInject';
 
-    var ColumnBuilder = function ColumnBuilder(columnsManager) {
-        this.columnsManager = columnsManager;
-    };
-    ColumnBuilder.prototype.newColumn = function (date, endDate, left, width) {
-        var calendar = this.columnsManager.gantt.calendar;
-        var timeFramesWorkingMode = this.columnsManager.gantt.options.value('timeFramesWorkingMode');
-        var timeFramesNonWorkingMode = this.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
-        return new GanttColumn(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
-    };
-    return ColumnBuilder;
+    GanttColumnBuilder.GanttColumn = GanttColumn;
+    return GanttColumnBuilder;
 }];
 
+var _column = __webpack_require__(23);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttColumnBuilder = exports.GanttColumnBuilder = function () {
+    function GanttColumnBuilder(columnsManager) {
+        (0, _classCallCheck3.default)(this, GanttColumnBuilder);
+
+        this.columnsManager = columnsManager;
+    }
+
+    (0, _createClass3.default)(GanttColumnBuilder, [{
+        key: 'newColumn',
+        value: function newColumn(date, endDate, left, width) {
+            var calendar = this.columnsManager.gantt.calendar;
+            var timeFramesWorkingMode = this.columnsManager.gantt.options.value('timeFramesWorkingMode');
+            var timeFramesNonWorkingMode = this.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
+            return new _column.GanttColumn(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
+        }
+    }]);
+    return GanttColumnBuilder;
+}();
+
 /***/ }),
-/* 48 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2016,113 +6117,134 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = function () {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    var isToDateToExclude = function isToDateToExclude(to, value, unit) {
-        return (0, _moment2.default)(to).add(value, unit).startOf(unit) === to;
-    };
-    var getFirstValue = function getFirstValue(unit) {
-        if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
-            return 0;
-        }
-    };
-    var ensureNoUnitOverflow = function ensureNoUnitOverflow(unit, startDate, endDate) {
-        var v1 = startDate.get(unit);
-        var v2 = endDate.get(unit);
-        var firstValue = getFirstValue(unit);
-        if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
-            endDate.set(unit, firstValue);
-        }
-    };
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-    this.generate = function (builder, from, to, viewScale, columnWidth, maximumWidth, leftOffset, reverse) {
-        if (!to && !maximumWidth) {
-            throw 'to or maximumWidth must be defined';
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttColumnGenerator = function () {
+    function GanttColumnGenerator() {
+        (0, _classCallCheck3.default)(this, GanttColumnGenerator);
+    }
+
+    (0, _createClass3.default)(GanttColumnGenerator, [{
+        key: 'isToDateToExclude',
+        value: function isToDateToExclude(to, value, unit) {
+            return (0, _moment2.default)(to).add(value, unit).startOf(unit) === to;
         }
-        viewScale = viewScale.trim();
-        if (viewScale.charAt(viewScale.length - 1) === 's') {
-            viewScale = viewScale.substring(0, viewScale.length - 1);
-        }
-        var viewScaleValue = void 0;
-        var viewScaleUnit = void 0;
-        var splittedViewScale = void 0;
-        if (viewScale) {
-            splittedViewScale = viewScale.split(' ');
-        }
-        if (splittedViewScale && splittedViewScale.length > 1) {
-            viewScaleValue = parseFloat(splittedViewScale[0]);
-            viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
-        } else {
-            viewScaleValue = 1;
-            viewScaleUnit = viewScale;
-        }
-        var excludeTo = false;
-        from = (0, _moment2.default)(from).startOf(viewScaleUnit);
-        if (to) {
-            excludeTo = isToDateToExclude(to, viewScaleValue, viewScaleUnit);
-            to = (0, _moment2.default)(to).startOf(viewScaleUnit);
-        }
-        var left = 0;
-        var date = (0, _moment2.default)(from).startOf(viewScaleUnit);
-        if (reverse) {
-            date.add(-viewScaleValue, viewScaleUnit);
-            left -= columnWidth;
-        }
-        var generatedCols = [];
-        while (true) {
-            if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
-                break;
+    }, {
+        key: 'getFirstValue',
+        value: function getFirstValue(unit) {
+            if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
+                return 0;
             }
-            var startDate = (0, _moment2.default)(date);
-            var endDate = (0, _moment2.default)(startDate).add(viewScaleValue, viewScaleUnit);
-            ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
-            var column = builder.newColumn(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth);
-            if (!column.cropped) {
-                generatedCols.push(column);
-                if (reverse) {
-                    left -= columnWidth;
-                } else {
-                    left += columnWidth;
-                }
+        }
+    }, {
+        key: 'ensureNoUnitOverflow',
+        value: function ensureNoUnitOverflow(unit, startDate, endDate) {
+            var v1 = startDate.get(unit);
+            var v2 = endDate.get(unit);
+            var firstValue = this.getFirstValue(unit);
+            if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
+                endDate.set(unit, firstValue);
             }
+        }
+    }, {
+        key: 'generate',
+        value: function generate(builder, from, to, viewScale, columnWidth, maximumWidth, leftOffset, reverse) {
+            if (!to && !maximumWidth) {
+                throw 'to or maximumWidth must be defined';
+            }
+            viewScale = viewScale.trim();
+            if (viewScale.charAt(viewScale.length - 1) === 's') {
+                viewScale = viewScale.substring(0, viewScale.length - 1);
+            }
+            var viewScaleValue = void 0;
+            var viewScaleUnit = void 0;
+            var splittedViewScale = void 0;
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+            var excludeTo = false;
+            from = (0, _moment2.default)(from).startOf(viewScaleUnit);
             if (to) {
+                excludeTo = this.isToDateToExclude(to, viewScaleValue, viewScaleUnit);
+                to = (0, _moment2.default)(to).startOf(viewScaleUnit);
+            }
+            var left = 0;
+            var date = (0, _moment2.default)(from).startOf(viewScaleUnit);
+            if (reverse) {
+                date.subtract(viewScaleValue, viewScaleUnit);
+                left -= columnWidth;
+            }
+            var generatedCols = [];
+            while (true) {
+                if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
+                    break;
+                }
+                var startDate = (0, _moment2.default)(date);
+                var endDate = (0, _moment2.default)(startDate).add(viewScaleValue, viewScaleUnit);
+                this.ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
+                var column = builder.newColumn(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth);
+                if (!column.cropped) {
+                    generatedCols.push(column);
+                    if (reverse) {
+                        left -= columnWidth;
+                    } else {
+                        left += columnWidth;
+                    }
+                }
+                if (to) {
+                    if (reverse) {
+                        if (excludeTo && date < to || !excludeTo && date <= to) {
+                            break;
+                        }
+                    } else {
+                        if (excludeTo && date > to || !excludeTo && date >= to) {
+                            break;
+                        }
+                    }
+                }
                 if (reverse) {
-                    if (excludeTo && date < to || !excludeTo && date <= to) {
-                        break;
-                    }
+                    date.subtract(viewScaleValue, viewScaleUnit);
+                    this.ensureNoUnitOverflow(viewScaleUnit, date, startDate);
                 } else {
-                    if (excludeTo && date > to || !excludeTo && date >= to) {
-                        break;
-                    }
+                    date.add(viewScaleValue, viewScaleUnit);
+                    this.ensureNoUnitOverflow(viewScaleUnit, startDate, date);
                 }
             }
             if (reverse) {
-                date.add(-viewScaleValue, viewScaleUnit);
-                ensureNoUnitOverflow(viewScaleUnit, date, startDate);
-            } else {
-                date.add(viewScaleValue, viewScaleUnit);
-                ensureNoUnitOverflow(viewScaleUnit, startDate, date);
+                if (this.isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
+                    generatedCols.shift();
+                }
+                generatedCols.reverse();
             }
+            return generatedCols;
         }
-        if (reverse) {
-            if (isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
-                generatedCols.shift();
-            }
-            generatedCols.reverse();
-        }
-        return generatedCols;
-    };
-};
+    }]);
+    return GanttColumnGenerator;
+}();
 
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+exports.default = GanttColumnGenerator;
 
 /***/ }),
-/* 49 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2132,570 +6254,227 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = ["GanttColumn", function (GanttColumn) {
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+var _columnHeader = __webpack_require__(41);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttHeadersGenerator = function () {
+    function GanttHeadersGenerator() {
+        (0, _classCallCheck3.default)(this, GanttHeadersGenerator);
+    }
+
+    (0, _createClass3.default)(GanttHeadersGenerator, [{
+        key: 'generateHeaders',
+        value: function generateHeaders(columnsManager, headerName) {
+            var generatedHeaders = [];
+            var header = void 0;
+            var viewScale = columnsManager.getHeaderScale(headerName);
+            var viewScaleValue = void 0;
+            var viewScaleUnit = void 0;
+            var splittedViewScale = void 0;
+            if (viewScale) {
+                splittedViewScale = viewScale.split(' ');
+            }
+            if (splittedViewScale && splittedViewScale.length > 1) {
+                viewScaleValue = parseFloat(splittedViewScale[0]);
+                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+            } else {
+                viewScaleValue = 1;
+                viewScaleUnit = viewScale;
+            }
+            if (columnsManager.columns.length > 0) {
+                var currentColumn = columnsManager.columns[0];
+                var currentDate = (0, _moment2.default)(currentColumn.date).startOf(viewScaleUnit);
+                var maximumDate = (0, _moment2.default)(columnsManager.columns[columnsManager.columns.length - 1].endDate);
+                while (true) {
+                    var currentPosition = currentColumn.getPositionByDate(currentDate);
+                    var endDate = _moment2.default.min((0, _moment2.default)(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
+                    var column = columnsManager.getColumnByDate(endDate);
+                    var left = column.getPositionByDate(endDate);
+                    var width = left - currentPosition;
+                    if (width > 0) {
+                        var labelFormat = columnsManager.getHeaderFormat(headerName);
+                        header = new _columnHeader.GanttColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat, headerName);
+                        generatedHeaders.push(header);
+                    }
+                    if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
+                        break;
+                    }
+                    currentColumn = column;
+                    currentDate = endDate;
+                }
+            }
+            return generatedHeaders;
+        }
+    }, {
+        key: 'generate',
+        value: function generate(columnsManager) {
+            var headerNames = [];
+            if (columnsManager.gantt.options.value('headers') === undefined) {
+                var viewScale = columnsManager.gantt.options.value('viewScale');
+                viewScale = viewScale.trim();
+                if (viewScale.charAt(viewScale.length - 1) === 's') {
+                    viewScale = viewScale.substring(0, viewScale.length - 1);
+                }
+                var viewScaleUnit = void 0;
+                var splittedViewScale = void 0;
+                if (viewScale) {
+                    splittedViewScale = viewScale.split(' ');
+                }
+                if (splittedViewScale && splittedViewScale.length > 1) {
+                    viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
+                } else {
+                    viewScaleUnit = viewScale;
+                }
+                if (['quarter', 'month'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('year');
+                }
+                if (['day', 'week'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('month');
+                }
+                if (['day'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('week');
+                }
+                if (['hour'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('day');
+                }
+                if (['minute', 'second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('hour');
+                }
+                if (['second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('minute');
+                }
+                if (['millisecond'].indexOf(viewScaleUnit) > -1) {
+                    headerNames.push('second');
+                }
+                headerNames.push(viewScale);
+            } else {
+                headerNames = columnsManager.gantt.options.value('headers');
+            }
+            var headers = [];
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(headerNames), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var headerName = _step.value;
+
+                    headers.push(this.generateHeaders(columnsManager, headerName));
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return headers;
+        }
+    }]);
+    return GanttHeadersGenerator;
+}();
+
+exports.default = GanttHeadersGenerator;
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Gantt = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "GanttBody", "GanttHeader", "GanttSide", "GanttObjectModel", "GanttRowsManager", "GanttColumnsManager", "GanttTimespansManager", "GanttCurrentDateManager", "ganttArrays", "$document", "$timeout", function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, GanttBody, GanttHeader, GanttSide, GanttObjectModel, GanttRowsManager, GanttColumnsManager, GanttTimespansManager, GanttCurrentDateManager, ganttArrays, $document, $timeout) {
     'ngInject';
 
-    var ColumnHeader = function ColumnHeader(startDate, endDate, viewScaleUnit, left, width, labelFormat, name) {
-        startDate = (0, _moment2.default)(startDate);
-        endDate = (0, _moment2.default)(endDate);
-        var column = new GanttColumn(startDate, endDate, left, width);
-        column.name = name;
-        column.unit = viewScaleUnit;
-        column.label = _angular2.default.isFunction(labelFormat) ? labelFormat(column) : startDate.format(labelFormat);
-        return column;
-    };
-    return ColumnHeader;
+    Gantt.ganttArrays = ganttArrays;
+    Gantt.$document = $document;
+    Gantt.$timeout = $timeout;
+    return Gantt;
 }];
 
-var _angular = __webpack_require__(0);
+var _angular = __webpack_require__(1);
 
 var _angular2 = _interopRequireDefault(_angular);
 
-var _moment = __webpack_require__(1);
+var _moment = __webpack_require__(3);
 
 var _moment2 = _interopRequireDefault(_moment);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _api = __webpack_require__(37);
 
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
+var _options = __webpack_require__(38);
 
-"use strict";
+var _calendar = __webpack_require__(39);
 
+var _currentDateManager = __webpack_require__(40);
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
+var _objectModel = __webpack_require__(43);
 
-exports.default = ["GanttColumnGenerator", "GanttColumnBuilder", "GanttHeadersGenerator", "$filter", "$timeout", "ganttLayout", "ganttBinarySearch", function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersGenerator, $filter, $timeout, ganttLayout, ganttBinarySearch) {
-    'ngInject';
+var _rowsManager = __webpack_require__(44);
 
-    var ColumnsManager = function ColumnsManager(gantt) {
-        var self = this;
-        this.gantt = gantt;
-        this.from = undefined;
-        this.to = undefined;
-        this.columns = [];
-        this.visibleColumns = [];
-        this.previousColumns = [];
-        this.nextColumns = [];
-        this.headers = [];
-        this.visibleHeaders = [];
-        this.scrollAnchor = undefined;
-        this.columnBuilder = new GanttColumnBuilder(this);
+var _columnsManager = __webpack_require__(42);
 
-        this.gantt.$scope.$watchGroup(['viewScale', 'columnWidth', 'timeFramesWorkingMode', 'timeFramesNonWorkingMode', 'fromDate', 'toDate', 'autoExpand', 'taskOutOfRange'], function (newValues, oldValues) {
-            if (newValues !== oldValues && self.gantt.rendered) {
-                self.generateColumns();
-            }
-        });
-        this.gantt.$scope.$watchCollection('headers', function (newValues, oldValues) {
-            if (newValues !== oldValues && self.gantt.rendered) {
-                self.generateColumns();
-            }
-        });
-        this.gantt.$scope.$watchCollection('headersFormats', function (newValues, oldValues) {
-            if (newValues !== oldValues && self.gantt.rendered) {
-                self.generateColumns();
-            }
-        });
-        this.gantt.$scope.$watchGroup(['ganttElementWidth', 'showSide', 'sideWidth', 'maxHeight', 'daily'], function (newValues, oldValues) {
-            if (newValues !== oldValues && self.gantt.rendered) {
-                self.updateColumnsMeta();
-            }
-        });
-        this.gantt.api.data.on.load(this.gantt.$scope, function () {
-            if ((self.from === undefined || self.to === undefined || self.from > self.gantt.rowsManager.getDefaultFrom() || self.to < self.gantt.rowsManager.getDefaultTo()) && self.gantt.rendered) {
-                self.generateColumns();
-            }
-            self.gantt.rowsManager.sortRows();
-        });
-        this.gantt.api.data.on.remove(this.gantt.$scope, function () {
-            self.gantt.rowsManager.sortRows();
-        });
-        this.gantt.api.registerMethod('columns', 'clear', this.clearColumns, this);
-        this.gantt.api.registerMethod('columns', 'generate', this.generateColumns, this);
-        this.gantt.api.registerMethod('columns', 'refresh', this.updateColumnsMeta, this);
-        this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
-        this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
-        this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
-        this.gantt.api.registerEvent('columns', 'clear');
-        this.gantt.api.registerEvent('columns', 'generate');
-        this.gantt.api.registerEvent('columns', 'refresh');
-    };
-    ColumnsManager.prototype.setScrollAnchor = function () {
-        if (this.gantt.scroll.$element && this.columns.length > 0) {
-            var el = this.gantt.scroll.$element[0];
-            var center = el.scrollLeft + el.offsetWidth / 2;
-            this.scrollAnchor = this.gantt.getDateByPosition(center);
-        }
-    };
-    ColumnsManager.prototype.scrollToScrollAnchor = function () {
-        var self = this;
-        if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
-            this.gantt.$scope.$$postDigest(function () {
-                self.gantt.api.scroll.toDate(self.scrollAnchor);
-            });
-        }
-    };
-    ColumnsManager.prototype.clearColumns = function () {
-        this.setScrollAnchor();
-        this.from = undefined;
-        this.to = undefined;
-        this.columns = [];
-        this.visibleColumns = [];
-        this.previousColumns = [];
-        this.nextColumns = [];
-        this.headers = [];
-        this.visibleHeaders = [];
-        this.gantt.api.columns.raise.clear();
-    };
-    ColumnsManager.prototype.generateColumns = function (from, to) {
-        if (!from) {
-            from = this.gantt.options.value('fromDate');
-        }
-        if (!to) {
-            to = this.gantt.options.value('toDate');
-        }
-        if (!from || _moment2.default.isMoment(from) && !from.isValid()) {
-            from = this.gantt.rowsManager.getDefaultFrom();
-            if (!from) {
-                return false;
-            }
-        }
-        if (!to || _moment2.default.isMoment(to) && !to.isValid()) {
-            to = this.gantt.rowsManager.getDefaultTo();
-            if (!to) {
-                return false;
-            }
-        }
-        if (from !== undefined && !_moment2.default.isMoment(from)) {
-            from = (0, _moment2.default)(from);
-        }
-        if (to !== undefined && !_moment2.default.isMoment(to)) {
-            to = (0, _moment2.default)(to);
-        }
-        if (this.gantt.options.value('taskOutOfRange') === 'expand') {
-            from = this.gantt.rowsManager.getExpandedFrom(from);
-            to = this.gantt.rowsManager.getExpandedTo(to);
-        }
-        this.setScrollAnchor();
-        this.from = from;
-        this.to = to;
-        this.columns = GanttColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
-        this.headers = GanttHeadersGenerator.generate(this);
-        this.previousColumns = [];
-        this.nextColumns = [];
-        this.updateColumnsMeta();
-        this.scrollToScrollAnchor();
-        this.gantt.api.columns.raise.generate(this.columns, this.headers);
-    };
-    ColumnsManager.prototype.updateColumnsMeta = function () {
-        this.gantt.isRefreshingColumns = true;
-        var lastColumn = this.getLastColumn();
-        this.gantt.originalWidth = lastColumn !== undefined ? lastColumn.originalSize.left + lastColumn.originalSize.width : 0;
-        var columnsWidthChanged = this.updateColumnsWidths(this.columns, this.headers, this.previousColumns, this.nextColumns);
-        this.gantt.width = lastColumn !== undefined ? lastColumn.left + lastColumn.width : 0;
-        var showSide = this.gantt.options.value('showSide');
-        var sideShown = this.gantt.side.isShown();
-        var sideVisibilityChanged = showSide !== sideShown;
-        if (sideVisibilityChanged && !showSide) {
-            this.gantt.side.show(false);
-        }
-        this.gantt.rowsManager.updateTasksPosAndSize();
-        this.gantt.timespansManager.updateTimespansPosAndSize();
-        this.updateVisibleColumns(columnsWidthChanged);
-        this.gantt.rowsManager.updateVisibleObjects();
-        var currentDateValue = this.gantt.options.value('currentDateValue');
-        this.gantt.currentDateManager.setCurrentDate(currentDateValue);
-        if (sideVisibilityChanged && showSide) {
-            this.gantt.side.show(true);
-        }
-        this.gantt.isRefreshingColumns = false;
-        this.gantt.api.columns.raise.refresh(this.columns, this.headers);
-    };
+var _timespansManager = __webpack_require__(49);
 
-    ColumnsManager.prototype.getLastColumn = function (extended) {
-        var columns = this.columns;
-        if (extended) {
-            columns = this.nextColumns;
-        }
-        if (columns && columns.length > 0) {
-            return columns[columns.length - 1];
-        } else {
-            return undefined;
-        }
-    };
+var _scroll = __webpack_require__(47);
 
-    ColumnsManager.prototype.getFirstColumn = function (extended) {
-        var columns = this.columns;
-        if (extended) {
-            columns = this.previousColumns;
-        }
-        if (columns && columns.length > 0) {
-            return columns[0];
-        } else {
-            return undefined;
-        }
-    };
+var _body = __webpack_require__(45);
 
-    ColumnsManager.prototype.getColumnByDate = function (date, disableExpand) {
-        if (!disableExpand) {
-            this.expandExtendedColumnsForDate(date);
-        }
-        var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
-        var columns = ganttBinarySearch.get(extendedColumns, date, function (c) {
-            return c.date;
-        }, true);
-        return columns[0] === undefined ? columns[1] : columns[0];
-    };
+var _header = __webpack_require__(46);
 
-    ColumnsManager.prototype.getColumnByPosition = function (x, disableExpand) {
-        if (!disableExpand) {
-            this.expandExtendedColumnsForPosition(x);
-        }
-        var extendedColumns = this.previousColumns.concat(this.columns, this.nextColumns);
-        var columns = ganttBinarySearch.get(extendedColumns, x, function (c) {
-            return c.left;
-        }, true);
-        return columns[0] === undefined ? columns[1] : columns[0];
-    };
-    ColumnsManager.prototype.updateColumnsWidths = function (columns, headers, previousColumns, nextColumns) {
-        var columnWidth = this.gantt.options.value('columnWidth');
-        var expandToFit = this.gantt.options.value('expandToFit');
-        var shrinkToFit = this.gantt.options.value('shrinkToFit');
-        if (columnWidth === undefined || expandToFit || shrinkToFit) {
-            var newWidth = this.gantt.getBodyAvailableWidth();
-            var lastColumn = this.gantt.columnsManager.getLastColumn(false);
-            if (lastColumn !== undefined) {
-                var currentWidth = lastColumn.originalSize.left + lastColumn.originalSize.width;
-                if (expandToFit && currentWidth < newWidth || shrinkToFit && currentWidth > newWidth || columnWidth === undefined) {
-                    var widthFactor = newWidth / currentWidth;
-                    ganttLayout.setColumnsWidthFactor(columns, widthFactor);
-                    for (var i = 0; i < headers.length; i++) {
-                        ganttLayout.setColumnsWidthFactor(headers[i], widthFactor);
-                    }
-
-                    previousColumns.splice(0, this.previousColumns.length);
-                    nextColumns.splice(0, this.nextColumns.length);
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-    ColumnsManager.prototype.getColumnsWidth = function () {
-        var columnWidth = this.gantt.options.value('columnWidth');
-        if (columnWidth === undefined) {
-            if (!this.gantt.width || this.gantt.width <= 0) {
-                columnWidth = 20;
-            } else {
-                columnWidth = this.gantt.width / this.columns.length;
-            }
-        }
-        return columnWidth;
-    };
-    ColumnsManager.prototype.getColumnsWidthToFit = function () {
-        return this.gantt.getBodyAvailableWidth() / this.columns.length;
-    };
-    ColumnsManager.prototype.expandExtendedColumnsForPosition = function (x) {
-        var viewScale = void 0;
-        if (x < 0) {
-            var firstColumn = this.getFirstColumn();
-            var from = firstColumn.date;
-            var firstExtendedColumn = this.getFirstColumn(true);
-            if (!firstExtendedColumn || firstExtendedColumn.left > x) {
-                viewScale = this.gantt.options.value('viewScale');
-                this.previousColumns = GanttColumnGenerator.generate(this.columnBuilder, from, undefined, viewScale, this.getColumnsWidth(), -x, 0, true);
-            }
-            return true;
-        } else if (x > this.gantt.width) {
-            var lastColumn = this.getLastColumn();
-            var endDate = lastColumn.getDateByPosition(lastColumn.width);
-            var lastExtendedColumn = this.getLastColumn(true);
-            if (!lastExtendedColumn || lastExtendedColumn.left + lastExtendedColumn.width < x) {
-                viewScale = this.gantt.options.value('viewScale');
-                this.nextColumns = GanttColumnGenerator.generate(this.columnBuilder, endDate, undefined, viewScale, this.getColumnsWidth(), x - this.gantt.width, this.gantt.width, false);
-            }
-            return true;
-        }
-        return false;
-    };
-    ColumnsManager.prototype.expandExtendedColumnsForDate = function (date) {
-        var firstColumn = this.getFirstColumn();
-        var from = void 0;
-        if (firstColumn) {
-            from = firstColumn.date;
-        }
-        var lastColumn = this.getLastColumn();
-        var endDate = void 0;
-        if (lastColumn) {
-            endDate = lastColumn.endDate;
-        }
-        var viewScale = void 0;
-        if (from && date < from) {
-            var firstExtendedColumn = this.getFirstColumn(true);
-            if (!firstExtendedColumn || firstExtendedColumn.date > date) {
-                viewScale = this.gantt.options.value('viewScale');
-                this.previousColumns = GanttColumnGenerator.generate(this.columnBuilder, from, date, viewScale, this.getColumnsWidth(), undefined, 0, true);
-            }
-            return true;
-        } else if (endDate && date >= endDate) {
-            var lastExtendedColumn = this.getLastColumn(true);
-            if (!lastExtendedColumn || lastExtendedColumn.date < endDate) {
-                viewScale = this.gantt.options.value('viewScale');
-                this.nextColumns = GanttColumnGenerator.generate(this.columnBuilder, endDate, date, viewScale, this.getColumnsWidth(), undefined, this.gantt.width, false);
-            }
-            return true;
-        }
-        return false;
-    };
-
-    ColumnsManager.prototype.getActiveHeadersCount = function () {
-        return this.headers.length;
-    };
-    ColumnsManager.prototype.updateVisibleColumns = function (includeViews) {
-        var limitThreshold = this.gantt.options.value('columnLimitThreshold');
-        var i = void 0;
-        if (limitThreshold === undefined || limitThreshold > 0 && this.columns.length >= limitThreshold) {
-            this.visibleColumns = $filter('ganttColumnLimit')(this.columns, this.gantt);
-            this.visibleHeaders = [];
-            for (i = 0; i < this.headers.length; i++) {
-                this.visibleHeaders.push($filter('ganttColumnLimit')(this.headers[i], this.gantt));
-            }
-        } else {
-            this.visibleColumns = this.columns;
-            this.visibleHeaders = this.headers;
-        }
-        if (includeViews) {
-            for (i = 0; i < this.visibleColumns.length; i++) {
-                this.visibleColumns[i].updateView();
-            }
-            for (i = 0; i < this.visibleHeaders.length; i++) {
-                var headerRow = this.visibleHeaders[i];
-                for (var j = 0; j < headerRow.length; j++) {
-                    headerRow[j].updateView();
-                }
-            }
-        }
-        var currentDateValue = this.gantt.options.value('currentDateValue');
-        this.gantt.currentDateManager.setCurrentDate(currentDateValue);
-    };
-    var defaultHeadersFormats = {
-        year: 'YYYY',
-        quarter: '[Q]Q YYYY',
-        month: 'MMMM YYYY',
-        week: 'w',
-        day: 'D',
-        hour: 'H',
-        minute: 'H:mm',
-        second: 'H:mm:ss',
-        millisecond: 'H:mm:ss:SSS'
-    };
-    var defaultDayHeadersFormats = { day: 'LL', hour: 'H', minute: 'H:mm', second: 'H:mm:ss', millisecond: 'H:mm:ss:SSS' };
-    var defaultYearHeadersFormats = { 'year': 'YYYY', 'quarter': '[Q]Q', month: 'MMMM' };
-    ColumnsManager.prototype.getHeaderFormat = function (unit) {
-        var format = void 0;
-        var headersFormats = this.gantt.options.value('headersFormats');
-        if (headersFormats !== undefined) {
-            format = headersFormats[unit];
-        }
-        if (format === undefined) {
-            var viewScale = this.gantt.options.value('viewScale');
-            viewScale = viewScale.trim();
-            if (viewScale.charAt(viewScale.length - 1) === 's') {
-                viewScale = viewScale.substring(0, viewScale.length - 1);
-            }
-            var viewScaleUnit = void 0;
-            var splittedViewScale = void 0;
-            if (viewScale) {
-                splittedViewScale = viewScale.split(' ');
-            }
-            if (splittedViewScale && splittedViewScale.length > 1) {
-                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
-            } else {
-                viewScaleUnit = viewScale;
-            }
-            if (['millisecond', 'second', 'minute', 'hour'].indexOf(viewScaleUnit) > -1) {
-                format = defaultDayHeadersFormats[unit];
-            } else if (['month', 'quarter', 'year'].indexOf(viewScaleUnit) > -1) {
-                format = defaultYearHeadersFormats[unit];
-            }
-            if (format === undefined) {
-                format = defaultHeadersFormats[unit];
-            }
-        }
-        return format;
-    };
-    ColumnsManager.prototype.getHeaderScale = function (header) {
-        var scale = void 0;
-        var headersScales = this.gantt.options.value('headersScales');
-        if (headersScales !== undefined) {
-            scale = headersScales[header];
-        }
-        if (scale === undefined) {
-            scale = header;
-        }
-        if (['millisecond', 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'].indexOf(scale) === -1) {
-            scale = 'day';
-        }
-        return scale;
-    };
-    ColumnsManager.prototype.getDateRange = function (visibleOnly) {
-        var firstColumn = void 0;
-        var lastColumn = void 0;
-        if (visibleOnly) {
-            if (this.visibleColumns && this.visibleColumns.length > 0) {
-                firstColumn = this.visibleColumns[0];
-                lastColumn = this.visibleColumns[this.visibleColumns.length - 1];
-            }
-        } else {
-            firstColumn = this.getFirstColumn();
-            lastColumn = this.getLastColumn();
-        }
-        return firstColumn && lastColumn ? [firstColumn.date, lastColumn.endDate] : undefined;
-    };
-    return ColumnsManager;
-}];
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
+var _side = __webpack_require__(48);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
+var Gantt = exports.Gantt = function () {
+    function Gantt($scope, $element) {
+        var _this = this;
 
-"use strict";
+        (0, _classCallCheck3.default)(this, Gantt);
 
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["GanttColumnHeader", function (GanttColumnHeader) {
-    'ngInject';
-
-    var generateHeader = function generateHeader(columnsManager, headerName) {
-        var generatedHeaders = [];
-        var header = void 0;
-        var viewScale = columnsManager.getHeaderScale(headerName);
-        var viewScaleValue = void 0;
-        var viewScaleUnit = void 0;
-        var splittedViewScale = void 0;
-        if (viewScale) {
-            splittedViewScale = viewScale.split(' ');
-        }
-        if (splittedViewScale && splittedViewScale.length > 1) {
-            viewScaleValue = parseFloat(splittedViewScale[0]);
-            viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
-        } else {
-            viewScaleValue = 1;
-            viewScaleUnit = viewScale;
-        }
-        if (columnsManager.columns.length > 0) {
-            var currentColumn = columnsManager.columns[0];
-            var currentDate = (0, _moment2.default)(currentColumn.date).startOf(viewScaleUnit);
-            var maximumDate = (0, _moment2.default)(columnsManager.columns[columnsManager.columns.length - 1].endDate);
-            while (true) {
-                var currentPosition = currentColumn.getPositionByDate(currentDate);
-                var endDate = _moment2.default.min((0, _moment2.default)(currentDate).add(viewScaleValue, viewScaleUnit), maximumDate);
-                var column = columnsManager.getColumnByDate(endDate);
-                var left = column.getPositionByDate(endDate);
-                var width = left - currentPosition;
-                if (width > 0) {
-                    var labelFormat = columnsManager.getHeaderFormat(headerName);
-                    header = new GanttColumnHeader(currentDate, endDate, viewScaleUnit, currentPosition, width, labelFormat, headerName);
-                    generatedHeaders.push(header);
-                }
-                if (endDate.isSame(maximumDate) || endDate.isAfter(maximumDate)) {
-                    break;
-                }
-                currentColumn = column;
-                currentDate = endDate;
-            }
-        }
-        return generatedHeaders;
-    };
-    this.generate = function (columnsManager) {
-        var headerNames = [];
-        if (columnsManager.gantt.options.value('headers') === undefined) {
-            var viewScale = columnsManager.gantt.options.value('viewScale');
-            viewScale = viewScale.trim();
-            if (viewScale.charAt(viewScale.length - 1) === 's') {
-                viewScale = viewScale.substring(0, viewScale.length - 1);
-            }
-            var viewScaleUnit = void 0;
-            var splittedViewScale = void 0;
-            if (viewScale) {
-                splittedViewScale = viewScale.split(' ');
-            }
-            if (splittedViewScale && splittedViewScale.length > 1) {
-                viewScaleUnit = splittedViewScale[splittedViewScale.length - 1];
-            } else {
-                viewScaleUnit = viewScale;
-            }
-            if (['quarter', 'month'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('year');
-            }
-            if (['day', 'week'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('month');
-            }
-            if (['day'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('week');
-            }
-            if (['hour'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('day');
-            }
-            if (['minute', 'second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('hour');
-            }
-            if (['second', 'millisecond'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('minute');
-            }
-            if (['millisecond'].indexOf(viewScaleUnit) > -1) {
-                headerNames.push('second');
-            }
-            headerNames.push(viewScale);
-        } else {
-            headerNames = columnsManager.gantt.options.value('headers');
-        }
-        var headers = [];
-        for (var i = 0; i < headerNames.length; i++) {
-            headers.push(generateHeader(columnsManager, headerNames[i]));
-        }
-        return headers;
-    };
-}];
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "GanttBody", "GanttRowHeader", "GanttHeader", "GanttSide", "GanttObjectModel", "GanttRowsManager", "GanttColumnsManager", "GanttTimespansManager", "GanttCurrentDateManager", "ganttArrays", "$document", "$timeout", function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, GanttBody, GanttRowHeader, GanttHeader, GanttSide, GanttObjectModel, GanttRowsManager, GanttColumnsManager, GanttTimespansManager, GanttCurrentDateManager, ganttArrays, $document, $timeout) {
-    'ngInject';
-
-    var Gantt = function Gantt($scope, $element) {
-        var self = this;
+        this.rendered = false;
+        this.isRefreshingColumns = false;
         this.$scope = $scope;
         this.$element = $element;
-        this.options = new GanttOptions($scope, {
+        this.options = new _options.GanttOptions($scope, {
             'api': _angular2.default.noop,
             'data': [],
             'timespans': [],
@@ -2718,7 +6497,7 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
             'taskLimitThreshold': 100,
             'columnLimitThreshold': 500
         });
-        this.api = new GanttApi(this);
+        this.api = new _api.GanttApi(this);
         this.api.registerEvent('core', 'ready');
         this.api.registerEvent('core', 'rendered');
         this.api.registerEvent('directives', 'controller');
@@ -2736,7 +6515,7 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
         this.api.registerMethod('data', 'remove', this.removeData, this);
         this.api.registerMethod('data', 'clear', this.clearData, this);
         this.api.registerMethod('data', 'get', this.getData, this);
-        this.calendar = new GanttCalendar(this);
+        this.calendar = new _calendar.GanttCalendar();
         this.calendar.registerTimeFrames(this.options.value('timeFrames'));
         this.calendar.registerDateFrames(this.options.value('dateFrames'));
         this.api.registerMethod('timeframes', 'registerTimeFrames', this.calendar.registerTimeFrames, this.calendar);
@@ -2753,65 +6532,61 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
                 var oldDateFrames = oldValues[1];
                 var framesChanged = false;
                 if (!_angular2.default.equals(timeFrames, oldTimeFrames)) {
-                    self.calendar.clearTimeFrames();
-                    self.calendar.registerTimeFrames(timeFrames);
+                    _this.calendar.clearTimeFrames();
+                    _this.calendar.registerTimeFrames(timeFrames);
                     framesChanged = true;
                 }
                 if (!_angular2.default.equals(dateFrames, oldDateFrames)) {
-                    self.calendar.clearDateFrames();
-                    self.calendar.registerDateFrames(dateFrames);
+                    _this.calendar.clearDateFrames();
+                    _this.calendar.registerDateFrames(dateFrames);
                     framesChanged = true;
                 }
                 if (framesChanged) {
-                    self.columnsManager.generateColumns();
+                    _this.columnsManager.generateColumns();
                 }
             }
         });
         $scope.$watch('columnMagnet', function () {
             var splittedColumnMagnet = void 0;
-            var columnMagnet = self.options.value('columnMagnet');
+            var columnMagnet = _this.options.value('columnMagnet');
             if (columnMagnet) {
                 splittedColumnMagnet = columnMagnet.trim().split(' ');
             }
             if (splittedColumnMagnet && splittedColumnMagnet.length > 1) {
-                self.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                self.columnMagnetUnit = _moment2.default.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+                _this.columnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                _this.columnMagnetUnit = _moment2.default.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
             } else {
-                self.columnMagnetValue = 1;
-                self.columnMagnetUnit = _moment2.default.normalizeUnits(columnMagnet);
+                _this.columnMagnetValue = 1;
+                _this.columnMagnetUnit = _moment2.default.normalizeUnits(columnMagnet);
             }
         });
         $scope.$watchGroup(['shiftColumnMagnet', 'viewScale'], function () {
             var splittedColumnMagnet = void 0;
-            var shiftColumnMagnet = self.options.value('shiftColumnMagnet');
+            var shiftColumnMagnet = _this.options.value('shiftColumnMagnet');
             if (shiftColumnMagnet) {
                 splittedColumnMagnet = shiftColumnMagnet.trim().split(' ');
             }
             if (splittedColumnMagnet !== undefined && splittedColumnMagnet.length > 1) {
-                self.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
-                self.shiftColumnMagnetUnit = _moment2.default.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
+                _this.shiftColumnMagnetValue = parseFloat(splittedColumnMagnet[0]);
+                _this.shiftColumnMagnetUnit = _moment2.default.normalizeUnits(splittedColumnMagnet[splittedColumnMagnet.length - 1]);
             } else {
-                self.shiftColumnMagnetValue = 1;
-                self.shiftColumnMagnetUnit = _moment2.default.normalizeUnits(shiftColumnMagnet);
+                _this.shiftColumnMagnetValue = 1;
+                _this.shiftColumnMagnetUnit = _moment2.default.normalizeUnits(shiftColumnMagnet);
             }
         });
-        var keyHandler = function keyHandler(e) {
-            self.shiftKey = e.shiftKey;
-            return true;
-        };
-        $document.on('keyup keydown', keyHandler);
+        Gantt.$document.on('keyup keydown', this.keyHandler);
         $scope.$on('$destroy', function () {
-            $document.off('keyup keydown', keyHandler);
+            Gantt.$document.off('keyup keydown', _this.keyHandler);
         });
-        this.scroll = new GanttScroll(this);
-        this.body = new GanttBody(this);
-        this.header = new GanttHeader(this);
-        this.side = new GanttSide(this);
-        this.objectModel = new GanttObjectModel(this.api);
-        this.rowsManager = new GanttRowsManager(this);
-        this.columnsManager = new GanttColumnsManager(this);
-        this.timespansManager = new GanttTimespansManager(this);
-        this.currentDateManager = new GanttCurrentDateManager(this);
+        this.scroll = new _scroll.GanttScroll(this);
+        this.body = new _body.GanttBody(this);
+        this.header = new _header.GanttHeader(this);
+        this.side = new _side.GanttSide(this);
+        this.objectModel = new _objectModel.GanttObjectModel(this.api);
+        this.rowsManager = new _rowsManager.GanttRowsManager(this);
+        this.columnsManager = new _columnsManager.GanttColumnsManager(this);
+        this.timespansManager = new _timespansManager.GanttTimespansManager(this);
+        this.currentDateManager = new _currentDateManager.GanttCurrentDateManager(this);
         this.originalWidth = 0;
         this.width = 0;
         if (_angular2.default.isFunction(this.$scope.api)) {
@@ -2831,15 +6606,15 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
         };
         $scope.$watchCollection('data', function (newData, oldData) {
             if (oldData !== undefined) {
-                var toRemoveIds = ganttArrays.getRemovedIds(newData, oldData);
+                var toRemoveIds = Gantt.ganttArrays.getRemovedIds(newData, oldData);
                 if (toRemoveIds.length === oldData.length) {
-                    self.rowsManager.removeAll();
+                    _this.rowsManager.removeAll();
 
-                    self.api.data.raise.clear();
+                    _this.api.data.raise.clear();
                 } else {
                     for (var i = 0, l = toRemoveIds.length; i < l; i++) {
                         var toRemoveId = toRemoveIds[i];
-                        self.rowsManager.removeRow(toRemoveId);
+                        _this.rowsManager.removeRow(toRemoveId);
                     }
 
                     var removedRows = [];
@@ -2848,1580 +6623,217 @@ exports.default = ["GanttApi", "GanttOptions", "GanttCalendar", "GanttScroll", "
                             removedRows.push(oldData[_i]);
                         }
                     }
-                    self.api.data.raise.remove(removedRows);
+                    _this.api.data.raise.remove(removedRows);
                 }
             }
             if (newData !== undefined) {
                 var modelOrderChanged = hasRowModelOrderChanged(newData, oldData);
                 if (modelOrderChanged) {
-                    self.rowsManager.resetNonModelLists();
+                    _this.rowsManager.resetNonModelLists();
                 }
                 for (var j = 0, k = newData.length; j < k; j++) {
                     var rowData = newData[j];
-                    self.rowsManager.addRow(rowData, modelOrderChanged);
+                    _this.rowsManager.addRow(rowData, modelOrderChanged);
                 }
-                self.api.data.raise.change(newData, oldData);
+                _this.api.data.raise.change(newData, oldData);
 
-                self.api.data.raise.load(newData);
+                _this.api.data.raise.load(newData);
             }
         });
-    };
+    }
 
-    Gantt.prototype.getMagnetValueAndUnit = function () {
-        if (this.shiftKey) {
-            if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
-                return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
-            } else {
-                var viewScale = this.options.value('viewScale');
-                viewScale = viewScale.trim();
-                var viewScaleValue = void 0;
-                var viewScaleUnit = void 0;
-                var splittedViewScale = void 0;
-                if (viewScale) {
-                    splittedViewScale = viewScale.split(' ');
-                }
-                if (splittedViewScale && splittedViewScale.length > 1) {
-                    viewScaleValue = parseFloat(splittedViewScale[0]);
-                    viewScaleUnit = _moment2.default.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
+    (0, _createClass3.default)(Gantt, [{
+        key: 'keyHandler',
+        value: function keyHandler(e) {
+            this.shiftKey = e.shiftKey;
+            return true;
+        }
+    }, {
+        key: 'getMagnetValueAndUnit',
+        value: function getMagnetValueAndUnit() {
+            if (this.shiftKey) {
+                if (this.shiftColumnMagnetValue !== undefined && this.shiftColumnMagnetUnit !== undefined) {
+                    return [this.shiftColumnMagnetValue, this.shiftColumnMagnetUnit];
                 } else {
-                    viewScaleValue = 1;
-                    viewScaleUnit = _moment2.default.normalizeUnits(viewScale);
-                }
-                return [viewScaleValue * 0.25, viewScaleUnit];
-            }
-        } else {
-            return [this.columnMagnetValue, this.columnMagnetUnit];
-        }
-    };
-
-    Gantt.prototype.getMagnetDate = function (date, disableExpand) {
-        if (date === undefined) {
-            return undefined;
-        }
-        if (!_moment2.default.isMoment(_moment2.default)) {
-            date = (0, _moment2.default)(date);
-        }
-        var column = this.columnsManager.getColumnByDate(date, disableExpand);
-        var magnetValueAndUnit = this.getMagnetValueAndUnit();
-        var magnetValue = magnetValueAndUnit[0];
-        var magnetUnit = magnetValueAndUnit[1];
-        return column.getMagnetDate(date, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
-    };
-
-    Gantt.prototype.getDateByPosition = function (x, magnet, disableExpand) {
-        var column = this.columnsManager.getColumnByPosition(x, disableExpand);
-        if (column !== undefined) {
-            var magnetValue = void 0;
-            var magnetUnit = void 0;
-            if (magnet) {
-                var magnetValueAndUnit = this.getMagnetValueAndUnit();
-                magnetValue = magnetValueAndUnit[0];
-                magnetUnit = magnetValueAndUnit[1];
-            }
-            return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
-        } else {
-            return undefined;
-        }
-    };
-    Gantt.prototype.getBodyAvailableWidth = function () {
-        var scrollWidth = this.getWidth() - this.side.getWidth();
-        var borderWidth = this.scroll.getBordersWidth();
-        var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
-
-        availableWidth = availableWidth - 1;
-        return availableWidth;
-    };
-
-    Gantt.prototype.getPositionByDate = function (date, disableExpand) {
-        if (date === undefined) {
-            return undefined;
-        }
-        if (!_moment2.default.isMoment(_moment2.default)) {
-            date = (0, _moment2.default)(date);
-        }
-        var column = this.columnsManager.getColumnByDate(date, disableExpand);
-        if (column !== undefined) {
-            return column.getPositionByDate(date);
-        } else {
-            return undefined;
-        }
-    };
-
-    Gantt.prototype.loadData = function (data) {
-        if (!_angular2.default.isArray(data)) {
-            data = data !== undefined ? [data] : [];
-        }
-        if (this.$scope.data === undefined) {
-            this.$scope.data = data;
-        } else {
-            for (var i = 0, l = data.length; i < l; i++) {
-                var row = data[i];
-                var j = ganttArrays.indexOfId(this.$scope.data, row.id);
-                if (j > -1) {
-                    this.$scope.data[j] = row;
-                } else {
-                    this.$scope.data.push(row);
-                }
-            }
-        }
-        var w = this.side.getWidth();
-        if (w > 0) {
-            this.options.set('sideWidth', w);
-        }
-    };
-    Gantt.prototype.getData = function () {
-        return this.$scope.data;
-    };
-
-    Gantt.prototype.removeData = function (data) {
-        if (!_angular2.default.isArray(data)) {
-            data = data !== undefined ? [data] : [];
-        }
-        if (this.$scope.data !== undefined) {
-            for (var i = 0, l = data.length; i < l; i++) {
-                var rowToRemove = data[i];
-                var j = ganttArrays.indexOfId(this.$scope.data, rowToRemove.id);
-                if (j > -1) {
-                    if (rowToRemove.tasks === undefined || rowToRemove.tasks.length === 0) {
-                        this.$scope.data.splice(j, 1);
+                    var viewScale = this.options.value('viewScale');
+                    viewScale = viewScale.trim();
+                    var viewScaleValue = void 0;
+                    var viewScaleUnit = void 0;
+                    var splittedViewScale = void 0;
+                    if (viewScale) {
+                        splittedViewScale = viewScale.split(' ');
+                    }
+                    if (splittedViewScale && splittedViewScale.length > 1) {
+                        viewScaleValue = parseFloat(splittedViewScale[0]);
+                        viewScaleUnit = _moment2.default.normalizeUnits(splittedViewScale[splittedViewScale.length - 1]);
                     } else {
-                        var row = this.$scope.data[j];
-                        for (var ti = 0, tl = rowToRemove.tasks.length; ti < tl; ti++) {
-                            var taskToRemove = rowToRemove.tasks[ti];
-                            var tj = ganttArrays.indexOfId(row.tasks, taskToRemove.id);
-                            if (tj > -1) {
-                                row.tasks.splice(tj, 1);
+                        viewScaleValue = 1;
+                        viewScaleUnit = _moment2.default.normalizeUnits(viewScale);
+                    }
+                    return [viewScaleValue * 0.25, viewScaleUnit];
+                }
+            } else {
+                return [this.columnMagnetValue, this.columnMagnetUnit];
+            }
+        }
+    }, {
+        key: 'getMagnetDate',
+        value: function getMagnetDate(date, disableExpand) {
+            if (date === undefined) {
+                return undefined;
+            }
+            if (!_moment2.default.isMoment(_moment2.default)) {
+                date = (0, _moment2.default)(date);
+            }
+            var column = this.columnsManager.getColumnByDate(date, disableExpand);
+            var magnetValueAndUnit = this.getMagnetValueAndUnit();
+            var magnetValue = magnetValueAndUnit[0];
+            var magnetUnit = magnetValueAndUnit[1];
+            return column.getMagnetDate(date, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+        }
+    }, {
+        key: 'getDateByPosition',
+        value: function getDateByPosition(x, magnet, disableExpand) {
+            var column = this.columnsManager.getColumnByPosition(x, disableExpand);
+            if (column !== undefined) {
+                var magnetValue = void 0;
+                var magnetUnit = void 0;
+                if (magnet) {
+                    var magnetValueAndUnit = this.getMagnetValueAndUnit();
+                    magnetValue = magnetValueAndUnit[0];
+                    magnetUnit = magnetValueAndUnit[1];
+                }
+                return column.getDateByPosition(x - column.left, magnetValue, magnetUnit, this.options.value('timeFramesMagnet'));
+            } else {
+                return undefined;
+            }
+        }
+    }, {
+        key: 'getBodyAvailableWidth',
+        value: function getBodyAvailableWidth() {
+            var scrollWidth = this.getWidth() - this.side.getWidth();
+            var borderWidth = this.scroll.getBordersWidth();
+            var availableWidth = scrollWidth - (borderWidth !== undefined ? this.scroll.getBordersWidth() : 0);
+
+            availableWidth = availableWidth - 1;
+            return availableWidth;
+        }
+    }, {
+        key: 'getPositionByDate',
+        value: function getPositionByDate(date, disableExpand) {
+            if (date === undefined) {
+                return undefined;
+            }
+            if (!_moment2.default.isMoment(_moment2.default)) {
+                date = (0, _moment2.default)(date);
+            }
+            var column = this.columnsManager.getColumnByDate(date, disableExpand);
+            if (column !== undefined) {
+                return column.getPositionByDate(date);
+            } else {
+                return undefined;
+            }
+        }
+    }, {
+        key: 'loadData',
+        value: function loadData(data) {
+            if (!_angular2.default.isArray(data)) {
+                data = data !== undefined ? [data] : [];
+            }
+            if (this.$scope.data === undefined) {
+                this.$scope.data = data;
+            } else {
+                for (var i = 0, l = data.length; i < l; i++) {
+                    var row = data[i];
+                    var j = Gantt.ganttArrays.indexOfId(this.$scope.data, row.id);
+                    if (j > -1) {
+                        this.$scope.data[j] = row;
+                    } else {
+                        this.$scope.data.push(row);
+                    }
+                }
+            }
+            var w = this.side.getWidth();
+            if (w > 0) {
+                this.options.set('sideWidth', w);
+            }
+        }
+    }, {
+        key: 'getData',
+        value: function getData() {
+            return this.$scope.data;
+        }
+    }, {
+        key: 'removeData',
+        value: function removeData(data) {
+            if (!_angular2.default.isArray(data)) {
+                data = data !== undefined ? [data] : [];
+            }
+            if (this.$scope.data !== undefined) {
+                for (var i = 0, l = data.length; i < l; i++) {
+                    var rowToRemove = data[i];
+                    var j = Gantt.ganttArrays.indexOfId(this.$scope.data, rowToRemove.id);
+                    if (j > -1) {
+                        if (rowToRemove.tasks === undefined || rowToRemove.tasks.length === 0) {
+                            this.$scope.data.splice(j, 1);
+                        } else {
+                            var row = this.$scope.data[j];
+                            for (var ti = 0, tl = rowToRemove.tasks.length; ti < tl; ti++) {
+                                var taskToRemove = rowToRemove.tasks[ti];
+                                var tj = Gantt.ganttArrays.indexOfId(row.tasks, taskToRemove.id);
+                                if (tj > -1) {
+                                    row.tasks.splice(tj, 1);
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    };
-
-    Gantt.prototype.clearData = function () {
-        this.$scope.data = undefined;
-    };
-    Gantt.prototype.getWidth = function () {
-        return this.$scope.ganttElementWidth;
-    };
-    Gantt.prototype.getHeight = function () {
-        return this.$scope.ganttElementHeight;
-    };
-    Gantt.prototype.getContainerWidth = function () {
-        return this.$scope.ganttContainerWidth;
-    };
-    Gantt.prototype.getContainerHeight = function () {
-        return this.$scope.ganttContainerHeight;
-    };
-    Gantt.prototype.initialized = function () {
-        this.api.core.raise.ready(this.api);
-        this.rendered = true;
-        this.columnsManager.generateColumns();
-        var gantt = this;
-        var renderedFunction = function renderedFunction() {
-            var w = gantt.side.getWidth();
-            if (w > 0) {
-                gantt.options.set('sideWidth', w);
-            }
-            gantt.api.core.raise.rendered(gantt.api);
-        };
-        $timeout(renderedFunction);
-    };
-    return Gantt;
-}];
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 53 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["ganttUtils", function (ganttUtils) {
-    'ngInject';
-
-    var ObjectModel = function ObjectModel(api) {
-        this.api = api;
-        this.api.registerEvent('tasks', 'clean');
-        this.api.registerEvent('rows', 'clean');
-        this.api.registerEvent('timespans', 'clean');
-    };
-    ObjectModel.prototype.cleanTask = function (model) {
-        if (model.id === undefined) {
-            model.id = ganttUtils.randomUuid();
+    }, {
+        key: 'clearData',
+        value: function clearData() {
+            this.$scope.data = undefined;
         }
-        if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
-            model.from = (0, _moment2.default)(model.from);
+    }, {
+        key: 'getWidth',
+        value: function getWidth() {
+            return this.$scope.ganttElementWidth;
         }
-        if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
-            model.to = (0, _moment2.default)(model.to);
+    }, {
+        key: 'getHeight',
+        value: function getHeight() {
+            return this.$scope.ganttElementHeight;
         }
-        this.api.tasks.raise.clean(model);
-    };
-    ObjectModel.prototype.cleanRow = function (model) {
-        if (model.id === undefined) {
-            model.id = ganttUtils.randomUuid();
+    }, {
+        key: 'getContainerWidth',
+        value: function getContainerWidth() {
+            return this.$scope.ganttContainerWidth;
         }
-        if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
-            model.from = (0, _moment2.default)(model.from);
+    }, {
+        key: 'getContainerHeight',
+        value: function getContainerHeight() {
+            return this.$scope.ganttContainerHeight;
         }
-        if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
-            model.to = (0, _moment2.default)(model.to);
-        }
-        this.api.rows.raise.clean(model);
-    };
-    ObjectModel.prototype.cleanTimespan = function (model) {
-        if (model.id === undefined) {
-            model.id = ganttUtils.randomUuid();
-        }
-        if (model.from !== undefined && !_moment2.default.isMoment(model.from)) {
-            model.from = (0, _moment2.default)(model.from);
-        }
-        if (model.to !== undefined && !_moment2.default.isMoment(model.to)) {
-            model.to = (0, _moment2.default)(model.to);
-        }
-        this.api.timespans.raise.clean(model);
-    };
-    return ObjectModel;
-}];
+    }, {
+        key: 'initialized',
+        value: function initialized() {
+            var _this2 = this;
 
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _typeof2 = __webpack_require__(2);
-
-var _typeof3 = _interopRequireDefault(_typeof2);
-
-exports.default = ["GanttTask", "$filter", function (GanttTask, $filter) {
-    'ngInject';
-
-    var Row = function Row(rowsManager, model) {
-        this.rowsManager = rowsManager;
-        this.model = model;
-        this.from = undefined;
-        this.to = undefined;
-        this.tasksMap = {};
-        this.tasks = [];
-        this.filteredTasks = [];
-        this.visibleTasks = [];
-    };
-    Row.prototype.addTaskImpl = function (task, viewOnly) {
-        this.tasksMap[task.model.id] = task;
-        this.tasks.push(task);
-        if (!viewOnly) {
-            if (this.model.tasks === undefined) {
-                this.model.tasks = [];
-            }
-            if (this.model.tasks.indexOf(task.model) === -1) {
-                this.model.tasks.push(task.model);
-            }
-        }
-    };
-
-    Row.prototype.addTask = function (taskModel, viewOnly) {
-        var task = void 0;
-        var isUpdate = false;
-        this.rowsManager.gantt.objectModel.cleanTask(taskModel);
-        if (taskModel.id in this.tasksMap) {
-            task = this.tasksMap[taskModel.id];
-            if (task.model === taskModel) {
-                return task;
-            }
-            task.model = taskModel;
-            isUpdate = true;
-        } else {
-            task = new GanttTask(this, taskModel);
-            this.addTaskImpl(task, viewOnly);
-        }
-        this.sortTasks();
-        this.setFromToByTask(task);
-        if (!viewOnly) {
-            if (isUpdate) {
-                this.rowsManager.gantt.api.tasks.raise.change(task);
-            } else {
-                this.rowsManager.gantt.api.tasks.raise.add(task);
-            }
-        }
-        return task;
-    };
-
-    Row.prototype.moveTaskToRow = function (task, viewOnly) {
-        this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(task, this);
-        if (!viewOnly) {
-            this.rowsManager.gantt.api.tasks.raise.beforeRowChange(task, this);
-        }
-        var oldRow = task.row;
-        oldRow.removeTask(task.model.id, viewOnly, true);
-        task.row = this;
-        this.addTaskImpl(task, viewOnly);
-        this.sortTasks();
-        this.setFromToByTask(task);
-        task.updatePosAndSize();
-        this.updateVisibleTasks();
-        oldRow.$scope.$digest();
-        task.row.$scope.$digest();
-        this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
-        if (!viewOnly) {
-            this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
-        }
-    };
-    Row.prototype.updateVisibleTasks = function () {
-        var filterTask = this.rowsManager.gantt.options.value('filterTask');
-        if (filterTask) {
-            if ((typeof filterTask === 'undefined' ? 'undefined' : (0, _typeof3.default)(filterTask)) === 'object') {
-                filterTask = { model: filterTask };
-            }
-            var _filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
-            if (typeof _filterTaskComparator === 'function') {
-                _filterTaskComparator = function filterTaskComparator(actual, expected) {
-                    return _filterTaskComparator(actual.model, expected.model);
-                };
-            }
-            this.filteredTasks = $filter('filter')(this.tasks, filterTask, _filterTaskComparator);
-        } else {
-            this.filteredTasks = this.tasks.slice(0);
-        }
-        var limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
-        if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
-            this.visibleTasks = $filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
-        } else {
-            this.visibleTasks = this.filteredTasks;
-        }
-    };
-    Row.prototype.updateTasksPosAndSize = function () {
-        for (var j = 0, k = this.tasks.length; j < k; j++) {
-            this.tasks[j].updatePosAndSize();
-        }
-    };
-
-    Row.prototype.removeTask = function (taskId, viewOnly, silent) {
-        if (taskId in this.tasksMap) {
-            var removedTask = this.tasksMap[taskId];
-            var task = void 0;
-            var i = void 0;
-            for (i = this.tasks.length - 1; i >= 0; i--) {
-                task = this.tasks[i];
-                if (task.model.id === taskId) {
-                    this.tasks.splice(i, 1);
-                    if (this.from - task.model.from === 0 || this.to - task.model.to === 0) {
-                        this.setFromTo();
-                    }
-                    break;
+            this.api.core.raise.ready(this.api);
+            this.rendered = true;
+            this.columnsManager.generateColumns();
+            Gantt.$timeout(function () {
+                var w = _this2.side.getWidth();
+                if (w > 0) {
+                    _this2.options.set('sideWidth', w);
                 }
-            }
-            for (i = this.filteredTasks.length - 1; i >= 0; i--) {
-                task = this.filteredTasks[i];
-                if (task.model.id === taskId) {
-                    this.filteredTasks.splice(i, 1);
-                    break;
-                }
-            }
-            for (i = this.visibleTasks.length - 1; i >= 0; i--) {
-                task = this.visibleTasks[i];
-                if (task.model.id === taskId) {
-                    this.visibleTasks.splice(i, 1);
-                    break;
-                }
-            }
-            if (!viewOnly) {
-                delete this.tasksMap[taskId];
-                if (this.model.tasks !== undefined) {
-                    var taskIndex = this.model.tasks.indexOf(removedTask.model);
-                    if (taskIndex > -1) {
-                        this.model.tasks.splice(taskIndex, 1);
-                    }
-                }
-                if (!silent) {
-                    this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
-                }
-            }
-            return removedTask;
-        }
-    };
-    Row.prototype.removeAllTasks = function () {
-        this.from = undefined;
-        this.to = undefined;
-        this.tasksMap = {};
-        this.tasks = [];
-        this.filteredTasks = [];
-        this.visibleTasks = [];
-    };
-
-    Row.prototype.setFromTo = function () {
-        this.from = undefined;
-        this.to = undefined;
-        for (var j = 0, k = this.tasks.length; j < k; j++) {
-            this.setFromToByTask(this.tasks[j]);
-        }
-    };
-    Row.prototype.setFromToByTask = function (task) {
-        this.setFromToByValues(task.model.from, task.model.to);
-    };
-    Row.prototype.setFromToByValues = function (from, to) {
-        if (from !== undefined) {
-            if (this.from === undefined) {
-                this.from = (0, _moment2.default)(from);
-            } else if (from < this.from) {
-                this.from = (0, _moment2.default)(from);
-            }
-        }
-        if (to !== undefined) {
-            if (this.to === undefined) {
-                this.to = (0, _moment2.default)(to);
-            } else if (to > this.to) {
-                this.to = (0, _moment2.default)(to);
-            }
-        }
-    };
-    Row.prototype.sortTasks = function () {
-        this.tasks.sort(function (t1, t2) {
-            return t1.left - t2.left;
-        });
-    };
-    Row.prototype.clone = function () {
-        var clone = new Row(this.rowsManager, _angular2.default.copy(this));
-        for (var i = 0, l = this.tasks.length; i < l; i++) {
-            clone.addTask(this.tasks[i].model);
-        }
-        return clone;
-    };
-    return Row;
-}];
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var RowHeader = function RowHeader(gantt) {
-        this.gantt = gantt;
-    };
-    return RowHeader;
-};
-
-/***/ }),
-/* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _typeof2 = __webpack_require__(2);
-
-var _typeof3 = _interopRequireDefault(_typeof2);
-
-exports.default = ["GanttRow", "ganttArrays", "$filter", "$timeout", function (GanttRow, ganttArrays, $filter, $timeout) {
-    'ngInject';
-
-    var RowsManager = function RowsManager(gantt) {
-        var self = this;
-        this.gantt = gantt;
-        this.rowsMap = {};
-        this.rows = [];
-        this.sortedRows = [];
-        this.filteredRows = [];
-        this.customFilteredRows = [];
-        this.visibleRows = [];
-        this.rowsTaskWatchers = [];
-        this._defaultFilterImpl = function (sortedRows, filterRow, filterRowComparator) {
-            return $filter('filter')(sortedRows, filterRow, filterRowComparator);
-        };
-        this.filterImpl = this._defaultFilterImpl;
-        this.customRowSorters = [];
-        this.customRowFilters = [];
-        this.gantt.$scope.$watchGroup(['filterTask', 'filterTaskComparator'], function (newValues, oldValues) {
-            if (newValues !== oldValues) {
-                self.updateVisibleTasks();
-            }
-        });
-        this.gantt.$scope.$watchGroup(['filterRow', 'filterRowComparator'], function (newValues, oldValues) {
-            if (newValues !== oldValues) {
-                self.updateVisibleRows();
-            }
-        });
-        this.gantt.$scope.$watch('sortMode', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                self.sortRows();
-            }
-        });
-
-        var _oldVScrollbarVisible = this.gantt.scroll.isVScrollbarVisible();
-        this.gantt.$scope.$watchGroup(['maxHeight', 'gantt.rowsManager.visibleRows.length'], function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                $timeout(function () {
-                    var newVScrollbarVisible = self.gantt.scroll.isVScrollbarVisible();
-                    if (newVScrollbarVisible !== _oldVScrollbarVisible) {
-                        _oldVScrollbarVisible = newVScrollbarVisible;
-                        self.gantt.columnsManager.updateColumnsMeta();
-                    }
-                });
-            }
-        });
-        this.gantt.api.registerMethod('rows', 'sort', RowsManager.prototype.sortRows, this);
-        this.gantt.api.registerMethod('rows', 'applySort', RowsManager.prototype.applySort, this);
-        this.gantt.api.registerMethod('rows', 'refresh', RowsManager.prototype.updateVisibleObjects, this);
-        this.gantt.api.registerMethod('rows', 'removeRowSorter', RowsManager.prototype.removeCustomRowSorter, this);
-        this.gantt.api.registerMethod('rows', 'addRowSorter', RowsManager.prototype.addCustomRowSorter, this);
-        this.gantt.api.registerMethod('rows', 'removeRowFilter', RowsManager.prototype.removeCustomRowFilter, this);
-        this.gantt.api.registerMethod('rows', 'addRowFilter', RowsManager.prototype.addCustomRowFilter, this);
-        this.gantt.api.registerMethod('rows', 'setFilterImpl', RowsManager.prototype.setFilterImpl, this);
-        this.gantt.api.registerEvent('tasks', 'add');
-        this.gantt.api.registerEvent('tasks', 'change');
-        this.gantt.api.registerEvent('tasks', 'viewChange');
-        this.gantt.api.registerEvent('tasks', 'beforeRowChange');
-        this.gantt.api.registerEvent('tasks', 'beforeViewRowChange');
-        this.gantt.api.registerEvent('tasks', 'rowChange');
-        this.gantt.api.registerEvent('tasks', 'viewRowChange');
-        this.gantt.api.registerEvent('tasks', 'remove');
-        this.gantt.api.registerEvent('tasks', 'filter');
-        this.gantt.api.registerEvent('tasks', 'displayed');
-        this.gantt.api.registerEvent('rows', 'add');
-        this.gantt.api.registerEvent('rows', 'change');
-        this.gantt.api.registerEvent('rows', 'remove');
-        this.gantt.api.registerEvent('rows', 'move');
-        this.gantt.api.registerEvent('rows', 'displayed');
-        this.gantt.api.registerEvent('rows', 'filter');
-        this.updateVisibleObjects();
-    };
-    RowsManager.prototype.resetNonModelLists = function () {
-        this.rows = [];
-        this.sortedRows = [];
-        this.filteredRows = [];
-        this.customFilteredRows = [];
-        this.visibleRows = [];
-    };
-    RowsManager.prototype.addRow = function (rowModel, modelOrderChanged) {
-        var row = void 0;
-        var i = void 0;
-        var l = void 0;
-        var isUpdate = false;
-        this.gantt.objectModel.cleanRow(rowModel);
-        if (rowModel.id in this.rowsMap) {
-            row = this.rowsMap[rowModel.id];
-            if (modelOrderChanged) {
-                this.rows.push(row);
-                this.sortedRows.push(row);
-                this.filteredRows.push(row);
-                this.customFilteredRows.push(row);
-                this.visibleRows.push(row);
-            }
-            if (row.model === rowModel) {
-                return;
-            }
-            var toRemoveIds = ganttArrays.getRemovedIds(rowModel.tasks, row.model.tasks);
-            for (i = 0, l = toRemoveIds.length; i < l; i++) {
-                var toRemoveId = toRemoveIds[i];
-                row.removeTask(toRemoveId);
-            }
-            row.model = rowModel;
-            isUpdate = true;
-        } else {
-            row = new GanttRow(this, rowModel);
-            this.rowsMap[rowModel.id] = row;
-            this.rows.push(row);
-            this.sortedRows.push(row);
-            this.filteredRows.push(row);
-            this.customFilteredRows.push(row);
-            this.visibleRows.push(row);
-        }
-        if (rowModel.tasks !== undefined && rowModel.tasks.length > 0) {
-            for (i = 0, l = rowModel.tasks.length; i < l; i++) {
-                var taskModel = rowModel.tasks[i];
-                row.addTask(taskModel);
-            }
-            row.updateVisibleTasks();
-        }
-        if (isUpdate) {
-            this.gantt.api.rows.raise.change(row);
-        } else {
-            this.gantt.api.rows.raise.add(row);
-        }
-        if (!isUpdate) {
-            var watcher = this.gantt.$scope.$watchCollection(function () {
-                return rowModel.tasks;
-            }, function (newTasks, oldTasks) {
-                if (newTasks !== oldTasks) {
-                    var _i = void 0;
-                    var _l = void 0;
-                    var _toRemoveIds = ganttArrays.getRemovedIds(newTasks, oldTasks);
-                    for (_i = 0, _l = _toRemoveIds.length; _i < _l; _i++) {
-                        var toRemove = _toRemoveIds[_i];
-                        row.removeTask(toRemove);
-                    }
-                    if (newTasks !== undefined) {
-                        for (_i = 0, _l = newTasks.length; _i < _l; _i++) {
-                            var toAdd = newTasks[_i];
-                            row.addTask(toAdd);
-                        }
-                        row.updateVisibleTasks();
-                    }
-                }
+                _this2.api.core.raise.rendered(_this2.api);
             });
-            this.rowsTaskWatchers.push(watcher);
         }
-        return isUpdate;
-    };
-    RowsManager.prototype.removeRow = function (rowId) {
-        if (rowId in this.rowsMap) {
-            delete this.rowsMap[rowId];
-            var removedRow = void 0;
-            var row = void 0;
-            var indexOf = ganttArrays.indexOfId(this.rows, rowId, ['model', 'id']);
-            if (indexOf > -1) {
-                removedRow = this.rows.splice(indexOf, 1)[0];
-                var unregisterFunction = this.rowsTaskWatchers.splice(indexOf, 1)[0];
-                if (unregisterFunction) {
-                    unregisterFunction();
-                }
-            }
-            ganttArrays.removeId(this.sortedRows, rowId, ['model', 'id']);
-            ganttArrays.removeId(this.filteredRows, rowId, ['model', 'id']);
-            ganttArrays.removeId(this.customFilteredRows, rowId, ['model', 'id']);
-            ganttArrays.removeId(this.visibleRows, rowId, ['model', 'id']);
-            this.gantt.api.rows.raise.remove(removedRow);
-            return row;
-        }
-        return undefined;
-    };
-    RowsManager.prototype.removeAll = function () {
-        this.rowsMap = {};
-        this.rows = [];
-        this.sortedRows = [];
-        this.filteredRows = [];
-        this.customFilteredRows = [];
-        this.visibleRows = [];
-
-        for (var i = 0, l = this.rowsTaskWatchers.length; i < l; i++) {
-            var unregisterFunction = this.rowsTaskWatchers[i];
-            unregisterFunction();
-        }
-        this.rowsTaskWatchers = [];
-    };
-    RowsManager.prototype.sortRows = function () {
-        var expression = this.gantt.options.value('sortMode');
-        if (expression !== undefined) {
-            var reverse = false;
-            if (_angular2.default.isString(expression) && expression.charAt(0) === '-') {
-                reverse = true;
-                expression = expression.substr(1);
-            }
-            var angularOrderBy = $filter('orderBy');
-            this.sortedRows = angularOrderBy(this.rows, expression, reverse);
-        } else {
-            this.sortedRows = this.rows.slice();
-        }
-        this.sortedRows = this.applyCustomRowSorters(this.sortedRows);
-        this.updateVisibleRows();
-    };
-    RowsManager.prototype.removeCustomRowSorter = function (sorterFunction) {
-        var i = this.customRowSorters.indexOf(sorterFunction);
-        if (i > -1) {
-            this.customRowSorters.splice(i, 1);
-        }
-    };
-    RowsManager.prototype.addCustomRowSorter = function (sorterFunction) {
-        this.customRowSorters.push(sorterFunction);
-    };
-    RowsManager.prototype.applyCustomRowSorters = function (sortedRows) {
-        for (var i = 0; i < this.customRowSorters.length; i++) {
-            sortedRows = this.customRowSorters[i](sortedRows);
-        }
-        return sortedRows;
-    };
-
-    RowsManager.prototype.applySort = function () {
-        var data = this.gantt.$scope.data;
-        data.splice(0, data.length);
-        var rows = [];
-        for (var i = 0, l = this.sortedRows.length; i < l; i++) {
-            data.push(this.sortedRows[i].model);
-            rows.push(this.sortedRows[i]);
-        }
-        this.rows = rows;
-    };
-    RowsManager.prototype.moveRow = function (row, targetRow) {
-        var sortMode = this.gantt.options.value('sortMode');
-        if (sortMode !== undefined) {
-            this.applySort();
-            this.gantt.options.set('sortMode', undefined);
-        }
-        var targetRowIndex = this.rows.indexOf(targetRow);
-        var rowIndex = this.rows.indexOf(row);
-        if (targetRowIndex > -1 && rowIndex > -1 && targetRowIndex !== rowIndex) {
-            ganttArrays.moveToIndex(this.rows, rowIndex, targetRowIndex);
-            ganttArrays.moveToIndex(this.rowsTaskWatchers, rowIndex, targetRowIndex);
-            ganttArrays.moveToIndex(this.gantt.$scope.data, rowIndex, targetRowIndex);
-            this.gantt.api.rows.raise.change(row);
-            this.gantt.api.rows.raise.move(row, rowIndex, targetRowIndex);
-            this.updateVisibleObjects();
-            this.sortRows();
-        }
-    };
-    RowsManager.prototype.updateVisibleObjects = function () {
-        this.updateVisibleRows();
-        this.updateVisibleTasks();
-    };
-    RowsManager.prototype.updateVisibleRows = function () {
-        var oldFilteredRows = this.filteredRows;
-        var filterRow = this.gantt.options.value('filterRow');
-        if (filterRow) {
-            if ((typeof filterRow === 'undefined' ? 'undefined' : (0, _typeof3.default)(filterRow)) === 'object') {
-                filterRow = { model: filterRow };
-            }
-            var filterRowComparator = this.gantt.options.value('filterRowComparator');
-            if (typeof filterRowComparator === 'function') {
-                var gantt = this.gantt;
-                filterRowComparator = function filterRowComparator(actual, expected) {
-                    return gantt.options.value('filterRowComparator')(actual, expected);
-                };
-            }
-            this.filteredRows = this.filterImpl(this.sortedRows, filterRow, filterRowComparator);
-        } else {
-            this.filteredRows = this.sortedRows.slice(0);
-        }
-        var raiseEvent = !_angular2.default.equals(oldFilteredRows, this.filteredRows);
-        this.customFilteredRows = this.applyCustomRowFilters(this.filteredRows);
-
-        this.visibleRows = this.customFilteredRows;
-        this.gantt.api.rows.raise.displayed(this.sortedRows, this.filteredRows, this.visibleRows);
-        if (raiseEvent) {
-            this.gantt.api.rows.raise.filter(this.sortedRows, this.filteredRows);
-        }
-    };
-    RowsManager.prototype.removeCustomRowFilter = function (filterFunction) {
-        var i = this.customRowFilters.indexOf(filterFunction);
-        if (i > -1) {
-            this.customRowFilters.splice(i, 1);
-        }
-    };
-    RowsManager.prototype.addCustomRowFilter = function (filterFunction) {
-        this.customRowFilters.push(filterFunction);
-    };
-    RowsManager.prototype.applyCustomRowFilters = function (filteredRows) {
-        for (var i = 0; i < this.customRowFilters.length; i++) {
-            filteredRows = this.customRowFilters[i](filteredRows);
-        }
-        return filteredRows;
-    };
-    RowsManager.prototype.setFilterImpl = function (filterImpl) {
-        if (!filterImpl) {
-            this.filterImpl = this._defaultFilterImpl;
-        } else {
-            this.filterImpl = filterImpl;
-        }
-    };
-    RowsManager.prototype.updateVisibleTasks = function () {
-        var oldFilteredTasks = [];
-        var filteredTasks = [];
-        var tasks = [];
-        var visibleTasks = [];
-        for (var i = 0; i < this.rows.length; i++) {
-            var row = this.rows[i];
-            oldFilteredTasks = oldFilteredTasks.concat(row.filteredTasks);
-            row.updateVisibleTasks();
-            filteredTasks = filteredTasks.concat(row.filteredTasks);
-            visibleTasks = visibleTasks.concat(row.visibleTasks);
-            tasks = tasks.concat(row.tasks);
-        }
-        this.gantt.api.tasks.raise.displayed(tasks, filteredTasks, visibleTasks);
-        var filterEvent = !_angular2.default.equals(oldFilteredTasks, filteredTasks);
-        if (filterEvent) {
-            this.gantt.api.tasks.raise.filter(tasks, filteredTasks, visibleTasks);
-        }
-    };
-
-    RowsManager.prototype.updateTasksPosAndSize = function () {
-        for (var i = 0, l = this.rows.length; i < l; i++) {
-            this.rows[i].updateTasksPosAndSize();
-        }
-    };
-    RowsManager.prototype.getExpandedFrom = function (from) {
-        from = from ? (0, _moment2.default)(from) : from;
-        var minRowFrom = from;
-        for (var i = 0; i < this.rows.length; i++) {
-            if (minRowFrom === undefined || minRowFrom > this.rows[i].from) {
-                minRowFrom = this.rows[i];
-            }
-        }
-        if (minRowFrom && (!from || minRowFrom < from)) {
-            return minRowFrom;
-        }
-        return from;
-    };
-    RowsManager.prototype.getExpandedTo = function (to) {
-        to = to ? (0, _moment2.default)(to) : to;
-        var maxRowTo = to;
-        for (var i = 0; i < this.rows.length; i++) {
-            if (maxRowTo === undefined || maxRowTo < this.rows[i].to) {
-                maxRowTo = this.rows[i].to;
-            }
-        }
-        var toDate = this.gantt.options.value('toDate');
-        if (maxRowTo && (!toDate || maxRowTo > toDate)) {
-            return maxRowTo;
-        }
-        return to;
-    };
-    RowsManager.prototype.getDefaultFrom = function () {
-        var defaultFrom = void 0;
-        for (var i = 0; i < this.rows.length; i++) {
-            if (defaultFrom === undefined || this.rows[i].from < defaultFrom) {
-                defaultFrom = this.rows[i].from;
-            }
-        }
-        return defaultFrom;
-    };
-    RowsManager.prototype.getDefaultTo = function () {
-        var defaultTo = void 0;
-        for (var i = 0; i < this.rows.length; i++) {
-            if (defaultTo === undefined || this.rows[i].to > defaultTo) {
-                defaultTo = this.rows[i].to;
-            }
-        }
-        return defaultTo;
-    };
-    return RowsManager;
-}];
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var Task = function Task(row, model) {
-        this.rowsManager = row.rowsManager;
-        this.row = row;
-        this.model = model;
-        this.truncatedLeft = false;
-        this.truncatedRight = false;
-    };
-    Task.prototype.isMilestone = function () {
-        return !this.model.to || this.model.from - this.model.to === 0;
-    };
-    Task.prototype.isOutOfRange = function () {
-        var firstColumn = this.rowsManager.gantt.columnsManager.getFirstColumn();
-        var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
-        return firstColumn === undefined || this.model.to < firstColumn.date || lastColumn === undefined || this.model.from > lastColumn.endDate;
-    };
-
-    Task.prototype.updatePosAndSize = function () {
-        var oldViewLeft = this.left;
-        var oldViewWidth = this.width;
-        var oldTruncatedRight = this.truncatedRight;
-        var oldTruncatedLeft = this.truncatedLeft;
-        if (!this.isMoving && this.isOutOfRange()) {
-            this.modelLeft = undefined;
-            this.modelWidth = undefined;
-        } else {
-            this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-            this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
-        }
-        var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
-        var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
-        var modelLeft = this.modelLeft;
-        var modelWidth = this.modelWidth;
-        if (this.rowsManager.gantt.options.value('daily')) {
-            modelLeft = this.rowsManager.gantt.getPositionByDate((0, _moment2.default)(this.model.from).startOf('day'));
-            modelWidth = this.rowsManager.gantt.getPositionByDate((0, _moment2.default)(this.model.to).endOf('day')) - modelLeft;
-        }
-        var minModelLeft = -modelWidth;
-        if (modelLeft < minModelLeft) {
-            modelLeft = minModelLeft;
-        }
-        if (modelLeft > maxModelLeft) {
-            modelLeft = maxModelLeft;
-        }
-        if (modelLeft === undefined || modelWidth === undefined) {
-            this.left = undefined;
-            this.width = undefined;
-        } else {
-            this.left = modelLeft;
-            this.width = modelWidth;
-            if (modelLeft < 0) {
-                this.truncatedLeft = true;
-                this.truncatedLeftOffset = -modelLeft;
-                this.truncatedRight = false;
-                this.truncatedRightOffset = undefined;
-            } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
-                this.truncatedRight = true;
-                this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
-                this.truncatedLeft = false;
-                this.truncatedLeftOffset = undefined;
-            } else {
-                this.truncatedLeft = false;
-                this.truncatedLeftOffset = undefined;
-                this.truncatedRight = false;
-                this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
-            }
-            if (this.width < 0) {
-                this.left = this.left + this.width;
-                this.width = -this.width;
-            }
-        }
-        this.updateView();
-        if (!this.rowsManager.gantt.isRefreshingColumns && (oldViewLeft !== this.left || oldViewWidth !== this.width || oldTruncatedRight !== this.truncatedRight || oldTruncatedLeft !== this.truncatedLeft)) {
-            this.rowsManager.gantt.api.tasks.raise.viewChange(this);
-        }
-    };
-    Task.prototype.updateView = function () {
-        if (this.$element) {
-            if (this.left === undefined || this.width === undefined) {
-                this.$element.css('display', 'none');
-            } else {
-                this.$element.css({ 'left': this.left + 'px', 'width': this.width + 'px', 'display': '' });
-                if (this.model.priority > 0) {
-                    var priority = this.model.priority;
-                    var children = this.$element.children();
-                    for (var i = 0; i < children.length; i++) {
-                        _angular2.default.element(children[i]).css('z-index', priority);
-                    }
-                }
-                this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
-            }
-        }
-    };
-    Task.prototype.getBackgroundElement = function () {
-        if (this.$element !== undefined) {
-            var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
-            if (backgroundElement !== undefined) {
-                backgroundElement = _angular2.default.element(backgroundElement);
-            }
-            return backgroundElement;
-        }
-    };
-    Task.prototype.getContentElement = function () {
-        if (this.$element !== undefined) {
-            var contentElement = this.$element[0].querySelector('.gantt-task-content');
-            if (contentElement !== undefined) {
-                contentElement = _angular2.default.element(contentElement);
-            }
-            return contentElement;
-        }
-    };
-    Task.prototype.getForegroundElement = function () {
-        if (this.$element !== undefined) {
-            var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
-            if (foregroundElement !== undefined) {
-                foregroundElement = _angular2.default.element(foregroundElement);
-            }
-            return foregroundElement;
-        }
-    };
-
-    Task.prototype.setFrom = function (x, magnetEnabled) {
-        this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-        this.row.setFromTo();
-        this.updatePosAndSize();
-    };
-
-    Task.prototype.setTo = function (x, magnetEnabled) {
-        this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-        this.row.setFromTo();
-        this.updatePosAndSize();
-    };
-
-    Task.prototype.moveTo = function (x, magnetEnabled) {
-        var newTaskRight = void 0;
-        var newTaskLeft = void 0;
-        if (x > this.modelLeft) {
-            this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
-            newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
-            newTaskLeft = newTaskRight - this.modelWidth;
-            this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskLeft, false);
-        } else {
-            this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
-            newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
-            newTaskRight = newTaskLeft + this.modelWidth;
-            this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskRight, false);
-        }
-        this.row.setFromTo();
-        this.updatePosAndSize();
-    };
-    Task.prototype.clone = function () {
-        return new Task(this.row, _angular2.default.copy(this.model));
-    };
-    return Task;
-};
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-var _moment = __webpack_require__(1);
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["GanttBodyColumns", "GanttBodyRows", "GanttBodyBackground", "GanttBodyForeground", function (GanttBodyColumns, GanttBodyRows, GanttBodyBackground, GanttBodyForeground) {
-    'ngInject';
-
-    var Body = function Body(gantt) {
-        this.gantt = gantt;
-        this.background = new GanttBodyBackground(this);
-        this.foreground = new GanttBodyForeground(this);
-        this.columns = new GanttBodyColumns(this);
-        this.rows = new GanttBodyRows(this);
-    };
-    return Body;
-}];
-
-/***/ }),
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var GanttBodyBackground = function GanttBodyBackground(body) {
-        this.body = body;
-    };
-    return GanttBodyBackground;
-};
-
-/***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var BodyColumns = function BodyColumns(body) {
-        this.body = body;
-    };
-    return BodyColumns;
-};
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var GanttBodyForeground = function GanttBodyForeground(body) {
-        this.body = body;
-    };
-    return GanttBodyForeground;
-};
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var BodyRows = function BodyRows(body) {
-        this.body = body;
-    };
-    return BodyRows;
-};
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["GanttHeaderColumns", function (GanttHeaderColumns) {
-    'ngInject';
-
-    var Header = function Header(gantt) {
-        this.gantt = gantt;
-        this.columns = new GanttHeaderColumns(this);
-        this.getHeight = function () {
-            return this.$element[0].offsetHeight;
-        };
-    };
-    return Header;
-}];
-
-/***/ }),
-/* 64 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var HeaderColumns = function HeaderColumns($element) {
-        this.$element = $element;
-    };
-    return HeaderColumns;
-};
-
-/***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var Scroll = function Scroll(gantt) {
-        this.gantt = gantt;
-        this.gantt.api.registerEvent('scroll', 'scroll');
-        this.gantt.api.registerMethod('scroll', 'to', Scroll.prototype.scrollTo, this);
-        this.gantt.api.registerMethod('scroll', 'toDate', Scroll.prototype.scrollToDate, this);
-        this.gantt.api.registerMethod('scroll', 'left', Scroll.prototype.scrollToLeft, this);
-        this.gantt.api.registerMethod('scroll', 'right', Scroll.prototype.scrollToRight, this);
-        this.gantt.api.registerMethod('scroll', 'setWidth', Scroll.prototype.setWidth, this);
-    };
-    Scroll.prototype.getScrollLeft = function () {
-        if (this.$element === undefined) {
-            return undefined;
-        } else {
-            if (this.cachedScrollLeft === undefined) {
-                this.cachedScrollLeft = this.$element[0].scrollLeft;
-            }
-            return this.cachedScrollLeft;
-        }
-    };
-    Scroll.prototype.getScrollWidth = function () {
-        return this.$element === undefined ? undefined : this.$element[0].scrollWidth;
-    };
-    Scroll.prototype.getWidth = function () {
-        return this.$element === undefined ? undefined : this.$element[0].offsetWidth;
-    };
-    Scroll.prototype.setWidth = function (width) {
-        if (this.$element[0]) {
-            this.$element[0].offsetWidth = width;
-        }
-    };
-    Scroll.prototype.getBordersWidth = function () {
-        if (this.$element === undefined) {
-            return undefined;
-        }
-        if (this.$element[0].clientWidth) {
-            return this.$element[0].offsetWidth - this.$element[0].clientWidth;
-        } else {
-            var borderLeft = window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-left-width').match(/\d+/)[0] : '0';
-            var borderRight = window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width') ? window.getComputedStyle(this.$element[0]).getPropertyValue('border-right-width').match(/\d+/)[0] : '0';
-            return parseInt(borderLeft, 10) + parseInt(borderRight, 10);
-        }
-    };
-    Scroll.prototype.getBordersHeight = function () {
-        return this.$element === undefined ? undefined : this.$element[0].offsetHeight - this.$element[0].clientHeight;
-    };
-    Scroll.prototype.isVScrollbarVisible = function () {
-        if (this.$element !== undefined) {
-            return this.$element[0].scrollHeight > this.$element[0].offsetHeight;
-        }
-    };
-    Scroll.prototype.isHScrollbarVisible = function () {
-        if (this.$element !== undefined) {
-            return this.$element[0].scrollWidth > this.$element[0].offsetWidth;
-        }
-    };
-
-    Scroll.prototype.scrollTo = function (position) {
-        this.$element[0].scrollLeft = position;
-        this.$element.triggerHandler('scroll');
-    };
-
-    Scroll.prototype.scrollToLeft = function (offset) {
-        this.$element[0].scrollLeft -= offset;
-        this.$element.triggerHandler('scroll');
-    };
-
-    Scroll.prototype.scrollToRight = function (offset) {
-        this.$element[0].scrollLeft += offset;
-        this.$element.triggerHandler('scroll');
-    };
-
-    Scroll.prototype.scrollToDate = function (date) {
-        var position = this.gantt.getPositionByDate(date);
-        if (position !== undefined) {
-            this.$element[0].scrollLeft = position - this.$element[0].offsetWidth / 2;
-        }
-    };
-    return Scroll;
-};
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var Side = function Side(gantt) {
-        this.gantt = gantt;
-    };
-    Side.prototype.getWidth = function () {
-        if (this.gantt.options.value('showSide')) {
-            var width = this.gantt.options.value('sideWidth');
-            if (width === undefined && this.$element !== undefined) {
-                if (this.$element.css('width') !== undefined) {
-                    this.$element.css('width', '');
-                }
-            }
-            if (this.$element !== undefined) {
-                width = this.$element[0].offsetWidth;
-            }
-            if (width !== undefined) {
-                return width;
-            }
-        }
-        return 0;
-    };
-    Side.prototype.show = function (value) {
-        if (this.$element !== undefined) {
-            this.$element.toggleClass('ng-hide', !value);
-        }
-    };
-    Side.prototype.isShown = function () {
-        if (this.$element !== undefined) {
-            return !this.$element.hasClass('ng-hide');
-        }
-    };
-    return Side;
-};
-
-/***/ }),
-/* 67 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    'ngInject';
-
-    var Timespan = function Timespan(gantt, model) {
-        this.gantt = gantt;
-        this.model = model;
-    };
-
-    Timespan.prototype.updatePosAndSize = function () {
-        this.modelLeft = this.gantt.getPositionByDate(this.model.from);
-        this.modelWidth = this.gantt.getPositionByDate(this.model.to) - this.modelLeft;
-        var lastColumn = this.gantt.columnsManager.getLastColumn();
-        var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
-        var modelLeft = this.modelLeft;
-        var modelWidth = this.modelWidth;
-        var minModelLeft = -modelWidth;
-        if (modelLeft < minModelLeft) {
-            modelLeft = minModelLeft;
-        }
-        if (modelLeft > maxModelLeft) {
-            modelLeft = maxModelLeft;
-        }
-        if (modelLeft === undefined || modelWidth === undefined) {
-            this.left = undefined;
-            this.width = undefined;
-        } else {
-            this.left = modelLeft;
-            this.width = modelWidth;
-            if (modelLeft < 0) {
-                this.truncatedLeft = true;
-                this.truncatedLeftOffset = -modelLeft;
-                this.truncatedRight = false;
-                this.truncatedRightOffset = undefined;
-            } else if (modelWidth + modelLeft > this.gantt.width) {
-                this.truncatedRight = true;
-                this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
-                this.truncatedLeft = false;
-                this.truncatedLeftOffset = undefined;
-            } else {
-                this.truncatedLeft = false;
-                this.truncatedLeftOffset = undefined;
-                this.truncatedRight = false;
-                this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
-            }
-            if (this.width < 0) {
-                this.left = this.left + this.width;
-                this.width = -this.width;
-            }
-        }
-        this.updateView();
-    };
-    Timespan.prototype.updateView = function () {
-        if (this.$element) {
-            if (this.left === undefined || this.width === undefined) {
-                this.$element.css('display', 'none');
-            } else {
-                this.$element.css('display', '');
-                this.$element.css('left', this.left + 'px');
-                this.$element.css('width', this.width + 'px');
-            }
-        }
-    };
-
-    Timespan.prototype.setFrom = function (x) {
-        this.from = this.gantt.getDateByPosition(x);
-        this.updatePosAndSize();
-    };
-
-    Timespan.prototype.setTo = function (x) {
-        this.to = this.gantt.getDateByPosition(x);
-        this.updatePosAndSize();
-    };
-
-    Timespan.prototype.moveTo = function (x) {
-        this.from = this.gantt.getDateByPosition(x);
-        this.to = this.gantt.getDateByPosition(x + this.width);
-        this.updatePosAndSize();
-    };
-    Timespan.prototype.clone = function () {
-        return new Timespan(this.gantt, _angular2.default.copy(this.model));
-    };
-    return Timespan;
-};
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = ["GanttTimespan", function (GanttTimespan) {
-    'ngInject';
-
-    var GanttTimespansManager = function GanttTimespansManager(gantt) {
-        var self = this;
-        this.gantt = gantt;
-        this.timespansMap = {};
-        this.timespans = [];
-        this.gantt.$scope.$watchCollection('timespans', function (newValue) {
-            self.clearTimespans();
-            self.loadTimespans(newValue);
-        });
-        this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
-        this.gantt.api.registerMethod('timespans', 'remove', this.removeTimespans, this);
-        this.gantt.api.registerMethod('timespans', 'clear', this.clearTimespans, this);
-        this.gantt.api.registerEvent('timespans', 'add');
-        this.gantt.api.registerEvent('timespans', 'remove');
-        this.gantt.api.registerEvent('timespans', 'change');
-    };
-
-    GanttTimespansManager.prototype.loadTimespans = function (timespans) {
-        if (!_angular2.default.isArray(timespans)) {
-            timespans = timespans !== undefined ? [timespans] : [];
-        }
-        this.gantt.$scope.timespans = timespans;
-
-        for (var i = 0, l = timespans.length; i < l; i++) {
-            var timespanModel = timespans[i];
-            this.gantt.objectModel.cleanTimespan(timespanModel);
-            this.loadTimespan(timespanModel);
-        }
-    };
-
-    GanttTimespansManager.prototype.loadTimespan = function (timespanModel) {
-        var timespan = void 0;
-        var isUpdate = false;
-        if (timespanModel.id in this.timespansMap) {
-            timespan = this.timespansMap[timespanModel.id];
-            timespan.model = timespanModel;
-            isUpdate = true;
-            this.gantt.api.timespans.raise.change(timespan);
-        } else {
-            timespan = new GanttTimespan(this.gantt, timespanModel);
-            this.timespansMap[timespanModel.id] = timespan;
-            this.timespans.push(timespan);
-            this.gantt.api.timespans.raise.add(timespan);
-        }
-        timespan.updatePosAndSize();
-        return isUpdate;
-    };
-    GanttTimespansManager.prototype.removeTimespans = function (timespans) {
-        if (!_angular2.default.isArray(timespans)) {
-            timespans = [timespans];
-        }
-        for (var i = 0, l = timespans.length; i < l; i++) {
-            var timespanData = timespans[i];
-
-            this.removeTimespan(timespanData.id);
-        }
-        this.updateVisibleObjects();
-    };
-    GanttTimespansManager.prototype.removeTimespan = function (timespanId) {
-        if (timespanId in this.timespansMap) {
-            delete this.timespansMap[timespanId];
-            var removedTimespan = void 0;
-            var timespan = void 0;
-            for (var i = this.timespans.length - 1; i >= 0; i--) {
-                timespan = this.timespans[i];
-                if (timespan.model.id === timespanId) {
-                    removedTimespan = timespan;
-                    this.timespans.splice(i, 1);
-                    break;
-                }
-            }
-            this.gantt.api.timespans.raise.remove(removedTimespan);
-            return removedTimespan;
-        }
-        return undefined;
-    };
-
-    GanttTimespansManager.prototype.clearTimespans = function () {
-        this.timespansMap = {};
-        this.timespans = [];
-    };
-    GanttTimespansManager.prototype.updateTimespansPosAndSize = function () {
-        for (var i = 0, l = this.timespans.length; i < l; i++) {
-            this.timespans[i].updatePosAndSize();
-        }
-    };
-    return GanttTimespansManager;
-}];
-
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+    }]);
+    return Gantt;
+}();
 
 /***/ }),
 /* 69 */
@@ -4433,12 +6845,1434 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.GanttRow = exports.GanttRowModel = undefined;
+
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _typeof2 = __webpack_require__(5);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+exports.default = ["GanttTask", "$filter", function (GanttTask, $filter) {
+    'ngInject';
+
+    GanttRow.GanttTask = GanttTask;
+    GanttRow.$filter = $filter;
+    return GanttRow;
+}];
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+var _angular = __webpack_require__(1);
+
+var angular = _interopRequireWildcard(_angular);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttRowModel = exports.GanttRowModel = function GanttRowModel() {
+    (0, _classCallCheck3.default)(this, GanttRowModel);
+};
+
+var GanttRow = exports.GanttRow = function () {
+    function GanttRow(rowsManager, model) {
+        (0, _classCallCheck3.default)(this, GanttRow);
+
+        this.rowsManager = rowsManager;
+        this.model = model;
+        this.from = undefined;
+        this.to = undefined;
+        this.tasksMap = {};
+        this.tasks = [];
+        this.filteredTasks = [];
+        this.visibleTasks = [];
+    }
+
+    (0, _createClass3.default)(GanttRow, [{
+        key: 'addTaskImpl',
+        value: function addTaskImpl(task) {
+            var viewOnly = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            this.tasksMap[task.model.id] = task;
+            this.tasks.push(task);
+            if (!viewOnly) {
+                if (this.model.tasks === undefined) {
+                    this.model.tasks = [];
+                }
+                if (this.model.tasks.indexOf(task.model) === -1) {
+                    this.model.tasks.push(task.model);
+                }
+            }
+        }
+    }, {
+        key: 'addTask',
+        value: function addTask(taskModel) {
+            var viewOnly = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            var task = void 0;
+            var isUpdate = false;
+            this.rowsManager.gantt.objectModel.cleanTask(taskModel);
+            if (taskModel.id in this.tasksMap) {
+                task = this.tasksMap[taskModel.id];
+                if (task.model === taskModel) {
+                    return task;
+                }
+                task.model = taskModel;
+                isUpdate = true;
+            } else {
+                task = new GanttRow.GanttTask(this, taskModel);
+                this.addTaskImpl(task, viewOnly);
+            }
+            this.sortTasks();
+            this.setFromToByTask(task);
+            if (!viewOnly) {
+                if (isUpdate) {
+                    this.rowsManager.gantt.api.tasks.raise.change(task);
+                } else {
+                    this.rowsManager.gantt.api.tasks.raise.add(task);
+                }
+            }
+            return task;
+        }
+    }, {
+        key: 'moveTaskToRow',
+        value: function moveTaskToRow(task) {
+            var viewOnly = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            this.rowsManager.gantt.api.tasks.raise.beforeViewRowChange(task, this);
+            if (!viewOnly) {
+                this.rowsManager.gantt.api.tasks.raise.beforeRowChange(task, this);
+            }
+            var oldRow = task.row;
+            oldRow.removeTask(task.model.id, viewOnly, true);
+            task.row = this;
+            this.addTaskImpl(task, viewOnly);
+            this.sortTasks();
+            this.setFromToByTask(task);
+            task.updatePosAndSize();
+            this.updateVisibleTasks();
+            oldRow.$scope.$digest();
+            task.row.$scope.$digest();
+            this.rowsManager.gantt.api.tasks.raise.viewRowChange(task, oldRow);
+            if (!viewOnly) {
+                this.rowsManager.gantt.api.tasks.raise.rowChange(task, oldRow);
+            }
+        }
+    }, {
+        key: 'updateVisibleTasks',
+        value: function updateVisibleTasks() {
+            var filterTask = this.rowsManager.gantt.options.value('filterTask');
+            if (filterTask) {
+                if ((typeof filterTask === 'undefined' ? 'undefined' : (0, _typeof3.default)(filterTask)) === 'object') {
+                    filterTask = { model: filterTask };
+                }
+                var _filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
+                if (typeof _filterTaskComparator === 'function') {
+                    _filterTaskComparator = function filterTaskComparator(actual, expected) {
+                        return _filterTaskComparator(actual.model, expected.model);
+                    };
+                }
+                this.filteredTasks = GanttRow.$filter('filter')(this.tasks, filterTask, _filterTaskComparator);
+            } else {
+                this.filteredTasks = this.tasks.slice(0);
+            }
+            var limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
+            if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
+                this.visibleTasks = GanttRow.$filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+            } else {
+                this.visibleTasks = this.filteredTasks;
+            }
+        }
+    }, {
+        key: 'updateTasksPosAndSize',
+        value: function updateTasksPosAndSize() {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(this.tasks), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var task = _step.value;
+
+                    task.updatePosAndSize();
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'removeTask',
+        value: function removeTask(taskId, viewOnly, silent) {
+            if (taskId in this.tasksMap) {
+                var removedTask = this.tasksMap[taskId];
+                var task = void 0;
+                var i = void 0;
+                for (i = this.tasks.length - 1; i >= 0; i--) {
+                    task = this.tasks[i];
+                    if (task.model.id === taskId) {
+                        this.tasks.splice(i, 1);
+                        if (this.from && this.from.isSame((0, _moment2.default)(task.model.from)) || this.to && this.to.isSame((0, _moment2.default)(task.model.to))) {
+                            this.setFromTo();
+                        }
+                        break;
+                    }
+                }
+                for (i = this.filteredTasks.length - 1; i >= 0; i--) {
+                    task = this.filteredTasks[i];
+                    if (task.model.id === taskId) {
+                        this.filteredTasks.splice(i, 1);
+                        break;
+                    }
+                }
+                for (i = this.visibleTasks.length - 1; i >= 0; i--) {
+                    task = this.visibleTasks[i];
+                    if (task.model.id === taskId) {
+                        this.visibleTasks.splice(i, 1);
+                        break;
+                    }
+                }
+                if (!viewOnly) {
+                    delete this.tasksMap[taskId];
+                    if (this.model.tasks !== undefined) {
+                        var taskIndex = this.model.tasks.indexOf(removedTask.model);
+                        if (taskIndex > -1) {
+                            this.model.tasks.splice(taskIndex, 1);
+                        }
+                    }
+                    if (!silent) {
+                        this.rowsManager.gantt.api.tasks.raise.remove(removedTask);
+                    }
+                }
+                return removedTask;
+            }
+        }
+    }, {
+        key: 'removeAllTasks',
+        value: function removeAllTasks() {
+            this.from = undefined;
+            this.to = undefined;
+            this.tasksMap = {};
+            this.tasks = [];
+            this.filteredTasks = [];
+            this.visibleTasks = [];
+        }
+    }, {
+        key: 'setFromTo',
+        value: function setFromTo() {
+            this.from = undefined;
+            this.to = undefined;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = (0, _getIterator3.default)(this.tasks), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var task = _step2.value;
+
+                    this.setFromToByTask(task);
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+        }
+    }, {
+        key: 'setFromToByTask',
+        value: function setFromToByTask(task) {
+            this.setFromToByValues(task.model.from, task.model.to);
+        }
+    }, {
+        key: 'setFromToByValues',
+        value: function setFromToByValues(from, to) {
+            if (from !== undefined) {
+                if (this.from === undefined) {
+                    this.from = (0, _moment2.default)(from);
+                } else if (from < this.from) {
+                    this.from = (0, _moment2.default)(from);
+                }
+            }
+            if (to !== undefined) {
+                if (this.to === undefined) {
+                    this.to = (0, _moment2.default)(to);
+                } else if (to > this.to) {
+                    this.to = (0, _moment2.default)(to);
+                }
+            }
+        }
+    }, {
+        key: 'sortTasks',
+        value: function sortTasks() {
+            this.tasks.sort(function (t1, t2) {
+                return t1.left - t2.left;
+            });
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            var clone = new GanttRow(this.rowsManager, angular.copy(this.model));
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = (0, _getIterator3.default)(this.tasks), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var task = _step3.value;
+
+                    clone.addTask(task.model);
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
+            }
+
+            return clone;
+        }
+    }]);
+    return GanttRow;
+}();
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttTask = exports.GanttTaskModel = undefined;
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
 exports.default = function () {
     'ngInject';
 
-    return {
-        moveToIndex: function moveToIndex(array, oldIndex, newIndex) {
+    return GanttTask;
+};
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _moment = __webpack_require__(3);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttTaskModel = exports.GanttTaskModel = function GanttTaskModel() {
+    (0, _classCallCheck3.default)(this, GanttTaskModel);
+};
+
+var GanttTask = exports.GanttTask = function () {
+    function GanttTask(row, model) {
+        (0, _classCallCheck3.default)(this, GanttTask);
+
+        this.rowsManager = row.rowsManager;
+        this.row = row;
+        this.model = model;
+        this.truncatedLeft = false;
+        this.truncatedRight = false;
+    }
+
+    (0, _createClass3.default)(GanttTask, [{
+        key: 'isMilestone',
+        value: function isMilestone() {
+            return !this.model.to || this.model.to.isSame(this.model.from);
+        }
+    }, {
+        key: 'isOutOfRange',
+        value: function isOutOfRange() {
+            var firstColumn = this.rowsManager.gantt.columnsManager.getFirstColumn();
+            var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+            return firstColumn === undefined || this.model.to < firstColumn.date || lastColumn === undefined || this.model.from > lastColumn.endDate;
+        }
+    }, {
+        key: 'updatePosAndSize',
+        value: function updatePosAndSize() {
+            var oldViewLeft = this.left;
+            var oldViewWidth = this.width;
+            var oldTruncatedRight = this.truncatedRight;
+            var oldTruncatedLeft = this.truncatedLeft;
+            if (!this.isMoving && this.isOutOfRange()) {
+                this.modelLeft = undefined;
+                this.modelWidth = undefined;
+            } else {
+                this.modelLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                this.modelWidth = this.rowsManager.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+            }
+            var lastColumn = this.rowsManager.gantt.columnsManager.getLastColumn();
+            var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
+            var modelLeft = this.modelLeft;
+            var modelWidth = this.modelWidth;
+            if (this.rowsManager.gantt.options.value('daily')) {
+                modelLeft = this.rowsManager.gantt.getPositionByDate((0, _moment2.default)(this.model.from).startOf('day'));
+                modelWidth = this.rowsManager.gantt.getPositionByDate((0, _moment2.default)(this.model.to).endOf('day')) - modelLeft;
+            }
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+            if (modelLeft === undefined || modelWidth === undefined) {
+                this.left = undefined;
+                this.width = undefined;
+            } else {
+                this.left = modelLeft;
+                this.width = modelWidth;
+                if (modelLeft < 0) {
+                    this.truncatedLeft = true;
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
+                } else if (modelWidth + modelLeft > this.rowsManager.gantt.width) {
+                    this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
+                    this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
+                } else {
+                    this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.rowsManager.gantt.width;
+                }
+                if (this.width < 0) {
+                    this.left = this.left + this.width;
+                    this.width = -this.width;
+                }
+            }
+            this.updateView();
+            if (!this.rowsManager.gantt.isRefreshingColumns && (oldViewLeft !== this.left || oldViewWidth !== this.width || oldTruncatedRight !== this.truncatedRight || oldTruncatedLeft !== this.truncatedLeft)) {
+                this.rowsManager.gantt.api.tasks.raise.viewChange(this);
+            }
+        }
+    }, {
+        key: 'updateView',
+        value: function updateView() {
+            if (this.$element) {
+                if (this.left === undefined || this.width === undefined) {
+                    this.$element.css('display', 'none');
+                } else {
+                    this.$element.css({ 'left': this.left + 'px', 'width': this.width + 'px', 'display': '' });
+                    if (this.model.priority > 0) {
+                        var priority = this.model.priority;
+                        var children = this.$element.children();
+
+                        for (var i = 0; i < children.length; i++) {
+                            _angular2.default.element(children[i]).css('z-index', priority);
+                        }
+                    }
+                    this.$element.toggleClass('gantt-task-milestone', this.isMilestone());
+                }
+            }
+        }
+    }, {
+        key: 'getBackgroundElement',
+        value: function getBackgroundElement() {
+            if (this.$element !== undefined) {
+                var backgroundElement = this.$element[0].querySelector('.gantt-task-background');
+                if (backgroundElement !== undefined) {
+                    return _angular2.default.element(backgroundElement);
+                }
+                return undefined;
+            }
+        }
+    }, {
+        key: 'getContentElement',
+        value: function getContentElement() {
+            if (this.$element !== undefined) {
+                var contentElement = this.$element[0].querySelector('.gantt-task-content');
+                if (contentElement !== undefined) {
+                    return _angular2.default.element(contentElement);
+                }
+                return undefined;
+            }
+        }
+    }, {
+        key: 'getForegroundElement',
+        value: function getForegroundElement() {
+            if (this.$element !== undefined) {
+                var foregroundElement = this.$element[0].querySelector('.gantt-task-foreground');
+                if (foregroundElement !== undefined) {
+                    return _angular2.default.element(foregroundElement);
+                }
+                return foregroundElement;
+            }
+        }
+    }, {
+        key: 'setFrom',
+        value: function setFrom(x, magnetEnabled) {
+            this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+            this.row.setFromTo();
+            this.updatePosAndSize();
+        }
+    }, {
+        key: 'setTo',
+        value: function setTo(x, magnetEnabled) {
+            this.model.to = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+            this.row.setFromTo();
+            this.updatePosAndSize();
+        }
+    }, {
+        key: 'moveTo',
+        value: function moveTo(x, magnetEnabled) {
+            var newTaskRight = void 0;
+            var newTaskLeft = void 0;
+            if (x > this.modelLeft) {
+                this.model.to = this.rowsManager.gantt.getDateByPosition(x + this.modelWidth, magnetEnabled);
+                newTaskRight = this.rowsManager.gantt.getPositionByDate(this.model.to);
+                newTaskLeft = newTaskRight - this.modelWidth;
+                this.model.from = this.rowsManager.gantt.getDateByPosition(newTaskLeft, false);
+            } else {
+                this.model.from = this.rowsManager.gantt.getDateByPosition(x, magnetEnabled);
+                newTaskLeft = this.rowsManager.gantt.getPositionByDate(this.model.from);
+                newTaskRight = newTaskLeft + this.modelWidth;
+                this.model.to = this.rowsManager.gantt.getDateByPosition(newTaskRight, false);
+            }
+            this.row.setFromTo();
+            this.updatePosAndSize();
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            return new GanttTask(this.row, _angular2.default.copy(this.model));
+        }
+    }]);
+    return GanttTask;
+}();
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttBodyBackground = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var cov_nvg75p85r = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyBackground.factory.ts',
+        hash = '7777fd88398a66ccd8df9a5d0bbaf60e2915a00a',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyBackground.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 3,
+                    column: 8
+                },
+                end: {
+                    line: 3,
+                    column: 25
+                }
+            },
+            '1': {
+                start: {
+                    line: 9,
+                    column: 4
+                },
+                end: {
+                    line: 9,
+                    column: 31
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 2,
+                        column: 4
+                    },
+                    end: {
+                        line: 2,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 22
+                    },
+                    end: {
+                        line: 4,
+                        column: 5
+                    }
+                },
+                line: 2
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 7,
+                        column: 15
+                    },
+                    end: {
+                        line: 7,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 7,
+                        column: 27
+                    },
+                    end: {
+                        line: 10,
+                        column: 1
+                    }
+                },
+                line: 7
+            }
+        },
+        branchMap: {},
+        s: {
+            '0': 0,
+            '1': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0
+        },
+        b: {},
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/template/bodyBackground.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/template/bodyBackground.factory.ts'],
+            names: [],
+            mappings: 'AAEA,MAAM;IAGJ,YAAY,IAAe;QACzB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;IACnB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,mBAAmB,CAAC;AAC7B,CAAC',
+            sourcesContent: ['import {GanttBody} from \'./body.factory\';\n\nexport class GanttBodyBackground {\n  private body: GanttBody;\n\n  constructor(body: GanttBody) {\n    this.body = body;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttBodyBackground;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = function () {
+    'ngInject';
+
+    ++cov_nvg75p85r.f[1];
+    ++cov_nvg75p85r.s[1];
+    return GanttBodyBackground;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttBodyBackground = exports.GanttBodyBackground = function GanttBodyBackground(body) {
+    (0, _classCallCheck3.default)(this, GanttBodyBackground);
+    ++cov_nvg75p85r.f[0];
+    ++cov_nvg75p85r.s[0];
+
+    this.body = body;
+};
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttBodyColumns = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var cov_ub8n5vjz1 = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyColumns.factory.ts',
+        hash = '91ed3f02296bd0a717c90554687351a2ec7fd181',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyColumns.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 3,
+                    column: 8
+                },
+                end: {
+                    line: 3,
+                    column: 25
+                }
+            },
+            '1': {
+                start: {
+                    line: 9,
+                    column: 4
+                },
+                end: {
+                    line: 9,
+                    column: 28
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 2,
+                        column: 4
+                    },
+                    end: {
+                        line: 2,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 22
+                    },
+                    end: {
+                        line: 4,
+                        column: 5
+                    }
+                },
+                line: 2
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 7,
+                        column: 15
+                    },
+                    end: {
+                        line: 7,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 7,
+                        column: 27
+                    },
+                    end: {
+                        line: 10,
+                        column: 1
+                    }
+                },
+                line: 7
+            }
+        },
+        branchMap: {},
+        s: {
+            '0': 0,
+            '1': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0
+        },
+        b: {},
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/template/bodyColumns.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/template/bodyColumns.factory.ts'],
+            names: [],
+            mappings: 'AAEA,MAAM;IAGJ,YAAY,IAAe;QACzB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;IACnB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,gBAAgB,CAAC;AAC1B,CAAC',
+            sourcesContent: ['import {GanttBody} from \'./body.factory\';\n\nexport class GanttBodyColumns {\n  private body: GanttBody;\n\n  constructor(body: GanttBody) {\n    this.body = body;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttBodyColumns;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = function () {
+    'ngInject';
+
+    ++cov_ub8n5vjz1.f[1];
+    ++cov_ub8n5vjz1.s[1];
+    return GanttBodyColumns;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttBodyColumns = exports.GanttBodyColumns = function GanttBodyColumns(body) {
+    (0, _classCallCheck3.default)(this, GanttBodyColumns);
+    ++cov_ub8n5vjz1.f[0];
+    ++cov_ub8n5vjz1.s[0];
+
+    this.body = body;
+};
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttBodyForeground = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var cov_1mrpfr0klh = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyForeground.factory.ts',
+        hash = '313f67cb64998cdccd3e788319db812ad703c26d',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyForeground.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 3,
+                    column: 8
+                },
+                end: {
+                    line: 3,
+                    column: 25
+                }
+            },
+            '1': {
+                start: {
+                    line: 9,
+                    column: 4
+                },
+                end: {
+                    line: 9,
+                    column: 31
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 2,
+                        column: 4
+                    },
+                    end: {
+                        line: 2,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 22
+                    },
+                    end: {
+                        line: 4,
+                        column: 5
+                    }
+                },
+                line: 2
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 7,
+                        column: 15
+                    },
+                    end: {
+                        line: 7,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 7,
+                        column: 27
+                    },
+                    end: {
+                        line: 10,
+                        column: 1
+                    }
+                },
+                line: 7
+            }
+        },
+        branchMap: {},
+        s: {
+            '0': 0,
+            '1': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0
+        },
+        b: {},
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/template/bodyForeground.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/template/bodyForeground.factory.ts'],
+            names: [],
+            mappings: 'AAEA,MAAM;IAGJ,YAAY,IAAe;QACzB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;IACnB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,mBAAmB,CAAC;AAC7B,CAAC',
+            sourcesContent: ['import {GanttBody} from \'./body.factory\';\n\nexport class GanttBodyForeground {\n  private body: GanttBody;\n\n  constructor(body: GanttBody) {\n    this.body = body;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttBodyForeground;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = function () {
+    'ngInject';
+
+    ++cov_1mrpfr0klh.f[1];
+    ++cov_1mrpfr0klh.s[1];
+    return GanttBodyForeground;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttBodyForeground = exports.GanttBodyForeground = function GanttBodyForeground(body) {
+    (0, _classCallCheck3.default)(this, GanttBodyForeground);
+    ++cov_1mrpfr0klh.f[0];
+    ++cov_1mrpfr0klh.s[0];
+
+    this.body = body;
+};
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttBodyRows = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var cov_2qj8o0mog1 = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyRows.factory.ts',
+        hash = '8e3227e3ab86e12da601fefe6d8a35f11b1fcbcf',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/bodyRows.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 3,
+                    column: 8
+                },
+                end: {
+                    line: 3,
+                    column: 25
+                }
+            },
+            '1': {
+                start: {
+                    line: 9,
+                    column: 4
+                },
+                end: {
+                    line: 9,
+                    column: 25
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 2,
+                        column: 4
+                    },
+                    end: {
+                        line: 2,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 22
+                    },
+                    end: {
+                        line: 4,
+                        column: 5
+                    }
+                },
+                line: 2
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 7,
+                        column: 15
+                    },
+                    end: {
+                        line: 7,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 7,
+                        column: 27
+                    },
+                    end: {
+                        line: 10,
+                        column: 1
+                    }
+                },
+                line: 7
+            }
+        },
+        branchMap: {},
+        s: {
+            '0': 0,
+            '1': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0
+        },
+        b: {},
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/template/bodyRows.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/template/bodyRows.factory.ts'],
+            names: [],
+            mappings: 'AAEA,MAAM;IAGJ,YAAY,IAAe;QACzB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;IACnB,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,aAAa,CAAC;AACvB,CAAC',
+            sourcesContent: ['import {GanttBody} from \'./body.factory\';\n\nexport class GanttBodyRows {\n  private body: GanttBody;\n\n  constructor(body: GanttBody) {\n    this.body = body;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttBodyRows;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = function () {
+    'ngInject';
+
+    ++cov_2qj8o0mog1.f[1];
+    ++cov_2qj8o0mog1.s[1];
+    return GanttBodyRows;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttBodyRows = exports.GanttBodyRows = function GanttBodyRows(body) {
+    (0, _classCallCheck3.default)(this, GanttBodyRows);
+    ++cov_2qj8o0mog1.f[0];
+    ++cov_2qj8o0mog1.s[0];
+
+    this.body = body;
+};
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.GanttHeaderColumns = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var cov_24bu7vt4jc = function () {
+    var path = '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/headerColumns.factory.ts',
+        hash = '03718ddebc2acd231e207693b6ff12b2d8bfe717',
+        global = new Function('return this')(),
+        gcv = '__coverage__',
+        coverageData = {
+        path: '/home/toilal/idea-projects/angular-gantt/src/core/logic/template/headerColumns.factory.ts',
+        statementMap: {
+            '0': {
+                start: {
+                    line: 3,
+                    column: 8
+                },
+                end: {
+                    line: 3,
+                    column: 33
+                }
+            },
+            '1': {
+                start: {
+                    line: 9,
+                    column: 4
+                },
+                end: {
+                    line: 9,
+                    column: 30
+                }
+            }
+        },
+        fnMap: {
+            '0': {
+                name: '(anonymous_0)',
+                decl: {
+                    start: {
+                        line: 2,
+                        column: 4
+                    },
+                    end: {
+                        line: 2,
+                        column: 5
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 26
+                    },
+                    end: {
+                        line: 4,
+                        column: 5
+                    }
+                },
+                line: 2
+            },
+            '1': {
+                name: '(anonymous_1)',
+                decl: {
+                    start: {
+                        line: 7,
+                        column: 15
+                    },
+                    end: {
+                        line: 7,
+                        column: 16
+                    }
+                },
+                loc: {
+                    start: {
+                        line: 7,
+                        column: 27
+                    },
+                    end: {
+                        line: 10,
+                        column: 1
+                    }
+                },
+                line: 7
+            }
+        },
+        branchMap: {},
+        s: {
+            '0': 0,
+            '1': 0
+        },
+        f: {
+            '0': 0,
+            '1': 0
+        },
+        b: {},
+        inputSourceMap: {
+            version: 3,
+            file: 'src/core/logic/template/headerColumns.factory.ts',
+            sourceRoot: '/home/toilal/idea-projects/angular-gantt/',
+            sources: ['src/core/logic/template/headerColumns.factory.ts'],
+            names: [],
+            mappings: 'AAEA,MAAM;IAGJ,YAAY,QAA0B;QACpC,IAAI,CAAC,QAAQ,GAAG,QAAQ,CAAC;IAC3B,CAAC;IAAA,CAAC;CACH;AAED,MAAM,CAAC,OAAO;IACZ,UAAU,CAAC;IAEX,MAAM,CAAC,kBAAkB,CAAC;AAC5B,CAAC',
+            sourcesContent: ['import {IAugmentedJQuery} from \'angular\';\n\nexport class GanttHeaderColumns {\n  $element: IAugmentedJQuery;\n\n  constructor($element: IAugmentedJQuery) {\n    this.$element = $element;\n  };\n}\n\nexport default function () {\n  \'ngInject\';\n\n  return GanttHeaderColumns;\n}\n']
+        },
+        _coverageSchema: '332fd63041d2c1bcb487cc26dd0d5f7d97098a6c'
+    },
+        coverage = global[gcv] || (global[gcv] = {});
+
+    if (coverage[path] && coverage[path].hash === hash) {
+        return coverage[path];
+    }
+
+    coverageData.hash = hash;
+    return coverage[path] = coverageData;
+}();
+
+exports.default = function () {
+    'ngInject';
+
+    ++cov_24bu7vt4jc.f[1];
+    ++cov_24bu7vt4jc.s[1];
+    return GanttHeaderColumns;
+};
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttHeaderColumns = exports.GanttHeaderColumns = function GanttHeaderColumns($element) {
+    (0, _classCallCheck3.default)(this, GanttHeaderColumns);
+    ++cov_24bu7vt4jc.f[0];
+    ++cov_24bu7vt4jc.s[0];
+
+    this.$element = $element;
+};
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Timespan = exports.TimespanModel = undefined;
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+exports.default = function () {
+    'ngInject';
+
+    return Timespan;
+};
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var TimespanModel = exports.TimespanModel = function TimespanModel() {
+    (0, _classCallCheck3.default)(this, TimespanModel);
+};
+
+var Timespan = exports.Timespan = function () {
+    function Timespan(gantt, model) {
+        (0, _classCallCheck3.default)(this, Timespan);
+
+        this.gantt = gantt;
+        this.model = model;
+    }
+
+    (0, _createClass3.default)(Timespan, [{
+        key: 'updatePosAndSize',
+        value: function updatePosAndSize() {
+            this.modelLeft = this.gantt.getPositionByDate(this.model.from);
+            this.modelWidth = this.gantt.getPositionByDate(this.model.to) - this.modelLeft;
+            var lastColumn = this.gantt.columnsManager.getLastColumn();
+            var maxModelLeft = lastColumn ? lastColumn.left + lastColumn.width : 0;
+            var modelLeft = this.modelLeft;
+            var modelWidth = this.modelWidth;
+            var minModelLeft = -modelWidth;
+            if (modelLeft < minModelLeft) {
+                modelLeft = minModelLeft;
+            }
+            if (modelLeft > maxModelLeft) {
+                modelLeft = maxModelLeft;
+            }
+            if (modelLeft === undefined || modelWidth === undefined) {
+                this.left = undefined;
+                this.width = undefined;
+            } else {
+                this.left = modelLeft;
+                this.width = modelWidth;
+                if (modelLeft < 0) {
+                    this.truncatedLeft = true;
+                    this.truncatedLeftOffset = -modelLeft;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = undefined;
+                } else if (modelWidth + modelLeft > this.gantt.width) {
+                    this.truncatedRight = true;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
+                    this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
+                } else {
+                    this.truncatedLeft = false;
+                    this.truncatedLeftOffset = undefined;
+                    this.truncatedRight = false;
+                    this.truncatedRightOffset = modelWidth + modelLeft - this.gantt.width;
+                }
+                if (this.width < 0) {
+                    this.left = this.left + this.width;
+                    this.width = -this.width;
+                }
+            }
+            this.updateView();
+        }
+    }, {
+        key: 'updateView',
+        value: function updateView() {
+            if (this.$element) {
+                if (this.left === undefined || this.width === undefined) {
+                    this.$element.css('display', 'none');
+                } else {
+                    this.$element.css('display', '');
+                    this.$element.css('left', this.left + 'px');
+                    this.$element.css('width', this.width + 'px');
+                }
+            }
+        }
+    }, {
+        key: 'setFrom',
+        value: function setFrom(x) {
+            this.from = this.gantt.getDateByPosition(x);
+            this.updatePosAndSize();
+        }
+    }, {
+        key: 'setTo',
+        value: function setTo(x) {
+            this.to = this.gantt.getDateByPosition(x);
+            this.updatePosAndSize();
+        }
+    }, {
+        key: 'moveTo',
+        value: function moveTo(x) {
+            this.from = this.gantt.getDateByPosition(x);
+            this.to = this.gantt.getDateByPosition(x + this.width);
+            this.updatePosAndSize();
+        }
+    }, {
+        key: 'clone',
+        value: function clone() {
+            return new Timespan(this.gantt, _angular2.default.copy(this.model));
+        }
+    }]);
+    return Timespan;
+}();
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttArrays = function () {
+    function GanttArrays() {
+        (0, _classCallCheck3.default)(this, GanttArrays);
+    }
+
+    (0, _createClass3.default)(GanttArrays, [{
+        key: 'moveToIndex',
+        value: function moveToIndex(array, oldIndex, newIndex) {
             if (newIndex >= array.length) {
                 var k = newIndex - array.length;
                 while (k-- + 1) {
@@ -4447,11 +8281,12 @@ exports.default = function () {
             }
             array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
             return array;
-        },
-        getRemovedIds: function getRemovedIds(newArray, oldArray, idProperty) {
-            if (idProperty === undefined) {
-                idProperty = 'id';
-            }
+        }
+    }, {
+        key: 'getRemovedIds',
+        value: function getRemovedIds(newArray, oldArray) {
+            var idProperty = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'id';
+
             var i = void 0;
             var l = void 0;
             var removedIds = [];
@@ -4472,12 +8307,14 @@ exports.default = function () {
                 }
             }
             return removedIds;
-        },
-        indexOfId: function indexOfId(array, value, idProperties) {
+        }
+    }, {
+        key: 'indexOfId',
+        value: function indexOfId(array, value) {
+            var idProperties = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'id';
+
             var i = void 0;
-            if (idProperties === undefined) {
-                idProperties = 'id';
-            } else if (idProperties instanceof Array) {
+            if (idProperties instanceof Array) {
                 for (i = array.length - 1; i >= 0; i--) {
                     var arrayValue = array[i];
 
@@ -4496,14 +8333,18 @@ exports.default = function () {
                 }
             }
             return -1;
-        },
-        removeId: function removeId(array, value, idProperties) {
+        }
+    }, {
+        key: 'removeId',
+        value: function removeId(array, value, idProperties) {
             var indexOf = this.indexOfId(array, value, idProperties);
             if (indexOf > -1) {
                 return array.splice(indexOf, 1)[0];
             }
-        },
-        remove: function remove(array, value) {
+        }
+    }, {
+        key: 'remove',
+        value: function remove(array, value) {
             var index = array.indexOf(value);
             if (index > -1) {
                 array.splice(index, 1);
@@ -4511,11 +8352,14 @@ exports.default = function () {
             }
             return false;
         }
-    };
-};
+    }]);
+    return GanttArrays;
+}();
+
+exports.default = GanttArrays;
 
 /***/ }),
-/* 70 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4525,11 +8369,24 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = function () {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    return {
-        getIndicesOnly: function getIndicesOnly(input, value, comparer, strict) {
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttBinarySearch = function () {
+    function GanttBinarySearch() {
+        (0, _classCallCheck3.default)(this, GanttBinarySearch);
+    }
+
+    (0, _createClass3.default)(GanttBinarySearch, [{
+        key: "getIndicesOnly",
+        value: function getIndicesOnly(input, value, comparer, strict) {
             var lo = -1;
             var hi = input.length;
             while (hi - lo > 1) {
@@ -4544,16 +8401,21 @@ exports.default = function () {
                 hi = lo;
             }
             return [lo, hi];
-        },
-        get: function get(input, value, comparer, strict) {
+        }
+    }, {
+        key: "get",
+        value: function get(input, value, comparer, strict) {
             var res = this.getIndicesOnly(input, value, comparer, strict);
             return [input[res[0]], input[res[1]]];
         }
-    };
-};
+    }]);
+    return GanttBinarySearch;
+}();
+
+exports.default = GanttBinarySearch;
 
 /***/ }),
-/* 71 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4562,70 +8424,112 @@ exports.default = function () {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.GanttHierarchy = undefined;
 
-exports.default = function () {
-    'ngInject';
+var _getIterator2 = __webpack_require__(4);
 
-    var Hierarchy = function Hierarchy() {
-        var self = this;
-        var nameToRow = {};
-        var idToRow = {};
-        var nameToChildren = {};
-        var idToChildren = {};
-        var nameToParent = {};
-        var idToParent = {};
-        var registerChildRow = function registerChildRow(row, childRow) {
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+exports.default = GanttHierarchyFactory;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttHierarchy = exports.GanttHierarchy = function () {
+    function GanttHierarchy() {
+        (0, _classCallCheck3.default)(this, GanttHierarchy);
+
+        this.nameToRow = {};
+        this.idToRow = {};
+        this.nameToChildren = {};
+        this.idToChildren = {};
+        this.nameToParent = {};
+        this.idToParent = {};
+    }
+
+    (0, _createClass3.default)(GanttHierarchy, [{
+        key: 'registerChildRow',
+        value: function registerChildRow(row, childRow) {
             if (childRow !== undefined) {
-                var nameChildren = nameToChildren[row.model.name];
+                var nameChildren = this.nameToChildren[row.model.name];
                 if (nameChildren === undefined) {
                     nameChildren = [];
-                    nameToChildren[row.model.name] = nameChildren;
+                    this.nameToChildren[row.model.name] = nameChildren;
                 }
                 nameChildren.push(childRow);
-                var idChildren = idToChildren[row.model.id];
+                var idChildren = this.idToChildren[row.model.id];
                 if (idChildren === undefined) {
                     idChildren = [];
-                    idToChildren[row.model.id] = idChildren;
+                    this.idToChildren[row.model.id] = idChildren;
                 }
                 idChildren.push(childRow);
-                nameToParent[childRow.model.name] = row;
-                idToParent[childRow.model.id] = row;
+                this.nameToParent[childRow.model.name] = row;
+                this.idToParent[childRow.model.id] = row;
             }
-        };
-        this.refresh = function (rows) {
-            nameToRow = {};
-            idToRow = {};
-            nameToChildren = {};
-            idToChildren = {};
-            nameToParent = {};
-            idToParent = {};
+        }
+    }, {
+        key: 'refresh',
+        value: function refresh(rows) {
+            this.nameToRow = {};
+            this.idToRow = {};
+            this.nameToChildren = {};
+            this.idToChildren = {};
+            this.nameToParent = {};
+            this.idToParent = {};
             var row = void 0;
             for (var i = 0; i < rows.length; i++) {
                 row = rows[i];
-                nameToRow[row.model.name] = row;
-                idToRow[row.model.id] = row;
+                this.nameToRow[row.model.name] = row;
+                this.idToRow[row.model.id] = row;
             }
             for (var _i = 0; _i < rows.length; _i++) {
                 row = rows[_i];
                 if (row.model.parent !== undefined) {
-                    var parentRow = nameToRow[row.model.parent];
+                    var parentRow = this.nameToRow[row.model.parent];
                     if (parentRow === undefined) {
-                        parentRow = idToRow[row.model.parent];
+                        parentRow = this.idToRow[row.model.parent];
                     }
                     if (parentRow !== undefined) {
-                        registerChildRow(parentRow, row);
+                        this.registerChildRow(parentRow, row);
                     }
                 }
                 if (row.model.children !== undefined) {
                     var children = row.model.children;
-                    for (var j = 0; j < children.length; j++) {
-                        var childRowNameOrId = children[j];
-                        var childRow = nameToRow[childRowNameOrId];
-                        if (childRow === undefined) {
-                            childRow = idToRow[childRowNameOrId];
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = (0, _getIterator3.default)(children), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var childRowNameOrId = _step.value;
+
+                            var childRow = this.nameToRow[childRowNameOrId];
+                            if (childRow === undefined) {
+                                childRow = this.idToRow[childRowNameOrId];
+                            }
+                            if (childRow !== undefined) {
+                                this.registerChildRow(row, childRow);
+                            }
                         }
-                        if (childRow !== undefined) {
-                            registerChildRow(row, childRow);
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
                         }
                     }
                 }
@@ -4633,47 +8537,82 @@ exports.default = function () {
             var rootRows = [];
             for (var _i2 = 0; _i2 < rows.length; _i2++) {
                 row = rows[_i2];
-                if (self.parent(row) === undefined) {
+                if (this.parent(row) === undefined) {
                     rootRows.push(row);
                 }
             }
             return rootRows;
-        };
-        this.children = function (row) {
-            var children = idToChildren[row.model.id];
+        }
+    }, {
+        key: 'children',
+        value: function children(row) {
+            var children = this.idToChildren[row.model.id];
             return children;
-        };
-        this.descendants = function (row) {
+        }
+    }, {
+        key: 'descendants',
+        value: function descendants(row) {
             var descendants = [];
-            var children = self.children(row);
+            var children = this.children(row);
             descendants.push.apply(descendants, children);
             if (children !== undefined) {
-                for (var i = 0; i < children.length; i++) {
-                    var childDescendants = self.descendants(children[i]);
-                    descendants.push.apply(descendants, childDescendants);
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
+
+                try {
+                    for (var _iterator2 = (0, _getIterator3.default)(children), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var child = _step2.value;
+
+                        var childDescendants = this.descendants(child);
+                        descendants.push.apply(descendants, childDescendants);
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                            _iterator2.return();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
                 }
             }
             return descendants;
-        };
-        this.parent = function (row) {
-            var parent = idToParent[row.model.id];
+        }
+    }, {
+        key: 'parent',
+        value: function parent(row) {
+            var parent = this.idToParent[row.model.id];
             return parent;
-        };
-        this.ancestors = function (row) {
+        }
+    }, {
+        key: 'ancestors',
+        value: function ancestors(row) {
             var ancestors = [];
-            var parent = self.parent(row);
+            var parent = this.parent(row);
             while (parent !== undefined) {
                 ancestors.push(parent);
-                parent = self.parent(parent);
+                parent = this.parent(parent);
             }
             return ancestors;
-        };
-    };
-    return Hierarchy;
-};
+        }
+    }]);
+    return GanttHierarchy;
+}();
+
+function GanttHierarchyFactory() {
+    'ngInject';
+
+    return GanttHierarchy;
+}
 
 /***/ }),
-/* 72 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4683,16 +8622,37 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = function () {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    return {
-        createBoundedWrapper: function createBoundedWrapper(object, method) {
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _angular = __webpack_require__(1);
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttUtils = function () {
+    function GanttUtils() {
+        (0, _classCallCheck3.default)(this, GanttUtils);
+
+        this.seedId = new Date().getTime();
+    }
+
+    (0, _createClass3.default)(GanttUtils, [{
+        key: 'createBoundedWrapper',
+        value: function createBoundedWrapper(object, method) {
             return function () {
                 return method.apply(object, arguments);
             };
-        },
-        firstProperty: function firstProperty(objects, propertyName, defaultValue) {
+        }
+    }, {
+        key: 'firstProperty',
+        value: function firstProperty(objects, propertyName, defaultValue) {
             for (var i = 0, l = objects.length; i < l; i++) {
                 var object = objects[i];
                 if (object !== undefined && propertyName in object) {
@@ -4702,38 +8662,40 @@ exports.default = function () {
                 }
             }
             return defaultValue;
-        },
-        angularIndexOf: function angularIndexOf(arr, obj) {
+        }
+    }, {
+        key: 'angularIndexOf',
+        value: function angularIndexOf(arr, obj) {
             for (var i = 0; i < arr.length; i++) {
                 if (_angular2.default.equals(arr[i], obj)) {
                     return i;
                 }
             }
             return -1;
-        },
-        random4: function random4() {
+        }
+    }, {
+        key: 'random4',
+        value: function random4() {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-        },
-        randomUuid: function randomUuid() {
+        }
+    }, {
+        key: 'randomUuid',
+        value: function randomUuid() {
             return this.random4() + this.random4() + '-' + this.random4() + '-' + this.random4() + '-' + this.random4() + '-' + this.random4() + this.random4() + this.random4();
-        },
-        newId: function () {
-            var seedId = new Date().getTime();
-            return function () {
-                return seedId += 1;
-            };
-        }()
-    };
-};
+        }
+    }, {
+        key: 'newId',
+        value: function newId() {
+            return this.seedId += 1;
+        }
+    }]);
+    return GanttUtils;
+}();
 
-var _angular = __webpack_require__(0);
-
-var _angular2 = _interopRequireDefault(_angular);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+exports.default = GanttUtils;
 
 /***/ }),
-/* 73 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4763,7 +8725,7 @@ exports.default = ["ganttBinarySearch", function (ganttBinarySearch) {
 }];
 
 /***/ }),
-/* 74 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4804,13 +8766,13 @@ exports.default = function () {
             }
             return res;
         } else {
-            return input.splice();
+            return input.splice(0);
         }
     };
 };
 
 /***/ }),
-/* 75 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4916,7 +8878,7 @@ exports.default = ["$document", "$parse", "$timeout", "ganttMouseOffset", functi
 }];
 
 /***/ }),
-/* 76 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4939,7 +8901,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 77 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4977,7 +8939,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 78 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5031,7 +8993,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 79 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5134,14 +9096,14 @@ exports.default = ["GanttDirectiveBuilder", "$timeout", "ganttDebounce", functio
     return builder.build();
 }];
 
-var _moment = __webpack_require__(1);
+var _moment = __webpack_require__(3);
 
 var _moment2 = _interopRequireDefault(_moment);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
-/* 80 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5164,7 +9126,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 81 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5208,7 +9170,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 82 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5252,7 +9214,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 83 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5290,7 +9252,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 84 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5328,7 +9290,7 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 85 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5350,7 +9312,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 86 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5372,7 +9334,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 87 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5394,7 +9356,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 88 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5416,7 +9378,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 89 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5438,7 +9400,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 90 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5461,7 +9423,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 91 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5484,7 +9446,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 92 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5506,7 +9468,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 93 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5528,7 +9490,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 94 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5550,7 +9512,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 95 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5568,7 +9530,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 96 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5588,7 +9550,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 97 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5623,7 +9585,7 @@ exports.default = ["GanttDirectiveBuilder", "ganttLayout", function (GanttDirect
 }];
 
 /***/ }),
-/* 98 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5645,7 +9607,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 99 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5676,7 +9638,7 @@ exports.default = ["GanttDirectiveBuilder", "ganttLayout", function (GanttDirect
 }];
 
 /***/ }),
-/* 100 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5694,7 +9656,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 101 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5727,14 +9689,14 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
     return builder.build();
 }];
 
-var _moment = __webpack_require__(1);
+var _moment = __webpack_require__(3);
 
 var _moment2 = _interopRequireDefault(_moment);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
-/* 102 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5752,7 +9714,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 103 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5770,7 +9732,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 104 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5788,7 +9750,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 105 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5811,7 +9773,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 106 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5834,7 +9796,7 @@ exports.default = ["GanttDirectiveBuilder", function (GanttDirectiveBuilder) {
 }];
 
 /***/ }),
-/* 107 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5847,7 +9809,9 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = ["$timeout", function ($timeout) {
     'ngInject';
 
-    function debounce(fn, timeout, invokeApply) {
+    function debounce(fn, timeout) {
+        var invokeApply = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
         var nthCall = 0;
         return function () {
             var self = this;
@@ -5867,7 +9831,7 @@ exports.default = ["$timeout", function ($timeout) {
 }];
 
 /***/ }),
-/* 108 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5876,12 +9840,32 @@ exports.default = ["$timeout", function ($timeout) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.GanttDirectiveBuilder = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
 
 exports.default = ["$templateCache", function ($templateCache) {
     'ngInject';
 
-    var DirectiveBuilder = function DirectiveBuilder(directiveName, templateUrl, require, restrict) {
-        var self = this;
+    GanttDirectiveBuilder.$templateCache = $templateCache;
+    return GanttDirectiveBuilder;
+}];
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttDirectiveBuilder = exports.GanttDirectiveBuilder = function () {
+    function GanttDirectiveBuilder(directiveName, templateUrl) {
+        var require = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '^gantt';
+
+        var restrict = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'E';
+        (0, _classCallCheck3.default)(this, GanttDirectiveBuilder);
+
         this.directiveName = directiveName;
         this.templateUrl = templateUrl === undefined ? 'template/' + directiveName + '.tmpl.html' : templateUrl;
         this.require = require === undefined ? '^gantt' : require;
@@ -5889,22 +9873,26 @@ exports.default = ["$templateCache", function ($templateCache) {
         this.scope = false;
         this.transclude = true;
         this.replace = true;
-        this.build = function () {
-            var directiveName = self.directiveName;
-            var _templateUrl = self.templateUrl;
-            var controllerFunction = self.controller;
+    }
+
+    (0, _createClass3.default)(GanttDirectiveBuilder, [{
+        key: 'build',
+        value: function build() {
+            var directiveName = this.directiveName;
+            var _templateUrl = this.templateUrl;
+            var controllerFunction = this.controller;
             var directive = {
-                restrict: self.restrict,
-                require: self.require,
-                transclude: self.transclude,
-                replace: self.replace,
-                scope: self.scope,
+                restrict: this.restrict,
+                require: this.require,
+                transclude: this.transclude,
+                replace: this.replace,
+                scope: this.scope,
                 templateUrl: function templateUrl(tElement, tAttrs) {
                     if (tAttrs.templateUrl !== undefined) {
                         _templateUrl = tAttrs.templateUrl;
                     }
                     if (tAttrs.template !== undefined) {
-                        $templateCache.put(_templateUrl, tAttrs.template);
+                        GanttDirectiveBuilder.$templateCache.put(_templateUrl, tAttrs.template);
                     }
                     return _templateUrl;
                 },
@@ -5938,13 +9926,13 @@ exports.default = ["$templateCache", function ($templateCache) {
                 delete directive.transclude;
             }
             return directive;
-        };
-    };
-    return DirectiveBuilder;
-}];
+        }
+    }]);
+    return GanttDirectiveBuilder;
+}();
 
 /***/ }),
-/* 109 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5954,14 +9942,31 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = ["$document", function ($document) {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    return {
-        elementFromPoint: function elementFromPoint(x, y) {
-            return $document[0].elementFromPoint(x, y);
-        },
-        elementsFromPoint: function elementsFromPoint(x, y, depth) {
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttDom = function () {
+    function GanttDom($document) {
+        (0, _classCallCheck3.default)(this, GanttDom);
+
+        this.$document = $document;
+    }
+
+    (0, _createClass3.default)(GanttDom, [{
+        key: 'elementFromPoint',
+        value: function elementFromPoint(x, y) {
+            return this.$document[0].elementFromPoint(x, y);
+        }
+    }, {
+        key: 'elementsFromPoint',
+        value: function elementsFromPoint(x, y, depth) {
             var elements = [];
             var previousPointerEvents = [];
             var cDepth = 0;
@@ -5986,8 +9991,10 @@ exports.default = ["$document", function ($document) {
                 elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
             }
             return elements;
-        },
-        findElementFromPoint: function findElementFromPoint(x, y, checkFunction) {
+        }
+    }, {
+        key: 'findElementFromPoint',
+        value: function findElementFromPoint(x, y, checkFunction) {
             var elements = [];
             var previousPointerEvents = [];
             var cDepth = 0;
@@ -6017,15 +10024,20 @@ exports.default = ["$document", function ($document) {
                 elements[i].style.setProperty('visibility', d.value ? d.value : '', d.priority);
             }
             return found;
-        },
-        isElementVisible: function isElementVisible(element) {
+        }
+    }, {
+        key: 'isElementVisible',
+        value: function isElementVisible(element) {
             return element.offsetParent !== undefined && element.offsetParent !== null;
         }
-    };
-}];
+    }]);
+    return GanttDom;
+}();
+
+exports.default = GanttDom;
 
 /***/ }),
-/* 110 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6055,14 +10067,14 @@ exports.default = ["$injector", function ($injector) {
     }
 }];
 
-var _angular = __webpack_require__(0);
+var _angular = __webpack_require__(1);
 
 var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
-/* 111 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6091,7 +10103,7 @@ exports.default = ["$compile", function ($compile) {
 }];
 
 /***/ }),
-/* 112 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6101,15 +10113,36 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = ["$document", function ($document) {
-    'ngInject';
+var _getIterator2 = __webpack_require__(4);
 
-    return {
-        getScrollBarWidth: function getScrollBarWidth() {
-            var inner = $document[0].createElement('p');
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttLayout = function () {
+    GanttLayout.$inject = ["$document"];
+    function GanttLayout($document) {
+        'ngInject';
+
+        (0, _classCallCheck3.default)(this, GanttLayout);
+        this.$document = $document;
+    }
+
+    (0, _createClass3.default)(GanttLayout, [{
+        key: 'getScrollBarWidth',
+        value: function getScrollBarWidth() {
+            var inner = this.$document[0].createElement('p');
             inner.style.width = '100%';
             inner.style.height = '200px';
-            var outer = $document[0].createElement('div');
+            var outer = this.$document[0].createElement('div');
             outer.style.position = 'absolute';
             outer.style.top = '0px';
             outer.style.left = '0px';
@@ -6118,22 +10151,23 @@ exports.default = ["$document", function ($document) {
             outer.style.height = '150px';
             outer.style.overflow = 'hidden';
             outer.appendChild(inner);
-            $document[0].body.appendChild(outer);
+            this.$document[0].body.appendChild(outer);
             var w1 = inner.offsetWidth;
             outer.style.overflow = 'scroll';
             var w2 = inner.offsetWidth;
             if (w1 === w2) {
                 w2 = outer.clientWidth;
             }
-            $document[0].body.removeChild(outer);
+            this.$document[0].body.removeChild(outer);
             return w1 - w2;
-        },
-
-        getScrollBarHeight: function getScrollBarHeight() {
-            var inner = $document[0].createElement('p');
+        }
+    }, {
+        key: 'getScrollBarHeight',
+        value: function getScrollBarHeight() {
+            var inner = this.$document[0].createElement('p');
             inner.style.width = '200px;';
             inner.style.height = '100%';
-            var outer = $document[0].createElement('div');
+            var outer = this.$document[0].createElement('div');
             outer.style.position = 'absolute';
             outer.style.top = '0px';
             outer.style.left = '0px';
@@ -6142,39 +10176,83 @@ exports.default = ["$document", function ($document) {
             outer.style.height = '200px';
             outer.style.overflow = 'hidden';
             outer.appendChild(inner);
-            $document[0].body.appendChild(outer);
+            this.$document[0].body.appendChild(outer);
             var h1 = inner.offsetHeight;
             outer.style.overflow = 'scroll';
             var h2 = inner.offsetHeight;
             if (h1 === h2) {
                 h2 = outer.clientHeight;
             }
-            $document[0].body.removeChild(outer);
+            this.$document[0].body.removeChild(outer);
             return h1 - h2;
-        },
-        setColumnsWidthFactor: function setColumnsWidthFactor(columns, widthFactor, originalLeftOffset) {
+        }
+    }, {
+        key: 'setColumnsWidthFactor',
+        value: function setColumnsWidthFactor(columns, widthFactor) {
+            var originalLeftOffset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
             if (!columns) {
                 return;
             }
-            if (!originalLeftOffset) {
-                originalLeftOffset = 0;
-            }
-            for (var i = 0; i < columns.length; i++) {
-                var column = columns[i];
-                column.left = widthFactor * (column.originalSize.left + originalLeftOffset) - originalLeftOffset;
-                column.width = widthFactor * column.originalSize.width;
-                for (var j = 0; j < column.timeFrames.length; j++) {
-                    var timeFrame = column.timeFrames[j];
-                    timeFrame.left = widthFactor * timeFrame.originalSize.left;
-                    timeFrame.width = widthFactor * timeFrame.originalSize.width;
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(columns), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var column = _step.value;
+
+                    column.left = widthFactor * (column.originalSize.left + originalLeftOffset) - originalLeftOffset;
+                    column.width = widthFactor * column.originalSize.width;
+                    var _iteratorNormalCompletion2 = true;
+                    var _didIteratorError2 = false;
+                    var _iteratorError2 = undefined;
+
+                    try {
+                        for (var _iterator2 = (0, _getIterator3.default)(column.timeFrames), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                            var timeFrame = _step2.value;
+
+                            timeFrame.left = widthFactor * timeFrame.originalSize.left;
+                            timeFrame.width = widthFactor * timeFrame.originalSize.width;
+                        }
+                    } catch (err) {
+                        _didIteratorError2 = true;
+                        _iteratorError2 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
+                            }
+                        } finally {
+                            if (_didIteratorError2) {
+                                throw _iteratorError2;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
                 }
             }
         }
-    };
-}];
+    }]);
+    return GanttLayout;
+}();
+
+exports.default = GanttLayout;
 
 /***/ }),
-/* 113 */
+/* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6184,11 +10262,24 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = function () {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    return {
-        getButton: function getButton(e) {
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttMouseButton = function () {
+    function GanttMouseButton() {
+        (0, _classCallCheck3.default)(this, GanttMouseButton);
+    }
+
+    (0, _createClass3.default)(GanttMouseButton, [{
+        key: "getButton",
+        value: function getButton(e) {
             e = e || window.event;
             if (!e.which) {
                 if (e.button === undefined) {
@@ -6199,11 +10290,14 @@ exports.default = function () {
                 return e.which;
             }
         }
-    };
-};
+    }]);
+    return GanttMouseButton;
+}();
+
+exports.default = GanttMouseButton;
 
 /***/ }),
-/* 114 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6213,17 +10307,32 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports.default = function () {
-    'ngInject';
+var _classCallCheck2 = __webpack_require__(0);
 
-    return {
-        getTouch: function getTouch(evt) {
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttMouseOffset = function () {
+    function GanttMouseOffset() {
+        (0, _classCallCheck3.default)(this, GanttMouseOffset);
+    }
+
+    (0, _createClass3.default)(GanttMouseOffset, [{
+        key: "getTouch",
+        value: function getTouch(evt) {
             if (evt.touches !== undefined) {
                 return evt.touches[0];
             }
             return evt;
-        },
-        getOffset: function getOffset(evt) {
+        }
+    }, {
+        key: "getOffset",
+        value: function getOffset(evt) {
             if (evt.offsetX && evt.offsetY) {
                 return { x: evt.offsetX, y: evt.offsetY };
             }
@@ -6231,16 +10340,21 @@ exports.default = function () {
                 return { x: evt.layerX, y: evt.layerY };
             }
             return this.getOffsetForElement(evt.target, evt);
-        },
-        getOffsetForElement: function getOffsetForElement(el, evt) {
+        }
+    }, {
+        key: "getOffsetForElement",
+        value: function getOffsetForElement(el, evt) {
             var bb = el.getBoundingClientRect();
             return { x: evt.clientX - bb.left, y: evt.clientY - bb.top };
         }
-    };
-};
+    }]);
+    return GanttMouseOffset;
+}();
+
+exports.default = GanttMouseOffset;
 
 /***/ }),
-/* 115 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6249,31 +10363,59 @@ exports.default = function () {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.GanttSmartEvent = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(2);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
 
 exports.default = function () {
     'ngInject';
 
-    function ganttSmartEvent($scope, $element, event, fn) {
-        $scope.$on('$destroy', function () {
-            $element.unbind(event, fn);
-        });
-        return {
-            bindOnce: function bindOnce() {
-                $element.one(event, fn);
-            },
-            bind: function bind() {
-                $element.bind(event, fn);
-            },
-            unbind: function unbind() {
-                $element.unbind(event, fn);
-            }
-        };
-    }
-    return ganttSmartEvent;
+    return GanttSmartEvent;
 };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GanttSmartEvent = exports.GanttSmartEvent = function () {
+    function GanttSmartEvent($scope, $element, event, fn) {
+        var _this = this;
+
+        (0, _classCallCheck3.default)(this, GanttSmartEvent);
+
+        this.$element = $element;
+        this.event = event;
+        this.fn = fn;
+        $scope.$on('$destroy', function () {
+            _this.$element.unbind(_this.event, _this.fn);
+        });
+    }
+
+    (0, _createClass3.default)(GanttSmartEvent, [{
+        key: 'bindOnce',
+        value: function bindOnce() {
+            this.$element.one(this.event, this.fn);
+        }
+    }, {
+        key: 'bind',
+        value: function bind() {
+            this.$element.bind(this.event, this.fn);
+        }
+    }, {
+        key: 'unbind',
+        value: function unbind() {
+            this.$element.unbind(this.event, this.fn);
+        }
+    }]);
+    return GanttSmartEvent;
+}();
+
 /***/ }),
-/* 116 */
+/* 124 */
 /***/ (function(module, exports) {
 
 var path = 'template/gantt.tmpl.html';
@@ -6282,37 +10424,165 @@ window.angular.module('ng').run(['$templateCache', function(c) { c.put(path, htm
 module.exports = path;
 
 /***/ }),
-/* 117 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = { "default": __webpack_require__(119), __esModule: true };
+module.exports = { "default": __webpack_require__(134), __esModule: true };
 
 /***/ }),
-/* 118 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = { "default": __webpack_require__(120), __esModule: true };
+module.exports = { "default": __webpack_require__(135), __esModule: true };
 
 /***/ }),
-/* 119 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(144);
-__webpack_require__(142);
-__webpack_require__(145);
-__webpack_require__(146);
-module.exports = __webpack_require__(17).Symbol;
+module.exports = { "default": __webpack_require__(136), __esModule: true };
 
 /***/ }),
-/* 120 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(143);
-__webpack_require__(147);
-module.exports = __webpack_require__(29).f('iterator');
+module.exports = { "default": __webpack_require__(137), __esModule: true };
 
 /***/ }),
-/* 121 */
+/* 129 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(138), __esModule: true };
+
+/***/ }),
+/* 130 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(139), __esModule: true };
+
+/***/ }),
+/* 131 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _setPrototypeOf = __webpack_require__(128);
+
+var _setPrototypeOf2 = _interopRequireDefault(_setPrototypeOf);
+
+var _create = __webpack_require__(125);
+
+var _create2 = _interopRequireDefault(_create);
+
+var _typeof2 = __webpack_require__(5);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : (0, _typeof3.default)(superClass)));
+  }
+
+  subClass.prototype = (0, _create2.default)(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) _setPrototypeOf2.default ? (0, _setPrototypeOf2.default)(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+/***/ }),
+/* 132 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _typeof2 = __webpack_require__(5);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && ((typeof call === "undefined" ? "undefined" : (0, _typeof3.default)(call)) === "object" || typeof call === "function") ? call : self;
+};
+
+/***/ }),
+/* 133 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(62);
+__webpack_require__(61);
+module.exports = __webpack_require__(160);
+
+/***/ }),
+/* 134 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(162);
+var $Object = __webpack_require__(7).Object;
+module.exports = function create(P, D){
+  return $Object.create(P, D);
+};
+
+/***/ }),
+/* 135 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(163);
+var $Object = __webpack_require__(7).Object;
+module.exports = function defineProperty(it, key, desc){
+  return $Object.defineProperty(it, key, desc);
+};
+
+/***/ }),
+/* 136 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(164);
+module.exports = __webpack_require__(7).Object.getPrototypeOf;
+
+/***/ }),
+/* 137 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(165);
+module.exports = __webpack_require__(7).Object.setPrototypeOf;
+
+/***/ }),
+/* 138 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(167);
+__webpack_require__(166);
+__webpack_require__(168);
+__webpack_require__(169);
+module.exports = __webpack_require__(7).Symbol;
+
+/***/ }),
+/* 139 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(61);
+__webpack_require__(62);
+module.exports = __webpack_require__(36).f('iterator');
+
+/***/ }),
+/* 140 */
 /***/ (function(module, exports) {
 
 module.exports = function(it){
@@ -6321,20 +10591,20 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 122 */
+/* 141 */
 /***/ (function(module, exports) {
 
 module.exports = function(){ /* empty */ };
 
 /***/ }),
-/* 123 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // false -> Array#indexOf
 // true  -> Array#includes
-var toIObject = __webpack_require__(6)
-  , toLength  = __webpack_require__(139)
-  , toIndex   = __webpack_require__(138);
+var toIObject = __webpack_require__(13)
+  , toLength  = __webpack_require__(158)
+  , toIndex   = __webpack_require__(157);
 module.exports = function(IS_INCLUDES){
   return function($this, el, fromIndex){
     var O      = toIObject($this)
@@ -6353,38 +10623,41 @@ module.exports = function(IS_INCLUDES){
 };
 
 /***/ }),
-/* 124 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// optional / simple context binding
-var aFunction = __webpack_require__(121);
-module.exports = function(fn, that, length){
-  aFunction(fn);
-  if(that === undefined)return fn;
-  switch(length){
-    case 1: return function(a){
-      return fn.call(that, a);
-    };
-    case 2: return function(a, b){
-      return fn.call(that, a, b);
-    };
-    case 3: return function(a, b, c){
-      return fn.call(that, a, b, c);
-    };
-  }
-  return function(/* ...args */){
-    return fn.apply(that, arguments);
-  };
+// getting tag from 19.1.3.6 Object.prototype.toString()
+var cof = __webpack_require__(24)
+  , TAG = __webpack_require__(9)('toStringTag')
+  // ES3 wrong here
+  , ARG = cof(function(){ return arguments; }()) == 'Arguments';
+
+// fallback for IE11 Script Access Denied error
+var tryGet = function(it, key){
+  try {
+    return it[key];
+  } catch(e){ /* empty */ }
+};
+
+module.exports = function(it){
+  var O, T, B;
+  return it === undefined ? 'Undefined' : it === null ? 'Null'
+    // @@toStringTag case
+    : typeof (T = tryGet(O = Object(it), TAG)) == 'string' ? T
+    // builtinTag case
+    : ARG ? cof(O)
+    // ES3 arguments fallback
+    : (B = cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
 };
 
 /***/ }),
-/* 125 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // all enumerable object keys, includes symbols
-var getKeys = __webpack_require__(14)
-  , gOPS    = __webpack_require__(37)
-  , pIE     = __webpack_require__(22);
+var getKeys = __webpack_require__(20)
+  , gOPS    = __webpack_require__(56)
+  , pIE     = __webpack_require__(29);
 module.exports = function(it){
   var result     = getKeys(it)
     , getSymbols = gOPS.f;
@@ -6398,44 +10671,44 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 126 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(4).document && document.documentElement;
+module.exports = __webpack_require__(8).document && document.documentElement;
 
 /***/ }),
-/* 127 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // fallback for non-array-like ES3 and non-enumerable old V8 strings
-var cof = __webpack_require__(30);
+var cof = __webpack_require__(24);
 module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
   return cof(it) == 'String' ? it.split('') : Object(it);
 };
 
 /***/ }),
-/* 128 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.2.2 IsArray(argument)
-var cof = __webpack_require__(30);
+var cof = __webpack_require__(24);
 module.exports = Array.isArray || function isArray(arg){
   return cof(arg) == 'Array';
 };
 
 /***/ }),
-/* 129 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var create         = __webpack_require__(35)
-  , descriptor     = __webpack_require__(15)
-  , setToStringTag = __webpack_require__(23)
+var create         = __webpack_require__(28)
+  , descriptor     = __webpack_require__(21)
+  , setToStringTag = __webpack_require__(30)
   , IteratorPrototype = {};
 
 // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-__webpack_require__(8)(IteratorPrototype, __webpack_require__(10)('iterator'), function(){ return this; });
+__webpack_require__(16)(IteratorPrototype, __webpack_require__(9)('iterator'), function(){ return this; });
 
 module.exports = function(Constructor, NAME, next){
   Constructor.prototype = create(IteratorPrototype, {next: descriptor(1, next)});
@@ -6443,7 +10716,7 @@ module.exports = function(Constructor, NAME, next){
 };
 
 /***/ }),
-/* 130 */
+/* 149 */
 /***/ (function(module, exports) {
 
 module.exports = function(done, value){
@@ -6451,11 +10724,11 @@ module.exports = function(done, value){
 };
 
 /***/ }),
-/* 131 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var getKeys   = __webpack_require__(14)
-  , toIObject = __webpack_require__(6);
+var getKeys   = __webpack_require__(20)
+  , toIObject = __webpack_require__(13);
 module.exports = function(object, el){
   var O      = toIObject(object)
     , keys   = getKeys(O)
@@ -6466,18 +10739,18 @@ module.exports = function(object, el){
 };
 
 /***/ }),
-/* 132 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var META     = __webpack_require__(16)('meta')
-  , isObject = __webpack_require__(13)
-  , has      = __webpack_require__(5)
-  , setDesc  = __webpack_require__(9).f
+var META     = __webpack_require__(22)('meta')
+  , isObject = __webpack_require__(18)
+  , has      = __webpack_require__(11)
+  , setDesc  = __webpack_require__(12).f
   , id       = 0;
 var isExtensible = Object.isExtensible || function(){
   return true;
 };
-var FREEZE = !__webpack_require__(12)(function(){
+var FREEZE = !__webpack_require__(17)(function(){
   return isExtensible(Object.preventExtensions({}));
 });
 var setMeta = function(it){
@@ -6524,14 +10797,14 @@ var meta = module.exports = {
 };
 
 /***/ }),
-/* 133 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP       = __webpack_require__(9)
-  , anObject = __webpack_require__(11)
-  , getKeys  = __webpack_require__(14);
+var dP       = __webpack_require__(12)
+  , anObject = __webpack_require__(14)
+  , getKeys  = __webpack_require__(20);
 
-module.exports = __webpack_require__(7) ? Object.defineProperties : function defineProperties(O, Properties){
+module.exports = __webpack_require__(10) ? Object.defineProperties : function defineProperties(O, Properties){
   anObject(O);
   var keys   = getKeys(Properties)
     , length = keys.length
@@ -6542,33 +10815,12 @@ module.exports = __webpack_require__(7) ? Object.defineProperties : function def
 };
 
 /***/ }),
-/* 134 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var pIE            = __webpack_require__(22)
-  , createDesc     = __webpack_require__(15)
-  , toIObject      = __webpack_require__(6)
-  , toPrimitive    = __webpack_require__(27)
-  , has            = __webpack_require__(5)
-  , IE8_DOM_DEFINE = __webpack_require__(33)
-  , gOPD           = Object.getOwnPropertyDescriptor;
-
-exports.f = __webpack_require__(7) ? gOPD : function getOwnPropertyDescriptor(O, P){
-  O = toIObject(O);
-  P = toPrimitive(P, true);
-  if(IE8_DOM_DEFINE)try {
-    return gOPD(O, P);
-  } catch(e){ /* empty */ }
-  if(has(O, P))return createDesc(!pIE.f.call(O, P), O[P]);
-};
-
-/***/ }),
-/* 135 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
-var toIObject = __webpack_require__(6)
-  , gOPN      = __webpack_require__(36).f
+var toIObject = __webpack_require__(13)
+  , gOPN      = __webpack_require__(55).f
   , toString  = {}.toString;
 
 var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
@@ -6588,29 +10840,56 @@ module.exports.f = function getOwnPropertyNames(it){
 
 
 /***/ }),
-/* 136 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-var has         = __webpack_require__(5)
-  , toObject    = __webpack_require__(140)
-  , IE_PROTO    = __webpack_require__(24)('IE_PROTO')
-  , ObjectProto = Object.prototype;
-
-module.exports = Object.getPrototypeOf || function(O){
-  O = toObject(O);
-  if(has(O, IE_PROTO))return O[IE_PROTO];
-  if(typeof O.constructor == 'function' && O instanceof O.constructor){
-    return O.constructor.prototype;
-  } return O instanceof Object ? ObjectProto : null;
+// most Object methods by ES6 should accept primitives
+var $export = __webpack_require__(15)
+  , core    = __webpack_require__(7)
+  , fails   = __webpack_require__(17);
+module.exports = function(KEY, exec){
+  var fn  = (core.Object || {})[KEY] || Object[KEY]
+    , exp = {};
+  exp[KEY] = exec(fn);
+  $export($export.S + $export.F * fails(function(){ fn(1); }), 'Object', exp);
 };
 
 /***/ }),
-/* 137 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var toInteger = __webpack_require__(26)
-  , defined   = __webpack_require__(18);
+// Works with __proto__ only. Old v8 can't work with null proto objects.
+/* eslint-disable no-proto */
+var isObject = __webpack_require__(18)
+  , anObject = __webpack_require__(14);
+var check = function(O, proto){
+  anObject(O);
+  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
+};
+module.exports = {
+  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
+    function(test, buggy, set){
+      try {
+        set = __webpack_require__(50)(Function.call, __webpack_require__(54).f(Object.prototype, '__proto__').set, 2);
+        set(test, []);
+        buggy = !(test instanceof Array);
+      } catch(e){ buggy = true; }
+      return function setPrototypeOf(O, proto){
+        check(O, proto);
+        if(buggy)O.__proto__ = proto;
+        else set(O, proto);
+        return O;
+      };
+    }({}, false) : undefined),
+  check: check
+};
+
+/***/ }),
+/* 156 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var toInteger = __webpack_require__(33)
+  , defined   = __webpack_require__(25);
 // true  -> String#at
 // false -> String#codePointAt
 module.exports = function(TO_STRING){
@@ -6628,10 +10907,10 @@ module.exports = function(TO_STRING){
 };
 
 /***/ }),
-/* 138 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var toInteger = __webpack_require__(26)
+var toInteger = __webpack_require__(33)
   , max       = Math.max
   , min       = Math.min;
 module.exports = function(index, length){
@@ -6640,42 +10919,57 @@ module.exports = function(index, length){
 };
 
 /***/ }),
-/* 139 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.1.15 ToLength
-var toInteger = __webpack_require__(26)
+var toInteger = __webpack_require__(33)
   , min       = Math.min;
 module.exports = function(it){
   return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
 };
 
 /***/ }),
-/* 140 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// 7.1.13 ToObject(argument)
-var defined = __webpack_require__(18);
-module.exports = function(it){
-  return Object(defined(it));
+var classof   = __webpack_require__(143)
+  , ITERATOR  = __webpack_require__(9)('iterator')
+  , Iterators = __webpack_require__(19);
+module.exports = __webpack_require__(7).getIteratorMethod = function(it){
+  if(it != undefined)return it[ITERATOR]
+    || it['@@iterator']
+    || Iterators[classof(it)];
 };
 
 /***/ }),
-/* 141 */
+/* 160 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var anObject = __webpack_require__(14)
+  , get      = __webpack_require__(159);
+module.exports = __webpack_require__(7).getIterator = function(it){
+  var iterFn = get(it);
+  if(typeof iterFn != 'function')throw TypeError(it + ' is not iterable!');
+  return anObject(iterFn.call(it));
+};
+
+/***/ }),
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var addToUnscopables = __webpack_require__(122)
-  , step             = __webpack_require__(130)
-  , Iterators        = __webpack_require__(20)
-  , toIObject        = __webpack_require__(6);
+var addToUnscopables = __webpack_require__(141)
+  , step             = __webpack_require__(149)
+  , Iterators        = __webpack_require__(19)
+  , toIObject        = __webpack_require__(13);
 
 // 22.1.3.4 Array.prototype.entries()
 // 22.1.3.13 Array.prototype.keys()
 // 22.1.3.29 Array.prototype.values()
 // 22.1.3.30 Array.prototype[@@iterator]()
-module.exports = __webpack_require__(34)(Array, 'Array', function(iterated, kind){
+module.exports = __webpack_require__(53)(Array, 'Array', function(iterated, kind){
   this._t = toIObject(iterated); // target
   this._i = 0;                   // next index
   this._k = kind;                // kind
@@ -6701,66 +10995,81 @@ addToUnscopables('values');
 addToUnscopables('entries');
 
 /***/ }),
-/* 142 */
+/* 162 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var $export = __webpack_require__(15)
+// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+$export($export.S, 'Object', {create: __webpack_require__(28)});
+
+/***/ }),
+/* 163 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var $export = __webpack_require__(15);
+// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
+$export($export.S + $export.F * !__webpack_require__(10), 'Object', {defineProperty: __webpack_require__(12).f});
+
+/***/ }),
+/* 164 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.9 Object.getPrototypeOf(O)
+var toObject        = __webpack_require__(60)
+  , $getPrototypeOf = __webpack_require__(57);
+
+__webpack_require__(154)('getPrototypeOf', function(){
+  return function getPrototypeOf(it){
+    return $getPrototypeOf(toObject(it));
+  };
+});
+
+/***/ }),
+/* 165 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.3.19 Object.setPrototypeOf(O, proto)
+var $export = __webpack_require__(15);
+$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(155).set});
+
+/***/ }),
+/* 166 */
 /***/ (function(module, exports) {
 
 
 
 /***/ }),
-/* 143 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var $at  = __webpack_require__(137)(true);
-
-// 21.1.3.27 String.prototype[@@iterator]()
-__webpack_require__(34)(String, 'String', function(iterated){
-  this._t = String(iterated); // target
-  this._i = 0;                // next index
-// 21.1.5.2.1 %StringIteratorPrototype%.next()
-}, function(){
-  var O     = this._t
-    , index = this._i
-    , point;
-  if(index >= O.length)return {value: undefined, done: true};
-  point = $at(O, index);
-  this._i += point.length;
-  return {value: point, done: false};
-});
-
-/***/ }),
-/* 144 */
+/* 167 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 // ECMAScript 6 symbols shim
-var global         = __webpack_require__(4)
-  , has            = __webpack_require__(5)
-  , DESCRIPTORS    = __webpack_require__(7)
-  , $export        = __webpack_require__(32)
-  , redefine       = __webpack_require__(39)
-  , META           = __webpack_require__(132).KEY
-  , $fails         = __webpack_require__(12)
-  , shared         = __webpack_require__(25)
-  , setToStringTag = __webpack_require__(23)
-  , uid            = __webpack_require__(16)
-  , wks            = __webpack_require__(10)
-  , wksExt         = __webpack_require__(29)
-  , wksDefine      = __webpack_require__(28)
-  , keyOf          = __webpack_require__(131)
-  , enumKeys       = __webpack_require__(125)
-  , isArray        = __webpack_require__(128)
-  , anObject       = __webpack_require__(11)
-  , toIObject      = __webpack_require__(6)
-  , toPrimitive    = __webpack_require__(27)
-  , createDesc     = __webpack_require__(15)
-  , _create        = __webpack_require__(35)
-  , gOPNExt        = __webpack_require__(135)
-  , $GOPD          = __webpack_require__(134)
-  , $DP            = __webpack_require__(9)
-  , $keys          = __webpack_require__(14)
+var global         = __webpack_require__(8)
+  , has            = __webpack_require__(11)
+  , DESCRIPTORS    = __webpack_require__(10)
+  , $export        = __webpack_require__(15)
+  , redefine       = __webpack_require__(59)
+  , META           = __webpack_require__(151).KEY
+  , $fails         = __webpack_require__(17)
+  , shared         = __webpack_require__(32)
+  , setToStringTag = __webpack_require__(30)
+  , uid            = __webpack_require__(22)
+  , wks            = __webpack_require__(9)
+  , wksExt         = __webpack_require__(36)
+  , wksDefine      = __webpack_require__(35)
+  , keyOf          = __webpack_require__(150)
+  , enumKeys       = __webpack_require__(144)
+  , isArray        = __webpack_require__(147)
+  , anObject       = __webpack_require__(14)
+  , toIObject      = __webpack_require__(13)
+  , toPrimitive    = __webpack_require__(34)
+  , createDesc     = __webpack_require__(21)
+  , _create        = __webpack_require__(28)
+  , gOPNExt        = __webpack_require__(153)
+  , $GOPD          = __webpack_require__(54)
+  , $DP            = __webpack_require__(12)
+  , $keys          = __webpack_require__(20)
   , gOPD           = $GOPD.f
   , dP             = $DP.f
   , gOPN           = gOPNExt.f
@@ -6883,11 +11192,11 @@ if(!USE_NATIVE){
 
   $GOPD.f = $getOwnPropertyDescriptor;
   $DP.f   = $defineProperty;
-  __webpack_require__(36).f = gOPNExt.f = $getOwnPropertyNames;
-  __webpack_require__(22).f  = $propertyIsEnumerable;
-  __webpack_require__(37).f = $getOwnPropertySymbols;
+  __webpack_require__(55).f = gOPNExt.f = $getOwnPropertyNames;
+  __webpack_require__(29).f  = $propertyIsEnumerable;
+  __webpack_require__(56).f = $getOwnPropertySymbols;
 
-  if(DESCRIPTORS && !__webpack_require__(21)){
+  if(DESCRIPTORS && !__webpack_require__(27)){
     redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
   }
 
@@ -6962,7 +11271,7 @@ $JSON && $export($export.S + $export.F * (!USE_NATIVE || $fails(function(){
 });
 
 // 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(8)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
+$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(16)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
 // 19.4.3.5 Symbol.prototype[@@toStringTag]
 setToStringTag($Symbol, 'Symbol');
 // 20.2.1.9 Math[@@toStringTag]
@@ -6971,34 +11280,16 @@ setToStringTag(Math, 'Math', true);
 setToStringTag(global.JSON, 'JSON', true);
 
 /***/ }),
-/* 145 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(28)('asyncIterator');
+__webpack_require__(35)('asyncIterator');
 
 /***/ }),
-/* 146 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(28)('observable');
-
-/***/ }),
-/* 147 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(141);
-var global        = __webpack_require__(4)
-  , hide          = __webpack_require__(8)
-  , Iterators     = __webpack_require__(20)
-  , TO_STRING_TAG = __webpack_require__(10)('toStringTag');
-
-for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList', 'CSSRuleList'], i = 0; i < 5; i++){
-  var NAME       = collections[i]
-    , Collection = global[NAME]
-    , proto      = Collection && Collection.prototype;
-  if(proto && !proto[TO_STRING_TAG])hide(proto, TO_STRING_TAG, NAME);
-  Iterators[NAME] = Iterators.Array;
-}
+__webpack_require__(35)('observable');
 
 /***/ })
 /******/ ]);
