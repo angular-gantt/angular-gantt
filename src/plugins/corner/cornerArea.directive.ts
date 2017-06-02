@@ -1,5 +1,3 @@
-import angular from 'angular';
-
 export default function (GanttDirectiveBuilder) {
   'ngInject';
 

@@ -8,7 +8,6 @@ import {GanttColumnHeader} from './columnHeader.factory';
 import GanttHeadersGenerator from './headersGenerator.service';
 import GanttLayout from '../../ui/util/layout.service';
 import {Gantt} from '../gantt.factory';
-import {IFilterService} from 'angular';
 import {IGanttFilterService} from '../../../index';
 
 export class GanttColumnsManager {

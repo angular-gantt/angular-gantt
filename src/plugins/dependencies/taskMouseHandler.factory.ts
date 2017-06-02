@@ -54,13 +54,13 @@ export default function ($timeout) {
 
         if (self.task.getContentElement()) {
           self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
-          angular.forEach(self.task.dependencies.endpoints, function (endpoint) {
+          for (let endpoint of self.task.dependencies.endpoints) {
             self.elementHandlers.push(new ElementHandler(angular.element(endpoint.canvas)));
-          });
+          }
 
-          angular.forEach(self.elementHandlers, function (elementHandler) {
+          for (let elementHandler of self.elementHandlers) {
             elementHandler.install();
-          });
+          }
 
           self.installed = true;
         }
@@ -72,9 +72,9 @@ export default function ($timeout) {
      */
     this.release = function () {
       if (self.installed) {
-        angular.forEach(self.elementHandlers, function (elementHandler) {
+        for (let elementHandler of self.elementHandlers) {
           elementHandler.release();
-        });
+        }
 
         self.elementHandlers = [];
 
@@ -88,18 +88,18 @@ export default function ($timeout) {
      */
     this.displayEndpoints = function () {
       self.display = true;
-      angular.forEach(self.task.dependencies.endpoints, function (endpoint) {
+      for (let endpoint of self.task.dependencies.endpoints) {
         endpoint.setVisible(true, true, true);
-      });
+      }
     };
 
     /**
      * Hide all endpoints for this task.
      */
     this.hideEndpoints = function () {
-      angular.forEach(self.task.dependencies.endpoints, function (endpoint) {
+      for (let endpoint of self.task.dependencies.endpoints) {
         endpoint.setVisible(false, true, true);
-      });
+      }
       self.display = false;
     };
   };

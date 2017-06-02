@@ -1,8 +1,9 @@
-import angular from 'angular';
 import jsplumb from 'jsplumb';
+import {GanttTask} from '../../core/logic/task/task.factory';
 
 export default function (GanttDependency, GanttDependenciesEvents, GanttDependencyTaskMouseHandler) {
   'ngInject';
+
   let DependenciesManager = function (gantt, pluginScope, api) {
     let self = this;
 
@@ -188,7 +189,7 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
       }
     };
 
-    this.getTaskDependencies = function (task) {
+    this.getTaskDependencies = function (task: GanttTask) {
       let dependencies = [];
 
       let fromDependencies = self.dependenciesFrom[task.model.id];
@@ -207,14 +208,16 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
     this.setDraggingConnection = function (connection) {
       if (connection) {
         self.draggingConnection = connection;
-        angular.forEach(self.tasks, function (task) {
+        for (let taskId in self.tasks) {
+          let task = self.tasks[taskId];
           task.dependencies.mouseHandler.release();
-        });
+        }
       } else {
         self.draggingConnection = undefined;
-        angular.forEach(self.tasks, function (task) {
+        for (let taskId in self.tasks) {
+          let task = self.tasks[taskId];
           task.dependencies.mouseHandler.install();
-        });
+        }
       }
     };
 
@@ -282,11 +285,12 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
      *
      * @param tasks
      */
-    this.setTasks = function (tasks) {
-      angular.forEach(self.tasks, function (task) {
+    this.setTasks = function (tasks: GanttTask[]) {
+      for (let taskId in self.tasks) {
+        let task = self.tasks[taskId];
         removeTaskMouseHandler(task);
         removeTaskEndpoint(task);
-      });
+      }
 
       let newTasks = {};
       let tasksList = [];
@@ -419,13 +423,14 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
     this.getDependencies = function () {
       let allDependencies = [];
 
-      angular.forEach(this.dependenciesFrom, function (dependencies) {
+      for (let fromId in this.dependenciesFrom) {
+        let dependencies = this.dependenciesFrom[fromId];
         for (let dependency of dependencies) {
           if (!(dependency in allDependencies)) {
             allDependencies.push(dependency);
           }
         }
-      });
+      }
 
       return allDependencies;
     };
@@ -448,23 +453,24 @@ export default function (GanttDependency, GanttDependenciesEvents, GanttDependen
           tasksDependencies = this.getDependencies();
         } else {
           tasksDependencies = [];
-          angular.forEach(tasks, function (task) {
+          for (let task of tasks) {
             let taskDependencies = self.getTaskDependencies(task);
-            angular.forEach(taskDependencies, function (taskDependency) {
+            for (let taskDependency of taskDependencies) {
               if (!(taskDependency in tasksDependencies)) {
                 tasksDependencies.push(taskDependency);
               }
-            });
-          });
+            }
+          }
         }
 
         for (i = 0; i < tasksDependencies.length; i++) {
           self.removeDependency(tasksDependencies[i]);
         }
 
-        angular.forEach(tasks, function (task) {
+        for (let taskId in tasks) {
+          let task = tasks[taskId];
           self.addDependenciesFromTask(task);
-        });
+        }
       } finally {
         self.plumb.setSuspendDrawing(false, true);
       }

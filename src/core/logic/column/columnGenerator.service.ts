@@ -1,4 +1,4 @@
-import moment, {DurationInputArg1, unitOfTime} from 'moment';
+import moment, {unitOfTime} from 'moment';
 import {GanttColumnBuilder} from './columnBuilder.factory';
 import DurationConstructor = moment.unitOfTime.DurationConstructor;
 

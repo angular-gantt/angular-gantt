@@ -147,6 +147,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
+module.exports = { "default": __webpack_require__(133), __esModule: true };
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 
@@ -169,12 +175,6 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 } : function (obj) {
   return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
 };
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(133), __esModule: true };
 
 /***/ }),
 /* 6 */
@@ -740,7 +740,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumn = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -1321,6 +1321,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttApi = undefined;
 
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
@@ -1337,10 +1341,6 @@ exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, g
     GanttApi.ganttUtils = ganttUtils;
     return GanttApi;
 }];
-
-var _angular = __webpack_require__(2);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1433,18 +1433,45 @@ var GanttApi = exports.GanttApi = function () {
             var _this4 = this;
 
             var features = [];
-            _angular2.default.forEach(eventObjectMap, function (featProp, featPropName) {
+            for (var featPropName in eventObjectMap) {
+                var featProp = eventObjectMap[featPropName];
                 var feature = { name: featPropName, events: [] };
-                _angular2.default.forEach(featProp, function (prop, propName) {
+                for (var propName in featProp) {
                     feature.events.push(propName);
-                });
+                }
                 features.push(feature);
-            });
-            features.forEach(function (feature) {
-                feature.events.forEach(function (event) {
-                    _this4.registerEvent(feature.name, event);
+            }
+
+            var _loop = function _loop(_feature) {
+                _feature.events.forEach(function (event) {
+                    _this4.registerEvent(_feature.name, event);
                 });
-            });
+            };
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(features), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _feature = _step.value;
+
+                    _loop(_feature);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
         }
     }, {
         key: 'registerMethod',
@@ -1458,21 +1485,62 @@ var GanttApi = exports.GanttApi = function () {
     }, {
         key: 'registerMethodsFromObject',
         value: function registerMethodsFromObject(methodMap, _this) {
-            var _this5 = this;
-
             var features = [];
-            _angular2.default.forEach(methodMap, function (featProp, featPropName) {
+            for (var featPropName in methodMap) {
+                var featProp = methodMap[featPropName];
                 var feature = { name: featPropName, methods: [] };
-                _angular2.default.forEach(featProp, function (prop, propName) {
+                for (var propName in featProp) {
+                    var prop = featProp[propName];
                     feature.methods.push({ name: propName, fn: prop });
-                });
+                }
                 features.push(feature);
-            });
-            features.forEach(function (feature) {
-                feature.methods.forEach(function (method) {
-                    _this5.registerMethod(feature.name, method.name, method.fn, _this);
-                });
-            });
+            }
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = (0, _getIterator3.default)(features), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var _feature2 = _step2.value;
+                    var _iteratorNormalCompletion3 = true;
+                    var _didIteratorError3 = false;
+                    var _iteratorError3 = undefined;
+
+                    try {
+                        for (var _iterator3 = (0, _getIterator3.default)(_feature2.methods), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                            var method = _step3.value;
+
+                            this.registerMethod(_feature2.name, method.name, method.fn, _this);
+                        }
+                    } catch (err) {
+                        _didIteratorError3 = true;
+                        _iteratorError3 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                _iterator3.return();
+                            }
+                        } finally {
+                            if (_didIteratorError3) {
+                                throw _iteratorError3;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
         }
     }]);
     return GanttApi;
@@ -1573,7 +1641,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttCalendar = exports.DateFrame = exports.TimeFrameMapping = exports.TimeFrame = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -2264,7 +2332,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumnsManager = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -3912,11 +3980,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRowsManager = undefined;
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -5552,7 +5620,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -6145,11 +6213,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRow = exports.GanttRowModel = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -7724,7 +7792,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttHierarchy = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -9411,7 +9479,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -9774,7 +9842,7 @@ var _create = __webpack_require__(125);
 
 var _create2 = _interopRequireDefault(_create);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -9805,7 +9873,7 @@ exports.default = function (subClass, superClass) {
 
 exports.__esModule = true;
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 

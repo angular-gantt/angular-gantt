@@ -147,6 +147,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
+module.exports = { "default": __webpack_require__(133), __esModule: true };
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 
@@ -169,12 +175,6 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 } : function (obj) {
   return obj && typeof _symbol2.default === "function" && obj.constructor === _symbol2.default && obj !== _symbol2.default.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj);
 };
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(133), __esModule: true };
 
 /***/ }),
 /* 6 */
@@ -740,7 +740,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumn = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -1321,6 +1321,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttApi = undefined;
 
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
@@ -1337,10 +1341,6 @@ exports.default = ["$q", "$rootScope", "ganttUtils", function ($q, $rootScope, g
     GanttApi.ganttUtils = ganttUtils;
     return GanttApi;
 }];
-
-var _angular = __webpack_require__(2);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1433,18 +1433,45 @@ var GanttApi = exports.GanttApi = function () {
             var _this4 = this;
 
             var features = [];
-            _angular2.default.forEach(eventObjectMap, function (featProp, featPropName) {
+            for (var featPropName in eventObjectMap) {
+                var featProp = eventObjectMap[featPropName];
                 var feature = { name: featPropName, events: [] };
-                _angular2.default.forEach(featProp, function (prop, propName) {
+                for (var propName in featProp) {
                     feature.events.push(propName);
-                });
+                }
                 features.push(feature);
-            });
-            features.forEach(function (feature) {
-                feature.events.forEach(function (event) {
-                    _this4.registerEvent(feature.name, event);
+            }
+
+            var _loop = function _loop(_feature) {
+                _feature.events.forEach(function (event) {
+                    _this4.registerEvent(_feature.name, event);
                 });
-            });
+            };
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(features), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var _feature = _step.value;
+
+                    _loop(_feature);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
         }
     }, {
         key: 'registerMethod',
@@ -1458,21 +1485,62 @@ var GanttApi = exports.GanttApi = function () {
     }, {
         key: 'registerMethodsFromObject',
         value: function registerMethodsFromObject(methodMap, _this) {
-            var _this5 = this;
-
             var features = [];
-            _angular2.default.forEach(methodMap, function (featProp, featPropName) {
+            for (var featPropName in methodMap) {
+                var featProp = methodMap[featPropName];
                 var feature = { name: featPropName, methods: [] };
-                _angular2.default.forEach(featProp, function (prop, propName) {
+                for (var propName in featProp) {
+                    var prop = featProp[propName];
                     feature.methods.push({ name: propName, fn: prop });
-                });
+                }
                 features.push(feature);
-            });
-            features.forEach(function (feature) {
-                feature.methods.forEach(function (method) {
-                    _this5.registerMethod(feature.name, method.name, method.fn, _this);
-                });
-            });
+            }
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = (0, _getIterator3.default)(features), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var _feature2 = _step2.value;
+                    var _iteratorNormalCompletion3 = true;
+                    var _didIteratorError3 = false;
+                    var _iteratorError3 = undefined;
+
+                    try {
+                        for (var _iterator3 = (0, _getIterator3.default)(_feature2.methods), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                            var method = _step3.value;
+
+                            this.registerMethod(_feature2.name, method.name, method.fn, _this);
+                        }
+                    } catch (err) {
+                        _didIteratorError3 = true;
+                        _iteratorError3 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                _iterator3.return();
+                            }
+                        } finally {
+                            if (_didIteratorError3) {
+                                throw _iteratorError3;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
         }
     }]);
     return GanttApi;
@@ -1573,7 +1641,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttCalendar = exports.DateFrame = exports.TimeFrameMapping = exports.TimeFrame = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -2264,7 +2332,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttColumnsManager = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -3912,11 +3980,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRowsManager = undefined;
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -5552,7 +5620,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -6145,11 +6213,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttRow = exports.GanttRowModel = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -7724,7 +7792,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GanttHierarchy = undefined;
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -9411,7 +9479,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -9774,7 +9842,7 @@ var _create = __webpack_require__(125);
 
 var _create2 = _interopRequireDefault(_create);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -9805,7 +9873,7 @@ exports.default = function (subClass, superClass) {
 
 exports.__esModule = true;
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -12271,7 +12339,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -12419,7 +12487,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -12963,11 +13031,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -13058,11 +13126,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -13276,7 +13344,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -13503,7 +13571,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -13677,14 +13745,16 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
         this.setDraggingConnection = function (connection) {
             if (connection) {
                 self.draggingConnection = connection;
-                _angular2.default.forEach(self.tasks, function (task) {
+                for (var taskId in self.tasks) {
+                    var task = self.tasks[taskId];
                     task.dependencies.mouseHandler.release();
-                });
+                }
             } else {
                 self.draggingConnection = undefined;
-                _angular2.default.forEach(self.tasks, function (task) {
-                    task.dependencies.mouseHandler.install();
-                });
+                for (var _taskId in self.tasks) {
+                    var _task = self.tasks[_taskId];
+                    _task.dependencies.mouseHandler.install();
+                }
             }
         };
         var isTaskEnabled = function isTaskEnabled(task) {
@@ -13781,10 +13851,11 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
         };
 
         this.setTasks = function (tasks) {
-            _angular2.default.forEach(self.tasks, function (task) {
+            for (var taskId in self.tasks) {
+                var task = self.tasks[taskId];
                 removeTaskMouseHandler(task);
                 removeTaskEndpoint(task);
-            });
+            }
             var newTasks = {};
             var tasksList = [];
             var _iteratorNormalCompletion4 = true;
@@ -13793,13 +13864,13 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
 
             try {
                 for (var _iterator4 = (0, _getIterator3.default)(tasks), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                    var task = _step4.value;
+                    var _task2 = _step4.value;
 
-                    if (isTaskEnabled(task)) {
-                        newTasks[task.model.id] = task;
-                        tasksList.push(task);
-                        addTaskEndpoints(task);
-                        addTaskMouseHandler(task);
+                    if (isTaskEnabled(_task2)) {
+                        newTasks[_task2.model.id] = _task2;
+                        tasksList.push(_task2);
+                        addTaskEndpoints(_task2);
+                        addTaskMouseHandler(_task2);
                     }
                 }
             } catch (err) {
@@ -13947,7 +14018,8 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
 
         this.getDependencies = function () {
             var allDependencies = [];
-            _angular2.default.forEach(this.dependenciesFrom, function (dependencies) {
+            for (var fromId in this.dependenciesFrom) {
+                var dependencies = this.dependenciesFrom[fromId];
                 var _iteratorNormalCompletion7 = true;
                 var _didIteratorError7 = false;
                 var _iteratorError7 = undefined;
@@ -13974,7 +14046,7 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
                         }
                     }
                 }
-            });
+            }
             return allDependencies;
         };
 
@@ -13991,21 +14063,64 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
                     tasksDependencies = this.getDependencies();
                 } else {
                     tasksDependencies = [];
-                    _angular2.default.forEach(tasks, function (task) {
-                        var taskDependencies = self.getTaskDependencies(task);
-                        _angular2.default.forEach(taskDependencies, function (taskDependency) {
-                            if (!(taskDependency in tasksDependencies)) {
-                                tasksDependencies.push(taskDependency);
+                    var _iteratorNormalCompletion8 = true;
+                    var _didIteratorError8 = false;
+                    var _iteratorError8 = undefined;
+
+                    try {
+                        for (var _iterator8 = (0, _getIterator3.default)(tasks), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                            var task = _step8.value;
+
+                            var taskDependencies = self.getTaskDependencies(task);
+                            var _iteratorNormalCompletion9 = true;
+                            var _didIteratorError9 = false;
+                            var _iteratorError9 = undefined;
+
+                            try {
+                                for (var _iterator9 = (0, _getIterator3.default)(taskDependencies), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                                    var taskDependency = _step9.value;
+
+                                    if (!(taskDependency in tasksDependencies)) {
+                                        tasksDependencies.push(taskDependency);
+                                    }
+                                }
+                            } catch (err) {
+                                _didIteratorError9 = true;
+                                _iteratorError9 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                                        _iterator9.return();
+                                    }
+                                } finally {
+                                    if (_didIteratorError9) {
+                                        throw _iteratorError9;
+                                    }
+                                }
                             }
-                        });
-                    });
+                        }
+                    } catch (err) {
+                        _didIteratorError8 = true;
+                        _iteratorError8 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                _iterator8.return();
+                            }
+                        } finally {
+                            if (_didIteratorError8) {
+                                throw _iteratorError8;
+                            }
+                        }
+                    }
                 }
                 for (i = 0; i < tasksDependencies.length; i++) {
                     self.removeDependency(tasksDependencies[i]);
                 }
-                _angular2.default.forEach(tasks, function (task) {
-                    self.addDependenciesFromTask(task);
-                });
+                for (var taskId in tasks) {
+                    var _task3 = tasks[taskId];
+                    self.addDependenciesFromTask(_task3);
+                }
             } finally {
                 self.plumb.setSuspendDrawing(false, true);
             }
@@ -14014,10 +14129,6 @@ exports.default = ["GanttDependency", "GanttDependenciesEvents", "GanttDependenc
     };
     return DependenciesManager;
 }];
-
-var _angular = __webpack_require__(2);
-
-var _angular2 = _interopRequireDefault(_angular);
 
 var _jsplumb = __webpack_require__(264);
 
@@ -14036,7 +14147,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -14186,6 +14297,10 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _getIterator2 = __webpack_require__(4);
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 exports.default = ["$timeout", function ($timeout) {
     'ngInject';
 
@@ -14224,12 +14339,56 @@ exports.default = ["$timeout", function ($timeout) {
                 self.hideEndpoints();
                 if (self.task.getContentElement()) {
                     self.elementHandlers.push(new ElementHandler(self.task.getContentElement()));
-                    _angular2.default.forEach(self.task.dependencies.endpoints, function (endpoint) {
-                        self.elementHandlers.push(new ElementHandler(_angular2.default.element(endpoint.canvas)));
-                    });
-                    _angular2.default.forEach(self.elementHandlers, function (elementHandler) {
-                        elementHandler.install();
-                    });
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = (0, _getIterator3.default)(self.task.dependencies.endpoints), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var endpoint = _step.value;
+
+                            self.elementHandlers.push(new ElementHandler(_angular2.default.element(endpoint.canvas)));
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+
+                    var _iteratorNormalCompletion2 = true;
+                    var _didIteratorError2 = false;
+                    var _iteratorError2 = undefined;
+
+                    try {
+                        for (var _iterator2 = (0, _getIterator3.default)(self.elementHandlers), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                            var elementHandler = _step2.value;
+
+                            elementHandler.install();
+                        }
+                    } catch (err) {
+                        _didIteratorError2 = true;
+                        _iteratorError2 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
+                            }
+                        } finally {
+                            if (_didIteratorError2) {
+                                throw _iteratorError2;
+                            }
+                        }
+                    }
+
                     self.installed = true;
                 }
             }
@@ -14237,9 +14396,31 @@ exports.default = ["$timeout", function ($timeout) {
 
         this.release = function () {
             if (self.installed) {
-                _angular2.default.forEach(self.elementHandlers, function (elementHandler) {
-                    elementHandler.release();
-                });
+                var _iteratorNormalCompletion3 = true;
+                var _didIteratorError3 = false;
+                var _iteratorError3 = undefined;
+
+                try {
+                    for (var _iterator3 = (0, _getIterator3.default)(self.elementHandlers), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                        var elementHandler = _step3.value;
+
+                        elementHandler.release();
+                    }
+                } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                            _iterator3.return();
+                        }
+                    } finally {
+                        if (_didIteratorError3) {
+                            throw _iteratorError3;
+                        }
+                    }
+                }
+
                 self.elementHandlers = [];
                 self.displayEndpoints();
                 self.installed = false;
@@ -14248,15 +14429,58 @@ exports.default = ["$timeout", function ($timeout) {
 
         this.displayEndpoints = function () {
             self.display = true;
-            _angular2.default.forEach(self.task.dependencies.endpoints, function (endpoint) {
-                endpoint.setVisible(true, true, true);
-            });
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = (0, _getIterator3.default)(self.task.dependencies.endpoints), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var endpoint = _step4.value;
+
+                    endpoint.setVisible(true, true, true);
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
         };
 
         this.hideEndpoints = function () {
-            _angular2.default.forEach(self.task.dependencies.endpoints, function (endpoint) {
-                endpoint.setVisible(false, true, true);
-            });
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = (0, _getIterator3.default)(self.task.dependencies.endpoints), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var endpoint = _step5.value;
+
+                    endpoint.setVisible(false, true, true);
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
+                    }
+                }
+            }
+
             self.display = false;
         };
     };
@@ -14280,7 +14504,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -15241,7 +15465,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -15335,7 +15559,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -15540,11 +15764,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -15713,7 +15937,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -16152,11 +16376,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -16359,7 +16583,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -16433,7 +16657,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -16508,7 +16732,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -16615,7 +16839,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -19512,7 +19736,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -20408,7 +20632,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -21607,7 +21831,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -21724,7 +21948,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -22021,7 +22245,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _typeof2 = __webpack_require__(4);
+var _typeof2 = __webpack_require__(5);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -22801,7 +23025,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getIterator2 = __webpack_require__(5);
+var _getIterator2 = __webpack_require__(4);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 

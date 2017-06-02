@@ -15,7 +15,7 @@ import {GanttScroll} from './template/scroll.factory';
 import {GanttBody} from './template/body.factory';
 import {GanttHeader} from './template/header.factory';
 import {GanttSide} from './template/side.factory';
-import {GanttRow, GanttRowModel} from './row/row.factory';
+import {GanttRowModel} from './row/row.factory';
 
 // Gantt logic. Manages the columns, rows and sorting functionality.
 export class Gantt {

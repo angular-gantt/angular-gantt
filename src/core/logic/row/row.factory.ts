@@ -1,4 +1,4 @@
-import {IFilterService, IScope} from 'angular';
+import {IScope} from 'angular';
 
 import moment from 'moment';
 import {GanttTask, GanttTaskModel} from '../task/task.factory';

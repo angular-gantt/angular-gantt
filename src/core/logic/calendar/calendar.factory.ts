@@ -1,4 +1,4 @@
-import angular, {IAugmentedJQuery, IFilterService} from 'angular';
+import {IAugmentedJQuery, IFilterService} from 'angular';
 
 import moment, {MomentInput} from 'moment';
 
@@ -293,7 +293,7 @@ export class GanttCalendar {
   /**
    * Remove DateFrame objects.
    *
-   * @param {array} mappings names of date frames to remove.
+   * @param {array} dateFrames names of date frames to remove.
    */
   removeDateFrames(dateFrames: string[]) {
     for (let name in dateFrames) {

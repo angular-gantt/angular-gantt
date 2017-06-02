@@ -1,5 +1,3 @@
-import angular from 'angular';
-
 import moment from 'moment';
 
 import GanttUtilsService from '../../core/logic/util/utils.service';

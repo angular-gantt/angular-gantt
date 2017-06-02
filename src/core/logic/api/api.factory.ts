@@ -1,7 +1,7 @@
 // This file is adapted from Angular UI ngGrid project
 // MIT License
 // https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.20/src/js/core/factories/GridApi.js
-import angular, {IQService, IRootScopeService} from 'angular';
+import {IQService, IRootScopeService} from 'angular';
 
 import GanttUtilsService from '../util/utils.service';
 import {Gantt} from '../gantt.factory';
@@ -172,19 +172,20 @@ export class GanttApi {
    */
   registerEventsFromObject(eventObjectMap) {
     let features = [];
-    angular.forEach(eventObjectMap, function (featProp, featPropName) {
+    for (let featPropName in eventObjectMap) {
+      let featProp = eventObjectMap[featPropName];
       let feature = {name: featPropName, events: []};
-      angular.forEach(featProp, function (prop, propName) {
+      for (let propName in featProp) {
         feature.events.push(propName);
-      });
+      }
       features.push(feature);
-    });
+    }
 
-    features.forEach((feature) => {
+    for (let feature of features) {
       feature.events.forEach((event) => {
         this.registerEvent(feature.name, event);
       });
-    });
+    }
 
   };
 
@@ -220,24 +221,26 @@ export class GanttApi {
    *          methodNameOne:function(args){},
    *          methodNameTwo:function(args){}
    *        }
-   * @param {object} eventObjectMap map of feature/event names
+   * @param {object} methodMap map of feature/event names
    * @param {object} _this binds this to _this for all functions.  Defaults to ganttApi.gantt
    */
   registerMethodsFromObject(methodMap, _this) {
     let features = [];
-    angular.forEach(methodMap, function (featProp, featPropName) {
+    for (let featPropName in methodMap) {
+      let featProp = methodMap[featPropName];
       let feature = {name: featPropName, methods: []};
-      angular.forEach(featProp, function (prop, propName) {
+      for (let propName in featProp) {
+        let prop = featProp[propName];
         feature.methods.push({name: propName, fn: prop});
-      });
+      }
       features.push(feature);
-    });
+    }
 
-    features.forEach((feature) => {
-      feature.methods.forEach((method) => {
+    for (let feature of features) {
+      for (let method of feature.methods) {
         this.registerMethod(feature.name, method.name, method.fn, _this);
-      });
-    });
+      }
+    }
 
   };
 }

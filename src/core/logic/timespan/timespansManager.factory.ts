@@ -1,5 +1,3 @@
-import angular from 'angular';
-
 import {Timespan, TimespanModel} from './timespan.factory';
 import {Gantt} from '../gantt.factory';
 
