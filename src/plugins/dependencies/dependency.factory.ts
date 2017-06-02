@@ -41,7 +41,13 @@ export default function (ganttUtils: GanttUtilsService, ganttDom) {
     this.disconnect = function () {
       if (this.connection) {
         if (this.connection.endpoints) {
-          this.manager.plumb.detach(this.connection);
+          if (this.manager.plumb.detach) {
+            // JSPlumb < 2.4.0
+            this.manager.plumb.detach(this.connection);
+          } else {
+            // JSPlumb >= 2.4.0
+            this.manager.plumb.deleteConnection(this.connection);
+          }
         }
         this.connection.$dependency = undefined;
         this.connection = undefined;

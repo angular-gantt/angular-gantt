@@ -14061,7 +14061,11 @@ exports.default = ["ganttUtils", "ganttDom", function (ganttUtils, ganttDom) {
         this.disconnect = function () {
             if (this.connection) {
                 if (this.connection.endpoints) {
-                    this.manager.plumb.detach(this.connection);
+                    if (this.manager.plumb.detach) {
+                        this.manager.plumb.detach(this.connection);
+                    } else {
+                        this.manager.plumb.deleteConnection(this.connection);
+                    }
                 }
                 this.connection.$dependency = undefined;
                 this.connection = undefined;
