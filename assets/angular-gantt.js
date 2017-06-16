@@ -3330,6 +3330,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (this.model.priority > 0) {
                         var priority = this.model.priority;
                         var children = this.$element.children();
+                        this.$element.css('z-index', priority);
                         for (var i = 0; i < children.length; i++) {
                             angular.element(children[i]).css('z-index', priority);
                         }
