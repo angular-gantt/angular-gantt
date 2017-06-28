@@ -1,5 +1,5 @@
 export default function () {
-  'ngInject';
+  'ngInject'
 
   return {
     getSampleData: function () {
@@ -80,7 +80,7 @@ export default function () {
         {name: 'Documentation', tasks: [
           {name: 'Technical/User documentation', color: '#F1C232', from: new Date(2013, 10, 26, 8, 0, 0), to: new Date(2013, 10, 28, 18, 0, 0)}
         ]}
-      ];
+      ]
     },
     getSampleTimespans: function () {
       return [
@@ -92,7 +92,7 @@ export default function () {
           // classes: [],
           // data: undefined
         }
-      ];
+      ]
     }
-  };
+  }
 }

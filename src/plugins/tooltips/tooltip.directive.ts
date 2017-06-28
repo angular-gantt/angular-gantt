@@ -1,12 +1,12 @@
 import {
   IAugmentedJQuery, ICompileService, IDocumentService, ILogService, IScope, ITemplateCacheService,
   ITimeoutService
-} from 'angular';
-import {GanttDebounce} from '../../core/ui/util/debounce.factory';
-import {GanttSmartEvent} from '../../core/ui/util/smartEvent.factory';
-import * as angular from 'angular';
+} from 'angular'
+import {GanttDebounce} from '../../core/ui/util/debounce.factory'
+import {GanttSmartEvent} from '../../core/ui/util/smartEvent.factory'
+import * as angular from 'angular'
 
-require('./tooltip.tmpl.html');
+require('./tooltip.tmpl.html')
 
 export default function ($log: ILogService,
                          $timeout: ITimeoutService,
@@ -15,118 +15,118 @@ export default function ($log: ILogService,
                          $templateCache: ITemplateCacheService,
                          ganttDebounce: GanttDebounce,
                          GanttSmartEvent: { new($scope: IScope, $element: IAugmentedJQuery, event: string, fn: any): GanttSmartEvent }) {
-  'ngInject';
+  'ngInject'
   // This tooltip displays more information about a task
 
   return {
     restrict: 'E',
     templateUrl: function (tElement, tAttrs) {
-      let templateUrl;
+      let templateUrl
       if (tAttrs.templateUrl === undefined) {
-        templateUrl = 'plugins/tooltips/tooltip.tmpl.html';
+        templateUrl = 'plugins/tooltips/tooltip.tmpl.html'
       } else {
-        templateUrl = tAttrs.templateUrl;
+        templateUrl = tAttrs.templateUrl
       }
       if (tAttrs.template !== undefined) {
-        $templateCache.put(templateUrl, tAttrs.template);
+        $templateCache.put(templateUrl, tAttrs.template)
       }
-      return templateUrl;
+      return templateUrl
     },
     scope: true,
     replace: true,
     controller: function ($scope, $element, ganttUtils) {
-      'ngInject';
-      let bodyElement = angular.element($document[0].body);
-      let parentElement = $scope.task.$element;
-      let showTooltipPromise;
-      let visible = false;
-      let mouseEnterX;
-      let mouseMoveHandler;
+      'ngInject'
+      let bodyElement = angular.element($document[0].body)
+      let parentElement = $scope.task.$element
+      let showTooltipPromise
+      let visible = false
+      let mouseEnterX
+      let mouseMoveHandler
 
       let getViewPortWidth = function () {
-        let d = $document[0];
-        return d.documentElement.clientWidth || (d as Document).getElementById('body')[0].clientWidth;
-      };
+        let d = $document[0]
+        return d.documentElement.clientWidth || (d as Document).getElementById('body')[0].clientWidth
+      }
 
       let updateTooltip = function (x) {
         // Check if info is overlapping with view port
         if (x + $element[0].offsetWidth > getViewPortWidth()) {
-          $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px');
-          $scope.isRightAligned = true;
+          $element.css('left', (x + 20 - $element[0].offsetWidth) + 'px')
+          $scope.isRightAligned = true
         } else {
-          $element.css('left', (x - 20) + 'px');
-          $scope.isRightAligned = false;
+          $element.css('left', (x - 20) + 'px')
+          $scope.isRightAligned = false
         }
-      };
+      }
 
       let showTooltip = function (x) {
-        visible = true;
-        mouseMoveHandler.bind();
+        visible = true
+        mouseMoveHandler.bind()
 
-        $scope.displayed = true;
+        $scope.displayed = true
 
         $scope.$evalAsync(function () {
-          let restoreNgHide;
+          let restoreNgHide
           if ($element.hasClass('ng-hide')) {
-            $element.removeClass('ng-hide');
-            restoreNgHide = true;
+            $element.removeClass('ng-hide')
+            restoreNgHide = true
           }
-          $scope.elementHeight = $element[0].offsetHeight;
+          $scope.elementHeight = $element[0].offsetHeight
           if (restoreNgHide) {
-            $element.addClass('ng-hide');
+            $element.addClass('ng-hide')
           }
-          $scope.taskRect = parentElement[0].getBoundingClientRect();
-          updateTooltip(x);
-        });
-      };
+          $scope.taskRect = parentElement[0].getBoundingClientRect()
+          updateTooltip(x)
+        })
+      }
 
       let hideTooltip = function () {
-        visible = false;
-        mouseMoveHandler.unbind();
+        visible = false
+        mouseMoveHandler.unbind()
         $scope.$evalAsync(function () {
-          $scope.displayed = false;
-        });
-      };
+          $scope.displayed = false
+        })
+      }
 
       let displayTooltip = function (newValue, showDelayed?) {
         if (showTooltipPromise) {
-          $timeout.cancel(showTooltipPromise);
+          $timeout.cancel(showTooltipPromise)
         }
 
-        let taskTooltips = $scope.task.model.tooltips;
-        let rowTooltips = $scope.task.row.model.tooltips;
+        let taskTooltips = $scope.task.model.tooltips
+        let rowTooltips = $scope.task.row.model.tooltips
 
         if (typeof(taskTooltips) === 'boolean') {
-          taskTooltips = {enabled: taskTooltips};
+          taskTooltips = {enabled: taskTooltips}
         }
 
         if (typeof(rowTooltips) === 'boolean') {
-          rowTooltips = {enabled: rowTooltips};
+          rowTooltips = {enabled: rowTooltips}
         }
 
-        let enabled = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled);
+        let enabled = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'enabled', $scope.pluginScope.enabled)
         if (enabled && !visible && mouseEnterX !== undefined && newValue) {
-          let content = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content);
-          $scope.content = content;
+          let content = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'content', $scope.pluginScope.content)
+          $scope.content = content
 
           if (showDelayed) {
             showTooltipPromise = $timeout(function () {
-              showTooltip(mouseEnterX);
-            }, $scope.pluginScope.delay, false);
+              showTooltip(mouseEnterX)
+            }, $scope.pluginScope.delay, false)
           } else {
-            showTooltip(mouseEnterX);
+            showTooltip(mouseEnterX)
           }
         } else if (!newValue) {
           if (!$scope.task.active) {
-            hideTooltip();
+            hideTooltip()
           }
         }
-      };
+      }
 
       mouseMoveHandler = new GanttSmartEvent($scope, bodyElement, 'mousemove', ganttDebounce(function (e) {
         if (!visible) {
-          mouseEnterX = e.clientX;
-          displayTooltip(true, false);
+          mouseEnterX = e.clientX
+          displayTooltip(true, false)
         } else {
           // check if mouse goes outside the parent
           if (
@@ -136,93 +136,93 @@ export default function ($log: ILogService,
             e.clientY > $scope.taskRect.bottom ||
             e.clientY < $scope.taskRect.top
           ) {
-            displayTooltip(false, false);
+            displayTooltip(false, false)
           }
 
-          updateTooltip(e.clientX);
+          updateTooltip(e.clientX)
         }
-      }, 5, false));
+      }, 5, false))
 
       $scope.getFromLabel = function () {
-        let taskTooltips = $scope.task.model.tooltips;
-        let rowTooltips = $scope.task.row.model.tooltips;
+        let taskTooltips = $scope.task.model.tooltips
+        let rowTooltips = $scope.task.row.model.tooltips
 
         if (typeof(taskTooltips) === 'boolean') {
-          taskTooltips = {enabled: taskTooltips};
+          taskTooltips = {enabled: taskTooltips}
         }
 
         if (typeof(rowTooltips) === 'boolean') {
-          rowTooltips = {enabled: rowTooltips};
+          rowTooltips = {enabled: rowTooltips}
         }
 
-        let dateFormat = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
-        return $scope.task.model.from.format(dateFormat);
-      };
+        let dateFormat = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat)
+        return $scope.task.model.from.format(dateFormat)
+      }
 
       $scope.getToLabel = function () {
-        let taskTooltips = $scope.task.model.tooltips;
-        let rowTooltips = $scope.task.row.model.tooltips;
+        let taskTooltips = $scope.task.model.tooltips
+        let rowTooltips = $scope.task.row.model.tooltips
 
         if (typeof(taskTooltips) === 'boolean') {
-          taskTooltips = {enabled: taskTooltips};
+          taskTooltips = {enabled: taskTooltips}
         }
 
         if (typeof(rowTooltips) === 'boolean') {
-          rowTooltips = {enabled: rowTooltips};
+          rowTooltips = {enabled: rowTooltips}
         }
 
-        let dateFormat = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat);
-        return $scope.task.model.to.format(dateFormat);
-      };
+        let dateFormat = ganttUtils.firstProperty([taskTooltips, rowTooltips], 'dateFormat', $scope.pluginScope.dateFormat)
+        return $scope.task.model.to.format(dateFormat)
+      }
 
       $scope.task.getContentElement().bind('mousemove', function (evt) {
-        mouseEnterX = evt.clientX;
-      });
+        mouseEnterX = evt.clientX
+      })
 
       $scope.task.getContentElement().bind('mouseenter', function (evt) {
-        mouseEnterX = evt.clientX;
-        displayTooltip(true, true);
-      });
+        mouseEnterX = evt.clientX
+        displayTooltip(true, true)
+      })
 
       $scope.task.getContentElement().bind('mouseleave', function () {
-        displayTooltip(false);
-      });
+        displayTooltip(false)
+      })
 
       if ($scope.pluginScope.api.tasks.on.moveBegin) {
         $scope.pluginScope.api.tasks.on.moveBegin($scope, function (task) {
           if (task === $scope.task) {
-            displayTooltip(true);
+            displayTooltip(true)
           }
-        });
+        })
 
         $scope.pluginScope.api.tasks.on.moveEnd($scope, function (task) {
           if (task === $scope.task) {
-            displayTooltip(false);
+            displayTooltip(false)
           }
-        });
+        })
 
         $scope.pluginScope.api.tasks.on.resizeBegin($scope, function (task) {
           if (task === $scope.task) {
-            displayTooltip(true);
+            displayTooltip(true)
           }
-        });
+        })
 
         $scope.pluginScope.api.tasks.on.resizeEnd($scope, function (task) {
           if (task === $scope.task) {
-            displayTooltip(false);
+            displayTooltip(false)
           }
-        });
+        })
       }
 
       if ($scope.task.isMoving) {
         // Display tooltip because task has been moved to a new row
-        displayTooltip(true, false);
+        displayTooltip(true, false)
       }
 
-      $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element);
+      $scope.gantt.api.directives.raise.new('ganttTooltip', $scope, $element)
       $scope.$on('$destroy', function () {
-        $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element);
-      });
+        $scope.gantt.api.directives.raise.destroy('ganttTooltip', $scope, $element)
+      })
     }
-  };
+  }
 }

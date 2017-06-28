@@ -1,48 +1,48 @@
-import {IAugmentedJQuery} from 'angular';
-import {Gantt} from '../gantt.factory';
+import {IAugmentedJQuery} from 'angular'
+import {Gantt} from '../gantt.factory'
 
 export class GanttSide {
-  private $element: IAugmentedJQuery;
+  private $element: IAugmentedJQuery
 
-  private gantt: Gantt;
+  private gantt: Gantt
 
-  constructor(gantt: Gantt) {
-    this.gantt = gantt;
-  };
+  constructor (gantt: Gantt) {
+    this.gantt = gantt
+  }
 
-  getWidth() {
+  getWidth () {
     if (this.gantt.options.value('showSide')) {
-      let width = this.gantt.options.value('sideWidth');
+      let width = this.gantt.options.value('sideWidth')
       if (width === undefined && this.$element !== undefined) {
         if (this.$element.css('width') !== undefined) {
-          this.$element.css('width', '');
+          this.$element.css('width', '')
         }
       }
       if (this.$element !== undefined) {
-        width = this.$element[0].offsetWidth;
+        width = this.$element[0].offsetWidth
       }
       if (width !== undefined) {
-        return width;
+        return width
       }
     }
-    return 0;
-  };
+    return 0
+  }
 
-  show(value) {
+  show (value) {
     if (this.$element !== undefined) {
-      this.$element.toggleClass('ng-hide', !value);
+      this.$element.toggleClass('ng-hide', !value)
     }
-  };
+  }
 
-  isShown() {
+  isShown () {
     if (this.$element !== undefined) {
-      return !this.$element.hasClass('ng-hide');
+      return !this.$element.hasClass('ng-hide')
     }
-  };
+  }
 }
 
 export default function () {
-  'ngInject';
+  'ngInject'
 
-  return GanttSide;
+  return GanttSide
 }

@@ -1,65 +1,65 @@
-require('./taskProgress.tmpl.html');
+require('./taskProgress.tmpl.html')
 
 export default function ($templateCache) {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'E',
     requires: '^ganttTask',
     templateUrl: function (tElement, tAttrs) {
-      let templateUrl;
+      let templateUrl
       if (tAttrs.templateUrl === undefined) {
-        templateUrl = 'plugins/progress/taskProgress.tmpl.html';
+        templateUrl = 'plugins/progress/taskProgress.tmpl.html'
       } else {
-        templateUrl = tAttrs.templateUrl;
+        templateUrl = tAttrs.templateUrl
       }
       if (tAttrs.template !== undefined) {
-        $templateCache.put(templateUrl, tAttrs.template);
+        $templateCache.put(templateUrl, tAttrs.template)
       }
-      return templateUrl;
+      return templateUrl
     },
     replace: true,
     scope: true,
     controller: function ($scope, $element) {
-      'ngInject';
+      'ngInject'
       $scope.getClasses = function () {
-        let classes = [];
+        let classes = []
 
         if (typeof($scope.task.model.progress) === 'object') {
-          classes = $scope.task.model.progress.classes;
+          classes = $scope.task.model.progress.classes
         }
 
-        return classes;
-      };
+        return classes
+      }
 
       $scope.getCss = function () {
-        let css = {};
+        let css = {}
 
-        let progress;
+        let progress
         if ($scope.task.model.progress !== undefined) {
           if (typeof($scope.task.model.progress) === 'object') {
-            progress = $scope.task.model.progress;
+            progress = $scope.task.model.progress
           } else {
-            progress = {percent: $scope.task.model.progress};
+            progress = {percent: $scope.task.model.progress}
           }
         }
 
         if (progress) {
           if (progress.color) {
-            css['background-color'] = progress.color;
+            css['background-color'] = progress.color
           } else {
-            css['background-color'] = '#6BC443';
+            css['background-color'] = '#6BC443'
           }
 
-          css['width'] = progress.percent + '%';
+          css['width'] = progress.percent + '%'
         }
 
-        return css;
-      };
+        return css
+      }
 
-      $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element);
+      $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskProgress', $scope, $element)
       $scope.$on('$destroy', function () {
-        $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element);
-      });
+        $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskProgress', $scope, $element)
+      })
     }
-  };
+  }
 }

@@ -1,8 +1,8 @@
-require('./taskGroup.tmpl.html');
+require('./taskGroup.tmpl.html')
 
 export default function (GanttDirectiveBuilder) {
-  'ngInject';
+  'ngInject'
 
-  let builder = new GanttDirectiveBuilder('ganttTaskGroup', 'plugins/groups/taskGroup.tmpl.html');
-  return builder.build();
+  let builder = new GanttDirectiveBuilder('ganttTaskGroup', 'plugins/groups/taskGroup.tmpl.html')
+  return builder.build()
 }

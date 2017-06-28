@@ -1,17 +1,17 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import dependenciesDirective from './dependencies.directive';
-import GanttDependenciesEventsFactory from './dependenciesEvents.factory';
-import GanttDependenciesManagerFactory from './dependenciesManager.factory';
-import GanttDependencyTaskMouseHandler from './taskMouseHandler.factory';
-import GanttDependenciesCheckerFactory from './dependenciesChecker.factory';
-import GanttDependencyFactory from './dependency.factory';
+import dependenciesDirective from './dependencies.directive'
+import GanttDependenciesEventsFactory from './dependenciesEvents.factory'
+import GanttDependenciesManagerFactory from './dependenciesManager.factory'
+import GanttDependencyTaskMouseHandler from './taskMouseHandler.factory'
+import GanttDependenciesCheckerFactory from './dependenciesChecker.factory'
+import GanttDependencyFactory from './dependency.factory'
 
-const pluginModule = 'gantt.dependencies';
+const pluginModule = 'gantt.dependencies'
 
-require('./dependencies.css');
+require('./dependencies.css')
 
 angular.module(pluginModule, [ganttModule])
   .directive('ganttDependencies', dependenciesDirective)
@@ -19,6 +19,6 @@ angular.module(pluginModule, [ganttModule])
   .factory('GanttDependencyTaskMouseHandler', GanttDependencyTaskMouseHandler)
   .factory('GanttDependenciesManager', GanttDependenciesManagerFactory)
   .factory('GanttDependenciesChecker', GanttDependenciesCheckerFactory)
-  .factory('GanttDependency', GanttDependencyFactory);
+  .factory('GanttDependency', GanttDependencyFactory)
 
-export default pluginModule;
+export default pluginModule

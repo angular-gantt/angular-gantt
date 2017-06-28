@@ -1,7 +1,7 @@
-import angular from 'angular';
+import angular from 'angular'
 
 export default function ($compile, $document) {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'E',
     require: '^gantt',
@@ -12,53 +12,53 @@ export default function ($compile, $document) {
       delay: '=?'
     },
     link: function (scope, element, attrs, ganttCtrl) {
-      let api = ganttCtrl.gantt.api;
+      let api = ganttCtrl.gantt.api
 
       // Load options from global options attribute.
       if (scope.options && typeof(scope.options.tooltips) === 'object') {
         for (let option in scope.options.tooltips) {
-          scope[option] = scope.options.tooltips[option];
+          scope[option] = scope.options.tooltips[option]
         }
       }
 
       if (scope.enabled === undefined) {
-        scope.enabled = true;
+        scope.enabled = true
       }
       if (scope.dateFormat === undefined) {
-        scope.dateFormat = 'MMM DD, HH:mm';
+        scope.dateFormat = 'MMM DD, HH:mm'
       }
       if (scope.delay === undefined) {
-        scope.delay = 500;
+        scope.delay = 500
       }
       if (scope.content === undefined) {
         scope.content = '{{task.model.name}}</br>' +
           '<small>' +
           '{{task.isMilestone() === true && getFromLabel() || getFromLabel() + \' - \' + getToLabel()}}' +
-          '</small>';
+          '</small>'
       }
 
-      scope.api = api;
+      scope.api = api
 
       api.directives.on.new(scope, function (directiveName, taskScope, taskElement) {
         if (directiveName === 'ganttTask') {
-          let tooltipScope = taskScope.$new();
+          let tooltipScope = taskScope.$new()
 
-          tooltipScope.pluginScope = scope;
-          let ifElement = $document[0].createElement('div');
-          angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
+          tooltipScope.pluginScope = scope
+          let ifElement = $document[0].createElement('div')
+          angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled')
 
-          let tooltipElement = $document[0].createElement('gantt-tooltip');
+          let tooltipElement = $document[0].createElement('gantt-tooltip')
           if (attrs.templateUrl !== undefined) {
-            angular.element(tooltipElement).attr('data-template-url', attrs.templateUrl);
+            angular.element(tooltipElement).attr('data-template-url', attrs.templateUrl)
           }
           if (attrs.template !== undefined) {
-            angular.element(tooltipElement).attr('data-template', attrs.template);
+            angular.element(tooltipElement).attr('data-template', attrs.template)
           }
 
-          angular.element(ifElement).append(tooltipElement);
-          taskElement.append($compile(ifElement)(tooltipScope));
+          angular.element(ifElement).append(tooltipElement)
+          taskElement.append($compile(ifElement)(tooltipScope))
         }
-      });
+      })
     }
-  };
+  }
 }

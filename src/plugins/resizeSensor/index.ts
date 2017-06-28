@@ -1,12 +1,12 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import resizeSensorDirective from './resizeSensor.directive';
+import resizeSensorDirective from './resizeSensor.directive'
 
-const pluginModule = 'gantt.resizeSensor';
+const pluginModule = 'gantt.resizeSensor'
 
 angular.module(pluginModule, [ganttModule])
-  .directive('ganttResizeSensor', resizeSensorDirective);
+  .directive('ganttResizeSensor', resizeSensorDirective)
 
-export default pluginModule;
+export default pluginModule

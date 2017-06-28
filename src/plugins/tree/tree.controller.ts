@@ -1,210 +1,210 @@
-import {GanttHierarchy} from '../../core/logic/util/hierarchy.factory';
+import {GanttHierarchy} from '../../core/logic/util/hierarchy.factory'
 
 export default function ($scope, $filter, GanttHierarchy: { new(): GanttHierarchy; }) {
-  'ngInject';
-  $scope.rootRows = [];
+  'ngInject'
+  $scope.rootRows = []
 
   $scope.getHeader = function () {
-    return $scope.pluginScope.header;
-  };
+    return $scope.pluginScope.header
+  }
 
-  let hierarchy = new GanttHierarchy();
+  let hierarchy = new GanttHierarchy()
 
   $scope.pluginScope.$watchGroup(['keepAncestorOnFilterRow', 'enabled'], function (value) {
-    let keepAncestor = value[0] && value[1];
+    let keepAncestor = value[0] && value[1]
 
     if (keepAncestor) {
       let filterImpl = function (sortedRows, filterRow, filterRowComparator) {
-        hierarchy.refresh(sortedRows);
+        hierarchy.refresh(sortedRows)
 
-        let leaves = [];
+        let leaves = []
         for (let sortedRow of sortedRows) {
-          let children = hierarchy.children(sortedRow);
+          let children = hierarchy.children(sortedRow)
           if (!children || children.length === 0) {
-            leaves.push(sortedRow);
+            leaves.push(sortedRow)
           }
         }
 
-        let filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator);
+        let filteredLeaves = $filter('filter')(leaves, filterRow, filterRowComparator)
 
         let filterRowKeepAncestor = function (row) {
           if (filteredLeaves.indexOf(row) > -1) {
-            return true;
+            return true
           }
 
-          let descendants = hierarchy.descendants(row);
+          let descendants = hierarchy.descendants(row)
 
           for (let descendant of descendants) {
             if (filteredLeaves.indexOf(descendant) > -1) {
-              return true;
+              return true
             }
           }
 
-          return false;
-        };
+          return false
+        }
 
-        return $filter('filter')(sortedRows, filterRowKeepAncestor, filterRowComparator);
-      };
-      $scope.gantt.rowsManager.setFilterImpl(filterImpl);
+        return $filter('filter')(sortedRows, filterRowKeepAncestor, filterRowComparator)
+      }
+      $scope.gantt.rowsManager.setFilterImpl(filterImpl)
     } else {
-      $scope.gantt.rowsManager.setFilterImpl(false);
+      $scope.gantt.rowsManager.setFilterImpl(false)
     }
-  });
+  })
 
   let isVisible = function (row) {
-    let parentRow = $scope.parent(row);
+    let parentRow = $scope.parent(row)
     while (parentRow !== undefined) {
       if (parentRow !== undefined && parentRow._collapsed) {
-        return false;
+        return false
       }
-      parentRow = $scope.parent(parentRow);
+      parentRow = $scope.parent(parentRow)
     }
-    return true;
-  };
+    return true
+  }
 
   let filterRowsFunction = function (rows) {
     return rows.filter(function (row) {
-      return isVisible(row);
-    });
-  };
+      return isVisible(row)
+    })
+  }
 
   let sortRowsFunction = function (rows) {
-    let sortedRows = [];
-    let rootRows = [];
+    let sortedRows = []
+    let rootRows = []
 
-    let hasParent = false;
+    let hasParent = false
 
     for (let row of rows) {
-      let rowParent = $scope.parent(row);
+      let rowParent = $scope.parent(row)
       if (rowParent === undefined) {
-        rootRows.push(row);
+        rootRows.push(row)
       } else {
-        hasParent = true;
+        hasParent = true
       }
     }
 
     let handleChildren = function (row) {
-      sortedRows.push(row);
-      let children = $scope.children(row);
+      sortedRows.push(row)
+      let children = $scope.children(row)
 
       if (children !== undefined && children.length > 0) {
         let sortedChildren = children.sort(function (a, b) {
-          return rows.indexOf(a) - rows.indexOf(b);
-        });
+          return rows.indexOf(a) - rows.indexOf(b)
+        })
 
         for (let sortedChild of sortedChildren) {
-          handleChildren(sortedChild);
+          handleChildren(sortedChild)
         }
       }
-    };
+    }
 
     for (let rootRow of rootRows) {
-      handleChildren(rootRow);
+      handleChildren(rootRow)
     }
 
-    return sortedRows;
-  };
-  $scope.gantt.api.rows.addRowSorter(sortRowsFunction);
-  $scope.gantt.api.rows.addRowFilter(filterRowsFunction);
+    return sortedRows
+  }
+  $scope.gantt.api.rows.addRowSorter(sortRowsFunction)
+  $scope.gantt.api.rows.addRowFilter(filterRowsFunction)
 
   $scope.$on('$destroy', function () {
-    $scope.gantt.api.rows.removeRowSorter(sortRowsFunction);
-    $scope.gantt.api.rows.removeRowFilter(filterRowsFunction);
-  });
+    $scope.gantt.api.rows.removeRowSorter(sortRowsFunction)
+    $scope.gantt.api.rows.removeRowFilter(filterRowsFunction)
+  })
 
   let refresh = function () {
-    $scope.rootRows = hierarchy.refresh($scope.gantt.rowsManager.filteredRows);
+    $scope.rootRows = hierarchy.refresh($scope.gantt.rowsManager.filteredRows)
 
     if ($scope.gantt.rowsManager.filteredRows.length > 0) {
-      $scope.gantt.api.rows.sort();
-      $scope.gantt.api.rows.refresh();
+      $scope.gantt.api.rows.sort()
+      $scope.gantt.api.rows.refresh()
     }
-  };
+  }
 
-  $scope.gantt.api.rows.on.remove($scope, refresh);
-  $scope.gantt.api.rows.on.add($scope, refresh);
+  $scope.gantt.api.rows.on.remove($scope, refresh)
+  $scope.gantt.api.rows.on.add($scope, refresh)
 
   let isRowCollapsed = function (rowId) {
-    let row;
+    let row
     if (typeof rowId === 'string') {
-      row = $scope.gantt.rowsManager.rowsMap[rowId];
+      row = $scope.gantt.rowsManager.rowsMap[rowId]
     } else {
-      row = rowId;
+      row = rowId
     }
     if (row === undefined) {
-      return undefined;
+      return undefined
     }
     if (row._collapsed === undefined) {
-      return false;
+      return false
     }
-    return row._collapsed;
-  };
+    return row._collapsed
+  }
 
   let expandRow = function (rowId) {
-    let row;
+    let row
     if (typeof rowId === 'string') {
-      row = $scope.gantt.rowsManager.rowsMap[rowId];
+      row = $scope.gantt.rowsManager.rowsMap[rowId]
     } else {
-      row = rowId;
+      row = rowId
     }
     if (row === undefined) {
-      return;
+      return
     }
 
-    let rowScope = $scope.nodeScopes[row.model.id];
+    let rowScope = $scope.nodeScopes[row.model.id]
     if (rowScope.collapsed) {
-      rowScope.toggle();
+      rowScope.toggle()
     }
-  };
+  }
 
   let collapseRow = function (rowId) {
-    let row;
+    let row
     if (typeof rowId === 'string') {
-      row = $scope.gantt.rowsManager.rowsMap[rowId];
+      row = $scope.gantt.rowsManager.rowsMap[rowId]
     } else {
-      row = rowId;
+      row = rowId
     }
     if (row === undefined) {
-      return;
+      return
     }
 
-    let rowScope = $scope.nodeScopes[row.model.id];
+    let rowScope = $scope.nodeScopes[row.model.id]
     if (!rowScope.collapsed) {
-      rowScope.toggle();
+      rowScope.toggle()
     }
-  };
+  }
 
   let getHierarchy = function () {
-    return hierarchy;
-  };
+    return hierarchy
+  }
 
   $scope.getHeaderContent = function () {
-    return $scope.pluginScope.headerContent;
-  };
+    return $scope.pluginScope.headerContent
+  }
 
-  $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this);
-  $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this);
-  $scope.gantt.api.registerMethod('tree', 'expand', expandRow, this);
-  $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
+  $scope.gantt.api.registerMethod('tree', 'refresh', refresh, this)
+  $scope.gantt.api.registerMethod('tree', 'isCollapsed', isRowCollapsed, this)
+  $scope.gantt.api.registerMethod('tree', 'expand', expandRow, this)
+  $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this)
 
-  $scope.gantt.api.registerEvent('tree', 'collapsed');
+  $scope.gantt.api.registerEvent('tree', 'collapsed')
 
-  $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
+  $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this)
 
   $scope.$watchCollection('gantt.rowsManager.filteredRows', function () {
-    refresh();
-  });
+    refresh()
+  })
 
   $scope.children = function (row) {
     if (row === undefined) {
-      return $scope.rootRows;
+      return $scope.rootRows
     }
-    return hierarchy.children(row);
-  };
+    return hierarchy.children(row)
+  }
 
   $scope.parent = function (row) {
-    return hierarchy.parent(row);
-  };
+    return hierarchy.parent(row)
+  }
 
-  $scope.nodeScopes = {};
+  $scope.nodeScopes = {}
 }

@@ -1,14 +1,14 @@
-import {IDocumentService} from 'angular';
+import {IDocumentService} from 'angular'
 
-import {GanttColumn} from '../../logic/column/column.factory';
+import {GanttColumn} from '../../logic/column/column.factory'
 
 export default class GanttLayout {
-  private $document: IDocumentService;
+  private $document: IDocumentService
 
   constructor ($document: IDocumentService) {
-    'ngInject';
+    'ngInject'
 
-    this.$document = $document;
+    this.$document = $document
   }
 
   /**
@@ -16,34 +16,34 @@ export default class GanttLayout {
    *
    * @returns {number} width of the scrollbar, in px.
    */
-  getScrollBarWidth() {
-    let inner = this.$document[0].createElement('p');
-    inner.style.width = '100%';
-    inner.style.height = '200px';
+  getScrollBarWidth () {
+    let inner = this.$document[0].createElement('p')
+    inner.style.width = '100%'
+    inner.style.height = '200px'
 
-    let outer = this.$document[0].createElement('div');
-    outer.style.position = 'absolute';
-    outer.style.top = '0px';
-    outer.style.left = '0px';
-    outer.style.visibility = 'hidden';
-    outer.style.width = '200px';
-    outer.style.height = '150px';
-    outer.style.overflow = 'hidden';
-    outer.appendChild(inner);
+    let outer = this.$document[0].createElement('div')
+    outer.style.position = 'absolute'
+    outer.style.top = '0px'
+    outer.style.left = '0px'
+    outer.style.visibility = 'hidden'
+    outer.style.width = '200px'
+    outer.style.height = '150px'
+    outer.style.overflow = 'hidden'
+    outer.appendChild(inner)
 
-    this.$document[0].body.appendChild(outer);
+    this.$document[0].body.appendChild(outer)
 
-    let w1 = inner.offsetWidth;
-    outer.style.overflow = 'scroll';
+    let w1 = inner.offsetWidth
+    outer.style.overflow = 'scroll'
 
-    let w2 = inner.offsetWidth;
+    let w2 = inner.offsetWidth
     if (w1 === w2) {
-      w2 = outer.clientWidth;
+      w2 = outer.clientWidth
     }
 
-    this.$document[0].body.removeChild(outer);
+    this.$document[0].body.removeChild(outer)
 
-    return (w1 - w2);
+    return (w1 - w2)
   }
 
   /**
@@ -51,48 +51,48 @@ export default class GanttLayout {
    *
    * @returns {number} height of the scrollbar, in px.
    */
-  getScrollBarHeight() {
-    let inner = this.$document[0].createElement('p');
-    inner.style.width = '200px;';
-    inner.style.height = '100%';
+  getScrollBarHeight () {
+    let inner = this.$document[0].createElement('p')
+    inner.style.width = '200px;'
+    inner.style.height = '100%'
 
-    let outer = this.$document[0].createElement('div');
-    outer.style.position = 'absolute';
-    outer.style.top = '0px';
-    outer.style.left = '0px';
-    outer.style.visibility = 'hidden';
-    outer.style.width = '150px';
-    outer.style.height = '200px';
-    outer.style.overflow = 'hidden';
-    outer.appendChild(inner);
+    let outer = this.$document[0].createElement('div')
+    outer.style.position = 'absolute'
+    outer.style.top = '0px'
+    outer.style.left = '0px'
+    outer.style.visibility = 'hidden'
+    outer.style.width = '150px'
+    outer.style.height = '200px'
+    outer.style.overflow = 'hidden'
+    outer.appendChild(inner)
 
-    this.$document[0].body.appendChild(outer);
+    this.$document[0].body.appendChild(outer)
 
-    let h1 = inner.offsetHeight;
-    outer.style.overflow = 'scroll';
+    let h1 = inner.offsetHeight
+    outer.style.overflow = 'scroll'
 
-    let h2 = inner.offsetHeight;
+    let h2 = inner.offsetHeight
     if (h1 === h2) {
-      h2 = outer.clientHeight;
+      h2 = outer.clientHeight
     }
 
-    this.$document[0].body.removeChild(outer);
+    this.$document[0].body.removeChild(outer)
 
-    return (h1 - h2);
+    return (h1 - h2)
   }
 
-  setColumnsWidthFactor(columns: GanttColumn[], widthFactor: number, originalLeftOffset = 0) {
+  setColumnsWidthFactor (columns: GanttColumn[], widthFactor: number, originalLeftOffset = 0) {
     if (!columns) {
-      return;
+      return
     }
 
     for (let column of columns) {
-      column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset;
-      column.width = widthFactor * column.originalSize.width;
+      column.left = (widthFactor * (column.originalSize.left + originalLeftOffset)) - originalLeftOffset
+      column.width = widthFactor * column.originalSize.width
 
       for (let timeFrame of column.timeFrames) {
-        timeFrame.left = widthFactor * timeFrame.originalSize.left;
-        timeFrame.width = widthFactor * timeFrame.originalSize.width;
+        timeFrame.left = widthFactor * timeFrame.originalSize.left
+        timeFrame.width = widthFactor * timeFrame.originalSize.width
       }
     }
   }

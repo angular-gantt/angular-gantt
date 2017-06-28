@@ -1,10 +1,10 @@
 // This file is adapted from Angular UI ngGrid project
 // MIT License
 // https://github.com/angular-ui/ng-grid/blob/v3.0.0-rc.20/src/js/core/factories/GridApi.js
-import {IQService, IRootScopeService} from 'angular';
+import {IQService, IRootScopeService} from 'angular'
 
-import GanttUtilsService from '../util/utils.service';
-import {Gantt} from '../gantt.factory';
+import GanttUtilsService from '../util/utils.service'
+import {Gantt} from '../gantt.factory'
 
 /**
  * @ngdoc function
@@ -14,26 +14,26 @@ import {Gantt} from '../gantt.factory';
  * @param {object} gantt gantt that owns api
  */
 export class GanttApi {
-  static $q: IQService;
-  static $rootScope: IRootScopeService;
-  static ganttUtils: GanttUtilsService;
+  static $q: IQService
+  static $rootScope: IRootScopeService
+  static ganttUtils: GanttUtilsService
 
-  private gantt: Gantt;
-  private listeners: any[];
-  private apiId: number;
+  private gantt: Gantt
+  private listeners: any[]
+  private apiId: number
 
-  constructor(gantt) {
-    this.gantt = gantt;
-    this.listeners = [];
-    this.apiId = GanttApi.ganttUtils.newId();
+  constructor (gantt) {
+    this.gantt = gantt
+    this.listeners = []
+    this.apiId = GanttApi.ganttUtils.newId()
   }
 
-  private registerEventWithAngular(eventId, handler, gantt, _this) {
+  private registerEventWithAngular (eventId, handler, gantt, _this) {
     return GanttApi.$rootScope.$on(eventId, function () {
-      let args = Array.prototype.slice.call(arguments);
-      args.splice(0, 1); // remove evt argument
-      handler.apply(_this ? _this : gantt.api, args);
-    });
+      let args = Array.prototype.slice.call(arguments)
+      args.splice(0, 1) // remove evt argument
+      handler.apply(_this ? _this : gantt.api, args)
+    })
   }
 
   /**
@@ -63,26 +63,26 @@ export class GanttApi {
    *
    * </pre>
    */
-  suppressEvents(listenerFuncs, callBackFn) {
-    let listeners = Array.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs];
+  suppressEvents (listenerFuncs, callBackFn) {
+    let listeners = Array.isArray(listenerFuncs) ? listenerFuncs : [listenerFuncs]
 
     // find all registered listeners
-    let foundListeners = [];
+    let foundListeners = []
     listeners.forEach((l) => {
-      foundListeners = this.listeners.filter((lstnr) => l === lstnr.handler);
-    });
+      foundListeners = this.listeners.filter((lstnr) => l === lstnr.handler)
+    })
 
     // deregister all the listeners
-    foundListeners.forEach((l) => l.dereg());
+    foundListeners.forEach((l) => l.dereg())
 
-    callBackFn();
+    callBackFn()
 
     // reregister all the listeners
     foundListeners.forEach((l) => {
-      l.dereg = this.registerEventWithAngular(l.eventId, l.handler, this.gantt, l._this);
-    });
+      l.dereg = this.registerEventWithAngular(l.eventId, l.handler, this.gantt, l._this)
+    })
 
-  };
+  }
 
   /**
    * @ngdoc function
@@ -107,27 +107,27 @@ export class GanttApi {
    * @param {string} featureName name of the feature that raises the event
    * @param {string} eventName  name of the event
    */
-  registerEvent(featureName, eventName) {
+  registerEvent (featureName, eventName) {
     if (!this[featureName]) {
-      this[featureName] = {};
+      this[featureName] = {}
     }
 
-    let feature = this[featureName];
+    let feature = this[featureName]
     if (!feature.on) {
-      feature.on = {};
-      feature.raise = {};
+      feature.on = {}
+      feature.raise = {}
     }
 
-    let eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName;
+    let eventId = 'event:gantt:' + this.apiId + ':' + featureName + ':' + eventName
 
     // Creating raise event method featureName.raise.eventName
     feature.raise[eventName] = function () {
-      GanttApi.$rootScope.$emit.apply(GanttApi.$rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
-    };
+      GanttApi.$rootScope.$emit.apply(GanttApi.$rootScope, [eventId].concat(Array.prototype.slice.call(arguments)))
+    }
 
     // Creating on event method featureName.oneventName
     feature.on[eventName] = (scope, handler, _this) => {
-      let deregAngularOn = this.registerEventWithAngular(eventId, handler, this.gantt, _this);
+      let deregAngularOn = this.registerEventWithAngular(eventId, handler, this.gantt, _this)
 
       // track our listener so we can turn off and on
       let listener = {
@@ -136,23 +136,23 @@ export class GanttApi {
         eventId: eventId,
         scope: scope,
         _this: _this
-      };
-      this.listeners.push(listener);
+      }
+      this.listeners.push(listener)
 
       let removeListener = () => {
-        listener.dereg();
-        let index = this.listeners.indexOf(listener);
-        this.listeners.splice(index, 1);
-      };
+        listener.dereg()
+        let index = this.listeners.indexOf(listener)
+        this.listeners.splice(index, 1)
+      }
 
       // destroy tracking when scope is destroyed
       scope.$on('$destroy', function () {
-        removeListener();
-      });
+        removeListener()
+      })
 
-      return removeListener;
-    };
-  };
+      return removeListener
+    }
+  }
 
   /**
    * @ngdoc function
@@ -170,24 +170,24 @@ export class GanttApi {
    * </pre>
    * @param {object} eventObjectMap map of feature/event names
    */
-  registerEventsFromObject(eventObjectMap) {
-    let features = [];
+  registerEventsFromObject (eventObjectMap) {
+    let features = []
     for (let featPropName in eventObjectMap) {
-      let featProp = eventObjectMap[featPropName];
-      let feature = {name: featPropName, events: []};
+      let featProp = eventObjectMap[featPropName]
+      let feature = {name: featPropName, events: []}
       for (let propName in featProp) {
-        feature.events.push(propName);
+        feature.events.push(propName)
       }
-      features.push(feature);
+      features.push(feature)
     }
 
     for (let feature of features) {
       feature.events.forEach((event) => {
-        this.registerEvent(feature.name, event);
-      });
+        this.registerEvent(feature.name, event)
+      })
     }
 
-  };
+  }
 
   /**
    * @ngdoc function
@@ -199,15 +199,15 @@ export class GanttApi {
    * @param {object} callBackFn function to execute
    * @param {object} _this binds callBackFn 'this' to _this.  Defaults to ganttApi.gantt
    */
-  registerMethod(featureName, methodName, callBackFn, _this) {
+  registerMethod (featureName, methodName, callBackFn, _this) {
     if (!this[featureName]) {
-      this[featureName] = {};
+      this[featureName] = {}
     }
 
-    let feature = this[featureName];
+    let feature = this[featureName]
 
-    feature[methodName] = GanttApi.ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn);
-  };
+    feature[methodName] = GanttApi.ganttUtils.createBoundedWrapper(_this || this.gantt, callBackFn)
+  }
 
   /**
    * @ngdoc function
@@ -224,32 +224,32 @@ export class GanttApi {
    * @param {object} methodMap map of feature/event names
    * @param {object} _this binds this to _this for all functions.  Defaults to ganttApi.gantt
    */
-  registerMethodsFromObject(methodMap, _this) {
-    let features = [];
+  registerMethodsFromObject (methodMap, _this) {
+    let features = []
     for (let featPropName in methodMap) {
-      let featProp = methodMap[featPropName];
-      let feature = {name: featPropName, methods: []};
+      let featProp = methodMap[featPropName]
+      let feature = {name: featPropName, methods: []}
       for (let propName in featProp) {
-        let prop = featProp[propName];
-        feature.methods.push({name: propName, fn: prop});
+        let prop = featProp[propName]
+        feature.methods.push({name: propName, fn: prop})
       }
-      features.push(feature);
+      features.push(feature)
     }
 
     for (let feature of features) {
       for (let method of feature.methods) {
-        this.registerMethod(feature.name, method.name, method.fn, _this);
+        this.registerMethod(feature.name, method.name, method.fn, _this)
       }
     }
 
-  };
+  }
 }
 
 export default function ($q: IQService, $rootScope: IRootScopeService, ganttUtils: GanttUtilsService) {
-  'ngInject';
+  'ngInject'
 
-  GanttApi.$q = $q;
-  GanttApi.$rootScope = $rootScope;
-  GanttApi.ganttUtils = ganttUtils;
-  return GanttApi;
+  GanttApi.$q = $q
+  GanttApi.$rootScope = $rootScope
+  GanttApi.ganttUtils = ganttUtils
+  return GanttApi
 }

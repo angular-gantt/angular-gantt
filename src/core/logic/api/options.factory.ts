@@ -1,56 +1,56 @@
 export class GanttOptions {
-  private defaultValues: { [option: string]: any; };
-  private values: { [option: string]: any; };
+  private defaultValues: { [option: string]: any; }
+  private values: { [option: string]: any; }
 
-  constructor(values: { [option: string]: any; }, defaultValues: { [option: string]: any; }) {
-    this.defaultValues = defaultValues;
-    this.values = values;
+  constructor (values: { [option: string]: any; }, defaultValues: { [option: string]: any; }) {
+    this.defaultValues = defaultValues
+    this.values = values
   }
 
-  defaultValue(optionName: string) {
-    let defaultValue = this.defaultValues[optionName];
+  defaultValue (optionName: string) {
+    let defaultValue = this.defaultValues[optionName]
     if (typeof(defaultValue) === 'function') {
-      defaultValue = defaultValue();
+      defaultValue = defaultValue()
     }
 
-    return defaultValue;
-  };
+    return defaultValue
+  }
 
-  sanitize(optionName: string, optionValue: any) {
+  sanitize (optionName: string, optionValue: any) {
     if (!optionValue) {
-      let defaultValue = this.defaultValue(optionName);
+      let defaultValue = this.defaultValue(optionName)
       if (defaultValue !== undefined) {
         if (optionValue !== undefined && typeof defaultValue === 'boolean') {
-          return optionValue;
+          return optionValue
         }
 
-        return defaultValue;
+        return defaultValue
       }
     }
 
-    return optionValue;
-  };
+    return optionValue
+  }
 
-  value(optionName: string) {
-    return this.sanitize(optionName, this.values[optionName]);
-  };
+  value (optionName: string) {
+    return this.sanitize(optionName, this.values[optionName])
+  }
 
-  set(optionName: string, optionValue: any) {
-    this.values[optionName] = optionValue;
-  };
+  set (optionName: string, optionValue: any) {
+    this.values[optionName] = optionValue
+  }
 
-  initialize() {
+  initialize () {
     for (let optionName in this.values) {
       if (this.values.hasOwnProperty(optionName)) {
-        this.values[optionName] = this.value(optionName);
+        this.values[optionName] = this.value(optionName)
       }
     }
-    return this.values;
-  };
+    return this.values
+  }
 }
 
 export default function () {
-  'ngInject';
+  'ngInject'
 
-  return GanttOptions;
+  return GanttOptions
 }

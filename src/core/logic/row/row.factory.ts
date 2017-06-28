@@ -1,156 +1,156 @@
-import {IScope} from 'angular';
+import {IScope} from 'angular'
 
-import moment from 'moment';
-import {GanttTask, GanttTaskModel} from '../task/task.factory';
+import moment from 'moment'
+import {GanttTask, GanttTaskModel} from '../task/task.factory'
 
-import {IGanttFilterService} from '../../../index';
-import * as angular from 'angular';
-import {GanttRowsManager} from './rowsManager.factory';
+import {IGanttFilterService} from '../../../index'
+import * as angular from 'angular'
+import {GanttRowsManager} from './rowsManager.factory'
 
 export class GanttRowModel {
-  id: string;
+  id: string
 
-  tasks: GanttTaskModel[];
+  tasks: GanttTaskModel[]
 }
 
 export class GanttRow {
-  static GanttTask: {new(row: GanttRow, model: GanttTaskModel): GanttTask};
-  static $filter: IGanttFilterService;
+  static GanttTask: {new(row: GanttRow, model: GanttTaskModel): GanttTask}
+  static $filter: IGanttFilterService
 
-  rowsManager: GanttRowsManager;
+  rowsManager: GanttRowsManager
 
-  model: GanttRowModel;
+  model: GanttRowModel
 
-  from: moment.Moment;
-  to: moment.Moment;
+  from: moment.Moment
+  to: moment.Moment
 
-  tasksMap: { [id: string]: GanttTask };
-  tasks: GanttTask[];
-  filteredTasks: GanttTask[];
-  visibleTasks: GanttTask[];
+  tasksMap: { [id: string]: GanttTask }
+  tasks: GanttTask[]
+  filteredTasks: GanttTask[]
+  visibleTasks: GanttTask[]
 
-  $scope: IScope;
+  $scope: IScope
 
-  constructor(rowsManager: GanttRowsManager, model: GanttRowModel) {
-    this.rowsManager = rowsManager;
-    this.model = model;
+  constructor (rowsManager: GanttRowsManager, model: GanttRowModel) {
+    this.rowsManager = rowsManager
+    this.model = model
 
-    this.from = undefined;
-    this.to = undefined;
+    this.from = undefined
+    this.to = undefined
 
-    this.tasksMap = {};
-    this.tasks = [];
-    this.filteredTasks = [];
-    this.visibleTasks = [];
-  };
+    this.tasksMap = {}
+    this.tasks = []
+    this.filteredTasks = []
+    this.visibleTasks = []
+  }
 
-  addTaskImpl(task: GanttTask, viewOnly = false) {
-    this.tasksMap[task.model.id] = task;
-    this.tasks.push(task);
+  addTaskImpl (task: GanttTask, viewOnly = false) {
+    this.tasksMap[task.model.id] = task
+    this.tasks.push(task)
 
     if (!viewOnly) {
       if (this.model.tasks === undefined) {
-        this.model.tasks = [];
+        this.model.tasks = []
       }
       if (this.model.tasks.indexOf(task.model) === -1) {
-        this.model.tasks.push(task.model);
+        this.model.tasks.push(task.model)
       }
     }
-  };
+  }
 
 // Adds a task to a specific row. Merges the task if there is already one with the same id
-  addTask(taskModel: GanttTaskModel, viewOnly = false) {
+  addTask (taskModel: GanttTaskModel, viewOnly = false) {
     // Copy to new task (add) or merge with existing (update)
-    let task;
-    let isUpdate = false;
+    let task
+    let isUpdate = false
 
-    this.rowsManager.gantt.objectModel.cleanTask(taskModel);
+    this.rowsManager.gantt.objectModel.cleanTask(taskModel)
     if (taskModel.id in this.tasksMap) {
-      task = this.tasksMap[taskModel.id];
+      task = this.tasksMap[taskModel.id]
       if (task.model === taskModel) {
-        return task;
+        return task
       }
-      task.model = taskModel;
-      isUpdate = true;
+      task.model = taskModel
+      isUpdate = true
     } else {
-      task = new GanttRow.GanttTask(this, taskModel);
-      this.addTaskImpl(task, viewOnly);
+      task = new GanttRow.GanttTask(this, taskModel)
+      this.addTaskImpl(task, viewOnly)
     }
 
-    this.sortTasks();
-    this.setFromToByTask(task);
+    this.sortTasks()
+    this.setFromToByTask(task)
 
     if (!viewOnly) {
       if (isUpdate) {
-        (this.rowsManager.gantt.api as any).tasks.raise.change(task);
+        (this.rowsManager.gantt.api as any).tasks.raise.change(task)
       } else {
-        (this.rowsManager.gantt.api as any).tasks.raise.add(task);
+        (this.rowsManager.gantt.api as any).tasks.raise.add(task)
       }
     }
 
-    return task;
-  };
+    return task
+  }
 
 // Removes the task from the existing row and adds it to he current one
-  moveTaskToRow(task: GanttTask, viewOnly = false) {
-    (this.rowsManager.gantt.api as any).tasks.raise.beforeViewRowChange(task, this);
+  moveTaskToRow (task: GanttTask, viewOnly = false) {
+    (this.rowsManager.gantt.api as any).tasks.raise.beforeViewRowChange(task, this)
     if (!viewOnly) {
-      (this.rowsManager.gantt.api as any).tasks.raise.beforeRowChange(task, this);
+      (this.rowsManager.gantt.api as any).tasks.raise.beforeRowChange(task, this)
     }
 
-    let oldRow = task.row;
-    oldRow.removeTask(task.model.id, viewOnly, true);
+    let oldRow = task.row
+    oldRow.removeTask(task.model.id, viewOnly, true)
 
-    task.row = this;
-    this.addTaskImpl(task, viewOnly);
+    task.row = this
+    this.addTaskImpl(task, viewOnly)
 
-    this.sortTasks();
-    this.setFromToByTask(task);
+    this.sortTasks()
+    this.setFromToByTask(task)
 
-    task.updatePosAndSize();
-    this.updateVisibleTasks();
+    task.updatePosAndSize()
+    this.updateVisibleTasks()
 
-    oldRow.$scope.$digest();
+    oldRow.$scope.$digest()
     task.row.$scope.$digest();
 
-    (this.rowsManager.gantt.api as any).tasks.raise.viewRowChange(task, oldRow);
+    (this.rowsManager.gantt.api as any).tasks.raise.viewRowChange(task, oldRow)
     if (!viewOnly) {
-      (this.rowsManager.gantt.api as any).tasks.raise.rowChange(task, oldRow);
+      (this.rowsManager.gantt.api as any).tasks.raise.rowChange(task, oldRow)
     }
-  };
+  }
 
-  updateVisibleTasks() {
-    let filterTask = this.rowsManager.gantt.options.value('filterTask');
+  updateVisibleTasks () {
+    let filterTask = this.rowsManager.gantt.options.value('filterTask')
     if (filterTask) {
       if (typeof(filterTask) === 'object') {
-        filterTask = {model: filterTask};
+        filterTask = {model: filterTask}
       }
 
-      let filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator');
+      let filterTaskComparator = this.rowsManager.gantt.options.value('filterTaskComparator')
       if (typeof(filterTaskComparator) === 'function') {
         filterTaskComparator = function (actual, expected) {
-          return filterTaskComparator(actual.model, expected.model);
-        };
+          return filterTaskComparator(actual.model, expected.model)
+        }
       }
 
-      this.filteredTasks = GanttRow.$filter('filter')(this.tasks, filterTask, filterTaskComparator);
+      this.filteredTasks = GanttRow.$filter('filter')(this.tasks, filterTask, filterTaskComparator)
     } else {
-      this.filteredTasks = this.tasks.slice(0);
+      this.filteredTasks = this.tasks.slice(0)
     }
 
-    let limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold');
+    let limitThreshold = this.rowsManager.gantt.options.value('taskLimitThreshold')
     if (limitThreshold === undefined || limitThreshold > 0 && this.filteredTasks.length >= limitThreshold) {
-      this.visibleTasks = GanttRow.$filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt);
+      this.visibleTasks = GanttRow.$filter('ganttTaskLimit')(this.filteredTasks, this.rowsManager.gantt)
     } else {
-      this.visibleTasks = this.filteredTasks;
+      this.visibleTasks = this.filteredTasks
     }
-  };
+  }
 
-  updateTasksPosAndSize() {
+  updateTasksPosAndSize () {
     for (let task of this.tasks) {
-      task.updatePosAndSize();
+      task.updatePosAndSize()
     }
-  };
+  }
 
   /**
    * Remove the specified task from the row
@@ -160,123 +160,123 @@ export class GanttRow {
    * @param silent
    * @returns {any}
    */
-  removeTask(taskId: string, viewOnly: boolean, silent: boolean) {
+  removeTask (taskId: string, viewOnly: boolean, silent: boolean) {
     if (taskId in this.tasksMap) {
-      let removedTask = this.tasksMap[taskId];
-      let task;
-      let i;
+      let removedTask = this.tasksMap[taskId]
+      let task
+      let i
 
       for (i = this.tasks.length - 1; i >= 0; i--) {
-        task = this.tasks[i];
+        task = this.tasks[i]
         if (task.model.id === taskId) {
-          this.tasks.splice(i, 1); // Remove from array
+          this.tasks.splice(i, 1) // Remove from array
 
           // Update earliest or latest date info as this may change
           if (this.from && this.from.isSame(moment(task.model.from)) || this.to && this.to.isSame(moment(task.model.to))) {
-            this.setFromTo();
+            this.setFromTo()
           }
 
-          break;
+          break
         }
       }
 
       for (i = this.filteredTasks.length - 1; i >= 0; i--) {
-        task = this.filteredTasks[i];
+        task = this.filteredTasks[i]
         if (task.model.id === taskId) {
-          this.filteredTasks.splice(i, 1); // Remove from filtered array
-          break;
+          this.filteredTasks.splice(i, 1) // Remove from filtered array
+          break
         }
       }
 
       for (i = this.visibleTasks.length - 1; i >= 0; i--) {
-        task = this.visibleTasks[i];
+        task = this.visibleTasks[i]
         if (task.model.id === taskId) {
-          this.visibleTasks.splice(i, 1); // Remove from visible array
-          break;
+          this.visibleTasks.splice(i, 1) // Remove from visible array
+          break
         }
       }
 
       if (!viewOnly) {
-        delete this.tasksMap[taskId]; // Remove from map
+        delete this.tasksMap[taskId] // Remove from map
 
         if (this.model.tasks !== undefined) {
-          let taskIndex = this.model.tasks.indexOf(removedTask.model);
+          let taskIndex = this.model.tasks.indexOf(removedTask.model)
           if (taskIndex > -1) {
-            this.model.tasks.splice(taskIndex, 1);
+            this.model.tasks.splice(taskIndex, 1)
           }
         }
 
         if (!silent) {
-          (this.rowsManager.gantt.api as any).tasks.raise.remove(removedTask);
+          (this.rowsManager.gantt.api as any).tasks.raise.remove(removedTask)
         }
       }
 
-      return removedTask;
+      return removedTask
     }
-  };
+  }
 
-  removeAllTasks() {
-    this.from = undefined;
-    this.to = undefined;
+  removeAllTasks () {
+    this.from = undefined
+    this.to = undefined
 
-    this.tasksMap = {};
-    this.tasks = [];
-    this.filteredTasks = [];
-    this.visibleTasks = [];
-  };
+    this.tasksMap = {}
+    this.tasks = []
+    this.filteredTasks = []
+    this.visibleTasks = []
+  }
 
   /**
    * Calculate the earliest from and latest to date of all tasks in a row
    */
-  setFromTo() {
-    this.from = undefined;
-    this.to = undefined;
+  setFromTo () {
+    this.from = undefined
+    this.to = undefined
     for (let task of this.tasks) {
-      this.setFromToByTask(task);
+      this.setFromToByTask(task)
     }
-  };
+  }
 
-  setFromToByTask(task) {
-    this.setFromToByValues(task.model.from, task.model.to);
-  };
+  setFromToByTask (task) {
+    this.setFromToByValues(task.model.from, task.model.to)
+  }
 
-  setFromToByValues(from, to) {
+  setFromToByValues (from, to) {
     if (from !== undefined) {
       if (this.from === undefined) {
-        this.from = moment(from);
+        this.from = moment(from)
       } else if (from < this.from) {
-        this.from = moment(from);
+        this.from = moment(from)
       }
     }
 
     if (to !== undefined) {
       if (this.to === undefined) {
-        this.to = moment(to);
+        this.to = moment(to)
       } else if (to > this.to) {
-        this.to = moment(to);
+        this.to = moment(to)
       }
     }
-  };
+  }
 
-  sortTasks() {
+  sortTasks () {
     this.tasks.sort((t1, t2) => {
-      return t1.left - t2.left;
-    });
-  };
+      return t1.left - t2.left
+    })
+  }
 
-  clone() {
-    let clone = new GanttRow(this.rowsManager, angular.copy(this.model));
+  clone () {
+    let clone = new GanttRow(this.rowsManager, angular.copy(this.model))
     for (let task of this.tasks) {
-      clone.addTask(task.model);
+      clone.addTask(task.model)
     }
-    return clone;
-  };
+    return clone
+  }
 }
 
 export default function (GanttTask: {new(row: GanttRow, model: GanttTaskModel): GanttTask}, $filter: IGanttFilterService) {
-  'ngInject';
+  'ngInject'
 
-  GanttRow.GanttTask = GanttTask;
-  GanttRow.$filter = $filter;
-  return GanttRow;
+  GanttRow.GanttTask = GanttTask
+  GanttRow.$filter = $filter
+  return GanttRow
 }

@@ -1,30 +1,30 @@
-import moment, {unitOfTime} from 'moment';
-import {GanttColumnBuilder} from './columnBuilder.factory';
-import DurationConstructor = moment.unitOfTime.DurationConstructor;
+import moment, {unitOfTime} from 'moment'
+import {GanttColumnBuilder} from './columnBuilder.factory'
+import DurationConstructor = moment.unitOfTime.DurationConstructor
 
 /**
  * Columns are generated including or excluding the to date.
  * If the To date is the first day of month and the time is 00:00 then no new column is generated for this month.
  */
 export default class GanttColumnGenerator {
-  private isToDateToExclude(to: moment.Moment, value: unitOfTime.DurationConstructor, unit: unitOfTime.StartOf) {
-    return moment(to).add(value, unit).startOf(unit) === to;
-  };
+  private isToDateToExclude (to: moment.Moment, value: unitOfTime.DurationConstructor, unit: unitOfTime.StartOf) {
+    return moment(to).add(value, unit).startOf(unit) === to
+  }
 
-  private getFirstValue(unit: unitOfTime.All) {
+  private getFirstValue (unit: unitOfTime.All) {
     if (['hour', 'minute', 'second', 'millisecond'].indexOf(unit) >= 0) {
-      return 0;
+      return 0
     }
-  };
+  }
 
-  private ensureNoUnitOverflow(unit: unitOfTime.All, startDate: moment.Moment, endDate: moment.Moment) {
-    let v1 = startDate.get(unit);
-    let v2 = endDate.get(unit);
-    let firstValue = this.getFirstValue(unit);
+  private ensureNoUnitOverflow (unit: unitOfTime.All, startDate: moment.Moment, endDate: moment.Moment) {
+    let v1 = startDate.get(unit)
+    let v2 = endDate.get(unit)
+    let firstValue = this.getFirstValue(unit)
     if (firstValue !== undefined && v2 !== firstValue && v2 < v1) {
-      endDate.set(unit, firstValue);
+      endDate.set(unit, firstValue)
     }
-  };
+  }
 
   /**
    * Generates one column for each time unit between the given from and to date.
@@ -39,91 +39,91 @@ export default class GanttColumnGenerator {
    * @param reverse
    * @returns {Array}
    */
-  generate(builder: GanttColumnBuilder, from: moment.Moment, to: moment.Moment, viewScale: string, columnWidth: number, maximumWidth?: number, leftOffset?: number, reverse?: boolean) {
+  generate (builder: GanttColumnBuilder, from: moment.Moment, to: moment.Moment, viewScale: string, columnWidth: number, maximumWidth?: number, leftOffset?: number, reverse?: boolean) {
     if (!to && !maximumWidth) {
-      throw 'to or maximumWidth must be defined';
+      throw new Error('to or maximumWidth must be defined')
     }
 
-    viewScale = viewScale.trim();
+    viewScale = viewScale.trim()
     if (viewScale.charAt(viewScale.length - 1) === 's') {
-      viewScale = viewScale.substring(0, viewScale.length - 1);
+      viewScale = viewScale.substring(0, viewScale.length - 1)
     }
-    let viewScaleValue: unitOfTime.DurationConstructor;
-    let viewScaleUnit: unitOfTime.StartOf;
-    let splittedViewScale: string[];
+    let viewScaleValue: unitOfTime.DurationConstructor
+    let viewScaleUnit: unitOfTime.StartOf
+    let splittedViewScale: string[]
 
     if (viewScale) {
-      splittedViewScale = viewScale.split(' ');
+      splittedViewScale = viewScale.split(' ')
     }
     if (splittedViewScale && splittedViewScale.length > 1) {
-      viewScaleValue = parseFloat(splittedViewScale[0]) as any;
-      viewScaleUnit = splittedViewScale[splittedViewScale.length - 1] as unitOfTime.StartOf;
+      viewScaleValue = parseFloat(splittedViewScale[0]) as any
+      viewScaleUnit = splittedViewScale[splittedViewScale.length - 1] as unitOfTime.StartOf
     } else {
-      viewScaleValue = 1 as any;
-      viewScaleUnit = viewScale as unitOfTime.StartOf;
+      viewScaleValue = 1 as any
+      viewScaleUnit = viewScale as unitOfTime.StartOf
     }
 
-    let excludeTo = false;
-    from = moment(from).startOf(viewScaleUnit);
+    let excludeTo = false
+    from = moment(from).startOf(viewScaleUnit)
     if (to) {
-      excludeTo = this.isToDateToExclude(to, viewScaleValue, viewScaleUnit);
-      to = moment(to).startOf(viewScaleUnit);
+      excludeTo = this.isToDateToExclude(to, viewScaleValue, viewScaleUnit)
+      to = moment(to).startOf(viewScaleUnit)
     }
 
-    let left = 0;
-    let date = moment(from).startOf(viewScaleUnit);
+    let left = 0
+    let date = moment(from).startOf(viewScaleUnit)
     if (reverse) {
-      date.subtract(viewScaleValue, viewScaleUnit);
-      left -= columnWidth;
+      date.subtract(viewScaleValue, viewScaleUnit)
+      left -= columnWidth
     }
-    let generatedCols = [];
+    let generatedCols = []
 
     while (true) {
       if (maximumWidth && Math.abs(left) > maximumWidth + columnWidth) {
-        break;
+        break
       }
 
-      let startDate = moment(date);
-      let endDate = moment(startDate).add(viewScaleValue, viewScaleUnit);
-      this.ensureNoUnitOverflow(viewScaleUnit, startDate, endDate);
+      let startDate = moment(date)
+      let endDate = moment(startDate).add(viewScaleValue, viewScaleUnit)
+      this.ensureNoUnitOverflow(viewScaleUnit, startDate, endDate)
 
-      let column = builder.newColumn(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth);
+      let column = builder.newColumn(startDate, endDate, leftOffset ? left + leftOffset : left, columnWidth)
 
       if (!column.cropped) {
-        generatedCols.push(column);
+        generatedCols.push(column)
         if (reverse) {
-          left -= columnWidth;
+          left -= columnWidth
         } else {
-          left += columnWidth;
+          left += columnWidth
         }
       }
       if (to) {
         if (reverse) {
           if (excludeTo && date < to || !excludeTo && date <= to) {
-            break;
+            break
           }
         } else {
           if (excludeTo && date > to || !excludeTo && date >= to) {
-            break;
+            break
           }
         }
       }
       if (reverse) {
-        date.subtract(viewScaleValue, viewScaleUnit);
-        this.ensureNoUnitOverflow(viewScaleUnit, date, startDate);
+        date.subtract(viewScaleValue, viewScaleUnit)
+        this.ensureNoUnitOverflow(viewScaleUnit, date, startDate)
       } else {
-        date.add(viewScaleValue, viewScaleUnit);
-        this.ensureNoUnitOverflow(viewScaleUnit, startDate, date);
+        date.add(viewScaleValue, viewScaleUnit)
+        this.ensureNoUnitOverflow(viewScaleUnit, startDate, date)
       }
     }
 
     if (reverse) {
       if (this.isToDateToExclude(from, viewScaleValue, viewScaleUnit)) {
-        generatedCols.shift();
+        generatedCols.shift()
       }
-      generatedCols.reverse();
+      generatedCols.reverse()
     }
 
-    return generatedCols;
-  };
+    return generatedCols
+  }
 }

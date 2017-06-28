@@ -1,20 +1,22 @@
-import angular, {ICompileService, IRootScopeService, ITimeoutService} from 'angular';
-import 'angular-mocks';
+// tslint:disable:no-unused-expression
 
-import jQuery from 'jquery';
+import angular, {ICompileService, IRootScopeService, ITimeoutService} from 'angular'
+import 'angular-mocks'
 
-import moment from 'moment';
+import jQuery from 'jquery'
 
-import { expect } from 'chai';
+import moment from 'moment'
+
+import { expect } from 'chai'
 
 describe('Gantt', function () {
   // Load the module with MainController
-  beforeEach(angular.mock.module('gantt'));
+  beforeEach(angular.mock.module('gantt'))
 
-  let Gantt;
-  let $rootScope: IRootScopeService;
-  let $compile: ICompileService;
-  let $timeout: ITimeoutService;
+  let Gantt
+  let $rootScope: IRootScopeService
+  let $compile: ICompileService
+  let $timeout: ITimeoutService
 
   let mockData = [
     {
@@ -211,248 +213,248 @@ describe('Gantt', function () {
         }
       ]
     }
-  ];
+  ]
 
   let checkData = function (data, ganttElement) {
-    let tasks = [];
+    let tasks = []
     angular.forEach(data, function (row) {
       if (row.tasks) {
-        tasks = tasks.concat(row.tasks);
+        tasks = tasks.concat(row.tasks)
       }
-    });
+    })
 
-    let rowElements = jQuery(ganttElement).find('div.gantt-body-rows div.gantt-row');
-    let taskElements = jQuery(ganttElement).find('div.gantt-task');
+    let rowElements = jQuery(ganttElement).find('div.gantt-body-rows div.gantt-row')
+    let taskElements = jQuery(ganttElement).find('div.gantt-task')
 
-    expect(rowElements.length).to.be.eq(data.length);
-    expect(taskElements.length).to.be.eq(tasks.length);
+    expect(rowElements.length).to.be.eq(data.length)
+    expect(taskElements.length).to.be.eq(tasks.length)
 
     for (let i = 0; i < rowElements.length; i++) {
-      let rowElement = jQuery(rowElements[i]);
+      let rowElement = jQuery(rowElements[i])
 
-      let rowTaskElements = rowElement.find('div.gantt-task, div.gantt-task-milestone');
-      let rowModel = data[i];
+      let rowTaskElements = rowElement.find('div.gantt-task, div.gantt-task-milestone')
+      let rowModel = data[i]
 
       for (let j = 0; j < rowTaskElements.length; j++) {
-        let rowTaskElement = jQuery(rowTaskElements[j]);
+        let rowTaskElement = jQuery(rowTaskElements[j])
 
-        let taskModel = rowModel.tasks[j];
-        let taskText = rowTaskElement.find('.gantt-task-content').text();
-        expect(taskText).to.be.eq(taskModel.name);
+        let taskModel = rowModel.tasks[j]
+        let taskText = rowTaskElement.find('.gantt-task-content').text()
+        expect(taskText).to.be.eq(taskModel.name)
 
         if (taskModel.classes) {
-          let taskClasses = taskModel.classes;
+          let taskClasses = taskModel.classes
           if (!angular.isArray(taskClasses)) {
-            taskClasses = [taskClasses];
+            taskClasses = [taskClasses]
           }
           angular.forEach(taskClasses, function (taskClass) {
-            expect(rowTaskElement.hasClass(taskClass)).to.be.ok;
-          });
+            expect(rowTaskElement.hasClass(taskClass)).to.be.ok
+          })
         }
       }
     }
-  };
+  }
 
   beforeEach(inject(['$rootScope', '$compile', '$timeout', 'Gantt', function ($tRootScope: IRootScopeService, $tCompile: ICompileService, $tTimeout: ITimeoutService, tGantt) {
-    Gantt = tGantt;
-    $rootScope = $tRootScope;
-    $compile = $tCompile;
-    $timeout = $tTimeout;
-  }]));
+    Gantt = tGantt
+    $rootScope = $tRootScope
+    $compile = $tCompile
+    $timeout = $tTimeout
+  }]))
 
   it('should register API and call api.on.ready event',
     function () {
-      let $scope = $rootScope.$new();
+      let $scope = $rootScope.$new()
 
-      let ganttApi;
-      let ready = false;
+      let ganttApi
+      let ready = false
       $scope.api = function (api) {
-        ganttApi = api;
+        ganttApi = api
 
         ganttApi.core.on.ready($scope, function () {
-          ready = true;
-        });
-      };
+          ready = true
+        })
+      }
 
-      $compile('<div gantt api="api"></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
+      $compile('<div gantt api="api"></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
 
-      expect(ganttApi).to.be.not.undefined;
-      expect(ready).to.be.ok;
+      expect(ganttApi).to.be.not.undefined
+      expect(ready).to.be.ok
 
-      ganttApi = undefined;
-      ready = false;
+      ganttApi = undefined
+      ready = false
 
-      $compile('<div gantt api="api"></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
+      $compile('<div gantt api="api"></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
 
-      expect(ganttApi).to.be.not.undefined;
-      expect(ready).to.be.ok;
+      expect(ganttApi).to.be.not.undefined
+      expect(ready).to.be.ok
     }
-  );
+  )
 
   it('should load with no data',
     function () {
-      let $scope = $rootScope.$new();
-      let ganttElement = $compile('<div gantt></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
-      checkData([], ganttElement);
-    });
+      let $scope = $rootScope.$new()
+      let ganttElement = $compile('<div gantt></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
+      checkData([], ganttElement)
+    })
 
   it('should load and modify data from $scope.data',
     function () {
-      let $scope = $rootScope.$new();
+      let $scope = $rootScope.$new()
 
-      $scope.data = angular.copy(mockData);
-      let ganttElement = $compile('<div gantt data="data"></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
+      $scope.data = angular.copy(mockData)
+      let ganttElement = $compile('<div gantt data="data"></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
 
-      checkData($scope.data, ganttElement);
+      checkData($scope.data, ganttElement)
 
-      $scope.data = [];
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data = []
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data = angular.copy(mockData);
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data = angular.copy(mockData)
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].name = 'Modified'; // Change row name
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].name = 'Modified' // Change row name
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].tasks.splice(1, 0); // Remove a task
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].tasks.splice(1, 0) // Remove a task
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].tasks = undefined; // Removes all row task
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].tasks = undefined // Removes all row task
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].tasks = []; // Set task array back
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].tasks = [] // Set task array back
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].tasks.push(angular.copy((mockData[2] as any).tasks[1])); // Add a task
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].tasks.push(angular.copy((mockData[2] as any).tasks[1])) // Add a task
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].tasks[0].name = 'Modified';
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].tasks[0].name = 'Modified'
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
 
-      $scope.data[2].tasks[0].classes = ['other-custom-class'];
-      $scope.$digest();
-      checkData($scope.data, ganttElement);
+      $scope.data[2].tasks[0].classes = ['other-custom-class']
+      $scope.$digest()
+      checkData($scope.data, ganttElement)
     }
-  );
+  )
 
   it('should load data from API',
     function () {
-      let $scope = $rootScope.$new();
+      let $scope = $rootScope.$new()
 
-      let data = angular.copy(mockData);
+      let data = angular.copy(mockData)
 
-      let ganttApi;
-      let ready = false;
+      let ganttApi
+      let ready = false
       $scope.api = function (api) {
-        ganttApi = api;
+        ganttApi = api
 
         ganttApi.core.on.ready($scope, function () {
-          ready = true;
-          ganttApi.data.load(data);
-        });
-      };
+          ready = true
+          ganttApi.data.load(data)
+        })
+      }
 
-      let ganttElement = $compile('<div gantt api="api" data="data"></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
+      let ganttElement = $compile('<div gantt api="api" data="data"></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
 
-      expect($scope.data).to.be.eq(data);
-      checkData(data, ganttElement);
+      expect($scope.data).to.be.eq(data)
+      checkData(data, ganttElement)
     }
-  );
+  )
 
   it('should destroy scope properly',
     function () {
-      let $scope = $rootScope.$new();
+      let $scope = $rootScope.$new()
 
-      $scope.data = angular.copy(mockData);
-      $compile('<div gantt data="data"></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
+      $scope.data = angular.copy(mockData)
+      $compile('<div gantt data="data"></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
 
-      $scope.$destroy();
+      $scope.$destroy()
     }
-  );
+  )
 
   describe('from-date/to-date', function () {
-    let $scope;
-    let ganttElement;
-    let ganttApi;
+    let $scope
+    let ganttElement
+    let ganttApi
     beforeEach(function () {
-      $scope = $rootScope.$new();
+      $scope = $rootScope.$new()
 
-      $scope.data = angular.copy(mockData);
-      $scope.fromDate = undefined;
-      $scope.toDate = undefined;
+      $scope.data = angular.copy(mockData)
+      $scope.fromDate = undefined
+      $scope.toDate = undefined
 
       $scope.api = function (api) {
-        ganttApi = api;
-      };
+        ganttApi = api
+      }
 
-      ganttElement = $compile('<div gantt data="data" api="api" from-date="fromDate" to-date="toDate"><gantt-table></gantt-table></div>')($scope);
-      $scope.$digest();
-      $timeout.flush();
-    });
+      ganttElement = $compile('<div gantt data="data" api="api" from-date="fromDate" to-date="toDate"><gantt-table></gantt-table></div>')($scope)
+      $scope.$digest()
+      $timeout.flush()
+    })
 
     it('should support native date',
       function () {
-        $scope.fromDate = new Date(2013, 1, 1);
-        $scope.toDate = new Date(2014, 1, 1);
+        $scope.fromDate = new Date(2013, 1, 1)
+        $scope.toDate = new Date(2014, 1, 1)
 
-        $scope.$digest();
+        $scope.$digest()
 
-        checkData($scope.data, ganttElement);
+        checkData($scope.data, ganttElement)
       }
-    );
+    )
 
     it('should support null date',
       function () {
-        $scope.fromDate = null;
-        $scope.toDate = null;
+        $scope.fromDate = null
+        $scope.toDate = null
 
-        $scope.$digest();
+        $scope.$digest()
 
-        checkData($scope.data, ganttElement);
+        checkData($scope.data, ganttElement)
       }
-    );
+    )
 
     it('should support moment',
       function () {
-        $scope.fromDate = moment(new Date(2013, 1, 1));
-        $scope.toDate = moment(new Date(2014, 1, 1));
+        $scope.fromDate = moment(new Date(2013, 1, 1))
+        $scope.toDate = moment(new Date(2014, 1, 1))
 
-        $scope.$digest();
+        $scope.$digest()
 
-        checkData($scope.data, ganttElement);
+        checkData($scope.data, ganttElement)
       }
-    );
+    )
 
     it('should support invalid moment',
       function () {
-        $scope.fromDate = moment(null);
-        $scope.toDate = moment(null);
+        $scope.fromDate = moment(null)
+        $scope.toDate = moment(null)
 
-        $scope.$digest();
+        $scope.$digest()
 
-        checkData($scope.data, ganttElement);
+        checkData($scope.data, ganttElement)
       }
-    );
+    )
 
-  });
-});
+  })
+})

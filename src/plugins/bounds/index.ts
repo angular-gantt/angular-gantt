@@ -1,16 +1,16 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import boundsDirective from './bounds.directive';
-import taskBoundsDirective from './taskBounds.directive';
+import boundsDirective from './bounds.directive'
+import taskBoundsDirective from './taskBounds.directive'
 
-const pluginModule = 'gantt.bounds';
+const pluginModule = 'gantt.bounds'
 
-require('./bounds.css');
+require('./bounds.css')
 
 angular.module(pluginModule, [ganttModule])
   .directive('ganttBounds', boundsDirective)
-  .directive('ganttTaskBounds', taskBoundsDirective);
+  .directive('ganttTaskBounds', taskBoundsDirective)
 
-export default pluginModule;
+export default pluginModule

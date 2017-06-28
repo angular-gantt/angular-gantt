@@ -1,15 +1,15 @@
-import {IAugmentedJQuery} from 'angular';
+import {IAugmentedJQuery} from 'angular'
 
 export class GanttHeaderColumns {
-  $element: IAugmentedJQuery;
+  $element: IAugmentedJQuery
 
-  constructor($element: IAugmentedJQuery) {
-    this.$element = $element;
-  };
+  constructor ($element: IAugmentedJQuery) {
+    this.$element = $element
+  }
 }
 
 export default function () {
-  'ngInject';
+  'ngInject'
 
-  return GanttHeaderColumns;
+  return GanttHeaderColumns
 }

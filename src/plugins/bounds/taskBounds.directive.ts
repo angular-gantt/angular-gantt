@@ -1,67 +1,67 @@
-import moment from 'moment';
+import moment from 'moment'
 
-require('./taskBounds.tmpl.html');
+require('./taskBounds.tmpl.html')
 
 export default function ($templateCache) {
-  'ngInject';
+  'ngInject'
   // Displays a box representing the earliest allowable start time and latest completion time for a job
 
   return {
     restrict: 'E',
     templateUrl: function (tElement, tAttrs) {
-      let templateUrl;
+      let templateUrl
       if (tAttrs.templateUrl === undefined) {
-        templateUrl = 'plugins/bounds/taskBounds.tmpl.html';
+        templateUrl = 'plugins/bounds/taskBounds.tmpl.html'
       } else {
-        templateUrl = tAttrs.templateUrl;
+        templateUrl = tAttrs.templateUrl
       }
       if (tAttrs.template) {
-        $templateCache.put(templateUrl, tAttrs.template);
+        $templateCache.put(templateUrl, tAttrs.template)
       }
-      return templateUrl;
+      return templateUrl
     },
     replace: true,
     scope: true,
     controller: function ($scope, $element) {
-      'ngInject';
-      $element.toggleClass('ng-hide', true);
+      'ngInject'
+      $element.toggleClass('ng-hide', true)
 
       $scope.simplifyMoment = function (d) {
-        return moment.isMoment(d) ? d.unix() : d;
-      };
+        return moment.isMoment(d) ? d.unix() : d
+      }
 
       $scope.$watchGroup(['simplifyMoment(task.model.est)', 'simplifyMoment(task.model.lct)', 'task.left', 'task.width'], function () {
-        let left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est);
-        let right = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct);
+        let left = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.est)
+        let right = $scope.task.rowsManager.gantt.getPositionByDate($scope.task.model.lct)
 
-        $element.css('left', left - $scope.task.left + 'px');
-        $element.css('width', right - left + 'px');
+        $element.css('left', left - $scope.task.left + 'px')
+        $element.css('width', right - left + 'px')
 
-        $element.toggleClass('gantt-task-bounds-in', false);
-        $element.toggleClass('gantt-task-bounds-out', false);
+        $element.toggleClass('gantt-task-bounds-in', false)
+        $element.toggleClass('gantt-task-bounds-out', false)
         if ($scope.task.model.est === undefined || $scope.task.model.lct === undefined) {
-          $element.toggleClass('gantt-task-bounds-in', true);
+          $element.toggleClass('gantt-task-bounds-in', true)
         } else if ($scope.task.model.est > $scope.task.model.from) {
-          $element.toggleClass('gantt-task-bounds-out', true);
+          $element.toggleClass('gantt-task-bounds-out', true)
         } else if ($scope.task.model.lct < $scope.task.model.to) {
-          $element.toggleClass('gantt-task-bounds-out', true);
+          $element.toggleClass('gantt-task-bounds-out', true)
         } else {
-          $element.toggleClass('gantt-task-bounds-in', true);
+          $element.toggleClass('gantt-task-bounds-in', true)
         }
-      });
+      })
 
       $scope.task.$element.bind('mouseenter', function () {
-        $element.toggleClass('ng-hide', false);
-      });
+        $element.toggleClass('ng-hide', false)
+      })
 
       $scope.task.$element.bind('mouseleave', function () {
-        $element.toggleClass('ng-hide', true);
-      });
+        $element.toggleClass('ng-hide', true)
+      })
 
-      $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element);
+      $scope.task.rowsManager.gantt.api.directives.raise.new('ganttBounds', $scope, $element)
       $scope.$on('$destroy', function () {
-        $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttBounds', $scope, $element);
-      });
+        $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttBounds', $scope, $element)
+      })
     }
-  };
+  }
 }

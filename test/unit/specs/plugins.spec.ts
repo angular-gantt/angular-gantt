@@ -1,8 +1,10 @@
-import angular, {ICompileService, IRootScopeService, ITimeoutService} from 'angular';
-import 'angular-mocks';
+// tslint:disable:no-unused-expression
 
-import {expect} from 'chai';
-import jQuery from 'jquery';
+import angular, {ICompileService, IRootScopeService, ITimeoutService} from 'angular'
+import 'angular-mocks'
+
+import {expect} from 'chai'
+import jQuery from 'jquery'
 
 describe('Plugins', function () {
   // Load the module with MainController
@@ -10,12 +12,12 @@ describe('Plugins', function () {
     angular.mock.module('gantt', 'gantt.labels', 'gantt.sortable', 'gantt.movable', 'gantt.drawtask',
       'gantt.tooltips', 'gantt.bounds', 'gantt.progress', 'gantt.table', 'gantt.tree', 'gantt.groups'
     )
-  );
+  )
 
-  let Gantt;
-  let $rootScope: IRootScopeService;
-  let $compile: ICompileService;
-  let $timeout: ITimeoutService;
+  let Gantt
+  let $rootScope: IRootScopeService
+  let $compile: ICompileService
+  let $timeout: ITimeoutService
 
   let mockData = [
     // Order is optional. If not specified it will be assigned automatically
@@ -214,19 +216,19 @@ describe('Plugins', function () {
         }
       ]
     }
-  ];
+  ]
 
   beforeEach(inject(['$rootScope', '$compile', '$timeout', 'Gantt', function ($tRootScope: IRootScopeService, $tCompile: ICompileService, $tTimeout: ITimeoutService, tGantt) {
-    Gantt = tGantt;
-    $rootScope = $tRootScope;
-    $compile = $tCompile;
-    $timeout = $tTimeout;
-  }]));
+    Gantt = tGantt
+    $rootScope = $tRootScope
+    $compile = $tCompile
+    $timeout = $tTimeout
+  }]))
 
   describe('every plugins', function () {
     it('should load without error',
       function () {
-        let $scope = $rootScope.$new();
+        let $scope = $rootScope.$new()
 
         $compile('<div gantt api="api">' +
           '<gantt-labels></gantt-labels>' +
@@ -239,18 +241,18 @@ describe('Plugins', function () {
           '<gantt-sortable></gantt-sortable>' +
           '<gantt-movable></gantt-movable>' +
           '<gantt-draw-task></gantt-draw-task>' +
-          '</div>')($scope);
+          '</div>')($scope)
 
-        $scope.$digest();
-        $timeout.flush();
+        $scope.$digest()
+        $timeout.flush()
       }
-    );
+    )
 
     it('should destroy scope without error',
       function () {
-        let $scope = $rootScope.$new();
+        let $scope = $rootScope.$new()
 
-        $scope.data = angular.copy(mockData);
+        $scope.data = angular.copy(mockData)
         $compile('<div gantt api="api">' +
           '<gantt-labels></gantt-labels>' +
           '<gantt-tree></gantt-tree>' +
@@ -262,200 +264,200 @@ describe('Plugins', function () {
           '<gantt-sortable></gantt-sortable>' +
           '<gantt-movable></gantt-movable>' +
           '<gantt-draw-task></gantt-draw-task>' +
-          '</div>')($scope);
-        $scope.$digest();
-        $timeout.flush();
+          '</div>')($scope)
+        $scope.$digest()
+        $timeout.flush()
 
-        $scope.$destroy();
+        $scope.$destroy()
       }
-    );
-  });
+    )
+  })
 
   let checkLabels = function (data, ganttElement, contentNotSupported?) {
-    let rowLabelsElements = jQuery(ganttElement).find('.gantt-row-label').not('.gantt-row-label-header').find('.gantt-label-text');
-    expect(rowLabelsElements.length).to.be.eq(data.length);
+    let rowLabelsElements = jQuery(ganttElement).find('.gantt-row-label').not('.gantt-row-label-header').find('.gantt-label-text')
+    expect(rowLabelsElements.length).to.be.eq(data.length)
 
     angular.forEach(rowLabelsElements, function (rowLabelElement, i) {
-      rowLabelElement = jQuery(rowLabelElement);
+      rowLabelElement = jQuery(rowLabelElement)
 
-      let rowModel = data[i];
-      let rowText = rowLabelElement.text().trim();
+      let rowModel = data[i]
+      let rowText = rowLabelElement.text().trim()
       if (contentNotSupported || rowModel.content === undefined) {
-        expect(rowText).to.be.eq(rowModel.name);
+        expect(rowText).to.be.eq(rowModel.name)
       } else {
-        let rowHtmlModel = rowModel.content;
-        rowHtmlModel = rowHtmlModel.replace('{{row.model.name}}', rowModel.name);
-        let expectedRowText = rowHtmlModel.replace(/<(?:.|\n)*?>/gm, '').trim(); // Strip HTML
-        expect(rowText).to.be.eq(expectedRowText);
+        let rowHtmlModel = rowModel.content
+        rowHtmlModel = rowHtmlModel.replace('{{row.model.name}}', rowModel.name)
+        let expectedRowText = rowHtmlModel.replace(/<(?:.|\n)*?>/gm, '').trim() // Strip HTML
+        expect(rowText).to.be.eq(expectedRowText)
       }
 
       if (rowModel.classes) {
-        let rowClasses = rowModel.classes;
+        let rowClasses = rowModel.classes
         if (!angular.isArray(rowClasses)) {
-          rowClasses = [rowClasses];
+          rowClasses = [rowClasses]
         }
 
         angular.forEach(rowClasses, function (rowClass) {
-          expect(rowLabelElement.parents().hasClass(rowClass)).to.be.ok;
-        });
+          expect(rowLabelElement.parents().hasClass(rowClass)).to.be.ok
+        })
       }
-    });
-  };
+    })
+  }
 
   describe('labels', function () {
     it('should display labels',
       function () {
-        let $scope = $rootScope.$new();
+        let $scope = $rootScope.$new()
 
-        $scope.data = angular.copy(mockData);
-        let ganttElement = $compile('<div gantt data="data"><gantt-labels></gantt-labels></div>')($scope);
-        $scope.$digest();
-        $timeout.flush();
+        $scope.data = angular.copy(mockData)
+        let ganttElement = $compile('<div gantt data="data"><gantt-labels></gantt-labels></div>')($scope)
+        $scope.$digest()
+        $timeout.flush()
 
-        checkLabels($scope.data, ganttElement, true);
+        checkLabels($scope.data, ganttElement, true)
       }
-    );
-  });
+    )
+  })
 
   describe('table', function () {
     it('should display labels',
       function () {
-        let $scope = $rootScope.$new();
+        let $scope = $rootScope.$new()
 
-        $scope.data = angular.copy(mockData);
-        let ganttElement = $compile('<div gantt data="data"><gantt-table></gantt-table></div>')($scope);
-        $scope.$digest();
-        $timeout.flush();
+        $scope.data = angular.copy(mockData)
+        let ganttElement = $compile('<div gantt data="data"><gantt-table></gantt-table></div>')($scope)
+        $scope.$digest()
+        $timeout.flush()
 
-        checkLabels($scope.data, ganttElement);
+        checkLabels($scope.data, ganttElement)
       }
-    );
-  });
+    )
+  })
 
   describe('tree',
     function () {
       it('should display labels',
         function () {
-          let $scope = $rootScope.$new();
+          let $scope = $rootScope.$new()
 
-          $scope.data = angular.copy(mockData);
-          let ganttElement = $compile('<div gantt data="data"><gantt-tree></gantt-tree></div>')($scope);
-          $scope.$digest();
-          $timeout.flush();
+          $scope.data = angular.copy(mockData)
+          let ganttElement = $compile('<div gantt data="data"><gantt-tree></gantt-tree></div>')($scope)
+          $scope.$digest()
+          $timeout.flush()
 
           // Set the data in tree view ordering
-          let orderedData = $scope.data.slice();
-          let indices = {};
+          let orderedData = $scope.data.slice()
+          let indices = {}
 
           angular.forEach($scope.data, function (rowModel, i) {
             if (rowModel.name) {
-              indices[rowModel.name] = i;
+              indices[rowModel.name] = i
             }
-          });
+          })
 
           /*jshint sub:true */
-          let configRow = orderedData[indices['Config']];
-          let setupRow = orderedData[indices['Setup']];
-          let serverRow = orderedData[indices['Server']];
+          let configRow = orderedData[indices['Config']]
+          let setupRow = orderedData[indices['Setup']]
+          let serverRow = orderedData[indices['Server']]
 
-          orderedData[indices['Setup']] = serverRow;
-          orderedData[indices['Config']] = setupRow;
-          orderedData[indices['Server']] = configRow;
+          orderedData[indices['Setup']] = serverRow
+          orderedData[indices['Config']] = setupRow
+          orderedData[indices['Server']] = configRow
           /*jshint sub:false */
 
-          checkLabels(orderedData, ganttElement);
+          checkLabels(orderedData, ganttElement)
         }
-      );
+      )
 
       it('should contain nodes that can expand and collapse',
         function () {
-          let $scope = $rootScope.$new();
-          $scope.data = angular.copy(mockData);
+          let $scope = $rootScope.$new()
+          $scope.data = angular.copy(mockData)
 
-          let ganttApi;
-          let ready = false;
+          let ganttApi
+          let ready = false
           $scope.api = function (api) {
-            ganttApi = api;
+            ganttApi = api
 
             ganttApi.core.on.ready($scope, function () {
-              ready = true;
-            });
-          };
+              ready = true
+            })
+          }
 
           let ganttElement = $compile('<div gantt api="api" data="data">' +
             '<gantt-tree></gantt-tree>' +
-            '</div>')($scope);
+            '</div>')($scope)
 
-          $scope.$digest();
-          $timeout.flush();
+          $scope.$digest()
+          $timeout.flush()
 
-          expect(ganttApi).to.be.not.undefined;
-          expect(ready).to.be.ok;
+          expect(ganttApi).to.be.not.undefined
+          expect(ready).to.be.ok
 
-          expect(ganttApi.tree.isCollapsed(undefined)).to.be.undefined;
+          expect(ganttApi.tree.isCollapsed(undefined)).to.be.undefined
 
           // All rows should be expanded on init
           angular.forEach(ganttApi.gantt.rowsManager.rows, function (row) {
-            expect(ganttApi.tree.isCollapsed(row)).to.be.not.ok;
-          });
+            expect(ganttApi.tree.isCollapsed(row)).to.be.not.ok
+          })
 
           // Collapse all rows
-          ganttApi.tree.collapseAll();
-          $scope.$digest();
+          ganttApi.tree.collapseAll()
+          $scope.$digest()
 
           // Development row should be collapsed
-          expect(ganttApi.tree.isCollapsed('development')).to.be.ok;
+          expect(ganttApi.tree.isCollapsed('development')).to.be.ok
 
           // All rows should be collapsed
           angular.forEach(ganttApi.gantt.rowsManager.rows, function (row) {
-            expect(ganttApi.tree.isCollapsed(row)).to.be.ok;
-          });
+            expect(ganttApi.tree.isCollapsed(row)).to.be.ok
+          })
 
           // Expand all rows
-          ganttApi.tree.expandAll();
-          $scope.$digest();
+          ganttApi.tree.expandAll()
+          $scope.$digest()
 
           // All rows should be expanded
           angular.forEach(ganttApi.gantt.rowsManager.rows, function (row) {
-            expect(ganttApi.tree.isCollapsed(row)).to.be.not.ok;
-          });
+            expect(ganttApi.tree.isCollapsed(row)).to.be.not.ok
+          })
 
           // GanttTreeNodeController
-          let treeNodeElement = jQuery(ganttElement).find('[ng-controller="GanttTreeNodeController"]').first();
-          let ganttTreeNodeController = angular.element(treeNodeElement[0]).scope();
+          let treeNodeElement = jQuery(ganttElement).find('[ng-controller="GanttTreeNodeController"]').first()
+          let ganttTreeNodeController = angular.element(treeNodeElement[0]).scope()
 
           // First row name should be "Milestones"
-          expect(ganttTreeNodeController.getValue()).to.be.eq('Milestones');
+          expect(ganttTreeNodeController.getValue()).to.be.eq('Milestones')
 
           // Collapsing should be disabled - no child rows
-          expect(ganttTreeNodeController.isCollapseDisabled()).to.be.ok;
+          expect(ganttTreeNodeController.isCollapseDisabled()).to.be.ok
 
           // Should get row content correctly. If undefined and if defined
-          expect(ganttTreeNodeController.getRowContent()).to.be.eq('{{row.model.name}}');
+          expect(ganttTreeNodeController.getRowContent()).to.be.eq('{{row.model.name}}')
 
           // Test row
-          let testRow = ganttApi.gantt.rowsManager.rows[0];
+          let testRow = ganttApi.gantt.rowsManager.rows[0]
 
           // Test undefined collapsed
-          testRow._collapsed = undefined;
-          expect(ganttApi.tree.isCollapsed(testRow)).to.be.not.ok;
+          testRow._collapsed = undefined
+          expect(ganttApi.tree.isCollapsed(testRow)).to.be.not.ok
 
           // Set custom content
-          testRow.model.content = '> {{row.model.name}}';
-          expect(ganttTreeNodeController.getRowContent()).to.be.eq('> {{row.model.name}}');
+          testRow.model.content = '> {{row.model.name}}'
+          expect(ganttTreeNodeController.getRowContent()).to.be.eq('> {{row.model.name}}')
 
           // GanttTreeController
-          let treeElement = jQuery(ganttElement).find('[ng-controller="GanttTreeController"]');
-          let ganttTreeController = angular.element(treeElement).scope();
+          let treeElement = jQuery(ganttElement).find('[ng-controller="GanttTreeController"]')
+          let ganttTreeController = angular.element(treeElement).scope()
 
           // Get default header
-          expect(ganttTreeController.getHeader()).to.be.eq('Name');
+          expect(ganttTreeController.getHeader()).to.be.eq('Name')
 
           // Get default header content
-          expect(ganttTreeController.getHeaderContent()).to.be.eq('{{getHeader()}}');
+          expect(ganttTreeController.getHeaderContent()).to.be.eq('{{getHeader()}}')
         }
-      );
+      )
     }
-  );
+  )
 
-});
+})

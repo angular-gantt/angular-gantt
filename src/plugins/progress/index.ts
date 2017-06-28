@@ -1,16 +1,16 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import progressDirective from './progress.directive';
-import taskProgressDirective from './taskProgress.directive';
+import progressDirective from './progress.directive'
+import taskProgressDirective from './taskProgress.directive'
 
-const pluginModule = 'gantt.progress';
+const pluginModule = 'gantt.progress'
 
-require('./progress.css');
+require('./progress.css')
 
 angular.module(pluginModule, [ganttModule])
   .directive('ganttProgress', progressDirective)
-  .directive('ganttTaskProgress', taskProgressDirective);
+  .directive('ganttTaskProgress', taskProgressDirective)
 
-export default pluginModule;
+export default pluginModule

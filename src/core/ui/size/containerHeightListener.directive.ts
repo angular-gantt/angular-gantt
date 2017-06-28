@@ -1,37 +1,37 @@
 export default function () {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'A',
     controller: function ($scope, $element, $attrs) {
-      'ngInject';
-      let scopeVariable = $attrs.ganttContainerHeightListener;
+      'ngInject'
+      let scopeVariable = $attrs.ganttContainerHeightListener
       if (scopeVariable === '') {
-        scopeVariable = 'ganttContainerHeight';
+        scopeVariable = 'ganttContainerHeight'
       }
 
-      let effectiveScope = $scope;
+      let effectiveScope = $scope
 
       while (scopeVariable.indexOf('$parent.') === 0) {
-        scopeVariable = scopeVariable.substring('$parent.'.length);
-        effectiveScope = effectiveScope.$parent;
+        scopeVariable = scopeVariable.substring('$parent.'.length)
+        effectiveScope = effectiveScope.$parent
       }
 
       effectiveScope.$watch(function () {
-        let el = $element[0].parentElement ? $element[0].parentElement.parentElement : undefined;
+        let el = $element[0].parentElement ? $element[0].parentElement.parentElement : undefined
         if (el) {
-          let height = el.offsetHeight;
+          let height = el.offsetHeight
 
-          let style = getComputedStyle(el);
-          height = height - parseInt(style.marginTop, 10) - parseInt(style.marginBottom, 10);
+          let style = getComputedStyle(el)
+          height = height - parseInt(style.marginTop, 10) - parseInt(style.marginBottom, 10)
 
-          return height;
+          return height
         }
-        return 0;
+        return 0
       }, function (newValue) {
         if (newValue > 0) {
-          effectiveScope[scopeVariable] = newValue;
+          effectiveScope[scopeVariable] = newValue
         }
-      });
+      })
     }
-  };
+  }
 }

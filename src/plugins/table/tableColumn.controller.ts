@@ -1,28 +1,28 @@
 export default function ($scope) {
-  'ngInject';
+  'ngInject'
   $scope.getHeader = function () {
-    let header = $scope.pluginScope.headers[$scope.column];
+    let header = $scope.pluginScope.headers[$scope.column]
     if (header !== undefined) {
-      return header;
+      return header
     }
     if ($scope.pluginScope.headerFormatter !== undefined) {
-      header = $scope.pluginScope.headerFormatter($scope.column);
+      header = $scope.pluginScope.headerFormatter($scope.column)
     }
     if (header !== undefined) {
-      return header;
+      return header
     }
-    return header;
-  };
+    return header
+  }
 
   $scope.getHeaderContent = function () {
-    let headerContent = $scope.pluginScope.headerContents[$scope.column];
+    let headerContent = $scope.pluginScope.headerContents[$scope.column]
     if (headerContent === undefined) {
-      return '{{getHeader()}}';
+      return '{{getHeader()}}'
     }
-    return headerContent;
-  };
+    return headerContent
+  }
 
   $scope.getClass = function () {
-    return $scope.pluginScope.classes[$scope.column];
-  };
+    return $scope.pluginScope.classes[$scope.column]
+  }
 }

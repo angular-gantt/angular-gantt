@@ -1,14 +1,14 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import overlapDirective from './overlap.directive';
+import overlapDirective from './overlap.directive'
 
-const pluginModule = 'gantt.overlap';
+const pluginModule = 'gantt.overlap'
 
-require('./overlap.css');
+require('./overlap.css')
 
 angular.module(pluginModule, [ganttModule])
-  .directive('ganttOverlap', overlapDirective);
+  .directive('ganttOverlap', overlapDirective)
 
-export default pluginModule;
+export default pluginModule

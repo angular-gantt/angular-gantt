@@ -1,15 +1,15 @@
-import {GanttBody} from './body.factory';
+import {GanttBody} from './body.factory'
 
 export class GanttBodyRows {
-  private body: GanttBody;
+  private body: GanttBody
 
-  constructor(body: GanttBody) {
-    this.body = body;
-  };
+  constructor (body: GanttBody) {
+    this.body = body
+  }
 }
 
 export default function () {
-  'ngInject';
+  'ngInject'
 
-  return GanttBodyRows;
+  return GanttBodyRows
 }

@@ -1,8 +1,6 @@
 {
     "extends": "tslint-config-standard",
     "rules": {
-      "semicolon": [true, "always"],
-      "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
       "member-ordering": false,
       "no-inferrable-types": true,
       "prefer-for-of": true

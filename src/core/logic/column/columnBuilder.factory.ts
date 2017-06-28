@@ -1,8 +1,8 @@
-import moment from 'moment';
+import moment from 'moment'
 
-import {GanttColumn} from './column.factory';
-import {GanttCalendar, TimeFramesDisplayMode} from '../calendar/calendar.factory';
-import {GanttColumnsManager} from './columnsManager.factory';
+import {GanttColumn} from './column.factory'
+import {GanttCalendar, TimeFramesDisplayMode} from '../calendar/calendar.factory'
+import {GanttColumnsManager} from './columnsManager.factory'
 
 export class GanttColumnBuilder {
   static GanttColumn: {
@@ -13,14 +13,14 @@ export class GanttColumnBuilder {
         calendar: GanttCalendar,
         timeFramesWorkingMode?: TimeFramesDisplayMode,
         timeFramesNonWorkingMode?: TimeFramesDisplayMode): GanttColumn
-  };
+  }
 
-  private columnsManager: GanttColumnsManager; // TODO: type!
+  private columnsManager: GanttColumnsManager // TODO: type!
 
   // Builder for columns, based of data given by column generator and columnsManager.
-  constructor(columnsManager: GanttColumnsManager) {
-    this.columnsManager = columnsManager;
-  };
+  constructor (columnsManager: GanttColumnsManager) {
+    this.columnsManager = columnsManager
+  }
 
   /**
    * Builds a new column.
@@ -31,13 +31,13 @@ export class GanttColumnBuilder {
    * @param width
    * @returns {GanttColumn}
    */
-  newColumn(date, endDate, left, width) {
-    let calendar = this.columnsManager.gantt.calendar;
-    let timeFramesWorkingMode = this.columnsManager.gantt.options.value('timeFramesWorkingMode');
-    let timeFramesNonWorkingMode = this.columnsManager.gantt.options.value('timeFramesNonWorkingMode');
+  newColumn (date, endDate, left, width) {
+    let calendar = this.columnsManager.gantt.calendar
+    let timeFramesWorkingMode = this.columnsManager.gantt.options.value('timeFramesWorkingMode')
+    let timeFramesNonWorkingMode = this.columnsManager.gantt.options.value('timeFramesNonWorkingMode')
 
-    return new GanttColumn(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode);
-  };
+    return new GanttColumn(date, endDate, left, width, calendar, timeFramesWorkingMode, timeFramesNonWorkingMode)
+  }
 }
 
 export default function (GanttColumn: {
@@ -49,8 +49,8 @@ export default function (GanttColumn: {
       timeFramesWorkingMode?: TimeFramesDisplayMode,
       timeFramesNonWorkingMode?: TimeFramesDisplayMode): GanttColumn
 }) {
-  'ngInject';
+  'ngInject'
 
-  GanttColumnBuilder.GanttColumn = GanttColumn;
-  return GanttColumnBuilder;
+  GanttColumnBuilder.GanttColumn = GanttColumn
+  return GanttColumnBuilder
 }

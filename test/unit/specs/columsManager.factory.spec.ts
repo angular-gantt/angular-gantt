@@ -1,18 +1,20 @@
-import angular, {ICompileService, IRootScopeService, ITimeoutService} from 'angular';
-import 'angular-mocks';
+// tslint:disable:no-unused-expression
 
-import { expect } from 'chai';
+import angular, {ICompileService, IRootScopeService, ITimeoutService} from 'angular'
+import 'angular-mocks'
+
+import { expect } from 'chai'
 
 describe('Columns', function () {
   // Load the module with MainController
   beforeEach(function () {
-    angular.mock.module('gantt', 'gantt.labels');
-  });
+    angular.mock.module('gantt', 'gantt.labels')
+  })
 
-  let Gantt;
-  let $rootScope: IRootScopeService;
-  let $compile: ICompileService;
-  let $timeout: ITimeoutService;
+  let Gantt
+  let $rootScope: IRootScopeService
+  let $compile: ICompileService
+  let $timeout: ITimeoutService
 
   let mockData = [
     // Order is optional. If not specified it will be assigned automatically
@@ -239,248 +241,248 @@ describe('Columns', function () {
         }
       ]
     }
-  ];
+  ]
 
   beforeEach(inject(['$rootScope', '$compile', '$timeout', 'Gantt', function ($tRootScope: IRootScopeService, $tCompile: ICompileService, $tTimeout: ITimeoutService, tGantt) {
-    Gantt = tGantt;
-    $rootScope = $tRootScope;
-    $compile = $tCompile;
-    $timeout = $tTimeout;
-  }]));
+    Gantt = tGantt
+    $rootScope = $tRootScope
+    $compile = $tCompile
+    $timeout = $tTimeout
+  }]))
 
   it('should have first and last columns to right position',
     function () {
-      let width = 350;
+      let width = 350
 
-      let $scope = $rootScope.$new();
-      $scope.ganttElementWidth = width;
-      $scope.data = angular.copy(mockData);
+      let $scope = $rootScope.$new()
+      $scope.ganttElementWidth = width
+      $scope.data = angular.copy(mockData)
 
-      let $element = angular.element();
-      let gantt = new Gantt($scope, $element);
+      let $element = angular.element()
+      let gantt = new Gantt($scope, $element)
 
-      gantt.loadData($scope.data);
-      $scope.$digest();
-      gantt.initialized();
+      gantt.loadData($scope.data)
+      $scope.$digest()
+      gantt.initialized()
 
-      let columnsManager = gantt.columnsManager;
+      let columnsManager = gantt.columnsManager
 
-      let firstColumn = columnsManager.getColumnByPosition(0);
-      let firstColumm2 = columnsManager.getFirstColumn();
+      let firstColumn = columnsManager.getColumnByPosition(0)
+      let firstColumm2 = columnsManager.getFirstColumn()
 
-      expect(firstColumn).to.be.equal(firstColumm2);
+      expect(firstColumn).to.be.equal(firstColumm2)
 
-      let lastColumn = columnsManager.getColumnByPosition(width - 1);
-      let lastColumn2 = columnsManager.getLastColumn();
+      let lastColumn = columnsManager.getColumnByPosition(width - 1)
+      let lastColumn2 = columnsManager.getLastColumn()
 
-      expect(lastColumn).to.be.equal(lastColumn2);
+      expect(lastColumn).to.be.equal(lastColumn2)
     }
-  );
+  )
 
-  function expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, x) {
-    let ganttDate = gantt.getDateByPosition(x);
-    let ganttX = gantt.getPositionByDate(ganttDate);
+  function expectValidDateFromPosition (gantt, width, ganttStartDate, ganttEndDate, x) {
+    let ganttDate = gantt.getDateByPosition(x)
+    let ganttX = gantt.getPositionByDate(ganttDate)
 
-    expect(ganttX).to.be.closeTo(x, 0.1);
+    expect(ganttX).to.be.closeTo(x, 0.1)
 
-    let totalDuration = ganttEndDate.diff(ganttStartDate, 'milliseconds');
-    let leftDuration = ganttDate.diff(ganttStartDate, 'milliseconds');
+    let totalDuration = ganttEndDate.diff(ganttStartDate, 'milliseconds')
+    let leftDuration = ganttDate.diff(ganttStartDate, 'milliseconds')
 
     if (ganttStartDate.isDST() && !ganttDate.isDST()) {
-      leftDuration -= 3600000;
+      leftDuration -= 3600000
     } else if (!ganttStartDate.isDST() && ganttDate.isDST()) {
-      leftDuration += 3600000;
+      leftDuration += 3600000
     }
 
     if (ganttStartDate.isDST() && !ganttEndDate.isDST()) {
-      totalDuration -= 3600000;
+      totalDuration -= 3600000
     } else if (!ganttStartDate.isDST() && ganttEndDate.isDST()) {
-      totalDuration += 3600000;
+      totalDuration += 3600000
     }
 
     if (x === 0) {
-      expect(leftDuration).to.be.equal(0);
+      expect(leftDuration).to.be.equal(0)
     } else {
-      let ratio = leftDuration * (width / x) / totalDuration;
-      expect(ratio).to.be.closeTo(1, 0.1);
+      let ratio = leftDuration * (width / x) / totalDuration
+      expect(ratio).to.be.closeTo(1, 0.1)
     }
   }
 
   it('should compute valid dates from range positions',
     function () {
-      let width = 350;
+      let width = 350
 
-      let $scope = $rootScope.$new();
-      $scope.ganttElementWidth = width;
-      $scope.data = angular.copy(mockData);
-      $scope.columnMagnet = undefined;
+      let $scope = $rootScope.$new()
+      $scope.ganttElementWidth = width
+      $scope.data = angular.copy(mockData)
+      $scope.columnMagnet = undefined
 
-      let $element = angular.element();
-      let gantt = new Gantt($scope, $element);
+      let $element = angular.element()
+      let gantt = new Gantt($scope, $element)
 
-      gantt.loadData($scope.data);
-      $scope.$digest();
-      gantt.initialized();
+      gantt.loadData($scope.data)
+      $scope.$digest()
+      gantt.initialized()
 
-      let toDate;
-      let fromDate;
+      let toDate
+      let fromDate
 
       angular.forEach($scope.data, function (row) {
         if (row.tasks !== undefined) {
           angular.forEach(row.tasks, function (task) {
             if (fromDate === undefined || fromDate > task.from) {
-              fromDate = task.from;
+              fromDate = task.from
             }
 
             if (toDate === undefined || toDate < task.to) {
-              toDate = task.to;
+              toDate = task.to
             }
-          });
+          })
         }
-      });
+      })
 
-      let timeUnit = gantt.options.value('viewScale');
+      let timeUnit = gantt.options.value('viewScale')
 
-      fromDate.startOf(timeUnit);
-      toDate.startOf(timeUnit).add(1, timeUnit);
+      fromDate.startOf(timeUnit)
+      toDate.startOf(timeUnit).add(1, timeUnit)
 
-      let ganttStartDate = gantt.getDateByPosition(0);
-      let ganttEndDate = gantt.getDateByPosition(width - 1);
+      let ganttStartDate = gantt.getDateByPosition(0)
+      let ganttEndDate = gantt.getDateByPosition(width - 1)
 
-      expect(ganttStartDate.isSame(fromDate)).to.be.ok;
-      expect(ganttEndDate.isSame(toDate)).to.be.ok;
+      expect(ganttStartDate.isSame(fromDate)).to.be.ok
+      expect(ganttEndDate.isSame(toDate)).to.be.ok
 
       for (let i = 1; i < width; i++) {
-        expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, i);
+        expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, i)
       }
     }
-  );
+  )
 
   it('should compute valid dates from previous positions',
     function () {
-      let width = 350;
+      let width = 350
 
-      let $scope = $rootScope.$new();
-      $scope.ganttElementWidth = width;
-      $scope.data = angular.copy(mockData);
-      $scope.columnMagnet = undefined;
+      let $scope = $rootScope.$new()
+      $scope.ganttElementWidth = width
+      $scope.data = angular.copy(mockData)
+      $scope.columnMagnet = undefined
 
-      let $element = angular.element();
-      let gantt = new Gantt($scope, $element);
+      let $element = angular.element()
+      let gantt = new Gantt($scope, $element)
 
-      gantt.loadData($scope.data);
-      $scope.$digest();
-      gantt.initialized();
+      gantt.loadData($scope.data)
+      $scope.$digest()
+      gantt.initialized()
 
-      let toDate;
-      let fromDate;
+      let toDate
+      let fromDate
 
       angular.forEach($scope.data, function (row) {
         if (row.tasks !== undefined) {
           angular.forEach(row.tasks, function (task) {
             if (fromDate === undefined || fromDate > task.from) {
-              fromDate = task.from;
+              fromDate = task.from
             }
 
             if (toDate === undefined || toDate < task.to) {
-              toDate = task.to;
+              toDate = task.to
             }
-          });
+          })
         }
-      });
+      })
 
-      let timeUnit = gantt.options.value('viewScale');
+      let timeUnit = gantt.options.value('viewScale')
 
-      fromDate.startOf(timeUnit);
-      toDate.startOf(timeUnit).add(1, timeUnit);
+      fromDate.startOf(timeUnit)
+      toDate.startOf(timeUnit).add(1, timeUnit)
 
-      let ganttStartDate = gantt.getDateByPosition(0);
-      let ganttEndDate = gantt.getDateByPosition(width - 1);
+      let ganttStartDate = gantt.getDateByPosition(0)
+      let ganttEndDate = gantt.getDateByPosition(width - 1)
 
-      expect(ganttStartDate.isSame(fromDate)).to.be.ok;
-      expect(ganttEndDate.isSame(toDate)).to.be.ok;
+      expect(ganttStartDate.isSame(fromDate)).to.be.ok
+      expect(ganttEndDate.isSame(toDate)).to.be.ok
 
       for (let i = 0; i > -width; i--) {
-        expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, i);
+        expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, i)
       }
     }
-  );
+  )
 
   it('should compute valid dates from next positions',
     function () {
-      let width = 350;
+      let width = 350
 
-      let $scope = $rootScope.$new();
-      $scope.ganttElementWidth = width;
-      $scope.data = angular.copy(mockData);
-      $scope.columnMagnet = undefined;
+      let $scope = $rootScope.$new()
+      $scope.ganttElementWidth = width
+      $scope.data = angular.copy(mockData)
+      $scope.columnMagnet = undefined
 
-      let $element = angular.element();
-      let gantt = new Gantt($scope, $element);
+      let $element = angular.element()
+      let gantt = new Gantt($scope, $element)
 
-      gantt.loadData($scope.data);
-      $scope.$digest();
-      gantt.initialized();
+      gantt.loadData($scope.data)
+      $scope.$digest()
+      gantt.initialized()
 
-      let toDate;
-      let fromDate;
+      let toDate
+      let fromDate
 
       angular.forEach($scope.data, function (row) {
         if (row.tasks !== undefined) {
           angular.forEach(row.tasks, function (task) {
             if (fromDate === undefined || fromDate > task.from) {
-              fromDate = task.from;
+              fromDate = task.from
             }
 
             if (toDate === undefined || toDate < task.to) {
-              toDate = task.to;
+              toDate = task.to
             }
-          });
+          })
         }
-      });
+      })
 
-      let timeUnit = gantt.options.value('viewScale');
+      let timeUnit = gantt.options.value('viewScale')
 
-      fromDate.startOf(timeUnit);
-      toDate.startOf(timeUnit).add(1, timeUnit);
+      fromDate.startOf(timeUnit)
+      toDate.startOf(timeUnit).add(1, timeUnit)
 
-      let ganttStartDate = gantt.getDateByPosition(0);
-      let ganttEndDate = gantt.getDateByPosition(width - 1);
+      let ganttStartDate = gantt.getDateByPosition(0)
+      let ganttEndDate = gantt.getDateByPosition(width - 1)
 
-      expect(ganttStartDate.isSame(fromDate)).to.be.ok;
-      expect(ganttEndDate.isSame(toDate)).to.be.ok;
+      expect(ganttStartDate.isSame(fromDate)).to.be.ok
+      expect(ganttEndDate.isSame(toDate)).to.be.ok
 
       for (let i = width; i < 2 * width; i++) {
-        expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, i);
+        expectValidDateFromPosition(gantt, width, ganttStartDate, ganttEndDate, i)
       }
     }
-  );
+  )
 
   it('should work with custom comparators',
     function () {
-      let width = 350;
+      let width = 350
 
-      let $scope = $rootScope.$new();
-      $scope.ganttElementWidth = width;
-      $scope.data = angular.copy(mockData);
-      $scope.columnMagnet = undefined;
+      let $scope = $rootScope.$new()
+      $scope.ganttElementWidth = width
+      $scope.data = angular.copy(mockData)
+      $scope.columnMagnet = undefined
 
-      $scope.filterRow = {'name': 'Status meetings'};
+      $scope.filterRow = {'name': 'Status meetings'}
 
       $scope.filterRowComparator = function (actual, expected) {
-        return expected === actual;
-      };
+        return expected === actual
+      }
 
-      let $element = angular.element();
-      let gantt = new Gantt($scope, $element);
+      let $element = angular.element()
+      let gantt = new Gantt($scope, $element)
 
-      gantt.loadData($scope.data);
-      $scope.$digest();
-      gantt.initialized();
+      gantt.loadData($scope.data)
+      $scope.$digest()
+      gantt.initialized()
 
-      gantt.api.rows.refresh();
+      gantt.api.rows.refresh()
 
-      expect(gantt.rowsManager.filteredRows.length).to.be.eq(1);
+      expect(gantt.rowsManager.filteredRows.length).to.be.eq(1)
     }
-  );
-});
+  )
+})

@@ -1,19 +1,19 @@
-import gantt from '../src';
-import angular from 'angular';
+import gantt from '../src'
+import angular from 'angular'
 
-import ngAnimate from 'angular-animate';
-import ngStrap from 'angular-strap';
+import ngAnimate from 'angular-animate'
+import ngStrap from 'angular-strap'
 
-import demoController from './demo.controller';
-import demoService from './demo.service';
+import demoController from './demo.controller'
+import demoService from './demo.service'
 
-import plugins from '../src/plugins';
+import plugins from '../src/plugins'
 
-require('bootstrap/dist/css/bootstrap.css');
-require('font-awesome/css/font-awesome.css');
-require('./demo.css');
+require('bootstrap/dist/css/bootstrap.css')
+require('font-awesome/css/font-awesome.css')
+require('./demo.css')
 
-const demoModule = 'gantt.demo';
+const demoModule = 'gantt.demo'
 angular
   .module(demoModule, [gantt, ngStrap, ngAnimate, plugins.bounds, plugins.corner,
     plugins.dependencies, plugins.drawtask, plugins.groups, plugins.labels,
@@ -23,7 +23,7 @@ angular
   .service('DemoService', demoService)
   .controller('DemoCtrl', demoController)
   .config(['$compileProvider', function ($compileProvider) {
-    $compileProvider.debugInfoEnabled(false); // Remove debug info (angularJS >= 1.3)
-  }]);
+    $compileProvider.debugInfoEnabled(false) // Remove debug info (angularJS >= 1.3)
+  }])
 
-export default demoModule;
+export default demoModule

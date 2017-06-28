@@ -1,19 +1,19 @@
 export default function (Gantt, ganttEnableNgAnimate, $timeout, $templateCache) {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'A',
     transclude: true,
     templateUrl: function (tElement, tAttrs) {
-      let templateUrl;
+      let templateUrl
       if (tAttrs.templateUrl === undefined) {
-        templateUrl = 'template/gantt.tmpl.html';
+        templateUrl = 'template/gantt.tmpl.html'
       } else {
-        templateUrl = tAttrs.templateUrl;
+        templateUrl = tAttrs.templateUrl
       }
       if (tAttrs.template !== undefined) {
-        $templateCache.put(templateUrl, tAttrs.template);
+        $templateCache.put(templateUrl, tAttrs.template)
       }
-      return templateUrl;
+      return templateUrl
     },
     scope: {
       sortMode: '=?',
@@ -54,26 +54,26 @@ export default function (Gantt, ganttEnableNgAnimate, $timeout, $templateCache) 
       options: '=?'
     },
     controller: function ($scope, $element) {
-      'ngInject';
+      'ngInject'
       for (let option in $scope.options) {
-        $scope[option] = $scope.options[option];
+        $scope[option] = $scope.options[option]
       }
 
       // Disable animation if ngAnimate is present, as it drops down performance.
-      ganttEnableNgAnimate($element, false);
+      ganttEnableNgAnimate($element, false)
 
-      $scope.gantt = new Gantt($scope, $element);
-      this.gantt = $scope.gantt;
+      $scope.gantt = new Gantt($scope, $element)
+      this.gantt = $scope.gantt
     },
     link: function (scope, element) {
-      scope.gantt.api.directives.raise.new('gantt', scope, element);
+      scope.gantt.api.directives.raise.new('gantt', scope, element)
       scope.$on('$destroy', function () {
-        scope.gantt.api.directives.raise.destroy('gantt', scope, element);
-      });
+        scope.gantt.api.directives.raise.destroy('gantt', scope, element)
+      })
 
       $timeout(function () {
-        scope.gantt.initialized();
-      });
+        scope.gantt.initialized()
+      })
     }
-  };
+  }
 }

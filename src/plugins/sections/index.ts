@@ -1,18 +1,18 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import sectionsDirective from './sections.directive';
-import taskSectionDirective from './taskSection.directive';
-import taskSectionsDirective from './taskSections.directive';
+import sectionsDirective from './sections.directive'
+import taskSectionDirective from './taskSection.directive'
+import taskSectionsDirective from './taskSections.directive'
 
-const pluginModule = 'gantt.sections';
+const pluginModule = 'gantt.sections'
 
-require('./sections.css');
+require('./sections.css')
 
 angular.module(pluginModule, [ganttModule])
   .directive('ganttSections', sectionsDirective)
   .directive('ganttTaskSection', taskSectionDirective)
-  .directive('ganttTaskSections', taskSectionsDirective);
+  .directive('ganttTaskSections', taskSectionsDirective)
 
-export default pluginModule;
+export default pluginModule

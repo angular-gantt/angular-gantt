@@ -1,9 +1,9 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import GanttUtilsService from '../../core/logic/util/utils.service';
+import GanttUtilsService from '../../core/logic/util/utils.service'
 
 export default function (ganttUtils: GanttUtilsService, $compile, $document) {
-  'ngInject';
+  'ngInject'
   // Provides the row sort functionality to any Gantt row
   // Uses the sortableState to share the current row
 
@@ -18,46 +18,46 @@ export default function (ganttUtils: GanttUtilsService, $compile, $document) {
       keepAncestorOnFilterRow: '=?'
     },
     link: function (scope, element, attrs, ganttCtrl) {
-      let api = ganttCtrl.gantt.api;
+      let api = ganttCtrl.gantt.api
 
       // Load options from global options attribute.
       if (scope.options && typeof(scope.options.tree) === 'object') {
         for (let option in scope.options.tree) {
-          scope[option] = scope.options.tree[option];
+          scope[option] = scope.options.tree[option]
         }
       }
 
       if (scope.enabled === undefined) {
-        scope.enabled = true;
+        scope.enabled = true
       }
 
       if (scope.header === undefined) {
-        scope.header = 'Name';
+        scope.header = 'Name'
       }
 
       if (scope.headerContent === undefined) {
-        scope.headerContent = '{{getHeader()}}';
+        scope.headerContent = '{{getHeader()}}'
       }
 
       if (scope.keepAncestorOnFilterRow === undefined) {
-        scope.keepAncestorOnFilterRow = false;
+        scope.keepAncestorOnFilterRow = false
       }
 
       api.directives.on.new(scope, function (directiveName, sideContentScope, sideContentElement) {
         if (directiveName === 'ganttSideContent') {
-          let labelsScope = sideContentScope.$new();
-          labelsScope.pluginScope = scope;
+          let labelsScope = sideContentScope.$new()
+          labelsScope.pluginScope = scope
 
-          let ifElement = $document[0].createElement('div');
-          angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled');
-          angular.element(ifElement).addClass('side-element');
+          let ifElement = $document[0].createElement('div')
+          angular.element(ifElement).attr('data-ng-if', 'pluginScope.enabled')
+          angular.element(ifElement).addClass('side-element')
 
-          let labelsElement = $document[0].createElement('gantt-side-content-tree');
-          angular.element(ifElement).append(labelsElement);
+          let labelsElement = $document[0].createElement('gantt-side-content-tree')
+          angular.element(ifElement).append(labelsElement)
 
-          sideContentElement.append($compile(ifElement)(labelsScope));
+          sideContentElement.append($compile(ifElement)(labelsScope))
         }
-      });
+      })
     }
-  };
+  }
 }

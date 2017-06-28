@@ -1,22 +1,22 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import groupsDirective from './groups.directive';
-import taskGroupDirective from './taskGroup.directive';
-import GanttTaskGroupFactory from './taskGroup.factory';
-import ganttTaskOverviewDirective from './taskOverview.directive';
-import GanttGroupController from './group.controller';
+import groupsDirective from './groups.directive'
+import taskGroupDirective from './taskGroup.directive'
+import GanttTaskGroupFactory from './taskGroup.factory'
+import ganttTaskOverviewDirective from './taskOverview.directive'
+import GanttGroupController from './group.controller'
 
-const pluginModule = 'gantt.groups';
+const pluginModule = 'gantt.groups'
 
-require('./groups.css');
+require('./groups.css')
 
 angular.module(pluginModule, [ganttModule])
   .directive('ganttGroups', groupsDirective)
   .directive('ganttTaskGroup', taskGroupDirective)
   .directive('ganttTaskOverview', ganttTaskOverviewDirective)
   .factory('GanttTaskGroup', GanttTaskGroupFactory)
-  .controller('GanttGroupController', GanttGroupController);
+  .controller('GanttGroupController', GanttGroupController)
 
-export default pluginModule;
+export default pluginModule

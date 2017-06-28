@@ -1,29 +1,29 @@
 export default function () {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'A',
     controller: function ($scope, $element, $attrs) {
-      'ngInject';
-      let scopeVariable = $attrs.ganttElementWidthListener;
+      'ngInject'
+      let scopeVariable = $attrs.ganttElementWidthListener
       if (scopeVariable === '') {
-        scopeVariable = 'ganttElementWidth';
+        scopeVariable = 'ganttElementWidth'
       }
 
-      let el = $element[0];
-      let effectiveScope = $scope;
+      let el = $element[0]
+      let effectiveScope = $scope
 
       while (scopeVariable.indexOf('$parent.') === 0) {
-        scopeVariable = scopeVariable.substring('$parent.'.length);
-        effectiveScope = effectiveScope.$parent;
+        scopeVariable = scopeVariable.substring('$parent.'.length)
+        effectiveScope = effectiveScope.$parent
       }
 
       effectiveScope.$watch(function () {
-        return el.clientWidth;
+        return el.clientWidth
       }, function (newValue) {
         if (newValue > 0) {
-          effectiveScope[scopeVariable] = newValue;
+          effectiveScope[scopeVariable] = newValue
         }
-      });
+      })
     }
-  };
+  }
 }

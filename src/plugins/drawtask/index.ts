@@ -1,12 +1,12 @@
-import angular from 'angular';
+import angular from 'angular'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import drawTaskDirective from './drawTask.directive';
+import drawTaskDirective from './drawTask.directive'
 
-const pluginModule = 'gantt.drawtask';
+const pluginModule = 'gantt.drawtask'
 
 angular.module(pluginModule, [ganttModule])
-  .directive('ganttDrawTask', drawTaskDirective);
+  .directive('ganttDrawTask', drawTaskDirective)
 
-export default pluginModule;
+export default pluginModule

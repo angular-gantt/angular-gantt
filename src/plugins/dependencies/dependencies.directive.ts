@@ -1,7 +1,7 @@
-import angular from 'angular';
+import angular from 'angular'
 
 export default function ($timeout, $document, ganttDebounce, GanttDependenciesManager, GanttDependenciesChecker) {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'E',
     require: '^gantt',
@@ -14,21 +14,21 @@ export default function ($timeout, $document, ganttDebounce, GanttDependenciesMa
       conflictChecker: '=?'
     },
     link: function (scope, element, attrs, ganttCtrl) {
-      let api = ganttCtrl.gantt.api;
+      let api = ganttCtrl.gantt.api
 
       // Load options from global options attribute.
       if (scope.options && typeof(scope.options.dependencies) === 'object') {
         for (let option in scope.options.dependencies) {
-          scope[option] = scope.options.dependencies[option];
+          scope[option] = scope.options.dependencies[option]
         }
       }
 
       if (scope.enabled === undefined) {
-        scope.enabled = true;
+        scope.enabled = true
       }
 
       if (scope.readOnly === undefined) {
-        scope.readOnly = false;
+        scope.readOnly = false
       }
 
       if (scope.jsPlumbDefaults === undefined) {
@@ -42,23 +42,23 @@ export default function ($timeout, $document, ganttDebounce, GanttDependenciesMa
           },
           Connector: 'Flowchart',
           ConnectionOverlays: [['Arrow', {location: 1, length: 12, width: 12}]]
-        };
+        }
       }
 
-      function createLeftOverlay() {
-        return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint arrow-right"></span></span>');
+      function createLeftOverlay () {
+        return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint arrow-right"></span></span>')
       }
 
-      function createRightOverlay() {
-        return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint arrow-right"></span></span>');
+      function createRightOverlay () {
+        return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint arrow-right"></span></span>')
       }
 
-      function createLeftFallbackOverlay() {
-        return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint fallback-endpoint"></span></span>');
+      function createLeftFallbackOverlay () {
+        return angular.element('<span><span class="gantt-endpoint-overlay start-endpoint fallback-endpoint"></span></span>')
       }
 
-      function createRightFallbackOverlay() {
-        return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint fallback-endpoint"></span></span>');
+      function createRightFallbackOverlay () {
+        return angular.element('<span><span class="gantt-endpoint-overlay end-endpoint fallback-endpoint"></span></span>')
       }
 
       if (scope.endpoints === undefined) {
@@ -84,7 +84,7 @@ export default function ($timeout, $document, ganttDebounce, GanttDependenciesMa
               ['Custom', {create: createRightOverlay}]
             ]
           }
-        ];
+        ]
       }
 
       if (scope.fallbackEndpoints === undefined) {
@@ -111,105 +111,105 @@ export default function ($timeout, $document, ganttDebounce, GanttDependenciesMa
               ['Custom', {create: createRightFallbackOverlay}]
             ]
           }
-        ];
+        ]
       }
 
       if (scope.conflictChecker === undefined) {
-        scope.conflictChecker = false;
+        scope.conflictChecker = false
       }
 
-      let manager = new GanttDependenciesManager(ganttCtrl.gantt, scope, api);
-      let checker = new GanttDependenciesChecker(manager, scope, api);
+      let manager = new GanttDependenciesManager(ganttCtrl.gantt, scope, api)
+      let checker = new GanttDependenciesChecker(manager, scope, api)
 
       scope.$watchGroup(['conflictChecker', 'enabled'], function (newValue, oldValue) {
         if (newValue !== oldValue) {
-          let rows = ganttCtrl.gantt.rowsManager.rows;
-          let allTasks = [];
+          let rows = ganttCtrl.gantt.rowsManager.rows
+          let allTasks = []
           for (let row of rows) {
-            allTasks.push.apply(allTasks, row.tasks);
+            allTasks.push.apply(allTasks, row.tasks)
           }
           if (scope.conflictChecker && scope.enabled) {
-            checker.refresh(allTasks);
+            checker.refresh(allTasks)
           } else {
-            checker.clear(allTasks);
+            checker.clear(allTasks)
           }
 
         }
-      });
+      })
 
       api.directives.on.new(scope, function (directiveName, directiveScope, directiveElement) {
         if (directiveName === 'ganttBody') {
-          manager.plumb.setContainer(directiveElement);
+          manager.plumb.setContainer(directiveElement)
         }
-      });
+      })
 
       api.tasks.on.add(scope, function (task) {
-        manager.addDependenciesFromTask(task, true);
-      });
+        manager.addDependenciesFromTask(task, true)
+      })
 
       api.tasks.on.remove(scope, function (task) {
-        manager.removeDependenciesFromTask(task);
-      });
+        manager.removeDependenciesFromTask(task)
+      })
 
       api.tasks.on.displayed(scope, ganttDebounce(function (tasks) {
-        manager.setTasks(tasks);
-        manager.refresh();
+        manager.setTasks(tasks)
+        manager.refresh()
         if (scope.conflictChecker && scope.enabled) {
-          checker.refresh(tasks);
+          checker.refresh(tasks)
         }
-      }));
+      }))
 
       api.rows.on.displayed(scope, function () {
-        manager.refresh();
-      });
+        manager.refresh()
+      })
 
       api.tasks.on.viewChange(scope, function (task) {
         if (task.$element) {
-          manager.plumb.revalidate(task.$element[0]);
+          manager.plumb.revalidate(task.$element[0])
         }
         if (scope.conflictChecker && scope.enabled) {
-          checker.refresh([task]);
+          checker.refresh([task])
         }
-      });
+      })
 
       api.tasks.on.viewRowChange(scope, function (task) {
-        manager.setTask(task);
+        manager.setTask(task)
         if (scope.conflictChecker && scope.enabled) {
-          checker.refresh([task]);
+          checker.refresh([task])
         }
-      });
+      })
 
       api.dependencies.on.add(scope, function (dependency) {
         if (scope.conflictChecker && scope.enabled) {
-          checker.refresh([dependency.getFromTask(), dependency.getToTask()]);
+          checker.refresh([dependency.getFromTask(), dependency.getToTask()])
         }
-      });
+      })
 
       api.dependencies.on.change(scope, function (dependency) {
         if (scope.conflictChecker && scope.enabled) {
-          checker.refresh([dependency.getFromTask(), dependency.getToTask()]);
+          checker.refresh([dependency.getFromTask(), dependency.getToTask()])
         }
-      });
+      })
 
       api.dependencies.on.remove(scope, function (dependency) {
         if (scope.conflictChecker && scope.enabled) {
-          let fromTask = dependency.getFromTask();
-          let toTask = dependency.getToTask();
+          let fromTask = dependency.getFromTask()
+          let toTask = dependency.getToTask()
 
           if (fromTask && toTask) {
-            checker.refresh([fromTask, toTask]);
+            checker.refresh([fromTask, toTask])
           } else {
 
             if (fromTask) {
-              checker.removeConflictClass(fromTask);
+              checker.removeConflictClass(fromTask)
             } else {
-              checker.removeConflictClass(toTask);
+              checker.removeConflictClass(toTask)
             }
 
           }
 
         }
-      });
+      })
     }
-  };
+  }
 }

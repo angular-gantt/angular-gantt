@@ -1,15 +1,15 @@
-import angular from 'angular';
-import 'angular-native-dragdrop';
+import angular from 'angular'
+import 'angular-native-dragdrop'
 
-import ganttModule from '../../index';
+import ganttModule from '../../index'
 
-import ganttSortableDirective from './sortable.directive';
+import ganttSortableDirective from './sortable.directive'
 
-const pluginModule = 'gantt.sortable';
+const pluginModule = 'gantt.sortable'
 
-require('./sortable.css');
+require('./sortable.css')
 
 angular.module(pluginModule, ['ang-drag-drop', ganttModule])
-  .directive('ganttSortable', ganttSortableDirective);
+  .directive('ganttSortable', ganttSortableDirective)
 
-export default pluginModule;
+export default pluginModule

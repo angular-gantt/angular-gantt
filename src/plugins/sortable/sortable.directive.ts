@@ -1,7 +1,7 @@
-import GanttUtilsService from 'core/logic/util/utils.service';
+import GanttUtilsService from 'core/logic/util/utils.service'
 
 export default function (ganttUtils: GanttUtilsService, $compile) {
-  'ngInject';
+  'ngInject'
   // Provides the row sort functionality to any Gantt row
   // Uses the sortableState to share the current row
 
@@ -12,55 +12,55 @@ export default function (ganttUtils: GanttUtilsService, $compile) {
       enabled: '=?'
     },
     link: function (scope, element, attrs, ganttCtrl) {
-      let api = ganttCtrl.gantt.api;
+      let api = ganttCtrl.gantt.api
 
       // Load options from global options attribute.
       if (scope.options && typeof(scope.options.sortable) === 'object') {
         for (let option in scope.options.sortable) {
-          scope[option] = scope.options.sortable[option];
+          scope[option] = scope.options.sortable[option]
         }
       }
 
       if (scope.enabled === undefined) {
-        scope.enabled = true;
+        scope.enabled = true
       }
 
       api.directives.on.new(scope, function (directiveName, rowScope, rowElement) {
         if (directiveName === 'ganttRowLabel' && rowElement.attr('drag') === undefined) {
           rowScope.checkDraggable = function () {
-            let rowSortable = rowScope.row.model.sortable;
+            let rowSortable = rowScope.row.model.sortable
 
             if (typeof(rowSortable) === 'boolean') {
-              rowSortable = {enabled: rowSortable};
+              rowSortable = {enabled: rowSortable}
             }
 
-            return ganttUtils.firstProperty([rowSortable], 'enabled', scope.enabled);
-          };
+            return ganttUtils.firstProperty([rowSortable], 'enabled', scope.enabled)
+          }
 
           rowScope.onDropSuccess = function () {
-            rowScope.$evalAsync();
-          };
+            rowScope.$evalAsync()
+          }
 
           rowScope.onDrop = function (evt, data) {
-            let row = rowScope.row.rowsManager.rowsMap[data.id];
+            let row = rowScope.row.rowsManager.rowsMap[data.id]
             if (row !== rowScope) {
-              rowScope.row.rowsManager.moveRow(row, rowScope.row);
-              rowScope.$evalAsync();
+              rowScope.row.rowsManager.moveRow(row, rowScope.row)
+              rowScope.$evalAsync()
             }
-          };
+          }
 
-          rowElement.attr('ui-draggable', '{{checkDraggable()}}');
-          rowElement.attr('drag-channel', '\'sortable\'');
-          rowElement.attr('ui-on-drop', 'onDrop($event, $data)');
-          rowElement.attr('on-drop-success', 'onDropSuccess()');
+          rowElement.attr('ui-draggable', '{{checkDraggable()}}')
+          rowElement.attr('drag-channel', '\'sortable\'')
+          rowElement.attr('ui-on-drop', 'onDrop($event, $data)')
+          rowElement.attr('on-drop-success', 'onDropSuccess()')
 
-          rowElement.attr('drop-channel', '\'sortable\'');
-          rowElement.attr('drag', 'row.model');
+          rowElement.attr('drop-channel', '\'sortable\'')
+          rowElement.attr('drag', 'row.model')
 
-          $compile(rowElement)(rowScope);
+          $compile(rowElement)(rowScope)
         }
-      });
+      })
 
     }
-  };
+  }
 }

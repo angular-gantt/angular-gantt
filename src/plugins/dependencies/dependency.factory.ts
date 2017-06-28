@@ -1,7 +1,7 @@
-import GanttUtilsService from '../../core/logic/util/utils.service';
+import GanttUtilsService from '../../core/logic/util/utils.service'
 
 export default function (ganttUtils: GanttUtilsService, ganttDom) {
-  'ngInject';
+  'ngInject'
 
   /**
    * Constructor of Dependency object.
@@ -15,13 +15,13 @@ export default function (ganttUtils: GanttUtilsService, ganttDom) {
    * @see https://jsplumbtoolkit.com/community/apidocs/classes/jsPlumb.html#method_connect
    */
   let Dependency = function (manager, task, model) {
-    let self = this;
+    let self = this
 
-    this.manager = manager;
-    this.task = task;
-    this.model = model;
-    this.connection = undefined;
-    this.fallbackEndpoints = [];
+    this.manager = manager
+    this.task = task
+    this.model = model
+    this.connection = undefined
+    this.fallbackEndpoints = []
 
     /**
      * Check if this dependency is connected.
@@ -30,10 +30,10 @@ export default function (ganttUtils: GanttUtilsService, ganttDom) {
      */
     this.isConnected = function () {
       if (this.connection) {
-        return true;
+        return true
       }
-      return false;
-    };
+      return false
+    }
 
     /**
      * Disconnect this dependency.
@@ -43,71 +43,71 @@ export default function (ganttUtils: GanttUtilsService, ganttDom) {
         if (this.connection.endpoints) {
           if (this.manager.plumb.detach) {
             // JSPlumb < 2.4.0
-            this.manager.plumb.detach(this.connection);
+            this.manager.plumb.detach(this.connection)
           } else {
             // JSPlumb >= 2.4.0
-            this.manager.plumb.deleteConnection(this.connection);
+            this.manager.plumb.deleteConnection(this.connection)
           }
         }
-        this.connection.$dependency = undefined;
-        this.connection = undefined;
+        this.connection.$dependency = undefined
+        this.connection = undefined
       }
 
-      this.deleteFallbackEndpoints();
-    };
+      this.deleteFallbackEndpoints()
+    }
 
     this.deleteFallbackEndpoints = function () {
       if (this.fallbackEndpoints) {
         for (let fallbackEndpoints of this.fallbackEndpoints) {
-          self.manager.plumb.deleteEndpoint(fallbackEndpoints);
+          self.manager.plumb.deleteEndpoint(fallbackEndpoints)
         }
-        this.fallbackEndpoints = [];
+        this.fallbackEndpoints = []
       }
-    };
+    }
 
     this.getFromTaskId = function () {
       if (this.model.from !== undefined) {
-        return this.model.from;
+        return this.model.from
       }
-      return this.task.model.id;
-    };
+      return this.task.model.id
+    }
 
     this.getToTaskId = function () {
       if (this.model.to !== undefined) {
-        return this.model.to;
+        return this.model.to
       }
-      return this.task.model.id;
-    };
+      return this.task.model.id
+    }
 
     this.getFromTask = function () {
       if (this.model.from !== undefined) {
-        return this.manager.getTask(this.model.from);
+        return this.manager.getTask(this.model.from)
       }
-      return this.task;
-    };
+      return this.task
+    }
 
     this.getToTask = function () {
       if (this.model.to !== undefined) {
-        return this.manager.getTask(this.model.to);
+        return this.manager.getTask(this.model.to)
       }
-      return this.task;
-    };
+      return this.task
+    }
 
     this.removeFromTaskModel = function () {
-      let modelIndex = ganttUtils.angularIndexOf(this.task.model.dependencies, this.model);
+      let modelIndex = ganttUtils.angularIndexOf(this.task.model.dependencies, this.model)
       if (modelIndex >= 0) {
-        this.task.model.dependencies.splice(modelIndex, 1);
+        this.task.model.dependencies.splice(modelIndex, 1)
       }
-      return modelIndex;
-    };
+      return modelIndex
+    }
 
     let isTaskVisible = function (task) {
       if (task === undefined || task.$element === undefined) {
-        return false;
+        return false
       }
-      let element = task.$element[0];
-      return ganttDom.isElementVisible(element);
-    };
+      let element = task.$element[0]
+      return ganttDom.isElementVisible(element)
+    }
 
     /**
      * Connect this dependency if both elements are available.
@@ -115,37 +115,37 @@ export default function (ganttUtils: GanttUtilsService, ganttDom) {
      * @returns {boolean}
      */
     this.connect = function () {
-      let fromTask = this.getFromTask();
-      let toTask = this.getToTask();
+      let fromTask = this.getFromTask()
+      let toTask = this.getToTask()
 
       if (!isTaskVisible(fromTask)) {
-        fromTask = undefined;
+        fromTask = undefined
       }
 
       if (!isTaskVisible(toTask)) {
-        toTask = undefined;
+        toTask = undefined
       }
 
       if (fromTask && toTask) {
-        let connection = this.manager.connect(fromTask, toTask, this.model);
+        let connection = this.manager.connect(fromTask, toTask, this.model)
         if (connection) {
-          connection.$dependency = this;
-          this.connection = connection;
-          return true;
+          connection.$dependency = this
+          this.connection = connection
+          return true
         }
       }
 
-      this.deleteFallbackEndpoints();
+      this.deleteFallbackEndpoints()
       if (fromTask !== undefined) {
-        let toFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[1];
-        this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(fromTask.$element, toFallbackEndpoint));
+        let toFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[1]
+        this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(fromTask.$element, toFallbackEndpoint))
       }
       if (toTask !== undefined) {
-        let fromFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[0];
-        this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(toTask.$element, fromFallbackEndpoint));
+        let fromFallbackEndpoint = this.manager.pluginScope.fallbackEndpoints[0]
+        this.fallbackEndpoints.push(this.manager.plumb.addEndpoint(toTask.$element, fromFallbackEndpoint))
       }
-      return false;
-    };
-  };
-  return Dependency;
+      return false
+    }
+  }
+  return Dependency
 }

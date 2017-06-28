@@ -1,17 +1,17 @@
 export default function ($compile) {
-  'ngInject';
+  'ngInject'
 
   return {
     restrict: 'A',
     require: '^gantt',
     link: function (scope, element, attrs, ganttCtrl) {
-      scope.scope = ganttCtrl.gantt.$scope.$parent;
+      scope.scope = ganttCtrl.gantt.$scope.$parent
       scope.$watch(function () {
-        return scope.$eval(attrs.ganttBindCompileHtml);
+        return scope.$eval(attrs.ganttBindCompileHtml)
       }, function (value) {
-        element.html(value);
-        $compile(element.contents())(scope);
-      });
+        element.html(value)
+        $compile(element.contents())(scope)
+      })
     }
-  };
+  }
 }

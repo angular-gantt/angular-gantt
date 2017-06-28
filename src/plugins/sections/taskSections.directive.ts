@@ -1,30 +1,30 @@
-require('./taskSections.tmpl.html');
+require('./taskSections.tmpl.html')
 
 export default function ($templateCache) {
-  'ngInject';
+  'ngInject'
   return {
     restrict: 'E',
     requires: '^ganttTask',
     templateUrl: function (tElement, tAttrs) {
-      let templateUrl;
+      let templateUrl
       if (tAttrs.templateUrl === undefined) {
-        templateUrl = 'plugins/sections/taskSections.tmpl.html';
+        templateUrl = 'plugins/sections/taskSections.tmpl.html'
       } else {
-        templateUrl = tAttrs.templateUrl;
+        templateUrl = tAttrs.templateUrl
       }
       if (tAttrs.template !== undefined) {
-        $templateCache.put(templateUrl, tAttrs.template);
+        $templateCache.put(templateUrl, tAttrs.template)
       }
-      return templateUrl;
+      return templateUrl
     },
     replace: true,
     scope: true,
     controller: function ($scope, $element) {
-      'ngInject';
-      $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSections', $scope, $element);
+      'ngInject'
+      $scope.task.rowsManager.gantt.api.directives.raise.new('ganttTaskSections', $scope, $element)
       $scope.$on('$destroy', function () {
-        $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSections', $scope, $element);
-      });
+        $scope.task.rowsManager.gantt.api.directives.raise.destroy('ganttTaskSections', $scope, $element)
+      })
     }
-  };
+  }
 }
