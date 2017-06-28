@@ -1,5 +1,5 @@
 /*
-Project: angular-gantt v1.3.2 - Gantt chart component for AngularJS
+Project: angular-gantt v1.3.3 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: https://www.angular-gantt.com
@@ -1590,10 +1590,11 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.from = from;
             this.to = to;
 
-            this.columns = ColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
-            this.headers = HeadersGenerator.generate(this);
             this.previousColumns = [];
             this.nextColumns = [];
+
+            this.columns = ColumnGenerator.generate(this.columnBuilder, from, to, this.gantt.options.value('viewScale'), this.getColumnsWidth());
+            this.headers = HeadersGenerator.generate(this);
 
             this.updateColumnsMeta();
             this.scrollToScrollAnchor();
@@ -3329,6 +3330,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                     if (this.model.priority > 0) {
                         var priority = this.model.priority;
                         var children = this.$element.children();
+                        this.$element.css('z-index', priority);
                         for (var i = 0; i < children.length; i++) {
                             angular.element(children[i]).css('z-index', priority);
                         }
