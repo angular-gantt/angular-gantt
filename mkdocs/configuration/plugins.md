@@ -1,13 +1,7 @@
 # Plugins
 
-Plugins are additional features that are not included in `angular-gantt` main distribution file.
-They can be configured using attributes defined for each plugin, and some plugins may use additional properties from
-[data](attributes.md#data).
-
-Each plugin is available under `assets` folder as standalone `angular-gantt-xxxxxx.js` and `angular-gantt-xxxxxx.css`
-files, where `xxxxxx` plugin is the name of the plugin.
-
-`angular-gantt-plugins.js` and `angular-gantt-plugins.css` files contains every standard plugin as a single package. 
+Plugins are additional features that can be configured using attributes defined for each plugin, and some plugins may 
+use additional properties from [data](attributes.md#data).
 
 ## Enable a plugin
 

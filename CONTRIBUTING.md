@@ -46,8 +46,8 @@ major version. Only the latest release branch, and it won't contains new feature
 - For a new feature, write a test by adding of modifying test files located in `test/**`.
 - Run tests with `yarn test`, and ensure all tests are passing.
 - Update `README.md` if required.
-- Build distribution files and demo app by running `yarn build-demo`.
-- Build docs by running `yarn docs` (requires [mkdocs](http://www.mkdocs.org/) installed).
+- Build distribution files and demo app by running `yarn build && yarn build-demo`.
+- Build docs by running `yarn build-docs` (requires [mkdocs](http://www.mkdocs.org/) installed).
 - Create a Pull Request for your feature branch.
 
 ## <a name="commit"></a> Git Commit Guidelines (from AngularJS)

@@ -2,22 +2,17 @@
 
 ## Install Automatically
 
-*This requires [bower](http://bower.io/), [grunt](http://gruntjs.com/) & [grunt-wiredep](https://github.com/stephenplusplus/grunt-wiredep)*
+- This requires [npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/) or [bower](https://bower.io/)
 
-1. Download and install `angular-gantt`.
+- Download and install `angular-gantt` using one of the supported package manager.
 
     [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is the recommended and stable version.
 
-        bower install angular-gantt --save
+        yarn add angular-gantt --save
     
     [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
-        bower install angular-gantt#master --save
-
-2. Wiredep your dependencies to automatically add `angular-gantt.js` and `angular-gantt.css` files to your HTML index, with all 
-other dependencies declared in your project.
-
-        grunt wiredep
+        yarn add angular-gantt#master --save
         
 ## Install using CDNs
 
@@ -40,33 +35,9 @@ other dependencies declared in your project.
           <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"></script>
         </body>
 
-3. \[Optional\] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
-Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to your HTML code (after core sources).
-
-    [jsDelivr](http://www.jsdelivr.com/)
-    
-        //cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css
-    
-    [CDNjs](http://www.cdnjs.com/) (Replace `<version>` with latest github tag)
-    
-        //cdnjs.cloudflare.com/ajax/libs/angular-gantt/<version>/angular-gantt-plugins.min.css
-
-    <!-- -->
-
-        <head>
-          <link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.css"/>
-          <link rel="stylesheet" href="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.css"/>
-        </head>
-        <body>
-          <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt.min.js"></script>
-          <script src="//cdn.jsdelivr.net/angular.gantt/latest/angular-gantt-plugins.min.js"></script>
-        </body>
-        
-    *Some plugins require additional dependencies.*
-
 ## Install Manually
 
-1. Install [dependencies](faq.md#what-are-the-dependencies) in your application (That's why you should use [bower](http://bower.io/)).
+1. Install [dependencies](faq.md#what-are-the-dependencies) in your application.
 
 2. Download angular-gantt or use CDNs.
     [Latest released version](https://github.com/angular-gantt/angular-gantt/releases/latest) is available to 
@@ -74,30 +45,16 @@ Add `angular-gantt-plugins.min.js` and `angular-gantt-plugins.min.css` URLs to y
         
     [Master branch version](https://github.com/angular-gantt/angular-gantt/tree/master) contains bleeding edge features, but may be very unstable.
 
-3. Copy `angular-gantt.js` and `angular-gantt.css` located in `assets` directory to your application source folder.
+3. Copy `angular-gantt.js` and `angular-gantt.css` located in `dist` directory to your application source folder.
 
 4. Add `angular-gantt.js` and `angular-gantt.css` files to your HTML code.
 
         <head>
-          <link rel="stylesheet" href="assets/angular-gantt.css"/>
+          <link rel="stylesheet" href="dist/angular-gantt.css"/>
         </head>
         <body>
-          <script src="assets/angular-gantt.js"></script>
+          <script src="dist/angular-gantt.js"></script>
         </body>
-
-5. \[Optional\] Some features of angular-gantt are optional and defined in [Plugins](configuration/plugins.md). 
-Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTML code (after core sources).
-
-        <head>
-          <link rel="stylesheet" href="assets/angular-gantt.css"/>
-          <link rel="stylesheet" href="assets/angular-gantt-plugins.css"/>
-        </head>
-        <body>
-          <script src="assets/angular-gantt.js"></script>
-          <script src="assets/angular-gantt-plugins.js"></script>
-        </body>
-
-    *Some plugins require additional dependencies.*
 
 ## Usage
 
@@ -140,4 +97,4 @@ Add `angular-gantt-plugins.js` and `angular-gantt-plugins.css` files to your HTM
           <gantt-tooltips></gantt-tooltips>
         </div>
 
-5. For a sample app see the files in `demo/app/` or [Plunker](http://plnkr.co/hchknn).
+5. For a sample app see the files in `demo` or [Plunker](http://plnkr.co/XYYkD8tf5b2LQs5kL5nx).

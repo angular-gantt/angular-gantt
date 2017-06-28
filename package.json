@@ -26,16 +26,16 @@
     "build": "node build/build.js",
     "build-demo": "node build/build-demo.js",
     "build-docs": "mkdocs build --clean && shx cp CNAME docs/CNAME && node build/postprocess-docs.js && shx cp -R demo.dist docs/demo",
-    "dist": "npm run eslint && npm run tslint && npm run test && npm run site && npm run build && npm run build-demo",
+    "dist": "yarn eslint && yarn tslint && yarn test && yarn site && yarn build && yarn build-demo",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
-    "test": "npm run unit && npm run e2e",
+    "test": "yarn unit && yarn e2e",
     "eslint": "eslint --ext .js src demo test/unit/specs test/e2e/specs",
     "tslint": "tslint -s node_modules/custom-tslint-formatters/formatters -t grouped 'src/**/*.ts' 'demo/**/*.ts' 'test/unit/**/*.ts' 'test/e2e/*.ts'"
   },
   "dependencies": {
     "angular": ">=1.3.0",
-    "angular-animate": "^1.6.4",
+    "angular-animate": ">=1.3.0",
     "angular-native-dragdrop": "^1.2.2",
     "angular-strap": "^2.3.12",
     "angular-ui-tree": "^2.22.5",
@@ -130,7 +130,7 @@
   },
   "engines": {
     "node": ">= 4.0.0",
-    "npm": ">= 3.0.0"
+    "yarn": "*"
   },
   "browserslist": [
     "> 1%",
