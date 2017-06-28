@@ -18,7 +18,6 @@
 .gantt-side,
 .gantt-task {
     cursor: default;
-    z-index: 10; /* Tasks are displayed over everything else */
 }
 
 .gantt-header {

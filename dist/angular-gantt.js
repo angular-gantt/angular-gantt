@@ -5635,6 +5635,7 @@ var GanttTask = exports.GanttTask = function () {
                     if (this.model.priority > 0) {
                         var priority = this.model.priority;
                         var children = this.$element.children();
+                        this.$element.css('z-index', priority);
 
                         for (var i = 0; i < children.length; i++) {
                             _angular2.default.element(children[i]).css('z-index', priority);

@@ -136,6 +136,7 @@ export class GanttTask {
         if (this.model.priority > 0) {
           let priority = this.model.priority
           let children = this.$element.children()
+          this.$element.css('z-index', priority)
           // tslint:disable:prefer-for-of
           for (let i = 0; i < children.length; i++) {
             angular.element(children[i]).css('z-index', priority)
