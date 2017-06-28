@@ -5,7 +5,7 @@
     "force": false,
     "pkgFiles": ["package.json", "bower.json"],
     "increment": "patch",
-    "buildCommand": "npm run dist",
+    "buildCommand": "yarn dist",
     "src": {
       "commitMessage": "chore(release): Release v%s",
       "tagName": "v%s",

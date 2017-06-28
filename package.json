@@ -26,7 +26,7 @@
     "build": "node build/build.js",
     "build-demo": "node build/build-demo.js",
     "build-docs": "mkdocs build --clean && shx cp CNAME docs/CNAME && node build/postprocess-docs.js && shx cp -R demo.dist docs/demo",
-    "dist": "yarn eslint && yarn tslint && yarn test && yarn site && yarn build && yarn build-demo",
+    "dist": "yarn eslint && yarn tslint && yarn test && yarn build-docs && yarn build && yarn build-demo",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "yarn unit && yarn e2e",
