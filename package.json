@@ -1,6 +1,6 @@
 {
   "name": "angular-gantt",
-  "version": "1.3.2",
+  "version": "2.0.0-rc.1",
   "description": "Gantt chart component for AngularJS",
   "author": "Rémi Alvergnat <toilal.dev@gmail.com> (https://www.pragmasphere.com)",
   "contributors": [
