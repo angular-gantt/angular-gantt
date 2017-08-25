@@ -37,6 +37,7 @@ import ganttTaskForegroundDirective from './core/ui/template/taskForeground.dire
 import ganttTimeFrameDirective from './core/ui/template/timeFrame.directive'
 import ganttTimespanDirective from './core/ui/template/timespan.directive'
 import ganttBindCompileHtmlDirective from './core/ui/util/ganttBindCompileHtml.directive'
+import ganttSuspendableDirective from './core/ui/util/suspendable.directive'
 
 import ganttFactory from './core/logic/gantt.factory'
 import ganttApiFactory from './core/logic/api/api.factory'
@@ -119,6 +120,7 @@ angular
   .directive('ganttTaskForeground', ganttTaskForegroundDirective)
   .directive('ganttTimeFrame', ganttTimeFrameDirective)
   .directive('ganttTimespan', ganttTimespanDirective)
+  .directive('ganttSuspendable', ganttSuspendableDirective)
   .factory('GanttDirectiveBuilder', ganttDirectiveBuilderFactory)
   .factory('Gantt', ganttFactory)
   .factory('GanttApi', ganttApiFactory)

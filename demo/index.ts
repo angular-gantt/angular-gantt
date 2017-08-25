@@ -23,7 +23,7 @@ angular
   .service('DemoService', demoService)
   .controller('DemoCtrl', demoController)
   .config(['$compileProvider', function ($compileProvider) {
-    $compileProvider.debugInfoEnabled(false) // Remove debug info (angularJS >= 1.3)
+    // $compileProvider.debugInfoEnabled(false) // Remove debug info (angularJS >= 1.3)
   }])
 
 export default demoModule
