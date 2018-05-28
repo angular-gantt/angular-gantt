@@ -26,7 +26,7 @@
     <gantt-scrollable>
         <gantt-body>
             <gantt-body-background>
-                <gantt-row-background ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"></gantt-row-background>
+                <gantt-row-background ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id" viewport-watch container-id="{{::ganttContainerId}}"></gantt-row-background>
             </gantt-body-background>
             <gantt-body-foreground>
                 <div class="gantt-current-date-line" ng-show="currentDate === 'line' && gantt.currentDateManager.position >= 0 && gantt.currentDateManager.position <= gantt.width" ng-style="{'left': gantt.currentDateManager.position + 'px' }"></div>
@@ -39,7 +39,7 @@
             <div ng-if="gantt.columnsManager.visibleColumns == 0" style="background-color: #808080"></div>
             <gantt-body-rows>
                 <gantt-timespan ng-repeat="timespan in gantt.timespansManager.timespans track by timespan.model.id"></gantt-timespan>
-                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id">
+                <gantt-row ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id" viewport-watch container-id="{{::ganttContainerId}}">
                     <gantt-task ng-repeat="task in row.visibleTasks track by task.model.id">
                     </gantt-task>
                 </gantt-row>
