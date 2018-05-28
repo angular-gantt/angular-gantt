@@ -10,3 +10,9 @@ selenium-debug.log
 *.log
 *.map
 /src/docs/_build/
+.tmp/
+.project
+bower_components/
+.settings/
+package-lock.json
+
