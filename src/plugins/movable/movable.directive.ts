@@ -174,7 +174,7 @@ export default function (ganttMouseButton: GanttMouseButton,
 
                 // tslint:disable:one-variable-per-declaration
                 for (let i = 0, l = rows.length; i < l; i++) {
-                  if (targetRowElement === rows[i].$element[0]) {
+                  if (rows[i].$element && targetRowElement === rows[i].$element[0]) {
                     targetRow = rows[i]
                     break
                   }
