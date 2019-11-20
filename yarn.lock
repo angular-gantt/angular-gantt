@@ -174,8 +174,8 @@ angular-ui-tree@^2.22.5:
   resolved "https://registry.yarnpkg.com/angular-ui-tree/-/angular-ui-tree-2.22.5.tgz#99071fb963feaf2eac11c98e95e40628c135813f"
 
 angular@>=1.3.0:
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.4.tgz#03b7b15c01a0802d7e2cf593240e604054dc77fb"
+  version "1.7.9"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.9.tgz#e52616e8701c17724c3c238cfe4f9446fd570bc4"
 
 ansi-escapes@^1.1.0:
   version "1.4.0"
