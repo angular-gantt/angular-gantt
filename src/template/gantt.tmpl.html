@@ -24,7 +24,7 @@
         </gantt-header>
     </gantt-scrollable-header>
     <gantt-scrollable>
-        <gantt-body>
+        <gantt-body gantt-suspendable>
             <gantt-body-background>
                 <gantt-row-background ng-repeat="row in gantt.rowsManager.visibleRows track by row.model.id"></gantt-row-background>
             </gantt-body-background>
